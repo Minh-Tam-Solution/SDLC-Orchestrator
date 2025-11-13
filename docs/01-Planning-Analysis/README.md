@@ -1,0 +1,331 @@
+# Stage 01: Planning & Analysis (WHAT?)
+## Functional Requirements & System Specifications
+
+**Version**: 1.1.0
+**Date**: January 13, 2025
+**Status**: ACTIVE - IN PROGRESS (60% complete)
+**Authority**: PM + CTO Approved
+**Foundation**: Stage 00 (WHY) - Project Foundation COMPLETED
+**Stage**: Stage 01 (WHAT - Planning & Analysis)
+**Framework**: SDLC 4.9 Complete Lifecycle (10 Stages)
+
+---
+
+## Purpose
+
+Stage 01 answers the fundamental question: **"WHAT are we building?"**
+
+This stage transforms validated problems (Stage 00) into detailed requirements:
+- **Functional Requirements** (FR1-FR20+) - WHAT features to build
+- **Non-Functional Requirements** (NFR1-NFR15+) - WHAT quality attributes (performance, security, scalability)
+- **User Stories** (Epics → Stories → Tasks) - WHAT users can do
+- **Data Model** (ERD, Schema) - WHAT data to store
+- **API Specifications** (OpenAPI 3.0) - WHAT endpoints to expose
+
+**Critical Success Factor**: We must define WHAT to build with enough detail that engineers can estimate effort and architects can design solutions.
+
+---
+
+## Folder Structure
+
+```
+01-Planning-Analysis/
+├── README.md (this file)
+├── 01-Requirements/
+│   ├── Functional-Requirements-Document.md (FR1-FR20+)
+│   ├── Non-Functional-Requirements.md (NFR1-NFR15+)
+│   └── Requirements-Traceability-Matrix.md
+├── 02-User-Stories/
+│   ├── User-Stories-Epics.md
+│   ├── Acceptance-Criteria.md
+│   └── Story-Mapping.md
+├── 03-Data-Model/
+│   ├── Data-Model-ERD.md
+│   ├── Database-Schema.md
+│   └── Data-Dictionary.md
+├── 04-API-Specs/
+│   ├── API-Specification.md (OpenAPI 3.0)
+│   ├── API-Authentication.md
+│   └── API-Versioning-Strategy.md
+└── 05-Legal-Review/
+    ├── Legal-Review-Report.md (CRITICAL - Week 2)
+    ├── AGPL-Containment-Strategy.md
+    └── License-Compliance-Checklist.md
+```
+
+---
+
+## Timeline (Week 2 - 2 Weeks)
+
+| Days | Phase | Focus | Deliverables |
+|------|-------|-------|--------------|
+| 1-3 | **Legal Review** | AGPL containment validation | Legal Report, Go/No-Go Decision |
+| 4-7 | **Requirements** | Functional + Non-Functional | FRD, NFR, RTM |
+| 8-10 | **User Stories** | Epic → Story → Task breakdown | User Stories, Acceptance Criteria |
+| 11-12 | **Data Model** | Database schema design | ERD, Schema, Data Dictionary |
+| 13-14 | **API Specs** | REST endpoints, GraphQL schema | OpenAPI 3.0, Authentication |
+
+---
+
+## Quality Gates
+
+### Gate G1: Planning & Analysis ✅
+
+**Question**: "Have we defined WHAT to build with sufficient detail?"
+
+**Criteria**:
+- [ ] Legal review PASSED (AGPL containment approved)
+- [ ] 10 LOIs signed (beta teams committed)
+- [ ] FR1-FR20 defined (functional requirements)
+- [ ] NFR1-NFR15 defined (non-functional requirements)
+- [ ] Data model reviewed (CTO approval, no N+1 queries)
+- [ ] API specs complete (OpenAPI 3.0, all endpoints documented)
+- [ ] User stories estimated (story points, velocity calculated)
+
+**Status**: 🔴 PENDING - Week 2
+
+**CRITICAL Go/No-Go Decision**: Legal review MUST pass by Week 2 end. If AGPL contamination detected, entire architecture must pivot.
+
+---
+
+## Progress Tracker
+
+### 01-Requirements (0% complete)
+- 🔴 Functional-Requirements-Document.md (TODO)
+- 🔴 Non-Functional-Requirements.md (TODO)
+- 🔴 Requirements-Traceability-Matrix.md (TODO)
+
+### 02-User-Stories (0% complete)
+- 🔴 User-Stories-Epics.md (TODO)
+- 🔴 Acceptance-Criteria.md (TODO)
+- 🔴 Story-Mapping.md (TODO)
+
+### 03-Data-Model (0% complete)
+- 🔴 Data-Model-ERD.md (TODO)
+- 🔴 Database-Schema.md (TODO)
+- 🔴 Data-Dictionary.md (TODO)
+
+### 04-API-Specs (0% complete)
+- 🔴 API-Specification.md (TODO)
+- 🔴 API-Authentication.md (TODO)
+- 🔴 API-Versioning-Strategy.md (TODO)
+
+### 05-Legal-Review (0% complete)
+- 🔴 Legal-Review-Report.md (CRITICAL - Week 2)
+- 🔴 AGPL-Containment-Strategy.md (TODO)
+- 🔴 License-Compliance-Checklist.md (TODO)
+
+**Overall Progress**: 0% (0 of 15 documents complete)
+
+---
+
+## Exit Criteria (Must Complete Before Stage 02)
+
+- [ ] G1: Planning & Analysis validated
+- [ ] Legal review PASSED (AGPL containment approved) - CRITICAL
+- [ ] All 15 required documents completed
+- [ ] CTO review (data model, API specs approved)
+- [ ] Backend Lead review (API specs, schema migrations planned)
+- [ ] QA Lead review (test strategy defined based on requirements)
+- [ ] 10 LOIs signed (beta teams committed to Week 11 beta)
+
+---
+
+## Key Deliverables (WHAT We're Defining)
+
+### 1. Functional Requirements (FR1-FR20+)
+
+**FR1: Quality Gate Management**
+- Gate Engine evaluates SDLC 4.8 policies
+- Gate status (BLOCKED, PENDING, PASSED) visible in dashboard
+- Gate checks run on git push (VS Code Extension)
+- Policy packs configurable (YAML)
+
+**FR2: Evidence Vault**
+- Auto-collect evidence from Slack, GitHub, Figma
+- Evidence encrypted (AES-256)
+- Evidence searchable (full-text search)
+- Evidence audit trail (who accessed when)
+
+**FR3: AI Context Engine**
+- Stage-aware AI (knows Stage 00-06)
+- Multi-provider (Claude, GPT-4o, Gemini fallback)
+- AI generates PRD from user interviews
+- AI reviews designs for SDLC compliance
+
+**FR4: Real-Time Dashboard**
+- Gate status overview (all projects, all gates)
+- Feature Adoption Rate tracking (30% → 70%+ target)
+- Evidence completeness meter (per gate)
+- Grafana iframe embedding (metrics)
+
+**FR5: Policy Pack Library**
+- 100+ SDLC 4.8 policy packs (Rego)
+- Policy editor (VS Code-like, syntax highlighting)
+- Policy testing framework (unit tests for policies)
+- Policy versioning (Git-based)
+
+*(FR6-FR20 to be detailed in FRD)*
+
+---
+
+### 2. Non-Functional Requirements (NFR1-NFR15+)
+
+**NFR1: Performance**
+- Gate check: <500ms (p95)
+- Evidence upload: <2s for 10MB file
+- Dashboard load: <1s (p95)
+- API response: <200ms (p95)
+
+**NFR2: Scalability**
+- 100 teams Year 1 (100 concurrent users)
+- 1,000 teams Year 3 (1,000 concurrent users)
+- 10GB evidence storage per team
+- 10K+ policy evaluations/sec (OPA benchmark)
+
+**NFR3: Security**
+- AES-256 encryption (at-rest + in-transit)
+- RBAC (EM, CTO, PM roles)
+- Audit logging (all actions logged)
+- SOC 2 Type I compliant (Week 12)
+
+**NFR4: Availability**
+- 99.9% uptime SLA (8.76 hours downtime/year)
+- Multi-AZ deployment (AWS us-east-1)
+- Auto-scaling (1-10 instances)
+- Disaster recovery: <1 hour RTO, <5 min RPO
+
+**NFR5: Usability**
+- Time to First Value: <1 hour (from signup to first gate check)
+- Onboarding: <30 min (video + dashboard tour)
+- SUS score: >70 (System Usability Scale)
+- Mobile-responsive (dashboard accessible on mobile)
+
+*(NFR6-NFR15 to be detailed in NFR)*
+
+---
+
+### 3. Data Model (Key Entities)
+
+**Core Entities** (15+ tables):
+1. **projects** - Project metadata (name, owner, created_at)
+2. **gates** - Gate definitions (stage, criteria, status)
+3. **evidence** - Evidence records (type, file_path, uploaded_by)
+4. **policies** - Policy pack definitions (rego_code, version)
+5. **users** - User accounts (email, role, team_id)
+6. **teams** - Team/organization data (name, subscription_tier)
+7. **features** - Feature tracking (name, adoption_rate, status)
+8. **ai_contexts** - AI conversation history (prompt, response, stage)
+9. **audit_logs** - Audit trail (action, user_id, timestamp)
+10. **integrations** - External integrations (GitHub, Slack, Figma)
+
+*(Full ERD with relationships in Data-Model-ERD.md)*
+
+---
+
+### 4. API Endpoints (30+ endpoints)
+
+**Gate Management API**:
+- `POST /api/v1/gates/evaluate` - Evaluate gate with policy
+- `GET /api/v1/gates/{gate_id}/status` - Get gate status
+- `PUT /api/v1/gates/{gate_id}/override` - Manual override (CTO only)
+
+**Evidence Vault API**:
+- `POST /api/v1/evidence/upload` - Upload evidence file
+- `GET /api/v1/evidence/{evidence_id}` - Retrieve evidence
+- `POST /api/v1/evidence/search` - Full-text search
+
+**AI Context API**:
+- `POST /api/v1/ai/generate-prd` - Generate PRD from interviews
+- `POST /api/v1/ai/review-design` - Review design for SDLC compliance
+- `GET /api/v1/ai/contexts/{project_id}` - Get AI conversation history
+
+**Dashboard API**:
+- `GET /api/v1/dashboard/overview` - Gate status, Feature Adoption Rate
+- `GET /api/v1/dashboard/metrics` - Time-series metrics (Grafana data)
+
+*(Full OpenAPI 3.0 spec in API-Specification.md)*
+
+---
+
+## Critical Path: Legal Review (Week 2)
+
+### CRITICAL Go/No-Go Decision
+
+**Timeline**: Week 2 (Jan 20-24)
+**Blocker**: AGPL containment strategy must be approved by external legal counsel
+
+**Legal Review Scope**:
+1. **MinIO (AGPL v3)**: Can we use MinIO S3 API (HTTP calls) without triggering AGPL?
+2. **Grafana (AGPL v3)**: Can we embed Grafana dashboards (iframe) without triggering AGPL?
+3. **Commercial SaaS**: Can we offer paid SaaS that uses AGPL components (MinIO, Grafana)?
+
+**Expected Outcome**: ✅ APPROVED (with containment strategy)
+
+**Contingency Plans** (if Legal says NO):
+- **Plan A**: Replace MinIO with SeaweedFS (Apache-2.0) - 2 weeks delay
+- **Plan B**: Replace Grafana with Apache Superset (Apache-2.0) - 2 weeks delay
+- **Plan C**: Pivot to pure OSS (no proprietary SaaS) - business model change
+
+**Budget**: $75K allocated for legal review (external counsel)
+
+---
+
+## Relationship to Stage 00 (WHY → WHAT)
+
+### How Stage 01 Builds on Stage 00
+
+| Stage 00 (WHY) | Stage 01 (WHAT) |
+|----------------|----------------|
+| **Problem**: 60-70% feature waste | **Solution**: Gate Engine blocks un-validated features |
+| **Persona**: Engineering Manager (60% of market) | **User Story**: "As EM, I want gate checks so that team doesn't build un-validated features" |
+| **Pain**: No evidence trail (9/10 pain level) | **Feature**: Evidence Vault auto-collects proof from Slack/GitHub |
+| **Goal**: Feature Adoption Rate 30% → 70%+ | **Metric**: Feature Adoption Rate tracking in dashboard |
+| **Journey**: 43 hours manual work → 16 hours | **AI**: AI Context Engine generates PRD (14 hours saved) |
+
+**Principle**: Every functional requirement (FR) must trace back to validated problem (Stage 00).
+
+---
+
+## Next Stages Preview (SDLC 4.9 Complete Lifecycle)
+
+**Stage 02: Design & Architecture (HOW)** - Week 3-4
+- System Architecture Diagram (4-layer architecture)
+- Database Schema (PostgreSQL tables, indexes, migrations)
+- API Design (REST endpoints, GraphQL schema)
+- UI/UX Wireframes (Dashboard, VS Code Extension)
+- Security Architecture (RBAC, encryption, audit logging)
+- **Gate G2**: CTO + Security Lead approval
+
+**Stage 03-09: Implementation to Governance** - Week 5-12
+- **Stage 03** (BUILD): FastAPI backend, React frontend, VS Code extension
+- **Stage 04** (TEST): 80%+ coverage, UAT ≥8.5/10, zero P0 bugs
+- **Stage 05** (DEPLOY): Blue-green deployment, rollback <5min, 24/7 war room
+- **Stage 06** (OPERATE): 99.9%+ uptime, P0 response <15min, monitoring ≥95%
+- **Stage 07** (INTEGRATE): API contracts, integration tests ≥90%, event-driven
+- **Stage 08** (COLLABORATE): Documentation ≥90%, velocity stable ±20%
+- **Stage 09** (GOVERN): Zero violations, budget ±10%, ROI tracking (target: 827:1)
+
+---
+
+## References
+
+- [Stage 00: Project Foundation](../00-Project-Foundation/README.md) - WHY we're building
+- [Product Roadmap](../00-Project-Foundation/04-Roadmap/Product-Roadmap.md) - 90-day timeline
+- [SDLC 4.9 Complete Lifecycle](/SDLC-Enterprise-Framework/README.md) - 10-Stage Framework
+
+---
+
+**Last Updated**: 2025-01-13
+**Owner**: PM + Backend Lead + Legal Counsel
+**Status**: 🔴 IN PROGRESS
+
+---
+
+## Document Summary
+
+**Total Documents**: 15 (target)
+**Total Lines**: TBD (target: 20,000+ lines)
+**Quality Gates**: G1 (Planning & Analysis) - Week 2 end
+**Next Gate**: G2 (Design & Architecture) - Week 4 end
+**Critical Blocker**: Legal review (AGPL containment) - Week 2

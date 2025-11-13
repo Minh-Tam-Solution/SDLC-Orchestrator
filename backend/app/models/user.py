@@ -1,0 +1,345 @@
+"""
+User Model - Authentication & Authorization
+SDLC Orchestrator - Stage 03 (BUILD)
+
+Zero Mock Policy: Real SQLAlchemy model with all fields
+Security: OWASP ASVS Level 2 compliant
+"""
+
+from datetime import datetime
+from typing import Optional
+from uuid import uuid4
+
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, String, Table
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+
+from app.db.base_class import Base
+
+# Many-to-Many association table: users <-> roles
+user_roles = Table(
+    "user_roles",
+    Base.metadata,
+    Column("user_id", UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE")),
+    Column("role_id", UUID(as_uuid=True), ForeignKey("roles.id", ondelete="CASCADE")),
+)
+
+
+class User(Base):
+    """
+    User model for authentication and authorization.
+
+    Fields:
+        - id: UUID primary key
+        - email: Unique email address (lowercase, validated)
+        - password_hash: bcrypt hash (cost=12, 72-byte output)
+        - name: Full name (optional, from OAuth providers)
+        - avatar_url: Profile picture URL (optional, from OAuth)
+        - is_active: Account status (True by default, False = suspended)
+        - is_superuser: Admin flag (CTO, CEO only)
+        - mfa_enabled: MFA enrollment status
+        - mfa_secret: TOTP secret (encrypted, 32-byte base32)
+        - backup_codes: One-time recovery codes (10 codes, hashed)
+        - last_login: Last successful login timestamp
+        - created_at: Account creation timestamp
+        - updated_at: Last update timestamp
+
+    Relationships:
+        - roles: Many-to-Many with Role model
+        - oauth_accounts: One-to-Many with OAuthAccount model
+        - api_keys: One-to-Many with APIKey model
+        - audit_logs: One-to-Many with AuditLog model
+
+    Indexes:
+        - email (unique, B-tree) - Fast user lookup by email
+        - created_at (B-tree) - Recent user queries
+        - is_active (B-tree) - Active user filtering
+
+    Security:
+        - Password: bcrypt with cost=12 (250ms hash time)
+        - MFA secret: AES-256 encrypted in database
+        - Backup codes: SHA-256 hashed (not plaintext)
+    """
+
+    __tablename__ = "users"
+
+    # Primary Key
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4, index=True)
+
+    # Authentication
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    password_hash = Column(String(255), nullable=True)  # Nullable for OAuth-only users
+
+    # Profile
+    name = Column(String(255), nullable=True)
+    avatar_url = Column(String(512), nullable=True)
+
+    # Account Status
+    is_active = Column(Boolean, default=True, nullable=False, index=True)
+    is_superuser = Column(Boolean, default=False, nullable=False)
+
+    # Multi-Factor Authentication (MFA)
+    mfa_enabled = Column(Boolean, default=False, nullable=False)
+    mfa_secret = Column(String(255), nullable=True)  # Encrypted TOTP secret
+    backup_codes = Column(String(1024), nullable=True)  # JSON array of hashed codes
+
+    # Session Management
+    last_login = Column(DateTime, nullable=True)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    roles = relationship("Role", secondary=user_roles, back_populates="users")
+    oauth_accounts = relationship("OAuthAccount", back_populates="user", cascade="all, delete-orphan")
+    api_keys = relationship("APIKey", back_populates="user", cascade="all, delete-orphan")
+    refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
+
+    def __repr__(self) -> str:
+        return f"<User(id={self.id}, email={self.email}, roles={[r.name for r in self.roles]})>"
+
+    @property
+    def role_names(self) -> list[str]:
+        """Get list of role names (e.g., ['em', 'pm'])"""
+        return [role.name for role in self.roles]
+
+    @property
+    def is_c_suite(self) -> bool:
+        """Check if user is C-Suite (CEO, CTO, CPO, CIO, CFO)"""
+        c_suite_roles = {"ceo", "cto", "cpo", "cio", "cfo"}
+        return bool(set(self.role_names) & c_suite_roles)
+
+    @property
+    def requires_mfa(self) -> bool:
+        """Check if user must have MFA enabled (C-Suite mandatory)"""
+        return self.is_c_suite
+
+
+class Role(Base):
+    """
+    Role model for RBAC (Role-Based Access Control).
+
+    SDLC Orchestrator Roles (13 total):
+        C-Suite (5 roles):
+            - ceo: Chief Executive Officer (all permissions)
+            - cto: Chief Technology Officer (technical decisions)
+            - cpo: Chief Product Officer (product strategy)
+            - cio: Chief Information Officer (IT infrastructure)
+            - cfo: Chief Financial Officer (budget approval)
+
+        Engineering (6 roles):
+            - em: Engineering Manager (team oversight)
+            - tl: Tech Lead (architecture decisions)
+            - dev: Developer (code implementation)
+            - qa: QA Engineer (testing, quality gates)
+            - devops: DevOps Engineer (deployment, infrastructure)
+            - security: Security Engineer (security review)
+
+        Product & Business (2 roles):
+            - pm: Product Manager (requirements, roadmap)
+            - ba: Business Analyst (data analysis)
+
+    Fields:
+        - id: UUID primary key
+        - name: Role name (lowercase, snake_case, e.g., 'em', 'cto')
+        - display_name: Human-readable name (e.g., 'Engineering Manager')
+        - description: Role description and permissions
+        - is_active: Role status (True by default)
+        - created_at: Role creation timestamp
+
+    Relationships:
+        - users: Many-to-Many with User model
+        - permissions: Many-to-Many with Permission model (future)
+
+    Indexes:
+        - name (unique, B-tree) - Fast role lookup by name
+    """
+
+    __tablename__ = "roles"
+
+    # Primary Key
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4, index=True)
+
+    # Role Identity
+    name = Column(String(50), unique=True, index=True, nullable=False)  # e.g., 'em', 'cto'
+    display_name = Column(String(100), nullable=False)  # e.g., 'Engineering Manager'
+    description = Column(String(500), nullable=True)
+
+    # Role Status
+    is_active = Column(Boolean, default=True, nullable=False)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relationships
+    users = relationship("User", secondary=user_roles, back_populates="roles")
+
+    def __repr__(self) -> str:
+        return f"<Role(name={self.name}, display_name={self.display_name})>"
+
+
+class OAuthAccount(Base):
+    """
+    OAuth Account model for SSO (GitHub, Google, Microsoft).
+
+    Fields:
+        - id: UUID primary key
+        - user_id: Foreign key to User
+        - provider: OAuth provider name ('github', 'google', 'microsoft')
+        - provider_account_id: User ID from OAuth provider
+        - access_token: OAuth access token (encrypted)
+        - refresh_token: OAuth refresh token (encrypted)
+        - expires_at: Token expiry timestamp
+        - created_at: Account linking timestamp
+        - updated_at: Last token refresh timestamp
+
+    Relationships:
+        - user: Many-to-One with User model
+
+    Indexes:
+        - user_id (B-tree) - Fast user lookup
+        - provider + provider_account_id (unique composite) - Prevent duplicate accounts
+
+    Security:
+        - Tokens encrypted at-rest (AES-256)
+        - Never logged or exposed in API responses
+    """
+
+    __tablename__ = "oauth_accounts"
+
+    # Primary Key
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4, index=True)
+
+    # User Relationship
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+
+    # OAuth Provider
+    provider = Column(String(50), nullable=False)  # 'github', 'google', 'microsoft'
+    provider_account_id = Column(String(255), nullable=False)  # User ID from provider
+
+    # OAuth Tokens (encrypted)
+    access_token = Column(String(512), nullable=False)
+    refresh_token = Column(String(512), nullable=True)
+    expires_at = Column(DateTime, nullable=True)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    user = relationship("User", back_populates="oauth_accounts")
+
+    def __repr__(self) -> str:
+        return f"<OAuthAccount(user_id={self.user_id}, provider={self.provider})>"
+
+
+class APIKey(Base):
+    """
+    API Key model for CI/CD and third-party integrations.
+
+    Fields:
+        - id: UUID primary key
+        - user_id: Foreign key to User
+        - name: User-friendly name (e.g., 'GitHub Actions')
+        - key_hash: SHA-256 hash of API key (not plaintext)
+        - prefix: First 8 characters of key (for UI display)
+        - last_used_at: Last usage timestamp
+        - expires_at: Expiry timestamp (optional)
+        - is_active: Key status (True by default, False = revoked)
+        - created_at: Key creation timestamp
+
+    Relationships:
+        - user: Many-to-One with User model
+
+    Indexes:
+        - user_id (B-tree) - Fast user lookup
+        - key_hash (unique, B-tree) - Fast key validation
+        - is_active (B-tree) - Active key filtering
+
+    Security:
+        - Key format: sdlc_live_<32-byte-base64> (e.g., sdlc_live_abc123...)
+        - Hash: SHA-256 (256-bit output, collision-resistant)
+        - Shown ONCE: On creation, user must save it
+    """
+
+    __tablename__ = "api_keys"
+
+    # Primary Key
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4, index=True)
+
+    # User Relationship
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+
+    # API Key Identity
+    name = Column(String(100), nullable=False)  # User-friendly name
+    key_hash = Column(String(64), unique=True, index=True, nullable=False)  # SHA-256 hash
+    prefix = Column(String(20), nullable=False)  # First 8 chars (for UI display)
+
+    # Usage Tracking
+    last_used_at = Column(DateTime, nullable=True)
+    expires_at = Column(DateTime, nullable=True)  # Optional expiry
+
+    # Key Status
+    is_active = Column(Boolean, default=True, nullable=False, index=True)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relationships
+    user = relationship("User", back_populates="api_keys")
+
+    def __repr__(self) -> str:
+        return f"<APIKey(name={self.name}, prefix={self.prefix}, user_id={self.user_id})>"
+
+
+class RefreshToken(Base):
+    """
+    Refresh Token model for session management.
+
+    Fields:
+        - id: UUID primary key
+        - user_id: Foreign key to User
+        - token_hash: SHA-256 hash of refresh token
+        - expires_at: Token expiry timestamp (30 days from issue)
+        - is_revoked: Revocation status (False by default, True = blacklisted)
+        - created_at: Token issue timestamp
+
+    Relationships:
+        - user: Many-to-One with User model
+
+    Indexes:
+        - user_id (B-tree) - Fast user lookup
+        - token_hash (unique, B-tree) - Fast token validation
+        - expires_at (B-tree) - Expired token cleanup
+
+    Security:
+        - Token format: <64-byte-base64> (random, not guessable)
+        - Hash: SHA-256 (store hash, not plaintext)
+        - Revocation: Blacklist in Redis (immediate effect)
+        - Expiry: 30 days (auto-cleanup expired tokens)
+    """
+
+    __tablename__ = "refresh_tokens"
+
+    # Primary Key
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4, index=True)
+
+    # User Relationship
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+
+    # Refresh Token
+    token_hash = Column(String(64), unique=True, index=True, nullable=False)  # SHA-256 hash
+    expires_at = Column(DateTime, nullable=False, index=True)
+
+    # Revocation
+    is_revoked = Column(Boolean, default=False, nullable=False)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relationships
+    user = relationship("User", back_populates="refresh_tokens")
+
+    def __repr__(self) -> str:
+        return f"<RefreshToken(user_id={self.user_id}, expires_at={self.expires_at}, is_revoked={self.is_revoked})>"

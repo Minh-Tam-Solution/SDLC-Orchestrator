@@ -1,0 +1,18 @@
+extends: [[spectral:oas, all]]
+
+rules:
+  # OpenAPI best practices
+  info-contact: error
+  info-description: error
+  info-license: error
+  operation-description: warn
+  operation-operationId: error
+  operation-tags: error
+  operation-success-response: error
+
+  # Security
+  oas3-api-servers: error
+  oas3-schema: error
+
+  # Examples
+  operation-tag-defined: error
