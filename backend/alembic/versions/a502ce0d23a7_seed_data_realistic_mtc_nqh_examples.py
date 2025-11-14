@@ -302,46 +302,65 @@ def upgrade() -> None:
     ai_providers_data = [
         {
             'id': str(uuid4()),
-            'name': 'Claude Sonnet 4.5',
-            'provider_type': 'anthropic',
+            'provider_name': 'Anthropic',  # Fixed: name → provider_name
+            'provider_type': 'claude',  # Fixed: anthropic → claude (matches model enum)
             'model_name': 'claude-sonnet-4-5-20250929',
-            'api_endpoint': 'https://api.anthropic.com/v1/messages',
-            'cost_per_request': 0.015,  # $0.015 per request (input: $3/MTok, output: $15/MTok, avg 5K tokens)
+            'api_key_encrypted': '',  # Fixed: NOT NULL constraint, use empty string
+            'cost_per_1k_input_tokens': 0.003,  # Fixed: $3/MTok = $0.003/1K tokens
+            'cost_per_1k_output_tokens': 0.015,  # Fixed: $15/MTok = $0.015/1K tokens
             'max_tokens': 8192,
+            'temperature': 0.7,  # Added: Default temperature
+            'priority': 1,  # Added: Highest priority (Claude for complex reasoning)
+            
             'is_active': True,
             'created_at': datetime.utcnow(),
+            'updated_at': datetime.utcnow(),  # Added: Required by model
         },
         {
             'id': str(uuid4()),
-            'name': 'GPT-4o',
-            'provider_type': 'openai',
+            'provider_name': 'OpenAI',  # Fixed: name → provider_name
+            'provider_type': 'gpt',  # Fixed: openai → gpt (matches model enum)
             'model_name': 'gpt-4o-2024-11-20',
-            'api_endpoint': 'https://api.openai.com/v1/chat/completions',
-            'cost_per_request': 0.010,  # $0.010 per request (input: $2.50/MTok, output: $10/MTok)
+            'api_key_encrypted': '',  # Fixed: NOT NULL constraint, use empty string
+            'cost_per_1k_input_tokens': 0.0025,  # Fixed: $2.50/MTok = $0.0025/1K
+            'cost_per_1k_output_tokens': 0.010,  # Fixed: $10/MTok = $0.010/1K
             'max_tokens': 16384,
+            'temperature': 0.7,  # Added: Default temperature
+            'priority': 2,  # Added: Second priority (GPT-4o for code generation)
+            
             'is_active': True,
             'created_at': datetime.utcnow(),
+            'updated_at': datetime.utcnow(),  # Added: Required by model
         },
         {
             'id': str(uuid4()),
-            'name': 'Gemini 2.0 Flash',
-            'provider_type': 'google',
+            'provider_name': 'Google',  # Fixed: name → provider_name
+            'provider_type': 'gemini',  # Fixed: google → gemini (matches model enum)
             'model_name': 'gemini-2.0-flash-exp',
-            'api_endpoint': 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent',
-            'cost_per_request': 0.005,  # $0.005 per request (free tier, then $0.075/MTok input, $0.30/MTok output)
+            'api_key_encrypted': '',  # Fixed: NOT NULL constraint, use empty string
+            'cost_per_1k_input_tokens': 0.000075,  # Fixed: $0.075/MTok = $0.000075/1K
+            'cost_per_1k_output_tokens': 0.0003,  # Fixed: $0.30/MTok = $0.0003/1K
             'max_tokens': 8192,
+            'temperature': 0.7,  # Added: Default temperature
+            'priority': 3,  # Added: Lowest priority (Gemini for bulk tasks)
+            
             'is_active': True,
             'created_at': datetime.utcnow(),
+            'updated_at': datetime.utcnow(),  # Added: Required by model
         },
     ]
 
     for provider in ai_providers_data:
         conn.execute(
             text("""
-                INSERT INTO ai_providers (id, name, provider_type, model_name, api_endpoint,
-                                        cost_per_request, max_tokens, is_active, created_at)
-                VALUES (:id, :name, :provider_type, :model_name, :api_endpoint,
-                        :cost_per_request, :max_tokens, :is_active, :created_at)
+                INSERT INTO ai_providers (id, provider_name, provider_type, model_name,
+                                        api_key_encrypted, cost_per_1k_input_tokens,
+                                        cost_per_1k_output_tokens, max_tokens, temperature,
+                                        priority, is_active, created_at, updated_at)
+                VALUES (:id, :provider_name, :provider_type, :model_name,
+                        :api_key_encrypted, :cost_per_1k_input_tokens,
+                        :cost_per_1k_output_tokens, :max_tokens, :temperature,
+                        :priority, :is_active, :created_at, :updated_at)
             """),
             provider
         )
@@ -360,8 +379,9 @@ def upgrade() -> None:
             'stage': 'WHY',
             'status': 'APPROVED',
             'created_by': mtc_tl_id,
+            'exit_criteria': [],  # Added: Required JSONB field (empty for approved gates)
             'created_at': datetime.utcnow() - timedelta(days=40),
-            'submitted_at': datetime.utcnow() - timedelta(days=38),
+            'updated_at': datetime.utcnow() - timedelta(days=37),  # Added: Required timestamp
             'approved_at': datetime.utcnow() - timedelta(days=37),
             'description': 'Foundation Ready - MTC Internal Tool project kickoff. Business case: Reduce manual SDLC overhead from 3 days to 2 hours per release (65% → 17% waste).',
         },
@@ -373,8 +393,9 @@ def upgrade() -> None:
             'stage': 'WHY',
             'status': 'APPROVED',
             'created_by': mtc_tl_id,
+            'exit_criteria': [],  # Added: Required JSONB field
             'created_at': datetime.utcnow() - timedelta(days=35),
-            'submitted_at': datetime.utcnow() - timedelta(days=33),
+            'updated_at': datetime.utcnow() - timedelta(days=32),  # Added: Required timestamp
             'approved_at': datetime.utcnow() - timedelta(days=32),
             'description': 'Solution Diversity - Evaluated 3 approaches: (1) Backstage plugin, (2) Standalone SaaS, (3) Open Policy Agent integration. Selected: Standalone SaaS with OPA.',
         },
@@ -386,8 +407,9 @@ def upgrade() -> None:
             'stage': 'WHAT',
             'status': 'APPROVED',
             'created_by': mtc_tl_id,
+            'exit_criteria': [],  # Added: Required JSONB field
             'created_at': datetime.utcnow() - timedelta(days=25),
-            'submitted_at': datetime.utcnow() - timedelta(days=23),
+            'updated_at': datetime.utcnow() - timedelta(days=22),  # Added: Required timestamp
             'approved_at': datetime.utcnow() - timedelta(days=22),
             'description': 'Design Ready - Functional Requirements Document (FR1-FR5), Data Model v0.1 (9.8/10 quality, 21 tables), Legal Brief (AGPL containment strategy).',
         },
@@ -401,8 +423,9 @@ def upgrade() -> None:
             'stage': 'WHY',
             'status': 'APPROVED',
             'created_by': nqh_dev_id,
+            'exit_criteria': [],  # Added: Required JSONB field
             'created_at': datetime.utcnow() - timedelta(days=28),
-            'submitted_at': datetime.utcnow() - timedelta(days=26),
+            'updated_at': datetime.utcnow() - timedelta(days=25),  # Added: Required timestamp
             'approved_at': datetime.utcnow() - timedelta(days=25),
             'description': 'Foundation Ready - NQH E-commerce Phase 2. Business case: Increase conversion rate from 2.3% to 4.5% via AI recommendations, reduce cart abandonment from 68% to 45%.',
         },
@@ -414,8 +437,9 @@ def upgrade() -> None:
             'stage': 'WHY',
             'status': 'APPROVED',
             'created_by': nqh_dev_id,
+            'exit_criteria': [],  # Added: Required JSONB field
             'created_at': datetime.utcnow() - timedelta(days=22),
-            'submitted_at': datetime.utcnow() - timedelta(days=20),
+            'updated_at': datetime.utcnow() - timedelta(days=19),  # Added: Required timestamp
             'approved_at': datetime.utcnow() - timedelta(days=19),
             'description': 'Solution Diversity - AI recommendation engine options: (1) Amazon Personalize, (2) TensorFlow custom model, (3) GPT-4 API. Selected: GPT-4 API (faster time-to-market).',
         },
@@ -425,10 +449,11 @@ def upgrade() -> None:
             'gate_name': 'G1',
             'gate_type': 'DESIGN_READY',
             'stage': 'WHAT',
-            'status': 'IN_REVIEW',
+            'status': 'PENDING_APPROVAL',  # Fixed: IN_REVIEW → PENDING_APPROVAL (valid status)
             'created_by': nqh_dev_id,
+            'exit_criteria': [],  # Added: Required JSONB field
             'created_at': datetime.utcnow() - timedelta(days=12),
-            'submitted_at': datetime.utcnow() - timedelta(days=10),
+            'updated_at': datetime.utcnow() - timedelta(days=10),  # Added: Required timestamp
             'approved_at': None,
             'description': 'Design Ready - API design complete (VNPay, Momo gateways), database schema ready (PostgreSQL + Redis cache), waiting for CPO approval on UX flow.',
         },
@@ -442,8 +467,9 @@ def upgrade() -> None:
             'stage': 'WHY',
             'status': 'APPROVED',
             'created_by': bflow_dev_id,
+            'exit_criteria': [],  # Added: Required JSONB field
             'created_at': datetime.utcnow() - timedelta(days=18),
-            'submitted_at': datetime.utcnow() - timedelta(days=16),
+            'updated_at': datetime.utcnow() - timedelta(days=15),  # Added: Required timestamp
             'approved_at': datetime.utcnow() - timedelta(days=15),
             'description': 'Foundation Ready - BFlow v3.0 Workflow Automation. Business case: Enable non-technical users to build workflows in <5 min (vs 2 hours with code).',
         },
@@ -455,8 +481,9 @@ def upgrade() -> None:
             'stage': 'WHY',
             'status': 'APPROVED',
             'created_by': bflow_dev_id,
+            'exit_criteria': [],  # Added: Required JSONB field
             'created_at': datetime.utcnow() - timedelta(days=12),
-            'submitted_at': datetime.utcnow() - timedelta(days=10),
+            'updated_at': datetime.utcnow() - timedelta(days=9),  # Added: Required timestamp
             'approved_at': datetime.utcnow() - timedelta(days=9),
             'description': 'Solution Diversity - Workflow designer approaches: (1) n8n fork, (2) Node-RED fork, (3) Custom React Flow. Selected: Custom React Flow (full control, better DX).',
         },
@@ -468,8 +495,9 @@ def upgrade() -> None:
             'stage': 'WHAT',
             'status': 'DRAFT',
             'created_by': bflow_dev_id,
+            'exit_criteria': [],  # Added: Required JSONB field
             'created_at': datetime.utcnow() - timedelta(days=5),
-            'submitted_at': None,
+            'updated_at': datetime.utcnow() - timedelta(days=5),  # Added: Required timestamp (same as created)
             'approved_at': None,
             'description': 'Design Ready - Data model in progress (workflow schema, node types, trigger definitions). Target submission: Nov 20, 2025.',
         },
@@ -479,9 +507,9 @@ def upgrade() -> None:
         conn.execute(
             text("""
                 INSERT INTO gates (id, project_id, gate_name, gate_type, stage, status,
-                                 created_by, created_at, submitted_at, approved_at, description)
+                                 created_by, exit_criteria, description, approved_at, created_at, updated_at)
                 VALUES (:id, :project_id, :gate_name, :gate_type, :stage, :status,
-                        :created_by, :created_at, :submitted_at, :approved_at, :description)
+                        :created_by, :exit_criteria, :description, :approved_at, :created_at, :updated_at)
             """),
             gate
         )
