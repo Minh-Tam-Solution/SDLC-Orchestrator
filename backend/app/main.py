@@ -1,15 +1,35 @@
 """
+=========================================================================
 FastAPI Main Application - SDLC Orchestrator Backend
+SDLC Orchestrator - Stage 03 (BUILD)
 
 Version: 1.0.0
-Date: November 13, 2025
-Status: ACTIVE - STAGE 03 (BUILD)
+Date: November 28, 2025
+Status: ACTIVE - Week 3 Architecture Design
 Authority: Backend Lead + CTO Approved
 Foundation: ADR-003 (API Strategy), ADR-004 (Microservices Architecture)
 Framework: SDLC 4.9 Complete Lifecycle
 
-Entry point for the backend API server.
-Configures middleware, health checks, metrics, and API routes.
+Purpose:
+- FastAPI application entry point
+- API route configuration (authentication, gates, evidence)
+- Middleware setup (CORS, GZIP, logging)
+- Health checks and metrics (Prometheus)
+
+API Features:
+- RESTful API (OpenAPI 3.1 documentation)
+- JWT authentication (Bearer tokens)
+- OAuth 2.0 social login (GitHub, Google, Microsoft)
+- Rate limiting (100 req/min per user)
+- API versioning (/api/v1)
+
+Middleware Stack:
+- CORS (Cross-Origin Resource Sharing)
+- GZIP compression (responses >1KB)
+- Request ID tracking (X-Request-ID header)
+- Structured logging (structlog + JSON)
+
+=========================================================================
 """
 
 from fastapi import FastAPI

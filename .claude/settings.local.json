@@ -22,7 +22,8 @@
       "Bash(sudo launchctl list:*)",
       "Bash(lsof -i :5432)",
       "Bash(brew services stop:*)",
-      "Bash(launchctl list:*)"
+      "Bash(launchctl list:*)",
+      "Bash(cd:*)"
     ],
     "deny": [],
     "ask": []
