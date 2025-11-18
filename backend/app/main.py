@@ -39,7 +39,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from app.core.config import settings
 
 # Import API routers
-from app.api.routes import auth, gates
+from app.api.routes import auth, evidence, gates, policies
 
 # Create FastAPI app
 app = FastAPI(
@@ -74,6 +74,8 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 # Register API v1 routers
 app.include_router(auth.router, prefix="/api/v1", tags=["Authentication"])
 app.include_router(gates.router, prefix="/api/v1", tags=["Gates"])
+app.include_router(evidence.router, prefix="/api/v1", tags=["Evidence"])
+app.include_router(policies.router, prefix="/api/v1", tags=["Policies"])
 
 # ============================================================================
 # Health Check Endpoints
