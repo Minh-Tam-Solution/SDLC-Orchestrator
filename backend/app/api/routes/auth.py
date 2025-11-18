@@ -207,7 +207,7 @@ async def refresh_access_token(
         select(RefreshToken).where(
             RefreshToken.user_id == UUID(user_id),
             RefreshToken.token_hash == token_hash,
-            RefreshToken.revoked_at.is_(None),
+            RefreshToken.is_revoked == False,
         )
     )
     db_refresh_token = result.scalar_one_or_none()
@@ -281,7 +281,7 @@ async def logout(
         select(RefreshToken).where(
             RefreshToken.user_id == current_user.id,
             RefreshToken.token_hash == token_hash,
-            RefreshToken.revoked_at.is_(None),
+            RefreshToken.is_revoked == False,
         )
     )
     db_refresh_token = result.scalar_one_or_none()
@@ -293,7 +293,7 @@ async def logout(
         )
 
     # Revoke refresh token
-    db_refresh_token.revoked_at = datetime.utcnow()
+    db_refresh_token.is_revoked = True
     await db.commit()
 
     # Return 204 No Content

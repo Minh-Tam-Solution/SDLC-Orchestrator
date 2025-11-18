@@ -386,7 +386,7 @@ async def get_gate(
     approvals = [
         {
             "id": str(approval.id),
-            "approved_by": str(approval.approved_by),
+            "approved_by": str(approval.approver_id),
             "is_approved": approval.is_approved,
             "comments": approval.comments,
             "approved_at": approval.approved_at.isoformat(),
@@ -700,7 +700,7 @@ async def approve_gate(
     # Create approval record
     approval = GateApproval(
         gate_id=gate.id,
-        approved_by=current_user.id,
+        approver_id=current_user.id,
         is_approved=approval_data.approved,
         comments=approval_data.comments,
         approved_at=datetime.utcnow(),
@@ -737,7 +737,7 @@ async def approve_gate(
         approvals=[
             {
                 "id": str(approval.id),
-                "approved_by": str(approval.approved_by),
+                "approved_by": str(approval.approver_id),
                 "is_approved": approval.is_approved,
                 "comments": approval.comments,
                 "approved_at": approval.approved_at.isoformat(),
@@ -797,7 +797,7 @@ async def get_gate_approvals(
     # Fetch approvals with user details
     result = await db.execute(
         select(GateApproval, User)
-        .join(User, GateApproval.approved_by == User.id)
+        .join(User, GateApproval.approver_id == User.id)
         .where(GateApproval.gate_id == gate_id)
         .order_by(GateApproval.approved_at.desc())
     )
@@ -807,7 +807,7 @@ async def get_gate_approvals(
         GateApprovalResponse(
             id=approval.GateApproval.id,
             gate_id=approval.GateApproval.gate_id,
-            approved_by=approval.GateApproval.approved_by,
+            approved_by=approval.GateApproval.approver_id,
             approved_by_name=f"{approval.User.name}",
             approved_by_role="CTO",  # TODO: Get role from user.roles relationship
             is_approved=approval.GateApproval.is_approved,

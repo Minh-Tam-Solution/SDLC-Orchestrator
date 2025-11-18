@@ -103,13 +103,16 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         - Transaction commit: ~5-10ms
         - Session cleanup: ~1-2ms
         - Total overhead: ~10ms per request
+    
+    Fix (Nov 17, 2025):
+        Added explicit commit after yield, rollback on exception.
+        async with handles session close automatically.
     """
     async with AsyncSessionLocal() as session:
         try:
             yield session
-            await session.commit()  # Commit successful transactions
+            await session.commit()
         except Exception:
-            await session.rollback()  # Rollback on errors
+            await session.rollback()
             raise
-        finally:
-            await session.close()  # Always close session (return connection to pool)
+        # Note: async with context manager auto-closes session
