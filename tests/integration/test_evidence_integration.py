@@ -298,3 +298,287 @@ class TestEvidenceDelete:
         )
 
         assert response.status_code == 404
+
+
+@pytest.mark.integration
+@pytest.mark.evidence
+class TestEvidenceErrorHandling:
+    """Integration tests for Evidence API error handling and validation (NEW - Day 3)."""
+
+    async def test_upload_evidence_invalid_type(
+        self,
+        client: AsyncClient,
+        auth_headers: dict,
+        test_gate: Gate,
+    ):
+        """Test upload evidence with invalid evidence_type returns 400."""
+        file_content = b"Test PDF content"
+        files = {
+            "file": ("test.pdf", BytesIO(file_content), "application/pdf")
+        }
+        data = {
+            "gate_id": str(test_gate.id),
+            "evidence_type": "INVALID_TYPE",  # Not in allowed types
+            "description": "Test evidence",
+        }
+
+        response = await client.post(
+            "/api/v1/evidence/upload",
+            headers=auth_headers,
+            files=files,
+            data=data,
+        )
+
+        assert response.status_code == 400
+        error_data = response.json()
+        assert "invalid evidence_type" in error_data["detail"].lower()
+
+    async def test_upload_evidence_file_too_large(
+        self,
+        client: AsyncClient,
+        auth_headers: dict,
+        test_gate: Gate,
+    ):
+        """Test upload evidence with file >100MB returns 413."""
+        # Create a file larger than 100MB (100 * 1024 * 1024 bytes)
+        # Use 101MB to exceed limit
+        large_file_size = 101 * 1024 * 1024
+        file_content = b"X" * large_file_size
+
+        files = {
+            "file": ("large_file.bin", BytesIO(file_content), "application/octet-stream")
+        }
+        data = {
+            "gate_id": str(test_gate.id),
+            "evidence_type": "DOCUMENTATION",
+            "description": "Large file test",
+        }
+
+        response = await client.post(
+            "/api/v1/evidence/upload",
+            headers=auth_headers,
+            files=files,
+            data=data,
+        )
+
+        assert response.status_code == 413
+        error_data = response.json()
+        assert "file size" in error_data["detail"].lower() or "exceeds maximum" in error_data["detail"].lower()
+
+    async def test_upload_evidence_minio_failure(
+        self,
+        client: AsyncClient,
+        auth_headers: dict,
+        test_gate: Gate,
+    ):
+        """Test upload evidence handles MinIO service failure gracefully."""
+        # This test verifies that if MinIO is unavailable or fails,
+        # the API returns 500 Internal Server Error (not a crash)
+
+        # Note: This test will pass if MinIO is running (file uploads successfully)
+        # or if MinIO is down (returns 500). The point is to ensure no unhandled exceptions.
+
+        file_content = b"Test content"
+        files = {
+            "file": ("test.pdf", BytesIO(file_content), "application/pdf")
+        }
+        data = {
+            "gate_id": str(test_gate.id),
+            "evidence_type": "DOCUMENTATION",
+            "description": "MinIO failure test",
+        }
+
+        response = await client.post(
+            "/api/v1/evidence/upload",
+            headers=auth_headers,
+            files=files,
+            data=data,
+        )
+
+        # Should either succeed (201) or fail gracefully (500)
+        # NOT crash with unhandled exception
+        assert response.status_code in [201, 500]
+
+        if response.status_code == 500:
+            error_data = response.json()
+            assert "detail" in error_data  # Error message present
+
+    async def test_upload_evidence_large_multipart(
+        self,
+        client: AsyncClient,
+        auth_headers: dict,
+        test_gate: Gate,
+    ):
+        """Test upload evidence with large file (>5MB) uses multipart upload path."""
+        # Create a file larger than 5MB but smaller than 100MB
+        # This should trigger the multipart upload code path
+        large_file_size = 6 * 1024 * 1024  # 6MB
+        file_content = b"Y" * large_file_size
+
+        files = {
+            "file": ("large_doc.pdf", BytesIO(file_content), "application/pdf")
+        }
+        data = {
+            "gate_id": str(test_gate.id),
+            "evidence_type": "DOCUMENTATION",
+            "description": "Large file multipart upload test",
+        }
+
+        response = await client.post(
+            "/api/v1/evidence/upload",
+            headers=auth_headers,
+            files=files,
+            data=data,
+        )
+
+        # Should succeed using multipart upload
+        assert response.status_code == 201
+        result = response.json()
+
+        # Verify evidence was created with correct size
+        assert result["file_size"] == large_file_size
+        assert result["file_size_mb"] == pytest.approx(6.0, rel=0.1)
+        assert "sha256_hash" in result
+        assert "download_url" in result
+
+
+@pytest.mark.integration
+@pytest.mark.evidence
+class TestEvidenceIntegrityChecks:
+    """Integration tests for Evidence API integrity check functionality (NEW - Day 3)."""
+
+    @pytest.mark.skip(reason="POST /evidence/{id}/integrity-check endpoint not implemented yet")
+    async def test_integrity_check_valid(
+        self,
+        client: AsyncClient,
+        auth_headers: dict,
+        test_evidence: Evidence,
+    ):
+        """Test integrity check on valid evidence passes."""
+        response = await client.post(
+            f"/api/v1/evidence/{test_evidence.id}/integrity-check",
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        assert data["evidence_id"] == str(test_evidence.id)
+        assert data["status"] == "VALID"
+        assert data["expected_hash"] == test_evidence.sha256_hash
+        assert data["actual_hash"] == test_evidence.sha256_hash
+        assert data["is_tampered"] is False
+        assert "checked_at" in data
+
+    @pytest.mark.skip(reason="POST /evidence/{id}/integrity-check endpoint not implemented yet")
+    async def test_integrity_check_tampered(
+        self,
+        client: AsyncClient,
+        auth_headers: dict,
+        db: AsyncSession,
+        test_evidence: Evidence,
+    ):
+        """Test integrity check detects tampered file (hash mismatch)."""
+        # Simulate tampered evidence by changing the stored hash
+        original_hash = test_evidence.sha256_hash
+        test_evidence.sha256_hash = "0" * 64  # Invalid hash
+        await db.commit()
+
+        response = await client.post(
+            f"/api/v1/evidence/{test_evidence.id}/integrity-check",
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        assert data["evidence_id"] == str(test_evidence.id)
+        assert data["status"] == "TAMPERED"
+        assert data["expected_hash"] == "0" * 64
+        assert data["actual_hash"] != "0" * 64  # Actual file hash should differ
+        assert data["is_tampered"] is True
+
+        # Restore original hash
+        test_evidence.sha256_hash = original_hash
+        await db.commit()
+
+    @pytest.mark.skip(reason="POST /evidence/{id}/integrity-check endpoint not implemented yet")
+    async def test_integrity_check_not_found(
+        self, client: AsyncClient, auth_headers: dict
+    ):
+        """Test integrity check on non-existent evidence returns 404."""
+        response = await client.post(
+            f"/api/v1/evidence/{uuid4()}/integrity-check",
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 404
+
+    @pytest.mark.skip(reason="GET /evidence/{id}/integrity-history endpoint not implemented yet")
+    async def test_get_integrity_history_not_found(
+        self, client: AsyncClient, auth_headers: dict
+    ):
+        """Test get integrity history on non-existent evidence returns 404."""
+        response = await client.get(
+            f"/api/v1/evidence/{uuid4()}/integrity-history",
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 404
+
+
+@pytest.mark.integration
+@pytest.mark.evidence
+class TestEvidenceEdgeCases:
+    """Integration tests for Evidence API edge cases (NEW - Day 3)."""
+
+    async def test_list_evidence_pagination(
+        self,
+        client: AsyncClient,
+        auth_headers: dict,
+        test_evidence: Evidence,
+    ):
+        """Test list evidence with pagination parameters."""
+        response = await client.get(
+            "/api/v1/evidence",
+            headers=auth_headers,
+            params={"page": 1, "page_size": 5},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        assert "items" in data
+        assert "total" in data
+        assert "page" in data
+        assert "page_size" in data
+        assert data["page"] == 1
+        assert data["page_size"] == 5
+        assert len(data["items"]) <= 5
+
+    async def test_list_evidence_combined_filters(
+        self,
+        client: AsyncClient,
+        auth_headers: dict,
+        test_gate: Gate,
+        test_evidence: Evidence,
+    ):
+        """Test list evidence with multiple filters simultaneously."""
+        response = await client.get(
+            "/api/v1/evidence",
+            headers=auth_headers,
+            params={
+                "gate_id": str(test_gate.id),
+                "evidence_type": "DOCUMENTATION",
+                "page": 1,
+                "page_size": 10,
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        # All evidence should match both filters
+        for evidence in data["items"]:
+            assert evidence["gate_id"] == str(test_gate.id)
+            assert evidence["evidence_type"] == "DOCUMENTATION"

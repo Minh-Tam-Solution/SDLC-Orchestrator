@@ -421,6 +421,76 @@ class TestOPAErrorHandling:
         # Restore original URL
         opa.base_url = original_url
 
+    def test_evaluate_policy_connection_error(self):
+        """Test evaluate_policy RequestException handler (lines 202-207)."""
+        opa = OPAService()
+        original_url = opa.base_url
+        opa.base_url = "http://invalid-opa-host:9999"
+
+        # Try to evaluate policy (should trigger RequestException)
+        with pytest.raises(OPAEvaluationError) as exc_info:
+            opa.evaluate_policy(
+                policy_code="test_fail",
+                stage="WHAT",
+                input_data={"test": "data"}
+            )
+
+        # Verify error message contains policy details
+        assert "test_fail" in str(exc_info.value)
+        assert "WHAT" in str(exc_info.value)
+
+        # Restore original URL
+        opa.base_url = original_url
+
+    def test_delete_policy_connection_error(self):
+        """Test delete_policy RequestException handler (lines 334-336)."""
+        opa = OPAService()
+        original_url = opa.base_url
+        opa.base_url = "http://invalid-opa-host:9999"
+
+        # Try to delete policy (should trigger RequestException)
+        with pytest.raises(OPAEvaluationError) as exc_info:
+            opa.delete_policy("test_policy_xyz")
+
+        # Verify error message contains policy ID
+        assert "test_policy_xyz" in str(exc_info.value)
+
+        # Restore original URL
+        opa.base_url = original_url
+
+    def test_list_policies_connection_error(self):
+        """Test list_policies RequestException handler (lines 390-392)."""
+        opa = OPAService()
+        original_url = opa.base_url
+        opa.base_url = "http://invalid-opa-host:9999"
+
+        # Try to list policies (should trigger RequestException)
+        with pytest.raises(OPAEvaluationError) as exc_info:
+            opa.list_policies()
+
+        # Verify error message indicates list failure
+        assert "Failed to list policies" in str(exc_info.value)
+
+        # Restore original URL
+        opa.base_url = original_url
+
+    def test_health_check_when_opa_unavailable(self):
+        """Test health_check Exception handler (lines 447-449)."""
+        opa = OPAService()
+        original_url = opa.base_url
+        opa.base_url = "http://invalid-opa-host:9999"
+
+        # Health check should return unhealthy status (not raise exception)
+        result = opa.health_check()
+
+        assert result["healthy"] is False
+        assert result["version"] == "unknown"
+        assert result["uptime_seconds"] == 0
+        assert "error" in result
+
+        # Restore original URL
+        opa.base_url = original_url
+
 
 @pytest.mark.integration
 @pytest.mark.opa

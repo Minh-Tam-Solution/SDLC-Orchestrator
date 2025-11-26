@@ -1,0 +1,279 @@
+# SDLC Orchestrator - Docker Compose
+# OSS Stack: OPA + MinIO + Grafana + PostgreSQL + Redis
+# Date: 2025-11-13
+
+version: '3.9'
+
+services:
+  # ============================================================================
+  # PostgreSQL - Primary Database
+  # ============================================================================
+  postgres:
+    image: postgres:15.5-alpine
+    container_name: sdlc-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sdlc_orchestrator
+      POSTGRES_USER: sdlc_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme_secure_password}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sdlc_user -d sdlc_orchestrator"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sdlc-network
+
+  # ============================================================================
+  # Redis - Caching + Sessions
+  # ============================================================================
+  redis:
+    image: redis:7.2-alpine
+    container_name: sdlc-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-changeme_redis_password}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sdlc-network
+
+  # ============================================================================
+  # MinIO - S3-Compatible Object Storage (Evidence Vault)
+  # ============================================================================
+  minio:
+    image: minio/minio:RELEASE.2024-01-01T16-36-33Z
+    container_name: sdlc-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin_changeme}
+      MINIO_BROWSER_REDIRECT_URL: http://localhost:9001
+    ports:
+      - "9000:9000"  # S3 API
+      - "9001:9001"  # Web Console
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sdlc-network
+
+  # MinIO bucket initialization
+  minio-init:
+    image: minio/mc:latest
+    container_name: sdlc-minio-init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 10;
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin_changeme};
+      /usr/bin/mc mb myminio/evidence-vault --ignore-existing;
+      /usr/bin/mc mb myminio/orchdocs --ignore-existing;
+      /usr/bin/mc mb myminio/reports --ignore-existing;
+      /usr/bin/mc anonymous set download myminio/reports;
+      echo 'MinIO buckets initialized successfully';
+      "
+    networks:
+      - sdlc-network
+
+  # ============================================================================
+  # Open Policy Agent (OPA) - Gate Engine
+  # ============================================================================
+  opa:
+    image: openpolicyagent/opa:0.58.0
+    container_name: sdlc-opa
+    restart: unless-stopped
+    command:
+      - "run"
+      - "--server"
+      - "--addr=0.0.0.0:8181"
+      - "--log-level=info"
+      - "/policies"
+    ports:
+      - "8181:8181"
+    volumes:
+      - ./policy-packs/rego:/policies:ro
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8181/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sdlc-network
+
+  # ============================================================================
+  # Prometheus - Metrics Collection
+  # ============================================================================
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: sdlc-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infrastructure/monitoring/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sdlc-network
+
+  # ============================================================================
+  # Grafana - Dashboards + Visualization
+  # ============================================================================
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: sdlc-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin_changeme}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: http://localhost:3000
+      GF_INSTALL_PLUGINS: grafana-oncall-app
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infrastructure/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./infrastructure/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sdlc-network
+
+  # ============================================================================
+  # Alertmanager - Alert Routing
+  # ============================================================================
+  alertmanager:
+    image: prom/alertmanager:v0.26.0
+    container_name: sdlc-alertmanager
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./infrastructure/monitoring/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9093/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sdlc-network
+
+  # ============================================================================
+  # FastAPI Backend - SDLC Orchestrator API
+  # ============================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sdlc-backend
+    restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      # Database
+      DATABASE_URL: postgresql+asyncpg://sdlc_user:${POSTGRES_PASSWORD:-changeme_secure_password}@postgres:5432/sdlc_orchestrator
+
+      # JWT
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev-secret-key-change-in-production-minimum-32-characters-long}
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 60
+      REFRESH_TOKEN_EXPIRE_DAYS: 30
+
+      # MinIO S3
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin_changeme}
+      MINIO_BUCKET: evidence-vault
+      MINIO_SECURE: "false"
+
+      # OPA
+      OPA_URL: http://opa:8181
+
+      # Redis
+      REDIS_URL: redis://:${REDIS_PASSWORD:-changeme_redis_password}@redis:6379/0
+
+      # App
+      ENVIRONMENT: development
+      DEBUG: "true"
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:5173,http://localhost:8080
+
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - backend_cache:/app/.pytest_cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      opa:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - sdlc-network
+
+# ============================================================================
+# Volumes
+# ============================================================================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  minio_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  alertmanager_data:
+    driver: local
+  backend_cache:
+    driver: local
+
+# ============================================================================
+# Networks
+# ============================================================================
+networks:
+  sdlc-network:
+    driver: bridge

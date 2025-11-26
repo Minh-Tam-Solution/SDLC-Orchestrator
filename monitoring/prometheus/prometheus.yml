@@ -1,0 +1,113 @@
+# ============================================================================
+# PROMETHEUS CONFIGURATION
+# Week 5 Day 2 - Performance & Load Testing
+#
+# Purpose:
+# - Scrape metrics from SDLC Orchestrator API (/metrics endpoint)
+# - Scrape system metrics from Node Exporter
+# - Store time-series data for Grafana visualization
+#
+# Metrics Collected:
+# - API latency (p50, p95, p99)
+# - Request rate (requests/second)
+# - Error rate (4xx, 5xx)
+# - Database query time
+# - Redis cache hit rate
+# - System metrics (CPU, memory, disk, network)
+# ============================================================================
+
+global:
+  # Scrape interval (how often to collect metrics)
+  scrape_interval: 15s  # Default: 15 seconds
+
+  # Evaluation interval (how often to evaluate rules)
+  evaluation_interval: 15s  # Default: 15 seconds
+
+  # Timeout for scrapes
+  scrape_timeout: 10s
+
+  # External labels (identify this Prometheus instance)
+  external_labels:
+    cluster: 'sdlc-orchestrator-dev'
+    environment: 'local'
+
+# ============================================================================
+# SCRAPE CONFIGURATIONS
+# ============================================================================
+
+scrape_configs:
+  # ==========================================================================
+  # PROMETHEUS SELF-MONITORING
+  # ==========================================================================
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # ==========================================================================
+  # SDLC ORCHESTRATOR API - FastAPI Metrics
+  # ==========================================================================
+  - job_name: 'sdlc-orchestrator-api'
+    metrics_path: '/metrics'  # FastAPI prometheus_client endpoint
+    scrape_interval: 5s  # Scrape every 5 seconds (more frequent for API)
+    static_configs:
+      - targets: ['host.docker.internal:8000']  # Backend API
+        labels:
+          service: 'fastapi'
+          component: 'backend'
+          environment: 'local'
+
+  # ==========================================================================
+  # NODE EXPORTER - System Metrics
+  # ==========================================================================
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'node-exporter'
+          component: 'infrastructure'
+
+# ============================================================================
+# KEY METRICS AVAILABLE
+# ============================================================================
+#
+# FastAPI Metrics (exposed at /metrics):
+# - http_request_duration_seconds (histogram) - API latency
+# - http_requests_total (counter) - Total requests
+# - http_requests_in_progress (gauge) - Active requests
+# - http_request_size_bytes (summary) - Request size
+# - http_response_size_bytes (summary) - Response size
+# - process_cpu_seconds_total (counter) - CPU usage
+# - process_resident_memory_bytes (gauge) - Memory usage
+#
+# Node Exporter Metrics:
+# - node_cpu_seconds_total - CPU usage
+# - node_memory_MemAvailable_bytes - Available memory
+# - node_disk_io_time_seconds_total - Disk I/O
+# - node_network_receive_bytes_total - Network RX
+# - node_network_transmit_bytes_total - Network TX
+#
+# ============================================================================
+# USEFUL PROMETHEUS QUERIES (PromQL)
+# ============================================================================
+#
+# API Latency (p95):
+# histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+#
+# Request Rate (requests/second):
+# rate(http_requests_total[1m])
+#
+# Error Rate (4xx/5xx):
+# rate(http_requests_total{status=~"4..|5.."}[1m])
+#
+# Active Requests:
+# http_requests_in_progress
+#
+# CPU Usage:
+# rate(process_cpu_seconds_total[1m]) * 100
+#
+# Memory Usage:
+# process_resident_memory_bytes / 1024 / 1024
+#
+# ============================================================================

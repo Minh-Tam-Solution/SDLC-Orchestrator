@@ -1,0 +1,246 @@
+{
+  "load_test_config": {
+    "test_name": "SDLC Orchestrator - Week 5 Day 2 Load Test",
+    "test_date": "2025-11-21",
+    "version": "1.0.0",
+    
+    "target": {
+      "host": "http://localhost:8000",
+      "base_path": "/api/v1"
+    },
+    
+    "load_scenarios": [
+      {
+        "name": "Baseline Test",
+        "description": "Initial system baseline with minimal load",
+        "users": 100,
+        "spawn_rate": 10,
+        "duration": "5m",
+        "expected_rps": 50
+      },
+      {
+        "name": "Ramp-Up Test",
+        "description": "Gradual increase to 10K users",
+        "users": 10000,
+        "spawn_rate": 100,
+        "duration": "15m",
+        "expected_rps": 500
+      },
+      {
+        "name": "Target Load Test",
+        "description": "Full 100K concurrent users",
+        "users": 100000,
+        "spawn_rate": 1000,
+        "duration": "30m",
+        "expected_rps": 5000
+      },
+      {
+        "name": "Stress Test",
+        "description": "Beyond capacity - 200K users",
+        "users": 200000,
+        "spawn_rate": 2000,
+        "duration": "15m",
+        "expected_rps": 10000
+      }
+    ],
+    
+    "performance_targets": {
+      "latency": {
+        "p50": {
+          "target_ms": 50,
+          "critical": false
+        },
+        "p95": {
+          "target_ms": 100,
+          "critical": true,
+          "gate_requirement": "G2"
+        },
+        "p99": {
+          "target_ms": 200,
+          "critical": false
+        }
+      },
+      "error_rate": {
+        "target_percent": 0.1,
+        "critical": true
+      },
+      "throughput": {
+        "target_rps": 1000,
+        "critical": true
+      }
+    },
+    
+    "endpoints_tested": [
+      {
+        "path": "/api/v1/auth/login",
+        "method": "POST",
+        "weight": 15,
+        "expected_latency_ms": 50
+      },
+      {
+        "path": "/api/v1/auth/refresh",
+        "method": "POST",
+        "weight": 10,
+        "expected_latency_ms": 30
+      },
+      {
+        "path": "/api/v1/auth/me",
+        "method": "GET",
+        "weight": 5,
+        "expected_latency_ms": 20
+      },
+      {
+        "path": "/api/v1/gates",
+        "method": "GET",
+        "weight": 20,
+        "expected_latency_ms": 80
+      },
+      {
+        "path": "/api/v1/gates/{id}",
+        "method": "GET",
+        "weight": 10,
+        "expected_latency_ms": 30
+      },
+      {
+        "path": "/api/v1/gates",
+        "method": "POST",
+        "weight": 5,
+        "expected_latency_ms": 100
+      },
+      {
+        "path": "/api/v1/gates/{id}",
+        "method": "PUT",
+        "weight": 3,
+        "expected_latency_ms": 80
+      },
+      {
+        "path": "/api/v1/gates/{id}",
+        "method": "DELETE",
+        "weight": 2,
+        "expected_latency_ms": 50
+      },
+      {
+        "path": "/api/v1/evidence",
+        "method": "GET",
+        "weight": 10,
+        "expected_latency_ms": 80
+      },
+      {
+        "path": "/api/v1/evidence",
+        "method": "POST",
+        "weight": 5,
+        "expected_latency_ms": 150
+      },
+      {
+        "path": "/api/v1/evidence/{id}",
+        "method": "GET",
+        "weight": 3,
+        "expected_latency_ms": 40
+      },
+      {
+        "path": "/api/v1/evidence/{id}/download",
+        "method": "GET",
+        "weight": 2,
+        "expected_latency_ms": 200
+      },
+      {
+        "path": "/api/v1/policies",
+        "method": "GET",
+        "weight": 5,
+        "expected_latency_ms": 60
+      },
+      {
+        "path": "/api/v1/policies/{id}",
+        "method": "GET",
+        "weight": 3,
+        "expected_latency_ms": 30
+      },
+      {
+        "path": "/api/v1/policies",
+        "method": "POST",
+        "weight": 1,
+        "expected_latency_ms": 120
+      },
+      {
+        "path": "/api/v1/policies/{id}",
+        "method": "PUT",
+        "weight": 1,
+        "expected_latency_ms": 100
+      }
+    ],
+    
+    "infrastructure": {
+      "backend": {
+        "technology": "FastAPI + uvicorn",
+        "workers": 4,
+        "threads_per_worker": 2,
+        "expected_capacity": "5000 RPS"
+      },
+      "database": {
+        "technology": "PostgreSQL 15",
+        "connection_pool": 20,
+        "expected_capacity": "10000 queries/s"
+      },
+      "cache": {
+        "technology": "Redis 7",
+        "max_connections": 50,
+        "expected_capacity": "50000 ops/s"
+      },
+      "storage": {
+        "technology": "MinIO S3",
+        "concurrent_uploads": 100,
+        "expected_throughput": "500 MB/s"
+      },
+      "policy_engine": {
+        "technology": "OPA",
+        "evaluation_cache": true,
+        "expected_capacity": "1000 evals/s"
+      }
+    },
+    
+    "monitoring": {
+      "metrics_collection": [
+        "response_time_p50",
+        "response_time_p95",
+        "response_time_p99",
+        "requests_per_second",
+        "error_rate",
+        "cpu_usage",
+        "memory_usage",
+        "database_connections",
+        "redis_connections"
+      ],
+      "alerts": [
+        {
+          "metric": "response_time_p95",
+          "threshold": 100,
+          "action": "warn"
+        },
+        {
+          "metric": "error_rate",
+          "threshold": 0.1,
+          "action": "critical"
+        },
+        {
+          "metric": "cpu_usage",
+          "threshold": 80,
+          "action": "warn"
+        }
+      ]
+    },
+    
+    "compliance": {
+      "owasp_asvs": {
+        "v11_1_4": "Load testing validates scalability",
+        "v11_1_5": "Performance monitoring integrated"
+      },
+      "gate_requirements": {
+        "G2": {
+          "requirement": "p95 latency < 100ms",
+          "target": 100,
+          "unit": "ms"
+        }
+      }
+    }
+  }
+}

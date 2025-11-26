@@ -42,6 +42,7 @@ user_roles = Table(
     Base.metadata,
     Column("user_id", UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE")),
     Column("role_id", UUID(as_uuid=True), ForeignKey("roles.id", ondelete="CASCADE")),
+    extend_existing=True,  # Allow table redefinition during test imports
 )
 
 

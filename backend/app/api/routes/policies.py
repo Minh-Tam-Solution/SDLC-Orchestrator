@@ -3,11 +3,11 @@
 Policies API Router - Policy Pack Library Management (FR5)
 SDLC Orchestrator - Stage 03 (BUILD)
 
-Version: 1.0.0
-Date: November 18, 2025
-Status: ACTIVE - Week 3 Day 4 API Implementation
+Version: 2.0.0
+Date: December 4, 2025
+Status: ACTIVE - Week 4 Day 4 (OPA Integration COMPLETE) ✅
 Authority: Backend Lead + CTO Approved
-Foundation: FR5 (Policy Pack Library), Data Model v0.1
+Foundation: FR5 (Policy Pack Library), FR1 (Gate Engine), Data Model v0.1
 Framework: SDLC 4.9 Complete Lifecycle
 
 Purpose:
@@ -16,18 +16,18 @@ Purpose:
 - Policy evaluation history
 
 API Endpoints (4):
-1. GET /policies - List policies with filters
-2. GET /policies/{id} - Get policy details
-3. POST /policies/evaluate - Evaluate policy against gate
-4. GET /policies/evaluations/{gate_id} - Get policy evaluations for gate
+1. GET /policies - List policies with filters ✅ Production-ready
+2. GET /policies/{id} - Get policy details ✅ Production-ready
+3. POST /policies/evaluate - Evaluate policy against gate ✅ REAL OPA
+4. GET /policies/evaluations/{gate_id} - Get policy evaluations for gate ✅ Production-ready
 
-Note: This is a SIMPLIFIED implementation for Week 3 Day 4.
-- OPA integration is MOCKED (no actual Rego execution)
-- Policy evaluation returns simulated results
-- Full OPA integration will be added in Week 4
+Week 4 Day 4 Upgrade:
+✅ OPA integration COMPLETE (REST API, real Rego execution)
+✅ Policy evaluation via OPA (network-only, AGPL-safe)
+✅ Violation tracking and reporting
+✅ Timeout handling (5s fail-safe)
 
-Zero Mock Policy Exception: This is a temporary simplified implementation
-for rapid API development. Full production implementation in Week 4.
+Zero Mock Policy: 100% COMPLIANCE (all mocks removed) ✅
 =========================================================================
 """
 
@@ -52,43 +52,9 @@ from app.schemas.policy import (
     PolicyListResponse,
     PolicyResponse,
 )
+from app.services.opa_service import OPAEvaluationError, opa_service
 
 router = APIRouter()
-
-
-# ============================================================================
-# Helper Functions
-# ============================================================================
-
-
-def _mock_opa_evaluation(policy: Policy, input_data: dict) -> tuple[str, list]:
-    """
-    Mock OPA policy evaluation (temporary for Week 3 Day 4).
-
-    In production (Week 4), this will be replaced with:
-        import requests
-        response = requests.post(
-            "http://opa:8181/v1/data/sdlc/{stage}/{policy_code}",
-            json={"input": input_data}
-        )
-        return response.json()["result"]
-
-    For now, return mock results based on policy code.
-    """
-    # Simple mock: policies always pass unless input_data contains "fail": true
-    if input_data.get("fail"):
-        return "fail", [f"{policy.policy_name}: Mock violation (input_data.fail = true)"]
-
-    # Special case: FRD completeness check
-    if policy.policy_code == "FRD_COMPLETENESS":
-        sections = input_data.get("frd_sections", {})
-        required = ["Introduction", "Functional Requirements", "API Contracts"]
-        missing = [s for s in required if not sections.get(s)]
-        if missing:
-            return "fail", [f"FRD missing required section: {s}" for s in missing]
-
-    # Default: pass
-    return "pass", []
 
 
 # ============================================================================
@@ -229,10 +195,11 @@ async def get_policy(
     description="""
     Evaluate a policy against a gate with custom input data.
 
-    **Simplified Implementation (Week 3 Day 4)**:
-    - OPA evaluation is MOCKED (no actual Rego execution)
-    - Returns simulated pass/fail results
-    - Full OPA integration in Week 4
+    **Week 4 Day 4 - REAL OPA Integration** ✅:
+    - OPA evaluation via REST API (http://opa:8181)
+    - Real Rego policy execution
+    - Violation detection and tracking
+    - Timeout handling (5s fail-safe)
 
     **Request Body**:
     - gate_id: Gate UUID
@@ -242,6 +209,7 @@ async def get_policy(
     **Response** (201 Created):
     - Policy evaluation result (pass/fail)
     - List of violations (if failed)
+    - Execution metadata (response time, etc.)
     """,
 )
 async def evaluate_policy(
@@ -249,7 +217,7 @@ async def evaluate_policy(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    """Evaluate a policy against a gate (mock implementation)."""
+    """Evaluate a policy against a gate with REAL OPA integration."""
 
     # Validate gate exists
     result = await db.execute(select(Gate).where(Gate.id == request.gate_id))
@@ -271,15 +239,33 @@ async def evaluate_policy(
             detail=f"Policy with ID {request.policy_id} not found",
         )
 
-    # Mock OPA evaluation
-    result_status, violations = _mock_opa_evaluation(policy, request.input_data)
+    # Real OPA evaluation
+    try:
+        opa_result = opa_service.evaluate_policy(
+            policy_code=policy.policy_code,
+            stage=gate.stage,
+            input_data=request.input_data,
+        )
+
+        result_status = "pass" if opa_result["allowed"] else "fail"
+        violations = opa_result["violations"]
+
+    except OPAEvaluationError as e:
+        # OPA evaluation failed (timeout, connection error, etc.)
+        # Record as failed evaluation with error message
+        result_status = "fail"
+        violations = [f"OPA evaluation error: {str(e)}"]
 
     # Create evaluation record
     evaluation = PolicyEvaluation(
         id=uuid4(),
         gate_id=request.gate_id,
         policy_id=request.policy_id,
-        evaluation_result={"result": result_status, "violations": violations},
+        evaluation_result={
+            "result": result_status,
+            "violations": violations,
+            "metadata": opa_result.get("metadata", {}) if "opa_result" in locals() else {},
+        },
         is_passed=(result_status == "pass"),
         violations=violations,
         evaluated_at=datetime.utcnow(),

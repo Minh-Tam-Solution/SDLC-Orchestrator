@@ -1,0 +1,164 @@
+version: '3.8'
+
+# ============================================================================
+# MONITORING STACK - Prometheus + Grafana
+# Week 5 Day 2 - Performance & Load Testing
+#
+# Purpose:
+# - Prometheus: Metrics collection (API latency, throughput, error rate)
+# - Grafana: Visualization dashboards (real-time performance monitoring)
+# - Node Exporter: System metrics (CPU, memory, disk, network)
+#
+# Services:
+# - prometheus: Metrics database (port 9090)
+# - grafana: Dashboard UI (port 3001 - avoid conflict with frontend 3000)
+# - node-exporter: System metrics collector (port 9100)
+#
+# Integration:
+# - FastAPI exposes /metrics endpoint (prometheus_client)
+# - Prometheus scrapes /metrics every 15 seconds
+# - Grafana queries Prometheus for visualization
+# ============================================================================
+
+services:
+  # ==========================================================================
+  # PROMETHEUS - Metrics Collection & Storage
+  # ==========================================================================
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: sdlc_prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'  # Keep metrics for 30 days
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'  # Enable /reload endpoint
+    networks:
+      - monitoring_network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ==========================================================================
+  # GRAFANA - Dashboard & Visualization
+  # ==========================================================================
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: sdlc_grafana_monitoring
+    restart: unless-stopped
+    ports:
+      - "3001:3000"  # Port 3001 (avoid conflict with frontend port 3000)
+    environment:
+      # Admin credentials
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=SecureGrafana123!
+
+      # Security settings
+      - GF_SECURITY_DISABLE_GRAVATAR=true
+      - GF_SECURITY_COOKIE_SECURE=true
+      - GF_SECURITY_COOKIE_SAMESITE=strict
+
+      # Anonymous access (disabled)
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+
+      # Server settings
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_SERVER_SERVE_FROM_SUB_PATH=false
+
+      # Database (SQLite)
+      - GF_DATABASE_TYPE=sqlite3
+      - GF_DATABASE_PATH=/var/lib/grafana/grafana.db
+
+      # Session settings
+      - GF_SESSION_PROVIDER=file
+      - GF_SESSION_PROVIDER_CONFIG=/var/lib/grafana/sessions
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - monitoring_network
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ==========================================================================
+  # NODE EXPORTER - System Metrics
+  # ==========================================================================
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: sdlc_node_exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/host'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host:ro
+    networks:
+      - monitoring_network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9100/metrics"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+# ============================================================================
+# NETWORKS
+# ============================================================================
+networks:
+  monitoring_network:
+    driver: bridge
+    name: sdlc_monitoring_network
+
+# ============================================================================
+# VOLUMES
+# ============================================================================
+volumes:
+  prometheus_data:
+    name: sdlc_prometheus_data
+  grafana_data:
+    name: sdlc_grafana_data
+
+# ============================================================================
+# USAGE INSTRUCTIONS
+# ============================================================================
+#
+# 1. Start monitoring stack:
+#    docker-compose -f docker-compose.monitoring.yml up -d
+#
+# 2. Access Prometheus:
+#    http://localhost:9090
+#    - Query metrics: http_request_duration_seconds
+#    - Check targets: http://localhost:9090/targets
+#
+# 3. Access Grafana:
+#    http://localhost:3001
+#    Username: admin
+#    Password: SecureGrafana123!
+#
+# 4. Stop monitoring stack:
+#    docker-compose -f docker-compose.monitoring.yml down
+#
+# 5. View logs:
+#    docker-compose -f docker-compose.monitoring.yml logs -f
+#
+# ============================================================================

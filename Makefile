@@ -240,6 +240,46 @@ policy-load:
 	@echo "✅ Policy packs loaded"
 
 # ============================================================================
+# Security Scanning & Auditing (Week 5)
+# ============================================================================
+
+security-audit:
+	@echo "🔒 Running comprehensive security audit..."
+	@echo "  - Semgrep SAST scan (OWASP Top 10)"
+	@echo "  - Grype vulnerability scan (CVE database)"
+	@echo "  - Syft SBOM generation (CycloneDX)"
+	@echo "  - Gitleaks secrets detection"
+	@bash scripts/security-audit.sh
+	@echo "✅ Security audit complete. Check reports/security/ for results"
+
+security-scan-quick:
+	@echo "🔍 Running quick security scan (Semgrep only)..."
+	cd backend && semgrep --config=auto --config=p/owasp-top-ten --config=p/python .
+	@echo "✅ Quick scan complete"
+
+security-sbom:
+	@echo "📦 Generating Software Bill of Materials (SBOM)..."
+	@mkdir -p reports/security
+	cd backend && syft packages dir:. -o cyclonedx-json > ../reports/security/sbom-$$(date +%Y%m%d_%H%M%S).json
+	@echo "✅ SBOM generated: reports/security/sbom-*.json"
+
+security-vuln-scan:
+	@echo "🛡️  Scanning for vulnerabilities (Grype)..."
+	@mkdir -p reports/security
+	@cd backend && syft packages dir:. -o cyclonedx-json | grype --output json --file ../reports/security/grype-$$(date +%Y%m%d_%H%M%S).json
+	@echo "✅ Vulnerability scan complete. Check reports/security/ for results"
+
+security-secrets:
+	@echo "🔐 Scanning for hardcoded secrets..."
+	@if command -v gitleaks > /dev/null; then \
+		mkdir -p reports/security; \
+		gitleaks detect --source . --report-path reports/security/gitleaks-$$(date +%Y%m%d_%H%M%S).json --no-banner; \
+		echo "✅ Secrets scan complete. Check reports/security/ for results"; \
+	else \
+		echo "⚠️  gitleaks not installed. Install with: https://github.com/gitleaks/gitleaks#installation"; \
+	fi
+
+# ============================================================================
 # Production Build
 # ============================================================================
 

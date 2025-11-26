@@ -60,6 +60,16 @@ class Settings(BaseSettings):
         # Redis
         - REDIS_URL: Redis connection URL (default: "redis://localhost:6379/0")
 
+        # MinIO (S3-Compatible Storage)
+        - MINIO_ENDPOINT: MinIO server endpoint (default: "minio:9000")
+        - MINIO_ACCESS_KEY: MinIO access key (default: "minioadmin")
+        - MINIO_SECRET_KEY: MinIO secret key (default: "minioadmin_changeme")
+        - MINIO_BUCKET: Evidence vault bucket name (default: "evidence-vault")
+        - MINIO_SECURE: Use HTTPS (default: False for local dev)
+
+        # OPA (Open Policy Agent)
+        - OPA_URL: OPA server URL (default: "http://opa:8181")
+
         # OAuth 2.0
         - GITHUB_CLIENT_ID: GitHub OAuth client ID
         - GITHUB_CLIENT_SECRET: GitHub OAuth client secret
@@ -90,6 +100,16 @@ class Settings(BaseSettings):
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
+
+    # MinIO (S3-Compatible Storage)
+    MINIO_ENDPOINT: str = "minio:9000"
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin_changeme"
+    MINIO_BUCKET: str = "evidence-vault"
+    MINIO_SECURE: bool = False  # Use HTTPS (False for local dev)
+
+    # OPA (Open Policy Agent)
+    OPA_URL: str = "http://opa:8181"
 
     # OAuth 2.0 Providers
     GITHUB_CLIENT_ID: Optional[str] = None

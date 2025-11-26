@@ -89,6 +89,37 @@ paths:
         Returns JWT access token (1 hour) and refresh token (30 days).
 
         If MFA enabled, returns `mfa_required: true` and requires `/auth/mfa/verify`.
+
+        **Real-World Example**:
+        ```bash
+        # Week 3 Day 3 - Functional endpoint
+        curl -X POST http://localhost:8000/api/v1/auth/login \
+          -H "Content-Type: application/json" \
+          -d '{
+            "email": "nguyen.van.anh@mtc.com.vn",
+            "password": "SecurePassword123!"
+          }'
+        ```
+
+        **Response** (200 OK):
+        ```json
+        {
+          "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzMxNjM2MDAsImlhdCI6MTczMzE2MDAwMCwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjI1ZTllZDI1LWMyMzItNGNlMy1hM2VhLTU0NThhODVhOTE1YiJ9.abc123",
+          "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU3NTIwMDAsImlhdCI6MTczMzE2MDAwMCwic3ViIjoiMjVlOWVkMjUtYzIzMi00Y2UzLWEzZWEtNTQ1OGE4NWE5MTViIiwidHlwZSI6InJlZnJlc2gifQ.def456",
+          "token_type": "bearer",
+          "expires_in": 3600
+        }
+        ```
+
+        **Flow**:
+        1. Validate email/password format
+        2. Query database for user by email
+        3. Verify password with bcrypt
+        4. Generate access token (1h expiry, HS256)
+        5. Generate refresh token (30d expiry)
+        6. Store refresh token in database
+        7. Update user.last_login_at
+        8. Return tokens
       operationId: login
       security: []
       requestBody:
@@ -102,11 +133,22 @@ paths:
                 email:
                   type: string
                   format: email
-                  example: john.doe@techcorp.com
+                  example: nguyen.van.anh@mtc.com.vn
                 password:
                   type: string
                   format: password
-                  example: SuperSecret123!
+                  example: SecurePassword123!
+            examples:
+              successful_login:
+                summary: Successful login (Week 3 production data)
+                value:
+                  email: nguyen.van.anh@mtc.com.vn
+                  password: SecurePassword123!
+              admin_login:
+                summary: Admin user login
+                value:
+                  email: admin@sdlc-orchestrator.com
+                  password: AdminSecure456!
       responses:
         '200':
           description: Login successful
@@ -116,8 +158,29 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/AuthTokens'
                   - $ref: '#/components/schemas/MFARequired'
+              examples:
+                successful_login:
+                  summary: Login successful (access + refresh tokens)
+                  value:
+                    access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzMxNjM2MDAsImlhdCI6MTczMzE2MDAwMCwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjI1ZTllZDI1LWMyMzItNGNlMy1hM2VhLTU0NThhODVhOTE1YiJ9.abc123
+                    refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU3NTIwMDAsImlhdCI6MTczMzE2MDAwMCwic3ViIjoiMjVlOWVkMjUtYzIzMi00Y2UzLWEzZWEtNTQ1OGE4NWE5MTViIiwidHlwZSI6InJlZnJlc2gifQ.def456
+                    token_type: bearer
+                    expires_in: 3600
         '401':
           $ref: '#/components/responses/Unauthorized'
+          content:
+            application/json:
+              examples:
+                invalid_credentials:
+                  summary: Invalid email or password
+                  value:
+                    error: unauthorized
+                    message: Invalid email or password
+                inactive_user:
+                  summary: User account inactive
+                  value:
+                    error: forbidden
+                    message: User account is inactive
         '429':
           $ref: '#/components/responses/RateLimited'
 
@@ -158,7 +221,36 @@ paths:
     post:
       tags: [Authentication]
       summary: Refresh access token
-      description: Exchange refresh token for new access token (1 hour).
+      description: |
+        Exchange refresh token for new access token (1 hour).
+
+        **Real-World Example** (Week 3 Day 3):
+        ```bash
+        curl -X POST http://localhost:8000/api/v1/auth/refresh \
+          -H "Content-Type: application/json" \
+          -d '{
+            "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU3NTIwMDAsImlhdCI6MTczMzE2MDAwMCwic3ViIjoiMjVlOWVkMjUtYzIzMi00Y2UzLWEzZWEtNTQ1OGE4NWE5MTViIiwidHlwZSI6InJlZnJlc2gifQ.def456"
+          }'
+        ```
+
+        **Response** (200 OK):
+        ```json
+        {
+          "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzMxNjcyMDAsImlhdCI6MTczMzE2MzYwMCwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjI1ZTllZDI1LWMyMzItNGNlMy1hM2VhLTU0NThhODVhOTE1YiJ9.xyz789",
+          "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU3NTU2MDAsImlhdCI6MTczMzE2MzYwMCwic3ViIjoiMjVlOWVkMjUtYzIzMi00Y2UzLWEzZWEtNTQ1OGE4NWE5MTViIiwidHlwZSI6InJlZnJlc2gifQ.uvw321",
+          "token_type": "bearer",
+          "expires_in": 3600
+        }
+        ```
+
+        **Flow**:
+        1. Decode refresh token (verify signature, check expiry)
+        2. Query database for refresh token (check not revoked)
+        3. Generate new access token (1h expiry)
+        4. Generate new refresh token (30d expiry, rotation)
+        5. Revoke old refresh token (mark as used)
+        6. Store new refresh token
+        7. Return new tokens
       operationId: refreshToken
       security: []
       requestBody:
@@ -171,16 +263,42 @@ paths:
               properties:
                 refresh_token:
                   type: string
-                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU3NTIwMDAsImlhdCI6MTczMzE2MDAwMCwic3ViIjoiMjVlOWVkMjUtYzIzMi00Y2UzLWEzZWEtNTQ1OGE4NWE5MTViIiwidHlwZSI6InJlZnJlc2gifQ.def456
+            examples:
+              valid_refresh:
+                summary: Valid refresh token (Week 3 production data)
+                value:
+                  refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU3NTIwMDAsImlhdCI6MTczMzE2MDAwMCwic3ViIjoiMjVlOWVkMjUtYzIzMi00Y2UzLWEzZWEtNTQ1OGE4NWE5MTViIiwidHlwZSI6InJlZnJlc2gifQ.def456
       responses:
         '200':
-          description: Token refreshed
+          description: Token refreshed (new access + refresh tokens)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthTokens'
+              examples:
+                token_refreshed:
+                  summary: Token refresh successful
+                  value:
+                    access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzMxNjcyMDAsImlhdCI6MTczMzE2MzYwMCwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjI1ZTllZDI1LWMyMzItNGNlMy1hM2VhLTU0NThhODVhOTE1YiJ9.xyz789
+                    refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU3NTU2MDAsImlhdCI6MTczMzE2MzYwMCwic3ViIjoiMjVlOWVkMjUtYzIzMi00Y2UzLWEzZWEtNTQ1OGE4NWE5MTViIiwidHlwZSI6InJlZnJlc2gifQ.uvw321
+                    token_type: bearer
+                    expires_in: 3600
         '401':
           $ref: '#/components/responses/Unauthorized'
+          content:
+            application/json:
+              examples:
+                expired_token:
+                  summary: Refresh token expired
+                  value:
+                    error: unauthorized
+                    message: Refresh token has expired
+                revoked_token:
+                  summary: Refresh token revoked
+                  value:
+                    error: unauthorized
+                    message: Refresh token has been revoked
 
   /auth/oauth/{provider}:
     get:
@@ -237,7 +355,43 @@ paths:
     post:
       tags: [Authentication]
       summary: Logout user (revoke refresh token)
+      description: |
+        Logout user by revoking refresh token.
+
+        **Real-World Example** (Week 3 Day 3):
+        ```bash
+        curl -X POST http://localhost:8000/api/v1/auth/logout \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+          -H "Content-Type: application/json" \
+          -d '{
+            "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU3NTIwMDAsImlhdCI6MTczMzE2MDAwMCwic3ViIjoiMjVlOWVkMjUtYzIzMi00Y2UzLWEzZWEtNTQ1OGE4NWE5MTViIiwidHlwZSI6InJlZnJlc2gifQ.def456"
+          }'
+        ```
+
+        **Response** (200 OK):
+        ```json
+        {
+          "message": "Logged out successfully"
+        }
+        ```
+
+        **Flow**:
+        1. Verify access token (user authentication)
+        2. Decode refresh token from request body
+        3. Mark refresh token as revoked in database
+        4. Return success message
       operationId: logout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
       responses:
         '200':
           description: Logged out successfully
@@ -249,6 +403,196 @@ paths:
                   message:
                     type: string
                     example: Logged out successfully
+              examples:
+                logout_success:
+                  summary: Logout successful (Week 3 production data)
+                  value:
+                    message: Logged out successfully
+
+  /auth/me:
+    get:
+      tags: [Authentication]
+      summary: Get current user profile
+      description: |
+        Get authenticated user's profile information.
+
+        **Real-World Example** (Week 3 Day 3):
+        ```bash
+        curl -X GET http://localhost:8000/api/v1/auth/me \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzMxNjM2MDAsImlhdCI6MTczMzE2MDAwMCwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjI1ZTllZDI1LWMyMzItNGNlMy1hM2VhLTU0NThhODVhOTE1YiJ9.abc123"
+        ```
+
+        **Response** (200 OK):
+        ```json
+        {
+          "id": "25e9ed25-c232-4ce3-a3ea-5458a85a915b",
+          "email": "nguyen.van.anh@mtc.com.vn",
+          "full_name": "Nguyen Van Anh",
+          "role": "admin",
+          "is_active": true,
+          "created_at": "2025-11-28T00:00:00Z",
+          "last_login_at": "2025-12-02T14:30:00Z"
+        }
+        ```
+
+        **Flow**:
+        1. Extract access token from Authorization header
+        2. Decode token and extract user_id (sub claim)
+        3. Query database for user by user_id
+        4. Return user profile (no sensitive data like password_hash)
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, email, full_name, role, is_active]
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    example: 25e9ed25-c232-4ce3-a3ea-5458a85a915b
+                  email:
+                    type: string
+                    format: email
+                    example: nguyen.van.anh@mtc.com.vn
+                  full_name:
+                    type: string
+                    example: Nguyen Van Anh
+                  role:
+                    type: string
+                    enum: [admin, manager, approver, developer, viewer]
+                    example: admin
+                  is_active:
+                    type: boolean
+                    example: true
+                  created_at:
+                    type: string
+                    format: date-time
+                    example: '2025-11-28T00:00:00Z'
+                  last_login_at:
+                    type: string
+                    format: date-time
+                    example: '2025-12-02T14:30:00Z'
+              examples:
+                admin_user:
+                  summary: Admin user profile (Week 3 production data)
+                  value:
+                    id: 25e9ed25-c232-4ce3-a3ea-5458a85a915b
+                    email: nguyen.van.anh@mtc.com.vn
+                    full_name: Nguyen Van Anh
+                    role: admin
+                    is_active: true
+                    created_at: '2025-11-28T00:00:00Z'
+                    last_login_at: '2025-12-02T14:30:00Z'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/health:
+    get:
+      tags: [Authentication]
+      summary: Authentication service health check
+      description: |
+        Check authentication service health status.
+
+        **Real-World Example** (Week 3 Day 3):
+        ```bash
+        curl -X GET http://localhost:8000/api/v1/auth/health
+        ```
+
+        **Response** (200 OK):
+        ```json
+        {
+          "status": "healthy",
+          "version": "1.0.0",
+          "timestamp": "2025-12-02T14:30:00Z"
+        }
+        ```
+      operationId: authHealthCheck
+      security: []
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  version:
+                    type: string
+                    example: '1.0.0'
+                  timestamp:
+                    type: string
+                    format: date-time
+              examples:
+                healthy:
+                  summary: Service healthy (Week 3 production)
+                  value:
+                    status: healthy
+                    version: '1.0.0'
+                    timestamp: '2025-12-02T14:30:00Z'
+
+  /:
+    get:
+      tags: [Authentication]
+      summary: API root endpoint
+      description: |
+        API root endpoint with service information.
+
+        **Real-World Example** (Week 3 Day 3):
+        ```bash
+        curl -X GET http://localhost:8000/api/v1/
+        ```
+
+        **Response** (200 OK):
+        ```json
+        {
+          "message": "SDLC Orchestrator API v1.0.0",
+          "version": "1.0.0",
+          "status": "operational",
+          "documentation": "http://localhost:8000/docs",
+          "timestamp": "2025-12-02T14:30:00Z"
+        }
+        ```
+      operationId: apiRoot
+      security: []
+      responses:
+        '200':
+          description: API root information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: SDLC Orchestrator API v1.0.0
+                  version:
+                    type: string
+                    example: '1.0.0'
+                  status:
+                    type: string
+                    example: operational
+                  documentation:
+                    type: string
+                    example: http://localhost:8000/docs
+                  timestamp:
+                    type: string
+                    format: date-time
+              examples:
+                root:
+                  summary: API root response (Week 3 production)
+                  value:
+                    message: SDLC Orchestrator API v1.0.0
+                    version: '1.0.0'
+                    status: operational
+                    documentation: http://localhost:8000/docs
+                    timestamp: '2025-12-02T14:30:00Z'
 
   # ============================================================
   # ORGANIZATIONS
@@ -525,14 +869,84 @@ paths:
     get:
       tags: [Gates]
       summary: List gates for project
+      description: |
+        List quality gates with pagination and filters.
+
+        **Real-World Example** (Week 3 Day 3):
+        ```bash
+        # List all PENDING_APPROVAL gates for SDLC Orchestrator project
+        curl -X GET "http://localhost:8000/api/v1/gates?project_id=550e8400-e29b-41d4-a716-446655440000&status=PENDING_APPROVAL&page=1&page_size=20" \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        ```
+
+        **Response** (200 OK):
+        ```json
+        {
+          "items": [
+            {
+              "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+              "project_id": "550e8400-e29b-41d4-a716-446655440000",
+              "gate_name": "G2",
+              "gate_type": "SHIP_READY",
+              "stage": "SHIP",
+              "status": "PENDING_APPROVAL",
+              "description": "G2 (Ship Ready) - Production deployment approval",
+              "exit_criteria": [
+                {"criterion": "Zero P0 bugs", "status": "passed"},
+                {"criterion": "95%+ test coverage", "status": "passed"}
+              ],
+              "created_by": "25e9ed25-c232-4ce3-a3ea-5458a85a915b",
+              "created_at": "2025-11-28T08:00:00Z",
+              "updated_at": "2025-11-28T09:30:00Z",
+              "approvals": [],
+              "evidence_count": 3
+            }
+          ],
+          "total": 9,
+          "page": 1,
+          "page_size": 20,
+          "pages": 1
+        }
+        ```
+
+        **Flow**:
+        1. Validate user authentication (JWT token)
+        2. Verify user is project member
+        3. Build query with filters (project_id, stage, status)
+        4. Get total count for pagination
+        5. Apply pagination (offset + limit)
+        6. Return paginated gate list
+
       operationId: listGates
       parameters:
         - $ref: '#/components/parameters/ProjectIdParam'
         - name: status
           in: query
+          description: Filter by status (DRAFT, PENDING_APPROVAL, APPROVED, REJECTED)
           schema:
             type: string
-            enum: [PENDING, PASS, FAIL, WAIVED, BLOCKED]
+            enum: [DRAFT, PENDING_APPROVAL, APPROVED, REJECTED]
+        - name: stage
+          in: query
+          description: Filter by stage (WHY, WHAT, BUILD, TEST, SHIP)
+          schema:
+            type: string
+            example: SHIP
+        - name: page
+          in: query
+          description: Page number (default: 1)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          description: Items per page (default: 20, max: 100)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
       responses:
         '200':
           description: List of gates
@@ -541,15 +955,114 @@ paths:
               schema:
                 type: object
                 properties:
-                  data:
+                  items:
                     type: array
                     items:
                       $ref: '#/components/schemas/Gate'
+                  total:
+                    type: integer
+                    example: 9
+                  page:
+                    type: integer
+                    example: 1
+                  page_size:
+                    type: integer
+                    example: 20
+                  pages:
+                    type: integer
+                    example: 1
+              examples:
+                success_response:
+                  summary: Paginated gate list (Week 3 production data)
+                  value:
+                    items:
+                      - id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                        project_id: 550e8400-e29b-41d4-a716-446655440000
+                        gate_name: G2
+                        gate_type: SHIP_READY
+                        stage: SHIP
+                        status: PENDING_APPROVAL
+                        description: G2 (Ship Ready) - Production deployment approval
+                        exit_criteria:
+                          - criterion: Zero P0 bugs
+                            status: passed
+                          - criterion: 95%+ test coverage
+                            status: passed
+                        created_by: 25e9ed25-c232-4ce3-a3ea-5458a85a915b
+                        created_at: "2025-11-28T08:00:00Z"
+                        updated_at: "2025-11-28T09:30:00Z"
+                        approvals: []
+                        evidence_count: 3
+                    total: 9
+                    page: 1
+                    page_size: 20
+                    pages: 1
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: User not project member
+          content:
+            application/json:
+              examples:
+                forbidden:
+                  summary: User not project member
+                  value:
+                    error: forbidden
+                    message: You must be a project member to view gates
 
   /gates/{gate_id}:
     get:
       tags: [Gates]
       summary: Get gate details
+      description: |
+        Get gate details by ID with approvals and evidence count.
+
+        **Real-World Example** (Week 3 Day 3):
+        ```bash
+        # Get G2 gate details with approval status
+        curl -X GET http://localhost:8000/api/v1/gates/7c9e6679-7425-40de-944b-e07fc1f90ae7 \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        ```
+
+        **Response** (200 OK - Gate APPROVED):
+        ```json
+        {
+          "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+          "project_id": "550e8400-e29b-41d4-a716-446655440000",
+          "gate_name": "G2",
+          "gate_type": "SHIP_READY",
+          "stage": "SHIP",
+          "status": "APPROVED",
+          "description": "G2 (Ship Ready) - Production deployment approval",
+          "exit_criteria": [
+            {"criterion": "Zero P0 bugs", "status": "passed"},
+            {"criterion": "95%+ test coverage", "status": "passed"}
+          ],
+          "created_by": "25e9ed25-c232-4ce3-a3ea-5458a85a915b",
+          "created_at": "2025-11-28T08:00:00Z",
+          "updated_at": "2025-11-28T10:30:00Z",
+          "approved_at": "2025-11-28T10:30:00Z",
+          "approvals": [
+            {
+              "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+              "approved_by": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+              "is_approved": true,
+              "comments": "All exit criteria validated. Approved for production.",
+              "approved_at": "2025-11-28T10:30:00Z"
+            }
+          ],
+          "evidence_count": 3,
+          "policy_violations": []
+        }
+        ```
+
+        **Flow**:
+        1. Fetch gate by ID (with approvals, evidence)
+        2. Verify user is project member
+        3. Load approval details (approver, comments, timestamp)
+        4. Count linked evidence files
+        5. Return gate details
+
       operationId: getGate
       parameters:
         - $ref: '#/components/parameters/GateIdParam'
@@ -560,18 +1073,131 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Gate'
+              examples:
+                gate_approved:
+                  summary: Gate APPROVED (2/2 approvals, Week 3 production data)
+                  value:
+                    id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                    project_id: 550e8400-e29b-41d4-a716-446655440000
+                    gate_name: G2
+                    gate_type: SHIP_READY
+                    stage: SHIP
+                    status: APPROVED
+                    description: G2 (Ship Ready) - Production deployment approval
+                    exit_criteria:
+                      - criterion: Zero P0 bugs
+                        status: passed
+                      - criterion: 95%+ test coverage
+                        status: passed
+                    created_by: 25e9ed25-c232-4ce3-a3ea-5458a85a915b
+                    created_at: "2025-11-28T08:00:00Z"
+                    updated_at: "2025-11-28T10:30:00Z"
+                    approved_at: "2025-11-28T10:30:00Z"
+                    approvals:
+                      - id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                        approved_by: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                        is_approved: true
+                        comments: All exit criteria validated. Approved for production.
+                        approved_at: "2025-11-28T10:30:00Z"
+                    evidence_count: 3
+                    policy_violations: []
+                gate_pending:
+                  summary: Gate PENDING_APPROVAL (0/2 approvals required)
+                  value:
+                    id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                    project_id: 550e8400-e29b-41d4-a716-446655440000
+                    gate_name: G1
+                    gate_type: MARKET_VALIDATION
+                    stage: WHAT
+                    status: PENDING_APPROVAL
+                    description: G1 (Market Validation) - Legal + beta team recruitment
+                    exit_criteria:
+                      - criterion: Legal brief approved
+                        status: passed
+                      - criterion: 10 LOIs signed
+                        status: failed
+                    created_by: 25e9ed25-c232-4ce3-a3ea-5458a85a915b
+                    created_at: "2025-11-21T08:00:00Z"
+                    updated_at: "2025-11-25T14:00:00Z"
+                    approvals: []
+                    evidence_count: 2
+                    policy_violations: []
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: User not project member
+          content:
+            application/json:
+              examples:
+                forbidden:
+                  summary: User not project member
+                  value:
+                    error: forbidden
+                    message: You must be a project member to view this gate
+        '404':
+          description: Gate not found
+          content:
+            application/json:
+              examples:
+                not_found:
+                  summary: Gate not found
+                  value:
+                    error: not_found
+                    message: Gate 7c9e6679-7425-40de-944b-e07fc1f90ae7 not found
 
   /gates/{gate_id}/approve:
     post:
       tags: [Gate Approvals]
       summary: Approve gate
       description: |
-        Approve gate (requires Engineering Manager+ role).
+        Approve or reject gate (CTO, CPO, CEO only).
 
         Gate passes when:
         - Required approvals met (default: 2+)
         - All policy checks PASS
         - No blocking evidence
+
+        **Real-World Example** (Week 3 Day 3 - CTO Approval):
+        ```bash
+        # CTO approves G2 gate with comment
+        curl -X POST http://localhost:8000/api/v1/gates/7c9e6679-7425-40de-944b-e07fc1f90ae7/approve \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+          -H "Content-Type: application/json" \
+          -d '{
+            "approved": true,
+            "comments": "All exit criteria validated. Approved for production."
+          }'
+        ```
+
+        **Response** (200 OK - Gate APPROVED):
+        ```json
+        {
+          "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+          "project_id": "550e8400-e29b-41d4-a716-446655440000",
+          "gate_name": "G2",
+          "status": "APPROVED",
+          "approved_at": "2025-11-28T10:30:00Z",
+          "approvals": [
+            {
+              "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+              "approved_by": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+              "is_approved": true,
+              "comments": "All exit criteria validated. Approved for production.",
+              "approved_at": "2025-11-28T10:30:00Z"
+            }
+          ]
+        }
+        ```
+
+        **Flow**:
+        1. Validate user is CTO/CPO/CEO (require_roles dependency)
+        2. Fetch gate by ID
+        3. Verify gate status is PENDING_APPROVAL
+        4. Create approval record in gate_approvals table
+        5. If approved=true: Change status → APPROVED, set approved_at
+        6. If approved=false: Change status → REJECTED
+        7. Return updated gate with approval details
+
       operationId: approveGate
       parameters:
         - $ref: '#/components/parameters/GateIdParam'
@@ -581,30 +1207,137 @@ paths:
           application/json:
             schema:
               type: object
+              required: [approved]
               properties:
-                comment:
+                approved:
+                  type: boolean
+                  description: true = approve, false = reject
+                  example: true
+                comments:
                   type: string
                   maxLength: 5000
-                  example: AGPL containment strategy looks good
+                  description: Optional comment (mandatory for rejection)
+                  example: All exit criteria validated. Approved for production.
+            examples:
+              approve_gate:
+                summary: CTO approves G2 gate (Week 3 production data)
+                value:
+                  approved: true
+                  comments: All exit criteria validated. Approved for production.
+              reject_gate:
+                summary: CPO rejects G1 gate (missing evidence)
+                value:
+                  approved: false
+                  comments: Legal review incomplete (AGPL containment missing)
       responses:
         '200':
-          description: Gate approved
+          description: Gate approved/rejected
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  approval:
-                    $ref: '#/components/schemas/GateApproval'
-                  gate_status:
-                    $ref: '#/components/schemas/GateStatus'
+                $ref: '#/components/schemas/Gate'
+              examples:
+                gate_approved:
+                  summary: Gate approved (status → APPROVED)
+                  value:
+                    id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                    project_id: 550e8400-e29b-41d4-a716-446655440000
+                    gate_name: G2
+                    gate_type: SHIP_READY
+                    stage: SHIP
+                    status: APPROVED
+                    description: G2 (Ship Ready) - Production deployment approval
+                    approved_at: "2025-11-28T10:30:00Z"
+                    approvals:
+                      - id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                        approved_by: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                        is_approved: true
+                        comments: All exit criteria validated. Approved for production.
+                        approved_at: "2025-11-28T10:30:00Z"
+                gate_rejected:
+                  summary: Gate rejected (status → REJECTED)
+                  value:
+                    id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                    project_id: 550e8400-e29b-41d4-a716-446655440000
+                    gate_name: G1
+                    gate_type: MARKET_VALIDATION
+                    stage: WHAT
+                    status: REJECTED
+                    description: G1 (Market Validation) - Legal + beta team recruitment
+                    approvals:
+                      - id: b2c3d4e5-f6a7-8901-bcde-f12345678901
+                        approved_by: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                        is_approved: false
+                        comments: Legal review incomplete (AGPL containment missing)
+                        approved_at: "2025-11-25T15:00:00Z"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          description: User not authorized (CTO/CPO/CEO only) or gate not PENDING_APPROVAL
+          content:
+            application/json:
+              examples:
+                forbidden_role:
+                  summary: User not CTO/CPO/CEO
+                  value:
+                    error: forbidden
+                    message: Only CTO, CPO, or CEO can approve gates
+                forbidden_status:
+                  summary: Gate not PENDING_APPROVAL
+                  value:
+                    error: forbidden
+                    message: Cannot approve gate with status 'DRAFT' (must be PENDING_APPROVAL)
+        '404':
+          description: Gate not found
+          content:
+            application/json:
+              examples:
+                not_found:
+                  summary: Gate not found
+                  value:
+                    error: not_found
+                    message: Gate 7c9e6679-7425-40de-944b-e07fc1f90ae7 not found
 
   /gates/{gate_id}/reject:
     post:
       tags: [Gate Approvals]
       summary: Reject gate
+      description: |
+        Reject gate (CTO, CPO, CEO only). Comment is mandatory for rejection.
+
+        **Real-World Example** (Week 3 Day 3 - CPO Rejection):
+        ```bash
+        # CPO rejects G1 gate due to missing legal evidence
+        curl -X POST http://localhost:8000/api/v1/gates/7c9e6679-7425-40de-944b-e07fc1f90ae7/reject \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+          -H "Content-Type: application/json" \
+          -d '{
+            "comment": "Legal review incomplete (AGPL containment missing)"
+          }'
+        ```
+
+        **Response** (200 OK):
+        ```json
+        {
+          "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+          "gate_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+          "approved_by": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+          "approved_by_name": "Lê Thị Bích (CPO)",
+          "is_approved": false,
+          "comments": "Legal review incomplete (AGPL containment missing)",
+          "approved_at": "2025-11-25T15:00:00Z"
+        }
+        ```
+
+        **Flow**:
+        1. Validate user is CTO/CPO/CEO
+        2. Fetch gate by ID
+        3. Verify gate status is PENDING_APPROVAL
+        4. Validate comment is provided (mandatory for rejection)
+        5. Create rejection record (is_approved=false)
+        6. Change gate status → REJECTED
+        7. Return rejection approval record
+
       operationId: rejectGate
       parameters:
         - $ref: '#/components/parameters/GateIdParam'
@@ -619,7 +1352,17 @@ paths:
                 comment:
                   type: string
                   maxLength: 5000
+                  description: Mandatory rejection reason
                   example: Legal review incomplete (AGPL containment missing)
+            examples:
+              reject_legal_missing:
+                summary: CPO rejects G1 - missing legal evidence (Week 3 production data)
+                value:
+                  comment: Legal review incomplete (AGPL containment missing)
+              reject_quality_fail:
+                summary: CTO rejects G2 - test coverage below 95%
+                value:
+                  comment: Test coverage only 87% (target: 95%+). 12 integration tests failing.
       responses:
         '200':
           description: Gate rejected
@@ -627,18 +1370,103 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GateApproval'
+              examples:
+                rejection_recorded:
+                  summary: Rejection recorded (gate status → REJECTED)
+                  value:
+                    id: b2c3d4e5-f6a7-8901-bcde-f12345678901
+                    gate_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                    approved_by: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                    approved_by_name: Lê Thị Bích (CPO)
+                    approved_by_role: CPO
+                    is_approved: false
+                    comments: Legal review incomplete (AGPL containment missing)
+                    approved_at: "2025-11-25T15:00:00Z"
+        '400':
+          description: Comment is mandatory for rejection
+          content:
+            application/json:
+              examples:
+                missing_comment:
+                  summary: Rejection comment missing
+                  value:
+                    error: validation_error
+                    message: Comment is mandatory for gate rejection
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: User not authorized (CTO/CPO/CEO only) or gate not PENDING_APPROVAL
+          content:
+            application/json:
+              examples:
+                forbidden_role:
+                  summary: User not CTO/CPO/CEO
+                  value:
+                    error: forbidden
+                    message: Only CTO, CPO, or CEO can reject gates
+                forbidden_status:
+                  summary: Gate not PENDING_APPROVAL
+                  value:
+                    error: forbidden
+                    message: Cannot reject gate with status 'DRAFT' (must be PENDING_APPROVAL)
+        '404':
+          description: Gate not found
+          content:
+            application/json:
+              examples:
+                not_found:
+                  summary: Gate not found
+                  value:
+                    error: not_found
+                    message: Gate 7c9e6679-7425-40de-944b-e07fc1f90ae7 not found
 
   /gates/{gate_id}/waive:
     post:
       tags: [Gate Approvals]
       summary: Waive gate (emergency bypass, CTO/CEO only)
       description: |
-        Emergency waiver (CTO/CEO only).
+        Emergency waiver (CTO/CEO only). Use ONLY for critical production incidents.
 
-        Requires:
+        Requirements:
         - Waiver reason (mandatory)
         - Expiry date (max 21 days)
         - Post-incident review (within 7 days)
+
+        **Real-World Example** (P0 Incident - Emergency Waiver):
+        ```bash
+        # CEO waives G2 gate for emergency production fix (customer P0 incident)
+        curl -X POST http://localhost:8000/api/v1/gates/7c9e6679-7425-40de-944b-e07fc1f90ae7/waive \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+          -H "Content-Type: application/json" \
+          -d '{
+            "reason": "Emergency production fix (customer P0 incident - data loss for 5K users). Post-incident review scheduled for Dec 10.",
+            "expires_at": "2025-12-24T00:00:00Z"
+          }'
+        ```
+
+        **Response** (200 OK):
+        ```json
+        {
+          "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+          "gate_name": "G2",
+          "status": "WAIVED",
+          "waiver_reason": "Emergency production fix (customer P0 incident - data loss for 5K users). Post-incident review scheduled for Dec 10.",
+          "waiver_expires_at": "2025-12-24T00:00:00Z",
+          "waived_by": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "waived_at": "2025-12-03T14:30:00Z"
+        }
+        ```
+
+        **Flow**:
+        1. Validate user is CTO/CEO (CEO-only for waivers)
+        2. Fetch gate by ID
+        3. Validate waiver reason provided (mandatory)
+        4. Validate expiry date ≤ 21 days from now
+        5. Change gate status → WAIVED
+        6. Record waiver (reason, expiry, waived_by, waived_at)
+        7. Trigger post-incident review reminder (7 days)
+        8. Return waived gate details
+
       operationId: waiveGate
       parameters:
         - $ref: '#/components/parameters/GateIdParam'
@@ -653,11 +1481,24 @@ paths:
                 reason:
                   type: string
                   maxLength: 5000
-                  example: Emergency production fix (customer P0 incident)
+                  description: Mandatory waiver reason (must justify emergency bypass)
+                  example: Emergency production fix (customer P0 incident - data loss for 5K users). Post-incident review scheduled for Dec 10.
                 expires_at:
                   type: string
                   format: date-time
-                  example: '2025-12-04T00:00:00Z'
+                  description: Waiver expiry date (max 21 days from now)
+                  example: '2025-12-24T00:00:00Z'
+            examples:
+              waive_p0_incident:
+                summary: CEO waives G2 for P0 production incident (Week 3 emergency case)
+                value:
+                  reason: Emergency production fix (customer P0 incident - data loss for 5K users). Post-incident review scheduled for Dec 10.
+                  expires_at: "2025-12-24T00:00:00Z"
+              waive_security_patch:
+                summary: CTO waives G2 for critical security patch (CVE-2025-12345)
+                value:
+                  reason: Critical security patch (CVE-2025-12345 - RCE vulnerability, CVSS 9.8). Hotfix deployed with manual testing only.
+                  expires_at: "2025-12-10T00:00:00Z"
       responses:
         '200':
           description: Gate waived
@@ -665,6 +1506,58 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Gate'
+              examples:
+                waiver_approved:
+                  summary: Gate waived (status → WAIVED)
+                  value:
+                    id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                    project_id: 550e8400-e29b-41d4-a716-446655440000
+                    gate_name: G2
+                    gate_type: SHIP_READY
+                    stage: SHIP
+                    status: WAIVED
+                    description: G2 (Ship Ready) - Production deployment approval
+                    waiver_reason: Emergency production fix (customer P0 incident - data loss for 5K users). Post-incident review scheduled for Dec 10.
+                    waiver_expires_at: "2025-12-24T00:00:00Z"
+                    waived_by: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                    waived_at: "2025-12-03T14:30:00Z"
+        '400':
+          description: Waiver validation error (expiry date > 21 days or missing reason)
+          content:
+            application/json:
+              examples:
+                expiry_too_long:
+                  summary: Waiver expiry date exceeds 21 days
+                  value:
+                    error: validation_error
+                    message: Waiver expiry date cannot exceed 21 days (max: 2025-12-24)
+                missing_reason:
+                  summary: Waiver reason missing
+                  value:
+                    error: validation_error
+                    message: Waiver reason is mandatory for emergency bypass
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: User not authorized (CTO/CEO only)
+          content:
+            application/json:
+              examples:
+                forbidden_role:
+                  summary: User not CTO/CEO
+                  value:
+                    error: forbidden
+                    message: Only CTO or CEO can waive gates
+        '404':
+          description: Gate not found
+          content:
+            application/json:
+              examples:
+                not_found:
+                  summary: Gate not found
+                  value:
+                    error: not_found
+                    message: Gate 7c9e6679-7425-40de-944b-e07fc1f90ae7 not found
 
   # ============================================================
   # EVIDENCE
@@ -674,26 +1567,52 @@ paths:
     get:
       tags: [Evidence]
       summary: List evidence files
+      description: |
+        List evidence files with pagination and filtering.
+
+        **Real-World Example** (Week 3 Day 4):
+        ```bash
+        # List all COMPLIANCE evidence for G1 gate
+        curl -X GET "http://localhost:8000/api/v1/evidence?gate_id=7c9e6679-7425-40de-944b-e07fc1f90ae7&evidence_type=COMPLIANCE&page=1&page_size=20" \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        ```
+
+        **Flow**:
+        1. Build query with filters (gate_id, evidence_type)
+        2. Get total count for pagination
+        3. Apply pagination (offset + limit)
+        4. Load latest integrity check for each evidence
+        5. Return paginated evidence list
+
       operationId: listEvidence
       parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-        - name: project_id
+        - name: gate_id
           in: query
+          description: Filter by gate UUID
           schema:
             type: string
             format: uuid
-        - name: type
+        - name: evidence_type
           in: query
+          description: Filter by evidence type
           schema:
             type: string
-            enum: [document, screenshot, test_report, sbom, legal_review]
-        - name: search
+            enum: [DESIGN_DOCUMENT, TEST_RESULTS, CODE_REVIEW, DEPLOYMENT_PROOF, DOCUMENTATION, COMPLIANCE]
+        - name: page
           in: query
-          description: Semantic search query (AI-powered via pgvector)
+          description: Page number (default: 1)
           schema:
-            type: string
-            example: AGPL license review
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          description: Items per page (default: 20, max: 100)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
       responses:
         '200':
           description: List of evidence
@@ -702,21 +1621,71 @@ paths:
               schema:
                 type: object
                 properties:
-                  data:
+                  items:
                     type: array
                     items:
                       $ref: '#/components/schemas/Evidence'
-                  pagination:
-                    $ref: '#/components/schemas/Pagination'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  page_size:
+                    type: integer
+                  pages:
+                    type: integer
 
     post:
       tags: [Evidence]
       summary: Upload evidence file
       description: |
-        Upload evidence file (max 100MB).
+        Upload evidence file (max 100MB) to Evidence Vault (FR2).
 
         File stored in MinIO (S3-compatible).
         SHA-256 hash computed for integrity verification.
+
+        **Real-World Example** (Week 3 Day 4 - Legal Brief Upload):
+        ```bash
+        # Upload legal review report (PDF, 1.2MB)
+        curl -X POST http://localhost:8000/api/v1/evidence/upload \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+          -F "gate_id=7c9e6679-7425-40de-944b-e07fc1f90ae7" \
+          -F "evidence_type=COMPLIANCE" \
+          -F "description=AGPL containment legal brief (Nov 25, 2025)" \
+          -F "file=@legal-review-report.pdf"
+        ```
+
+        **Response** (201 Created):
+        ```json
+        {
+          "id": "e1f2a3b4-c5d6-7890-abcd-ef1234567890",
+          "gate_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+          "file_name": "legal-review-report.pdf",
+          "file_size": 1258291,
+          "file_size_mb": 1.2,
+          "file_type": "application/pdf",
+          "evidence_type": "COMPLIANCE",
+          "sha256_hash": "5d41402abc4b2a76b9719d911017c59216b140f681234e1a5d41402abc4b2a76",
+          "description": "AGPL containment legal brief (Nov 25, 2025)",
+          "uploaded_by": "25e9ed25-c232-4ce3-a3ea-5458a85a915b",
+          "uploaded_by_name": "Nguyen Van Anh",
+          "uploaded_at": "2025-11-25T14:30:00Z",
+          "s3_url": "s3://sdlc-evidence/evidence/gate-7c9e6679-7425-40de-944b-e07fc1f90ae7/legal-review-report.pdf",
+          "download_url": "/api/v1/evidence/e1f2a3b4-c5d6-7890-abcd-ef1234567890/download",
+          "integrity_status": "valid",
+          "last_integrity_check": "2025-11-25T14:30:00Z"
+        }
+        ```
+
+        **Flow**:
+        1. Validate gate exists
+        2. Validate evidence_type (DESIGN_DOCUMENT, TEST_RESULTS, CODE_REVIEW, DEPLOYMENT_PROOF, DOCUMENTATION, COMPLIANCE)
+        3. Validate file size ≤ 100MB
+        4. Upload file to MinIO S3 (bucket: sdlc-evidence)
+        5. Compute SHA256 hash
+        6. Create evidence record in database
+        7. Create initial integrity check (valid)
+        8. Return evidence metadata
+
       operationId: uploadEvidence
       requestBody:
         required: true
@@ -724,26 +1693,27 @@ paths:
           multipart/form-data:
             schema:
               type: object
-              required: [file, project_id, title]
+              required: [file, gate_id, evidence_type]
               properties:
                 file:
                   type: string
                   format: binary
-                project_id:
+                  description: Evidence file (max 100MB)
+                gate_id:
                   type: string
                   format: uuid
-                title:
+                  description: Gate UUID to attach evidence
+                  example: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                evidence_type:
                   type: string
-                  maxLength: 500
+                  enum: [DESIGN_DOCUMENT, TEST_RESULTS, CODE_REVIEW, DEPLOYMENT_PROOF, DOCUMENTATION, COMPLIANCE]
+                  description: Evidence category
+                  example: COMPLIANCE
                 description:
                   type: string
                   maxLength: 5000
-                type:
-                  type: string
-                  enum: [document, screenshot, test_report, sbom, legal_review]
-                metadata:
-                  type: object
-                  description: Custom metadata (JSON)
+                  description: Optional evidence description
+                  example: AGPL containment legal brief (Nov 25, 2025)
       responses:
         '201':
           description: Evidence uploaded
@@ -751,10 +1721,56 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Evidence'
+              examples:
+                legal_brief_uploaded:
+                  summary: Legal brief uploaded (Week 3 production data)
+                  value:
+                    id: e1f2a3b4-c5d6-7890-abcd-ef1234567890
+                    gate_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                    file_name: legal-review-report.pdf
+                    file_size: 1258291
+                    file_size_mb: 1.2
+                    file_type: application/pdf
+                    evidence_type: COMPLIANCE
+                    sha256_hash: 5d41402abc4b2a76b9719d911017c59216b140f681234e1a5d41402abc4b2a76
+                    description: AGPL containment legal brief (Nov 25, 2025)
+                    uploaded_by: 25e9ed25-c232-4ce3-a3ea-5458a85a915b
+                    uploaded_by_name: Nguyen Van Anh
+                    uploaded_at: "2025-11-25T14:30:00Z"
+                    s3_url: s3://sdlc-evidence/evidence/gate-7c9e6679-7425-40de-944b-e07fc1f90ae7/legal-review-report.pdf
+                    download_url: /api/v1/evidence/e1f2a3b4-c5d6-7890-abcd-ef1234567890/download
+                    integrity_status: valid
+                    last_integrity_check: "2025-11-25T14:30:00Z"
         '400':
-          $ref: '#/components/responses/BadRequest'
+          description: Invalid evidence_type or gate not found
+          content:
+            application/json:
+              examples:
+                invalid_evidence_type:
+                  summary: Invalid evidence_type
+                  value:
+                    error: validation_error
+                    message: "Invalid evidence_type 'INVALID'. Allowed: DESIGN_DOCUMENT, TEST_RESULTS, CODE_REVIEW, DEPLOYMENT_PROOF, DOCUMENTATION, COMPLIANCE"
+        '404':
+          description: Gate not found
+          content:
+            application/json:
+              examples:
+                gate_not_found:
+                  summary: Gate not found
+                  value:
+                    error: not_found
+                    message: Gate with ID 7c9e6679-7425-40de-944b-e07fc1f90ae7 not found
         '413':
           description: File too large (max 100MB)
+          content:
+            application/json:
+              examples:
+                file_too_large:
+                  summary: File exceeds 100MB limit
+                  value:
+                    error: file_too_large
+                    message: File size 157286400 bytes exceeds maximum 104857600 bytes
 
   /evidence/{evidence_id}:
     get:
@@ -844,6 +1860,601 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EvidenceLink'
+
+  # ============================================================
+  # POLICIES (FR5 - Policy Pack Library)
+  # ============================================================
+
+  /policies:
+    get:
+      tags: [Policies]
+      summary: List policies from policy pack library
+      description: |
+        List policies with filters (stage, active status, pagination).
+
+        **Real-World Example** (Week 3 Day 4 - List WHAT stage policies):
+        ```bash
+        # List all active policies for WHAT stage (G0.1, G0.2, G1, G2)
+        curl -X GET "http://localhost:8000/api/v1/policies?stage=WHAT&is_active=true&page=1&page_size=20" \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        ```
+
+        **Response** (200 OK - 10 policies for WHAT stage):
+        ```json
+        {
+          "items": [
+            {
+              "id": "f1a2b3c4-d5e6-7890-abcd-ef1234567890",
+              "policy_name": "Problem Statement Completeness",
+              "policy_code": "PROBLEM_STATEMENT_COMPLETENESS",
+              "stage": "WHAT",
+              "description": "Validates problem statement contains: problem description, impact quantification, root cause analysis",
+              "rego_code": "package sdlc.what.problem_statement\n\ndefault allow = false\n\nallow {\n  input.problem_description\n  input.impact_quantified\n  input.root_cause_analysis\n}",
+              "severity": "critical",
+              "is_active": true,
+              "version": "1.0.0",
+              "created_at": "2025-11-18T10:00:00Z",
+              "updated_at": "2025-11-18T10:00:00Z"
+            },
+            {
+              "id": "a2b3c4d5-e6f7-8901-bcde-f12345678901",
+              "policy_name": "FRD Completeness",
+              "policy_code": "FRD_COMPLETENESS",
+              "stage": "WHAT",
+              "description": "Validates FRD contains: Introduction, Functional Requirements, API Contracts, Non-Functional Requirements",
+              "severity": "critical",
+              "is_active": true,
+              "version": "1.0.0",
+              "created_at": "2025-11-18T10:00:00Z",
+              "updated_at": "2025-11-18T10:00:00Z"
+            }
+          ],
+          "total": 10,
+          "page": 1,
+          "page_size": 20,
+          "pages": 1
+        }
+        ```
+
+        **Flow**:
+        1. Parse query parameters (stage, is_active, page, page_size)
+        2. Build SQL query with filters (WHERE stage = 'WHAT' AND is_active = true)
+        3. Get total count (COUNT(*))
+        4. Apply pagination (OFFSET (page-1)*page_size LIMIT page_size)
+        5. Fetch policies ordered by stage, policy_code
+        6. Return paginated response
+
+      operationId: listPolicies
+      parameters:
+        - name: stage
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [WHY, WHAT, BUILD, LAUNCH, RUN, OPERATE, MONITOR, LEARN, EVOLVE, SUNSET]
+          description: Filter by SDLC stage (WHY, WHAT, BUILD, etc.)
+          example: WHAT
+        - name: is_active
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+          description: Filter by active status
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of policies
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total, page, page_size, pages]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Policy'
+                  total:
+                    type: integer
+                    example: 10
+                  page:
+                    type: integer
+                    example: 1
+                  page_size:
+                    type: integer
+                    example: 20
+                  pages:
+                    type: integer
+                    example: 1
+              examples:
+                what_stage_policies:
+                  summary: List WHAT stage policies (Week 3 production data)
+                  value:
+                    items:
+                      - id: f1a2b3c4-d5e6-7890-abcd-ef1234567890
+                        policy_name: Problem Statement Completeness
+                        policy_code: PROBLEM_STATEMENT_COMPLETENESS
+                        stage: WHAT
+                        description: Validates problem statement contains required sections
+                        severity: critical
+                        is_active: true
+                        version: "1.0.0"
+                        created_at: "2025-11-18T10:00:00Z"
+                        updated_at: "2025-11-18T10:00:00Z"
+                      - id: a2b3c4d5-e6f7-8901-bcde-f12345678901
+                        policy_name: FRD Completeness
+                        policy_code: FRD_COMPLETENESS
+                        stage: WHAT
+                        description: Validates FRD contains required sections
+                        severity: critical
+                        is_active: true
+                        version: "1.0.0"
+                        created_at: "2025-11-18T10:00:00Z"
+                        updated_at: "2025-11-18T10:00:00Z"
+                    total: 10
+                    page: 1
+                    page_size: 20
+                    pages: 1
+
+  /policies/{policy_id}:
+    get:
+      tags: [Policies]
+      summary: Get policy details with OPA Rego code
+      description: |
+        Get policy details by ID (includes Rego code for OPA evaluation).
+
+        **Real-World Example** (Week 3 Day 4 - Get FRD Completeness policy):
+        ```bash
+        curl -X GET http://localhost:8000/api/v1/policies/a2b3c4d5-e6f7-8901-bcde-f12345678901 \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        ```
+
+        **Response** (200 OK):
+        ```json
+        {
+          "id": "a2b3c4d5-e6f7-8901-bcde-f12345678901",
+          "policy_name": "FRD Completeness",
+          "policy_code": "FRD_COMPLETENESS",
+          "stage": "WHAT",
+          "description": "Validates FRD contains: Introduction, Functional Requirements, API Contracts, Non-Functional Requirements",
+          "rego_code": "package sdlc.what.frd_completeness\n\ndefault allow = false\n\nallow {\n  input.frd_sections.Introduction\n  input.frd_sections.FunctionalRequirements\n  input.frd_sections.APIContracts\n}",
+          "severity": "critical",
+          "is_active": true,
+          "version": "1.0.0",
+          "created_at": "2025-11-18T10:00:00Z",
+          "updated_at": "2025-11-18T10:00:00Z"
+        }
+        ```
+
+        **Flow**:
+        1. Parse policy_id from path parameter
+        2. Query database: SELECT * FROM policies WHERE id = policy_id
+        3. If not found, return 404 Not Found
+        4. Return policy with Rego code
+
+      operationId: getPolicy
+      parameters:
+        - name: policy_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Policy UUID
+          example: a2b3c4d5-e6f7-8901-bcde-f12345678901
+      responses:
+        '200':
+          description: Policy details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+              examples:
+                frd_completeness_policy:
+                  summary: FRD Completeness policy (Week 3 production data)
+                  value:
+                    id: a2b3c4d5-e6f7-8901-bcde-f12345678901
+                    policy_name: FRD Completeness
+                    policy_code: FRD_COMPLETENESS
+                    stage: WHAT
+                    description: Validates FRD contains required sections
+                    rego_code: |
+                      package sdlc.what.frd_completeness
+
+                      default allow = false
+
+                      allow {
+                        input.frd_sections.Introduction
+                        input.frd_sections.FunctionalRequirements
+                        input.frd_sections.APIContracts
+                      }
+                    severity: critical
+                    is_active: true
+                    version: "1.0.0"
+                    created_at: "2025-11-18T10:00:00Z"
+                    updated_at: "2025-11-18T10:00:00Z"
+        '404':
+          description: Policy not found
+          content:
+            application/json:
+              examples:
+                not_found:
+                  summary: Policy not found
+                  value:
+                    error: not_found
+                    message: Policy with ID a2b3c4d5-e6f7-8901-bcde-f12345678901 not found
+
+  /policies/evaluate:
+    post:
+      tags: [Policies]
+      summary: Evaluate policy against gate (OPA integration)
+      description: |
+        Evaluate a policy against a gate with custom input data.
+
+        **IMPORTANT**: Week 3 Day 4 uses MOCK OPA evaluation (no actual Rego execution).
+        Full OPA integration will be added in Week 4 Days 3-4.
+
+        **Real-World Example** (Week 3 Day 4 - Evaluate FRD Completeness):
+        ```bash
+        # Evaluate FRD Completeness policy for G1 gate
+        curl -X POST http://localhost:8000/api/v1/policies/evaluate \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+          -H "Content-Type: application/json" \
+          -d '{
+            "gate_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+            "policy_id": "a2b3c4d5-e6f7-8901-bcde-f12345678901",
+            "input_data": {
+              "frd_sections": {
+                "Introduction": true,
+                "FunctionalRequirements": true,
+                "APIContracts": true,
+                "NonFunctionalRequirements": true
+              }
+            }
+          }'
+        ```
+
+        **Response** (201 Created - PASS):
+        ```json
+        {
+          "id": "e1f2a3b4-c5d6-7890-abcd-ef1234567890",
+          "gate_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+          "policy_id": "a2b3c4d5-e6f7-8901-bcde-f12345678901",
+          "policy_name": "FRD Completeness",
+          "result": "pass",
+          "violations": [],
+          "evaluated_at": "2025-11-18T14:30:00Z",
+          "evaluated_by": "user-25e9ed25-c232-4ce3-a3ea-5458a85a915b"
+        }
+        ```
+
+        **Response** (201 Created - FAIL):
+        ```json
+        {
+          "id": "f2a3b4c5-d6e7-8901-bcde-f12345678901",
+          "gate_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+          "policy_id": "a2b3c4d5-e6f7-8901-bcde-f12345678901",
+          "policy_name": "FRD Completeness",
+          "result": "fail",
+          "violations": [
+            "FRD missing required section: APIContracts"
+          ],
+          "evaluated_at": "2025-11-18T14:30:00Z",
+          "evaluated_by": "user-25e9ed25-c232-4ce3-a3ea-5458a85a915b"
+        }
+        ```
+
+        **Flow** (Week 4 will replace step 5 with real OPA):
+        1. Validate gate exists (404 if not found)
+        2. Validate policy exists (404 if not found)
+        3. Extract input_data from request body
+        4. **Week 3 MOCK**: Call _mock_opa_evaluation(policy, input_data)
+        5. **Week 4 REAL**: POST to http://opa:8181/v1/data/sdlc/{stage}/{policy_code}
+        6. Parse result (pass/fail) and violations
+        7. Save evaluation to policy_evaluations table
+        8. Return evaluation result
+
+      operationId: evaluatePolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [gate_id, policy_id, input_data]
+              properties:
+                gate_id:
+                  type: string
+                  format: uuid
+                  description: Gate UUID to evaluate against
+                  example: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                policy_id:
+                  type: string
+                  format: uuid
+                  description: Policy UUID to evaluate
+                  example: a2b3c4d5-e6f7-8901-bcde-f12345678901
+                input_data:
+                  type: object
+                  description: Input data for policy evaluation (JSON object passed to OPA)
+                  example:
+                    frd_sections:
+                      Introduction: true
+                      FunctionalRequirements: true
+                      APIContracts: true
+            examples:
+              frd_completeness_pass:
+                summary: FRD Completeness evaluation (PASS - Week 3 production)
+                value:
+                  gate_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                  policy_id: a2b3c4d5-e6f7-8901-bcde-f12345678901
+                  input_data:
+                    frd_sections:
+                      Introduction: true
+                      FunctionalRequirements: true
+                      APIContracts: true
+                      NonFunctionalRequirements: true
+              frd_completeness_fail:
+                summary: FRD Completeness evaluation (FAIL - missing APIContracts)
+                value:
+                  gate_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                  policy_id: a2b3c4d5-e6f7-8901-bcde-f12345678901
+                  input_data:
+                    frd_sections:
+                      Introduction: true
+                      FunctionalRequirements: true
+                      APIContracts: false
+      responses:
+        '201':
+          description: Policy evaluation created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, gate_id, policy_id, policy_name, result, violations, evaluated_at, evaluated_by]
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    example: e1f2a3b4-c5d6-7890-abcd-ef1234567890
+                  gate_id:
+                    type: string
+                    format: uuid
+                    example: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                  policy_id:
+                    type: string
+                    format: uuid
+                    example: a2b3c4d5-e6f7-8901-bcde-f12345678901
+                  policy_name:
+                    type: string
+                    example: FRD Completeness
+                  result:
+                    type: string
+                    enum: [pass, fail]
+                    example: pass
+                  violations:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                  evaluated_at:
+                    type: string
+                    format: date-time
+                    example: "2025-11-18T14:30:00Z"
+                  evaluated_by:
+                    type: string
+                    example: user-25e9ed25-c232-4ce3-a3ea-5458a85a915b
+              examples:
+                evaluation_pass:
+                  summary: Evaluation PASS (all sections present)
+                  value:
+                    id: e1f2a3b4-c5d6-7890-abcd-ef1234567890
+                    gate_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                    policy_id: a2b3c4d5-e6f7-8901-bcde-f12345678901
+                    policy_name: FRD Completeness
+                    result: pass
+                    violations: []
+                    evaluated_at: "2025-11-18T14:30:00Z"
+                    evaluated_by: user-25e9ed25-c232-4ce3-a3ea-5458a85a915b
+                evaluation_fail:
+                  summary: Evaluation FAIL (missing APIContracts section)
+                  value:
+                    id: f2a3b4c5-d6e7-8901-bcde-f12345678901
+                    gate_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                    policy_id: a2b3c4d5-e6f7-8901-bcde-f12345678901
+                    policy_name: FRD Completeness
+                    result: fail
+                    violations:
+                      - "FRD missing required section: APIContracts"
+                    evaluated_at: "2025-11-18T14:30:00Z"
+                    evaluated_by: user-25e9ed25-c232-4ce3-a3ea-5458a85a915b
+        '404':
+          description: Gate or policy not found
+          content:
+            application/json:
+              examples:
+                gate_not_found:
+                  summary: Gate not found
+                  value:
+                    error: not_found
+                    message: Gate with ID 7c9e6679-7425-40de-944b-e07fc1f90ae7 not found
+                policy_not_found:
+                  summary: Policy not found
+                  value:
+                    error: not_found
+                    message: Policy with ID a2b3c4d5-e6f7-8901-bcde-f12345678901 not found
+
+  /policies/evaluations/{gate_id}:
+    get:
+      tags: [Policies]
+      summary: Get policy evaluation history for gate
+      description: |
+        Get all policy evaluation results for a specific gate.
+
+        **Real-World Example** (Week 3 Day 4 - Get G1 evaluations):
+        ```bash
+        # Get all policy evaluations for G1 gate
+        curl -X GET http://localhost:8000/api/v1/policies/evaluations/7c9e6679-7425-40de-944b-e07fc1f90ae7 \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        ```
+
+        **Response** (200 OK - 3 evaluations: 2 FAIL, 1 PASS):
+        ```json
+        {
+          "items": [
+            {
+              "id": "e1f2a3b4-c5d6-7890-abcd-ef1234567890",
+              "gate_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+              "policy_id": "a2b3c4d5-e6f7-8901-bcde-f12345678901",
+              "policy_name": "FRD Completeness",
+              "result": "pass",
+              "violations": [],
+              "evaluated_at": "2025-11-18T16:00:00Z",
+              "evaluated_by": "system"
+            },
+            {
+              "id": "f2a3b4c5-d6e7-8901-bcde-f12345678901",
+              "gate_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+              "policy_id": "a2b3c4d5-e6f7-8901-bcde-f12345678901",
+              "policy_name": "FRD Completeness",
+              "result": "fail",
+              "violations": ["FRD missing required section: APIContracts"],
+              "evaluated_at": "2025-11-18T14:30:00Z",
+              "evaluated_by": "system"
+            },
+            {
+              "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+              "gate_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+              "policy_id": "f1a2b3c4-d5e6-7890-abcd-ef1234567890",
+              "policy_name": "Problem Statement Completeness",
+              "result": "fail",
+              "violations": ["Missing root cause analysis"],
+              "evaluated_at": "2025-11-18T12:00:00Z",
+              "evaluated_by": "system"
+            }
+          ],
+          "total": 3,
+          "passed": 1,
+          "failed": 2,
+          "pass_rate": 33.33
+        }
+        ```
+
+        **Flow**:
+        1. Parse gate_id from path parameter
+        2. Validate gate exists (404 if not found)
+        3. Query database: SELECT * FROM policy_evaluations WHERE gate_id = gate_id
+        4. Join with policies table to get policy_name
+        5. Calculate stats (total, passed, failed, pass_rate)
+        6. Return evaluation list ordered by evaluated_at DESC
+
+      operationId: getGateEvaluations
+      parameters:
+        - name: gate_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Gate UUID
+          example: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+      responses:
+        '200':
+          description: List of policy evaluations
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total, passed, failed, pass_rate]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, gate_id, policy_id, policy_name, result, violations, evaluated_at, evaluated_by]
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        gate_id:
+                          type: string
+                          format: uuid
+                        policy_id:
+                          type: string
+                          format: uuid
+                        policy_name:
+                          type: string
+                        result:
+                          type: string
+                          enum: [pass, fail]
+                        violations:
+                          type: array
+                          items:
+                            type: string
+                        evaluated_at:
+                          type: string
+                          format: date-time
+                        evaluated_by:
+                          type: string
+                  total:
+                    type: integer
+                    example: 3
+                  passed:
+                    type: integer
+                    example: 1
+                  failed:
+                    type: integer
+                    example: 2
+                  pass_rate:
+                    type: number
+                    format: float
+                    example: 33.33
+              examples:
+                g1_evaluations:
+                  summary: G1 gate evaluations (3 total: 2 FAIL, 1 PASS - Week 3 production)
+                  value:
+                    items:
+                      - id: e1f2a3b4-c5d6-7890-abcd-ef1234567890
+                        gate_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                        policy_id: a2b3c4d5-e6f7-8901-bcde-f12345678901
+                        policy_name: FRD Completeness
+                        result: pass
+                        violations: []
+                        evaluated_at: "2025-11-18T16:00:00Z"
+                        evaluated_by: system
+                      - id: f2a3b4c5-d6e7-8901-bcde-f12345678901
+                        gate_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                        policy_id: a2b3c4d5-e6f7-8901-bcde-f12345678901
+                        policy_name: FRD Completeness
+                        result: fail
+                        violations:
+                          - "FRD missing required section: APIContracts"
+                        evaluated_at: "2025-11-18T14:30:00Z"
+                        evaluated_by: system
+                      - id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                        gate_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                        policy_id: f1a2b3c4-d5e6-7890-abcd-ef1234567890
+                        policy_name: Problem Statement Completeness
+                        result: fail
+                        violations:
+                          - Missing root cause analysis
+                        evaluated_at: "2025-11-18T12:00:00Z"
+                        evaluated_by: system
+                    total: 3
+                    passed: 1
+                    failed: 2
+                    pass_rate: 33.33
+        '404':
+          description: Gate not found
+          content:
+            application/json:
+              examples:
+                not_found:
+                  summary: Gate not found
+                  value:
+                    error: not_found
+                    message: Gate with ID 7c9e6679-7425-40de-944b-e07fc1f90ae7 not found
 
   # ============================================================
   # AUDIT LOGS
@@ -1433,6 +3044,63 @@ components:
         created_at:
           type: string
           format: date-time
+
+    # ============================================================
+    # POLICY (FR5 - Policy Pack Library)
+    # ============================================================
+
+    Policy:
+      type: object
+      required: [id, policy_name, policy_code, stage, description, severity, is_active, version, created_at, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: a2b3c4d5-e6f7-8901-bcde-f12345678901
+        policy_name:
+          type: string
+          example: FRD Completeness
+        policy_code:
+          type: string
+          example: FRD_COMPLETENESS
+        stage:
+          type: string
+          enum: [WHY, WHAT, BUILD, LAUNCH, RUN, OPERATE, MONITOR, LEARN, EVOLVE, SUNSET]
+          example: WHAT
+        description:
+          type: string
+          example: Validates FRD contains required sections (Introduction, Functional Requirements, API Contracts)
+        rego_code:
+          type: string
+          description: OPA Rego policy code
+          example: |
+            package sdlc.what.frd_completeness
+
+            default allow = false
+
+            allow {
+              input.frd_sections.Introduction
+              input.frd_sections.FunctionalRequirements
+              input.frd_sections.APIContracts
+            }
+        severity:
+          type: string
+          enum: [critical, high, medium, low]
+          example: critical
+        is_active:
+          type: boolean
+          example: true
+        version:
+          type: string
+          example: "1.0.0"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-11-18T10:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-11-18T10:00:00Z"
 
     # ============================================================
     # AUDIT LOG

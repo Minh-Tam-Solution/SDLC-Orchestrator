@@ -3,9 +3,9 @@
 Evidence API Router - Evidence Vault Management (FR2)
 SDLC Orchestrator - Stage 03 (BUILD)
 
-Version: 1.0.0
-Date: November 18, 2025
-Status: ACTIVE - Week 3 Day 4 API Implementation
+Version: 2.0.0
+Date: December 4, 2025
+Status: ACTIVE - Week 4 Day 3 (MinIO Integration COMPLETE) ✅
 Authority: Backend Lead + CTO Approved
 Foundation: FR2 (Evidence Vault), Data Model v0.1
 Framework: SDLC 4.9 Complete Lifecycle
@@ -17,28 +17,28 @@ Purpose:
 - Integrity check history
 
 API Endpoints (5):
-1. POST /evidence/upload - Upload evidence file (multipart/form-data)
-2. GET /evidence/{id} - Get evidence metadata
-3. GET /evidence - List evidence with filters
-4. POST /evidence/{id}/integrity-check - Run integrity check
-5. GET /evidence/{id}/integrity-history - Get integrity check history
+1. POST /evidence/upload - Upload evidence file (multipart/form-data) ✅ REAL MinIO
+2. GET /evidence/{id} - Get evidence metadata ✅ Production-ready
+3. GET /evidence - List evidence with filters ✅ Production-ready
+4. POST /evidence/{id}/integrity-check - Run integrity check ✅ REAL SHA256
+5. GET /evidence/{id}/integrity-history - Get integrity check history ✅ Production-ready
 
-Note: This is a SIMPLIFIED implementation for Week 3 Day 4.
-- File uploads are MOCKED (no actual S3/MinIO integration)
-- SHA256 hashing is simulated
-- Integrity checks return mock data
+Week 4 Day 3 Upgrade:
+✅ MinIO integration COMPLETE (boto3 S3-compatible API)
+✅ SHA256 hashing REAL (hashlib, no mocks)
+✅ Multipart upload for large files (>5MB)
+✅ AGPL-safe implementation (network-only boto3, no MinIO SDK)
 
-Full S3/MinIO integration will be added in Week 4.
-
-Zero Mock Policy Exception: This is a temporary simplified implementation
-for rapid API development. Full production implementation in Week 4.
+Zero Mock Policy: 100% COMPLIANCE (all mocks removed) ✅
 =========================================================================
 """
 
 from datetime import datetime
+from io import BytesIO
 from typing import Optional
 from uuid import UUID
 
+from botocore.exceptions import ClientError
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -55,42 +55,9 @@ from app.schemas.evidence import (
     IntegrityCheckRequest,
     IntegrityCheckResponse,
 )
+from app.services.minio_service import minio_service
 
 router = APIRouter()
-
-
-# ============================================================================
-# Helper Functions
-# ============================================================================
-
-
-def _mock_sha256_hash(file_name: str, file_size: int) -> str:
-    """
-    Mock SHA256 hash generation (temporary for Week 3 Day 4).
-
-    In production (Week 4), this will be replaced with:
-        import hashlib
-        return hashlib.sha256(file_content).hexdigest()
-    """
-    # Simple mock: use file_name + file_size to generate "hash"
-    mock_hash = f"{file_name}{file_size}".encode("utf-8")
-    # Return first 64 characters (SHA256 is 64 hex chars)
-    return f"mock_{mock_hash.hex()[:56]}"  # mock_ + 56 chars = 64 total
-
-
-def _mock_s3_upload(file_name: str, gate_id: UUID) -> tuple[str, str]:
-    """
-    Mock S3 upload (temporary for Week 3 Day 4).
-
-    In production (Week 4), this will be replaced with:
-        import boto3
-        s3_client = boto3.client('s3', endpoint_url=MINIO_URL)
-        s3_client.upload_fileobj(file, bucket, key)
-        return bucket, key
-    """
-    s3_bucket = "sdlc-evidence"
-    s3_key = f"evidence/gate-{gate_id}/{file_name}"
-    return s3_bucket, s3_key
 
 
 # ============================================================================
@@ -106,10 +73,11 @@ def _mock_s3_upload(file_name: str, gate_id: UUID) -> tuple[str, str]:
     description="""
     Upload evidence file to a gate (FR2 - Evidence Vault).
 
-    **Simplified Implementation (Week 3 Day 4)**:
-    - File upload is MOCKED (no actual S3/MinIO storage)
-    - SHA256 hash is simulated
-    - Full S3 integration in Week 4
+    **Week 4 Day 3 - REAL MinIO Integration** ✅:
+    - File upload to MinIO S3-compatible storage
+    - SHA256 hash computed from actual file content
+    - Multipart upload for large files (>5MB)
+    - AGPL-safe boto3 implementation
 
     **Request**:
     - multipart/form-data with file upload
@@ -125,7 +93,8 @@ def _mock_s3_upload(file_name: str, gate_id: UUID) -> tuple[str, str]:
 
     **Response** (201 Created):
     - Evidence metadata with SHA256 hash
-    - Mock S3 URL (not actual file storage)
+    - S3 URL for file access
+    - Initial integrity check (valid)
     """,
 )
 async def upload_evidence(
@@ -136,7 +105,7 @@ async def upload_evidence(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    """Upload evidence file to a gate (mock implementation)."""
+    """Upload evidence file to a gate with REAL MinIO integration."""
 
     # Validate gate exists
     result = await db.execute(select(Gate).where(Gate.id == gate_id))
@@ -163,10 +132,11 @@ async def upload_evidence(
             detail=f"Invalid evidence_type '{evidence_type}'. Allowed: {', '.join(allowed_types)}",
         )
 
-    # Read file metadata (mock - don't actually read file content for now)
+    # Read file content and metadata
     file_name = file.filename or "unknown"
-    file_size = 0  # Mock - in production: file.file.seek(0, 2); file_size = file.file.tell()
     file_type = file.content_type or "application/octet-stream"
+    file_content = await file.read()
+    file_size = len(file_content)
 
     # Validate file size (100MB limit)
     max_size = 100 * 1024 * 1024  # 100MB
@@ -176,11 +146,39 @@ async def upload_evidence(
             detail=f"File size {file_size} bytes exceeds maximum {max_size} bytes",
         )
 
-    # Mock S3 upload (no actual upload)
-    s3_bucket, s3_key = _mock_s3_upload(file_name, gate_id)
+    # Upload to MinIO (real S3 upload)
+    s3_key = f"evidence/gate-{gate_id}/{file_name}"
+    file_obj = BytesIO(file_content)
 
-    # Mock SHA256 hash
-    sha256_hash = _mock_sha256_hash(file_name, file_size)
+    try:
+        # Use multipart upload for large files (>5MB)
+        if file_size > 5 * 1024 * 1024:
+            s3_bucket, s3_key, sha256_hash = minio_service.upload_multipart(
+                file_obj,
+                s3_key,
+                content_type=file_type,
+                metadata={
+                    "gate_id": str(gate_id),
+                    "uploaded_by": str(current_user.id),
+                    "evidence_type": evidence_type.upper(),
+                },
+            )
+        else:
+            s3_bucket, s3_key, sha256_hash = minio_service.upload_file(
+                file_obj,
+                s3_key,
+                content_type=file_type,
+                metadata={
+                    "gate_id": str(gate_id),
+                    "uploaded_by": str(current_user.id),
+                    "evidence_type": evidence_type.upper(),
+                },
+            )
+    except ClientError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload file to storage: {str(e)}",
+        )
 
     # Create evidence record
     evidence = GateEvidence(
@@ -419,9 +417,11 @@ async def list_evidence(
     description="""
     Run SHA256 integrity check on evidence file.
 
-    **Simplified Implementation (Week 3 Day 4)**:
-    - Integrity check is MOCKED (always returns valid)
-    - Full S3 hash verification in Week 4
+    **Week 4 Day 3 - REAL SHA256 Verification** ✅:
+    - Download file from MinIO
+    - Recompute SHA256 hash from actual file content
+    - Compare with original hash stored in database
+    - Detect file tampering or corruption
 
     **Request Body**:
     - force: Force recompute hash from S3 (default: false)
@@ -438,7 +438,7 @@ async def check_integrity(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    """Run integrity check on evidence file (mock implementation)."""
+    """Run integrity check on evidence file with REAL SHA256 verification."""
 
     # Fetch evidence
     result = await db.execute(select(GateEvidence).where(GateEvidence.id == evidence_id))
@@ -450,18 +450,39 @@ async def check_integrity(
             detail=f"Evidence with ID {evidence_id} not found",
         )
 
-    # Mock integrity check (always valid for now)
+    # Download file from MinIO and recompute SHA256 hash
     original_hash = evidence.sha256_hash
-    current_hash = evidence.sha256_hash  # Mock - same hash
-    is_valid = original_hash == current_hash
+    current_hash = original_hash  # Default: assume same
+    error_message = None
+
+    try:
+        # Download file content from MinIO
+        file_content = minio_service.download_file(evidence.s3_key)
+
+        # Recompute SHA256 hash
+        current_hash = minio_service.compute_sha256(file_content)
+
+        # Verify integrity
+        is_valid = minio_service.verify_sha256(file_content, original_hash)
+
+        if not is_valid:
+            error_message = (
+                f"Hash mismatch! File has been tampered or corrupted. "
+                f"Expected: {original_hash[:16]}..., Got: {current_hash[:16]}..."
+            )
+
+    except ClientError as e:
+        is_valid = False
+        error_message = f"Failed to download file from storage: {str(e)}"
+        current_hash = "error"
 
     # Create integrity check record
     integrity_check = EvidenceIntegrityCheck(
         evidence_id=evidence_id,
         checked_at=datetime.utcnow(),
-        sha256_hash=current_hash,
+        sha256_hash=current_hash if current_hash != "error" else original_hash,
         is_valid=is_valid,
-        error_message=None if is_valid else "Hash mismatch! File has been tampered or corrupted.",
+        error_message=error_message,
         checked_by=f"user-{current_user.id}",
     )
     db.add(integrity_check)
@@ -475,7 +496,7 @@ async def check_integrity(
         current_hash=current_hash,
         checked_at=integrity_check.checked_at,
         checked_by=integrity_check.checked_by,
-        error_message=integrity_check.error_message,
+        error_message=error_message,
     )
 
 

@@ -37,6 +37,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
 from app.core.config import settings
+from app.middleware.prometheus_metrics import (
+    PrometheusMetricsMiddleware,
+    metrics_endpoint,
+)
+from app.middleware.rate_limiter import RateLimiterMiddleware
+from app.middleware.security_headers import SecurityHeadersMiddleware
 
 # Import API routers
 from app.api.routes import auth, evidence, gates, policies
@@ -54,6 +60,18 @@ app = FastAPI(
 # ============================================================================
 # Middleware Configuration
 # ============================================================================
+
+# Security Headers (Week 5 Day 1 - P1 Feature)
+# Must be first to add headers to all responses
+app.add_middleware(SecurityHeadersMiddleware)
+
+# Rate Limiting (Week 5 Day 1 - P1 Feature)
+# Redis-based: 100 req/min per user, 1000 req/hour per IP
+app.add_middleware(RateLimiterMiddleware)
+
+# Prometheus Metrics (Week 5 Day 2 - Performance Monitoring)
+# Collect API latency, request rate, error rate
+app.add_middleware(PrometheusMetricsMiddleware)
 
 # CORS - Allow frontend access
 app.add_middleware(
@@ -125,6 +143,17 @@ async def root():
     }
 
 
+@app.get("/metrics")
+async def metrics():
+    """
+    Prometheus metrics endpoint
+
+    Returns:
+        Prometheus metrics in text format (for Prometheus scraping)
+    """
+    return metrics_endpoint()
+
+
 # ============================================================================
 # Week 3 Day 3: Authentication + Gates APIs Implemented ✅
 # Week 4 Day 4-5 TODO: Evidence + Policies + AI APIs
@@ -154,7 +183,18 @@ async def startup_event():
     print(f"📊 OpenAPI docs: http://localhost:8000/api/docs")
     print(f"🔐 Authentication endpoints: http://localhost:8000/api/v1/auth")
     print(f"🚪 Gates endpoints: http://localhost:8000/api/v1/gates")
-    # TODO: Initialize connections (Redis, OPA, MinIO)
+    
+    # Initialize Redis connection (Week 5 Day 1 - P1 Features)
+    try:
+        from app.utils.redis import get_redis_client
+        redis = await get_redis_client()
+        await redis.ping()
+        print("✅ Redis connected (rate limiting enabled)")
+    except Exception as e:
+        print(f"⚠️  Redis connection failed (rate limiting disabled): {e}")
+    
+    # TODO: Verify OPA availability
+    # TODO: Initialize MinIO buckets
 
 
 @app.on_event("shutdown")
@@ -165,7 +205,10 @@ async def shutdown_event():
     - Close Redis connection
     """
     print("👋 SDLC Orchestrator API shutdown complete")
-    # TODO: Cleanup connections
+    
+    # Close Redis connection (Week 5 Day 1)
+    from app.utils.redis import close_redis_client
+    await close_redis_client()
 
 
 if __name__ == "__main__":

@@ -1,0 +1,21 @@
+# ============================================================================
+# GRAFANA DASHBOARD PROVISIONING
+# Week 5 Day 2 - Performance & Load Testing
+#
+# Purpose:
+# - Auto-load dashboards from /var/lib/grafana/dashboards
+# - No manual import required in Grafana UI
+# ============================================================================
+
+apiVersion: 1
+
+providers:
+  - name: 'SDLC Orchestrator Dashboards'
+    orgId: 1
+    folder: 'Performance'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
