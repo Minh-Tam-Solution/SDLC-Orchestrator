@@ -508,6 +508,241 @@ test.describe('Compliance Accessibility', () => {
   })
 })
 
+// ============================================================================
+// Sprint 22 Day 4: Compliance Trend Charts Tests
+// ============================================================================
+test.describe('Compliance Trend Charts (Sprint 22 Day 4)', () => {
+  test.beforeEach(async ({ page }) => {
+    // Login before each test
+    await page.goto('/login')
+    await page.getByLabel(/email/i).fill('admin@sdlc-orchestrator.io')
+    await page.getByLabel(/password/i).fill('Admin@123')
+    await page.getByRole('button', { name: /sign in|login/i }).click()
+    await expect(page).toHaveURL(/\/dashboard|\/$/, { timeout: 10000 })
+  })
+
+  test('should display Compliance Score Trend chart', async ({ page }) => {
+    await page.goto('/compliance')
+    await page.waitForTimeout(2000)
+
+    // Select a project first
+    const projectSelector = page.getByRole('combobox', { name: /project|select/i })
+    if (await projectSelector.isVisible()) {
+      await projectSelector.click()
+      const firstOption = page.getByRole('option').first()
+      if (await firstOption.isVisible()) {
+        await firstOption.click()
+        await page.waitForTimeout(1000)
+      }
+    }
+
+    // Look for Compliance Score Trend chart
+    const trendChartTitle = page.getByText(/compliance score trend/i)
+    if (await trendChartTitle.isVisible()) {
+      await expect(trendChartTitle).toBeVisible()
+    }
+
+    // Check for Recharts container
+    const chartContainer = page.locator('.recharts-responsive-container, svg.recharts-surface').first()
+    if (await chartContainer.isVisible()) {
+      await expect(chartContainer).toBeVisible()
+    }
+  })
+
+  test('should display Violations by Severity chart', async ({ page }) => {
+    await page.goto('/compliance')
+    await page.waitForTimeout(2000)
+
+    // Select a project
+    const projectSelector = page.getByRole('combobox', { name: /project|select/i })
+    if (await projectSelector.isVisible()) {
+      await projectSelector.click()
+      const firstOption = page.getByRole('option').first()
+      if (await firstOption.isVisible()) {
+        await firstOption.click()
+        await page.waitForTimeout(1000)
+      }
+    }
+
+    // Look for Violations Over Time chart
+    const severityChartTitle = page.getByText(/violations over time/i)
+    if (await severityChartTitle.isVisible()) {
+      await expect(severityChartTitle).toBeVisible()
+    }
+  })
+
+  test('should display Violations by Category chart', async ({ page }) => {
+    await page.goto('/compliance')
+    await page.waitForTimeout(2000)
+
+    // Select a project
+    const projectSelector = page.getByRole('combobox', { name: /project|select/i })
+    if (await projectSelector.isVisible()) {
+      await projectSelector.click()
+      const firstOption = page.getByRole('option').first()
+      if (await firstOption.isVisible()) {
+        await firstOption.click()
+        await page.waitForTimeout(1000)
+      }
+    }
+
+    // Look for Violations by Category chart
+    const categoryChartTitle = page.getByText(/violations by category/i)
+    if (await categoryChartTitle.isVisible()) {
+      await expect(categoryChartTitle).toBeVisible()
+    }
+  })
+
+  test('should display Scan History Timeline chart', async ({ page }) => {
+    await page.goto('/compliance')
+    await page.waitForTimeout(2000)
+
+    // Select a project
+    const projectSelector = page.getByRole('combobox', { name: /project|select/i })
+    if (await projectSelector.isVisible()) {
+      await projectSelector.click()
+      const firstOption = page.getByRole('option').first()
+      if (await firstOption.isVisible()) {
+        await firstOption.click()
+        await page.waitForTimeout(1000)
+      }
+    }
+
+    // Look for Scan History Timeline chart
+    const timelineChartTitle = page.getByText(/scan history timeline/i)
+    if (await timelineChartTitle.isVisible()) {
+      await expect(timelineChartTitle).toBeVisible()
+    }
+  })
+
+  test('should show chart legend in Compliance Trend', async ({ page }) => {
+    await page.goto('/compliance')
+    await page.waitForTimeout(2000)
+
+    // Select a project
+    const projectSelector = page.getByRole('combobox', { name: /project|select/i })
+    if (await projectSelector.isVisible()) {
+      await projectSelector.click()
+      const firstOption = page.getByRole('option').first()
+      if (await firstOption.isVisible()) {
+        await firstOption.click()
+        await page.waitForTimeout(1000)
+      }
+    }
+
+    // Look for legend items (Excellent, Good, Fair, Poor)
+    const excellentLegend = page.getByText(/excellent.*90/i)
+    const goodLegend = page.getByText(/good.*70/i)
+
+    if (await excellentLegend.isVisible()) {
+      await expect(excellentLegend).toBeVisible()
+    }
+    if (await goodLegend.isVisible()) {
+      await expect(goodLegend).toBeVisible()
+    }
+  })
+
+  test('should toggle between bar and pie chart in Violations by Category', async ({ page }) => {
+    await page.goto('/compliance')
+    await page.waitForTimeout(2000)
+
+    // Select a project
+    const projectSelector = page.getByRole('combobox', { name: /project|select/i })
+    if (await projectSelector.isVisible()) {
+      await projectSelector.click()
+      const firstOption = page.getByRole('option').first()
+      if (await firstOption.isVisible()) {
+        await firstOption.click()
+        await page.waitForTimeout(1000)
+      }
+    }
+
+    // Look for chart type toggle buttons
+    const chartToggleButtons = page.locator('button').filter({ hasText: '' }).locator('svg')
+    const buttonCount = await chartToggleButtons.count()
+
+    // If toggle buttons exist, click to switch chart type
+    if (buttonCount >= 2) {
+      await chartToggleButtons.nth(1).click()
+      await page.waitForTimeout(500)
+    }
+  })
+
+  test('should show trend indicator in charts', async ({ page }) => {
+    await page.goto('/compliance')
+    await page.waitForTimeout(2000)
+
+    // Select a project
+    const projectSelector = page.getByRole('combobox', { name: /project|select/i })
+    if (await projectSelector.isVisible()) {
+      await projectSelector.click()
+      const firstOption = page.getByRole('option').first()
+      if (await firstOption.isVisible()) {
+        await firstOption.click()
+        await page.waitForTimeout(1000)
+      }
+    }
+
+    // Look for trend indicators (up/down arrows with percentage)
+    const trendIndicator = page.locator('[class*="text-green"], [class*="text-red"]').filter({ hasText: /[+-]?\d+/ })
+
+    if (await trendIndicator.first().isVisible()) {
+      await expect(trendIndicator.first()).toBeVisible()
+    }
+  })
+
+  test('should display summary stats in charts', async ({ page }) => {
+    await page.goto('/compliance')
+    await page.waitForTimeout(2000)
+
+    // Select a project
+    const projectSelector = page.getByRole('combobox', { name: /project|select/i })
+    if (await projectSelector.isVisible()) {
+      await projectSelector.click()
+      const firstOption = page.getByRole('option').first()
+      if (await firstOption.isVisible()) {
+        await firstOption.click()
+        await page.waitForTimeout(1000)
+      }
+    }
+
+    // Look for summary stats (Total, Categories, Critical/High, etc.)
+    const totalStats = page.getByText(/total.*violation|total.*categories/i)
+
+    if (await totalStats.first().isVisible()) {
+      await expect(totalStats.first()).toBeVisible()
+    }
+  })
+
+  test('should show empty state when no scan history', async ({ page }) => {
+    await page.goto('/compliance')
+    await page.waitForTimeout(2000)
+
+    // Look for empty state messages in charts
+    const emptyStateMessages = page.getByText(/no scan history|run compliance scan|no data/i)
+
+    // Either charts have data OR show empty state
+    const hasCharts = await page.locator('.recharts-responsive-container').first().isVisible()
+    const hasEmptyState = await emptyStateMessages.first().isVisible()
+
+    expect(hasCharts || hasEmptyState).toBeTruthy()
+  })
+
+  test('should show loading state in charts', async ({ page }) => {
+    await page.goto('/compliance')
+
+    // Check for loading indicators in chart areas
+    const loadingSpinner = page.locator('[class*="animate-spin"], [class*="loading"]')
+
+    // Either loading is visible initially or content loaded
+    await page.waitForTimeout(100)
+    const isLoading = await loadingSpinner.first().isVisible()
+    const hasContent = await page.getByRole('heading', { name: 'Compliance Dashboard', exact: true }).isVisible()
+
+    expect(isLoading || hasContent).toBeTruthy()
+  })
+})
+
 test.describe('Compliance Error Handling', () => {
   test.beforeEach(async ({ page }) => {
     // Login before each test

@@ -269,7 +269,7 @@ export function useTriggerScan() {
       )
       return response.data
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       // Invalidate related queries
       queryClient.invalidateQueries({
         queryKey: complianceKeys.scans(variables.projectId),
@@ -322,8 +322,9 @@ export function useScanJobStatus(jobId: string) {
       return response.data
     },
     enabled: !!jobId,
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
       // Poll every 2 seconds if job is still running
+      const data = query.state.data
       if (data && (data.status === 'queued' || data.status === 'running')) {
         return 2000
       }
@@ -396,7 +397,7 @@ export function useResolveViolation() {
       )
       return response.data
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       // Invalidate violation queries
       queryClient.invalidateQueries({
         queryKey: complianceKeys.all,

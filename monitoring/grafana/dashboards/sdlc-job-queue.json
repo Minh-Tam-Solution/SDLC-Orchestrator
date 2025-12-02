@@ -1,0 +1,818 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "sdlc-job-queue",
+    "title": "SDLC Orchestrator - Job Queue & Notifications",
+    "description": "Sprint 22 Day 3: Job queue depth, processing time, notification delivery metrics",
+    "tags": ["sdlc-orchestrator", "jobs", "queue", "notifications", "sprint-22"],
+    "timezone": "browser",
+    "editable": true,
+    "graphTooltip": 1,
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "📬 Notification Overview",
+        "type": "row",
+        "gridPos": {"x": 0, "y": 0, "w": 24, "h": 1},
+        "collapsed": false
+      },
+      {
+        "id": 2,
+        "title": "Notifications Sent (24h)",
+        "type": "stat",
+        "gridPos": {"x": 0, "y": 1, "w": 4, "h": 4},
+        "targets": [
+          {
+            "expr": "sum(increase(notifications_sent_total{status=\"success\"}[24h]))",
+            "legendFormat": "Sent",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "area"
+        }
+      },
+      {
+        "id": 3,
+        "title": "Failed (24h)",
+        "type": "stat",
+        "gridPos": {"x": 4, "y": 1, "w": 4, "h": 4},
+        "targets": [
+          {
+            "expr": "sum(increase(notification_failures_total[24h]))",
+            "legendFormat": "Failed",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 5},
+                {"color": "red", "value": 20}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "none"
+        }
+      },
+      {
+        "id": 4,
+        "title": "Unread Total",
+        "type": "stat",
+        "gridPos": {"x": 8, "y": 1, "w": 4, "h": 4},
+        "targets": [
+          {
+            "expr": "notifications_unread_total",
+            "legendFormat": "Unread",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "blue", "value": null}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "none"
+        }
+      },
+      {
+        "id": 5,
+        "title": "Delivery Time (p95) - Target: <5s",
+        "type": "gauge",
+        "gridPos": {"x": 12, "y": 1, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(notification_delivery_seconds_bucket[5m]))",
+            "legendFormat": "p95 Delivery",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "min": 0,
+            "max": 10,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 3},
+                {"color": "orange", "value": 5},
+                {"color": "red", "value": 7}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        }
+      },
+      {
+        "id": 6,
+        "title": "Success Rate",
+        "type": "gauge",
+        "gridPos": {"x": 18, "y": 1, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "sum(rate(notifications_sent_total{status=\"success\"}[1h])) / sum(rate(notifications_sent_total[1h])) * 100",
+            "legendFormat": "Success %",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "orange", "value": 90},
+                {"color": "yellow", "value": 95},
+                {"color": "green", "value": 99}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        }
+      },
+      {
+        "id": 7,
+        "title": "📊 Notification Channels",
+        "type": "row",
+        "gridPos": {"x": 0, "y": 5, "w": 24, "h": 1},
+        "collapsed": false
+      },
+      {
+        "id": 8,
+        "title": "Notifications by Channel",
+        "type": "timeseries",
+        "gridPos": {"x": 0, "y": 6, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(notifications_sent_total[5m])) by (channel)",
+            "legendFormat": "{{channel}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 30,
+              "showPoints": "never",
+              "stacking": {"mode": "normal"}
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "in_app"},
+              "properties": [{"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "email"},
+              "properties": [{"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "slack"},
+              "properties": [{"id": "color", "value": {"fixedColor": "purple", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "teams"},
+              "properties": [{"id": "color", "value": {"fixedColor": "cyan", "mode": "fixed"}}]
+            }
+          ]
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["sum", "mean"]
+          }
+        }
+      },
+      {
+        "id": 9,
+        "title": "Channel Distribution (24h)",
+        "type": "piechart",
+        "gridPos": {"x": 12, "y": 6, "w": 6, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(increase(notifications_sent_total[24h])) by (channel)",
+            "legendFormat": "{{channel}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "in_app"},
+              "properties": [{"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "email"},
+              "properties": [{"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "slack"},
+              "properties": [{"id": "color", "value": {"fixedColor": "purple", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "teams"},
+              "properties": [{"id": "color", "value": {"fixedColor": "cyan", "mode": "fixed"}}]
+            }
+          ]
+        },
+        "options": {
+          "pieType": "donut",
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "legend": {
+            "displayMode": "table",
+            "placement": "right",
+            "values": ["percent", "value"]
+          }
+        }
+      },
+      {
+        "id": 10,
+        "title": "Priority Distribution (24h)",
+        "type": "piechart",
+        "gridPos": {"x": 18, "y": 6, "w": 6, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(increase(notifications_by_priority_total[24h])) by (priority)",
+            "legendFormat": "{{priority}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "critical"},
+              "properties": [{"id": "color", "value": {"fixedColor": "red", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "high"},
+              "properties": [{"id": "color", "value": {"fixedColor": "orange", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "medium"},
+              "properties": [{"id": "color", "value": {"fixedColor": "yellow", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "low"},
+              "properties": [{"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}]
+            }
+          ]
+        },
+        "options": {
+          "pieType": "donut",
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "legend": {
+            "displayMode": "table",
+            "placement": "right",
+            "values": ["percent", "value"]
+          }
+        }
+      },
+      {
+        "id": 11,
+        "title": "⏱️ Delivery Performance",
+        "type": "row",
+        "gridPos": {"x": 0, "y": 14, "w": 24, "h": 1},
+        "collapsed": false
+      },
+      {
+        "id": 12,
+        "title": "Delivery Time by Channel",
+        "type": "timeseries",
+        "gridPos": {"x": 0, "y": 15, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(notification_delivery_seconds_bucket[5m])) by (channel)",
+            "legendFormat": "{{channel}} p50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(notification_delivery_seconds_bucket[5m])) by (channel)",
+            "legendFormat": "{{channel}} p95",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 0,
+              "showPoints": "auto",
+              "pointSize": 4
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 3},
+                {"color": "red", "value": 5}
+              ]
+            }
+          }
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["lastNotNull", "mean", "max"]
+          }
+        }
+      },
+      {
+        "id": 13,
+        "title": "Delivery Time Heatmap",
+        "type": "heatmap",
+        "gridPos": {"x": 12, "y": 15, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(notification_delivery_seconds_bucket[5m])) by (le)",
+            "format": "heatmap",
+            "legendFormat": "{{le}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "hideFrom": {
+                "tooltip": false,
+                "viz": false,
+                "legend": false
+              },
+              "scaleDistribution": {
+                "type": "linear"
+              }
+            }
+          }
+        },
+        "options": {
+          "calculate": false,
+          "yAxis": {
+            "unit": "s"
+          },
+          "color": {
+            "mode": "scheme",
+            "scheme": "Spectral",
+            "steps": 64,
+            "reverse": true
+          },
+          "cellGap": 1,
+          "legend": {
+            "show": true
+          },
+          "tooltip": {
+            "show": true,
+            "yHistogram": true
+          }
+        }
+      },
+      {
+        "id": 14,
+        "title": "❌ Failures & Errors",
+        "type": "row",
+        "gridPos": {"x": 0, "y": 23, "w": 24, "h": 1},
+        "collapsed": false
+      },
+      {
+        "id": 15,
+        "title": "Failures by Channel",
+        "type": "timeseries",
+        "gridPos": {"x": 0, "y": 24, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(notification_failures_total[5m])) by (channel)",
+            "legendFormat": "{{channel}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 30,
+              "showPoints": "auto",
+              "pointSize": 4
+            }
+          }
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["sum", "mean"]
+          }
+        }
+      },
+      {
+        "id": 16,
+        "title": "Failure Reasons (24h)",
+        "type": "table",
+        "gridPos": {"x": 12, "y": 24, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(increase(notification_failures_total[24h])) by (channel, failure_reason)",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "auto"
+            }
+          }
+        },
+        "options": {
+          "showHeader": true,
+          "sortBy": [{"displayName": "Count", "desc": true}]
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {"Time": true, "__name__": true},
+              "renameByName": {
+                "channel": "Channel",
+                "failure_reason": "Reason",
+                "Value": "Count"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "title": "🚪 Gate Metrics",
+        "type": "row",
+        "gridPos": {"x": 0, "y": 32, "w": 24, "h": 1},
+        "collapsed": false
+      },
+      {
+        "id": 18,
+        "title": "Gates Pending Approval",
+        "type": "stat",
+        "gridPos": {"x": 0, "y": 33, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "sum(gates_pending_approval)",
+            "legendFormat": "Pending",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 10},
+                {"color": "orange", "value": 25},
+                {"color": "red", "value": 50}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "area"
+        }
+      },
+      {
+        "id": 19,
+        "title": "Gate Evaluation Time (p95) - Target: <100ms",
+        "type": "gauge",
+        "gridPos": {"x": 6, "y": 33, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(gate_evaluation_duration_seconds_bucket[5m]))",
+            "legendFormat": "p95",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "min": 0,
+            "max": 0.5,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 0.05},
+                {"color": "orange", "value": 0.1},
+                {"color": "red", "value": 0.2}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        }
+      },
+      {
+        "id": 20,
+        "title": "Approvals (24h)",
+        "type": "stat",
+        "gridPos": {"x": 12, "y": 33, "w": 3, "h": 4},
+        "targets": [
+          {
+            "expr": "sum(increase(gate_approvals_total[24h]))",
+            "legendFormat": "Approvals",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "none"
+        }
+      },
+      {
+        "id": 21,
+        "title": "Rejections (24h)",
+        "type": "stat",
+        "gridPos": {"x": 15, "y": 33, "w": 3, "h": 4},
+        "targets": [
+          {
+            "expr": "sum(increase(gate_rejections_total[24h]))",
+            "legendFormat": "Rejections",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 5},
+                {"color": "red", "value": 15}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "none"
+        }
+      },
+      {
+        "id": 22,
+        "title": "Gate Pass Rate",
+        "type": "gauge",
+        "gridPos": {"x": 18, "y": 33, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "sum(rate(gate_evaluations_total{result=\"pass\"}[24h])) / sum(rate(gate_evaluations_total[24h])) * 100",
+            "legendFormat": "Pass Rate",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "orange", "value": 60},
+                {"color": "yellow", "value": 75},
+                {"color": "green", "value": 85}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        }
+      },
+      {
+        "id": 23,
+        "title": "Gate Evaluations Over Time",
+        "type": "timeseries",
+        "gridPos": {"x": 0, "y": 37, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(gate_evaluations_total[5m])) by (result)",
+            "legendFormat": "{{result}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 30,
+              "showPoints": "never",
+              "stacking": {"mode": "normal"}
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "pass"},
+              "properties": [{"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "fail"},
+              "properties": [{"id": "color", "value": {"fixedColor": "red", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "blocked"},
+              "properties": [{"id": "color", "value": {"fixedColor": "orange", "mode": "fixed"}}]
+            }
+          ]
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["sum", "mean"]
+          }
+        }
+      },
+      {
+        "id": 24,
+        "title": "Approvals by Role",
+        "type": "timeseries",
+        "gridPos": {"x": 12, "y": 37, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(gate_approvals_total[5m])) by (approver_role)",
+            "legendFormat": "{{approver_role}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 30,
+              "showPoints": "auto",
+              "pointSize": 4
+            }
+          }
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["sum", "mean"]
+          }
+        }
+      }
+    ],
+    "annotations": {
+      "list": [
+        {
+          "name": "High Failure Rate",
+          "datasource": "Prometheus",
+          "enable": true,
+          "iconColor": "red",
+          "expr": "rate(notification_failures_total[5m]) > 0.1"
+        }
+      ]
+    },
+    "schemaVersion": 38,
+    "version": 1
+  }
+}

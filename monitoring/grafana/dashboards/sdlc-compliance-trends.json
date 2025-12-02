@@ -1,0 +1,621 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "sdlc-compliance-trends",
+    "title": "SDLC Orchestrator - Compliance Trends",
+    "description": "Sprint 22 Day 3: Compliance scan metrics, scores, and violation trends",
+    "tags": ["sdlc-orchestrator", "compliance", "trends", "sprint-22"],
+    "timezone": "browser",
+    "editable": true,
+    "graphTooltip": 1,
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "📊 Compliance Overview",
+        "type": "row",
+        "gridPos": {"x": 0, "y": 0, "w": 24, "h": 1},
+        "collapsed": false
+      },
+      {
+        "id": 2,
+        "title": "Current Compliance Score",
+        "type": "gauge",
+        "gridPos": {"x": 0, "y": 1, "w": 6, "h": 6},
+        "targets": [
+          {
+            "expr": "avg(compliance_score_current)",
+            "legendFormat": "Avg Score",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "red", "value": 0},
+                {"color": "orange", "value": 50},
+                {"color": "yellow", "value": 70},
+                {"color": "green", "value": 85}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        }
+      },
+      {
+        "id": 3,
+        "title": "Scans In Progress",
+        "type": "stat",
+        "gridPos": {"x": 6, "y": 1, "w": 3, "h": 3},
+        "targets": [
+          {
+            "expr": "compliance_scans_in_progress",
+            "legendFormat": "In Progress",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 5},
+                {"color": "red", "value": 10}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "none"
+        }
+      },
+      {
+        "id": 4,
+        "title": "Total Scans (24h)",
+        "type": "stat",
+        "gridPos": {"x": 9, "y": 1, "w": 3, "h": 3},
+        "targets": [
+          {
+            "expr": "sum(increase(compliance_scans_total[24h]))",
+            "legendFormat": "Total Scans",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "blue", "value": null}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "area"
+        }
+      },
+      {
+        "id": 5,
+        "title": "Completed Scans",
+        "type": "stat",
+        "gridPos": {"x": 6, "y": 4, "w": 3, "h": 3},
+        "targets": [
+          {
+            "expr": "sum(increase(compliance_scans_total{status=\"completed\"}[24h]))",
+            "legendFormat": "Completed",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "none"
+        }
+      },
+      {
+        "id": 6,
+        "title": "Failed Scans",
+        "type": "stat",
+        "gridPos": {"x": 9, "y": 4, "w": 3, "h": 3},
+        "targets": [
+          {
+            "expr": "sum(increase(compliance_scans_total{status=\"failed\"}[24h]))",
+            "legendFormat": "Failed",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 1},
+                {"color": "red", "value": 5}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "none"
+        }
+      },
+      {
+        "id": 7,
+        "title": "Scan Duration (p95) - Target: <30s",
+        "type": "gauge",
+        "gridPos": {"x": 12, "y": 1, "w": 6, "h": 6},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(compliance_scan_duration_seconds_bucket[5m]))",
+            "legendFormat": "p95 Duration",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "min": 0,
+            "max": 60,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 20},
+                {"color": "orange", "value": 30},
+                {"color": "red", "value": 45}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        }
+      },
+      {
+        "id": 8,
+        "title": "Total Violations (24h)",
+        "type": "stat",
+        "gridPos": {"x": 18, "y": 1, "w": 6, "h": 6},
+        "targets": [
+          {
+            "expr": "sum(increase(compliance_violations_total[24h]))",
+            "legendFormat": "Violations",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 10},
+                {"color": "orange", "value": 50},
+                {"color": "red", "value": 100}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "area"
+        }
+      },
+      {
+        "id": 9,
+        "title": "📈 Trends Over Time",
+        "type": "row",
+        "gridPos": {"x": 0, "y": 7, "w": 24, "h": 1},
+        "collapsed": false
+      },
+      {
+        "id": 10,
+        "title": "Compliance Score Over Time",
+        "type": "timeseries",
+        "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "compliance_score_current",
+            "legendFormat": "{{project_id}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 10,
+              "showPoints": "auto",
+              "pointSize": 5,
+              "spanNulls": true
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 70},
+                {"color": "green", "value": 85}
+              ]
+            }
+          }
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["lastNotNull", "min", "max"]
+          },
+          "tooltip": {
+            "mode": "multi",
+            "sort": "desc"
+          }
+        }
+      },
+      {
+        "id": 11,
+        "title": "Scan Duration Distribution",
+        "type": "timeseries",
+        "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(compliance_scan_duration_seconds_bucket[5m]))",
+            "legendFormat": "p50 (median)",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.90, rate(compliance_scan_duration_seconds_bucket[5m]))",
+            "legendFormat": "p90",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(compliance_scan_duration_seconds_bucket[5m]))",
+            "legendFormat": "p95 (target <30s)",
+            "refId": "C"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(compliance_scan_duration_seconds_bucket[5m]))",
+            "legendFormat": "p99",
+            "refId": "D"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 0,
+              "showPoints": "never"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 30}
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "p95 (target <30s)"},
+              "properties": [
+                {"id": "color", "value": {"fixedColor": "orange", "mode": "fixed"}},
+                {"id": "custom.lineWidth", "value": 3}
+              ]
+            }
+          ]
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["lastNotNull", "mean", "max"]
+          }
+        }
+      },
+      {
+        "id": 12,
+        "title": "Scan Rate Over Time",
+        "type": "timeseries",
+        "gridPos": {"x": 0, "y": 16, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(compliance_scans_total[5m])) by (status)",
+            "legendFormat": "{{status}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 20,
+              "showPoints": "never",
+              "stacking": {"mode": "normal"}
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "completed"},
+              "properties": [{"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "failed"},
+              "properties": [{"id": "color", "value": {"fixedColor": "red", "mode": "fixed"}}]
+            }
+          ]
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["sum"]
+          }
+        }
+      },
+      {
+        "id": 13,
+        "title": "Violations Per Scan",
+        "type": "timeseries",
+        "gridPos": {"x": 12, "y": 16, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(compliance_violations_per_scan_bucket[5m]))",
+            "legendFormat": "Median violations/scan",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(compliance_violations_per_scan_bucket[5m]))",
+            "legendFormat": "p95 violations/scan",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 10,
+              "showPoints": "never"
+            }
+          }
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["lastNotNull", "mean", "max"]
+          }
+        }
+      },
+      {
+        "id": 14,
+        "title": "🔍 Policy Evaluation",
+        "type": "row",
+        "gridPos": {"x": 0, "y": 24, "w": 24, "h": 1},
+        "collapsed": false
+      },
+      {
+        "id": 15,
+        "title": "Policy Pass Rate",
+        "type": "timeseries",
+        "gridPos": {"x": 0, "y": 25, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(compliance_policies_evaluated_total{result=\"pass\"}[5m])) / sum(rate(compliance_policies_evaluated_total[5m])) * 100",
+            "legendFormat": "Pass Rate %",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 20,
+              "showPoints": "never"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 70},
+                {"color": "green", "value": 85}
+              ]
+            }
+          }
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["lastNotNull", "min", "mean"]
+          }
+        }
+      },
+      {
+        "id": 16,
+        "title": "Policy Evaluations by Result",
+        "type": "piechart",
+        "gridPos": {"x": 12, "y": 25, "w": 6, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(increase(compliance_policies_evaluated_total[24h])) by (result)",
+            "legendFormat": "{{result}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "pass"},
+              "properties": [{"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "fail"},
+              "properties": [{"id": "color", "value": {"fixedColor": "red", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "error"},
+              "properties": [{"id": "color", "value": {"fixedColor": "orange", "mode": "fixed"}}]
+            }
+          ]
+        },
+        "options": {
+          "pieType": "donut",
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "legend": {
+            "displayMode": "table",
+            "placement": "right",
+            "values": ["percent", "value"]
+          }
+        }
+      },
+      {
+        "id": 17,
+        "title": "Top 10 Failing Policies",
+        "type": "table",
+        "gridPos": {"x": 18, "y": 25, "w": 6, "h": 8},
+        "targets": [
+          {
+            "expr": "topk(10, sum(increase(compliance_policies_evaluated_total{result=\"fail\"}[24h])) by (policy_id))",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "auto"
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "Value"},
+              "properties": [{"id": "displayName", "value": "Failures"}]
+            }
+          ]
+        },
+        "options": {
+          "showHeader": true,
+          "sortBy": [{"displayName": "Failures", "desc": true}]
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {"Time": true, "__name__": true},
+              "renameByName": {"policy_id": "Policy ID", "Value": "Failures"}
+            }
+          }
+        ]
+      }
+    ],
+    "annotations": {
+      "list": [
+        {
+          "name": "Deployments",
+          "datasource": "Prometheus",
+          "enable": true,
+          "iconColor": "blue",
+          "expr": "changes(process_start_time_seconds[5m]) > 0"
+        }
+      ]
+    },
+    "schemaVersion": 38,
+    "version": 1
+  }
+}

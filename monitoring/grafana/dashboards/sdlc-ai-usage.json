@@ -1,0 +1,684 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "sdlc-ai-usage",
+    "title": "SDLC Orchestrator - AI Usage & Costs",
+    "description": "Sprint 22 Day 3: AI recommendation metrics, latency, tokens, and cost tracking",
+    "tags": ["sdlc-orchestrator", "ai", "costs", "ollama", "sprint-22"],
+    "timezone": "browser",
+    "editable": true,
+    "graphTooltip": 1,
+    "time": {
+      "from": "now-7d",
+      "to": "now"
+    },
+    "refresh": "1m",
+    "panels": [
+      {
+        "id": 1,
+        "title": "💰 AI Cost Overview",
+        "type": "row",
+        "gridPos": {"x": 0, "y": 0, "w": 24, "h": 1},
+        "collapsed": false
+      },
+      {
+        "id": 2,
+        "title": "Total AI Cost (USD)",
+        "type": "stat",
+        "gridPos": {"x": 0, "y": 1, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "sum(ai_cost_usd_total)",
+            "legendFormat": "Total Cost",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 100},
+                {"color": "orange", "value": 300},
+                {"color": "red", "value": 500}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "area"
+        }
+      },
+      {
+        "id": 3,
+        "title": "AI Requests (24h)",
+        "type": "stat",
+        "gridPos": {"x": 6, "y": 1, "w": 4, "h": 4},
+        "targets": [
+          {
+            "expr": "sum(increase(ai_requests_total[24h]))",
+            "legendFormat": "Requests",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "blue", "value": null}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "area"
+        }
+      },
+      {
+        "id": 4,
+        "title": "Success Rate",
+        "type": "gauge",
+        "gridPos": {"x": 10, "y": 1, "w": 4, "h": 4},
+        "targets": [
+          {
+            "expr": "sum(rate(ai_requests_total{status=\"success\"}[24h])) / sum(rate(ai_requests_total[24h])) * 100",
+            "legendFormat": "Success %",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "orange", "value": 90},
+                {"color": "yellow", "value": 95},
+                {"color": "green", "value": 99}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        }
+      },
+      {
+        "id": 5,
+        "title": "Total Tokens Used (24h)",
+        "type": "stat",
+        "gridPos": {"x": 14, "y": 1, "w": 5, "h": 4},
+        "targets": [
+          {
+            "expr": "sum(increase(ai_tokens_used_total[24h]))",
+            "legendFormat": "Tokens",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "blue", "value": null}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "none"
+        }
+      },
+      {
+        "id": 6,
+        "title": "Fallback Events (24h)",
+        "type": "stat",
+        "gridPos": {"x": 19, "y": 1, "w": 5, "h": 4},
+        "targets": [
+          {
+            "expr": "sum(increase(ai_fallback_total[24h]))",
+            "legendFormat": "Fallbacks",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 5},
+                {"color": "orange", "value": 20},
+                {"color": "red", "value": 50}
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "colorMode": "background",
+          "graphMode": "none"
+        }
+      },
+      {
+        "id": 7,
+        "title": "🚀 Provider Performance",
+        "type": "row",
+        "gridPos": {"x": 0, "y": 5, "w": 24, "h": 1},
+        "collapsed": false
+      },
+      {
+        "id": 8,
+        "title": "AI Latency by Provider (p95) - Target: <100ms Ollama",
+        "type": "timeseries",
+        "gridPos": {"x": 0, "y": 6, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(ai_request_duration_seconds_bucket[5m])) by (provider)",
+            "legendFormat": "{{provider}} p95",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(ai_request_duration_seconds_bucket[5m])) by (provider)",
+            "legendFormat": "{{provider}} p50",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 0,
+              "showPoints": "auto",
+              "pointSize": 4
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 0.1},
+                {"color": "red", "value": 0.3}
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byRegexp", "options": "ollama.*"},
+              "properties": [
+                {"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}
+              ]
+            },
+            {
+              "matcher": {"id": "byRegexp", "options": "anthropic.*"},
+              "properties": [
+                {"id": "color", "value": {"fixedColor": "purple", "mode": "fixed"}}
+              ]
+            },
+            {
+              "matcher": {"id": "byRegexp", "options": "openai.*"},
+              "properties": [
+                {"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}
+              ]
+            }
+          ]
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["lastNotNull", "mean", "max"]
+          },
+          "tooltip": {
+            "mode": "multi",
+            "sort": "desc"
+          }
+        }
+      },
+      {
+        "id": 9,
+        "title": "Request Rate by Provider",
+        "type": "timeseries",
+        "gridPos": {"x": 12, "y": 6, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(ai_requests_total[5m])) by (provider)",
+            "legendFormat": "{{provider}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 30,
+              "showPoints": "never",
+              "stacking": {"mode": "normal"}
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "ollama"},
+              "properties": [{"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "anthropic"},
+              "properties": [{"id": "color", "value": {"fixedColor": "purple", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "openai"},
+              "properties": [{"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}]
+            }
+          ]
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["sum", "mean"]
+          }
+        }
+      },
+      {
+        "id": 10,
+        "title": "📊 Token Usage & Costs",
+        "type": "row",
+        "gridPos": {"x": 0, "y": 14, "w": 24, "h": 1},
+        "collapsed": false
+      },
+      {
+        "id": 11,
+        "title": "Token Usage Over Time",
+        "type": "timeseries",
+        "gridPos": {"x": 0, "y": 15, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(ai_tokens_used_total[5m])) by (provider, token_type)",
+            "legendFormat": "{{provider}} - {{token_type}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 20,
+              "showPoints": "never"
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byRegexp", "options": ".*input.*"},
+              "properties": [{"id": "custom.fillOpacity", "value": 40}]
+            },
+            {
+              "matcher": {"id": "byRegexp", "options": ".*output.*"},
+              "properties": [{"id": "custom.fillOpacity", "value": 20}]
+            }
+          ]
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["sum", "mean"]
+          }
+        }
+      },
+      {
+        "id": 12,
+        "title": "Cost by Provider",
+        "type": "timeseries",
+        "gridPos": {"x": 12, "y": 15, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "ai_cost_usd_total",
+            "legendFormat": "{{provider}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 30,
+              "showPoints": "never",
+              "stacking": {"mode": "normal"}
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "ollama"},
+              "properties": [{"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "anthropic"},
+              "properties": [{"id": "color", "value": {"fixedColor": "purple", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "openai"},
+              "properties": [{"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}]
+            }
+          ]
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["lastNotNull"]
+          }
+        }
+      },
+      {
+        "id": 13,
+        "title": "Token Distribution (Input vs Output)",
+        "type": "piechart",
+        "gridPos": {"x": 0, "y": 23, "w": 6, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(increase(ai_tokens_used_total[24h])) by (token_type)",
+            "legendFormat": "{{token_type}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "input"},
+              "properties": [{"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "output"},
+              "properties": [{"id": "color", "value": {"fixedColor": "orange", "mode": "fixed"}}]
+            }
+          ]
+        },
+        "options": {
+          "pieType": "donut",
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "legend": {
+            "displayMode": "table",
+            "placement": "right",
+            "values": ["percent", "value"]
+          }
+        }
+      },
+      {
+        "id": 14,
+        "title": "Provider Distribution",
+        "type": "piechart",
+        "gridPos": {"x": 6, "y": 23, "w": 6, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(increase(ai_requests_total[24h])) by (provider)",
+            "legendFormat": "{{provider}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "ollama"},
+              "properties": [{"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "anthropic"},
+              "properties": [{"id": "color", "value": {"fixedColor": "purple", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "openai"},
+              "properties": [{"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}]
+            }
+          ]
+        },
+        "options": {
+          "pieType": "donut",
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "legend": {
+            "displayMode": "table",
+            "placement": "right",
+            "values": ["percent", "value"]
+          }
+        }
+      },
+      {
+        "id": 15,
+        "title": "⚠️ Fallback Events",
+        "type": "row",
+        "gridPos": {"x": 0, "y": 31, "w": 24, "h": 1},
+        "collapsed": false
+      },
+      {
+        "id": 16,
+        "title": "Fallback Events Over Time",
+        "type": "timeseries",
+        "gridPos": {"x": 0, "y": 32, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(ai_fallback_total[5m])) by (from_provider, to_provider)",
+            "legendFormat": "{{from_provider}} → {{to_provider}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 30,
+              "showPoints": "auto",
+              "pointSize": 5
+            }
+          }
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["sum"]
+          }
+        }
+      },
+      {
+        "id": 17,
+        "title": "Fallback Reasons",
+        "type": "table",
+        "gridPos": {"x": 12, "y": 32, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(increase(ai_fallback_total[24h])) by (from_provider, to_provider, reason)",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "auto"
+            }
+          }
+        },
+        "options": {
+          "showHeader": true,
+          "sortBy": [{"displayName": "Value", "desc": true}]
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {"Time": true, "__name__": true},
+              "renameByName": {
+                "from_provider": "From",
+                "to_provider": "To",
+                "reason": "Reason",
+                "Value": "Count"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 18,
+        "title": "📈 Request Types",
+        "type": "row",
+        "gridPos": {"x": 0, "y": 40, "w": 24, "h": 1},
+        "collapsed": false
+      },
+      {
+        "id": 19,
+        "title": "Requests by Type",
+        "type": "timeseries",
+        "gridPos": {"x": 0, "y": 41, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(ai_requests_total[5m])) by (request_type)",
+            "legendFormat": "{{request_type}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 30,
+              "showPoints": "never"
+            }
+          }
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["sum", "mean"]
+          }
+        }
+      },
+      {
+        "id": 20,
+        "title": "Success vs Failed by Type",
+        "type": "bargauge",
+        "gridPos": {"x": 12, "y": 41, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(increase(ai_requests_total{status=\"success\"}[24h])) by (request_type)",
+            "legendFormat": "{{request_type}} - Success",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(increase(ai_requests_total{status=\"failed\"}[24h])) by (request_type)",
+            "legendFormat": "{{request_type}} - Failed",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null}
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byRegexp", "options": ".*Failed.*"},
+              "properties": [{"id": "color", "value": {"fixedColor": "red", "mode": "fixed"}}]
+            }
+          ]
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "orientation": "horizontal",
+          "displayMode": "gradient",
+          "showUnfilled": true
+        }
+      }
+    ],
+    "annotations": {
+      "list": [
+        {
+          "name": "AI Provider Changes",
+          "datasource": "Prometheus",
+          "enable": true,
+          "iconColor": "purple",
+          "expr": "changes(ai_cost_usd_total[5m]) > 0"
+        }
+      ]
+    },
+    "schemaVersion": 38,
+    "version": 1
+  }
+}

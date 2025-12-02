@@ -1,13 +1,14 @@
 /**
  * File: frontend/web/src/pages/CompliancePage.tsx
- * Version: 1.0.0
+ * Version: 1.1.0
  * Status: ACTIVE - STAGE 03 (BUILD)
  * Date: 2025-12-02
  * Authority: Frontend Lead + CTO Approved
- * Foundation: Sprint 21 Day 4 (Compliance Dashboard)
+ * Foundation: Sprint 22 Day 4 (Compliance Trend Charts)
  *
  * Description:
  * SDLC 4.9.1 Compliance Dashboard showing scan results, violations, and AI recommendations.
+ * Includes Recharts-based trend visualizations for compliance scores and violations.
  * Provides project selection, scan triggering, and violation management.
  */
 
@@ -15,7 +16,6 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
   Select,
@@ -26,6 +26,10 @@ import {
 } from '@/components/ui/select'
 import ComplianceScoreCard from '@/components/compliance/ComplianceScoreCard'
 import ViolationCard from '@/components/compliance/ViolationCard'
+import ComplianceTrendChart from '@/components/compliance/ComplianceTrendChart'
+import ViolationsByCategoryChart from '@/components/compliance/ViolationsByCategoryChart'
+import ViolationsBySeverityChart from '@/components/compliance/ViolationsBySeverityChart'
+import ScanHistoryTimeline from '@/components/compliance/ScanHistoryTimeline'
 import {
   useLatestScan,
   useScanHistory,
@@ -64,16 +68,17 @@ export default function CompliancePage() {
   })
 
   // Set first project as default when loaded
-  if (projects.length > 0 && !selectedProjectId) {
+  if (projects.length > 0 && !selectedProjectId && projects[0]) {
     setSelectedProjectId(projects[0].id)
   }
 
   // Compliance hooks
   const latestScan = useLatestScan(selectedProjectId)
-  const scanHistory = useScanHistory(selectedProjectId, 5)
+  const scanHistory = useScanHistory(selectedProjectId, 10) // Increased for charts
+  const resolvedFilter = violationFilter === 'all' ? undefined : violationFilter === 'resolved'
   const violations = useViolations(selectedProjectId, {
-    resolved: violationFilter === 'all' ? undefined : violationFilter === 'resolved',
-    limit: 20,
+    ...(resolvedFilter !== undefined ? { resolved: resolvedFilter } : {}),
+    limit: 50, // Increased for charts
   })
   const triggerScan = useTriggerScan()
 
@@ -239,7 +244,7 @@ export default function CompliancePage() {
                     <div className="text-center text-muted-foreground py-4">Loading...</div>
                   ) : scanHistory.data && scanHistory.data.length > 0 ? (
                     <div className="space-y-2">
-                      {scanHistory.data.map((scan: ScanHistoryItem) => (
+                      {scanHistory.data.slice(0, 5).map((scan: ScanHistoryItem) => (
                         <div
                           key={scan.id}
                           className="flex items-center justify-between py-2 border-b last:border-0"
@@ -282,6 +287,48 @@ export default function CompliancePage() {
                   )}
                 </CardContent>
               </Card>
+            </div>
+
+            {/* Trend Charts Section */}
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Compliance Score Trend */}
+              <ComplianceTrendChart
+                data={scanHistory.data ?? []}
+                isLoading={scanHistory.isLoading}
+                title="Compliance Score Trend"
+                description="Score progression over recent scans"
+                height={280}
+              />
+
+              {/* Violations by Severity */}
+              <ViolationsBySeverityChart
+                data={scanHistory.data ?? []}
+                isLoading={scanHistory.isLoading}
+                title="Violations Over Time"
+                description="Severity breakdown across scans"
+                height={280}
+              />
+            </div>
+
+            {/* Second Row of Charts */}
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Violations by Category */}
+              <ViolationsByCategoryChart
+                data={violations.data ?? []}
+                isLoading={violations.isLoading}
+                title="Violations by Category"
+                description="Distribution by policy type"
+                height={300}
+              />
+
+              {/* Scan History Timeline */}
+              <ScanHistoryTimeline
+                data={scanHistory.data ?? []}
+                isLoading={scanHistory.isLoading}
+                title="Scan History Timeline"
+                description="Score vs violations correlation"
+                height={300}
+              />
             </div>
 
             {/* Violations Section */}

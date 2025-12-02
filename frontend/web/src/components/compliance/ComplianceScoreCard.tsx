@@ -92,8 +92,6 @@ export default function ComplianceScoreCard({
   onScan,
   isScanning = false,
 }: ComplianceScoreCardProps) {
-  const scoreColor = getScoreColor(score)
-
   return (
     <Card>
       <CardHeader className="pb-2">

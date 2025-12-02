@@ -144,7 +144,7 @@ export default function ViolationCard({ violation, onResolved }: ViolationCardPr
     try {
       await resolveViolation.mutateAsync({
         violationId: violation.id,
-        data: { resolution_notes: resolutionNotes || undefined },
+        data: resolutionNotes ? { resolution_notes: resolutionNotes } : {},
       })
       setIsResolveDialogOpen(false)
       setResolutionNotes('')
