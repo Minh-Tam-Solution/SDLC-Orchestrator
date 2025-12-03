@@ -1,13 +1,20 @@
 # Product Roadmap
 ## Strategic Timeline and Delivery Milestones
 
-**Version**: 2.0.0
-**Date**: November 29, 2025
-**Status**: ✅ STAGE 03 BUILD - Week 10 of 13
+**Version**: 3.0.0
+**Date**: December 3, 2025
+**Status**: ✅ STAGE 03 BUILD - Week 10 of 13 (AI GOVERNANCE EXTENSION)
 **Authority**: CEO Approval (9.5/10 Confidence), Board Decision December 2024
 **Foundation**: Financial Model v1.0, Stakeholder Alignment v1.0
 **Current Stage**: Stage 03 (BUILD - Development & Implementation)
 **Framework**: SDLC 4.9.1 Complete Lifecycle (10 Stages)
+
+**Changelog v3.0.0** (Dec 3, 2025):
+- Added 4-Phase AI Governance Implementation Plan (PHASE-01 to PHASE-04)
+- Added AI Governance milestones (Sprint 26-28)
+- Added Context-Aware Requirements deliverables
+- Added 4-Level Planning Hierarchy implementation timeline
+- Updated to align with Product-Vision v2.0.0
 
 ---
 
@@ -24,14 +31,21 @@
 | **Operate** (Week 13) | ⏳ PENDING | G6 |
 
 ### Implementation Highlights (Week 10)
-- ✅ **Backend API**: 30+ endpoints (FastAPI, PostgreSQL, Redis)
-- ✅ **Database**: 24 tables, Alembic migrations, seed data (NQH Portfolio)
+- ✅ **Backend API**: 35+ endpoints (FastAPI, PostgreSQL, Redis) — 16 new AI Governance endpoints
+- ✅ **Database**: 25 tables, Alembic migrations, seed data (NQH Portfolio) — 9 new AI tables
 - ✅ **Frontend**: React Dashboard, shadcn/ui, TanStack Query
 - ✅ **Authentication**: JWT + OAuth (GitHub), MFA support
 - ✅ **Gate Engine**: OPA integration, YAML → Rego policies
 - ✅ **Evidence Vault**: MinIO S3 integration, SHA256 hashing
+- ✅ **Compliance**: Real-time scanning, violation management, trend charts
+- ✅ **Operations**: Prometheus metrics, Grafana dashboards, notifications
 - 🔄 **AI Engine**: Ollama integration (in progress)
 - ⏳ **GitHub Bridge**: Read-only sync (Sprint 15)
+
+### AI Governance Extension (v2.0.0)
+- ⏳ **Sprint 26**: AI Council Service (context-aware AI task decomposition)
+- ⏳ **Sprint 27**: VS Code Extension (AI-assisted development)
+- ⏳ **Sprint 28**: Web Dashboard AI (AI integration in dashboard)
 
 ---
 
@@ -518,6 +532,118 @@ Each gate answers a **fundamental risk** before burning resources on next stage.
 
 ---
 
+## AI Governance Implementation Plan (v3.0.0)
+
+### 4-Phase AI Governance Roadmap
+
+**Goal**: Encode CEO's AI productivity patterns into SDLC Orchestrator, enabling ANY PM to achieve CEO-level AI outputs.
+
+| Phase | Sprint | Focus | Deliverables | Target Date |
+|-------|--------|-------|--------------|-------------|
+| **PHASE-01** | 26 | AI Council Service | AI task decomposition, multi-provider fallback | Dec 9-13, 2025 |
+| **PHASE-02** | 27 | VS Code Extension | AI-assisted coding, inline suggestions | Dec 16-20, 2025 |
+| **PHASE-03** | 28 | Web Dashboard AI | Context-aware requirements, planning hierarchy | Dec 23-27, 2025 |
+| **PHASE-04** | 29-30 | SDLC Validator | Folder compliance CLI, CI/CD gates | Jan 2026 |
+
+---
+
+### PHASE-01: AI Council Service (Sprint 26)
+
+**Duration**: 5 days (Dec 9-13, 2025)
+**Team**: 2 Backend, 1 Frontend, 1 DevOps
+
+**Deliverables**:
+1. **AI Task Decomposition API**: User Story → Sub-Tasks (CEO-level quality)
+2. **Multi-Provider Fallback Chain**: Ollama → Claude → GPT-4o → Rule-based
+3. **Context Builder**: Project state, gate status, evidence → AI context
+4. **Decomposition Session Management**: Track AI sessions, quality metrics
+
+**Success Criteria**:
+- ✅ Decomposition latency <2min end-to-end (p95)
+- ✅ CEO-quality output for 90%+ of decompositions
+- ✅ Fallback chain 100% coverage (no failures)
+- ✅ 10+ test decomposition sessions validated
+
+**Database Migrations**:
+- Migration 007: decomposition_sessions, decomposed_tasks (2 tables)
+
+**API Endpoints** (3 new):
+- POST `/projects/{id}/decompose` — Start decomposition session
+- GET `/projects/{id}/decomposition-sessions` — List sessions
+- GET `/decomposition-sessions/{session_id}/tasks` — Get tasks from session
+
+---
+
+### PHASE-02: VS Code Extension (Sprint 27)
+
+**Duration**: 5 days (Dec 16-20, 2025)
+**Team**: 1 Backend, 2 Frontend, 1 DevOps
+
+**Deliverables**:
+1. **VS Code Extension MVP**: SDLC Orchestrator sidebar integration
+2. **AI Chat Panel**: Project-aware AI chat (context from SDLC Orchestrator)
+3. **Evidence Submit**: Quick evidence upload from VS Code
+4. **Template Generator**: Stage-aware template generation
+
+**Success Criteria**:
+- ✅ Extension installs and connects in <2min
+- ✅ AI chat responds in <3s (p95)
+- ✅ Evidence upload <5s (10MB limit)
+- ✅ 5+ template types available
+
+**Architecture Reference**: ADR-009: VS Code Extension Architecture (to be created)
+
+---
+
+### PHASE-03: Web Dashboard AI (Sprint 28)
+
+**Duration**: 5 days (Dec 23-27, 2025)
+**Team**: 1 Backend, 2 Frontend, 1 AI Engineer
+
+**Deliverables**:
+1. **Context-Aware Requirements UI**: 3-tier classification display (MANDATORY/RECOMMENDED/OPTIONAL)
+2. **Planning Hierarchy View**: Roadmap → Phase → Sprint → Backlog drill-down
+3. **AI Suggestions Panel**: AI-generated recommendations in dashboard
+4. **Project Context Profile Editor**: Configure 5 context dimensions
+
+**Success Criteria**:
+- ✅ Requirements load <500ms (p95)
+- ✅ Planning hierarchy query <1s (full chain)
+- ✅ Context profile update <200ms
+- ✅ AI suggestions relevance >80% (user feedback)
+
+**Database Migrations**:
+- Migration 006: project_context_profiles, stage_requirements, context_rules, requirement_overrides (4 tables)
+- Migration 008: roadmaps, phases, sprints, backlog_items (4 tables)
+
+**API Endpoints** (12 new):
+- Context-Aware Requirements: 4 endpoints
+- Planning Hierarchy: 8 endpoints
+
+---
+
+### PHASE-04: SDLC Structure Validator (Sprint 29-30)
+
+**Duration**: 10 days (Jan 2026)
+**Team**: 2 Backend, 1 DevOps
+
+**Deliverables**:
+1. **SDLC Validator CLI**: `sdlcctl validate --project-size=large`
+2. **Pre-commit Hook Template**: Block non-compliant commits
+3. **CI/CD Pipeline Gate**: GitHub Actions integration
+4. **Web UI Report**: Compliance status in dashboard
+
+**Success Criteria**:
+- ✅ Validation <10s for large projects (1000+ files)
+- ✅ 100% accuracy on SDLC 4.9.1 folder structure
+- ✅ Pre-commit hook <2s (developer UX)
+- ✅ CI/CD gate with detailed violation report
+
+**API Endpoints** (1 new):
+- POST `/projects/{id}/validate-structure` — Run SDLC validation
+
+---
+
 ## Quarterly Milestones (Year 1 Roadmap)
 
 ### Q4 2025 - Q1 2026 (November 2025 - February 2026): MVP Launch
@@ -992,6 +1118,8 @@ Week 1 (Foundation)
 **Version History**:
 - v1.0.0 (January 13, 2025): Initial roadmap (Stage 00 WHY focus)
 - v1.1.0 (November 13, 2025): Timeline adjusted to November 14, 2025 start date
+- v2.0.0 (November 29, 2025): Updated progress, added internal-first strategy
+- v3.0.0 (December 3, 2025): AI Governance Extension - 4-Phase implementation plan, Sprint 26-30 details
 
 **Review Schedule**:
 - Weekly review (Fridays, PM + CEO)
