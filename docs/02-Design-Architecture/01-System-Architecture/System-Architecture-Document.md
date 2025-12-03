@@ -1,13 +1,20 @@
 # System Architecture Document
 ## 4-Layer Architecture + Bridge-First Design
 
-**Version**: 1.0.0
-**Date**: November 13, 2025
-**Status**: ACTIVE - DRAFT
+**Version**: 2.0.0
+**Date**: December 3, 2025
+**Status**: ACTIVE - APPROVED
 **Authority**: CTO + Tech Lead + Backend Lead
 **Foundation**: Stage 01 (Requirements, API Specs, Data Model)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 4.9 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 4.9.1 Complete Lifecycle (10 Stages)
+
+**Changelog v2.0.0** (Dec 3, 2025):
+- Added AI Governance Layer (Section 11)
+- Added Context-Aware Requirements Engine (ADR-011)
+- Added AI Task Decomposition Service (ADR-012)
+- Added 4-Level Planning Hierarchy (ADR-013)
+- Added SDLC Structure Validator (ADR-014)
 
 ---
 
@@ -18,6 +25,7 @@
 3. [Bridge-First Strategy](#3-bridge-first-strategy)
 4. [Component Breakdown](#4-component-breakdown)
 5. [Data Flow](#5-data-flow)
+11. [AI Governance Layer](#11-ai-governance-layer) *(NEW v2.0.0)*
 6. [Technology Stack](#6-technology-stack)
 7. [Scalability Design](#7-scalability-design)
 8. [Security Architecture](#8-security-architecture)
@@ -565,4 +573,152 @@ class GitHubBridge:
 
 ---
 
-(Tiếp tục trong reply tiếp theo do giới hạn độ dài...)
+## 11. AI Governance Layer
+
+*(Added in v2.0.0 - December 3, 2025)*
+
+### 11.1 Overview
+
+AI Governance Layer encodes "CEO's brain" into SDLC Orchestrator, enabling any PM/Tech Lead to achieve CEO-level governance effectiveness.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ AI GOVERNANCE LAYER (NEW in v2.0.0)                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────┐  │
+│  │ Context-Aware    │  │ AI Task          │  │ Planning     │  │
+│  │ Requirements     │  │ Decomposition    │  │ Hierarchy    │  │
+│  │ Engine           │  │ Service          │  │ Manager      │  │
+│  │ (ADR-011)        │  │ (ADR-012)        │  │ (ADR-013)    │  │
+│  └────────┬─────────┘  └────────┬─────────┘  └──────┬───────┘  │
+│           │                     │                    │          │
+│           └─────────────────────┼────────────────────┘          │
+│                                 │                               │
+│                    ┌────────────┴────────────┐                  │
+│                    │ AI Gateway (ADR-007)    │                  │
+│                    │ Ollama → Claude → GPT-4 │                  │
+│                    └────────────┬────────────┘                  │
+│                                 │                               │
+│  ┌──────────────────────────────┴───────────────────────────┐  │
+│  │ SDLC Structure Validator (ADR-014)                       │  │
+│  │ - CLI Tool: sdlc-validate                                │  │
+│  │ - Pre-commit hook                                        │  │
+│  │ - CI/CD GitHub Actions                                   │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 11.2 Core Components
+
+#### 11.2.1 Context-Aware Requirements Engine (ADR-011)
+
+**Purpose**: Dynamic requirement classification based on project context.
+
+```yaml
+Classification Tiers:
+  MANDATORY (Red):    Cannot skip regardless of context
+  RECOMMENDED (Yellow): Should do, skip with justification
+  OPTIONAL (Gray):    Nice-to-have based on project scale
+
+Context Dimensions:
+  - Project Scale: small (1-5) | medium (6-20) | large (21-50) | enterprise (50+)
+  - Team Structure: solo | small_team | cross_functional | distributed
+  - Industry: general | finance | healthcare | government | education
+  - Risk Profile: low | medium | high | critical
+  - Dev Practices: methodology, maturity (CMM 1-5), release cadence, tech ecosystem
+```
+
+**Example**: Healthcare project (industry=healthcare) automatically upgrades security gates to MANDATORY.
+
+#### 11.2.2 AI Task Decomposition Service (ADR-012)
+
+**Purpose**: Decompose user stories into tasks with CEO-level quality.
+
+```yaml
+Input:
+  - User story (As a / I want / So that)
+  - Project context (tech stack, team size, stage)
+
+Output:
+  - Structured task list
+  - Estimates (hours, complexity)
+  - Acceptance criteria
+  - Dependencies
+
+Performance:
+  - CEO: 10 min → 8-12 tasks
+  - AI: 2 min → 8-12 tasks (same quality)
+  - Average PM: 30-45 min → 5-8 tasks (lower quality)
+```
+
+#### 11.2.3 4-Level Planning Hierarchy (ADR-013)
+
+**Purpose**: Structure planning from vision to daily tasks.
+
+```
+Level 1: ROADMAP (Vision - 1-3 years)
+  └─ Level 2: PHASE (Quarter - 3 months)
+       └─ Level 3: SPRINT (Week - 1-2 weeks)
+            └─ Level 4: BACKLOG (Day - Tasks/Issues)
+```
+
+**Traceability**: Every code commit traces back to business vision.
+
+```
+Commit → Task → Sprint → Phase → Roadmap → Vision
+```
+
+#### 11.2.4 SDLC Structure Validator (ADR-014)
+
+**Purpose**: Enforce SDLC 4.9.1 folder structure across all projects.
+
+```yaml
+Level-Based Validation:
+  Small (Level 0-1):   Stage folders only
+  Medium (Level 0-2):  + Category subfolders
+  Large (Level 0-3):   + Detail sub-subfolders
+
+Tools:
+  - sdlc-validate CLI
+  - .sdlc-config.json schema
+  - Pre-commit hook
+  - GitHub Actions workflow
+```
+
+### 11.3 Integration with Existing Layers
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ LAYER 2: BUSINESS LOGIC                                        │
+│                                                                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+│  │ Gate Engine  │  │ Evidence     │  │ AI Governance Layer  │  │
+│  │ Service      │←─┤ Vault API    │←─┤ - Requirements Engine│  │
+│  │              │  │              │  │ - Task Decomposition │  │
+│  │              │  │              │  │ - Planning Hierarchy │  │
+│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Data Flow**:
+1. Project created → Requirements Engine calculates applicable requirements
+2. User story entered → Task Decomposition generates tasks
+3. Tasks approved → Synced to GitHub Issues (bridge pattern)
+4. Sprint completed → Traceability chain updated
+
+### 11.4 Related ADRs
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| [ADR-007](Architecture-Decisions/ADR-007-AI-Context-Engine.md) | AI Context Engine | APPROVED |
+| [ADR-011](Architecture-Decisions/ADR-011-Context-Aware-Requirements.md) | Context-Aware Requirements | APPROVED |
+| [ADR-012](Architecture-Decisions/ADR-012-AI-Task-Decomposition.md) | AI Task Decomposition | APPROVED |
+| [ADR-013](Architecture-Decisions/ADR-013-Planning-Hierarchy.md) | 4-Level Planning Hierarchy | APPROVED |
+| [ADR-014](Architecture-Decisions/ADR-014-SDLC-Structure-Validator.md) | SDLC Structure Validator | APPROVED |
+
+---
+
+*End of System Architecture Document v2.0.0*

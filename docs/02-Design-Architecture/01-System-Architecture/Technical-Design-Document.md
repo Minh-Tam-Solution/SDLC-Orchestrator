@@ -1,11 +1,17 @@
 # Technical Design Document (TDD)
 
-**Version**: v1.0
-**Date**: November 13, 2025
+**Version**: v2.0
+**Date**: December 3, 2025
 **Owner**: Tech Lead, System Architect
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 4.9
+**Framework**: SDLC 4.9.1
 **Status**: ✅ APPROVED
+
+**Changelog v2.0** (Dec 3, 2025):
+- Added AI Governance Layer diagrams (Section 10)
+- Added Context-Aware Requirements flow
+- Added Task Decomposition sequence diagram
+- Added Planning Hierarchy visualization
 
 ---
 
@@ -24,6 +30,10 @@ This document provides **technical design diagrams** for SDLC Orchestrator using
 - [ADR-001-Database-Choice.md](./Architecture-Decisions/ADR-001-Database-Choice.md)
 - [ADR-002-Authentication-Model.md](./Architecture-Decisions/ADR-002-Authentication-Model.md)
 - [ADR-003-API-Strategy.md](./Architecture-Decisions/ADR-003-API-Strategy.md)
+- [ADR-011-Context-Aware-Requirements.md](./Architecture-Decisions/ADR-011-Context-Aware-Requirements.md) *(NEW)*
+- [ADR-012-AI-Task-Decomposition.md](./Architecture-Decisions/ADR-012-AI-Task-Decomposition.md) *(NEW)*
+- [ADR-013-Planning-Hierarchy.md](./Architecture-Decisions/ADR-013-Planning-Hierarchy.md) *(NEW)*
+- [ADR-014-SDLC-Structure-Validator.md](./Architecture-Decisions/ADR-014-SDLC-Structure-Validator.md) *(NEW)*
 
 ---
 
@@ -1098,6 +1108,223 @@ graph TB
 
     class INGRESS,API1,API2,API3,WORKER1,WORKER2,REDIS,PGBOUNCER,CM,SECRET,HPA k8s
     class RDS,S3,SQS external
+```
+
+---
+
+## 10. AI Governance Layer Diagrams
+
+*(Added in v2.0 - December 3, 2025)*
+
+### 10.1 Context-Aware Requirements Flow
+
+```mermaid
+sequenceDiagram
+    participant PM as PM/Tech Lead
+    participant API as Requirements API
+    participant Engine as Requirements Engine
+    participant DB as PostgreSQL
+    participant Cache as Redis
+
+    PM->>API: GET /api/v1/requirements/stages/01?project_id=xxx
+    API->>Cache: Check cache
+    alt Cache Hit
+        Cache-->>API: Return cached requirements
+    else Cache Miss
+        API->>Engine: get_stage_requirements(project_id, stage_id)
+        Engine->>DB: Get project profile
+        DB-->>Engine: {scale: "large", industry: "healthcare", ...}
+        Engine->>DB: Get base requirements for stage
+        DB-->>Engine: [REQ-001, REQ-002, ...]
+        loop For each requirement
+            Engine->>Engine: Apply context rules
+            Note right of Engine: healthcare → upgrade security to MANDATORY
+        end
+        Engine->>DB: Get overrides for project
+        DB-->>Engine: [Override for REQ-003]
+        Engine-->>API: Classified requirements
+        API->>Cache: Cache result (TTL: 1h)
+    end
+    API-->>PM: {requirements: [...], tiers: {MANDATORY: 5, RECOMMENDED: 8, OPTIONAL: 3}}
+```
+
+### 10.2 AI Task Decomposition Sequence
+
+```mermaid
+sequenceDiagram
+    participant PM as PM/Tech Lead
+    participant API as Decomposition API
+    participant Service as Task Decomposition Service
+    participant Context as Context Engine
+    participant AI as AI Gateway
+    participant Ollama as Ollama API
+    participant Claude as Claude API
+
+    PM->>API: POST /api/v1/decomposition/decompose
+    Note right of PM: {user_story: {...}, project_id: "xxx"}
+
+    API->>Service: decompose_user_story()
+    Service->>Context: build_decomposition_context()
+    Context->>Context: Load project profile
+    Context->>Context: Get existing components
+    Context->>Context: Find similar stories
+    Context-->>Service: Rich context
+
+    Service->>AI: complete(prompt, context)
+    AI->>Ollama: Try primary (qwen2.5:14b)
+
+    alt Ollama Success
+        Ollama-->>AI: JSON task list
+    else Ollama Fails
+        AI->>Claude: Fallback to Claude
+        Claude-->>AI: JSON task list
+    end
+
+    AI-->>Service: {tasks: [...], provider: "ollama"}
+    Service->>Service: Parse & validate tasks
+    Service->>Service: Enhance with estimates
+    Service->>Service: Calculate completeness score
+    Service-->>API: DecompositionResult
+
+    API-->>PM: {session_id, tasks: 10, completeness: 0.85}
+```
+
+### 10.3 Planning Hierarchy Structure
+
+```mermaid
+graph TB
+    subgraph "Level 1: ROADMAP (1-3 years)"
+        R[Product Roadmap v3.0.0<br/>Vision: First Governance Platform]
+    end
+
+    subgraph "Level 2: PHASE (Quarter)"
+        P1[Phase 01: MVP Launch<br/>Q4-2025]
+        P2[Phase 02: Enterprise Scale<br/>Q1-2026]
+        P3[Phase 03: AI Governance<br/>Q2-2026]
+        P4[Phase 04: Market Expansion<br/>Q3-2026]
+    end
+
+    subgraph "Level 3: SPRINT (Week)"
+        S22[Sprint 22: Operations]
+        S23[Sprint 23: Security]
+        S24[Sprint 24: Beta Prep]
+        S25[Sprint 25: Launch]
+    end
+
+    subgraph "Level 4: BACKLOG (Day)"
+        T1[Task: JWT Refresh]
+        T2[Task: MFA Setup]
+        T3[Task: Audit Logs]
+        T4[Task: Load Test]
+    end
+
+    R --> P1
+    R --> P2
+    R --> P3
+    R --> P4
+
+    P1 --> S22
+    P1 --> S23
+    P1 --> S24
+    P1 --> S25
+
+    S23 --> T1
+    S23 --> T2
+    S23 --> T3
+    S23 --> T4
+
+    style R fill:#1a73e8,color:#fff
+    style P1 fill:#34a853,color:#fff
+    style P2 fill:#34a853,color:#fff
+    style P3 fill:#34a853,color:#fff
+    style P4 fill:#34a853,color:#fff
+    style S22 fill:#fbbc04,color:#000
+    style S23 fill:#fbbc04,color:#000
+    style S24 fill:#fbbc04,color:#000
+    style S25 fill:#fbbc04,color:#000
+```
+
+### 10.4 SDLC Structure Validation Flow
+
+```mermaid
+flowchart TD
+    A[Developer commits code] --> B{Pre-commit hook}
+    B -->|Trigger| C[sdlc-validate --strict]
+    C --> D[Load .sdlc-config.json]
+    D --> E{Project size?}
+    E -->|small| F[Validate Level 0-1]
+    E -->|medium| G[Validate Level 0-2]
+    E -->|large| H[Validate Level 0-3]
+    F --> I{All stages exist?}
+    G --> I
+    H --> I
+    I -->|No| J[ERROR: Missing stage folders]
+    I -->|Yes| K{Naming correct?}
+    K -->|No| L[WARNING: Non-standard names]
+    K -->|Yes| M{No stray folders?}
+    M -->|No| N[ERROR: Non-compliant folder]
+    M -->|Yes| O[Calculate compliance score]
+    O --> P{Score >= 90%?}
+    P -->|No| Q[BLOCK: Fix issues]
+    P -->|Yes| R[PASS: Allow commit]
+
+    J --> Q
+    L --> O
+    N --> Q
+
+    style Q fill:#ea4335,color:#fff
+    style R fill:#34a853,color:#fff
+```
+
+### 10.5 AI Governance Component Diagram
+
+```mermaid
+graph TB
+    subgraph "AI Governance Layer"
+        REQ[Requirements Engine<br/>ADR-011]
+        DECOMP[Task Decomposition<br/>ADR-012]
+        PLAN[Planning Hierarchy<br/>ADR-013]
+        VALID[Structure Validator<br/>ADR-014]
+    end
+
+    subgraph "AI Gateway (ADR-007)"
+        GW[AI Gateway]
+        OLLAMA[Ollama<br/>api.nqh.vn]
+        CLAUDE[Claude<br/>Anthropic]
+        GPT[GPT-4<br/>OpenAI]
+    end
+
+    subgraph "Data Layer"
+        PG[(PostgreSQL)]
+        REDIS[(Redis Cache)]
+    end
+
+    subgraph "External"
+        GH[GitHub API]
+    end
+
+    REQ --> GW
+    DECOMP --> GW
+    GW --> OLLAMA
+    GW --> CLAUDE
+    GW --> GPT
+
+    REQ --> PG
+    DECOMP --> PG
+    PLAN --> PG
+    PLAN --> GH
+
+    REQ --> REDIS
+    DECOMP --> REDIS
+
+    VALID -.-> PG
+    VALID -.-> GH
+
+    style REQ fill:#e3f2fd
+    style DECOMP fill:#e3f2fd
+    style PLAN fill:#e3f2fd
+    style VALID fill:#e3f2fd
+    style GW fill:#fff3e0
 ```
 
 ---
