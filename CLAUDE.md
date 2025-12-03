@@ -1,9 +1,9 @@
 # CLAUDE AI PROJECT CONTEXT - SDLC ORCHESTRATOR
 ## AI Assistant Configuration for SDLC 4.9.1 Governance Platform
 
-**Version**: 1.2.0
-**Status**: ACTIVE - BUILD PHASE (Stage 03) - Sprint 22
-**Effective Date**: December 2, 2025
+**Version**: 1.3.0
+**Status**: ACTIVE - BUILD PHASE (Stage 03) - Sprint 22+
+**Effective Date**: December 3, 2025
 **Project**: SDLC Orchestrator - First Governance-First Platform on SDLC 4.9.1
 **Authority**: CTO + CPO + CEO Approved
 **Framework**: SDLC 4.9.1 Complete Lifecycle (10 Stages)
@@ -181,6 +181,37 @@ Savings:
   - Year 1: $11,400 saved (95% cost reduction)
   - Latency: 3x faster (<100ms vs 300ms)
   - Privacy: No external API calls (compliance win)
+```
+
+**Principle 5: AI Governance Layer (v2.0.0 - NEW)**
+```yaml
+Vision: Encode CEO's Brain into Platform
+  - Any PM achieves CEO-level AI productivity
+  - Context-aware requirements (MANDATORY/RECOMMENDED/OPTIONAL)
+  - 4-level planning hierarchy (Roadmap → Phase → Sprint → Backlog)
+
+Core Capabilities (ADR-011 to ADR-014):
+  1. AI Task Decomposition Engine (ADR-011)
+     - User Story → CEO-quality sub-tasks
+     - Multi-provider fallback (Ollama → Claude → GPT-4o → Rule-based)
+     - Quality scoring (completeness, actionability, alignment)
+
+  2. Context-Aware Requirements Engine (ADR-012)
+     - 3-tier classification: MANDATORY (red), RECOMMENDED (yellow), OPTIONAL (gray)
+     - 5 context dimensions: scale, team, industry, risk, practices
+     - Automatic filtering based on project profile
+
+  3. 4-Level Planning Hierarchy (ADR-013)
+     - Roadmap (12-month vision, quarterly milestones)
+     - Phase (4-8 weeks, 1-2 sprints, theme-based)
+     - Sprint (5-10 days, committed work)
+     - Backlog (individual tasks, hour estimates)
+
+  4. SDLC Structure Validator (ADR-014)
+     - CLI tool: sdlcctl validate/fix/init/report
+     - Pre-commit hook (block non-compliant commits)
+     - CI/CD gate (GitHub Actions integration)
+     - 100% SDLC 4.9.1 folder structure enforcement
 ```
 
 ---
@@ -633,6 +664,110 @@ Week 5: Design Thinking Workflow
 
 ---
 
+## 🧠 **AI GOVERNANCE IMPLEMENTATION (v2.0.0)**
+
+### **4-Phase Implementation Plan**
+
+```yaml
+PHASE-01: AI Council Service (Sprint 26 - Dec 9-13, 2025)
+  Focus: AI Task Decomposition & Multi-Provider Fallback
+  Deliverables:
+    - POST /projects/{id}/decompose API
+    - GET /decomposition-sessions/{id}/tasks API
+    - Multi-provider chain (Ollama → Claude → GPT-4o → Rule-based)
+    - Quality scoring (completeness, actionability, alignment)
+  Success Criteria:
+    - Latency <2min (p95)
+    - CEO-quality output 90%+
+    - 100% fallback coverage
+  Reference: docs/03-Development-Implementation/04-Phase-Plans/PHASE-01-AI-COUNCIL-SERVICE.md
+
+PHASE-02: VS Code Extension (Sprint 27 - Dec 16-20, 2025)
+  Focus: AI-Assisted Development in IDE
+  Deliverables:
+    - Extension MVP (sidebar integration)
+    - AI Chat Panel (project-aware conversations)
+    - Evidence Submit (Cmd+Shift+E shortcut)
+    - Template Generator (5+ template types)
+  Success Criteria:
+    - Install + connect <2min
+    - AI chat <3s (p95)
+    - Evidence upload <5s (10MB)
+  Reference: docs/03-Development-Implementation/04-Phase-Plans/PHASE-02-VSCODE-EXTENSION.md
+
+PHASE-03: Web Dashboard AI (Sprint 28 - Dec 23-27, 2025)
+  Focus: Context-Aware Requirements & Planning Hierarchy
+  Deliverables:
+    - Context-Aware Requirements Engine (4 tables)
+    - 4-Level Planning Hierarchy (4 tables)
+    - 12 new API endpoints
+    - Dashboard components (hierarchy view, context panel)
+  Success Criteria:
+    - Context calculation <500ms
+    - Requirements filtering <200ms
+    - Planning sync real-time
+  Reference: docs/03-Development-Implementation/04-Phase-Plans/PHASE-03-WEB-DASHBOARD-AI.md
+
+PHASE-04: SDLC Validator (Sprint 29-30 - Jan 2026)
+  Focus: Folder Compliance CLI & CI/CD Gates
+  Deliverables:
+    - CLI tool (sdlcctl validate/fix/init/report)
+    - Pre-commit hook template
+    - GitHub Actions workflow
+    - Web UI compliance report
+  Success Criteria:
+    - Validation <10s (1000+ files)
+    - 100% accuracy on SDLC 4.9.1
+    - Pre-commit <2s
+  Reference: docs/03-Development-Implementation/04-Phase-Plans/PHASE-04-SDLC-VALIDATOR.md
+```
+
+### **New Database Tables (AI Governance)**
+
+```yaml
+PHASE-01 Tables:
+  - decomposition_sessions (AI task decomposition history)
+  - decomposed_tasks (Generated sub-tasks)
+
+PHASE-03 Tables (Context-Aware):
+  - requirement_contexts (5 dimension profiles)
+  - requirement_rules (MANDATORY/RECOMMENDED/OPTIONAL rules)
+  - context_overrides (Project-specific customizations)
+  - requirement_applicability (Computed requirements per project)
+
+PHASE-03 Tables (Planning Hierarchy):
+  - roadmaps (12-month vision)
+  - phases (4-8 week themes)
+  - sprints (5-10 day commitments)
+  - backlog_items (Individual tasks with estimates)
+```
+
+### **New ADRs (AI Governance)**
+
+```yaml
+ADR-011: AI Governance Layer Architecture
+  - Problem: CEO is bottleneck for AI-quality output
+  - Decision: Encode CEO patterns into platform
+  - Consequences: Any PM achieves CEO-level productivity
+
+ADR-012: Context-Aware Requirements Engine
+  - Problem: One-size-fits-all requirements fail
+  - Decision: 3-tier classification with 5 context dimensions
+  - Consequences: 70% fewer irrelevant requirements for small projects
+
+ADR-013: 4-Level Planning Hierarchy
+  - Problem: No standardized planning across SDLC stages
+  - Decision: Roadmap → Phase → Sprint → Backlog
+  - Consequences: Consistent planning from vision to execution
+
+ADR-014: SDLC Structure Validator
+  - Problem: 5 NQH projects have inconsistent folder structures
+  - Decision: CLI + pre-commit + CI/CD enforcement
+  - Consequences: 100% SDLC 4.9.1 compliance across portfolio
+```
+
+---
+
 ## 🔗 **KEY REFERENCES**
 
 ### **Documentation Structure**
@@ -640,34 +775,53 @@ Week 5: Design Thinking Workflow
 ```
 /docs/
 ├── 00-Project-Foundation/ (14 docs, Stage 00 - WHY)
-│   ├── Mission-Vision-Values.md
-│   ├── Problem-Statement.md
-│   ├── Solution-Hypothesis.md
+│   ├── 01-Vision/Product-Vision.md (v2.0.0 - AI Governance)
+│   ├── 03-Design-Thinking/Problem-Statement.md (v2.0.0)
+│   ├── 04-Roadmap/Product-Roadmap.md (v3.0.0 - 4-Phase Plan)
 │   └── ...
 ├── 01-Planning-Analysis/ (15 docs, Stage 01 - WHAT)
-│   ├── Functional-Requirements.md (FR1-FR20)
+│   ├── Functional-Requirements.md (FR1-FR20 + AI Governance)
 │   ├── API-Specification.md (OpenAPI 3.0)
 │   ├── Data-Model-ERD.md
 │   └── ...
-├── 02-Design-Architecture/ (28 docs, Stage 02 - HOW)
-│   ├── ADR-001-Database-Choice.md
-│   ├── ADR-007-AI-Context-Engine-Ollama.md ⭐ INNOVATION
+├── 02-Design-Architecture/ (32 docs, Stage 02 - HOW)
+│   ├── 03-ADRs/
+│   │   ├── ADR-001 to ADR-010 (Existing decisions)
+│   │   ├── ADR-011-AI-Governance-Layer.md ⭐ NEW
+│   │   ├── ADR-012-Context-Aware-Requirements.md ⭐ NEW
+│   │   ├── ADR-013-Planning-Hierarchy.md ⭐ NEW
+│   │   └── ADR-014-SDLC-Validator.md ⭐ NEW
 │   ├── System-Architecture-Document.md (568 lines)
 │   ├── Technical-Design-Document.md (1,128 lines, 10+ diagrams)
 │   ├── openapi.yml (1,629 lines, 30+ endpoints)
 │   ├── Security-Baseline.md (OWASP ASVS Level 2) ⭐ GOLD STANDARD
 │   └── ...
 └── 03-Development-Implementation/ (Stage 03 - BUILD)
-    └── (Work in progress...)
+    ├── 02-Sprint-Plans/
+    │   ├── SPRINT-26-AI-COUNCIL-SERVICE.md
+    │   ├── SPRINT-27-VSCODE-EXTENSION.md
+    │   └── SPRINT-28-WEB-DASHBOARD-AI.md
+    └── 04-Phase-Plans/ ⭐ NEW
+        ├── PHASE-01-AI-COUNCIL-SERVICE.md
+        ├── PHASE-02-VSCODE-EXTENSION.md
+        ├── PHASE-03-WEB-DASHBOARD-AI.md
+        └── PHASE-04-SDLC-VALIDATOR.md
 ```
 
 ### **Critical Documents (Must Read Before Coding)**
 
+**Foundation Documents**:
 1. **[PROJECT-KICKOFF.md](PROJECT-KICKOFF.md)** - CEO approval, 90-day plan, $564K budget
 2. **[System-Architecture-Document.md](docs/02-Design-Architecture/System-Architecture-Document.md)** - 4-layer architecture, bridge-first pattern
 3. **[openapi.yml](docs/02-Design-Architecture/openapi.yml)** - 1,629 lines, 30+ endpoints, contract-first
 4. **[Security-Baseline.md](docs/02-Design-Architecture/Security-Baseline.md)** - OWASP ASVS Level 2, 264/264 requirements
-5. **[ADR-007-AI-Context-Engine](docs/02-Design-Architecture/ADRs/)** - Ollama integration, 95% cost savings
+5. **[ADR-007-AI-Context-Engine](docs/02-Design-Architecture/03-ADRs/)** - Ollama integration, 95% cost savings
+
+**AI Governance Documents (v2.0.0)** ⭐ NEW:
+6. **[Product-Vision.md](docs/00-Project-Foundation/01-Vision/Product-Vision.md)** - AI Governance Layer capabilities
+7. **[Product-Roadmap.md](docs/00-Project-Foundation/04-Roadmap/Product-Roadmap.md)** - 4-Phase implementation plan
+8. **[ADR-011 to ADR-014](docs/02-Design-Architecture/03-ADRs/)** - AI Governance architecture decisions
+9. **[PHASE-01 to PHASE-04](docs/03-Development-Implementation/04-Phase-Plans/)** - Detailed implementation plans
 
 ---
 
@@ -704,6 +858,13 @@ As Claude AI working on SDLC Orchestrator, you MUST:
 - Learn from **NQH-Bot crisis** (Zero Mock Policy)
 - Adopt **MTEP onboarding** (<30 min time to value)
 - Use **Ollama AI innovation** (95% cost savings)
+
+### **6. AI Governance Awareness (v2.0.0 - NEW)**
+- Understand **4-Phase implementation** (Sprint 26-30)
+- Apply **Context-Aware Requirements** (MANDATORY/RECOMMENDED/OPTIONAL)
+- Follow **4-Level Planning Hierarchy** (Roadmap → Phase → Sprint → Backlog)
+- Enforce **SDLC 4.9.1 folder structure** (10 stages: 00-10)
+- Reference **ADR-011 to ADR-014** for AI Governance decisions
 
 ---
 
@@ -763,7 +924,27 @@ You are successful if:
 
 ---
 
-**Last Updated**: November 29, 2025
+**Last Updated**: December 3, 2025
 **Owner**: CTO + CPO + CEO
-**Status**: ✅ ACTIVE - BUILD PHASE (Stage 03)
+**Status**: ✅ ACTIVE - BUILD PHASE (Stage 03) + AI GOVERNANCE v2.0.0
 **Next Review**: Weekly CEO Review (Every Friday 3pm)
+
+---
+
+## 📋 **CHANGELOG**
+
+### v1.3.0 (December 3, 2025)
+- Added **Principle 5: AI Governance Layer** (v2.0.0)
+- Added **AI Governance Implementation** section with 4-Phase Plan
+- Added **New Database Tables** (AI Governance)
+- Added **New ADRs** (ADR-011 to ADR-014)
+- Updated **Documentation Structure** with Phase Plans
+- Added **AI Governance Awareness** to AI Assistant Mandate
+- Updated **Critical Documents** with AI Governance references
+
+### v1.2.0 (December 2, 2025)
+- Sprint 22 progress (Operations & Monitoring)
+- Code File Naming Standards added
+
+### v1.1.0 (November 29, 2025)
+- Initial CLAUDE.md with full project context
