@@ -1,19 +1,29 @@
 # PHASE-04: SDLC Structure Validator
 ## Folder Compliance CLI & CI/CD Gates
 
-**Version**: 1.0.0
-**Date**: December 3, 2025
+**Version**: 2.0.0
+**Date**: December 5, 2025
 **Status**: PLANNED - Sprint 29-30
-**Duration**: 10 days (Jan 2026)
+**Duration**: 10 days (Jan 6-17, 2026)
 **Owner**: Backend Lead + DevOps Team
-**Framework**: SDLC 4.9.1 Complete Lifecycle
+**Framework**: SDLC 5.0.0 Complete Lifecycle
 **Prerequisites**: PHASE-01, PHASE-02, PHASE-03 Complete
 
 ---
 
 ## Executive Summary
 
-PHASE-04 implements the **SDLC Structure Validator** - a CLI tool and CI/CD gate that enforces SDLC 4.9.1 folder structure compliance across all projects. This ensures every project in the NQH portfolio follows the standardized 10-stage lifecycle documentation structure.
+PHASE-04 implements the **SDLC Structure Validator** - a CLI tool and CI/CD gate that enforces SDLC 5.0.0 folder structure compliance across all projects. This ensures every project in the NQH portfolio follows the standardized 10-stage lifecycle documentation structure with **4-Tier Classification** (LITE, STANDARD, PROFESSIONAL, ENTERPRISE).
+
+### What's New in v2.0.0
+
+| Feature | SDLC 4.9.1 | SDLC 5.0.0 |
+|---------|-----------|-----------|
+| Project Tiers | Single structure | 4-Tier Classification |
+| Stage 08 | Team-Management | Team-Management + Collaboration Standards |
+| Industry Standards | None | ISO/IEC, CMMI, SAFe, DORA, SRE, ITIL |
+| P0 Artifacts | N/A | 15 AI-discoverability artifacts |
+| Legacy Handling | Manual | 99-Legacy with AI-NEVER-READ directive |
 
 **Key Deliverables**:
 1. SDLC Validator CLI (`sdlcctl validate`)
@@ -59,31 +69,65 @@ PHASE-04 implements the **SDLC Structure Validator** - a CLI tool and CI/CD gate
 
 ## 2. Technical Architecture
 
-### 2.1 SDLC 4.9.1 Folder Structure (Standard)
+### 2.1 SDLC 5.0.0 Folder Structure (4-Tier Classification)
 
 ```yaml
-Level 0: Project root folder (ALL projects)
-Level 1: 10 stage folders 00-10 (ALL projects)
-Level 2: Category subfolders (Medium + Large projects)
-Level 3: Detail sub-subfolders (Large projects only)
+# 4-Tier Classification (SDLC 5.0.0)
+LITE (1-2 people):
+  - Required Stages: 00, 01, 02, 03
+  - Optional: 04-10
+  - Max Depth: Level 1
 
-Stage Naming Standard (EXACT):
-  00-Project-Foundation
-  01-Planning-Analysis
-  02-Design-Architecture
-  03-Development-Implementation
-  04-Testing-Quality
-  05-Deployment-Release        # NOT "Deployment-Operations"
-  06-Operations-Maintenance    # NOT "Maintenance-Support"
-  07-Integration-APIs
-  08-Team-Management
-  09-Executive-Reports
-  10-Archive
+STANDARD (3-10 people):
+  - Required Stages: 00, 01, 02, 03, 04, 05
+  - Optional: 06-10
+  - Max Depth: Level 2
 
-Project Size Mapping:
-  Small (Level 0-1): AI-Platform
-  Medium (Level 0-2): SOP-Generator, NQH-Bot
-  Large (Level 0-3): Bflow Platform, SDLC-Orchestrator
+PROFESSIONAL (10-50 people):
+  - Required Stages: 00-09 (All except 10-Archive)
+  - Required P0: 15 artifacts for AI discoverability
+  - Max Depth: Level 3
+
+ENTERPRISE (50+ people):
+  - Required Stages: 00-10 (All stages)
+  - Required: Industry compliance (ISO/IEC, CMMI, SOC2)
+  - Max Depth: Level 4+
+
+# Stage Naming Standard (EXACT - SDLC 5.0.0)
+Stage Naming:
+  00-Project-Foundation      # WHY stage
+  01-Planning-Analysis       # WHAT stage
+  02-Design-Architecture     # HOW stage
+  03-Development-Implementation  # BUILD stage
+  04-Testing-Quality         # TEST stage
+  05-Deployment-Release      # DEPLOY stage (NOT "Deployment-Operations")
+  06-Operations-Maintenance  # OPERATE stage (NOT "Maintenance-Support")
+  07-Integration-APIs        # INTEGRATE stage
+  08-Team-Management         # COLLABORATE stage (NEW: Team Collaboration Standards)
+  09-Executive-Reports       # GOVERN stage
+  10-Archive                 # Archive stage
+
+# P0 Artifacts (15 Required for PROFESSIONAL+)
+P0_Artifacts:
+  Framework:
+    - SDLC-Executive-Summary.md
+    - SDLC-Core-Methodology.md
+    - README.md (root entry point)
+    - CHANGELOG.md
+  Project:
+    - docs/README.md (docs entry point)
+    - CURRENT-SPRINT.md
+    - Product-Roadmap.md
+    - Functional-Requirements-Document.md
+    - openapi.yml
+  Stage:
+    - Stage README.md (each stage)
+
+# Legacy Handling (SDLC 5.0.0)
+Legacy:
+  Location: 99-Legacy/
+  Directive: AI-NEVER-READ
+  Purpose: Historical reference only, not for active development
 ```
 
 ### 2.2 Validator Architecture
@@ -131,24 +175,39 @@ Project Size Mapping:
 ```json
 // .sdlc-config.json (project root)
 {
-  "$schema": "https://sdlc-orchestrator.io/schema/v1/sdlc-config.json",
-  "version": "4.9.1",
-  "project_size": "large",
+  "$schema": "https://sdlc-orchestrator.io/schema/v2/sdlc-config.json",
+  "version": "5.0.0",
+  "tier": "professional",
+  "team_size": 25,
   "docs_root": "docs",
   "stages": {
-    "enabled": ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10"],
-    "required": ["00", "01", "02", "03"]
+    "enabled": ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09"],
+    "required": ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09"]
   },
   "rules": {
     "enforce_naming": true,
     "enforce_levels": true,
     "max_depth": 3,
-    "require_readme": true
+    "require_readme": true,
+    "require_p0_artifacts": true,
+    "legacy_handling": "99-Legacy"
+  },
+  "p0_artifacts": {
+    "framework": ["SDLC-Executive-Summary.md", "SDLC-Core-Methodology.md", "README.md", "CHANGELOG.md"],
+    "project": ["docs/README.md", "CURRENT-SPRINT.md", "Product-Roadmap.md", "Functional-Requirements-Document.md", "openapi.yml"],
+    "stage": ["README.md"]
+  },
+  "tier_requirements": {
+    "lite": { "min_stages": 4, "p0_required": false },
+    "standard": { "min_stages": 6, "p0_required": false },
+    "professional": { "min_stages": 10, "p0_required": true },
+    "enterprise": { "min_stages": 11, "p0_required": true, "compliance": ["iso27001", "soc2"] }
   },
   "ignore_patterns": [
     "**/node_modules/**",
     "**/.git/**",
-    "**/dist/**"
+    "**/dist/**",
+    "**/99-Legacy/**"
   ],
   "custom_stages": {}
 }
@@ -230,24 +289,37 @@ sdlcctl report --format json --output report.json
 
 **Validation Success**:
 ```
-✅ SDLC 4.9.1 Structure Validation: PASSED
+✅ SDLC 5.0.0 Structure Validation: PASSED
 
 Project: SDLC-Orchestrator
-Size: large (Level 0-3)
+Tier: PROFESSIONAL (25 people)
 Docs Root: docs/
 
-Stages Found: 11/11
-  ✅ 00-Project-Foundation (14 files)
-  ✅ 01-Planning-Analysis (15 files)
-  ✅ 02-Design-Architecture (28 files)
-  ✅ 03-Development-Implementation (32 files)
-  ✅ 04-Testing-Quality (8 files)
-  ✅ 05-Deployment-Release (5 files)
-  ✅ 06-Operations-Maintenance (4 files)
-  ✅ 07-Integration-APIs (6 files)
-  ✅ 08-Team-Management (3 files)
-  ✅ 09-Executive-Reports (12 files)
-  ✅ 10-Archive (2 files)
+Stages Found: 10/10
+  ✅ 00-Project-Foundation (14 files) - WHY
+  ✅ 01-Planning-Analysis (15 files) - WHAT
+  ✅ 02-Design-Architecture (28 files) - HOW
+  ✅ 03-Development-Implementation (32 files) - BUILD
+  ✅ 04-Testing-Quality (8 files) - TEST
+  ✅ 05-Deployment-Release (5 files) - DEPLOY
+  ✅ 06-Operations-Maintenance (4 files) - OPERATE
+  ✅ 07-Integration-APIs (6 files) - INTEGRATE
+  ✅ 08-Team-Management (3 files) - COLLABORATE
+  ✅ 09-Executive-Reports (12 files) - GOVERN
+
+P0 Artifacts: 15/15 ✅
+  ✅ SDLC-Executive-Summary.md
+  ✅ SDLC-Core-Methodology.md
+  ✅ README.md (root)
+  ✅ CHANGELOG.md
+  ✅ docs/README.md
+  ✅ CURRENT-SPRINT.md
+  ✅ Product-Roadmap.md
+  ✅ Functional-Requirements-Document.md
+  ✅ openapi.yml
+  ✅ Stage READMEs (10/10)
+
+Legacy: 99-Legacy/ (Excluded - AI-NEVER-READ directive)
 
 Total: 129 files validated
 Time: 1.2s
@@ -255,13 +327,13 @@ Time: 1.2s
 
 **Validation Failure**:
 ```
-❌ SDLC 4.9.1 Structure Validation: FAILED
+❌ SDLC 5.0.0 Structure Validation: FAILED
 
 Project: NQH-Bot
-Size: medium (Level 0-2)
+Tier: STANDARD (8 people)
 Docs Root: docs/
 
-Violations Found: 2
+Violations Found: 3
 
 1. ❌ Stage 06 naming violation
    Found: 06-Maintenance-Support
@@ -270,9 +342,14 @@ Violations Found: 2
 
 2. ❌ Missing required stage
    Missing: 09-Executive-Reports
-   Fix: Create folder
+   Fix: Create folder (or upgrade to STANDARD tier which requires only 6 stages)
+
+3. ⚠️ P0 Artifact missing (Warning for STANDARD tier)
+   Missing: docs/README.md
+   Recommendation: Add for AI discoverability
 
 Run 'sdlcctl fix' to auto-fix these violations.
+Run 'sdlcctl init --tier standard' to reconfigure project tier.
 ```
 
 ---
@@ -527,12 +604,64 @@ Branch protection rules:
 ## 10. References
 
 - [ADR-014: SDLC Structure Validator](../../02-Design-Architecture/03-ADRs/ADR-014-SDLC-Validator.md)
-- [PM/PJM Handover Report](../../09-Executive-Reports/PM-PJM-Handover.md)
-- [SDLC 4.9.1 Framework](../../../SDLC-Enterprise-Framework/)
+- [SDLC 5.0.0 Framework](../../../SDLC-Enterprise-Framework/)
 - [Product Roadmap v3.0.0](../../00-Project-Foundation/04-Roadmap/Product-Roadmap.md)
+- [Sprint 29 Detailed Plan](../02-Sprint-Plans/SPRINT-29-SDLC-VALIDATOR-CLI.md)
+- [Sprint 30 Detailed Plan](../02-Sprint-Plans/SPRINT-30-CICD-WEB-INTEGRATION.md)
+
+---
+
+## 11. Sprint Breakdown
+
+### Sprint 29: Core CLI & Validation Engine (Jan 6-10, 2026)
+
+**Duration**: 5 days
+**Team**: 2 Backend, 1 DevOps
+**Goal**: Build core CLI tool with SDLC 5.0.0 validation engine
+
+| Day | Focus | Deliverables |
+|-----|-------|--------------|
+| Day 1 | Validation Engine Core | Folder scanner, tier detector, stage validator |
+| Day 2 | P0 Artifact Checker | 15 P0 artifacts validation, legacy exclusion |
+| Day 3 | CLI Tool (sdlcctl) | validate, fix, init commands |
+| Day 4 | Pre-commit Hook | Hook package, integration tests |
+| Day 5 | Testing & Documentation | Unit tests (95%+), README, examples |
+
+**Success Criteria**:
+- ✅ CLI validates SDLC 5.0.0 structure in <10s (1000+ files)
+- ✅ 4-tier classification working (LITE/STANDARD/PROFESSIONAL/ENTERPRISE)
+- ✅ P0 artifacts checked for PROFESSIONAL+ tiers
+- ✅ Pre-commit hook blocks non-compliant commits
+
+**Detailed Plan**: [SPRINT-29-SDLC-VALIDATOR-CLI.md](../02-Sprint-Plans/SPRINT-29-SDLC-VALIDATOR-CLI.md)
+
+---
+
+### Sprint 30: CI/CD Gate & Web Integration (Jan 13-17, 2026)
+
+**Duration**: 5 days
+**Team**: 2 Backend, 1 DevOps, 1 Frontend
+**Goal**: Add CI/CD pipeline gate and web dashboard integration
+
+| Day | Focus | Deliverables |
+|-----|-------|--------------|
+| Day 1 | GitHub Action | Workflow template, PR commenting |
+| Day 2 | CI/CD Integration | Branch protection, multi-repo testing |
+| Day 3 | Web API Endpoint | POST /projects/{id}/validate-structure |
+| Day 4 | Dashboard Component | Compliance dashboard, tier visualization |
+| Day 5 | Rollout & Polish | NQH portfolio rollout, documentation finalization |
+
+**Success Criteria**:
+- ✅ GitHub Action validates on PR/push to docs/**
+- ✅ API endpoint returns validation results in <1s
+- ✅ Dashboard shows compliance status per project
+- ✅ All 5 NQH projects at 100% compliance
+
+**Detailed Plan**: [SPRINT-30-CICD-WEB-INTEGRATION.md](../02-Sprint-Plans/SPRINT-30-CICD-WEB-INTEGRATION.md)
 
 ---
 
 **Document Status**: ✅ APPROVED - Ready for Sprint 29-30
-**Last Updated**: December 3, 2025
+**Last Updated**: December 5, 2025
+**Version**: 2.0.0 (SDLC 5.0.0 upgrade)
 **Owner**: Backend Lead + DevOps + CTO
