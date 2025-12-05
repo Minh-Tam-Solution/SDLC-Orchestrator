@@ -15,8 +15,8 @@
 | Metric | Value | Updated |
 |--------|-------|---------|
 | **Active Stage** | 03 - BUILD | Dec 5, 2025 |
-| **Sprint** | 28 - Web Dashboard AI | COMPLETE (9.6/10) |
-| **Next Sprint** | 29 - Backend API Integration | Planning |
+| **Sprint** | 29 - SDLC Validator CLI | PLANNED |
+| **Next Sprint** | 30 - CI/CD & Web Integration | Q1 2026 |
 | **Gate** | G3 Ship Ready | Target: Jan 31, 2026 |
 | **Progress** | 77% (Week 10/13) | On Track |
 | **MVP Target** | Feb 10, 2026 | Internal Launch |
@@ -232,6 +232,8 @@ These are the 15 critical artifacts that define project structure:
 | Sprint-26 (AI Council) | AI Council Service | [03-Development-Implementation/02-Sprint-Plans/](03-Development-Implementation/02-Sprint-Plans/) |
 | Sprint-27 (VS Code) | VS Code Extension | [03-Development-Implementation/02-Sprint-Plans/](03-Development-Implementation/02-Sprint-Plans/) |
 | Sprint-28 (Dashboard) | Web Dashboard AI | [03-Development-Implementation/02-Sprint-Plans/](03-Development-Implementation/02-Sprint-Plans/) |
+| Sprint-29 (CLI) | SDLC Validator CLI | [03-Development-Implementation/02-Sprint-Plans/](03-Development-Implementation/02-Sprint-Plans/) |
+| Sprint-30 (CI/CD) | CI/CD & Web Integration | [03-Development-Implementation/02-Sprint-Plans/](03-Development-Implementation/02-Sprint-Plans/) |
 | Phase Plans (4 phases) | AI Governance | [03-Development-Implementation/04-Phase-Plans/](03-Development-Implementation/04-Phase-Plans/) |
 
 ### Executive Reports
