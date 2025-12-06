@@ -60,7 +60,10 @@
       "Bash(pip install:*)",
       "Bash(sdlcctl validate:*)",
       "Bash(git rm:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(for dir in /Users/dttai/Documents/Python/01.NQH/SDLC-Orchestrator/docs/*/)",
+      "Bash(do echo '=== $(basename $dir) ===' ls -d $dir*/)",
+      "Bash(xargs:*)"
     ],
     "deny": [],
     "ask": []
