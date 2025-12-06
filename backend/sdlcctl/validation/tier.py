@@ -52,33 +52,50 @@ class TierRequirements:
             raise ValueError("max_team_size must be >= min_team_size")
 
 
-# SDLC 5.0.0 Stage definitions
+# SDLC 5.0.0 Stage definitions (Contract-First Order)
+# INTEGRATE moved from Stage 07 → Stage 03 (API Design BEFORE coding)
 STAGE_NAMES = {
+    "00": "00-foundation",       # WHY - Problem Definition
+    "01": "01-planning",         # WHAT - Requirements Analysis
+    "02": "02-design",           # HOW - Architecture Design
+    "03": "03-integration",      # API Design & System Integration (Contract-First)
+    "04": "04-build",            # Development & Implementation
+    "05": "05-test",             # Quality Assurance
+    "06": "06-deploy",           # Release & Deployment
+    "07": "07-operate",          # Production & Operations
+    "08": "08-collaborate",      # Team Coordination & Communication
+    "09": "09-govern",           # Governance & Compliance
+    "10": "10-archive",          # Historical Archive
+}
+
+# Stage purpose descriptions (Contract-First Order)
+STAGE_QUESTIONS = {
+    "00": "WHY",        # Problem Definition
+    "01": "WHAT",       # Requirements Analysis
+    "02": "HOW",        # Architecture Design
+    "03": "INTEGRATE",  # API Design (Contract-First - BEFORE BUILD)
+    "04": "BUILD",      # Development & Implementation
+    "05": "TEST",       # Quality Assurance
+    "06": "DEPLOY",     # Release & Deployment
+    "07": "OPERATE",    # Production & Operations
+    "08": "COLLABORATE",  # Team Coordination
+    "09": "GOVERN",     # Governance & Compliance
+    "10": "ARCHIVE",    # Historical Archive
+}
+
+# Old stage names for migration support (SDLC 4.9.x)
+STAGE_NAMES_4_9 = {
     "00": "00-Project-Foundation",
     "01": "01-Planning-Analysis",
     "02": "02-Design-Architecture",
-    "03": "03-Development-Implementation",
-    "04": "04-Testing-Quality",
-    "05": "05-Deployment-Release",
-    "06": "06-Operations-Maintenance",
-    "07": "07-Integration-APIs",
-    "08": "08-Team-Management",
-    "09": "09-Executive-Reports",
-    "10": "10-Archive",
-}
-
-STAGE_QUESTIONS = {
-    "00": "WHY",
-    "01": "WHAT",
-    "02": "HOW",
-    "03": "BUILD",
-    "04": "TEST",
-    "05": "DEPLOY",
-    "06": "OPERATE",
-    "07": "INTEGRATE",
-    "08": "COLLABORATE",
-    "09": "GOVERN",
-    "10": "ARCHIVE",
+    "03": "03-Development-Implementation",  # Was BUILD
+    "04": "04-Testing-Quality",             # Was TEST
+    "05": "05-Deployment-Release",          # Was DEPLOY
+    "06": "06-Operations-Maintenance",      # Was OPERATE
+    "07": "07-Integration-APIs",            # Was INTEGRATE
+    "08": "08-Team-Management",             # Was COLLABORATE
+    "09": "09-Executive-Reports",           # Was GOVERN
+    "10": "10-Archive",                     # Was ARCHIVE
 }
 
 # Tier-specific requirements

@@ -12,6 +12,7 @@ from .commands.validate import validate_command
 from .commands.fix import fix_command
 from .commands.init import init_command
 from .commands.report import report_command
+from .commands.migrate import migrate_command
 
 console = Console()
 
@@ -70,6 +71,9 @@ app.command(name="init", help="Initialize SDLC 5.0.0 project structure")(
 app.command(name="report", help="Generate SDLC compliance report")(
     report_command
 )
+app.command(name="migrate", help="Migrate from SDLC 4.9.x to 5.0.0")(
+    migrate_command
+)
 
 
 @app.command(name="tiers")
@@ -110,35 +114,40 @@ def show_tiers() -> None:
 
 @app.command(name="stages")
 def show_stages() -> None:
-    """Show SDLC 5.0.0 stage definitions."""
+    """Show SDLC 5.0.0 stage definitions (Contract-First Order)."""
     from rich.table import Table
 
     from .validation.tier import STAGE_NAMES
 
-    table = Table(title="SDLC 5.0.0 Stages", show_header=True)
+    table = Table(title="SDLC 5.0.0 Stages (Contract-First Order)", show_header=True)
     table.add_column("ID", style="cyan", width=5)
-    table.add_column("Stage Name", width=30)
-    table.add_column("Question", width=40)
+    table.add_column("Stage Name", width=20)
+    table.add_column("Purpose", width=50)
+    table.add_column("Type", width=12)
 
+    # Contract-First Order: INTEGRATE at Stage 03 (before BUILD)
     questions = {
-        "00": "WHY does this project exist?",
-        "01": "WHAT needs to be built?",
-        "02": "HOW will it be built?",
-        "03": "BUILD - How to implement?",
-        "04": "TEST - How to verify quality?",
-        "05": "DEPLOY - How to release?",
-        "06": "OPERATE - How to run in production?",
-        "07": "INTEGRATE - How to connect systems?",
-        "08": "COLLABORATE - How do teams work together?",
-        "09": "GOVERN - How to manage & report?",
-        "10": "ARCHIVE - How to preserve history?",
+        "00": ("WHY - Problem Definition", "LINEAR"),
+        "01": ("WHAT - Requirements Analysis", "LINEAR"),
+        "02": ("HOW - Architecture Design", "LINEAR"),
+        "03": ("INTEGRATE - API Design (Contract-First)", "LINEAR"),
+        "04": ("BUILD - Development & Implementation", "LINEAR"),
+        "05": ("TEST - Quality Assurance", "LINEAR"),
+        "06": ("DEPLOY - Release & Deployment", "LINEAR"),
+        "07": ("OPERATE - Production & Operations", "LINEAR"),
+        "08": ("COLLABORATE - Team Coordination", "CONTINUOUS"),
+        "09": ("GOVERN - Governance & Compliance", "CONTINUOUS"),
+        "10": ("ARCHIVE - Historical Archive", "CONTINUOUS"),
     }
 
     for stage_id, stage_name in sorted(STAGE_NAMES.items()):
-        table.add_row(stage_id, stage_name, questions.get(stage_id, ""))
+        purpose, stage_type = questions.get(stage_id, ("", ""))
+        table.add_row(stage_id, stage_name, purpose, stage_type)
 
     console.print()
     console.print(table)
+    console.print()
+    console.print("[dim]Contract-First: API Design (Stage 03) must happen BEFORE coding (Stage 04)[/dim]")
     console.print()
 
 
