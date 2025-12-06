@@ -1,0 +1,140 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - link "SDLC Orchestrator" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - img [ref=e8]
+      - generic [ref=e10]: SDLC Orchestrator
+    - navigation [ref=e11]:
+      - link "Dashboard" [ref=e12] [cursor=pointer]:
+        - /url: /
+        - img [ref=e13]
+        - text: Dashboard
+      - link "Projects" [ref=e15] [cursor=pointer]:
+        - /url: /projects
+        - img [ref=e16]
+        - text: Projects
+      - link "Gates" [ref=e18] [cursor=pointer]:
+        - /url: /gates
+        - img [ref=e19]
+        - text: Gates
+      - link "Evidence Vault" [ref=e21] [cursor=pointer]:
+        - /url: /evidence
+        - img [ref=e22]
+        - text: Evidence Vault
+      - link "Policies" [ref=e24] [cursor=pointer]:
+        - /url: /policies
+        - img [ref=e25]
+        - text: Policies
+      - link "Compliance" [ref=e27] [cursor=pointer]:
+        - /url: /compliance
+        - img [ref=e28]
+        - text: Compliance
+      - link "Settings" [ref=e30] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e31]
+        - text: Settings
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - img [ref=e37]
+        - generic [ref=e39]:
+          - paragraph [ref=e40]: Platform Admin
+          - paragraph [ref=e41]: admin@sdlc-orchestrator.io
+      - button "Logout" [ref=e42] [cursor=pointer]:
+        - img [ref=e43]
+        - text: Logout
+  - banner [ref=e45]:
+    - generic [ref=e46]:
+      - generic [ref=e47]: Signed in as admin@sdlc-orchestrator.io
+      - button "Sign Out" [ref=e48] [cursor=pointer]
+  - main [ref=e49]:
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - heading "Dashboard" [level=1] [ref=e53]
+        - paragraph [ref=e54]: Overview of your SDLC projects and quality gates
+      - generic [ref=e55]:
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - heading "Total Projects" [level=3] [ref=e58]
+            - img [ref=e60]
+          - generic [ref=e62]:
+            - generic [ref=e63]: "43"
+            - paragraph [ref=e64]: Active projects in your workspace
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - heading "Active Gates" [level=3] [ref=e67]
+            - img [ref=e69]
+          - generic [ref=e71]:
+            - generic [ref=e72]: "5"
+            - paragraph [ref=e73]: Gates awaiting evaluation
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - heading "Pending Approvals" [level=3] [ref=e76]
+            - img [ref=e78]
+          - generic [ref=e80]:
+            - generic [ref=e81]: "5"
+            - paragraph [ref=e82]: Gates requiring your review
+        - generic [ref=e83]:
+          - generic [ref=e84]:
+            - heading "Pass Rate" [level=3] [ref=e85]
+            - img [ref=e87]
+          - generic [ref=e89]:
+            - generic [ref=e90]: 100%
+            - paragraph [ref=e91]: Gates passed this month
+      - generic [ref=e92]:
+        - generic [ref=e93]:
+          - generic [ref=e94]:
+            - heading "Recent Gate Activity" [level=3] [ref=e95]
+            - paragraph [ref=e96]: Latest gate evaluations across your projects
+          - generic [ref=e98]:
+            - generic [ref=e99]:
+              - generic [ref=e100]:
+                - paragraph [ref=e101]: Feature brief description
+                - paragraph [ref=e102]: E2E Test Project 1764296977305
+              - generic [ref=e103]: pending
+            - generic [ref=e104]:
+              - generic [ref=e105]:
+                - paragraph [ref=e106]: G1 Test Gate
+                - paragraph [ref=e107]: Test Project Week 11
+              - generic [ref=e108]: pending
+            - generic [ref=e109]:
+              - generic [ref=e110]:
+                - paragraph [ref=e111]: G1
+                - paragraph [ref=e112]: MTC Internal Tool - SDLC Automation
+              - generic [ref=e113]: pending
+            - generic [ref=e114]:
+              - generic [ref=e115]:
+                - paragraph [ref=e116]: G1
+                - paragraph [ref=e117]: MTC Internal Tool - SDLC Automation
+              - generic [ref=e118]: pending
+            - generic [ref=e119]:
+              - generic [ref=e120]:
+                - paragraph [ref=e121]: G1
+                - paragraph [ref=e122]: BFlow Workflow Automation - v3.0
+              - generic [ref=e123]: pending
+        - generic [ref=e124]:
+          - generic [ref=e125]:
+            - heading "Quick Actions" [level=3] [ref=e126]
+            - paragraph [ref=e127]: Common tasks and shortcuts
+          - generic [ref=e129]:
+            - link "Create New Project Start a new SDLC project" [ref=e130] [cursor=pointer]:
+              - /url: /projects/new
+              - img [ref=e131]
+              - generic [ref=e133]:
+                - paragraph [ref=e134]: Create New Project
+                - paragraph [ref=e135]: Start a new SDLC project
+            - link "Upload Evidence Add documents to evidence vault" [ref=e136] [cursor=pointer]:
+              - /url: /evidence
+              - img [ref=e137]
+              - generic [ref=e139]:
+                - paragraph [ref=e140]: Upload Evidence
+                - paragraph [ref=e141]: Add documents to evidence vault
+            - link "Manage Policies Configure gate policies" [ref=e142] [cursor=pointer]:
+              - /url: /policies
+              - img [ref=e143]
+              - generic [ref=e145]:
+                - paragraph [ref=e146]: Manage Policies
+                - paragraph [ref=e147]: Configure gate policies
+```

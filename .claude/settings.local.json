@@ -46,7 +46,20 @@
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjQyNTIyMjMsImlhdCI6MTc2NDI0ODYyMywidHlwZSI6ImFjY2VzcyIsInN1YiI6ImEwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSJ9.9u3CZdYTARsz_VCeaJjZPSyGp-0adPbZYJ6dLtHlm3M\":*)",
       "Bash(git tag:*)",
       "Bash(kill:*)",
-      "Bash(docker port:*)"
+      "Bash(docker port:*)",
+      "Bash(done)",
+      "Bash(tree:*)",
+      "Bash(du -sh:*)",
+      "Bash(git -C /Users/dttai/Documents/Python/02.MTC/MTEP-Platform log --oneline -20)",
+      "Bash(grep:*)",
+      "Bash(xargs cat:*)",
+      "Bash(git -C /Users/dttai/Documents/Python/02.MTC/MTEP-Platform log --all --oneline)",
+      "Bash(git subtree push:*)",
+      "Bash(git subtree split:*)",
+      "Bash(git branch:*)",
+      "Bash(pip install:*)",
+      "Bash(sdlcctl validate:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

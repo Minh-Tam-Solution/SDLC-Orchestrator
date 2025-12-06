@@ -72,6 +72,10 @@ tags:
     description: Outbound webhooks (Slack, GitHub, Jira)
   - name: GitHub
     description: GitHub integration (OAuth, repositories, sync, webhooks)
+  - name: AI Council
+    description: AI Council Service - Multi-LLM deliberation for compliance recommendations
+  - name: SDLC Structure Validation
+    description: SDLC 5.0.0 folder structure validation - 11 stages, 4-tier classification
 
 security:
   - BearerAuth: []
@@ -862,6 +866,243 @@ paths:
       responses:
         '204':
           description: Project deleted
+
+  # ============================================================
+  # SDLC 5.0.0 STRUCTURE VALIDATION
+  # ============================================================
+
+  /projects/{project_id}/validate-structure:
+    post:
+      tags: [SDLC Structure Validation]
+      summary: Validate SDLC 5.0.0 folder structure
+      description: |
+        Validate project documentation folder structure against SDLC 5.0.0 framework.
+
+        **4-Tier Classification**:
+        - **Lite** (🌱): 5 required stages - minimal for small projects
+        - **Standard** (⚡): 8 required stages - mid-size projects
+        - **Professional** (🏆): 10 required stages - enterprise projects
+        - **Enterprise** (👑): 11 required stages - complete lifecycle with Archive
+
+        **11 SDLC Stages**:
+        - Stage 00: Project Foundation (Vision, Problem Statement)
+        - Stage 01: Planning & Analysis (Requirements, Data Model)
+        - Stage 02: Design & Architecture (System Architecture, API Design, ADRs)
+        - Stage 03: Development & Implementation (Sprint Plans, Setup Guides)
+        - Stage 04: Testing & QA (Test Plans, Test Cases)
+        - Stage 05: Deployment & Release (Deployment Guides, Release Notes)
+        - Stage 06: Operations & Support (Runbooks, Incident Response)
+        - Stage 07: Maintenance & Evolution (Change Management)
+        - Stage 08: Training & Knowledge (User Guides)
+        - Stage 09: Executive Reports (CTO/CPO Reports)
+        - Stage 10: Archive (Historical Documents) - Enterprise only
+
+        **P0 Artifacts**: Critical documents that must exist for each stage.
+
+        **Real-World Example** (Sprint 30):
+        ```bash
+        curl -X POST "http://localhost:8000/api/v1/projects/550e8400-e29b-41d4-a716-446655440000/validate-structure" \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+          -H "Content-Type: application/json" \
+          -d '{
+            "tier": "professional",
+            "docs_root": "docs",
+            "strict_mode": false,
+            "include_p0": true
+          }'
+        ```
+      operationId: validateStructure
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateStructureRequest'
+            examples:
+              auto_detect:
+                summary: Auto-detect tier
+                value:
+                  docs_root: "docs"
+                  strict_mode: false
+                  include_p0: true
+              professional_tier:
+                summary: Professional tier validation
+                value:
+                  tier: "professional"
+                  docs_root: "docs"
+                  strict_mode: true
+                  include_p0: true
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateStructureResponse'
+              example:
+                id: "val_550e8400-e29b-41d4-a716-446655440000"
+                project_id: "550e8400-e29b-41d4-a716-446655440000"
+                is_compliant: true
+                compliance_score: 92
+                tier: "professional"
+                tier_detected: false
+                stages_found:
+                  - stage_id: "00"
+                    stage_name: "Project Foundation"
+                    folder_name: "00-Project-Foundation"
+                    file_count: 12
+                    has_readme: true
+                  - stage_id: "01"
+                    stage_name: "Planning & Analysis"
+                    folder_name: "01-Planning-Analysis"
+                    file_count: 8
+                    has_readme: true
+                stages_missing: ["07", "08"]
+                stages_required: 10
+                p0_status:
+                  total: 15
+                  found: 14
+                  missing: 1
+                  coverage: 93.3
+                  missing_artifacts: ["Test-Plan.md"]
+                error_count: 1
+                warning_count: 3
+                issues:
+                  - code: "MISSING_P0"
+                    severity: "error"
+                    message: "Missing P0 artifact: Test-Plan.md"
+                    path: "docs/04-Testing-QA"
+                    stage_id: "04"
+                    fix_suggestion: "Create Test-Plan.md in docs/04-Testing-QA/"
+                validated_at: "2025-12-06T15:30:00Z"
+                validation_time_ms: 245
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /projects/{project_id}/validation-history:
+    get:
+      tags: [SDLC Structure Validation]
+      summary: Get validation history
+      description: |
+        Get SDLC structure validation history for a project with pagination.
+
+        **Real-World Example**:
+        ```bash
+        curl -X GET "http://localhost:8000/api/v1/projects/550e8400-e29b-41d4-a716-446655440000/validation-history?limit=10&offset=0" \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        ```
+      operationId: getValidationHistory
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdParam'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+          description: Number of records to return
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          description: Offset for pagination
+      responses:
+        '200':
+          description: Validation history list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationHistoryItem'
+              example:
+                - id: "val_001"
+                  is_compliant: true
+                  compliance_score: 92
+                  tier: "professional"
+                  stages_found: 8
+                  stages_required: 10
+                  error_count: 1
+                  warning_count: 3
+                  validated_at: "2025-12-06T15:30:00Z"
+                - id: "val_002"
+                  is_compliant: false
+                  compliance_score: 68
+                  tier: "professional"
+                  stages_found: 6
+                  stages_required: 10
+                  error_count: 5
+                  warning_count: 8
+                  validated_at: "2025-12-05T10:00:00Z"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /projects/{project_id}/compliance-summary:
+    get:
+      tags: [SDLC Structure Validation]
+      summary: Get compliance summary
+      description: |
+        Get aggregated compliance summary for a project including trends and statistics.
+
+        **Real-World Example**:
+        ```bash
+        curl -X GET "http://localhost:8000/api/v1/projects/550e8400-e29b-41d4-a716-446655440000/compliance-summary" \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        ```
+      operationId: getComplianceSummary
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdParam'
+      responses:
+        '200':
+          description: Compliance summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceSummary'
+              example:
+                project_id: "550e8400-e29b-41d4-a716-446655440000"
+                project_name: "SDLC Orchestrator"
+                tier: "professional"
+                current_score: 92
+                is_compliant: true
+                validation_count: 45
+                last_validated_at: "2025-12-06T15:30:00Z"
+                score_trend: [85, 87, 88, 90, 92]
+                compliance_history:
+                  - date: "2025-12-01"
+                    score: 85
+                    is_compliant: false
+                  - date: "2025-12-06"
+                    score: 92
+                    is_compliant: true
+                stages_summary:
+                  found: 8
+                  required: 10
+                  missing: ["07", "08"]
+                p0_summary:
+                  total: 15
+                  found: 14
+                  missing: 1
+                  coverage: 93.3
+                issue_summary:
+                  errors: 1
+                  warnings: 3
+                  info: 5
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   # ============================================================
   # GATES
@@ -3051,6 +3292,227 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  # ============================================================
+  # AI COUNCIL (Sprint 26 - Multi-LLM Deliberation)
+  # ============================================================
+
+  /council/deliberate:
+    post:
+      tags: [AI Council]
+      summary: Trigger AI Council deliberation for a compliance violation
+      description: |
+        Trigger AI Council deliberation to generate high-quality recommendations
+        for compliance violations.
+
+        **Modes**:
+        - `single`: Fast path using Ollama (<3s p95) - for MEDIUM/LOW severity
+        - `council`: Full 3-stage deliberation (<8s p95) - for CRITICAL/HIGH severity
+        - `auto`: Automatically selects mode based on violation severity
+
+        **3-Stage Council Process**:
+        1. **Stage 1 - Parallel Queries**: Query 3 LLMs simultaneously (Ollama, Claude, GPT-4o)
+        2. **Stage 2 - Peer Review**: Each LLM ranks others' responses (anonymized)
+        3. **Stage 3 - Chairman Synthesis**: Chairman LLM synthesizes final recommendation
+
+        **Performance Targets**:
+        - Single mode: <3s p95 latency
+        - Council mode: <8s p95 latency
+        - Success rate: >95%
+
+        **Example**:
+        ```bash
+        curl -X POST http://localhost:8000/api/v1/council/deliberate \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+          -H "Content-Type: application/json" \
+          -d '{
+            "violation_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+            "council_mode": "council"
+          }'
+        ```
+      operationId: triggerCouncilDeliberation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CouncilDeliberateRequest'
+            examples:
+              single_mode:
+                summary: Single mode (fast, Ollama only)
+                value:
+                  violation_id: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+                  council_mode: "single"
+              council_mode:
+                summary: Council mode (3-stage deliberation)
+                value:
+                  violation_id: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+                  council_mode: "council"
+                  providers: ["ollama", "claude", "gpt4"]
+              auto_mode:
+                summary: Auto mode (severity-based routing)
+                value:
+                  violation_id: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+                  council_mode: "auto"
+      responses:
+        '201':
+          description: Council deliberation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CouncilDeliberateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: User does not have access to the violation's project
+        '404':
+          description: Violation not found
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /council/status/{request_id}:
+    get:
+      tags: [AI Council]
+      summary: Get status of async council deliberation
+      description: |
+        Get the status of an async council deliberation request.
+
+        **Status Values**:
+        - `pending`: Deliberation not yet started
+        - `in_progress`: Deliberation in progress
+        - `completed`: Deliberation completed successfully
+        - `failed`: Deliberation failed
+
+        Note: This endpoint returns 501 Not Implemented until async deliberations
+        are implemented in Sprint 27.
+      operationId: getCouncilStatus
+      parameters:
+        - name: request_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Council deliberation request ID
+      responses:
+        '200':
+          description: Council deliberation status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CouncilStatusResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Request not found
+        '501':
+          description: Async deliberations not yet implemented
+
+  /council/history/{project_id}:
+    get:
+      tags: [AI Council]
+      summary: Get council deliberation history for a project
+      description: |
+        Get the history of council deliberations for a specific project.
+        Useful for auditing and reviewing past AI recommendations.
+
+        **Filters**:
+        - `severity`: Filter by violation severity
+        - `mode`: Filter by council mode (single, council, auto)
+        - `start_date` / `end_date`: Filter by date range
+
+        **Pagination**:
+        - Default: 20 items per page
+        - Max: 100 items per page
+      operationId: getCouncilHistory
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Project ID
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [CRITICAL, HIGH, MEDIUM, LOW]
+          description: Filter by violation severity
+        - name: mode
+          in: query
+          schema:
+            type: string
+            enum: [single, council, auto]
+          description: Filter by council mode used
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Filter by start date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Filter by end date
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Council deliberation history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CouncilHistoryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: User does not have access to this project
+
+  /council/stats/{project_id}:
+    get:
+      tags: [AI Council]
+      summary: Get council usage statistics for a project
+      description: |
+        Get aggregated statistics for council usage in a project.
+
+        **Metrics**:
+        - Total deliberations (single vs council mode)
+        - Average latency by mode
+        - Success rate by mode
+        - Cost breakdown by provider
+        - Confidence score distribution
+      operationId: getCouncilStats
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Project ID
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month, all]
+            default: month
+          description: Time period for statistics
+      responses:
+        '200':
+          description: Council usage statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CouncilStatsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: User does not have access to this project
+
 # ============================================================
 # COMPONENTS
 # ============================================================
@@ -3186,6 +3648,585 @@ components:
           type: string
           format: uuid
           example: 550e8400-e29b-41d4-a716-446655440000
+
+    # ============================================================
+    # AI COUNCIL (Sprint 26)
+    # ============================================================
+
+    CouncilDeliberateRequest:
+      type: object
+      required: [violation_id]
+      properties:
+        violation_id:
+          type: string
+          format: uuid
+          description: ID of the compliance violation to deliberate on
+          example: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+        council_mode:
+          type: string
+          enum: [single, council, auto]
+          default: auto
+          description: |
+            Deliberation mode:
+            - single: Fast path using Ollama only (<3s p95)
+            - council: Full 3-stage deliberation (<8s p95)
+            - auto: Automatically selects based on violation severity
+        providers:
+          type: array
+          items:
+            type: string
+            enum: [ollama, claude, gpt4]
+          description: AI providers to use (council mode only, default all 3)
+          example: ["ollama", "claude", "gpt4"]
+
+    CouncilDeliberateResponse:
+      type: object
+      required: [id, recommendation, mode_used, confidence_score, providers_used, total_duration_ms, total_cost_usd]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique ID for this deliberation
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        recommendation:
+          type: string
+          description: Final AI-generated recommendation
+          example: "Create /docs/00-Project-Foundation/01-Vision/Product-Vision.md with sections: Problem Statement, Solution Overview, Target Users, Success Metrics"
+        mode_used:
+          type: string
+          enum: [single, council]
+          description: Actual mode used for deliberation
+        confidence_score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Confidence score (0-100)
+          example: 92.5
+        providers_used:
+          type: array
+          items:
+            type: string
+          description: List of AI providers used
+          example: ["ollama", "claude", "gpt4"]
+        total_duration_ms:
+          type: number
+          format: float
+          description: Total deliberation time in milliseconds
+          example: 5234.5
+        total_cost_usd:
+          type: number
+          format: float
+          description: Total cost in USD
+          example: 0.0234
+        stage1_responses:
+          type: array
+          description: Stage 1 parallel query responses (council mode only)
+          items:
+            $ref: '#/components/schemas/AIProviderResponse'
+        stage2_rankings:
+          type: array
+          description: Stage 2 peer review rankings (council mode only)
+          items:
+            $ref: '#/components/schemas/PeerRanking'
+        stage3_synthesis:
+          $ref: '#/components/schemas/ChairmanSynthesis'
+        created_at:
+          type: string
+          format: date-time
+
+    AIProviderResponse:
+      type: object
+      required: [provider, model, response, duration_ms]
+      properties:
+        provider:
+          type: string
+          enum: [ollama, claude, gpt4]
+          description: AI provider name
+        model:
+          type: string
+          description: Model name used
+          example: "llama2-70b"
+        response:
+          type: string
+          description: Provider's recommendation
+        duration_ms:
+          type: number
+          format: float
+          description: Response time in milliseconds
+        cost_usd:
+          type: number
+          format: float
+          description: Cost for this response in USD
+        confidence:
+          type: number
+          format: float
+          description: Provider's confidence score
+
+    PeerRanking:
+      type: object
+      required: [ranker, rankings, scores]
+      properties:
+        ranker:
+          type: string
+          description: Which provider performed the ranking
+          example: "ollama"
+        rankings:
+          type: array
+          items:
+            type: string
+          description: Anonymized response rankings (best to worst)
+          example: ["Response B", "Response A", "Response C"]
+        scores:
+          type: object
+          additionalProperties:
+            type: number
+          description: Scores for each response
+          example:
+            "Response A": 7.5
+            "Response B": 9.0
+            "Response C": 6.0
+        reasoning:
+          type: string
+          description: Explanation for the ranking
+
+    ChairmanSynthesis:
+      type: object
+      required: [final_answer, confidence, reasoning]
+      properties:
+        final_answer:
+          type: string
+          description: Chairman's synthesized final recommendation
+        confidence:
+          type: number
+          format: float
+          description: Confidence score for the synthesis
+        reasoning:
+          type: string
+          description: Chairman's reasoning for the synthesis
+        best_elements_from:
+          type: array
+          items:
+            type: string
+          description: Which responses contributed to the synthesis
+          example: ["Response A (structure)", "Response B (examples)"]
+
+    CouncilStatusResponse:
+      type: object
+      required: [request_id, status]
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, in_progress, completed, failed]
+        progress_percent:
+          type: integer
+          minimum: 0
+          maximum: 100
+        current_stage:
+          type: string
+          enum: [stage1_parallel, stage2_review, stage3_synthesis]
+        error_message:
+          type: string
+          description: Error message if status is 'failed'
+        result:
+          $ref: '#/components/schemas/CouncilDeliberateResponse'
+
+    CouncilHistoryResponse:
+      type: object
+      required: [items, pagination]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CouncilHistoryItem'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    CouncilHistoryItem:
+      type: object
+      required: [id, violation_id, mode_used, confidence_score, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        violation_id:
+          type: string
+          format: uuid
+        violation_severity:
+          type: string
+          enum: [CRITICAL, HIGH, MEDIUM, LOW]
+        mode_used:
+          type: string
+          enum: [single, council]
+        recommendation_preview:
+          type: string
+          maxLength: 200
+          description: First 200 chars of recommendation
+        confidence_score:
+          type: number
+          format: float
+        total_duration_ms:
+          type: number
+          format: float
+        total_cost_usd:
+          type: number
+          format: float
+        created_at:
+          type: string
+          format: date-time
+
+    CouncilStatsResponse:
+      type: object
+      required: [total_deliberations, period]
+      properties:
+        period:
+          type: string
+          enum: [day, week, month, all]
+        total_deliberations:
+          type: integer
+          description: Total number of deliberations
+        by_mode:
+          type: object
+          properties:
+            single:
+              type: integer
+            council:
+              type: integer
+        avg_latency_ms:
+          type: object
+          properties:
+            single:
+              type: number
+              format: float
+            council:
+              type: number
+              format: float
+        success_rate:
+          type: object
+          properties:
+            single:
+              type: number
+              format: float
+            council:
+              type: number
+              format: float
+        total_cost_usd:
+          type: number
+          format: float
+        avg_confidence_score:
+          type: number
+          format: float
+        by_severity:
+          type: object
+          properties:
+            CRITICAL:
+              type: integer
+            HIGH:
+              type: integer
+            MEDIUM:
+              type: integer
+            LOW:
+              type: integer
+
+    # ============================================================
+    # SDLC 5.0.0 STRUCTURE VALIDATION (Sprint 30)
+    # ============================================================
+
+    SDLCTier:
+      type: string
+      enum: [lite, standard, professional, enterprise]
+      description: |
+        SDLC 5.0.0 tier classification:
+        - lite: 5 required stages (small projects)
+        - standard: 8 required stages (mid-size projects)
+        - professional: 10 required stages (enterprise projects)
+        - enterprise: 11 required stages (complete lifecycle)
+      example: professional
+
+    ValidationIssue:
+      type: object
+      required: [code, severity, message]
+      properties:
+        code:
+          type: string
+          description: Issue code (e.g., MISSING_STAGE, MISSING_P0)
+          example: MISSING_P0
+        severity:
+          type: string
+          enum: [error, warning, info]
+          example: error
+        message:
+          type: string
+          description: Human-readable issue description
+          example: "Missing P0 artifact: Test-Plan.md"
+        path:
+          type: string
+          description: File or folder path related to the issue
+          example: docs/04-Testing-QA
+        stage_id:
+          type: string
+          description: Stage ID if issue is stage-specific
+          example: "04"
+        fix_suggestion:
+          type: string
+          description: Suggested fix for the issue
+          example: "Create Test-Plan.md in docs/04-Testing-QA/"
+
+    StageInfo:
+      type: object
+      required: [stage_id, stage_name, folder_name, file_count, has_readme]
+      properties:
+        stage_id:
+          type: string
+          description: Stage ID (00-10)
+          example: "01"
+        stage_name:
+          type: string
+          description: Stage name
+          example: Planning & Analysis
+        folder_name:
+          type: string
+          description: Folder name in docs directory
+          example: 01-Planning-Analysis
+        file_count:
+          type: integer
+          description: Number of files in the stage folder
+          example: 8
+        has_readme:
+          type: boolean
+          description: Whether stage folder has README.md
+          example: true
+
+    P0Status:
+      type: object
+      required: [total, found, missing, coverage]
+      properties:
+        total:
+          type: integer
+          description: Total P0 artifacts required
+          example: 15
+        found:
+          type: integer
+          description: P0 artifacts found
+          example: 14
+        missing:
+          type: integer
+          description: P0 artifacts missing
+          example: 1
+        coverage:
+          type: number
+          format: float
+          description: P0 coverage percentage
+          example: 93.3
+        missing_artifacts:
+          type: array
+          items:
+            type: string
+          description: List of missing P0 artifact names
+          example: ["Test-Plan.md"]
+
+    ValidateStructureRequest:
+      type: object
+      properties:
+        tier:
+          $ref: '#/components/schemas/SDLCTier'
+        docs_root:
+          type: string
+          default: docs
+          description: Root folder for documentation
+          example: docs
+        strict_mode:
+          type: boolean
+          default: false
+          description: Strict validation (fails on warnings)
+          example: false
+        include_p0:
+          type: boolean
+          default: true
+          description: Include P0 artifact validation
+          example: true
+
+    ValidateStructureResponse:
+      type: object
+      required: [id, project_id, is_compliant, compliance_score, tier, stages_found, stages_missing, stages_required, error_count, warning_count, issues, validated_at]
+      properties:
+        id:
+          type: string
+          description: Validation result ID
+          example: val_550e8400-e29b-41d4-a716-446655440000
+        project_id:
+          type: string
+          format: uuid
+          description: Project ID
+          example: 550e8400-e29b-41d4-a716-446655440000
+        is_compliant:
+          type: boolean
+          description: Whether project is compliant
+          example: true
+        compliance_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Compliance score (0-100)
+          example: 92
+        tier:
+          $ref: '#/components/schemas/SDLCTier'
+        tier_detected:
+          type: boolean
+          description: Whether tier was auto-detected
+          example: false
+        stages_found:
+          type: array
+          items:
+            $ref: '#/components/schemas/StageInfo'
+          description: List of found stages
+        stages_missing:
+          type: array
+          items:
+            type: string
+          description: List of missing stage IDs
+          example: ["07", "08"]
+        stages_required:
+          type: integer
+          description: Number of stages required for tier
+          example: 10
+        p0_status:
+          $ref: '#/components/schemas/P0Status'
+        error_count:
+          type: integer
+          description: Number of errors
+          example: 1
+        warning_count:
+          type: integer
+          description: Number of warnings
+          example: 3
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationIssue'
+          description: List of validation issues
+        validated_at:
+          type: string
+          format: date-time
+          description: Validation timestamp
+          example: "2025-12-06T15:30:00Z"
+        validation_time_ms:
+          type: integer
+          description: Validation duration in milliseconds
+          example: 245
+
+    ValidationHistoryItem:
+      type: object
+      required: [id, is_compliant, compliance_score, tier, stages_found, stages_required, error_count, warning_count, validated_at]
+      properties:
+        id:
+          type: string
+          description: Validation ID
+          example: val_001
+        is_compliant:
+          type: boolean
+          example: true
+        compliance_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 92
+        tier:
+          $ref: '#/components/schemas/SDLCTier'
+        stages_found:
+          type: integer
+          description: Number of stages found
+          example: 8
+        stages_required:
+          type: integer
+          description: Number of stages required
+          example: 10
+        error_count:
+          type: integer
+          example: 1
+        warning_count:
+          type: integer
+          example: 3
+        validated_at:
+          type: string
+          format: date-time
+          example: "2025-12-06T15:30:00Z"
+
+    ComplianceSummary:
+      type: object
+      required: [project_id, project_name, tier, current_score, is_compliant, validation_count]
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+        project_name:
+          type: string
+          example: SDLC Orchestrator
+        tier:
+          $ref: '#/components/schemas/SDLCTier'
+        current_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 92
+        is_compliant:
+          type: boolean
+          example: true
+        validation_count:
+          type: integer
+          description: Total number of validations
+          example: 45
+        last_validated_at:
+          type: string
+          format: date-time
+          example: "2025-12-06T15:30:00Z"
+        score_trend:
+          type: array
+          items:
+            type: integer
+          description: Recent score values (last 5-10)
+          example: [85, 87, 88, 90, 92]
+        compliance_history:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              score:
+                type: integer
+              is_compliant:
+                type: boolean
+          description: Daily compliance history
+        stages_summary:
+          type: object
+          properties:
+            found:
+              type: integer
+            required:
+              type: integer
+            missing:
+              type: array
+              items:
+                type: string
+          description: Stage coverage summary
+        p0_summary:
+          $ref: '#/components/schemas/P0Status'
+        issue_summary:
+          type: object
+          properties:
+            errors:
+              type: integer
+            warnings:
+              type: integer
+            info:
+              type: integer
+          description: Issue count summary
 
     # ============================================================
     # ORGANIZATION

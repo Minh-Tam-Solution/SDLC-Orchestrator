@@ -1,0 +1,33 @@
+# Source files (compiled to out/)
+src/**
+!src/
+
+# Development files
+.vscode/**
+.vscode-test/**
+.eslintrc.json
+tsconfig.json
+webpack.config.js
+
+# Test files
+out/test/**
+
+# Git files
+.git/**
+.gitignore
+
+# Node modules dev dependencies
+node_modules/@types/**
+node_modules/@typescript-eslint/**
+node_modules/@vscode/test-electron/**
+node_modules/@vscode/vsce/**
+node_modules/eslint/**
+node_modules/glob/**
+node_modules/mocha/**
+node_modules/typescript/**
+
+# Misc
+*.vsix
+*.map
+**/*.test.js
+**/*.test.ts

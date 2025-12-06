@@ -54,6 +54,7 @@ from app.middleware.prometheus_metrics import (
 )
 from app.middleware.rate_limiter import RateLimiterMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
+from app.middleware.cache_headers import CacheHeadersMiddleware
 
 # Global scheduler instance
 scheduler: AsyncIOScheduler | None = None
@@ -177,7 +178,7 @@ async def lifespan(app: FastAPI):
 # ============================================================================
 
 # Import API routers (after lifespan is defined)
-from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications
+from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, council, sdlc_structure
 
 # Create FastAPI app with lifespan
 app = FastAPI(
@@ -218,6 +219,10 @@ app.add_middleware(
 # GZip compression
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
+# Cache Headers (Sprint 23 Day 4 - Response Optimization)
+# Adds Cache-Control, Vary headers for client-side caching
+app.add_middleware(CacheHeadersMiddleware)
+
 # ============================================================================
 # API Routes Registration
 # ============================================================================
@@ -232,6 +237,11 @@ app.include_router(projects.router, prefix="/api/v1", tags=["Projects"])
 app.include_router(github.router, prefix="/api/v1", tags=["GitHub"])
 app.include_router(compliance.router, prefix="/api/v1", tags=["Compliance"])
 app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["Notifications"])
+app.include_router(feedback.router, prefix="/api/v1", tags=["Feedback"])
+app.include_router(triage.router, prefix="/api/v1", tags=["Triage"])
+app.include_router(analytics.router, prefix="/api/v1", tags=["Analytics"])
+app.include_router(council.router, prefix="/api/v1", tags=["AI Council"])  # Sprint 26 Day 3
+app.include_router(sdlc_structure.router, prefix="/api/v1", tags=["SDLC Structure"])  # Sprint 30 Day 3
 
 # ============================================================================
 # Health Check Endpoints

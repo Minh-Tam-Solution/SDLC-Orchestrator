@@ -1,0 +1,315 @@
+# SDLC 5.0.0 Structure Validation GitHub Action
+# Validates documentation structure against SDLC 5.0.0 standards
+#
+# Triggers on:
+# - Push to main/develop branches (docs/** changes)
+# - Pull requests to main (docs/** changes)
+#
+# Features:
+# - Validates folder structure compliance
+# - Comments on PRs with validation results
+# - Updates badge status on main branch
+# - Fails CI on validation errors
+
+name: SDLC 5.0.0 Validation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'docs/**'
+      - '.sdlc-config.json'
+      - '.github/workflows/sdlc-validate.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.sdlc-config.json'
+
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      tier:
+        description: 'Project tier override'
+        required: false
+        type: choice
+        options:
+          - auto
+          - lite
+          - standard
+          - professional
+          - enterprise
+        default: auto
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  validate:
+    name: SDLC Structure Validation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install sdlcctl
+        run: |
+          pip install --upgrade pip
+          pip install typer[all] rich
+          # Install sdlcctl from local package
+          if [ -d "backend/sdlcctl" ]; then
+            pip install -e backend/sdlcctl
+          else
+            # Fallback: install from PyPI when available
+            echo "Using local sdlcctl package"
+            pip install -e backend/sdlcctl || true
+          fi
+
+      - name: Load SDLC configuration
+        id: config
+        run: |
+          # Check for .sdlc-config.json
+          if [ -f ".sdlc-config.json" ]; then
+            echo "config_found=true" >> $GITHUB_OUTPUT
+            echo "tier=$(jq -r '.tier // "professional"' .sdlc-config.json)" >> $GITHUB_OUTPUT
+            echo "docs_root=$(jq -r '.docs_root // "docs"' .sdlc-config.json)" >> $GITHUB_OUTPUT
+            echo "strict=$(jq -r '.strict // "true"' .sdlc-config.json)" >> $GITHUB_OUTPUT
+          else
+            echo "config_found=false" >> $GITHUB_OUTPUT
+            echo "tier=professional" >> $GITHUB_OUTPUT
+            echo "docs_root=docs" >> $GITHUB_OUTPUT
+            echo "strict=true" >> $GITHUB_OUTPUT
+          fi
+
+          # Override with workflow input if provided
+          if [ "${{ github.event.inputs.tier }}" != "" ] && [ "${{ github.event.inputs.tier }}" != "auto" ]; then
+            echo "tier=${{ github.event.inputs.tier }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run SDLC validation
+        id: validate
+        run: |
+          set +e  # Don't exit on error
+
+          # Run validation and capture output
+          cd ${{ github.workspace }}
+
+          # Check if sdlcctl is available
+          if command -v sdlcctl &> /dev/null; then
+            SDLCCTL="sdlcctl"
+          elif [ -f "backend/sdlcctl/cli.py" ]; then
+            SDLCCTL="python -m backend.sdlcctl.cli"
+          else
+            echo "::error::sdlcctl not found. Install with: pip install sdlcctl"
+            exit 1
+          fi
+
+          # Run validation with JSON output
+          $SDLCCTL validate \
+            --path . \
+            --docs "${{ steps.config.outputs.docs_root }}" \
+            --tier "${{ steps.config.outputs.tier }}" \
+            --format json > validation.json 2>&1 || true
+
+          # Parse results
+          if [ -f "validation.json" ] && [ -s "validation.json" ]; then
+            # Check if valid JSON
+            if jq empty validation.json 2>/dev/null; then
+              VALID=$(jq -r '.is_compliant // false' validation.json)
+              SCORE=$(jq -r '.compliance_score // 0' validation.json)
+              TIER=$(jq -r '.tier // "unknown"' validation.json)
+              ERROR_COUNT=$(jq -r '.error_count // 0' validation.json)
+              WARNING_COUNT=$(jq -r '.warning_count // 0' validation.json)
+              STAGES_FOUND=$(jq -r '.scan_result.stages_found | length // 0' validation.json)
+              STAGES_REQUIRED=$(jq -r '.tier_requirements.required_stages | length // 0' validation.json)
+            else
+              echo "Invalid JSON output, running text validation..."
+              $SDLCCTL validate \
+                --path . \
+                --docs "${{ steps.config.outputs.docs_root }}" \
+                --tier "${{ steps.config.outputs.tier }}" \
+                --format summary > validation_summary.txt 2>&1 || true
+
+              # Default values for failed parse
+              VALID=false
+              SCORE=0
+              TIER="${{ steps.config.outputs.tier }}"
+              ERROR_COUNT=1
+              WARNING_COUNT=0
+              STAGES_FOUND=0
+              STAGES_REQUIRED=10
+            fi
+          else
+            VALID=false
+            SCORE=0
+            TIER="${{ steps.config.outputs.tier }}"
+            ERROR_COUNT=1
+            WARNING_COUNT=0
+            STAGES_FOUND=0
+            STAGES_REQUIRED=10
+          fi
+
+          # Set outputs
+          echo "valid=$VALID" >> $GITHUB_OUTPUT
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          echo "tier=$TIER" >> $GITHUB_OUTPUT
+          echo "error_count=$ERROR_COUNT" >> $GITHUB_OUTPUT
+          echo "warning_count=$WARNING_COUNT" >> $GITHUB_OUTPUT
+          echo "stages_found=$STAGES_FOUND" >> $GITHUB_OUTPUT
+          echo "stages_required=$STAGES_REQUIRED" >> $GITHUB_OUTPUT
+
+          # Log results
+          echo "::notice::SDLC Validation: Score=$SCORE/100, Tier=$TIER, Valid=$VALID"
+
+      - name: Generate validation report
+        id: report
+        run: |
+          # Generate detailed Markdown report
+          cat > validation_report.md << 'EOF'
+          ## SDLC 5.0.0 Structure Validation Report
+
+          | Metric | Value |
+          |--------|-------|
+          | **Status** | ${{ steps.validate.outputs.valid == 'true' && '✅ PASSED' || '❌ FAILED' }} |
+          | **Score** | ${{ steps.validate.outputs.score }}/100 |
+          | **Tier** | ${{ steps.validate.outputs.tier }} |
+          | **Stages** | ${{ steps.validate.outputs.stages_found }}/${{ steps.validate.outputs.stages_required }} |
+          | **Errors** | ${{ steps.validate.outputs.error_count }} |
+          | **Warnings** | ${{ steps.validate.outputs.warning_count }} |
+
+          EOF
+
+          # Add violations if any
+          if [ -f "validation.json" ] && jq empty validation.json 2>/dev/null; then
+            ISSUES=$(jq -r '.issues // []' validation.json)
+            if [ "$ISSUES" != "[]" ] && [ "$ISSUES" != "null" ]; then
+              echo "" >> validation_report.md
+              echo "### Issues Found" >> validation_report.md
+              echo "" >> validation_report.md
+              jq -r '.issues[] | "- **[\(.severity)]** \(.code): \(.message)"' validation.json >> validation_report.md 2>/dev/null || true
+            fi
+          fi
+
+          # Add fix instructions
+          if [ "${{ steps.validate.outputs.valid }}" != "true" ]; then
+            echo "" >> validation_report.md
+            echo "### How to Fix" >> validation_report.md
+            echo "" >> validation_report.md
+            echo "Run the following command to automatically fix issues:" >> validation_report.md
+            echo "" >> validation_report.md
+            echo '```bash' >> validation_report.md
+            echo "sdlcctl fix --tier ${{ steps.validate.outputs.tier }}" >> validation_report.md
+            echo '```' >> validation_report.md
+          fi
+
+          echo "" >> validation_report.md
+          echo "---" >> validation_report.md
+          echo "*Generated by SDLC 5.0.0 Validator • [Documentation](https://github.com/your-org/sdlc-framework)*" >> validation_report.md
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('validation_report.md', 'utf8');
+
+            // Find existing comment to update
+            const { data: comments } = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('SDLC 5.0.0 Structure Validation Report')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                comment_id: botComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: report
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: report
+              });
+            }
+
+      - name: Update status badge
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          mkdir -p .github/badges
+
+          if [ "${{ steps.validate.outputs.valid }}" == "true" ]; then
+            COLOR="green"
+            MESSAGE="PASSED"
+          else
+            COLOR="red"
+            MESSAGE="FAILED"
+          fi
+
+          # Generate shields.io JSON endpoint
+          cat > .github/badges/sdlc-status.json << EOF
+          {
+            "schemaVersion": 1,
+            "label": "SDLC 5.0.0",
+            "message": "$MESSAGE (${{ steps.validate.outputs.score }}%)",
+            "color": "$COLOR"
+          }
+          EOF
+
+          # Commit badge update
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .github/badges/sdlc-status.json
+          git diff --staged --quiet || git commit -m "chore: Update SDLC validation badge [skip ci]"
+          git push || echo "Badge commit skipped (no changes or push failed)"
+
+      - name: Upload validation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdlc-validation-report
+          path: |
+            validation.json
+            validation_report.md
+          retention-days: 30
+
+      - name: Set job status
+        if: steps.validate.outputs.valid != 'true' && steps.config.outputs.strict == 'true'
+        run: |
+          echo "::error::SDLC 5.0.0 validation failed with score ${{ steps.validate.outputs.score }}/100"
+          echo "::error::Run 'sdlcctl fix' to automatically fix issues"
+          exit 1
+
+      - name: Summary
+        run: |
+          echo "## SDLC 5.0.0 Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | ${{ steps.validate.outputs.valid == 'true' && '✅ PASSED' || '❌ FAILED' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Score | ${{ steps.validate.outputs.score }}/100 |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tier | ${{ steps.validate.outputs.tier }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Stages | ${{ steps.validate.outputs.stages_found }}/${{ steps.validate.outputs.stages_required }} |" >> $GITHUB_STEP_SUMMARY

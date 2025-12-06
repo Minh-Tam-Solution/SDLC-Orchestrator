@@ -1,0 +1,965 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - link "SDLC Orchestrator" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - img [ref=e8]
+      - generic [ref=e10]: SDLC Orchestrator
+    - navigation [ref=e11]:
+      - link "Dashboard" [ref=e12] [cursor=pointer]:
+        - /url: /
+        - img [ref=e13]
+        - text: Dashboard
+      - link "Projects" [ref=e15] [cursor=pointer]:
+        - /url: /projects
+        - img [ref=e16]
+        - text: Projects
+      - link "Gates" [ref=e18] [cursor=pointer]:
+        - /url: /gates
+        - img [ref=e19]
+        - text: Gates
+      - link "Evidence Vault" [ref=e21] [cursor=pointer]:
+        - /url: /evidence
+        - img [ref=e22]
+        - text: Evidence Vault
+      - link "Policies" [ref=e24] [cursor=pointer]:
+        - /url: /policies
+        - img [ref=e25]
+        - text: Policies
+      - link "Compliance" [ref=e27] [cursor=pointer]:
+        - /url: /compliance
+        - img [ref=e28]
+        - text: Compliance
+      - link "Settings" [ref=e30] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e31]
+        - text: Settings
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - img [ref=e37]
+        - generic [ref=e39]:
+          - paragraph [ref=e40]: Platform Admin
+          - paragraph [ref=e41]: admin@sdlc-orchestrator.io
+      - button "Logout" [ref=e42] [cursor=pointer]:
+        - img [ref=e43]
+        - text: Logout
+  - banner [ref=e45]:
+    - generic [ref=e46]:
+      - generic [ref=e47]: Signed in as admin@sdlc-orchestrator.io
+      - button "Sign Out" [ref=e48] [cursor=pointer]
+  - main [ref=e49]:
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - heading "Projects" [level=1] [ref=e54]
+          - paragraph [ref=e55]: Manage your SDLC projects and track gate progress
+        - button "New Project" [ref=e56] [cursor=pointer]:
+          - img
+          - text: New Project
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - generic [ref=e60]:
+            - link "Delete Test 1764659967191 Project to be deleted" [ref=e61] [cursor=pointer]:
+              - /url: /projects/4a213c27-ce75-4afb-9352-4746344090f5
+              - heading "Delete Test 1764659967191" [level=3] [ref=e62]
+              - paragraph [ref=e63]: Project to be deleted
+            - generic [ref=e64]:
+              - generic [ref=e65]: not_started
+              - button "Open menu" [ref=e66] [cursor=pointer]:
+                - img
+                - generic [ref=e67]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 12/2/2025" [ref=e68] [cursor=pointer]:
+            - /url: /projects/4a213c27-ce75-4afb-9352-4746344090f5
+            - generic [ref=e70]:
+              - generic [ref=e71]:
+                - generic [ref=e72]: Current Stage
+                - generic [ref=e73]: WHY - Foundation
+              - generic [ref=e75]:
+                - generic [ref=e76]: Progress
+                - generic [ref=e77]: 0%
+              - generic [ref=e79]: Updated 12/2/2025
+        - generic [ref=e80]:
+          - generic [ref=e82]:
+            - link "Delete Test 1764659965822 Project to be deleted" [ref=e83] [cursor=pointer]:
+              - /url: /projects/82148372-ae31-4317-a9d2-b91d11c18682
+              - heading "Delete Test 1764659965822" [level=3] [ref=e84]
+              - paragraph [ref=e85]: Project to be deleted
+            - generic [ref=e86]:
+              - generic [ref=e87]: not_started
+              - button "Open menu" [ref=e88] [cursor=pointer]:
+                - img
+                - generic [ref=e89]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 12/2/2025" [ref=e90] [cursor=pointer]:
+            - /url: /projects/82148372-ae31-4317-a9d2-b91d11c18682
+            - generic [ref=e92]:
+              - generic [ref=e93]:
+                - generic [ref=e94]: Current Stage
+                - generic [ref=e95]: WHY - Foundation
+              - generic [ref=e97]:
+                - generic [ref=e98]: Progress
+                - generic [ref=e99]: 0%
+              - generic [ref=e101]: Updated 12/2/2025
+        - generic [ref=e102]:
+          - generic [ref=e104]:
+            - link "Test Project 1764659964409 E2E test project description" [ref=e105] [cursor=pointer]:
+              - /url: /projects/5dd4a124-20cb-439f-bce7-4b853cdb2ead
+              - heading "Test Project 1764659964409" [level=3] [ref=e106]
+              - paragraph [ref=e107]: E2E test project description
+            - generic [ref=e108]:
+              - generic [ref=e109]: not_started
+              - button "Open menu" [ref=e110] [cursor=pointer]:
+                - img
+                - generic [ref=e111]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 12/2/2025" [ref=e112] [cursor=pointer]:
+            - /url: /projects/5dd4a124-20cb-439f-bce7-4b853cdb2ead
+            - generic [ref=e114]:
+              - generic [ref=e115]:
+                - generic [ref=e116]: Current Stage
+                - generic [ref=e117]: WHY - Foundation
+              - generic [ref=e119]:
+                - generic [ref=e120]: Progress
+                - generic [ref=e121]: 0%
+              - generic [ref=e123]: Updated 12/2/2025
+        - generic [ref=e124]:
+          - generic [ref=e126]:
+            - link "MVP Flow Test 1764659850120" [ref=e127] [cursor=pointer]:
+              - /url: /projects/1f720f92-21e4-4c17-aeda-4cf7452e2ba4
+              - heading "MVP Flow Test 1764659850120" [level=3] [ref=e128]
+              - paragraph
+            - generic [ref=e129]:
+              - generic [ref=e130]: not_started
+              - button "Open menu" [ref=e131] [cursor=pointer]:
+                - img
+                - generic [ref=e132]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 12/2/2025" [ref=e133] [cursor=pointer]:
+            - /url: /projects/1f720f92-21e4-4c17-aeda-4cf7452e2ba4
+            - generic [ref=e135]:
+              - generic [ref=e136]:
+                - generic [ref=e137]: Current Stage
+                - generic [ref=e138]: WHY - Foundation
+              - generic [ref=e140]:
+                - generic [ref=e141]: Progress
+                - generic [ref=e142]: 0%
+              - generic [ref=e144]: Updated 12/2/2025
+        - generic [ref=e145]:
+          - generic [ref=e147]:
+            - link "E2E Test Project 1764659831005 Created by E2E test" [ref=e148] [cursor=pointer]:
+              - /url: /projects/62ffdedd-4a71-4c3e-94c2-b51f006a7199
+              - heading "E2E Test Project 1764659831005" [level=3] [ref=e149]
+              - paragraph [ref=e150]: Created by E2E test
+            - generic [ref=e151]:
+              - generic [ref=e152]: not_started
+              - button "Open menu" [ref=e153] [cursor=pointer]:
+                - img
+                - generic [ref=e154]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 12/2/2025" [ref=e155] [cursor=pointer]:
+            - /url: /projects/62ffdedd-4a71-4c3e-94c2-b51f006a7199
+            - generic [ref=e157]:
+              - generic [ref=e158]:
+                - generic [ref=e159]: Current Stage
+                - generic [ref=e160]: WHY - Foundation
+              - generic [ref=e162]:
+                - generic [ref=e163]: Progress
+                - generic [ref=e164]: 0%
+              - generic [ref=e166]: Updated 12/2/2025
+        - generic [ref=e167]:
+          - generic [ref=e169]:
+            - link "Delete Test 1764380975424 Project to be deleted" [ref=e170] [cursor=pointer]:
+              - /url: /projects/45ff2874-7ed0-45e1-bd95-d8d7ac219b3c
+              - heading "Delete Test 1764380975424" [level=3] [ref=e171]
+              - paragraph [ref=e172]: Project to be deleted
+            - generic [ref=e173]:
+              - generic [ref=e174]: not_started
+              - button "Open menu" [ref=e175] [cursor=pointer]:
+                - img
+                - generic [ref=e176]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/29/2025" [ref=e177] [cursor=pointer]:
+            - /url: /projects/45ff2874-7ed0-45e1-bd95-d8d7ac219b3c
+            - generic [ref=e179]:
+              - generic [ref=e180]:
+                - generic [ref=e181]: Current Stage
+                - generic [ref=e182]: WHY - Foundation
+              - generic [ref=e184]:
+                - generic [ref=e185]: Progress
+                - generic [ref=e186]: 0%
+              - generic [ref=e188]: Updated 11/29/2025
+        - generic [ref=e189]:
+          - generic [ref=e191]:
+            - link "Delete Test 1764380974024 Project to be deleted" [ref=e192] [cursor=pointer]:
+              - /url: /projects/8003748d-5f00-41a6-bdfa-b602229e42b3
+              - heading "Delete Test 1764380974024" [level=3] [ref=e193]
+              - paragraph [ref=e194]: Project to be deleted
+            - generic [ref=e195]:
+              - generic [ref=e196]: not_started
+              - button "Open menu" [ref=e197] [cursor=pointer]:
+                - img
+                - generic [ref=e198]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/29/2025" [ref=e199] [cursor=pointer]:
+            - /url: /projects/8003748d-5f00-41a6-bdfa-b602229e42b3
+            - generic [ref=e201]:
+              - generic [ref=e202]:
+                - generic [ref=e203]: Current Stage
+                - generic [ref=e204]: WHY - Foundation
+              - generic [ref=e206]:
+                - generic [ref=e207]: Progress
+                - generic [ref=e208]: 0%
+              - generic [ref=e210]: Updated 11/29/2025
+        - generic [ref=e211]:
+          - generic [ref=e213]:
+            - link "Test Project 1764380961613 E2E test project description" [ref=e214] [cursor=pointer]:
+              - /url: /projects/c12b354c-e569-4c4f-ad82-6694c1336f8a
+              - heading "Test Project 1764380961613" [level=3] [ref=e215]
+              - paragraph [ref=e216]: E2E test project description
+            - generic [ref=e217]:
+              - generic [ref=e218]: not_started
+              - button "Open menu" [ref=e219] [cursor=pointer]:
+                - img
+                - generic [ref=e220]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/29/2025" [ref=e221] [cursor=pointer]:
+            - /url: /projects/c12b354c-e569-4c4f-ad82-6694c1336f8a
+            - generic [ref=e223]:
+              - generic [ref=e224]:
+                - generic [ref=e225]: Current Stage
+                - generic [ref=e226]: WHY - Foundation
+              - generic [ref=e228]:
+                - generic [ref=e229]: Progress
+                - generic [ref=e230]: 0%
+              - generic [ref=e232]: Updated 11/29/2025
+        - generic [ref=e233]:
+          - generic [ref=e235]:
+            - link "Test Project 1764380960332 E2E test project description" [ref=e236] [cursor=pointer]:
+              - /url: /projects/3993a5ac-af0d-4aee-b18e-0b9f6f645693
+              - heading "Test Project 1764380960332" [level=3] [ref=e237]
+              - paragraph [ref=e238]: E2E test project description
+            - generic [ref=e239]:
+              - generic [ref=e240]: not_started
+              - button "Open menu" [ref=e241] [cursor=pointer]:
+                - img
+                - generic [ref=e242]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/29/2025" [ref=e243] [cursor=pointer]:
+            - /url: /projects/3993a5ac-af0d-4aee-b18e-0b9f6f645693
+            - generic [ref=e245]:
+              - generic [ref=e246]:
+                - generic [ref=e247]: Current Stage
+                - generic [ref=e248]: WHY - Foundation
+              - generic [ref=e250]:
+                - generic [ref=e251]: Progress
+                - generic [ref=e252]: 0%
+              - generic [ref=e254]: Updated 11/29/2025
+        - generic [ref=e255]:
+          - generic [ref=e257]:
+            - link "MVP Flow Test 1764380578808" [ref=e258] [cursor=pointer]:
+              - /url: /projects/233e98fc-5bd9-4e21-a43e-989697eb2d6f
+              - heading "MVP Flow Test 1764380578808" [level=3] [ref=e259]
+              - paragraph
+            - generic [ref=e260]:
+              - generic [ref=e261]: not_started
+              - button "Open menu" [ref=e262] [cursor=pointer]:
+                - img
+                - generic [ref=e263]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/29/2025" [ref=e264] [cursor=pointer]:
+            - /url: /projects/233e98fc-5bd9-4e21-a43e-989697eb2d6f
+            - generic [ref=e266]:
+              - generic [ref=e267]:
+                - generic [ref=e268]: Current Stage
+                - generic [ref=e269]: WHY - Foundation
+              - generic [ref=e271]:
+                - generic [ref=e272]: Progress
+                - generic [ref=e273]: 0%
+              - generic [ref=e275]: Updated 11/29/2025
+        - generic [ref=e276]:
+          - generic [ref=e278]:
+            - link "E2E Test Project 1764380544514 Created by E2E test" [ref=e279] [cursor=pointer]:
+              - /url: /projects/355cae07-fcaf-4449-9f9e-b6fcc7163644
+              - heading "E2E Test Project 1764380544514" [level=3] [ref=e280]
+              - paragraph [ref=e281]: Created by E2E test
+            - generic [ref=e282]:
+              - generic [ref=e283]: not_started
+              - button "Open menu" [ref=e284] [cursor=pointer]:
+                - img
+                - generic [ref=e285]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/29/2025" [ref=e286] [cursor=pointer]:
+            - /url: /projects/355cae07-fcaf-4449-9f9e-b6fcc7163644
+            - generic [ref=e288]:
+              - generic [ref=e289]:
+                - generic [ref=e290]: Current Stage
+                - generic [ref=e291]: WHY - Foundation
+              - generic [ref=e293]:
+                - generic [ref=e294]: Progress
+                - generic [ref=e295]: 0%
+              - generic [ref=e297]: Updated 11/29/2025
+        - generic [ref=e298]:
+          - generic [ref=e300]:
+            - link "MVP Flow Test 1764296999002" [ref=e301] [cursor=pointer]:
+              - /url: /projects/2ded395e-1aa5-4242-9c56-d9c3321ce6bb
+              - heading "MVP Flow Test 1764296999002" [level=3] [ref=e302]
+              - paragraph
+            - generic [ref=e303]:
+              - generic [ref=e304]: not_started
+              - button "Open menu" [ref=e305] [cursor=pointer]:
+                - img
+                - generic [ref=e306]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/28/2025" [ref=e307] [cursor=pointer]:
+            - /url: /projects/2ded395e-1aa5-4242-9c56-d9c3321ce6bb
+            - generic [ref=e309]:
+              - generic [ref=e310]:
+                - generic [ref=e311]: Current Stage
+                - generic [ref=e312]: WHY - Foundation
+              - generic [ref=e314]:
+                - generic [ref=e315]: Progress
+                - generic [ref=e316]: 0%
+              - generic [ref=e318]: Updated 11/28/2025
+        - generic [ref=e319]:
+          - generic [ref=e321]:
+            - link "E2E Test Project 1764296977305 Created by E2E test" [ref=e322] [cursor=pointer]:
+              - /url: /projects/956e377e-535f-4bbc-b9db-59977ce0cc97
+              - heading "E2E Test Project 1764296977305" [level=3] [ref=e323]
+              - paragraph [ref=e324]: Created by E2E test
+            - generic [ref=e325]:
+              - generic [ref=e326]: pending
+              - button "Open menu" [ref=e327] [cursor=pointer]:
+                - img
+                - generic [ref=e328]: Open menu
+          - link "Current Stage WHAT - Planning Progress 0% Updated 11/28/2025" [ref=e329] [cursor=pointer]:
+            - /url: /projects/956e377e-535f-4bbc-b9db-59977ce0cc97
+            - generic [ref=e331]:
+              - generic [ref=e332]:
+                - generic [ref=e333]: Current Stage
+                - generic [ref=e334]: WHAT - Planning
+              - generic [ref=e336]:
+                - generic [ref=e337]: Progress
+                - generic [ref=e338]: 0%
+              - generic [ref=e340]: Updated 11/28/2025
+        - generic [ref=e341]:
+          - generic [ref=e343]:
+            - link "MVP Flow Test 1764259558813" [ref=e344] [cursor=pointer]:
+              - /url: /projects/44df178c-2e8d-4867-a6f7-4e65237f46c9
+              - heading "MVP Flow Test 1764259558813" [level=3] [ref=e345]
+              - paragraph
+            - generic [ref=e346]:
+              - generic [ref=e347]: not_started
+              - button "Open menu" [ref=e348] [cursor=pointer]:
+                - img
+                - generic [ref=e349]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e350] [cursor=pointer]:
+            - /url: /projects/44df178c-2e8d-4867-a6f7-4e65237f46c9
+            - generic [ref=e352]:
+              - generic [ref=e353]:
+                - generic [ref=e354]: Current Stage
+                - generic [ref=e355]: WHY - Foundation
+              - generic [ref=e357]:
+                - generic [ref=e358]: Progress
+                - generic [ref=e359]: 0%
+              - generic [ref=e361]: Updated 11/27/2025
+        - generic [ref=e362]:
+          - generic [ref=e364]:
+            - link "E2E Test Project 1764259543953 Created by E2E test" [ref=e365] [cursor=pointer]:
+              - /url: /projects/82f6b881-ef37-46aa-95a7-17ffa6716b41
+              - heading "E2E Test Project 1764259543953" [level=3] [ref=e366]
+              - paragraph [ref=e367]: Created by E2E test
+            - generic [ref=e368]:
+              - generic [ref=e369]: not_started
+              - button "Open menu" [ref=e370] [cursor=pointer]:
+                - img
+                - generic [ref=e371]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e372] [cursor=pointer]:
+            - /url: /projects/82f6b881-ef37-46aa-95a7-17ffa6716b41
+            - generic [ref=e374]:
+              - generic [ref=e375]:
+                - generic [ref=e376]: Current Stage
+                - generic [ref=e377]: WHY - Foundation
+              - generic [ref=e379]:
+                - generic [ref=e380]: Progress
+                - generic [ref=e381]: 0%
+              - generic [ref=e383]: Updated 11/27/2025
+        - generic [ref=e384]:
+          - generic [ref=e386]:
+            - link "MVP Flow Test 1764259449285" [ref=e387] [cursor=pointer]:
+              - /url: /projects/fde6e49f-ad02-4d5c-a20f-036e3794779f
+              - heading "MVP Flow Test 1764259449285" [level=3] [ref=e388]
+              - paragraph
+            - generic [ref=e389]:
+              - generic [ref=e390]: not_started
+              - button "Open menu" [ref=e391] [cursor=pointer]:
+                - img
+                - generic [ref=e392]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e393] [cursor=pointer]:
+            - /url: /projects/fde6e49f-ad02-4d5c-a20f-036e3794779f
+            - generic [ref=e395]:
+              - generic [ref=e396]:
+                - generic [ref=e397]: Current Stage
+                - generic [ref=e398]: WHY - Foundation
+              - generic [ref=e400]:
+                - generic [ref=e401]: Progress
+                - generic [ref=e402]: 0%
+              - generic [ref=e404]: Updated 11/27/2025
+        - generic [ref=e405]:
+          - generic [ref=e407]:
+            - link "E2E Test Project 1764259404126 Created by E2E test" [ref=e408] [cursor=pointer]:
+              - /url: /projects/fb17f81b-53b3-43fd-a34a-02c109916bbf
+              - heading "E2E Test Project 1764259404126" [level=3] [ref=e409]
+              - paragraph [ref=e410]: Created by E2E test
+            - generic [ref=e411]:
+              - generic [ref=e412]: not_started
+              - button "Open menu" [ref=e413] [cursor=pointer]:
+                - img
+                - generic [ref=e414]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e415] [cursor=pointer]:
+            - /url: /projects/fb17f81b-53b3-43fd-a34a-02c109916bbf
+            - generic [ref=e417]:
+              - generic [ref=e418]:
+                - generic [ref=e419]: Current Stage
+                - generic [ref=e420]: WHY - Foundation
+              - generic [ref=e422]:
+                - generic [ref=e423]: Progress
+                - generic [ref=e424]: 0%
+              - generic [ref=e426]: Updated 11/27/2025
+        - generic [ref=e427]:
+          - generic [ref=e429]:
+            - link "MVP Flow Test 1764259284392" [ref=e430] [cursor=pointer]:
+              - /url: /projects/2207550d-eacf-4a8f-bafc-fc0caea4a2a3
+              - heading "MVP Flow Test 1764259284392" [level=3] [ref=e431]
+              - paragraph
+            - generic [ref=e432]:
+              - generic [ref=e433]: not_started
+              - button "Open menu" [ref=e434] [cursor=pointer]:
+                - img
+                - generic [ref=e435]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e436] [cursor=pointer]:
+            - /url: /projects/2207550d-eacf-4a8f-bafc-fc0caea4a2a3
+            - generic [ref=e438]:
+              - generic [ref=e439]:
+                - generic [ref=e440]: Current Stage
+                - generic [ref=e441]: WHY - Foundation
+              - generic [ref=e443]:
+                - generic [ref=e444]: Progress
+                - generic [ref=e445]: 0%
+              - generic [ref=e447]: Updated 11/27/2025
+        - generic [ref=e448]:
+          - generic [ref=e450]:
+            - link "E2E Test Project 1764259239664 Created by E2E test" [ref=e451] [cursor=pointer]:
+              - /url: /projects/f7cc3edf-58fe-46de-9554-bdc794f94db1
+              - heading "E2E Test Project 1764259239664" [level=3] [ref=e452]
+              - paragraph [ref=e453]: Created by E2E test
+            - generic [ref=e454]:
+              - generic [ref=e455]: not_started
+              - button "Open menu" [ref=e456] [cursor=pointer]:
+                - img
+                - generic [ref=e457]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e458] [cursor=pointer]:
+            - /url: /projects/f7cc3edf-58fe-46de-9554-bdc794f94db1
+            - generic [ref=e460]:
+              - generic [ref=e461]:
+                - generic [ref=e462]: Current Stage
+                - generic [ref=e463]: WHY - Foundation
+              - generic [ref=e465]:
+                - generic [ref=e466]: Progress
+                - generic [ref=e467]: 0%
+              - generic [ref=e469]: Updated 11/27/2025
+        - generic [ref=e470]:
+          - generic [ref=e472]:
+            - link "MVP Flow Test 1764255923416" [ref=e473] [cursor=pointer]:
+              - /url: /projects/a9807851-124f-4410-9bb0-0eb888866a3e
+              - heading "MVP Flow Test 1764255923416" [level=3] [ref=e474]
+              - paragraph
+            - generic [ref=e475]:
+              - generic [ref=e476]: not_started
+              - button "Open menu" [ref=e477] [cursor=pointer]:
+                - img
+                - generic [ref=e478]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e479] [cursor=pointer]:
+            - /url: /projects/a9807851-124f-4410-9bb0-0eb888866a3e
+            - generic [ref=e481]:
+              - generic [ref=e482]:
+                - generic [ref=e483]: Current Stage
+                - generic [ref=e484]: WHY - Foundation
+              - generic [ref=e486]:
+                - generic [ref=e487]: Progress
+                - generic [ref=e488]: 0%
+              - generic [ref=e490]: Updated 11/27/2025
+        - generic [ref=e491]:
+          - generic [ref=e493]:
+            - link "E2E Test Project 1764255852496 Created by E2E test" [ref=e494] [cursor=pointer]:
+              - /url: /projects/6107c7cf-0328-4c05-9d50-8fb34c6cdaf9
+              - heading "E2E Test Project 1764255852496" [level=3] [ref=e495]
+              - paragraph [ref=e496]: Created by E2E test
+            - generic [ref=e497]:
+              - generic [ref=e498]: not_started
+              - button "Open menu" [ref=e499] [cursor=pointer]:
+                - img
+                - generic [ref=e500]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e501] [cursor=pointer]:
+            - /url: /projects/6107c7cf-0328-4c05-9d50-8fb34c6cdaf9
+            - generic [ref=e503]:
+              - generic [ref=e504]:
+                - generic [ref=e505]: Current Stage
+                - generic [ref=e506]: WHY - Foundation
+              - generic [ref=e508]:
+                - generic [ref=e509]: Progress
+                - generic [ref=e510]: 0%
+              - generic [ref=e512]: Updated 11/27/2025
+        - generic [ref=e513]:
+          - generic [ref=e515]:
+            - link "MVP Flow Test 1764255610272" [ref=e516] [cursor=pointer]:
+              - /url: /projects/06f39aab-7ed0-4215-9f7c-ebe4662f83cf
+              - heading "MVP Flow Test 1764255610272" [level=3] [ref=e517]
+              - paragraph
+            - generic [ref=e518]:
+              - generic [ref=e519]: not_started
+              - button "Open menu" [ref=e520] [cursor=pointer]:
+                - img
+                - generic [ref=e521]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e522] [cursor=pointer]:
+            - /url: /projects/06f39aab-7ed0-4215-9f7c-ebe4662f83cf
+            - generic [ref=e524]:
+              - generic [ref=e525]:
+                - generic [ref=e526]: Current Stage
+                - generic [ref=e527]: WHY - Foundation
+              - generic [ref=e529]:
+                - generic [ref=e530]: Progress
+                - generic [ref=e531]: 0%
+              - generic [ref=e533]: Updated 11/27/2025
+        - generic [ref=e534]:
+          - generic [ref=e536]:
+            - link "E2E Test Project 1764255564598 Created by E2E test" [ref=e537] [cursor=pointer]:
+              - /url: /projects/95c3de4e-bedc-4f3b-b1a0-867ff064669f
+              - heading "E2E Test Project 1764255564598" [level=3] [ref=e538]
+              - paragraph [ref=e539]: Created by E2E test
+            - generic [ref=e540]:
+              - generic [ref=e541]: not_started
+              - button "Open menu" [ref=e542] [cursor=pointer]:
+                - img
+                - generic [ref=e543]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e544] [cursor=pointer]:
+            - /url: /projects/95c3de4e-bedc-4f3b-b1a0-867ff064669f
+            - generic [ref=e546]:
+              - generic [ref=e547]:
+                - generic [ref=e548]: Current Stage
+                - generic [ref=e549]: WHY - Foundation
+              - generic [ref=e551]:
+                - generic [ref=e552]: Progress
+                - generic [ref=e553]: 0%
+              - generic [ref=e555]: Updated 11/27/2025
+        - generic [ref=e556]:
+          - generic [ref=e558]:
+            - link "MVP Flow Test 1764255519176" [ref=e559] [cursor=pointer]:
+              - /url: /projects/c6e91a34-1e7e-49fa-abba-f540ee99146d
+              - heading "MVP Flow Test 1764255519176" [level=3] [ref=e560]
+              - paragraph
+            - generic [ref=e561]:
+              - generic [ref=e562]: not_started
+              - button "Open menu" [ref=e563] [cursor=pointer]:
+                - img
+                - generic [ref=e564]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e565] [cursor=pointer]:
+            - /url: /projects/c6e91a34-1e7e-49fa-abba-f540ee99146d
+            - generic [ref=e567]:
+              - generic [ref=e568]:
+                - generic [ref=e569]: Current Stage
+                - generic [ref=e570]: WHY - Foundation
+              - generic [ref=e572]:
+                - generic [ref=e573]: Progress
+                - generic [ref=e574]: 0%
+              - generic [ref=e576]: Updated 11/27/2025
+        - generic [ref=e577]:
+          - generic [ref=e579]:
+            - link "E2E Test Project 1764255472669 Created by E2E test" [ref=e580] [cursor=pointer]:
+              - /url: /projects/3c2c6bc5-00ed-41de-b688-f1f2ea5b7164
+              - heading "E2E Test Project 1764255472669" [level=3] [ref=e581]
+              - paragraph [ref=e582]: Created by E2E test
+            - generic [ref=e583]:
+              - generic [ref=e584]: not_started
+              - button "Open menu" [ref=e585] [cursor=pointer]:
+                - img
+                - generic [ref=e586]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e587] [cursor=pointer]:
+            - /url: /projects/3c2c6bc5-00ed-41de-b688-f1f2ea5b7164
+            - generic [ref=e589]:
+              - generic [ref=e590]:
+                - generic [ref=e591]: Current Stage
+                - generic [ref=e592]: WHY - Foundation
+              - generic [ref=e594]:
+                - generic [ref=e595]: Progress
+                - generic [ref=e596]: 0%
+              - generic [ref=e598]: Updated 11/27/2025
+        - generic [ref=e599]:
+          - generic [ref=e601]:
+            - link "MVP Flow Test 1764255426500" [ref=e602] [cursor=pointer]:
+              - /url: /projects/a6dc08b5-79b7-4851-957d-1c4fa1162079
+              - heading "MVP Flow Test 1764255426500" [level=3] [ref=e603]
+              - paragraph
+            - generic [ref=e604]:
+              - generic [ref=e605]: not_started
+              - button "Open menu" [ref=e606] [cursor=pointer]:
+                - img
+                - generic [ref=e607]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e608] [cursor=pointer]:
+            - /url: /projects/a6dc08b5-79b7-4851-957d-1c4fa1162079
+            - generic [ref=e610]:
+              - generic [ref=e611]:
+                - generic [ref=e612]: Current Stage
+                - generic [ref=e613]: WHY - Foundation
+              - generic [ref=e615]:
+                - generic [ref=e616]: Progress
+                - generic [ref=e617]: 0%
+              - generic [ref=e619]: Updated 11/27/2025
+        - generic [ref=e620]:
+          - generic [ref=e622]:
+            - link "E2E Test Project 1764255381608 Created by E2E test" [ref=e623] [cursor=pointer]:
+              - /url: /projects/0f760938-add5-40ea-b187-85a462616616
+              - heading "E2E Test Project 1764255381608" [level=3] [ref=e624]
+              - paragraph [ref=e625]: Created by E2E test
+            - generic [ref=e626]:
+              - generic [ref=e627]: not_started
+              - button "Open menu" [ref=e628] [cursor=pointer]:
+                - img
+                - generic [ref=e629]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e630] [cursor=pointer]:
+            - /url: /projects/0f760938-add5-40ea-b187-85a462616616
+            - generic [ref=e632]:
+              - generic [ref=e633]:
+                - generic [ref=e634]: Current Stage
+                - generic [ref=e635]: WHY - Foundation
+              - generic [ref=e637]:
+                - generic [ref=e638]: Progress
+                - generic [ref=e639]: 0%
+              - generic [ref=e641]: Updated 11/27/2025
+        - generic [ref=e642]:
+          - generic [ref=e644]:
+            - link "MVP Flow Test 1764255314328" [ref=e645] [cursor=pointer]:
+              - /url: /projects/f0887dd2-136a-44c0-a399-453ee8841b11
+              - heading "MVP Flow Test 1764255314328" [level=3] [ref=e646]
+              - paragraph
+            - generic [ref=e647]:
+              - generic [ref=e648]: not_started
+              - button "Open menu" [ref=e649] [cursor=pointer]:
+                - img
+                - generic [ref=e650]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e651] [cursor=pointer]:
+            - /url: /projects/f0887dd2-136a-44c0-a399-453ee8841b11
+            - generic [ref=e653]:
+              - generic [ref=e654]:
+                - generic [ref=e655]: Current Stage
+                - generic [ref=e656]: WHY - Foundation
+              - generic [ref=e658]:
+                - generic [ref=e659]: Progress
+                - generic [ref=e660]: 0%
+              - generic [ref=e662]: Updated 11/27/2025
+        - generic [ref=e663]:
+          - generic [ref=e665]:
+            - link "E2E Test Project 1764255268661 Created by E2E test" [ref=e666] [cursor=pointer]:
+              - /url: /projects/11436087-f299-499b-b768-65ad14a1e1e6
+              - heading "E2E Test Project 1764255268661" [level=3] [ref=e667]
+              - paragraph [ref=e668]: Created by E2E test
+            - generic [ref=e669]:
+              - generic [ref=e670]: not_started
+              - button "Open menu" [ref=e671] [cursor=pointer]:
+                - img
+                - generic [ref=e672]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e673] [cursor=pointer]:
+            - /url: /projects/11436087-f299-499b-b768-65ad14a1e1e6
+            - generic [ref=e675]:
+              - generic [ref=e676]:
+                - generic [ref=e677]: Current Stage
+                - generic [ref=e678]: WHY - Foundation
+              - generic [ref=e680]:
+                - generic [ref=e681]: Progress
+                - generic [ref=e682]: 0%
+              - generic [ref=e684]: Updated 11/27/2025
+        - generic [ref=e685]:
+          - generic [ref=e687]:
+            - link "MVP Flow Test 1764255130605" [ref=e688] [cursor=pointer]:
+              - /url: /projects/ece075ab-d97a-4264-ba9b-10bf4394e8fe
+              - heading "MVP Flow Test 1764255130605" [level=3] [ref=e689]
+              - paragraph
+            - generic [ref=e690]:
+              - generic [ref=e691]: not_started
+              - button "Open menu" [ref=e692] [cursor=pointer]:
+                - img
+                - generic [ref=e693]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e694] [cursor=pointer]:
+            - /url: /projects/ece075ab-d97a-4264-ba9b-10bf4394e8fe
+            - generic [ref=e696]:
+              - generic [ref=e697]:
+                - generic [ref=e698]: Current Stage
+                - generic [ref=e699]: WHY - Foundation
+              - generic [ref=e701]:
+                - generic [ref=e702]: Progress
+                - generic [ref=e703]: 0%
+              - generic [ref=e705]: Updated 11/27/2025
+        - generic [ref=e706]:
+          - generic [ref=e708]:
+            - link "E2E Test Project 1764255083384 Created by E2E test" [ref=e709] [cursor=pointer]:
+              - /url: /projects/5d38ba75-0c9b-4bb5-ae98-3516184d5291
+              - heading "E2E Test Project 1764255083384" [level=3] [ref=e710]
+              - paragraph [ref=e711]: Created by E2E test
+            - generic [ref=e712]:
+              - generic [ref=e713]: not_started
+              - button "Open menu" [ref=e714] [cursor=pointer]:
+                - img
+                - generic [ref=e715]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e716] [cursor=pointer]:
+            - /url: /projects/5d38ba75-0c9b-4bb5-ae98-3516184d5291
+            - generic [ref=e718]:
+              - generic [ref=e719]:
+                - generic [ref=e720]: Current Stage
+                - generic [ref=e721]: WHY - Foundation
+              - generic [ref=e723]:
+                - generic [ref=e724]: Progress
+                - generic [ref=e725]: 0%
+              - generic [ref=e727]: Updated 11/27/2025
+        - generic [ref=e728]:
+          - generic [ref=e730]:
+            - link "MVP Flow Test 1764254804616" [ref=e731] [cursor=pointer]:
+              - /url: /projects/33863411-b7c7-4d63-a9f1-e6bd8efd6533
+              - heading "MVP Flow Test 1764254804616" [level=3] [ref=e732]
+              - paragraph
+            - generic [ref=e733]:
+              - generic [ref=e734]: not_started
+              - button "Open menu" [ref=e735] [cursor=pointer]:
+                - img
+                - generic [ref=e736]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e737] [cursor=pointer]:
+            - /url: /projects/33863411-b7c7-4d63-a9f1-e6bd8efd6533
+            - generic [ref=e739]:
+              - generic [ref=e740]:
+                - generic [ref=e741]: Current Stage
+                - generic [ref=e742]: WHY - Foundation
+              - generic [ref=e744]:
+                - generic [ref=e745]: Progress
+                - generic [ref=e746]: 0%
+              - generic [ref=e748]: Updated 11/27/2025
+        - generic [ref=e749]:
+          - generic [ref=e751]:
+            - link "E2E Test Project 1764254759865 Created by E2E test" [ref=e752] [cursor=pointer]:
+              - /url: /projects/6b7efee2-3433-4c57-8859-cfd35704dd7c
+              - heading "E2E Test Project 1764254759865" [level=3] [ref=e753]
+              - paragraph [ref=e754]: Created by E2E test
+            - generic [ref=e755]:
+              - generic [ref=e756]: not_started
+              - button "Open menu" [ref=e757] [cursor=pointer]:
+                - img
+                - generic [ref=e758]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e759] [cursor=pointer]:
+            - /url: /projects/6b7efee2-3433-4c57-8859-cfd35704dd7c
+            - generic [ref=e761]:
+              - generic [ref=e762]:
+                - generic [ref=e763]: Current Stage
+                - generic [ref=e764]: WHY - Foundation
+              - generic [ref=e766]:
+                - generic [ref=e767]: Progress
+                - generic [ref=e768]: 0%
+              - generic [ref=e770]: Updated 11/27/2025
+        - generic [ref=e771]:
+          - generic [ref=e773]:
+            - link "MVP Flow Test 1764252839231" [ref=e774] [cursor=pointer]:
+              - /url: /projects/9777753b-6a2e-426f-b6e5-bc0f77599708
+              - heading "MVP Flow Test 1764252839231" [level=3] [ref=e775]
+              - paragraph
+            - generic [ref=e776]:
+              - generic [ref=e777]: not_started
+              - button "Open menu" [ref=e778] [cursor=pointer]:
+                - img
+                - generic [ref=e779]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e780] [cursor=pointer]:
+            - /url: /projects/9777753b-6a2e-426f-b6e5-bc0f77599708
+            - generic [ref=e782]:
+              - generic [ref=e783]:
+                - generic [ref=e784]: Current Stage
+                - generic [ref=e785]: WHY - Foundation
+              - generic [ref=e787]:
+                - generic [ref=e788]: Progress
+                - generic [ref=e789]: 0%
+              - generic [ref=e791]: Updated 11/27/2025
+        - generic [ref=e792]:
+          - generic [ref=e794]:
+            - link "E2E Test Project 1764252794436 Created by E2E test" [ref=e795] [cursor=pointer]:
+              - /url: /projects/24f4cc9e-e97c-4318-8a33-00fae8311579
+              - heading "E2E Test Project 1764252794436" [level=3] [ref=e796]
+              - paragraph [ref=e797]: Created by E2E test
+            - generic [ref=e798]:
+              - generic [ref=e799]: not_started
+              - button "Open menu" [ref=e800] [cursor=pointer]:
+                - img
+                - generic [ref=e801]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e802] [cursor=pointer]:
+            - /url: /projects/24f4cc9e-e97c-4318-8a33-00fae8311579
+            - generic [ref=e804]:
+              - generic [ref=e805]:
+                - generic [ref=e806]: Current Stage
+                - generic [ref=e807]: WHY - Foundation
+              - generic [ref=e809]:
+                - generic [ref=e810]: Progress
+                - generic [ref=e811]: 0%
+              - generic [ref=e813]: Updated 11/27/2025
+        - generic [ref=e814]:
+          - generic [ref=e816]:
+            - link "MVP Flow Test 1764252717565" [ref=e817] [cursor=pointer]:
+              - /url: /projects/5c3dd1ef-64a7-467a-b76f-99fefcaa6368
+              - heading "MVP Flow Test 1764252717565" [level=3] [ref=e818]
+              - paragraph
+            - generic [ref=e819]:
+              - generic [ref=e820]: not_started
+              - button "Open menu" [ref=e821] [cursor=pointer]:
+                - img
+                - generic [ref=e822]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e823] [cursor=pointer]:
+            - /url: /projects/5c3dd1ef-64a7-467a-b76f-99fefcaa6368
+            - generic [ref=e825]:
+              - generic [ref=e826]:
+                - generic [ref=e827]: Current Stage
+                - generic [ref=e828]: WHY - Foundation
+              - generic [ref=e830]:
+                - generic [ref=e831]: Progress
+                - generic [ref=e832]: 0%
+              - generic [ref=e834]: Updated 11/27/2025
+        - generic [ref=e835]:
+          - generic [ref=e837]:
+            - link "E2E Test Project 1764252672841 Created by E2E test" [ref=e838] [cursor=pointer]:
+              - /url: /projects/03b90d05-5b6f-4709-8ce7-ef76c0249065
+              - heading "E2E Test Project 1764252672841" [level=3] [ref=e839]
+              - paragraph [ref=e840]: Created by E2E test
+            - generic [ref=e841]:
+              - generic [ref=e842]: not_started
+              - button "Open menu" [ref=e843] [cursor=pointer]:
+                - img
+                - generic [ref=e844]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e845] [cursor=pointer]:
+            - /url: /projects/03b90d05-5b6f-4709-8ce7-ef76c0249065
+            - generic [ref=e847]:
+              - generic [ref=e848]:
+                - generic [ref=e849]: Current Stage
+                - generic [ref=e850]: WHY - Foundation
+              - generic [ref=e852]:
+                - generic [ref=e853]: Progress
+                - generic [ref=e854]: 0%
+              - generic [ref=e856]: Updated 11/27/2025
+        - generic [ref=e857]:
+          - generic [ref=e859]:
+            - link "E2E Test Project 1764252535653 Created by E2E test" [ref=e860] [cursor=pointer]:
+              - /url: /projects/e46a4e0d-df1b-4aa4-82bf-9a747e184485
+              - heading "E2E Test Project 1764252535653" [level=3] [ref=e861]
+              - paragraph [ref=e862]: Created by E2E test
+            - generic [ref=e863]:
+              - generic [ref=e864]: not_started
+              - button "Open menu" [ref=e865] [cursor=pointer]:
+                - img
+                - generic [ref=e866]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e867] [cursor=pointer]:
+            - /url: /projects/e46a4e0d-df1b-4aa4-82bf-9a747e184485
+            - generic [ref=e869]:
+              - generic [ref=e870]:
+                - generic [ref=e871]: Current Stage
+                - generic [ref=e872]: WHY - Foundation
+              - generic [ref=e874]:
+                - generic [ref=e875]: Progress
+                - generic [ref=e876]: 0%
+              - generic [ref=e878]: Updated 11/27/2025
+        - generic [ref=e879]:
+          - generic [ref=e881]:
+            - link "E2E Test Project 1764252351731 Created by E2E test" [ref=e882] [cursor=pointer]:
+              - /url: /projects/2bf370bf-0e1a-42ff-90a5-4643ab6e8a41
+              - heading "E2E Test Project 1764252351731" [level=3] [ref=e883]
+              - paragraph [ref=e884]: Created by E2E test
+            - generic [ref=e885]:
+              - generic [ref=e886]: not_started
+              - button "Open menu" [ref=e887] [cursor=pointer]:
+                - img
+                - generic [ref=e888]: Open menu
+          - link "Current Stage WHY - Foundation Progress 0% Updated 11/27/2025" [ref=e889] [cursor=pointer]:
+            - /url: /projects/2bf370bf-0e1a-42ff-90a5-4643ab6e8a41
+            - generic [ref=e891]:
+              - generic [ref=e892]:
+                - generic [ref=e893]: Current Stage
+                - generic [ref=e894]: WHY - Foundation
+              - generic [ref=e896]:
+                - generic [ref=e897]: Progress
+                - generic [ref=e898]: 0%
+              - generic [ref=e900]: Updated 11/27/2025
+        - generic [ref=e901]:
+          - generic [ref=e903]:
+            - link "Test Project Week 11 Integration test project" [ref=e904] [cursor=pointer]:
+              - /url: /projects/d104380c-3c87-42a2-9161-10d287a1af4f
+              - heading "Test Project Week 11" [level=3] [ref=e905]
+              - paragraph [ref=e906]: Integration test project
+            - generic [ref=e907]:
+              - generic [ref=e908]: pending
+              - button "Open menu" [ref=e909] [cursor=pointer]:
+                - img
+                - generic [ref=e910]: Open menu
+          - link "Current Stage WHY Progress 0% Updated 11/27/2025" [ref=e911] [cursor=pointer]:
+            - /url: /projects/d104380c-3c87-42a2-9161-10d287a1af4f
+            - generic [ref=e913]:
+              - generic [ref=e914]:
+                - generic [ref=e915]: Current Stage
+                - generic [ref=e916]: WHY
+              - generic [ref=e918]:
+                - generic [ref=e919]: Progress
+                - generic [ref=e920]: 0%
+              - generic [ref=e922]: Updated 11/27/2025
+        - generic [ref=e923]:
+          - generic [ref=e925]:
+            - 'link "BFlow Workflow Automation - v3.0 Workflow automation platform for BFlow. Visual workflow designer, 50+ pre-built templates, Zapier-style integrations. Learning curve: 2 hours → <5 min. Target: 10K workflows/month, non-technical user friendly." [ref=e926] [cursor=pointer]':
+              - /url: /projects/4289d0fc-3c83-4d0e-8f4d-1e3aab7a4dda
+              - heading "BFlow Workflow Automation - v3.0" [level=3] [ref=e927]
+              - paragraph [ref=e928]: "Workflow automation platform for BFlow. Visual workflow designer, 50+ pre-built templates, Zapier-style integrations. Learning curve: 2 hours → <5 min. Target: 10K workflows/month, non-technical user friendly."
+            - generic [ref=e929]:
+              - generic [ref=e930]: pending
+              - button "Open menu" [ref=e931] [cursor=pointer]:
+                - img
+                - generic [ref=e932]: Open menu
+          - link "Current Stage WHY Progress 20% Updated 11/14/2025" [ref=e933] [cursor=pointer]:
+            - /url: /projects/4289d0fc-3c83-4d0e-8f4d-1e3aab7a4dda
+            - generic [ref=e935]:
+              - generic [ref=e936]:
+                - generic [ref=e937]: Current Stage
+                - generic [ref=e938]: WHY
+              - generic [ref=e940]:
+                - generic [ref=e941]: Progress
+                - generic [ref=e942]: 20%
+              - generic [ref=e945]: Updated 11/14/2025
+        - generic [ref=e946]:
+          - generic [ref=e948]:
+            - 'link "NQH E-commerce Platform - Phase 2 E-commerce platform upgrade for NQH Technology. Add AI product recommendations, payment gateway integration (VNPay, Momo), real-time inventory sync. Conversion rate: 2.3% → 4.5%. Cart abandonment: 68% → 45%. Target: <200ms API response time, 99.9% uptime." [ref=e949] [cursor=pointer]':
+              - /url: /projects/b1f18bbf-81eb-4c06-b813-48650ca4609c
+              - heading "NQH E-commerce Platform - Phase 2" [level=3] [ref=e950]
+              - paragraph [ref=e951]: "E-commerce platform upgrade for NQH Technology. Add AI product recommendations, payment gateway integration (VNPay, Momo), real-time inventory sync. Conversion rate: 2.3% → 4.5%. Cart abandonment: 68% → 45%. Target: <200ms API response time, 99.9% uptime."
+            - generic [ref=e952]:
+              - generic [ref=e953]: pending
+              - button "Open menu" [ref=e954] [cursor=pointer]:
+                - img
+                - generic [ref=e955]: Open menu
+          - link "Current Stage WHY Progress 20% Updated 11/14/2025" [ref=e956] [cursor=pointer]:
+            - /url: /projects/b1f18bbf-81eb-4c06-b813-48650ca4609c
+            - generic [ref=e958]:
+              - generic [ref=e959]:
+                - generic [ref=e960]: Current Stage
+                - generic [ref=e961]: WHY
+              - generic [ref=e963]:
+                - generic [ref=e964]: Progress
+                - generic [ref=e965]: 20%
+              - generic [ref=e968]: Updated 11/14/2025
+        - generic [ref=e969]:
+          - generic [ref=e971]:
+            - 'link "MTC Internal Tool - SDLC Automation Internal developer productivity tool for MTC Solution. Automates SDLC workflows, reduces manual quality gate approvals from 3 days to 2 hours. Waste reduction: 65% → 17%. Target: 95% test coverage, zero deployment failures." [ref=e972] [cursor=pointer]':
+              - /url: /projects/0e05362e-adf7-4e9e-8d76-19a7b6228ebe
+              - heading "MTC Internal Tool - SDLC Automation" [level=3] [ref=e973]
+              - paragraph [ref=e974]: "Internal developer productivity tool for MTC Solution. Automates SDLC workflows, reduces manual quality gate approvals from 3 days to 2 hours. Waste reduction: 65% → 17%. Target: 95% test coverage, zero deployment failures."
+            - generic [ref=e975]:
+              - generic [ref=e976]: pending
+              - button "Open menu" [ref=e977] [cursor=pointer]:
+                - img
+                - generic [ref=e978]: Open menu
+          - link "Current Stage WHY Progress 30% Updated 11/14/2025" [ref=e979] [cursor=pointer]:
+            - /url: /projects/0e05362e-adf7-4e9e-8d76-19a7b6228ebe
+            - generic [ref=e981]:
+              - generic [ref=e982]:
+                - generic [ref=e983]: Current Stage
+                - generic [ref=e984]: WHY
+              - generic [ref=e986]:
+                - generic [ref=e987]: Progress
+                - generic [ref=e988]: 30%
+              - generic [ref=e991]: Updated 11/14/2025
+```

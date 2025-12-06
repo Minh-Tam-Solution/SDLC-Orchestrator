@@ -1,13 +1,14 @@
 """
 =========================================================================
 Locust Load Testing - SDLC Orchestrator API
-Week 5 Day 2 - Performance & Load Testing
+Sprint 31 Day 1 - Gate G3 Preparation
 
 Purpose:
-- Load test 23 API endpoints (4 routers: auth, gates, evidence, policies)
+- Load test 30+ API endpoints (6 routers: auth, gates, evidence, policies, projects, sdlc)
 - Simulate 100K concurrent users (target)
 - Measure p50/p95/p99 latency (target: <100ms p95)
 - Identify bottlenecks (database, Redis, API)
+- Validate Gate G3 performance requirements
 
 Test Configuration:
 - Users: 100,000 (100K concurrent)
@@ -16,23 +17,23 @@ Test Configuration:
 - Host: http://localhost:8000
 
 Test Scenarios (Weighted by Real Usage):
-1. Authentication Flow (30% of traffic):
-   - Login (15%)
-   - Token refresh (10%)
+1. Authentication Flow (25% of traffic):
+   - Login (12%)
+   - Token refresh (8%)
    - Get user profile (5%)
 
-2. Gates Management (40% of traffic):
-   - List gates (20%)
-   - Get gate details (10%)
-   - Create gate (5%)
-   - Update gate (3%)
-   - Delete gate (2%)
+2. Gates Management (30% of traffic):
+   - List gates (15%)
+   - Get gate details (8%)
+   - Create gate (4%)
+   - Update gate (2%)
+   - Delete gate (1%)
 
-3. Evidence Vault (20% of traffic):
-   - List evidence (10%)
-   - Upload evidence (5%)
-   - Get evidence details (3%)
-   - Download evidence (2%)
+3. Evidence Vault (15% of traffic):
+   - List evidence (8%)
+   - Upload evidence (4%)
+   - Get evidence details (2%)
+   - Download evidence (1%)
 
 4. Policies Management (10% of traffic):
    - List policies (5%)
@@ -40,7 +41,18 @@ Test Scenarios (Weighted by Real Usage):
    - Create policy (1%)
    - Update policy (1%)
 
-Performance Targets (SDLC 4.9 Requirements):
+5. Projects Management (10% of traffic): ⭐ NEW
+   - List projects (5%)
+   - Get project details (3%)
+   - Create project (1%)
+   - Update project (1%)
+
+6. SDLC Validation (10% of traffic): ⭐ NEW
+   - Validate structure (4%)
+   - Get validation history (3%)
+   - Get compliance summary (3%)
+
+Performance Targets (SDLC 5.0.0 - Gate G3):
 - p50 latency: <50ms
 - p95 latency: <100ms ⭐ CRITICAL
 - p99 latency: <200ms
@@ -102,8 +114,8 @@ class SDLCOrchestratorUser(HttpUser):
         response = self.client.post(
             f"{self.api_base}/auth/login",
             json={
-                "email": "nguyen.van.anh@mtc.com.vn",
-                "password": "SecurePassword123!",
+                "email": "admin@sdlc-orchestrator.io",
+                "password": "Admin@123",
             },
             name="/auth/login",
         )
@@ -143,10 +155,10 @@ class SDLCOrchestratorUser(HttpUser):
         }
 
     # ========================================================================
-    # AUTHENTICATION TASKS (30% of traffic)
+    # AUTHENTICATION TASKS (25% of traffic)
     # ========================================================================
 
-    @task(15)
+    @task(12)
     def auth_login(self):
         """
         Login user (15% of traffic).
@@ -156,13 +168,13 @@ class SDLCOrchestratorUser(HttpUser):
         self.client.post(
             f"{self.api_base}/auth/login",
             json={
-                "email": "nguyen.van.anh@mtc.com.vn",
-                "password": "SecurePassword123!",
+                "email": "admin@sdlc-orchestrator.io",
+                "password": "Admin@123",
             },
             name="/auth/login",
         )
 
-    @task(10)
+    @task(8)
     def auth_refresh(self):
         """
         Refresh access token (10% of traffic).
@@ -189,10 +201,10 @@ class SDLCOrchestratorUser(HttpUser):
         )
 
     # ========================================================================
-    # GATES MANAGEMENT TASKS (40% of traffic)
+    # GATES MANAGEMENT TASKS (30% of traffic)
     # ========================================================================
 
-    @task(20)
+    @task(15)
     def gates_list(self):
         """
         List all gates (20% of traffic).
@@ -211,10 +223,10 @@ class SDLCOrchestratorUser(HttpUser):
             if data.get("gates") and len(data["gates"]) > 0:
                 self.gate_id = data["gates"][0].get("id", "")
 
-    @task(10)
+    @task(8)
     def gates_get(self):
         """
-        Get gate details (10% of traffic).
+        Get gate details (8% of traffic).
 
         GET /api/v1/gates/{gate_id}
         """
@@ -227,10 +239,10 @@ class SDLCOrchestratorUser(HttpUser):
             name="/gates/{id} (get)",
         )
 
-    @task(5)
+    @task(4)
     def gates_create(self):
         """
-        Create new gate (5% of traffic).
+        Create new gate (4% of traffic).
 
         POST /api/v1/gates
         """
@@ -252,10 +264,10 @@ class SDLCOrchestratorUser(HttpUser):
             data = response.json()
             self.gate_id = data.get("id", "")
 
-    @task(3)
+    @task(2)
     def gates_update(self):
         """
-        Update gate (3% of traffic).
+        Update gate (2% of traffic).
 
         PUT /api/v1/gates/{gate_id}
         """
@@ -271,10 +283,10 @@ class SDLCOrchestratorUser(HttpUser):
             name="/gates/{id} (update)",
         )
 
-    @task(2)
+    @task(1)
     def gates_delete(self):
         """
-        Delete gate (2% of traffic).
+        Delete gate (1% of traffic).
 
         DELETE /api/v1/gates/{gate_id}
         """
@@ -287,10 +299,10 @@ class SDLCOrchestratorUser(HttpUser):
         )
 
     # ========================================================================
-    # EVIDENCE VAULT TASKS (20% of traffic)
+    # EVIDENCE VAULT TASKS (15% of traffic)
     # ========================================================================
 
-    @task(10)
+    @task(8)
     def evidence_list(self):
         """
         List all evidence (10% of traffic).
@@ -309,10 +321,10 @@ class SDLCOrchestratorUser(HttpUser):
             if data.get("evidence") and len(data["evidence"]) > 0:
                 self.evidence_id = data["evidence"][0].get("id", "")
 
-    @task(5)
+    @task(4)
     def evidence_create(self):
         """
-        Upload evidence file (5% of traffic).
+        Upload evidence file (4% of traffic).
 
         POST /api/v1/evidence
         """
@@ -335,10 +347,10 @@ class SDLCOrchestratorUser(HttpUser):
             data = response.json()
             self.evidence_id = data.get("id", "")
 
-    @task(3)
+    @task(2)
     def evidence_get(self):
         """
-        Get evidence details (3% of traffic).
+        Get evidence details (2% of traffic).
 
         GET /api/v1/evidence/{evidence_id}
         """
@@ -350,10 +362,10 @@ class SDLCOrchestratorUser(HttpUser):
             name="/evidence/{id} (get)",
         )
 
-    @task(2)
+    @task(1)
     def evidence_download(self):
         """
-        Download evidence file (2% of traffic).
+        Download evidence file (1% of traffic).
 
         GET /api/v1/evidence/{evidence_id}/download
         """
@@ -464,6 +476,143 @@ class SDLCOrchestratorUser(HttpUser):
             name="/policies/{id} (update)",
         )
 
+    # ========================================================================
+    # PROJECTS MANAGEMENT TASKS (10% of traffic) ⭐ NEW
+    # ========================================================================
+
+    @task(5)
+    def projects_list(self):
+        """
+        List all projects (5% of traffic).
+
+        GET /api/v1/projects?limit=50&offset=0
+        """
+        response = self.client.get(
+            f"{self.api_base}/projects?limit=50&offset=0",
+            headers=self.get_headers(),
+            name="/projects (list)",
+        )
+
+        # Extract first project_id for detail requests
+        if response.status_code == 200:
+            data = response.json()
+            projects = data.get("projects", data.get("items", []))
+            if projects and len(projects) > 0:
+                self.project_id = projects[0].get("id", "")
+
+    @task(3)
+    def projects_get(self):
+        """
+        Get project details (3% of traffic).
+
+        GET /api/v1/projects/{project_id}
+        """
+        project_id = self.project_id or "550e8400-e29b-41d4-a716-446655440001"
+
+        self.client.get(
+            f"{self.api_base}/projects/{project_id}",
+            headers=self.get_headers(),
+            name="/projects/{id} (get)",
+        )
+
+    @task(1)
+    def projects_create(self):
+        """
+        Create new project (1% of traffic).
+
+        POST /api/v1/projects
+        """
+        response = self.client.post(
+            f"{self.api_base}/projects",
+            headers=self.get_headers(),
+            json={
+                "name": f"Load Test Project {random.randint(1, 100000)}",
+                "description": "Auto-generated project for load testing",
+                "repository_url": f"https://github.com/test/load-test-{random.randint(1, 100000)}",
+                "tier": random.choice(["lite", "standard", "professional", "enterprise"]),
+            },
+            name="/projects (create)",
+        )
+
+        # Store created project_id
+        if response.status_code == 201:
+            data = response.json()
+            self.project_id = data.get("id", "")
+
+    @task(1)
+    def projects_update(self):
+        """
+        Update project (1% of traffic).
+
+        PUT /api/v1/projects/{project_id}
+        """
+        project_id = self.project_id or "550e8400-e29b-41d4-a716-446655440001"
+
+        self.client.put(
+            f"{self.api_base}/projects/{project_id}",
+            headers=self.get_headers(),
+            json={
+                "description": "Updated via load test",
+                "tier": random.choice(["lite", "standard", "professional", "enterprise"]),
+            },
+            name="/projects/{id} (update)",
+        )
+
+    # ========================================================================
+    # SDLC VALIDATION TASKS (10% of traffic) ⭐ NEW
+    # ========================================================================
+
+    @task(4)
+    def sdlc_validate_structure(self):
+        """
+        Validate SDLC structure (4% of traffic).
+
+        POST /api/v1/projects/{project_id}/validate-structure
+        """
+        project_id = self.project_id or "550e8400-e29b-41d4-a716-446655440001"
+
+        self.client.post(
+            f"{self.api_base}/projects/{project_id}/validate-structure",
+            headers=self.get_headers(),
+            json={
+                "tier": random.choice(["lite", "standard", "professional", "enterprise"]),
+                "docs_root": "docs",
+                "strict_mode": False,
+                "include_p0": True,
+            },
+            name="/projects/{id}/validate-structure",
+        )
+
+    @task(3)
+    def sdlc_validation_history(self):
+        """
+        Get validation history (3% of traffic).
+
+        GET /api/v1/projects/{project_id}/validation-history
+        """
+        project_id = self.project_id or "550e8400-e29b-41d4-a716-446655440001"
+
+        self.client.get(
+            f"{self.api_base}/projects/{project_id}/validation-history?limit=10",
+            headers=self.get_headers(),
+            name="/projects/{id}/validation-history",
+        )
+
+    @task(3)
+    def sdlc_compliance_summary(self):
+        """
+        Get compliance summary (3% of traffic).
+
+        GET /api/v1/projects/{project_id}/compliance-summary
+        """
+        project_id = self.project_id or "550e8400-e29b-41d4-a716-446655440001"
+
+        self.client.get(
+            f"{self.api_base}/projects/{project_id}/compliance-summary",
+            headers=self.get_headers(),
+            name="/projects/{id}/compliance-summary",
+        )
+
 
 class AdminUser(HttpUser):
     """
@@ -485,8 +634,8 @@ class AdminUser(HttpUser):
         response = self.client.post(
             f"{self.api_base}/auth/login",
             json={
-                "email": "admin@sdlc-orchestrator.com",
-                "password": "AdminSecure456!",
+                "email": "admin@sdlc-orchestrator.io",
+                "password": "Admin@123",
             },
             name="/auth/login (admin)",
         )
@@ -581,12 +730,20 @@ How to run this load test:
    - CSV: reports/load_test_stats.csv
    - HTML: reports/load_test_report.html
 
-Performance Targets (SDLC 4.9):
+Performance Targets (SDLC 5.0.0 - Gate G3):
 ✅ p50 latency: <50ms
 ✅ p95 latency: <100ms ⭐ CRITICAL
 ✅ p99 latency: <200ms
 ✅ Error rate: <0.1%
 ✅ Throughput: >1000 req/s
+
+Test Scenarios (30+ endpoints):
+1. Authentication (25%): login, refresh, profile
+2. Gates (30%): list, get, create, update, delete
+3. Evidence (15%): list, upload, get, download
+4. Policies (10%): list, get, create, update
+5. Projects (10%): list, get, create, update ⭐ NEW
+6. SDLC Validation (10%): validate, history, summary ⭐ NEW
 
 OWASP ASVS Compliance:
 ✅ V11.1.4: Load testing validates scalability

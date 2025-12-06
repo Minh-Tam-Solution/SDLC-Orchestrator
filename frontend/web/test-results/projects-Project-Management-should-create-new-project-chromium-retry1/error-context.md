@@ -1,0 +1,142 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - link "SDLC Orchestrator" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - img [ref=e8]
+      - generic [ref=e10]: SDLC Orchestrator
+    - navigation [ref=e11]:
+      - link "Dashboard" [ref=e12] [cursor=pointer]:
+        - /url: /
+        - img [ref=e13]
+        - text: Dashboard
+      - link "Projects" [ref=e15] [cursor=pointer]:
+        - /url: /projects
+        - img [ref=e16]
+        - text: Projects
+      - link "Gates" [ref=e18] [cursor=pointer]:
+        - /url: /gates
+        - img [ref=e19]
+        - text: Gates
+      - link "Evidence Vault" [ref=e21] [cursor=pointer]:
+        - /url: /evidence
+        - img [ref=e22]
+        - text: Evidence Vault
+      - link "Policies" [ref=e24] [cursor=pointer]:
+        - /url: /policies
+        - img [ref=e25]
+        - text: Policies
+      - link "Compliance" [ref=e27] [cursor=pointer]:
+        - /url: /compliance
+        - img [ref=e28]
+        - text: Compliance
+      - link "Settings" [ref=e30] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e31]
+        - text: Settings
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - img [ref=e37]
+        - generic [ref=e39]:
+          - paragraph [ref=e40]: Platform Admin
+          - paragraph [ref=e41]: admin@sdlc-orchestrator.io
+      - button "Logout" [ref=e42] [cursor=pointer]:
+        - img [ref=e43]
+        - text: Logout
+  - banner [ref=e45]:
+    - generic [ref=e46]:
+      - generic [ref=e47]: Signed in as admin@sdlc-orchestrator.io
+      - button "Sign Out" [ref=e48] [cursor=pointer]
+  - main [ref=e49]:
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - link "Projects" [ref=e53] [cursor=pointer]:
+          - /url: /projects
+        - generic [ref=e54]: /
+        - generic [ref=e55]: Test Project 1764756022696
+      - generic [ref=e56]:
+        - generic [ref=e57]:
+          - heading "Test Project 1764756022696" [level=1] [ref=e58]
+          - paragraph [ref=e59]: E2E test project description
+        - generic [ref=e60]:
+          - button "Options" [ref=e61] [cursor=pointer]:
+            - img
+            - text: Options
+          - button "Add Gate" [ref=e62] [cursor=pointer]:
+            - img
+            - text: Add Gate
+      - generic [ref=e63]:
+        - generic [ref=e64]:
+          - heading "Current Stage" [level=3] [ref=e66]
+          - generic [ref=e67]:
+            - generic [ref=e68]: WHY
+            - paragraph [ref=e69]: Problem Definition
+        - generic [ref=e70]:
+          - heading "Total Gates" [level=3] [ref=e72]
+          - generic [ref=e73]:
+            - generic [ref=e74]: "0"
+            - paragraph [ref=e75]: 0 approved
+        - generic [ref=e76]:
+          - heading "Created" [level=3] [ref=e78]
+          - generic [ref=e79]:
+            - generic [ref=e80]: 12/3/2025
+            - paragraph [ref=e81]: Updated 12/3/2025
+      - generic [ref=e82]:
+        - generic [ref=e83]:
+          - heading "SDLC 4.9 Stage Timeline" [level=3] [ref=e84]
+          - paragraph [ref=e85]: Track progress through all 10 stages
+        - generic [ref=e87]:
+          - generic [ref=e88]:
+            - generic [ref=e89]: "00"
+            - generic [ref=e90]: WHY
+            - generic [ref=e91]: "-"
+          - generic [ref=e93]:
+            - generic [ref=e94]: "01"
+            - generic [ref=e95]: WHAT
+            - generic [ref=e96]: "-"
+          - generic [ref=e98]:
+            - generic [ref=e99]: "02"
+            - generic [ref=e100]: HOW
+            - generic [ref=e101]: "-"
+          - generic [ref=e103]:
+            - generic [ref=e104]: "03"
+            - generic [ref=e105]: BUILD
+            - generic [ref=e106]: "-"
+          - generic [ref=e108]:
+            - generic [ref=e109]: "04"
+            - generic [ref=e110]: VERIFY
+            - generic [ref=e111]: "-"
+          - generic [ref=e113]:
+            - generic [ref=e114]: "05"
+            - generic [ref=e115]: SHIP
+            - generic [ref=e116]: "-"
+          - generic [ref=e118]:
+            - generic [ref=e119]: "06"
+            - generic [ref=e120]: OPERATE
+            - generic [ref=e121]: "-"
+          - generic [ref=e123]:
+            - generic [ref=e124]: "07"
+            - generic [ref=e125]: OBSERVE
+            - generic [ref=e126]: "-"
+          - generic [ref=e128]:
+            - generic [ref=e129]: "08"
+            - generic [ref=e130]: LEARN
+            - generic [ref=e131]: "-"
+          - generic [ref=e133]:
+            - generic [ref=e134]: "09"
+            - generic [ref=e135]: EVOLVE
+            - generic [ref=e136]: "-"
+      - generic [ref=e137]:
+        - generic [ref=e138]:
+          - heading "Quality Gates" [level=3] [ref=e139]
+          - paragraph [ref=e140]: All gates for this project
+        - generic [ref=e142]:
+          - img [ref=e143]
+          - heading "No gates yet" [level=3] [ref=e145]
+          - paragraph [ref=e146]: Create your first quality gate to start tracking progress
+          - button "Create Gate" [ref=e147] [cursor=pointer]:
+            - img
+            - text: Create Gate
+```

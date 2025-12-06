@@ -140,6 +140,10 @@ class User(Base):
     audit_logs = relationship("AuditLog", back_populates="user")
     notifications = relationship("Notification", back_populates="user")
 
+    # Usage Tracking Relationships (Sprint 24)
+    sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
+    usage_events = relationship("UsageEvent", back_populates="user", cascade="all, delete-orphan")
+
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email={self.email}, roles={[r.name for r in self.roles]})>"
 

@@ -1,0 +1,39 @@
+{
+  "$schema": "./backend/sdlcctl/schemas/sdlc-config.schema.json",
+  "version": "1.0.0",
+  "project": {
+    "name": "SDLC-Orchestrator",
+    "description": "First Governance-First Platform on SDLC 5.0.0",
+    "repository": "https://github.com/nqh-org/SDLC-Orchestrator"
+  },
+  "tier": "professional",
+  "team_size": 8,
+  "docs_root": "docs",
+  "strict": true,
+  "validation": {
+    "fail_on_error": true,
+    "fail_on_warning": false,
+    "required_score": 80
+  },
+  "stages": {
+    "enabled": ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10"],
+    "custom_names": {}
+  },
+  "p0_artifacts": {
+    "required": true,
+    "custom_paths": {}
+  },
+  "ci": {
+    "comment_on_pr": true,
+    "update_badge": true,
+    "block_merge_on_fail": true
+  },
+  "ignore": [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/__pycache__/**",
+    "**/.pytest_cache/**"
+  ]
+}

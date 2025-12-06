@@ -520,6 +520,188 @@ class AIMetrics:
 
 
 # ============================================================================
+# AI COUNCIL METRICS (Sprint 26)
+# ============================================================================
+
+# Counter: Council deliberations
+ai_council_deliberations_total = Counter(
+    "ai_council_deliberations_total",
+    "Total number of AI Council deliberation requests",
+    ["mode", "status"],  # mode: single, council, auto; status: success, failed, fallback
+)
+
+# Histogram: Council deliberation duration
+ai_council_duration_seconds = Histogram(
+    "ai_council_duration_seconds",
+    "Time taken for AI Council deliberation (seconds)",
+    ["mode", "stage"],  # stage: stage1, stage2, stage3, total
+    buckets=(0.5, 1.0, 2.0, 3.0, 5.0, 8.0, 10.0, 15.0, 30.0),
+)
+
+# Gauge: Council confidence scores
+ai_council_confidence = Histogram(
+    "ai_council_confidence_score",
+    "Confidence scores from AI Council deliberations",
+    ["mode"],
+    buckets=(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100),
+)
+
+# Counter: Council provider participation
+ai_council_provider_used_total = Counter(
+    "ai_council_provider_used_total",
+    "Number of times each provider participated in council",
+    ["provider", "stage"],  # stage: query, review, synthesis
+)
+
+# Counter: Council fallback events
+ai_council_fallback_total = Counter(
+    "ai_council_fallback_total",
+    "Number of council fallback events",
+    ["reason"],  # timeout, no_quorum, error
+)
+
+# Gauge: Council cost tracking
+ai_council_cost_usd = Gauge(
+    "ai_council_cost_usd_total",
+    "Total cost of AI Council deliberations in USD",
+    ["mode"],
+)
+
+# Summary: Peer review scores
+ai_council_peer_review_score = Summary(
+    "ai_council_peer_review_score",
+    "Peer review scores given during Stage 2",
+    ["reviewer", "reviewee"],
+)
+
+
+class AICouncilMetrics:
+    """Helper class for collecting AI Council metrics."""
+
+    @staticmethod
+    def record_deliberation_start(mode: str):
+        """Record start of a council deliberation."""
+        pass  # Could track in-progress gauge if needed
+
+    @staticmethod
+    def record_deliberation_complete(
+        mode: str,
+        status: str,
+        total_duration_seconds: float,
+        stage1_duration_seconds: float,
+        stage2_duration_seconds: float,
+        stage3_duration_seconds: float,
+        confidence_score: int,
+        providers_used: list[str],
+        total_cost_usd: float,
+    ):
+        """
+        Record completion of a council deliberation.
+
+        Args:
+            mode: Council mode (single, council, auto)
+            status: Final status (success, failed, fallback)
+            total_duration_seconds: Total time for deliberation
+            stage1_duration_seconds: Stage 1 duration
+            stage2_duration_seconds: Stage 2 duration (0 if skipped)
+            stage3_duration_seconds: Stage 3 duration (0 if skipped)
+            confidence_score: Final confidence score (0-100)
+            providers_used: List of providers that participated
+            total_cost_usd: Total cost in USD
+        """
+        # Record deliberation count
+        ai_council_deliberations_total.labels(mode=mode, status=status).inc()
+
+        # Record durations
+        ai_council_duration_seconds.labels(mode=mode, stage="total").observe(
+            total_duration_seconds
+        )
+        ai_council_duration_seconds.labels(mode=mode, stage="stage1").observe(
+            stage1_duration_seconds
+        )
+        if stage2_duration_seconds > 0:
+            ai_council_duration_seconds.labels(mode=mode, stage="stage2").observe(
+                stage2_duration_seconds
+            )
+        if stage3_duration_seconds > 0:
+            ai_council_duration_seconds.labels(mode=mode, stage="stage3").observe(
+                stage3_duration_seconds
+            )
+
+        # Record confidence
+        ai_council_confidence.labels(mode=mode).observe(confidence_score)
+
+        # Record provider participation
+        for provider in providers_used:
+            ai_council_provider_used_total.labels(
+                provider=provider, stage="query"
+            ).inc()
+
+        # Update cost gauge
+        ai_council_cost_usd.labels(mode=mode).inc(total_cost_usd)
+
+    @staticmethod
+    def record_stage1_complete(
+        providers_queried: list[str],
+        successful_count: int,
+        duration_seconds: float,
+        cost_usd: float,
+    ):
+        """Record completion of Stage 1 (parallel queries)."""
+        for provider in providers_queried:
+            ai_council_provider_used_total.labels(
+                provider=provider, stage="query"
+            ).inc()
+
+    @staticmethod
+    def record_stage2_complete(
+        reviewers: list[str],
+        duration_seconds: float,
+        cost_usd: float,
+    ):
+        """Record completion of Stage 2 (peer review)."""
+        for reviewer in reviewers:
+            ai_council_provider_used_total.labels(
+                provider=reviewer, stage="review"
+            ).inc()
+
+    @staticmethod
+    def record_stage3_complete(
+        chairman: str,
+        duration_seconds: float,
+        cost_usd: float,
+    ):
+        """Record completion of Stage 3 (synthesis)."""
+        ai_council_provider_used_total.labels(
+            provider=chairman, stage="synthesis"
+        ).inc()
+
+    @staticmethod
+    def record_peer_review_score(reviewer: str, reviewee: str, score: float):
+        """
+        Record a peer review score.
+
+        Args:
+            reviewer: Provider giving the review
+            reviewee: Provider being reviewed
+            score: Score given (0-100)
+        """
+        ai_council_peer_review_score.labels(
+            reviewer=reviewer, reviewee=reviewee
+        ).observe(score)
+
+    @staticmethod
+    def record_fallback(reason: str):
+        """
+        Record a council fallback event.
+
+        Args:
+            reason: Reason for fallback (timeout, no_quorum, error)
+        """
+        ai_council_fallback_total.labels(reason=reason).inc()
+
+
+# ============================================================================
 # PROMETHEUS QUERIES (PromQL) FOR GRAFANA DASHBOARDS
 # ============================================================================
 
@@ -599,4 +781,38 @@ rate(ai_fallback_total[1h])
 
 # Token usage rate
 rate(ai_tokens_used_total[1h])
+
+
+## AI Council Metrics (Sprint 26)
+
+# Council deliberation rate by mode
+rate(ai_council_deliberations_total[1h]) by (mode)
+
+# Council success rate
+rate(ai_council_deliberations_total{status="success"}[1h]) /
+rate(ai_council_deliberations_total[1h]) * 100
+
+# Council latency by stage (p95)
+histogram_quantile(0.95, rate(ai_council_duration_seconds_bucket[5m])) by (stage)
+
+# Council mode distribution
+sum(ai_council_deliberations_total) by (mode)
+
+# Average confidence score by mode
+histogram_quantile(0.5, rate(ai_council_confidence_score_bucket[1h])) by (mode)
+
+# Provider participation in council
+sum(ai_council_provider_used_total) by (provider, stage)
+
+# Council fallback rate by reason
+rate(ai_council_fallback_total[1h]) by (reason)
+
+# Council cost by mode
+ai_council_cost_usd_total by (mode)
+
+# Average peer review score
+ai_council_peer_review_score_sum / ai_council_peer_review_score_count by (reviewer)
+
+# Council performance target (<8s p95 for council mode)
+histogram_quantile(0.95, rate(ai_council_duration_seconds_bucket{mode="council",stage="total"}[5m])) < 8
 """

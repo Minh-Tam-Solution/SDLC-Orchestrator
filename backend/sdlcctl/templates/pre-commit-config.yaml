@@ -1,0 +1,38 @@
+# SDLC 5.0.0 Pre-commit Configuration
+#
+# Add this to your project's .pre-commit-config.yaml:
+#
+# repos:
+#   - repo: local
+#     hooks:
+#       - id: sdlcctl-validate
+#         name: SDLC 5.0.0 Validation
+#         entry: python -m sdlcctl.hooks.pre_commit
+#         language: python
+#         pass_filenames: false
+#         always_run: true
+#         stages: [commit]
+
+repos:
+  - repo: local
+    hooks:
+      - id: sdlcctl-validate
+        name: SDLC 5.0.0 Structure Validation
+        entry: python -m sdlcctl.hooks.pre_commit
+        language: python
+        types: [markdown]
+        pass_filenames: false
+        always_run: true
+        stages: [commit]
+        args:
+          - --docs=docs
+          # - --tier=professional  # Uncomment to set specific tier
+          # - --strict  # Uncomment to fail on warnings
+
+      - id: sdlcctl-validate-docs-only
+        name: SDLC 5.0.0 Docs Validation (docs changes only)
+        entry: python -m sdlcctl.hooks.pre_commit
+        language: python
+        files: ^docs/
+        pass_filenames: false
+        stages: [commit]

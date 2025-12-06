@@ -45,6 +45,15 @@ from app.models.support import StageTransition, Webhook, AuditLog, Notification
 # Compliance Scanning (Sprint 21) - 3 models
 from app.models.compliance_scan import ComplianceScan, ComplianceViolation, ScanJob
 
+# Usage Tracking (Sprint 24) - 4 models
+from app.models.usage_tracking import UserSession, UsageEvent, FeatureUsage, PilotMetrics
+
+# Feedback (Sprint 24) - 2 models
+from app.models.feedback import PilotFeedback, FeedbackComment
+
+# SDLC Validation (Sprint 30) - 2 models
+from app.models.sdlc_validation import SDLCValidation, SDLCValidationIssue
+
 __all__ = [
     # Base
     "Base",
@@ -81,4 +90,15 @@ __all__ = [
     "ComplianceScan",
     "ComplianceViolation",
     "ScanJob",
+    # Usage Tracking (4)
+    "UserSession",
+    "UsageEvent",
+    "FeatureUsage",
+    "PilotMetrics",
+    # Feedback (2)
+    "PilotFeedback",
+    "FeedbackComment",
+    # SDLC Validation (2)
+    "SDLCValidation",
+    "SDLCValidationIssue",
 ]

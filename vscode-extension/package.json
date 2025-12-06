@@ -1,0 +1,291 @@
+{
+  "name": "sdlc-orchestrator",
+  "displayName": "SDLC Orchestrator",
+  "description": "Gate status monitoring, compliance assistance, and AI-powered development for SDLC 4.9.1 governance platform",
+  "version": "0.1.0",
+  "publisher": "nqh-team",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nqh-team/sdlc-orchestrator"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other",
+    "Linters",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "sdlc",
+    "governance",
+    "compliance",
+    "quality gates",
+    "ai assistant"
+  ],
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#1e293b",
+    "theme": "dark"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "sdlc-orchestrator.gate",
+        "name": "gate",
+        "fullName": "SDLC Gate Assistant",
+        "description": "Compliance and gate evaluation assistance for SDLC 4.9.1 (G0-G5)",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "status",
+            "description": "Show current gate status for the active project"
+          },
+          {
+            "name": "evaluate",
+            "description": "Evaluate current compliance and show violations"
+          },
+          {
+            "name": "fix",
+            "description": "Get AI recommendation to fix a violation"
+          },
+          {
+            "name": "council",
+            "description": "Request AI Council deliberation for critical violations"
+          }
+        ]
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sdlc-explorer",
+          "title": "SDLC Orchestrator",
+          "icon": "media/sdlc-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "sdlc-explorer": [
+        {
+          "id": "sdlc-gate-status",
+          "name": "Gate Status",
+          "icon": "$(checklist)",
+          "contextualTitle": "SDLC Gate Status"
+        },
+        {
+          "id": "sdlc-violations",
+          "name": "Violations",
+          "icon": "$(warning)",
+          "contextualTitle": "Compliance Violations"
+        },
+        {
+          "id": "sdlc-projects",
+          "name": "Projects",
+          "icon": "$(folder)",
+          "contextualTitle": "SDLC Projects"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "sdlc.refreshGates",
+        "title": "Refresh Gate Status",
+        "category": "SDLC",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "sdlc.openGate",
+        "title": "Open Gate in Browser",
+        "category": "SDLC",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "sdlc.selectProject",
+        "title": "Select Project",
+        "category": "SDLC",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "sdlc.login",
+        "title": "Login to SDLC Orchestrator",
+        "category": "SDLC",
+        "icon": "$(sign-in)"
+      },
+      {
+        "command": "sdlc.logout",
+        "title": "Logout from SDLC Orchestrator",
+        "category": "SDLC",
+        "icon": "$(sign-out)"
+      },
+      {
+        "command": "sdlc.showViolationDetails",
+        "title": "Show Violation Details",
+        "category": "SDLC",
+        "icon": "$(info)"
+      },
+      {
+        "command": "sdlc.fixViolation",
+        "title": "Get AI Fix for Violation",
+        "category": "SDLC",
+        "icon": "$(lightbulb)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "sdlc.refreshGates",
+          "when": "view == sdlc-gate-status",
+          "group": "navigation"
+        },
+        {
+          "command": "sdlc.selectProject",
+          "when": "view == sdlc-projects",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "sdlc.openGate",
+          "when": "view == sdlc-gate-status && viewItem == gate",
+          "group": "inline"
+        },
+        {
+          "command": "sdlc.fixViolation",
+          "when": "view == sdlc-violations && viewItem == violation",
+          "group": "inline"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "sdlc.refreshGates",
+          "when": "sdlc.isAuthenticated"
+        },
+        {
+          "command": "sdlc.selectProject",
+          "when": "sdlc.isAuthenticated"
+        },
+        {
+          "command": "sdlc.logout",
+          "when": "sdlc.isAuthenticated"
+        },
+        {
+          "command": "sdlc.login",
+          "when": "!sdlc.isAuthenticated"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "SDLC Orchestrator",
+      "properties": {
+        "sdlc.apiUrl": {
+          "type": "string",
+          "default": "http://localhost:8000",
+          "description": "SDLC Orchestrator API base URL",
+          "order": 1
+        },
+        "sdlc.autoRefreshInterval": {
+          "type": "number",
+          "default": 30,
+          "minimum": 10,
+          "maximum": 300,
+          "description": "Auto-refresh interval for gate status (seconds)",
+          "order": 2
+        },
+        "sdlc.defaultProjectId": {
+          "type": "string",
+          "default": "",
+          "description": "Default project ID to load on startup",
+          "order": 3
+        },
+        "sdlc.enableNotifications": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show notifications for gate status changes",
+          "order": 4
+        },
+        "sdlc.aiCouncilEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable AI Council for critical/high severity violations",
+          "order": 5
+        },
+        "sdlc.showViolationBadge": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show violation count badge in activity bar",
+          "order": 6
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "sdlc.refreshGates",
+        "key": "ctrl+shift+g",
+        "mac": "cmd+shift+g",
+        "when": "sdlc.isAuthenticated"
+      }
+    ],
+    "colors": [
+      {
+        "id": "sdlc.gateApproved",
+        "description": "Color for approved gates",
+        "defaults": {
+          "dark": "#22c55e",
+          "light": "#16a34a",
+          "highContrast": "#22c55e"
+        }
+      },
+      {
+        "id": "sdlc.gatePending",
+        "description": "Color for pending gates",
+        "defaults": {
+          "dark": "#eab308",
+          "light": "#ca8a04",
+          "highContrast": "#eab308"
+        }
+      },
+      {
+        "id": "sdlc.gateRejected",
+        "description": "Color for rejected gates",
+        "defaults": {
+          "dark": "#ef4444",
+          "light": "#dc2626",
+          "highContrast": "#ef4444"
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "lint:fix": "eslint src --ext ts --fix",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "@vscode/test-electron": "^2.3.8",
+    "@vscode/vsce": "^2.22.0",
+    "eslint": "^8.54.0",
+    "glob": "^10.3.10",
+    "mocha": "^10.2.0",
+    "typescript": "^5.3.2"
+  },
+  "dependencies": {
+    "axios": "^1.6.2"
+  }
+}

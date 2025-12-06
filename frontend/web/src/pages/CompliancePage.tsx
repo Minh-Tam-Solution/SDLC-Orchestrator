@@ -30,6 +30,9 @@ import ComplianceTrendChart from '@/components/compliance/ComplianceTrendChart'
 import ViolationsByCategoryChart from '@/components/compliance/ViolationsByCategoryChart'
 import ViolationsBySeverityChart from '@/components/compliance/ViolationsBySeverityChart'
 import ScanHistoryTimeline from '@/components/compliance/ScanHistoryTimeline'
+// Sprint 28: AI Council Chat components (using lazy-loaded version for performance)
+import { AICouncilChatLazy, TierBadge, GateProgressBar } from '@/components/council'
+import { useGateStatus } from '@/hooks/useCouncil'
 import {
   useLatestScan,
   useScanHistory,
@@ -53,6 +56,9 @@ interface Project {
 export default function CompliancePage() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>('')
   const [violationFilter, setViolationFilter] = useState<'all' | 'unresolved' | 'resolved'>('unresolved')
+
+  // Sprint 28: Gate status for AI Council integration
+  const gateStatus = useGateStatus(selectedProjectId, { enabled: !!selectedProjectId })
 
   // Fetch projects for selector
   const { data: projects = [], isLoading: projectsLoading } = useQuery<Project[]>({
@@ -104,32 +110,63 @@ export default function CompliancePage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Compliance Dashboard</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold tracking-tight">Compliance Dashboard</h1>
+              {/* Sprint 28: Tier Badge */}
+              {selectedProjectId && gateStatus.data && (
+                <TierBadge
+                  tier={gateStatus.data.tier}
+                  size="md"
+                />
+              )}
+            </div>
             <p className="text-muted-foreground">
               SDLC 4.9.1 compliance scanning and violation tracking
             </p>
           </div>
 
-          {/* Project Selector */}
-          <div className="w-64">
-            <Select
-              value={selectedProjectId}
-              onValueChange={setSelectedProjectId}
-              disabled={projectsLoading}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a project..." />
-              </SelectTrigger>
-              <SelectContent>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex items-center gap-4">
+            {/* Sprint 28: AI Council Chat Button (lazy-loaded for performance) */}
+            <AICouncilChatLazy
+              projectId={selectedProjectId}
+              defaultCouncilMode={false}
+              onRecommendationApplied={(recommendation) => {
+                console.log('Recommendation applied:', recommendation)
+                // Refetch violations after applying recommendation
+                violations.refetch()
+              }}
+            />
+
+            {/* Project Selector */}
+            <div className="w-64">
+              <Select
+                value={selectedProjectId}
+                onValueChange={setSelectedProjectId}
+                disabled={projectsLoading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a project..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
+
+        {/* Sprint 28: Gate Progress Bar */}
+        {selectedProjectId && gateStatus.data && (
+          <GateProgressBar
+            currentGate={gateStatus.data.current_gate}
+            gateStatuses={gateStatus.data.gates}
+            tier={gateStatus.data.tier}
+          />
+        )}
 
         {!selectedProjectId ? (
           /* No project selected state */

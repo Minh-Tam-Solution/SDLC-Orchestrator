@@ -103,3 +103,36 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* Animation Performance Optimizations */
+@layer utilities {
+  /* GPU-accelerated animations for smooth 60fps performance */
+  .animate-bounce,
+  .animate-pulse,
+  .animate-spin {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* Optimized transitions for collapsible components */
+  [data-state="open"],
+  [data-state="closed"] {
+    will-change: height, opacity;
+  }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-bounce,
+    .animate-pulse,
+    .animate-spin {
+      animation: none !important;
+    }
+
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

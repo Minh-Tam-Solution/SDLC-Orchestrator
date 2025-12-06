@@ -1,0 +1,64 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - link "SDLC Orchestrator" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - img [ref=e8]
+      - generic [ref=e10]: SDLC Orchestrator
+    - navigation [ref=e11]:
+      - link "Dashboard" [ref=e12] [cursor=pointer]:
+        - /url: /
+        - img [ref=e13]
+        - text: Dashboard
+      - link "Projects" [ref=e15] [cursor=pointer]:
+        - /url: /projects
+        - img [ref=e16]
+        - text: Projects
+      - link "Gates" [ref=e18] [cursor=pointer]:
+        - /url: /gates
+        - img [ref=e19]
+        - text: Gates
+      - link "Evidence Vault" [ref=e21] [cursor=pointer]:
+        - /url: /evidence
+        - img [ref=e22]
+        - text: Evidence Vault
+      - link "Policies" [ref=e24] [cursor=pointer]:
+        - /url: /policies
+        - img [ref=e25]
+        - text: Policies
+      - link "Compliance" [ref=e27] [cursor=pointer]:
+        - /url: /compliance
+        - img [ref=e28]
+        - text: Compliance
+      - link "Settings" [ref=e30] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e31]
+        - text: Settings
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - img [ref=e37]
+        - generic [ref=e39]:
+          - paragraph [ref=e40]: Platform Admin
+          - paragraph [ref=e41]: admin@sdlc-orchestrator.io
+      - button "Logout" [ref=e42] [cursor=pointer]:
+        - img [ref=e43]
+        - text: Logout
+  - banner [ref=e45]:
+    - generic [ref=e46]:
+      - generic [ref=e47]: Signed in as admin@sdlc-orchestrator.io
+      - button "Sign Out" [ref=e48] [cursor=pointer]
+  - main [ref=e49]:
+    - generic [ref=e51]:
+      - generic [ref=e53]:
+        - heading "Gates" [level=1] [ref=e54]
+        - paragraph [ref=e55]: Review and approve quality gates across all projects
+      - generic [ref=e57]:
+        - img [ref=e58]
+        - heading "No gates yet" [level=3] [ref=e60]
+        - paragraph [ref=e61]: Gates will appear here when projects reach quality checkpoints
+        - link "View Projects" [ref=e62] [cursor=pointer]:
+          - /url: /projects
+          - button "View Projects" [ref=e63]
+```

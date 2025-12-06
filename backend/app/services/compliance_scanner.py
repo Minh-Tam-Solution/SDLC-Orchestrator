@@ -374,7 +374,26 @@ class ComplianceScanner:
         )
 
         # Store scan result in database
-        await self._store_scan_result(result, triggered_by, trigger_type)
+        scan = await self._store_scan_result(result, triggered_by, trigger_type)
+
+        # Sprint 26 Day 3: Auto-council for CRITICAL/HIGH violations
+        try:
+            from app.api.routes.council import auto_council_for_critical_violations
+
+            council_summary = await auto_council_for_critical_violations(
+                project_id=project_id,
+                scan_id=scan.id,
+                db=self.db,
+            )
+
+            if council_summary["council_triggered"] > 0:
+                logger.info(
+                    f"Auto-council triggered for scan {scan.id}: "
+                    f"{council_summary['council_succeeded']}/{council_summary['council_triggered']} succeeded"
+                )
+        except Exception as e:
+            # Don't fail the scan if auto-council fails
+            logger.error(f"Auto-council failed for scan {scan.id}: {e}")
 
         # Record Prometheus metrics for completed scan
         duration_seconds = duration_ms / 1000.0

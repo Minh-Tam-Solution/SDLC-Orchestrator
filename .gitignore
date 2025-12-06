@@ -125,3 +125,5 @@ Desktop.ini
 /evidence-vault/
 /reports/
 # SDLC-Enterprise-Framework/ - Now included directly in main repo (git subtree)
+docs/10-Archive/llm-council/
+vscode-extension/.vscode-test/

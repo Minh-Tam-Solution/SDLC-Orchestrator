@@ -1,0 +1,88 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - link "SDLC Orchestrator" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - img [ref=e8]
+      - generic [ref=e10]: SDLC Orchestrator
+    - navigation [ref=e11]:
+      - link "Dashboard" [ref=e12] [cursor=pointer]:
+        - /url: /
+        - img [ref=e13]
+        - text: Dashboard
+      - link "Projects" [ref=e15] [cursor=pointer]:
+        - /url: /projects
+        - img [ref=e16]
+        - text: Projects
+      - link "Gates" [ref=e18] [cursor=pointer]:
+        - /url: /gates
+        - img [ref=e19]
+        - text: Gates
+      - link "Evidence Vault" [ref=e21] [cursor=pointer]:
+        - /url: /evidence
+        - img [ref=e22]
+        - text: Evidence Vault
+      - link "Policies" [ref=e24] [cursor=pointer]:
+        - /url: /policies
+        - img [ref=e25]
+        - text: Policies
+      - link "Compliance" [ref=e27] [cursor=pointer]:
+        - /url: /compliance
+        - img [ref=e28]
+        - text: Compliance
+      - link "Settings" [ref=e30] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e31]
+        - text: Settings
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - img [ref=e37]
+        - generic [ref=e39]:
+          - paragraph [ref=e40]: Platform Admin
+          - paragraph [ref=e41]: admin@sdlc-orchestrator.io
+      - button "Logout" [ref=e42] [cursor=pointer]:
+        - img [ref=e43]
+        - text: Logout
+  - banner [ref=e45]:
+    - generic [ref=e46]:
+      - generic [ref=e47]: Signed in as admin@sdlc-orchestrator.io
+      - button "Sign Out" [ref=e48] [cursor=pointer]
+  - main [ref=e49]:
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - heading "Policies" [level=1] [ref=e54]
+          - paragraph [ref=e55]: Manage policy packs and gate requirements (0 policies)
+        - button "Create Policy" [ref=e56] [cursor=pointer]:
+          - img
+          - text: Create Policy
+      - generic [ref=e58]:
+        - heading "SDLC 4.9 Policy Pack" [level=3] [ref=e59]
+        - paragraph [ref=e60]: Pre-configured policies for all 10 SDLC stages
+      - generic [ref=e73]:
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - heading "Policy Library" [level=3] [ref=e77]
+            - paragraph [ref=e78]: Gate policies with OPA Rego validation
+          - combobox [ref=e79] [cursor=pointer]:
+            - generic: All Stages
+            - img [ref=e80]
+        - generic [ref=e83]:
+          - img [ref=e84]
+          - heading "No policies found" [level=3] [ref=e86]
+          - paragraph [ref=e87]: No policies configured yet
+          - button "Create First Policy" [ref=e88] [cursor=pointer]
+      - generic [ref=e89]:
+        - generic [ref=e90]:
+          - heading "Custom Policies" [level=3] [ref=e91]
+          - paragraph [ref=e92]: Create your own policies using Rego language
+        - generic [ref=e93]:
+          - img [ref=e94]
+          - heading "Write Custom Rego Policies" [level=3] [ref=e96]
+          - paragraph [ref=e97]: Create custom policies using Open Policy Agent (OPA) Rego language for specific compliance requirements.
+          - generic [ref=e98]:
+            - button "View Documentation" [ref=e99] [cursor=pointer]
+            - button "Create Policy" [ref=e100] [cursor=pointer]
+```

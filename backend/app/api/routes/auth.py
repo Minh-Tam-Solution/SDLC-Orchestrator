@@ -38,7 +38,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -60,6 +60,7 @@ from app.schemas.auth import (
     TokenResponse,
     UserProfile,
 )
+from app.services.audit_service import AuditAction, AuditService
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -67,6 +68,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 @router.post("/login", response_model=TokenResponse, status_code=status.HTTP_200_OK)
 async def login(
     login_data: LoginRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ) -> TokenResponse:
     """
@@ -98,12 +100,24 @@ async def login(
         5. Update last_login_at timestamp
         6. Return tokens
     """
+    # Initialize audit service
+    audit_service = AuditService(db)
+
     # Find user by email
     result = await db.execute(select(User).where(User.email == login_data.email))
     user = result.scalar_one_or_none()
 
     # Verify user exists and password is correct
     if not user or not verify_password(login_data.password, user.password_hash):
+        # Audit failed login attempt
+        await audit_service.log(
+            action=AuditAction.USER_LOGIN_FAILED,
+            details={
+                "email": login_data.email,
+                "failure_reason": "invalid_credentials",
+            },
+            request=request,
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -111,6 +125,18 @@ async def login(
 
     # Check if user is active
     if not user.is_active:
+        # Audit failed login (inactive account)
+        await audit_service.log(
+            action=AuditAction.USER_LOGIN_FAILED,
+            user_id=user.id,
+            resource_type="user",
+            resource_id=user.id,
+            details={
+                "email": login_data.email,
+                "failure_reason": "account_inactive",
+            },
+            request=request,
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User account is inactive",
@@ -133,6 +159,19 @@ async def login(
     user.last_login = datetime.utcnow()
 
     await db.commit()
+
+    # Audit successful login
+    await audit_service.log(
+        action=AuditAction.USER_LOGIN,
+        user_id=user.id,
+        resource_type="user",
+        resource_id=user.id,
+        details={
+            "email": user.email,
+            "login_method": "password",
+        },
+        request=request,
+    )
 
     return TokenResponse(
         access_token=access_token,
@@ -250,6 +289,7 @@ async def refresh_access_token(
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
     logout_data: LogoutRequest,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> None:
@@ -295,6 +335,17 @@ async def logout(
     # Revoke refresh token
     db_refresh_token.is_revoked = True
     await db.commit()
+
+    # Audit logout
+    audit_service = AuditService(db)
+    await audit_service.log(
+        action=AuditAction.USER_LOGOUT,
+        user_id=current_user.id,
+        resource_type="user",
+        resource_id=current_user.id,
+        details={"email": current_user.email},
+        request=request,
+    )
 
     # Return 204 No Content
     return None

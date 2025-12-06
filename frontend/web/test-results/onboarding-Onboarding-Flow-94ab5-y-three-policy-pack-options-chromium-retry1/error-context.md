@@ -1,0 +1,65 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e5]:
+  - generic [ref=e6]:
+    - heading "Choose Your Policy Pack" [level=3] [ref=e7]
+    - paragraph [ref=e8]: Select the governance level that fits your team
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e15] [cursor=pointer]:
+          - generic [ref=e17]: Lite
+          - generic [ref=e18]: Essential gates for small teams
+          - list [ref=e19]:
+            - listitem [ref=e20]:
+              - generic [ref=e21]: ✓
+              - generic [ref=e22]: G0.1, G0.2
+            - listitem [ref=e23]:
+              - generic [ref=e24]: ✓
+              - generic [ref=e25]: Basic evidence tracking
+            - listitem [ref=e26]:
+              - generic [ref=e27]: ✓
+              - generic [ref=e28]: Up to 10 projects
+        - generic [ref=e31] [cursor=pointer]:
+          - generic [ref=e32]:
+            - generic [ref=e34]: Standard
+            - generic [ref=e35]: Complete SDLC 4.9 gates for growing teams
+            - list [ref=e36]:
+              - listitem [ref=e37]:
+                - generic [ref=e38]: ✓
+                - generic [ref=e39]: All gates (G0.1-G6)
+              - listitem [ref=e40]:
+                - generic [ref=e41]: ✓
+                - generic [ref=e42]: Full evidence vault
+              - listitem [ref=e43]:
+                - generic [ref=e44]: ✓
+                - generic [ref=e45]: Unlimited projects
+              - listitem [ref=e46]:
+                - generic [ref=e47]: ✓
+                - generic [ref=e48]: AI recommendations
+          - generic [ref=e49]: ✓
+        - generic [ref=e53] [cursor=pointer]:
+          - generic [ref=e55]: Enterprise
+          - generic [ref=e56]: Advanced governance for large organizations
+          - list [ref=e57]:
+            - listitem [ref=e58]:
+              - generic [ref=e59]: ✓
+              - generic [ref=e60]: All Standard features
+            - listitem [ref=e61]:
+              - generic [ref=e62]: ✓
+              - generic [ref=e63]: Custom policies
+            - listitem [ref=e64]:
+              - generic [ref=e65]: ✓
+              - generic [ref=e66]: Advanced analytics
+            - listitem [ref=e67]:
+              - generic [ref=e68]: ✓
+              - generic [ref=e69]: SLA support
+            - listitem [ref=e70]:
+              - generic [ref=e71]: ✓
+              - generic [ref=e72]: Dedicated account manager
+      - button "Continue with Standard Pack" [ref=e73] [cursor=pointer]
+    - generic [ref=e75]:
+      - generic [ref=e76]: Step 4 of 6
+      - generic [ref=e77]: 67%
+```

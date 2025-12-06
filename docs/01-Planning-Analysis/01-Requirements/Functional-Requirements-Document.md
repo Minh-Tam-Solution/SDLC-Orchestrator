@@ -32,7 +32,7 @@
 
 **Timeline**: Week 2 (Nov 21-25) - Detailed specs for Week 3-4 architecture design.
 
-**Success Criteria**: All 5 FRs approved by Friday Nov 25 → Gate G1 passage.
+**Success Criteria**: All 9 FRs approved by Friday Nov 25 → Gate G1 passage.
 
 ---
 
@@ -1884,7 +1884,7 @@ Response (400 Bad Request - Regression Tests Failed):
 ### Gate G1 Passage Criteria (Friday, Nov 25, 2025)
 
 **Required for G1 approval**:
-1. ✅ All 5 functional requirements documented (FR1-FR5)
+1. ✅ All 9 functional requirements documented (FR1-FR9)
 2. ✅ API contracts defined for all use cases (20+ endpoints)
 3. ✅ UI mockups referenced (Figma links)
 4. ✅ Non-functional requirements specified (performance, security, observability)
