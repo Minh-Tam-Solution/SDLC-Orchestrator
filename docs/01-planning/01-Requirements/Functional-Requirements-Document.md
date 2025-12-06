@@ -7,6 +7,9 @@
 **Foundation**: Product Vision, BRD v1.2, Stage 02 Architecture
 **Framework**: SDLC 4.9.1 Complete Lifecycle
 
+**Changelog v2.1.0** (Dec 13, 2025):
+- Added FR21: User API Key Management (BYOK) - CTO/CPO Approved
+
 **Changelog v2.0.0** (Dec 3, 2025):
 - Added FR6: Context-Aware Stage Requirements (ADR-011)
 - Added FR7: AI Task Decomposition Service (ADR-012)
@@ -19,7 +22,7 @@
 
 **Purpose**: Define WHAT the SDLC Orchestrator will build in Sprint 1-4 (November 14 - February 10, 2026).
 
-**Scope**: 9 core functional requirements aligned with Product Vision MVP features:
+**Scope**: 10 core functional requirements aligned with Product Vision MVP features:
 1. **FR1: Quality Gate Management** - Policy-as-Code enforcement using OPA
 2. **FR2: Evidence Vault** - Permanent audit trail with SHA256 integrity
 3. **FR3: AI Context Engine** - Multi-provider stage-aware assistance
@@ -29,6 +32,7 @@
 7. **FR7: AI Task Decomposition** - User story → Tasks with CEO-level quality *(NEW v2.0)*
 8. **FR8: 4-Level Planning Hierarchy** - Roadmap → Phase → Sprint → Backlog *(NEW v2.0)*
 9. **FR9: SDLC Structure Validator** - Folder compliance enforcement *(NEW v2.0)*
+10. **FR21: User API Key Management** - BYOK for third-party AI providers *(NEW v2.1)*
 
 **Timeline**: Week 2 (Nov 21-25) - Detailed specs for Week 3-4 architecture design.
 

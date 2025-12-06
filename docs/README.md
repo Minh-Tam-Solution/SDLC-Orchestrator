@@ -21,7 +21,7 @@
 | **Next Gate** | G4 - Internal Validation | 30 days post-launch |
 | **Beta Pilot** | 5 internal teams | Week 1-2 post-G3 |
 
-**Sprint Pointer**: [CURRENT-SPRINT.md](03-Development-Implementation/02-Sprint-Plans/CURRENT-SPRINT.md)
+**Sprint Pointer**: [CURRENT-SPRINT.md](04-build/02-Sprint-Plans/CURRENT-SPRINT.md)
 
 ### Gates Progress
 
@@ -69,8 +69,8 @@
 **Essential Reading** (in order):
 1. **[CLAUDE.md](../CLAUDE.md)** (31KB) - Full project context, constraints, patterns
 2. **This README** - Current status, navigation, key documents
-3. **[CURRENT-SPRINT.md](03-Development-Implementation/02-Sprint-Plans/CURRENT-SPRINT.md)** - Active work
-4. **[OpenAPI Spec](02-Design-Architecture/03-API-Design/openapi.yml)** (1,629 lines) - API contract
+3. **[CURRENT-SPRINT.md](04-build/02-Sprint-Plans/CURRENT-SPRINT.md)** - Active work
+4. **[OpenAPI Spec](02-design/03-API-Design/openapi.yml)** (1,629 lines) - API contract
 
 **Critical Rules**:
 ```yaml
@@ -108,11 +108,11 @@ API:
 ### For New Developers
 
 **Onboarding Path** (2 hours):
-1. **Vision** (15 min): [Product-Vision.md](00-Project-Foundation/01-Vision/Product-Vision.md)
-2. **Architecture** (30 min): [System-Architecture/](02-Design-Architecture/01-System-Architecture/)
-3. **Setup** (30 min): `docker-compose up -d` (see [Setup Guide](03-Development-Implementation/03-Setup-Guides/))
-4. **Standards** (15 min): [Development-Standards/](03-Development-Implementation/01-Development-Standards/)
-5. **First Task** (30 min): Check [CURRENT-SPRINT.md](03-Development-Implementation/02-Sprint-Plans/CURRENT-SPRINT.md)
+1. **Vision** (15 min): [Product-Vision.md](00-foundation/01-Vision/Product-Vision.md)
+2. **Architecture** (30 min): [System-Architecture/](02-design/01-System-Architecture/)
+3. **Setup** (30 min): `docker-compose up -d` (see [Setup Guide](04-build/03-Setup-Guides/))
+4. **Standards** (15 min): [Development-Standards/](04-build/01-Development-Standards/)
+5. **First Task** (30 min): Check [CURRENT-SPRINT.md](04-build/02-Sprint-Plans/CURRENT-SPRINT.md)
 
 **Development Environment**:
 ```bash
@@ -133,26 +133,26 @@ cd backend && pip install -r requirements.txt && uvicorn app.main:app --reload  
 ### For Project Managers / PJMs
 
 **Daily Workflow**:
-1. **Check Sprint**: [CURRENT-SPRINT.md](03-Development-Implementation/02-Sprint-Plans/CURRENT-SPRINT.md)
-2. **Review Progress**: [CTO Reports](09-Executive-Reports/01-CTO-Reports/) (latest first)
-3. **Track Gates**: [Product-Roadmap.md](00-Project-Foundation/04-Roadmap/Product-Roadmap.md)
+1. **Check Sprint**: [CURRENT-SPRINT.md](04-build/02-Sprint-Plans/CURRENT-SPRINT.md)
+2. **Review Progress**: [CTO Reports](09-govern/01-CTO-Reports/) (latest first)
+3. **Track Gates**: [Product-Roadmap.md](00-foundation/04-Roadmap/Product-Roadmap.md)
 
 **Key Documents**:
 | Document | Purpose | Update Frequency |
 |----------|---------|------------------|
-| [Product-Roadmap.md](00-Project-Foundation/04-Roadmap/Product-Roadmap.md) | 12-month plan | Monthly |
-| [CURRENT-SPRINT.md](03-Development-Implementation/02-Sprint-Plans/CURRENT-SPRINT.md) | Active work | Daily |
-| [Sprint Plans](03-Development-Implementation/02-Sprint-Plans/) | Sprint details | Per sprint |
-| [CTO Reports](09-Executive-Reports/01-CTO-Reports/) | Technical reviews | Daily/Weekly |
-| [Phase Plans](03-Development-Implementation/04-Phase-Plans/) | 4-phase AI Governance | Per phase |
+| [Product-Roadmap.md](00-foundation/04-Roadmap/Product-Roadmap.md) | 12-month plan | Monthly |
+| [CURRENT-SPRINT.md](04-build/02-Sprint-Plans/CURRENT-SPRINT.md) | Active work | Daily |
+| [Sprint Plans](04-build/02-Sprint-Plans/) | Sprint details | Per sprint |
+| [CTO Reports](09-govern/01-CTO-Reports/) | Technical reviews | Daily/Weekly |
+| [Phase Plans](04-build/04-Phase-Plans/) | 4-phase AI Governance | Per phase |
 
 ### For Executives (CEO/CTO/CPO)
 
 **Decision Documents**:
-1. **[CTO Reports](09-Executive-Reports/01-CTO-Reports/)** - Technical decisions, quality scores
-2. **[CPO Reports](09-Executive-Reports/02-CPO-Reports/)** - Product decisions, UX reviews
-3. **[Product-Roadmap.md](00-Project-Foundation/04-Roadmap/Product-Roadmap.md)** - Strategic timeline
-4. **[Product-Vision.md](00-Project-Foundation/01-Vision/Product-Vision.md)** - Why we're building
+1. **[CTO Reports](09-govern/01-CTO-Reports/)** - Technical decisions, quality scores
+2. **[CPO Reports](09-govern/02-CPO-Reports/)** - Product decisions, UX reviews
+3. **[Product-Roadmap.md](00-foundation/04-Roadmap/Product-Roadmap.md)** - Strategic timeline
+4. **[Product-Vision.md](00-foundation/01-Vision/Product-Vision.md)** - Why we're building
 
 **Key Metrics**:
 | Metric | Target | Current | Status |
@@ -166,23 +166,37 @@ cd backend && pip install -r requirements.txt && uvicorn app.main:app --reload  
 
 ---
 
-## Documentation Structure (SDLC 5.0)
+## Documentation Structure (SDLC 5.0.0 Restructured)
 
 ### 10-Stage Lifecycle Map
 
+> **SDLC 5.0.0 Restructure**: INTEGRATION moved from Stage 07 to Stage 03 (Contract-First principle - API Design BEFORE coding)
+
 | Stage | Folder | Question | Status | Key Documents |
 |-------|--------|----------|--------|---------------|
-| 00 | [Project-Foundation/](00-Project-Foundation/) | WHY build? | Complete | Vision, Roadmap, Design Thinking |
-| 01 | [Planning-Analysis/](01-Planning-Analysis/) | WHAT to build? | Complete | Requirements, API Spec |
-| 02 | [Design-Architecture/](02-Design-Architecture/) | HOW to build? | Complete | System Architecture, ADRs, Security |
-| 03 | [Development-Implementation/](03-Development-Implementation/) | BUILD it | Sprint 31 ✅ | Sprint Plans, Phase Plans |
-| 04 | [Testing-Quality/](04-Testing-Quality/) | TEST it | In Progress | Test Strategy, Coverage Reports |
-| 05 | [Deployment-Release/](05-Deployment-Release/) | DEPLOY it | Planned | Beta Pilot, Release Notes |
-| 06 | [Operations-Maintenance/](06-Operations-Maintenance/) | OPERATE it | Planned | Runbooks, Monitoring |
-| 07 | [Integration-APIs/](07-Integration-APIs/) | INTEGRATE it | Planned | API Docs, Integration Patterns |
-| 08 | [Team-Management/](08-Team-Management/) | COLLABORATE | Active | RACI, Communication, Escalation |
-| 09 | [Executive-Reports/](09-Executive-Reports/) | GOVERN it | Active | CTO/CPO Reports, Gate Reviews |
-| 10 | [Archive/](10-Archive/) | ARCHIVE it | Reference | Legacy docs, historical |
+| 00 | [00-foundation/](00-foundation/) | WHY build? | Complete | Vision, Roadmap, Design Thinking |
+| 01 | [01-planning/](01-planning/) | WHAT to build? | Complete | Requirements, API Spec |
+| 02 | [02-design/](02-design/) | HOW to build? | Complete | System Architecture, ADRs, Security |
+| **03** | [**03-integration/**](03-integration/) | **INTEGRATE** (APIs) | Active | API Docs, OpenAPI, Integration Patterns ← **MOVED FROM 07** |
+| 04 | [04-build/](04-build/) | BUILD it | Sprint 31 ✅ | Sprint Plans, Phase Plans |
+| 05 | [05-test/](05-test/) | TEST it | In Progress | Test Strategy, Coverage Reports |
+| 06 | [06-deploy/](06-deploy/) | DEPLOY it | Planned | Beta Pilot, Release Notes |
+| 07 | [07-operate/](07-operate/) | OPERATE it | Planned | Runbooks, Monitoring |
+| 08 | [08-collaborate/](08-collaborate/) | COLLABORATE | Continuous | RACI, Communication, Escalation |
+| 09 | [09-govern/](09-govern/) | GOVERN it | Continuous | CTO/CPO Reports, Gate Reviews |
+| 10 | [10-Archive/](10-Archive/) | ARCHIVE it | Reference | Legacy docs, historical |
+
+### Linear vs Continuous Stages
+
+```
+LINEAR STAGES (Sequential - One-time per release):
+   WHY? → WHAT? → HOW? → INTEGRATE → BUILD → TEST → DEPLOY → OPERATE
+    00      01      02       03        04     05      06       07
+
+CONTINUOUS STAGES (Ongoing - Throughout project):
+    08. collaborate (Team communication, knowledge sharing)
+    09. govern      (Reports, Compliance, Risk)
+```
 
 ### Stage Detail Pages
 
@@ -204,59 +218,59 @@ These are the 15 critical artifacts that define project structure:
 |---|----------|----------|---------|
 | 1 | CLAUDE.md | [../CLAUDE.md](../CLAUDE.md) | AI context (31KB) |
 | 2 | docs/README.md | This file | Entry point, navigation |
-| 3 | Product-Vision.md | [00-Project-Foundation/01-Vision/](00-Project-Foundation/01-Vision/) | Why we're building |
-| 4 | Product-Roadmap.md | [00-Project-Foundation/04-Roadmap/](00-Project-Foundation/04-Roadmap/) | 12-month plan |
-| 5 | System-Architecture.md | [02-Design-Architecture/01-System-Architecture/](02-Design-Architecture/01-System-Architecture/) | 4-layer design |
-| 6 | openapi.yml | [02-Design-Architecture/03-API-Design/openapi.yml](02-Design-Architecture/03-API-Design/openapi.yml) | API contract |
-| 7 | ADR-Index | [02-Design-Architecture/01-System-Architecture/Architecture-Decisions/](02-Design-Architecture/01-System-Architecture/Architecture-Decisions/) | Architecture decisions |
-| 8 | Security-Baseline.md | [02-Design-Architecture/06-Security-RBAC/](02-Design-Architecture/06-Security-RBAC/) | OWASP ASVS L2 |
-| 9 | CURRENT-SPRINT.md | [03-Development-Implementation/02-Sprint-Plans/](03-Development-Implementation/02-Sprint-Plans/CURRENT-SPRINT.md) | Active work pointer |
-| 10 | Phase Plans | [03-Development-Implementation/04-Phase-Plans/](03-Development-Implementation/04-Phase-Plans/) | 4-phase AI Governance |
-| 11 | Test Strategy | [04-Testing-Quality/](04-Testing-Quality/) | Testing approach |
-| 12 | Release Notes | [05-Deployment-Release/](05-Deployment-Release/) | Beta pilot docs |
-| 13 | Runbooks | [06-Operations-Maintenance/](06-Operations-Maintenance/) | Operations guides |
-| 14 | RACI Matrix | [08-Team-Management/](08-Team-Management/) | Role responsibilities |
-| 15 | CTO Reports | [09-Executive-Reports/01-CTO-Reports/](09-Executive-Reports/01-CTO-Reports/) | Technical reviews |
+| 3 | Product-Vision.md | [00-foundation/01-Vision/](00-foundation/01-Vision/) | Why we're building |
+| 4 | Product-Roadmap.md | [00-foundation/04-Roadmap/](00-foundation/04-Roadmap/) | 12-month plan |
+| 5 | System-Architecture.md | [02-design/01-System-Architecture/](02-design/01-System-Architecture/) | 4-layer design |
+| 6 | openapi.yml | [02-design/03-API-Design/openapi.yml](02-design/03-API-Design/openapi.yml) | API contract |
+| 7 | ADR-Index | [02-design/01-System-Architecture/Architecture-Decisions/](02-design/01-System-Architecture/Architecture-Decisions/) | Architecture decisions |
+| 8 | Security-Baseline.md | [02-design/06-Security-RBAC/](02-design/06-Security-RBAC/) | OWASP ASVS L2 |
+| 9 | CURRENT-SPRINT.md | [04-build/02-Sprint-Plans/](04-build/02-Sprint-Plans/CURRENT-SPRINT.md) | Active work pointer |
+| 10 | Phase Plans | [04-build/04-Phase-Plans/](04-build/04-Phase-Plans/) | 4-phase AI Governance |
+| 11 | Test Strategy | [05-test/](05-test/) | Testing approach |
+| 12 | Release Notes | [06-deploy/](06-deploy/) | Beta pilot docs |
+| 13 | Runbooks | [07-operate/](07-operate/) | Operations guides |
+| 14 | RACI Matrix | [08-collaborate/](08-collaborate/) | Role responsibilities |
+| 15 | CTO Reports | [09-govern/01-CTO-Reports/](09-govern/01-CTO-Reports/) | Technical reviews |
 
 ### Foundation Documents
 
 | Document | Purpose | Size | Location |
 |----------|---------|------|----------|
 | CLAUDE.md | Full AI context guide | 31KB | [../CLAUDE.md](../CLAUDE.md) |
-| Product-Vision.md | Why we're building | 15KB | [00-Project-Foundation/01-Vision/](00-Project-Foundation/01-Vision/) |
-| Product-Roadmap.md | 12-month timeline | 20KB | [00-Project-Foundation/04-Roadmap/](00-Project-Foundation/04-Roadmap/) |
-| Problem-Statement.md | Design Thinking root | 8KB | [00-Project-Foundation/03-Design-Thinking/](00-Project-Foundation/03-Design-Thinking/) |
+| Product-Vision.md | Why we're building | 15KB | [00-foundation/01-Vision/](00-foundation/01-Vision/) |
+| Product-Roadmap.md | 12-month timeline | 20KB | [00-foundation/04-Roadmap/](00-foundation/04-Roadmap/) |
+| Problem-Statement.md | Design Thinking root | 8KB | [00-foundation/03-Design-Thinking/](00-foundation/03-Design-Thinking/) |
 
 ### Architecture Documents
 
 | Document | Purpose | Lines | Location |
 |----------|---------|-------|----------|
-| System-Architecture.md | 4-layer design | 568 | [02-Design-Architecture/01-System-Architecture/](02-Design-Architecture/01-System-Architecture/) |
-| openapi.yml | API contract | 1,629 | [02-Design-Architecture/03-API-Design/openapi.yml](02-Design-Architecture/03-API-Design/openapi.yml) |
-| Technical-Design.md | Implementation details | 1,128 | [02-Design-Architecture/](02-Design-Architecture/) |
-| Security-Baseline.md | OWASP ASVS L2 | 500+ | [02-Design-Architecture/06-Security-RBAC/](02-Design-Architecture/06-Security-RBAC/) |
-| ADRs (14 total) | Architecture decisions | Various | [02-Design-Architecture/01-System-Architecture/Architecture-Decisions/](02-Design-Architecture/01-System-Architecture/Architecture-Decisions/) |
+| System-Architecture.md | 4-layer design | 568 | [02-design/01-System-Architecture/](02-design/01-System-Architecture/) |
+| openapi.yml | API contract | 1,629 | [02-design/03-API-Design/openapi.yml](02-design/03-API-Design/openapi.yml) |
+| Technical-Design.md | Implementation details | 1,128 | [02-design/](02-design/) |
+| Security-Baseline.md | OWASP ASVS L2 | 500+ | [02-design/06-Security-RBAC/](02-design/06-Security-RBAC/) |
+| ADRs (14 total) | Architecture decisions | Various | [02-design/01-System-Architecture/Architecture-Decisions/](02-design/01-System-Architecture/Architecture-Decisions/) |
 
 ### Development Documents
 
 | Document | Purpose | Location |
 |----------|---------|----------|
-| CURRENT-SPRINT.md | Active work pointer | [03-Development-Implementation/02-Sprint-Plans/](03-Development-Implementation/02-Sprint-Plans/CURRENT-SPRINT.md) |
-| Sprint-26 (AI Council) | AI Council Service | [03-Development-Implementation/02-Sprint-Plans/](03-Development-Implementation/02-Sprint-Plans/) |
-| Sprint-27 (VS Code) | VS Code Extension | [03-Development-Implementation/02-Sprint-Plans/](03-Development-Implementation/02-Sprint-Plans/) |
-| Sprint-28 (Dashboard) | Web Dashboard AI | [03-Development-Implementation/02-Sprint-Plans/](03-Development-Implementation/02-Sprint-Plans/) |
-| Sprint-29 (CLI) | SDLC Validator CLI | [03-Development-Implementation/02-Sprint-Plans/](03-Development-Implementation/02-Sprint-Plans/) |
-| Sprint-30 (CI/CD) | CI/CD & Web Integration | [03-Development-Implementation/02-Sprint-Plans/](03-Development-Implementation/02-Sprint-Plans/) |
-| Phase Plans (4 phases) | AI Governance | [03-Development-Implementation/04-Phase-Plans/](03-Development-Implementation/04-Phase-Plans/) |
+| CURRENT-SPRINT.md | Active work pointer | [04-build/02-Sprint-Plans/](04-build/02-Sprint-Plans/CURRENT-SPRINT.md) |
+| Sprint-26 (AI Council) | AI Council Service | [04-build/02-Sprint-Plans/](04-build/02-Sprint-Plans/) |
+| Sprint-27 (VS Code) | VS Code Extension | [04-build/02-Sprint-Plans/](04-build/02-Sprint-Plans/) |
+| Sprint-28 (Dashboard) | Web Dashboard AI | [04-build/02-Sprint-Plans/](04-build/02-Sprint-Plans/) |
+| Sprint-29 (CLI) | SDLC Validator CLI | [04-build/02-Sprint-Plans/](04-build/02-Sprint-Plans/) |
+| Sprint-30 (CI/CD) | CI/CD & Web Integration | [04-build/02-Sprint-Plans/](04-build/02-Sprint-Plans/) |
+| Phase Plans (4 phases) | AI Governance | [04-build/04-Phase-Plans/](04-build/04-Phase-Plans/) |
 
 ### Executive Reports
 
 | Report Type | Purpose | Location |
 |-------------|---------|----------|
-| CTO Reports | Technical reviews, quality scores | [09-Executive-Reports/01-CTO-Reports/](09-Executive-Reports/01-CTO-Reports/) |
-| CPO Reports | Product reviews, UX decisions | [09-Executive-Reports/02-CPO-Reports/](09-Executive-Reports/02-CPO-Reports/) |
-| Executive Summary | High-level progress | [09-Executive-Reports/00-Executive-Summary/](09-Executive-Reports/00-Executive-Summary/) |
-| Strategic Updates | Strategic decisions | [09-Executive-Reports/04-Strategic-Updates/](09-Executive-Reports/04-Strategic-Updates/) |
+| CTO Reports | Technical reviews, quality scores | [09-govern/01-CTO-Reports/](09-govern/01-CTO-Reports/) |
+| CPO Reports | Product reviews, UX decisions | [09-govern/02-CPO-Reports/](09-govern/02-CPO-Reports/) |
+| Executive Summary | High-level progress | [09-govern/00-Executive-Summary/](09-govern/00-Executive-Summary/) |
+| Strategic Updates | Strategic decisions | [09-govern/04-Strategic-Updates/](09-govern/04-Strategic-Updates/) |
 
 ---
 
@@ -354,7 +368,7 @@ SAST: Semgrep (security rules)
 | PHASE-04 | 29-30 | SDLC Validator | ✅ Complete |
 | **Sprint 31** | 31 | Gate G3 Preparation | ✅ Complete (9.56/10) |
 
-**Phase Plans**: [03-Development-Implementation/04-Phase-Plans/](03-Development-Implementation/04-Phase-Plans/)
+**Phase Plans**: [04-build/04-Phase-Plans/](04-build/04-Phase-Plans/)
 
 ### Context-Aware Requirements
 
@@ -379,12 +393,12 @@ SAST: Semgrep (security rules)
 
 | Type | Location | Purpose |
 |------|----------|---------|
-| Sprint Artifacts | `docs/03-Development-Implementation/02-Sprint-Plans/` | Sprint evidence |
-| CTO Reviews | `docs/09-Executive-Reports/01-CTO-Reports/` | Technical decisions |
-| CPO Reviews | `docs/09-Executive-Reports/02-CPO-Reports/` | Product decisions |
+| Sprint Artifacts | `docs/04-build/02-Sprint-Plans/` | Sprint evidence |
+| CTO Reviews | `docs/09-govern/01-CTO-Reports/` | Technical decisions |
+| CPO Reviews | `docs/09-govern/02-CPO-Reports/` | Product decisions |
 | Test Results | `frontend/web/test-results/` | E2E test artifacts |
-| API Spec | `docs/02-Design-Architecture/03-API-Design/openapi.yml` | Contract evidence |
-| ADRs | `docs/02-Design-Architecture/01-System-Architecture/Architecture-Decisions/` | Architecture evidence |
+| API Spec | `docs/02-design/03-API-Design/openapi.yml` | Contract evidence |
+| ADRs | `docs/02-design/01-System-Architecture/Architecture-Decisions/` | Architecture evidence |
 
 ### Compliance Standards
 
@@ -409,11 +423,11 @@ Each stage folder may contain a `99-Legacy/` subfolder:
 
 ```
 docs/
-├── 00-Project-Foundation/
+├── 00-foundation/
 │   └── 99-Legacy/          # Archived vision docs
-├── 02-Design-Architecture/
+├── 02-design/
 │   └── 99-Legacy/          # Superseded architecture
-├── 07-Integration-APIs/
+├── 03-integration/
 │   └── 99-Legacy/          # Old API versions
 └── 10-Archive/             # General archive (historical)
 ```
@@ -469,7 +483,7 @@ docs/
 ### Related Changelogs
 
 - **SDLC Framework**: [SDLC-Enterprise-Framework/CHANGELOG.md](../SDLC-Enterprise-Framework/CHANGELOG.md)
-- **Product Roadmap**: [00-Project-Foundation/04-Roadmap/Product-Roadmap.md](00-Project-Foundation/04-Roadmap/Product-Roadmap.md)
+- **Product Roadmap**: [00-foundation/04-Roadmap/Product-Roadmap.md](00-foundation/04-Roadmap/Product-Roadmap.md)
 
 ---
 
@@ -480,9 +494,9 @@ docs/
 | Document | Purpose | Quick Link |
 |----------|---------|------------|
 | CLAUDE.md | AI context | [../CLAUDE.md](../CLAUDE.md) |
-| Current Sprint | Active work | [CURRENT-SPRINT.md](03-Development-Implementation/02-Sprint-Plans/CURRENT-SPRINT.md) |
-| OpenAPI | API contract | [openapi.yml](02-Design-Architecture/03-API-Design/openapi.yml) |
-| CTO Reports | Latest reviews | [09-Executive-Reports/01-CTO-Reports/](09-Executive-Reports/01-CTO-Reports/) |
+| Current Sprint | Active work | [CURRENT-SPRINT.md](04-build/02-Sprint-Plans/CURRENT-SPRINT.md) |
+| OpenAPI | API contract | [openapi.yml](02-design/03-API-Design/openapi.yml) |
+| CTO Reports | Latest reviews | [09-govern/01-CTO-Reports/](09-govern/01-CTO-Reports/) |
 
 ### Getting Help
 
