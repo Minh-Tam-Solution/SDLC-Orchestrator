@@ -208,11 +208,12 @@ app.add_middleware(RateLimiterMiddleware)
 app.add_middleware(PrometheusMetricsMiddleware)
 
 # CORS - Allow frontend access
+# P2 FIX (Sprint 33 Day 1): Explicit methods instead of wildcard
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins_list,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],  # Explicit whitelist
     allow_headers=["*"],
 )
 

@@ -54,11 +54,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         )
 
         # Content Security Policy (CSP)
-        # Default: allow only same-origin, block inline scripts/styles
+        # P2 FIX (Sprint 33 Day 1): Remove unsafe-inline, use strict CSP
         csp = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "  # Allow inline for now (FastAPI docs)
-            "style-src 'self' 'unsafe-inline'; "
+            "script-src 'self'; "  # Removed 'unsafe-inline' and 'unsafe-eval'
+            "style-src 'self'; "  # Removed 'unsafe-inline'
             "img-src 'self' data: https:; "
             "font-src 'self' data:; "
             "connect-src 'self' https:; "

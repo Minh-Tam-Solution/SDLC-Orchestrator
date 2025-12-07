@@ -33,6 +33,7 @@ Security:
 import secrets
 from typing import Optional
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings
 
 
@@ -171,6 +172,27 @@ class Settings(BaseSettings):
         """Refresh token expiry as timedelta"""
         from datetime import timedelta
         return timedelta(days=self.REFRESH_TOKEN_EXPIRE_DAYS)
+
+    @model_validator(mode='after')
+    def validate_secret_key(self):
+        """
+        P2 Security Fix (Sprint 33 Day 1): Validate SECRET_KEY strength.
+
+        Requirements:
+        - Minimum 32 characters in production
+        - Fails fast if weak key detected
+
+        Raises:
+            ValueError: If SECRET_KEY is too short in production
+        """
+        if not self.DEBUG and len(self.SECRET_KEY) < 32:
+            raise ValueError(
+                f"SECRET_KEY must be at least 32 characters in production. "
+                f"Current length: {len(self.SECRET_KEY)}. "
+                f"Generate a secure key with: "
+                f"python -c 'import secrets; print(secrets.token_urlsafe(32))'"
+            )
+        return self
 
     class Config:
         env_file = ".env"
