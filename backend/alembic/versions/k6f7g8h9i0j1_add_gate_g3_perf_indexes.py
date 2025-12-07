@@ -43,6 +43,7 @@ def upgrade() -> None:
         'gate_approvals',
         ['gate_id', 'approved_at'],
         unique=False,
+        if_not_exists=True,  # Handle duplicate gracefully (Sprint 33 Day 3 fix)
     )
 
     # Partial index for active evidence count (soft-delete optimization)
@@ -52,6 +53,7 @@ def upgrade() -> None:
         ['gate_id'],
         unique=False,
         postgresql_where='deleted_at IS NULL',
+        if_not_exists=True,
     )
 
     # Index for policy evaluations by gate (violations lookup)
@@ -60,6 +62,7 @@ def upgrade() -> None:
         'policy_evaluations',
         ['gate_id', 'is_passed'],
         unique=False,
+        if_not_exists=True,
     )
 
     # Composite index for evidence metadata search
@@ -68,6 +71,7 @@ def upgrade() -> None:
         'evidence',
         ['gate_id', 'evidence_type', 'created_at'],
         unique=False,
+        if_not_exists=True,
     )
 
     # Index for SDLC validation history (recent first)
@@ -77,6 +81,7 @@ def upgrade() -> None:
         ['project_id', 'created_at'],
         unique=False,
         postgresql_ops={'created_at': 'DESC'},
+        if_not_exists=True,
     )
 
     # Index for compliance summary aggregation
@@ -85,6 +90,7 @@ def upgrade() -> None:
         'sdlc_validations',
         ['project_id', 'compliance_score'],
         unique=False,
+        if_not_exists=True,
     )
 
     # Index for feedback queries by project
@@ -93,6 +99,7 @@ def upgrade() -> None:
         'feedback',
         ['project_id', 'created_at'],
         unique=False,
+        if_not_exists=True,
     )
 
     # Index for usage tracking aggregation
@@ -101,6 +108,7 @@ def upgrade() -> None:
         'usage_tracking',
         ['user_id', 'action_type', 'created_at'],
         unique=False,
+        if_not_exists=True,
     )
 
 
