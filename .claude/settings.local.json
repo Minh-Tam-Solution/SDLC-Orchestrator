@@ -68,7 +68,8 @@
       "Bash(git restore:*)",
       "Bash(jq:*)",
       "Bash(sudo lsof:*)",
-      "Bash(tee:*)"
+      "Bash(tee:*)",
+      "Bash(infrastructure/monitoring/prometheus/alertmanager.yml <<'EOF'\nglobal:\n  resolve_timeout: 5m\n\nroute:\n  group_by: ['alertname']\n  group_wait: 10s\n  group_interval: 10s\n  repeat_interval: 1h\n  receiver: 'web.hook'\n\nreceivers:\n- name: 'web.hook'\n  webhook_configs:\n  - url: 'http://127.0.0.1:5001/'\n\ninhibit_rules:\n  - source_match:\n      severity: 'critical'\n    target_match:\n      severity: 'warning'\n    equal: ['alertname', 'dev', 'instance']\nEOF)"
     ],
     "deny": [],
     "ask": []
