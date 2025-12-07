@@ -74,7 +74,14 @@
       "Bash(lsof:*)",
       "Bash(docker network prune:*)",
       "Bash(netstat:*)",
-      "Bash(cloudflared:*)"
+      "Bash(cloudflared:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjUxMjEzOTgsImlhdCI6MTc2NTExNzc5OCwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImEwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSJ9.qBMeuhk61NVPCl7y8Ksu-h80JFhNt_048a3zm6beGcU\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjUxMjE5OTgsImlhdCI6MTc2NTExODM5OCwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImEwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSJ9.oAzJrw-lWrQxlSadFmi5eGU1g5QaAWaiVC2ihLBZa9I\":*)",
+      "Bash(chmod:*)",
+      "Bash(/home/nqh/shared/SDLC-Orchestrator/test-auth-debug.sh:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjUxMjI1NTMsImlhdCI6MTc2NTExODk1MywidHlwZSI6ImFjY2VzcyIsInN1YiI6ImEwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSJ9.Wh7FxdXPV4OQJwHuXsZLpd-V3YVOzgmGo9xWfzUw-IY\")",
+      "Bash(bash -c '\nTOKEN=$(curl -s -X POST http://localhost:8300/api/v1/auth/login \\\n  -H \"\"Content-Type: application/json\"\" \\\n  -d '\"''\"'{\"\"email\"\":\"\"admin@sdlc-orchestrator.io\"\",\"\"password\"\":\"\"Admin@123\"\"}'\"''\"' | \\\n  python3 -c \"\"import sys, json; print(json.load(sys.stdin)['\"''\"'access_token'\"''\"'])\"\")\n\necho \"\"Token: $TOKEN\"\"\necho\n\ncurl -s -H \"\"Authorization: Bearer $TOKEN\"\" \"\"http://localhost:8300/api/v1/gates?page=1&page_size=3\"\" | python3 -m json.tool\n')",
+      "Bash(bash -c '\nTOKEN=\"\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjUxMjI1NDksImlhdCI6MTc2NTExODk0OSwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImEwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSJ9.X96r_XfcNAnue-GS83mMLamwffw4PeoWScipKG6zoJI\"\"\n\necho \"\"=== RAW RESPONSE ===\"\"\ncurl -s -H \"\"Authorization: Bearer $TOKEN\"\" \"\"http://localhost:8300/api/v1/gates?page=1&page_size=3\"\"\necho\necho\n\necho \"\"=== HTTP STATUS ===\"\"\ncurl -w \"\"%{http_code}\"\" -o /dev/null -s -H \"\"Authorization: Bearer $TOKEN\"\" \"\"http://localhost:8300/api/v1/gates?page=1&page_size=3\"\"\n')"
     ],
     "deny": [],
     "ask": []
