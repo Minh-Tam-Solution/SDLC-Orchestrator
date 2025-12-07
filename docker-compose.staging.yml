@@ -17,7 +17,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "5432:5432"
+      - "5450:5432"
     volumes:
       - staging_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD required}
     ports:
-      - "6379:6379"
+      - "6395:6379"
     volumes:
       - staging_redis_data:/data
     healthcheck:
@@ -60,8 +60,8 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER required}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required}
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9010:9000"
+      - "9015:9001"
     volumes:
       - staging_minio_data:/data
     healthcheck:
@@ -109,7 +109,7 @@ services:
       - "--log-level=info"
       - "/policies"
     ports:
-      - "8181:8181"
+      - "8185:8181"
     volumes:
       - ./policy-packs/rego:/policies:ro
     networks:
@@ -124,7 +124,7 @@ services:
       dockerfile: Dockerfile
     container_name: sdlc-staging-backend
     restart: unless-stopped
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8300 --workers 2
     environment:
       # Database
       DATABASE_URL: postgresql+asyncpg://sdlc_staging_user:${POSTGRES_PASSWORD}@postgres:5432/sdlc_orchestrator_staging
@@ -155,7 +155,7 @@ services:
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://staging.sdlc-orchestrator.io}
 
     ports:
-      - "8000:8000"
+      - "8300:8300"
     depends_on:
       postgres:
         condition: service_healthy
@@ -166,7 +166,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8300/health"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -186,7 +186,7 @@ services:
     container_name: sdlc-staging-frontend
     restart: unless-stopped
     ports:
-      - "4000:80"
+      - "8310:80"
     depends_on:
       backend:
         condition: service_healthy
@@ -210,7 +210,7 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--web.enable-lifecycle'
     ports:
-      - "9090:9090"
+      - "9011:9090"
     volumes:
       - ./infrastructure/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - staging_prometheus_data:/prometheus

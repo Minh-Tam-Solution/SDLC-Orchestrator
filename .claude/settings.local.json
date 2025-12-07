@@ -63,7 +63,12 @@
       "Bash(git pull:*)",
       "Bash(for dir in /Users/dttai/Documents/Python/01.NQH/SDLC-Orchestrator/docs/*/)",
       "Bash(do echo '=== $(basename $dir) ===' ls -d $dir*/)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(git config:*)",
+      "Bash(git restore:*)",
+      "Bash(jq:*)",
+      "Bash(sudo lsof:*)",
+      "Bash(tee:*)"
     ],
     "deny": [],
     "ask": []
