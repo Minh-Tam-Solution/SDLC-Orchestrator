@@ -1,11 +1,99 @@
 # Current Sprint
 
-**Active Sprint**: Sprint 32 - SDLC 5.0.0 Restructure & User API Key Management
+**Active Sprint**: Sprint 33 - Beta Pilot Deployment
+**Status**: 📋 **PLANNED** (Starting Dec 16, 2025)
+**Duration**: 2 weeks (Dec 16-27, 2025)
+**Phase**: Post-Sprint 32 (Beta Pilot Launch)
+**Framework**: SDLC 5.0.0 (Contract-First)
+**Previous Sprint**: Sprint 32 - SDLC 5.0.0 Restructure ✅ COMPLETE (9.58/10)
+
+---
+
+## Sprint 33 Details
+
+→ [Sprint 33 Plan](./SPRINT-33-BETA-PILOT-DEPLOYMENT.md)
+→ [Deployment Readiness Review](../../09-govern/03-PM-Reports/2025-12-13-PM-DEPLOYMENT-READINESS-REVIEW.md)
+→ [PM Executive Summary](../../09-govern/03-PM-Reports/2025-12-13-PM-EXECUTIVE-SUMMARY.md)
+→ [Staging-Beta Deployment Runbook](../../06-deploy/01-Deployment-Strategy/STAGING-BETA-DEPLOYMENT-RUNBOOK.md)
+→ [IT Team Port Allocation](../../06-deploy/01-Deployment-Strategy/IT-TEAM-PORT-ALLOCATION-ALIGNMENT.md)
+→ [Monitoring Alert Thresholds](../../07-operate/01-Monitoring-Alerting/MONITORING-ALERT-THRESHOLDS.md)
+
+### Sprint 33 Objectives
+
+**Focus**: Beta Pilot Deployment with 5 internal teams (38 users)
+
+**Week 1 (Dec 16-20)**: Critical P2 Fixes + Infrastructure Setup
+- Day 1 (Mon): P2 security fixes (CORS, SECRET_KEY, CSP)
+- Day 2 (Tue): Staging deployment + smoke tests
+- Day 3 (Wed): Beta environment setup + Cloudflare Tunnel
+- Day 4 (Thu): Monitoring & alerting setup
+- Day 5 (Fri): Team 1-2 onboarding (BFlow, NQH-Bot)
+
+**Week 2 (Dec 23-27)**: Team Onboarding + Monitoring
+- Day 6 (Mon): Team 3-4 onboarding (MTEP, Orchestrator)
+- Day 7 (Tue): Team 5 onboarding (Superset)
+- Day 8 (Wed): Usage monitoring & support
+- Day 9 (Thu): Feedback collection & bug fixes
+- Day 10 (Fri): Sprint 33 retrospective
+
+### Success Criteria
+
+- [ ] P2 security fixes deployed (CORS, SECRET_KEY, CSP)
+- [ ] Staging environment healthy (8/8 services)
+- [ ] Beta environment deployed via Cloudflare Tunnel
+- [ ] 5 teams onboarded (38 users total)
+- [ ] Monitoring & alerting operational
+- [ ] Zero P0/P1 bugs during pilot
+- [ ] Feedback collected from all teams
+
+### P2 Issues (Critical - Dec 16 Deadline)
+
+| Issue | Severity | Owner | Deadline | Status |
+|-------|----------|-------|----------|--------|
+| CORS wildcard methods | P2 | Backend Lead | Dec 16 | ⏳ Pending |
+| SECRET_KEY validation | P2 | Backend Lead | Dec 16 | ⏳ Pending |
+| CSP unsafe-inline | P2 | Frontend Lead | Dec 16 | ⏳ Pending |
+
+### Beta Pilot Teams
+
+| Team | Users | Lead | Onboarding Date | Status |
+|------|-------|------|----------------|--------|
+| BFlow | 12 | PM Lead | Dec 20 | ⏳ Scheduled |
+| NQH-Bot | 8 | Tech Lead | Dec 20 | ⏳ Scheduled |
+| MTEP | 7 | Product Manager | Dec 23 | ⏳ Scheduled |
+| Orchestrator | 6 | DevOps Lead | Dec 23 | ⏳ Scheduled |
+| Superset | 5 | Data Lead | Dec 24 | ⏳ Scheduled |
+| **Total** | **38** | - | - | - |
+
+### Infrastructure Status
+
+**Port Allocation**: ✅ **APPROVED** (Nov 29, 2025)
+**Cloudflare Tunnel**: ⏳ Pending setup
+- `sdlc.nqh.vn` → Frontend (port 8310)
+- `sdlc-api.nqh.vn` → Backend (port 8300)
+
+**Services Health**: 8/8 ✅ All healthy
+
+| Service | Port | Status | Health |
+|---------|------|--------|--------|
+| Backend API | 8300 | ✅ Running | 100% |
+| Frontend Web | 8310 | ✅ Running | 100% |
+| PostgreSQL | 5450 | ✅ Running | 100% |
+| Redis | 6395 | ✅ Running | 100% |
+| MinIO | 9010 | ✅ Running | 100% |
+| OPA | 8185 | ✅ Running | 100% |
+| Prometheus | 9011 | ✅ Running | 100% |
+| Grafana | 3005 | ✅ Running | 100% |
+
+---
+
+## Previous Sprint: Sprint 32
+
+**Sprint 32**: SDLC 5.0.0 Restructure & User API Key Management
 **Status**: ✅ **COMPLETE** (9.58/10)
 **Duration**: December 13, 2025
 **Phase**: Post-Gate G3 (SDLC Restructuring + BYOK)
 **Framework**: SDLC 5.0.0 (Contract-First Restructure)
-**Previous Sprint**: Sprint 31 - Gate G3 Preparation ✅ COMPLETE (9.56/10)
 
 ---
 
