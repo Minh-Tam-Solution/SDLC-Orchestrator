@@ -1,0 +1,338 @@
+# SDLC Orchestrator - Prometheus Alert Rules
+# Sprint 33 Day 5 - Gate G3 Monitoring Configuration
+# Reference: docs/07-operate/01-Monitoring-Alerting/MONITORING-ALERT-THRESHOLDS.md
+
+groups:
+  # =========================================================================
+  # API Performance Alerts (Critical for G3)
+  # =========================================================================
+  - name: api_performance
+    interval: 30s
+    rules:
+      # Alert: API p95 latency > 100ms (G3 requirement)
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="sdlc-backend"}[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: backend
+          category: performance
+        annotations:
+          summary: "API p95 latency exceeds 100ms threshold"
+          description: "{{ $labels.endpoint }} p95 latency is {{ $value | humanizeDuration }}. Target: <100ms. Check database queries and caching."
+          runbook: "https://github.com/nqh/sdlc-orchestrator/wiki/Runbook-HighAPILatency"
+
+      # Alert: API error rate > 1%
+      - alert: HighAPIErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{job="sdlc-backend",status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total{job="sdlc-backend"}[5m]))
+          ) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+          component: backend
+          category: reliability
+        annotations:
+          summary: "API error rate exceeds 1% threshold"
+          description: "Current error rate: {{ $value | humanizePercentage }}. Check backend logs for stack traces."
+          runbook: "https://github.com/nqh/sdlc-orchestrator/wiki/Runbook-HighAPIErrorRate"
+
+      # Alert: Slow database queries (> 500ms p95)
+      - alert: SlowDatabaseQueries
+        expr: histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m])) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          component: database
+          category: performance
+        annotations:
+          summary: "Database p95 query time exceeds 500ms"
+          description: "Query: {{ $labels.query_type }}, p95: {{ $value | humanizeDuration }}. Check indexes and EXPLAIN ANALYZE."
+
+  # =========================================================================
+  # Infrastructure Health Alerts
+  # =========================================================================
+  - name: infrastructure_health
+    interval: 60s
+    rules:
+      # Alert: Disk usage > 80%
+      - alert: HighDiskUsage
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.2
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+          category: capacity
+        annotations:
+          summary: "Disk usage exceeds 80% on {{ $labels.instance }}"
+          description: "Available: {{ $value | humanizePercentage }}. Clean up logs or expand volume."
+
+      # Alert: Memory usage > 85%
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          component: infrastructure
+          category: capacity
+        annotations:
+          summary: "Memory usage exceeds 85% on {{ $labels.instance }}"
+          description: "Used: {{ $value | humanizePercentage }}. Check for memory leaks or increase allocation."
+
+      # Alert: CPU usage > 80% sustained
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 15m
+        labels:
+          severity: warning
+          component: infrastructure
+          category: performance
+        annotations:
+          summary: "CPU usage exceeds 80% on {{ $labels.instance }}"
+          description: "Average CPU: {{ $value }}%. Check top processes with `docker stats`."
+
+  # =========================================================================
+  # Database Connection Pool Alerts
+  # =========================================================================
+  - name: database_connections
+    interval: 30s
+    rules:
+      # Alert: PostgreSQL connections > 90% of max_connections
+      - alert: HighDatabaseConnections
+        expr: (pg_stat_database_numbackends{datname="sdlc_orchestrator"} / pg_settings_max_connections) > 0.9
+        for: 5m
+        labels:
+          severity: critical
+          component: database
+          category: capacity
+        annotations:
+          summary: "PostgreSQL connection pool nearly exhausted"
+          description: "Using {{ $value | humanizePercentage }} of max connections. Check for connection leaks or increase pool size."
+
+      # Alert: Too many idle connections (> 50)
+      - alert: TooManyIdleConnections
+        expr: pg_stat_database_numbackends{datname="sdlc_orchestrator",state="idle"} > 50
+        for: 10m
+        labels:
+          severity: warning
+          component: database
+          category: efficiency
+        annotations:
+          summary: "Too many idle database connections"
+          description: "{{ $value }} idle connections. Check connection pool configuration (PgBouncer)."
+
+  # =========================================================================
+  # Redis Cache Alerts
+  # =========================================================================
+  - name: redis_cache
+    interval: 30s
+    rules:
+      # Alert: Redis memory usage > 80%
+      - alert: HighRedisMemory
+        expr: (redis_memory_used_bytes / redis_memory_max_bytes) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: redis
+          category: capacity
+        annotations:
+          summary: "Redis memory usage exceeds 80%"
+          description: "Used: {{ $value | humanizePercentage }}. Check cache eviction policy or increase maxmemory."
+
+      # Alert: Cache hit rate < 80%
+      - alert: LowCacheHitRate
+        expr: |
+          (
+            sum(rate(redis_keyspace_hits_total[5m]))
+            /
+            (sum(rate(redis_keyspace_hits_total[5m])) + sum(rate(redis_keyspace_misses_total[5m])))
+          ) < 0.8
+        for: 10m
+        labels:
+          severity: warning
+          component: redis
+          category: performance
+        annotations:
+          summary: "Redis cache hit rate below 80%"
+          description: "Hit rate: {{ $value | humanizePercentage }}. Review caching strategy and TTL settings."
+
+  # =========================================================================
+  # MinIO Storage Alerts
+  # =========================================================================
+  - name: minio_storage
+    interval: 60s
+    rules:
+      # Alert: MinIO disk usage > 80%
+      - alert: HighMinIODiskUsage
+        expr: (minio_disk_storage_used_bytes / minio_disk_storage_total_bytes) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+          component: minio
+          category: capacity
+        annotations:
+          summary: "MinIO evidence vault disk usage exceeds 80%"
+          description: "Used: {{ $value | humanizePercentage }}. Archive old evidence or expand storage."
+
+      # Alert: MinIO high upload failure rate
+      - alert: HighMinIOUploadFailures
+        expr: |
+          (
+            sum(rate(minio_s3_requests_errors_total{api="putobject"}[5m]))
+            /
+            sum(rate(minio_s3_requests_total{api="putobject"}[5m]))
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          component: minio
+          category: reliability
+        annotations:
+          summary: "Evidence upload failure rate exceeds 5%"
+          description: "Failure rate: {{ $value | humanizePercentage }}. Check MinIO logs and disk health."
+
+  # =========================================================================
+  # Container Health Alerts
+  # =========================================================================
+  - name: container_health
+    interval: 30s
+    rules:
+      # Alert: Container restarting frequently
+      - alert: ContainerRestarting
+        expr: rate(docker_container_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+          component: infrastructure
+          category: reliability
+        annotations:
+          summary: "Container {{ $labels.name }} is restarting frequently"
+          description: "{{ $value }} restarts in 15 minutes. Check logs: `docker logs {{ $labels.name }}`"
+
+      # Alert: Container unhealthy
+      - alert: ContainerUnhealthy
+        expr: docker_container_health_status{health_status!="healthy"} == 1
+        for: 5m
+        labels:
+          severity: critical
+          component: infrastructure
+          category: reliability
+        annotations:
+          summary: "Container {{ $labels.name }} health check failing"
+          description: "Status: {{ $labels.health_status }}. Check `docker inspect {{ $labels.name }}`"
+
+  # =========================================================================
+  # Application-Specific Alerts (SDLC Orchestrator)
+  # =========================================================================
+  - name: sdlc_application
+    interval: 30s
+    rules:
+      # Alert: Gate evaluation failures
+      - alert: HighGateEvaluationFailures
+        expr: rate(gate_evaluation_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: gate-engine
+          category: reliability
+        annotations:
+          summary: "Gate evaluation errors exceeding threshold"
+          description: "{{ $value }} errors/sec. Check OPA policy syntax and database connectivity."
+
+      # Alert: Evidence upload backlog
+      - alert: EvidenceUploadBacklog
+        expr: evidence_upload_queue_depth > 100
+        for: 10m
+        labels:
+          severity: warning
+          component: evidence-vault
+          category: performance
+        annotations:
+          summary: "Evidence upload queue depth exceeding 100"
+          description: "Queue: {{ $value }} items. Check MinIO connectivity and worker processes."
+
+      # Alert: JWT token validation failures
+      - alert: HighJWTValidationFailures
+        expr: rate(jwt_validation_errors_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          component: authentication
+          category: security
+        annotations:
+          summary: "JWT token validation failures exceeding threshold"
+          description: "{{ $value }} failures/sec. Possible attack or SECRET_KEY mismatch."
+
+      # Alert: Compliance scan failures
+      - alert: ComplianceScanFailures
+        expr: rate(compliance_scan_errors_total[10m]) > 0
+        for: 15m
+        labels:
+          severity: warning
+          component: compliance
+          category: reliability
+        annotations:
+          summary: "Compliance scans failing"
+          description: "Check OPA connectivity and policy repository sync."
+
+  # =========================================================================
+  # Deployment & Rollout Alerts
+  # =========================================================================
+  - name: deployment_health
+    interval: 60s
+    rules:
+      # Alert: Recent deployment increased error rate
+      - alert: DeploymentIncreasedErrors
+        expr: |
+          (
+            sum(rate(http_requests_total{job="sdlc-backend",status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total{job="sdlc-backend"}[5m]))
+          ) > 2 * (
+            sum(rate(http_requests_total{job="sdlc-backend",status=~"5.."}[1h] offset 1h))
+            /
+            sum(rate(http_requests_total{job="sdlc-backend"}[1h] offset 1h))
+          )
+        for: 5m
+        labels:
+          severity: critical
+          component: deployment
+          category: reliability
+        annotations:
+          summary: "Error rate doubled after recent deployment"
+          description: "Consider rollback. Compare current vs previous version error rates."
+          runbook: "https://github.com/nqh/sdlc-orchestrator/wiki/Runbook-Rollback"
+
+# =========================================================================
+# Alert Routing Configuration (Reference)
+# =========================================================================
+# Configure in Alertmanager:
+#
+# route:
+#   group_by: ['alertname', 'severity']
+#   group_wait: 10s
+#   group_interval: 10s
+#   repeat_interval: 1h
+#   receiver: 'default'
+#   routes:
+#     - match:
+#         severity: critical
+#       receiver: 'pagerduty'
+#     - match:
+#         severity: warning
+#       receiver: 'slack'
+#
+# receivers:
+#   - name: 'default'
+#     webhook_configs:
+#       - url: 'http://alertmanager-webhook:5001'
+#   - name: 'slack'
+#     slack_configs:
+#       - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+#         channel: '#sdlc-alerts'
+#   - name: 'pagerduty'
+#     pagerduty_configs:
+#       - service_key: 'YOUR_PAGERDUTY_KEY'
