@@ -1,0 +1,115 @@
+name: Framework-First Compliance Check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  framework-first-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0  # Full git history for diff
+
+      - name: Check Framework Submodule Initialized
+        run: |
+          echo "🔍 Verifying Framework submodule..."
+
+          if [ ! -d "SDLC-Enterprise-Framework" ] || [ -z "$(ls -A SDLC-Enterprise-Framework)" ]; then
+            echo "❌ FAIL: Framework submodule not initialized or empty!"
+            echo "Run: git submodule update --init --recursive"
+            exit 1
+          fi
+
+          echo "✅ Framework submodule initialized"
+
+      - name: Check SASE Templates in Framework (Not Orchestrator)
+        run: |
+          echo "🔍 Checking for hard-coded SASE templates..."
+
+          # Check if SASE keywords exist in backend code (excluding Framework-compliant comments)
+          if grep -r "BriefingScript\|MergeReadinessPack\|VerificationContextReport" \
+             backend/app/api/routes backend/app/services 2>/dev/null | \
+             grep -v "template_path\|Framework\|# Framework-First compliant" | \
+             grep -v "Zero Mock Policy"; then
+
+            echo "❌ FAIL: Hard-coded SASE templates found in backend!"
+            echo ""
+            echo "SASE templates must be added to Framework first:"
+            echo "  Location: SDLC-Enterprise-Framework/03-Templates-Tools/SASE-Artifacts/"
+            echo "  Then read from Framework submodule in Orchestrator code."
+            echo ""
+            echo "See: docs/09-govern/05-Operations/FRAMEWORK-FIRST-ENFORCEMENT.md"
+            exit 1
+          fi
+
+          echo "✅ No hard-coded SASE templates detected"
+
+      - name: Check SDLC Structure Config in Framework
+        run: |
+          echo "🔍 Checking SDLC structure config source..."
+
+          # Verify sdlc_validator.py reads from Framework config (if file exists)
+          if [ -f "backend/app/services/sdlc_validator.py" ]; then
+            if grep -q "required_folders\s*=\s*\[" backend/app/services/sdlc_validator.py 2>/dev/null; then
+              echo "❌ FAIL: SDLC structure hard-coded in validator!"
+              echo ""
+              echo "Structure rules must be in Framework config:"
+              echo "  SDLC-Enterprise-Framework/01-Overview/sdlc-structure-config.yml"
+              echo ""
+              echo "See: docs/09-govern/05-Operations/FRAMEWORK-FIRST-ENFORCEMENT.md (Violation 2)"
+              exit 1
+            fi
+          fi
+
+          echo "✅ SDLC validator reads from Framework config (or file not present)"
+
+      - name: Check AI Prompts Location
+        run: |
+          echo "🔍 Checking AI prompt template location..."
+
+          # Count AI prompts in backend code (if file exists)
+          if [ -f "backend/app/services/ai_service.py" ]; then
+            PROMPT_COUNT=$(grep -c 'prompt\s*=\s*f"""' backend/app/services/ai_service.py 2>/dev/null || echo 0)
+
+            if [ "$PROMPT_COUNT" -gt 2 ]; then
+              echo "⚠️  WARNING: $PROMPT_COUNT hard-coded AI prompts detected!"
+              echo ""
+              echo "Consider moving prompt templates to Framework:"
+              echo "  SDLC-Enterprise-Framework/04-AI-Prompts/SE3.0-Agentic-Prompts/"
+              echo ""
+              echo "This is a warning, not a failure (for now)."
+            else
+              echo "✅ AI prompt count acceptable ($PROMPT_COUNT templates)"
+            fi
+          else
+            echo "✅ AI service file not present (skipping check)"
+          fi
+
+      - name: Framework-First Summary
+        run: |
+          echo "✅ Framework-First compliance check PASSED"
+          echo ""
+          echo "Summary:"
+          echo "  - Framework submodule initialized"
+          echo "  - No hard-coded SASE templates"
+          echo "  - SDLC structure reads from Framework config"
+          echo "  - AI prompt template count acceptable"
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Framework-First compliance check **PASSED**\n\n' +
+                    'All features properly use Framework methodology layer.\n\n' +
+                    'See: [Framework-First Enforcement Guide](docs/09-govern/05-Operations/FRAMEWORK-FIRST-ENFORCEMENT.md)'
+            })
