@@ -1,0 +1,582 @@
+# BriefingScript: NQH-Bot SOP Generator
+# SASE Artifact for SE 3.0 Phase 2-Pilot
+# Reference: arXiv:2509.06216v2 - Software Agentic Software Engineering
+#
+# Purpose: Define requirements for AI-assisted SOP generation
+# Author: SE4H (PM/PO - Agent Coach)
+# Consumer: SE4A (Agent Executor)
+#
+# Version: 1.0.0
+# Framework: SDLC 5.1.0
+# Phase: Phase 2-Pilot (Track 1)
+
+---
+# METADATA SECTION
+metadata:
+  artifact_type: "BriefingScript"
+  artifact_id: "BRS-PILOT-001"
+  version: "1.0.0"
+  created_date: "2025-12-23"
+  updated_date: "2025-12-23"
+  status: "DRAFT"
+
+  # Traceability
+  project_id: "SE3-PILOT"
+  sdlc_stage: "03"  # BUILD - Development & Implementation
+  gate_id: "G3"     # Ship Ready
+
+  # Ownership
+  author:
+    name: "PM/PO"
+    role: "SE4H"
+    email: "pm@mtc.vn"
+  reviewers:
+    - name: "CTO"
+      role: "SE4H"
+      approved: false
+    - name: "Tech Lead"
+      role: "SE4H"
+      approved: false
+
+  # Phase 2-Pilot Context
+  pilot_info:
+    phase: "Phase 2-Pilot"
+    timeline: "Dec 23, 2025 - Feb 7, 2026"
+    budget: "$25,000"
+    maturity_level: "Level 1 (Agent-Assisted)"
+
+---
+# PROBLEM DEFINITION (MANDATORY)
+problem:
+  title: "NQH-Bot SOP Generator for ISO 9001 Compliance"
+
+  description: |
+    NQH team needs Standard Operating Procedures (SOPs) for various workflows
+    to maintain ISO 9001 certification and ensure operational consistency.
+
+    Current State (Pain Points):
+    - SOPs are created manually by PM/PO
+    - Each SOP takes 2-4 hours to write from scratch
+    - Format is inconsistent across different SOPs
+    - No version control or evidence trail
+    - Updates require manual revision of entire document
+
+    Impact:
+    - PM/PO time wasted on repetitive documentation
+    - Inconsistent quality affects audit readiness
+    - Delayed SOP creation blocks process improvements
+    - No traceability for compliance audits
+
+  stakeholders:
+    - role: "PM/PO"
+      impact: "HIGH"
+      description: "Primary user - creates and reviews SOPs"
+    - role: "Operations Team"
+      impact: "HIGH"
+      description: "Uses SOPs for daily procedures"
+    - role: "Quality Assurance"
+      impact: "MEDIUM"
+      description: "Audits SOPs for ISO 9001 compliance"
+    - role: "Development Team"
+      impact: "LOW"
+      description: "References SOPs for operational tasks"
+
+  evidence:
+    - type: "Time Tracking"
+      source: "PM/PO Sprint Reports"
+      description: "Average 2-4 hours per SOP creation"
+    - type: "Audit Finding"
+      source: "ISO 9001 Internal Audit 2024"
+      description: "Inconsistent SOP format noted"
+    - type: "Backlog"
+      source: "NQH Project Board"
+      description: "15+ SOPs pending creation"
+
+---
+# SUCCESS CRITERIA (MANDATORY)
+success_criteria:
+  # Functional requirements
+  functional:
+    - id: "FR1"
+      description: "Generate SOP markdown from workflow description input"
+      verification: "SOP output matches expected structure"
+      priority: "MUST"
+      acceptance: "SOP contains all required sections"
+
+    - id: "FR2"
+      description: "Include mandatory SOP sections: Purpose, Scope, Procedure, Roles, Quality Criteria"
+      verification: "Section presence validation"
+      priority: "MUST"
+      acceptance: "All 5 sections present in output"
+
+    - id: "FR3"
+      description: "Support 5 SOP types: Deployment, Incident, Change, Backup, Security"
+      verification: "Generate sample SOP for each type"
+      priority: "MUST"
+      acceptance: "5 different SOP types generated successfully"
+
+    - id: "FR4"
+      description: "Validate ISO 9001 compliance elements (document control, revision history)"
+      verification: "ISO 9001 checklist validation"
+      priority: "SHOULD"
+      acceptance: "Compliance checklist ≥80%"
+
+    - id: "FR5"
+      description: "Save generated SOP to Evidence Vault with SHA256 hash"
+      verification: "Evidence Vault storage confirmation"
+      priority: "MUST"
+      acceptance: "SOP stored with valid hash"
+
+    - id: "FR6"
+      description: "Generate MRP with evidence for each SOP creation"
+      verification: "MRP artifact created"
+      priority: "MUST"
+      acceptance: "MRP contains: SOP content, template used, generation time, quality score"
+
+    - id: "FR7"
+      description: "Enable VCR workflow for SOP approval"
+      verification: "VCR decision recorded"
+      priority: "MUST"
+      acceptance: "VCR with APPROVED/REJECTED/REVISION status"
+
+  # Non-functional requirements
+  non_functional:
+    - id: "NFR1"
+      category: "Performance"
+      description: "SOP generation time < 30 seconds (p95)"
+      measurement: "API response time metrics"
+      priority: "SHOULD"
+
+    - id: "NFR2"
+      category: "Quality"
+      description: "Generated SOP quality rating ≥ 4/5 (human reviewer)"
+      measurement: "Post-generation survey"
+      priority: "MUST"
+
+    - id: "NFR3"
+      category: "Cost"
+      description: "Agent cost < $50/month (Ollama primary)"
+      measurement: "Ollama usage tracking"
+      priority: "MUST"
+
+    - id: "NFR4"
+      category: "Reliability"
+      description: "SOP generation success rate ≥ 95%"
+      measurement: "Success/failure ratio"
+      priority: "SHOULD"
+
+    - id: "NFR5"
+      category: "Security"
+      description: "No sensitive data leakage in SOP content"
+      measurement: "Content scan before storage"
+      priority: "MUST"
+
+  # Definition of Done
+  definition_of_done:
+    - "All MUST requirements met"
+    - "At least 5 SOPs generated successfully (1 per type)"
+    - "MRP produced for each SOP with evidence"
+    - "VCR issued for SOP approval"
+    - "Developer satisfaction survey ≥ 4/5"
+    - "Time reduction ≥ 20% demonstrated"
+    - "Zero P0 incidents during pilot"
+    - "Documentation complete"
+
+---
+# CONSTRAINTS (MANDATORY)
+constraints:
+  # Technical constraints
+  technical:
+    - id: "TC1"
+      type: "AI Provider"
+      description: "Use Ollama (api.nqh.vn) as primary AI provider"
+      rationale: "Cost-effective, <100ms latency, $50/month"
+
+    - id: "TC2"
+      type: "Fallback"
+      description: "Claude API as fallback when Ollama fails"
+      rationale: "Reliability - no single point of failure"
+
+    - id: "TC3"
+      type: "Integration"
+      description: "Integrate with existing SDLC Orchestrator infrastructure"
+      rationale: "Evidence Vault, auth, API patterns already exist"
+
+    - id: "TC4"
+      type: "Architecture"
+      description: "Follow 4-layer architecture pattern"
+      rationale: "ADR-001 compliance"
+
+    - id: "TC5"
+      type: "AGPL"
+      description: "AGPL components (MinIO) via network-only access"
+      rationale: "Legal requirement - AGPL containment"
+
+  # Business constraints
+  business:
+    - id: "BC1"
+      type: "Timeline"
+      description: "Complete within 6 weeks (Dec 23 - Feb 7)"
+      rationale: "Phase 2-Pilot timeline"
+
+    - id: "BC2"
+      type: "Budget"
+      description: "$25,000 total pilot budget"
+      rationale: "Track 1 allocation"
+
+    - id: "BC3"
+      type: "Team"
+      description: "2 Backend + 1 Frontend + PM/PO"
+      rationale: "Available resources"
+
+    - id: "BC4"
+      type: "Scope"
+      description: "Level 1 maturity only (BRS + MRP + VCR)"
+      rationale: "Pilot scope - minimum viable SASE"
+
+  # Compliance constraints
+  compliance:
+    - id: "CC1"
+      type: "ISO 9001"
+      description: "SOPs must include document control elements"
+      rationale: "ISO 9001 certification requirement"
+
+    - id: "CC2"
+      type: "Security"
+      description: "No PII or secrets in generated SOPs"
+      rationale: "Data protection compliance"
+
+    - id: "CC3"
+      type: "Audit Trail"
+      description: "All SOP generations must be logged"
+      rationale: "Compliance audit requirement"
+
+---
+# CONTEXT (RECOMMENDED)
+context:
+  # Related documents
+  related_documents:
+    - type: "Phase 1-Spec"
+      id: "v5.1.0-agentic-spec-alpha"
+      title: "SE 3.0 SASE Framework Documentation"
+      relevance: "Defines BRS/MRP/VCR templates and workflow"
+
+    - type: "Execution Plan"
+      id: "SE-3.0-PHASE-2-PILOT-EXECUTION-PLAN.md"
+      title: "Phase 2-Pilot Execution Plan"
+      relevance: "6-week sprint plan and milestones"
+
+    - type: "ADR"
+      id: "ADR-007"
+      title: "AI Context Engine - Ollama Integration"
+      relevance: "AI provider fallback pattern"
+
+    - type: "Template"
+      id: "01-BriefingScript-Template.yaml"
+      title: "BRS Template"
+      relevance: "This BRS follows the template structure"
+
+  # Existing codebase context
+  codebase:
+    repository: "SDLC-Orchestrator"
+    relevant_paths:
+      - path: "backend/app/services/ai_service.py"
+        description: "AI provider integration (Ollama + fallback)"
+      - path: "backend/app/services/evidence_service.py"
+        description: "Evidence Vault integration"
+      - path: "backend/app/api/v1/"
+        description: "API endpoint patterns"
+    existing_patterns:
+      - pattern: "Service-Repository pattern"
+        example: "user_service.py, project_service.py"
+      - pattern: "AI provider fallback"
+        example: "ai_service.py (Ollama → Claude → GPT-4)"
+
+  # Domain knowledge
+  domain:
+    glossary:
+      - term: "SOP"
+        definition: "Standard Operating Procedure - documented steps for a process"
+      - term: "ISO 9001"
+        definition: "Quality management system standard"
+      - term: "Document Control"
+        definition: "Version tracking, approval, and distribution of documents"
+    assumptions:
+      - "Users have basic understanding of SOP structure"
+      - "Ollama API is available and stable"
+      - "Evidence Vault is operational"
+
+---
+# SCOPE (MANDATORY)
+scope:
+  # What IS included
+  in_scope:
+    - "SOP generation from workflow description"
+    - "5 SOP types: Deployment, Incident, Change, Backup, Security"
+    - "MRP generation with evidence"
+    - "VCR approval workflow"
+    - "Basic web UI for SOP creation"
+    - "Integration with Ollama (primary) and Claude (fallback)"
+    - "Evidence Vault storage"
+
+  # What is explicitly NOT included
+  out_of_scope:
+    - "Full ACE/AEE deployment (Level 2)"
+    - "LPS tracking and iteration (Level 2)"
+    - "CRP workflow (optional for Level 1)"
+    - "MentorScript project-specific standards"
+    - "Multi-project support"
+    - "Advanced AI features (memory, proactive suggestions)"
+    - "Mobile UI"
+    - "Offline mode"
+
+  # Dependencies
+  dependencies:
+    - id: "DEP1"
+      type: "Infrastructure"
+      description: "Ollama API available at api.nqh.vn"
+      owner: "DevOps"
+      status: "AVAILABLE"
+
+    - id: "DEP2"
+      type: "Infrastructure"
+      description: "Evidence Vault (MinIO) operational"
+      owner: "DevOps"
+      status: "AVAILABLE"
+
+    - id: "DEP3"
+      type: "Documentation"
+      description: "Phase 1-Spec templates available"
+      owner: "PM/PO"
+      status: "COMPLETE"
+
+    - id: "DEP4"
+      type: "Team"
+      description: "Development team assigned"
+      owner: "Engineering Manager"
+      status: "PENDING"
+
+---
+# ACCEPTANCE TESTING (RECOMMENDED)
+acceptance:
+  # Test scenarios
+  test_scenarios:
+    - id: "TS1"
+      name: "Generate Deployment SOP"
+      given: "Workflow description for application deployment"
+      when: "User requests SOP generation"
+      then: "SOP with all required sections generated in <30s"
+
+    - id: "TS2"
+      name: "Generate all 5 SOP types"
+      given: "Different workflow descriptions"
+      when: "User requests each SOP type"
+      then: "All 5 SOP types generated successfully"
+
+    - id: "TS3"
+      name: "MRP evidence collection"
+      given: "SOP generated successfully"
+      when: "MRP generation triggered"
+      then: "MRP contains: SOP content, template, time, quality score, SHA256"
+
+    - id: "TS4"
+      name: "VCR approval workflow"
+      given: "MRP submitted for review"
+      when: "Reviewer issues VCR decision"
+      then: "VCR recorded with APPROVED/REJECTED/REVISION status"
+
+    - id: "TS5"
+      name: "Ollama fallback to Claude"
+      given: "Ollama API timeout or error"
+      when: "SOP generation requested"
+      then: "Claude API used as fallback, SOP generated"
+
+    - id: "TS6"
+      name: "Evidence Vault storage"
+      given: "SOP generated and approved"
+      when: "Storage triggered"
+      then: "SOP stored in Evidence Vault with SHA256 hash"
+
+  # Reviewer checklist
+  reviewer_checklist:
+    - "SOP contains all 5 required sections"
+    - "ISO 9001 document control elements present"
+    - "No sensitive data or secrets in content"
+    - "Generation time within performance target"
+    - "MRP evidence complete and accurate"
+    - "VCR workflow functions correctly"
+    - "Fallback mechanism works when Ollama fails"
+
+---
+# AGENT INSTRUCTIONS (OPTIONAL)
+agent_instructions:
+  # SOP structure guidance
+  sop_structure: |
+    Each generated SOP must include:
+
+    1. **Header Section**
+       - Document ID: SOP-[TYPE]-[NUMBER]
+       - Version: X.Y.Z
+       - Effective Date: YYYY-MM-DD
+       - Owner: [Role]
+       - Approver: [Role]
+
+    2. **Purpose** (2-3 sentences)
+       - What this SOP covers
+       - Why it's important
+
+    3. **Scope** (bullet points)
+       - What systems/processes are covered
+       - What is explicitly excluded
+
+    4. **Procedure** (numbered steps)
+       - Step-by-step instructions
+       - Clear, actionable language
+       - Include decision points (if/then)
+
+    5. **Roles and Responsibilities** (table)
+       - Role | Responsibility | RACI
+
+    6. **Quality Criteria** (checklist)
+       - How to verify procedure was followed correctly
+       - Success indicators
+
+    7. **Revision History** (table)
+       - Version | Date | Author | Changes
+
+  # Quality guidelines
+  quality_guidelines:
+    - "Use clear, concise language (no jargon)"
+    - "Include specific details (names, paths, commands)"
+    - "Add warnings for critical steps"
+    - "Reference related documents when applicable"
+    - "Ensure steps are in logical order"
+
+  # Things to avoid
+  avoid:
+    - "Vague instructions ('configure appropriately')"
+    - "Missing prerequisites"
+    - "Unclear decision points"
+    - "Technical jargon without explanation"
+    - "Incomplete role assignments"
+
+  # Pre-submission checklist
+  pre_submission_checklist:
+    - "All 7 SOP sections present"
+    - "Document ID follows naming convention"
+    - "Version and dates are valid"
+    - "No placeholder text remains"
+    - "Steps are numbered and clear"
+    - "Quality criteria defined"
+
+---
+# SOP TEMPLATES (PILOT-SPECIFIC)
+sop_templates:
+  deployment:
+    name: "Deployment SOP"
+    description: "Application deployment procedures"
+    typical_sections:
+      - "Pre-deployment checklist"
+      - "Deployment steps"
+      - "Verification steps"
+      - "Rollback procedure"
+
+  incident:
+    name: "Incident Response SOP"
+    description: "Incident handling procedures"
+    typical_sections:
+      - "Incident classification"
+      - "Initial response"
+      - "Escalation matrix"
+      - "Post-incident review"
+
+  change:
+    name: "Change Management SOP"
+    description: "Change request procedures"
+    typical_sections:
+      - "Change request form"
+      - "Impact assessment"
+      - "Approval workflow"
+      - "Implementation steps"
+
+  backup:
+    name: "Backup and Recovery SOP"
+    description: "Backup and recovery procedures"
+    typical_sections:
+      - "Backup schedule"
+      - "Backup verification"
+      - "Recovery procedure"
+      - "Testing schedule"
+
+  security:
+    name: "Security SOP"
+    description: "Security procedures"
+    typical_sections:
+      - "Access control"
+      - "Incident reporting"
+      - "Vulnerability management"
+      - "Compliance checks"
+
+---
+# PILOT SUCCESS METRICS
+pilot_metrics:
+  primary:
+    - metric: "SOPs Generated"
+      target: "≥5 (1 per type)"
+      measurement: "Count of successful generations"
+
+    - metric: "Time Reduction"
+      target: "≥20%"
+      measurement: "Avg generation time vs manual baseline (2-4h)"
+
+    - metric: "Developer Satisfaction"
+      target: "≥4/5"
+      measurement: "Post-pilot survey"
+
+    - metric: "P0 Incidents"
+      target: "0"
+      measurement: "Incident tracking"
+
+    - metric: "Agent Cost"
+      target: "<$50/month"
+      measurement: "Ollama usage metrics"
+
+  secondary:
+    - metric: "MRP Completeness"
+      target: "100%"
+      measurement: "All SOPs have corresponding MRP"
+
+    - metric: "VCR Approval Rate"
+      target: "≥80%"
+      measurement: "Approved / Total VCRs"
+
+    - metric: "Fallback Usage"
+      target: "<10%"
+      measurement: "Claude calls / Total calls"
+
+---
+# REVISION HISTORY
+revision_history:
+  - version: "1.0.0"
+    date: "2025-12-23"
+    author: "PM/PO"
+    changes: "Initial version for Phase 2-Pilot"
+
+---
+# TEMPLATE NOTES
+#
+# This BRS follows the 01-BriefingScript-Template.yaml from Phase 1-Spec
+# with pilot-specific additions:
+# - pilot_info in metadata
+# - sop_templates section for 5 SOP types
+# - pilot_metrics section for success tracking
+#
+# Status Flow:
+#   DRAFT → CTO REVIEW → APPROVED → EXECUTION
+#
+# Next Steps after CTO Approval:
+# 1. Team kickoff meeting (Dec 23)
+# 2. Development sprint planning
+# 3. Week 1: SOP template implementation
+#
+# Reference: SE-3.0-PHASE-2-PILOT-EXECUTION-PLAN.md
