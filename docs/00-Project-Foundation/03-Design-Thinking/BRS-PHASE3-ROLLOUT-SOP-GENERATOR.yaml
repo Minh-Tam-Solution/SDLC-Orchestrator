@@ -1,0 +1,1016 @@
+# BRS-PHASE3-ROLLOUT-SOP-GENERATOR
+# Business Requirements Specification - SOP Generator Production Rollout
+
+metadata:
+  brs_id: BRS-PHASE3-ROLLOUT-001
+  project_name: "SOP Generator - Phase 3 Production Rollout"
+  phase: "Phase 3-Rollout"
+  sase_level: "Level 2 (BRS + MRP + VCR + LPS)"
+  version: "1.0.0"
+  created_date: "2026-02-01"
+  author: "Product Owner (NQH Team)"
+  reviewer: "CTO"
+  status: "APPROVED"
+  framework: "SDLC 5.1.0 Complete Lifecycle + SE 3.0 SASE Integration"
+  parent_brs: "BRS-PILOT-001-NQH-Bot-SOP-Generator.yaml"
+
+context:
+  previous_phase: "Phase 2-Pilot (Dec 23, 2025 - Jan 31, 2026)"
+  pilot_results:
+    teams: 1
+    developers: 9
+    sops_generated: 25+
+    time_reduction: "99.9% (4h → 6.6s)"
+    satisfaction: "4.5/5"
+    cost: "$50/month"
+    quality_rating: "5/5"
+    vcr_decision: "APPROVED"
+
+  phase3_scope:
+    teams: 5
+    developers: 45
+    timeline: "8 weeks (Feb 3 - March 27, 2026)"
+    budget: "$25,000"
+    deployment: "Production Kubernetes cluster"
+
+# ============================================================================
+# 1. BUSINESS PROBLEM STATEMENT (WHY)
+# ============================================================================
+
+problem:
+  title: "Scale SOP Generator from Pilot (1 team) to Production (5 teams)"
+
+  current_state:
+    - "Phase 2-Pilot validated SASE Level 1 workflow with 1 team (9 developers)"
+    - "5 SOP types proven: deployment, incident, change, backup, security"
+    - "Beta staging environment (Docker Compose), not production-ready"
+    - "Local Ollama instance, no high-availability setup"
+    - "No integration with existing tools (Confluence, Jira)"
+    - "FR4 (ISO 9001) partial compliance (template-based only)"
+
+  desired_state:
+    - "Production deployment serving 5 teams (45 developers)"
+    - "8 SOP types including onboarding, offboarding, audit"
+    - "Kubernetes production cluster with HA (99.9% uptime SLA)"
+    - "Multi-provider AI fallback (Ollama → Claude → GPT-4o)"
+    - "Confluence/Jira integration for seamless workflow"
+    - "FR4 full compliance with automated ISO 9001 validation"
+
+  business_impact:
+    time_savings:
+      pilot: "269.83 hours/year (9 developers)"
+      phase3: "1,349 hours/year (45 developers)" # 5x scale
+      value: "$134,900/year (at $100/hour)"
+
+    cost_efficiency:
+      pilot: "$50/month Ollama"
+      phase3: "$150/month (3x Ollama instances for HA)"
+      savings_vs_cloud: "$10,200/year (vs $1000/month cloud AI)"
+
+    quality_improvement:
+      section_completeness: "100% (vs ~60% manual)"
+      iso_9001_compliance: "100% automated (vs 80% template-based)"
+      consistency: "100% (AI-generated, no human variance)"
+
+    roi:
+      investment: "$25,000 (8 weeks)"
+      annual_return: "$134,900 time savings"
+      payback_period: "2.2 months"
+      year1_roi: "440%"
+
+# ============================================================================
+# 2. STAKEHOLDERS
+# ============================================================================
+
+stakeholders:
+  primary:
+    - name: "CTO"
+      role: "Executive Sponsor"
+      needs:
+        - "Production-grade infrastructure (Kubernetes, HA)"
+        - "Zero Mock Policy adherence (100% real implementations)"
+        - "SASE Level 2 artifacts (BRS + MRP + VCR + LPS)"
+        - "Gate G4 approval by Feb 7, 2026"
+
+    - name: "5 Development Teams"
+      role: "End Users"
+      teams:
+        - "Team A: Backend Platform (12 devs)"
+        - "Team B: Frontend Web (10 devs)"
+        - "Team C: Mobile Apps (8 devs)"
+        - "Team D: DevOps Infrastructure (7 devs)"
+        - "Team E: Data Engineering (8 devs)"
+      needs:
+        - "3 new SOP types: onboarding, offboarding, audit"
+        - "Confluence export (80% teams use Confluence)"
+        - "Jira integration (link SOPs to tickets)"
+        - "Keyboard shortcuts (developer request from pilot)"
+
+    - name: "Platform Team"
+      role: "Operators"
+      size: 3
+      needs:
+        - "Kubernetes deployment automation"
+        - "Grafana dashboards for SOP metrics"
+        - "Alerting for AI failures (Ollama → fallback)"
+        - "Runbook for incident response"
+
+  secondary:
+    - name: "Security Team"
+      role: "Compliance"
+      needs:
+        - "OWASP ASVS Level 2 maintained (98.4%)"
+        - "ISO 9001 automated validation"
+        - "Audit trail for SOP approvals"
+
+    - name: "Finance Team"
+      role: "Budget Approval"
+      needs:
+        - "Total cost <$25K"
+        - "ROI >300% Year 1"
+        - "No unexpected cloud AI costs"
+
+# ============================================================================
+# 3. BUSINESS OBJECTIVES
+# ============================================================================
+
+objectives:
+  primary:
+    - id: "BO1"
+      description: "Scale from 1 pilot team (9 devs) to 5 production teams (45 devs)"
+      success_criteria:
+        - "All 5 teams onboarded by Week 8"
+        - "≥80% adoption rate (36/45 developers active)"
+        - "≥50 SOPs generated across 8 types"
+      measurement: "Usage analytics (Grafana dashboard)"
+
+    - id: "BO2"
+      description: "Achieve production-grade reliability (99.9% uptime SLA)"
+      success_criteria:
+        - "Kubernetes HA deployment (3+ replicas)"
+        - "Multi-provider AI fallback working (Ollama → Claude → GPT-4o)"
+        - "p99 latency <10s (vs 6.6s avg in pilot)"
+        - "Zero P0 incidents in first 30 days"
+      measurement: "Prometheus metrics + incident tracking"
+
+    - id: "BO3"
+      description: "Deliver SASE Level 2 artifacts (add LPS - Logical Proof Statement)"
+      success_criteria:
+        - "BRS-PHASE3-ROLLOUT-001 (this document)"
+        - "MRP-PHASE3-ROLLOUT-001 (evidence compilation)"
+        - "VCR-PHASE3-ROLLOUT-001 (CTO approval)"
+        - "LPS-PHASE3-ROLLOUT-001 (formal logic proofs)"
+      measurement: "Document completeness score (100%)"
+
+  secondary:
+    - id: "BO4"
+      description: "Integrate with existing tools (Confluence, Jira)"
+      success_criteria:
+        - "Confluence export working (markdown → Confluence API)"
+        - "Jira linking working (SOP ↔ ticket bidirectional)"
+        - "≥70% teams use integration features"
+      measurement: "Integration usage logs"
+
+    - id: "BO5"
+      description: "Improve developer experience based on pilot feedback"
+      success_criteria:
+        - "Keyboard shortcuts implemented (Ctrl+Enter to generate)"
+        - "Loading skeleton during generation (improve perceived speed)"
+        - "PDF export available (requested by 40% pilot users)"
+        - "Developer satisfaction ≥4.5/5 (maintain pilot level)"
+      measurement: "Post-rollout survey (Week 8)"
+
+# ============================================================================
+# 4. FUNCTIONAL REQUIREMENTS (WHAT)
+# ============================================================================
+
+functional_requirements:
+  # -------------------------------------------------------------------------
+  # FR1-FR7: Carry over from Phase 2-Pilot (already implemented)
+  # -------------------------------------------------------------------------
+
+  existing_features:
+    - id: "FR1"
+      title: "Generate SOP from workflow description"
+      status: "IMPLEMENTED (Phase 2)"
+      priority: "MANDATORY"
+      acceptance_criteria:
+        - "POST /api/v1/sop/generate accepts JSON payload"
+        - "Returns SOP with 5 sections in <30s (p95)"
+        - "Supports 5 types: deployment, incident, change, backup, security"
+
+    - id: "FR2"
+      title: "Include 5 mandatory sections"
+      status: "IMPLEMENTED (Phase 2)"
+      priority: "MANDATORY"
+      sections:
+        - "1. Purpose"
+        - "2. Scope"
+        - "3. Procedure (step-by-step)"
+        - "4. Roles and Responsibilities"
+        - "5. Quality Criteria"
+
+    - id: "FR3"
+      title: "Support 5 SOP types"
+      status: "IMPLEMENTED (Phase 2)"
+      priority: "MANDATORY"
+      types:
+        - "deployment"
+        - "incident"
+        - "change"
+        - "backup"
+        - "security"
+
+    - id: "FR4"
+      title: "ISO 9001 compliance"
+      status: "PARTIAL (Phase 2 - 80% template-based)"
+      priority: "MANDATORY"
+      phase3_enhancement: "Full automated validation (Phase 3)"
+
+    - id: "FR5"
+      title: "SHA256 evidence hash for integrity"
+      status: "IMPLEMENTED (Phase 2)"
+      priority: "MANDATORY"
+
+    - id: "FR6"
+      title: "MRP generation (evidence compilation)"
+      status: "IMPLEMENTED (Phase 2)"
+      priority: "MANDATORY"
+
+    - id: "FR7"
+      title: "VCR approval workflow"
+      status: "IMPLEMENTED (Phase 2)"
+      priority: "MANDATORY"
+
+  # -------------------------------------------------------------------------
+  # FR8-FR15: NEW features for Phase 3-Rollout
+  # -------------------------------------------------------------------------
+
+  new_features:
+    - id: "FR8"
+      title: "Support 3 additional SOP types (8 total)"
+      description: "Expand from 5 types (pilot) to 8 types (production)"
+      priority: "MANDATORY"
+      new_types:
+        - type: "onboarding"
+          use_case: "New developer onboarding process"
+          example: "How to setup dev environment, get access, first PR"
+
+        - type: "offboarding"
+          use_case: "Employee offboarding checklist"
+          example: "Revoke access, transfer knowledge, exit interview"
+
+        - type: "audit"
+          use_case: "Compliance audit procedures"
+          example: "SOC 2 audit prep, evidence collection, review process"
+
+      acceptance_criteria:
+        - "GET /api/v1/sop/types returns 8 types (not 5)"
+        - "Each new type has AI prompt template"
+        - "E2E test for each new type (3 tests added)"
+        - "User guide updated with new type examples"
+
+      dependencies:
+        - "Ollama prompt engineering for new types"
+        - "Validation rules for new types"
+
+      estimated_effort: "1 week (Week 3)"
+
+    - id: "FR9"
+      title: "Confluence integration (export SOP)"
+      description: "Export generated SOP to Confluence space"
+      priority: "MANDATORY"
+      user_story: "As a team lead, I want to publish SOPs to our Confluence space so that all team members can access them in our existing knowledge base."
+
+      acceptance_criteria:
+        - "POST /api/v1/sop/{id}/export/confluence endpoint"
+        - "Supports Confluence Cloud API v2"
+        - "Converts markdown → Confluence Storage Format"
+        - "Creates page under specified parent page"
+        - "Returns Confluence page URL"
+        - "Handles errors (auth failure, parent not found)"
+
+      api_design:
+        request:
+          method: "POST"
+          endpoint: "/api/v1/sop/{id}/export/confluence"
+          body:
+            confluence_url: "https://yourcompany.atlassian.net"
+            space_key: "DEV"
+            parent_page_id: "123456789"
+            auth_token: "Bearer <token>"
+
+        response:
+          status: 200
+          body:
+            confluence_page_id: "987654321"
+            confluence_page_url: "https://yourcompany.atlassian.net/wiki/spaces/DEV/pages/987654321"
+            exported_at: "2026-02-15T10:30:00Z"
+
+      dependencies:
+        - "Confluence API credentials (admin setup)"
+        - "Markdown → Confluence converter library"
+
+      estimated_effort: "1 week (Week 4)"
+
+    - id: "FR10"
+      title: "Jira integration (link SOP to ticket)"
+      description: "Bidirectional linking between SOP and Jira ticket"
+      priority: "MANDATORY"
+      user_story: "As a developer, I want to link a generated SOP to my Jira ticket so that reviewers can see the related documentation."
+
+      acceptance_criteria:
+        - "POST /api/v1/sop/{id}/link/jira endpoint"
+        - "Supports Jira Cloud REST API v3"
+        - "Creates Web Link in Jira ticket"
+        - "Adds Jira ticket reference to SOP metadata"
+        - "Returns link status"
+
+      api_design:
+        request:
+          method: "POST"
+          endpoint: "/api/v1/sop/{id}/link/jira"
+          body:
+            jira_url: "https://yourcompany.atlassian.net"
+            ticket_key: "DEV-1234"
+            auth_token: "Bearer <token>"
+
+        response:
+          status: 200
+          body:
+            jira_link_id: "10001"
+            jira_ticket_url: "https://yourcompany.atlassian.net/browse/DEV-1234"
+            linked_at: "2026-02-15T10:35:00Z"
+
+      dependencies:
+        - "Jira API credentials (admin setup)"
+        - "Jira Web Link API integration"
+
+      estimated_effort: "1 week (Week 4)"
+
+    - id: "FR11"
+      title: "PDF export"
+      description: "Export SOP as PDF file"
+      priority: "RECOMMENDED"
+      user_story: "As a compliance officer, I want to export SOPs as PDF for audit records and offline review."
+
+      acceptance_criteria:
+        - "GET /api/v1/sop/{id}/export/pdf endpoint"
+        - "Returns PDF file with SOP content"
+        - "Includes header (SOP title, generated date, version)"
+        - "Includes footer (page number, SHA256 hash)"
+        - "Professional formatting (A4 size, readable font)"
+
+      api_design:
+        request:
+          method: "GET"
+          endpoint: "/api/v1/sop/{id}/export/pdf"
+
+        response:
+          status: 200
+          headers:
+            Content-Type: "application/pdf"
+            Content-Disposition: "attachment; filename=sop-{id}.pdf"
+          body: "<binary PDF data>"
+
+      dependencies:
+        - "PDF generation library (e.g., ReportLab, WeasyPrint)"
+        - "Markdown → HTML → PDF conversion pipeline"
+
+      estimated_effort: "3 days (Week 5)"
+
+    - id: "FR12"
+      title: "Keyboard shortcuts"
+      description: "Add keyboard shortcuts for common actions"
+      priority: "RECOMMENDED"
+      user_story: "As a developer, I want to use Ctrl+Enter to generate SOP so that I can work faster without using mouse."
+
+      shortcuts:
+        - key: "Ctrl+Enter"
+          action: "Submit SOP generation form"
+          context: "Generator page (focus on workflow textarea)"
+
+        - key: "Ctrl+S"
+          action: "Save SOP draft (not submitted)"
+          context: "Generator page (autosave to localStorage)"
+
+        - key: "Esc"
+          action: "Cancel generation (if in progress)"
+          context: "Generator page (loading state)"
+
+      acceptance_criteria:
+        - "Keyboard shortcuts work as specified"
+        - "Visual indicator for available shortcuts (tooltip)"
+        - "Help modal (? key) shows all shortcuts"
+        - "Shortcuts documented in user guide"
+
+      estimated_effort: "2 days (Week 5)"
+
+    - id: "FR13"
+      title: "Loading skeleton during generation"
+      description: "Show skeleton UI while waiting for SOP generation"
+      priority: "RECOMMENDED"
+      user_story: "As a user, I want to see a loading skeleton so that I know the system is working and not frozen."
+
+      acceptance_criteria:
+        - "Skeleton appears immediately when generate clicked"
+        - "Shows 5 section placeholders (animated shimmer)"
+        - "Replaces with actual content when ready"
+        - "Perceived speed improvement (feels faster than spinner)"
+
+      estimated_effort: "1 day (Week 5)"
+
+    - id: "FR14"
+      title: "Multi-provider AI fallback"
+      description: "Automatic fallback if Ollama fails (Ollama → Claude → GPT-4o)"
+      priority: "MANDATORY"
+      user_story: "As a platform operator, I want automatic AI fallback so that SOP generation never fails even if Ollama is down."
+
+      fallback_chain:
+        - provider: "Ollama (qwen2.5:14b-instruct)"
+          priority: 1
+          cost: "$50/month"
+          latency: "~6s"
+          failure_conditions:
+            - "HTTP 503 (service unavailable)"
+            - "Timeout >30s"
+            - "Empty response"
+
+        - provider: "Claude (Anthropic API)"
+          priority: 2
+          cost: "$1000/month (fallback only, ~5% traffic)"
+          latency: "~300ms"
+          failure_conditions:
+            - "HTTP 429 (rate limit)"
+            - "HTTP 500 (server error)"
+
+        - provider: "GPT-4o (OpenAI API)"
+          priority: 3
+          cost: "$800/month (fallback only, ~2% traffic)"
+          latency: "~250ms"
+          failure_conditions:
+            - "HTTP 429 (rate limit)"
+            - "HTTP 500 (server error)"
+
+        - provider: "Rule-based fallback"
+          priority: 4
+          cost: "$0/month"
+          latency: "<50ms"
+          description: "Template-based SOP (no AI, uses static templates)"
+
+      acceptance_criteria:
+        - "Fallback triggers within 5s of Ollama failure"
+        - "User notified which provider was used (transparency)"
+        - "Grafana alert if fallback rate >10%"
+        - "Cost metrics tracked per provider"
+
+      dependencies:
+        - "Anthropic API key (admin setup)"
+        - "OpenAI API key (admin setup)"
+        - "Provider abstraction layer (adapter pattern)"
+
+      estimated_effort: "1 week (Week 2)"
+
+    - id: "FR15"
+      title: "Automated ISO 9001 validation"
+      description: "Upgrade FR4 from template-based (80%) to automated validation (100%)"
+      priority: "MANDATORY"
+      user_story: "As a compliance officer, I want automated ISO 9001 validation so that all SOPs meet quality standards without manual review."
+
+      validation_rules:
+        - rule: "Section 1 (Purpose) must state objective in 1-2 sentences"
+          check: "Length 10-200 characters"
+
+        - rule: "Section 2 (Scope) must define applicability"
+          check: "Contains keywords: 'applies to', 'covers', 'includes'"
+
+        - rule: "Section 3 (Procedure) must have ≥3 numbered steps"
+          check: "Regex match: \\d+\\."
+
+        - rule: "Section 4 (Roles) must list ≥2 roles"
+          check: "Contains role keywords: 'developer', 'reviewer', 'approver'"
+
+        - rule: "Section 5 (Quality) must define success criteria"
+          check: "Contains criteria keywords: 'must', 'should', 'verify'"
+
+      acceptance_criteria:
+        - "POST /api/v1/sop/validate endpoint"
+        - "Returns validation report (pass/fail per rule)"
+        - "Blocks VCR submission if validation fails"
+        - "User sees specific violations (actionable feedback)"
+
+      estimated_effort: "1 week (Week 6)"
+
+# ============================================================================
+# 5. NON-FUNCTIONAL REQUIREMENTS (HOW WELL)
+# ============================================================================
+
+non_functional_requirements:
+  performance:
+    - id: "NFR1"
+      title: "SOP generation time <30s (p95) maintained"
+      description: "Maintain pilot performance even with 5x scale"
+      priority: "MANDATORY"
+      targets:
+        p50: "<7s (pilot: 6.6s avg)"
+        p95: "<30s (BRS requirement)"
+        p99: "<45s (new target for edge cases)"
+      measurement: "Prometheus histogram (sop_generation_duration_seconds)"
+      acceptance_criteria:
+        - "p95 latency <30s for 1000 requests/day"
+        - "p99 latency <45s (acceptable for complex SOPs)"
+        - "No degradation during peak hours (9am-11am, 2pm-4pm)"
+
+    - id: "NFR2"
+      title: "System uptime 99.9% SLA (production-grade)"
+      description: "High availability with Kubernetes HA deployment"
+      priority: "MANDATORY"
+      targets:
+        uptime: "99.9% (43 minutes downtime/month allowed)"
+        mttr: "<15 minutes (Mean Time To Recovery)"
+        mttf: ">720 hours (Mean Time To Failure)"
+
+      infrastructure:
+        kubernetes:
+          replicas: 3
+          strategy: "RollingUpdate (maxUnavailable: 1)"
+          health_checks: "livenessProbe + readinessProbe"
+
+        database:
+          setup: "PostgreSQL HA (primary + standby)"
+          backup: "Daily full backup + WAL archiving"
+
+        cache:
+          setup: "Redis Sentinel (3 nodes)"
+          persistence: "RDB + AOF"
+
+      acceptance_criteria:
+        - "Zero unplanned downtime in first 30 days"
+        - "Deployment causes <1 min user-facing downtime"
+        - "Database failover <5 minutes"
+
+    - id: "NFR3"
+      title: "Developer satisfaction ≥4.5/5 maintained"
+      description: "Maintain pilot satisfaction level with 5x users"
+      priority: "MANDATORY"
+      survey_questions:
+        - "How satisfied are you with SOP Generator? (1-5)"
+        - "How much time does it save vs manual? (hours)"
+        - "Would you recommend to other teams? (yes/no)"
+        - "What improvements would you suggest? (open-ended)"
+
+      targets:
+        overall_satisfaction: "≥4.5/5"
+        recommendation_rate: "≥85%"
+        response_rate: "≥70% (32/45 developers)"
+
+      measurement: "Post-rollout survey (Week 8)"
+      acceptance_criteria:
+        - "Average satisfaction ≥4.5/5 across all teams"
+        - "No team with <4.0/5 (identify outliers)"
+        - "≥85% would recommend to other teams"
+
+  scalability:
+    - id: "NFR4"
+      title: "Support 45 concurrent users (5x pilot scale)"
+      description: "Scale from 9 developers (pilot) to 45 developers (5 teams)"
+      priority: "MANDATORY"
+      targets:
+        concurrent_users: "45 users"
+        peak_requests: "1000 requests/day (vs 200 in pilot)"
+        database_connections: "100 max (PgBouncer pooling)"
+
+      load_testing:
+        tool: "Locust"
+        scenarios:
+          - name: "Generate SOP (50% traffic)"
+            rps: 5
+          - name: "List SOPs (30% traffic)"
+            rps: 3
+          - name: "View SOP detail (20% traffic)"
+            rps: 2
+
+        acceptance_criteria:
+          - "p95 latency <30s at 1000 req/day"
+          - "Zero 5xx errors under load"
+          - "Database CPU <70% at peak"
+
+    - id: "NFR5"
+      title: "AI cost <$200/month (for 5 teams)"
+      description: "Maintain cost efficiency with multi-provider fallback"
+      priority: "MANDATORY"
+      cost_breakdown:
+        ollama_primary: "$150/month (3x instances for HA)"
+        claude_fallback: "$25/month (5% traffic)"
+        gpt4_fallback: "$10/month (2% traffic)"
+        total: "$185/month (<$200 target)"
+
+      cost_controls:
+        - "Rate limiting per user (max 10 SOPs/day)"
+        - "Fallback only when Ollama fails (not round-robin)"
+        - "Cache AI responses for duplicate workflows (30% hit rate)"
+
+      acceptance_criteria:
+        - "Monthly AI cost <$200"
+        - "Ollama handles ≥93% traffic (minimize cloud API usage)"
+        - "Grafana dashboard shows cost per provider"
+
+  security:
+    - id: "NFR6"
+      title: "OWASP ASVS Level 2 compliance maintained (98.4%)"
+      description: "Maintain security baseline from pilot"
+      priority: "MANDATORY"
+      requirements:
+        - "JWT authentication (15min expiry)"
+        - "RBAC (13 roles maintained)"
+        - "Audit trail for all SOP operations"
+        - "Secrets in Vault (90-day rotation)"
+        - "SBOM + vulnerability scanning (Syft, Grype)"
+
+      acceptance_criteria:
+        - "Security scan PASS (Semgrep, Grype)"
+        - "Zero critical/high CVEs in production"
+        - "Penetration test PASS (external firm)"
+
+    - id: "NFR7"
+      title: "Data privacy (no PII in AI prompts)"
+      description: "Ensure no sensitive data sent to external AI APIs"
+      priority: "MANDATORY"
+      controls:
+        - "PII detection before sending to Claude/GPT-4o (regex patterns)"
+        - "Ollama (local) preferred to minimize external API calls"
+        - "Audit log for all AI API calls (provider, timestamp, cost)"
+
+      acceptance_criteria:
+        - "Zero PII leakage incidents"
+        - "Ollama handles ≥93% traffic (local processing)"
+        - "External API calls audited and reviewed monthly"
+
+  maintainability:
+    - id: "NFR8"
+      title: "Zero Mock Policy adherence (100%)"
+      description: "Maintain pilot discipline: no placeholders, real implementations only"
+      priority: "MANDATORY"
+      enforcement:
+        - "Pre-commit hook blocks TODO/FIXME/PLACEHOLDER keywords"
+        - "Code review checklist includes Zero Mock Policy check"
+        - "CI/CD fails if mock keywords detected"
+
+      acceptance_criteria:
+        - "Zero mocks in production code"
+        - "All integration tests use real services (Docker Compose)"
+        - "Contract-first development (OpenAPI spec → implementation)"
+
+    - id: "NFR9"
+      title: "Test coverage ≥95% maintained"
+      description: "Maintain pilot test coverage standards"
+      priority: "MANDATORY"
+      targets:
+        backend_unit: "≥95%"
+        backend_integration: "≥90%"
+        frontend_unit: "≥80%"
+        e2e_critical_paths: "100% (all 8 SOP types)"
+
+      acceptance_criteria:
+        - "Coverage report shows ≥95% backend"
+        - "All new features have tests (FR8-FR15)"
+        - "E2E tests for all 8 SOP types (3 new tests added)"
+
+# ============================================================================
+# 6. SUCCESS CRITERIA
+# ============================================================================
+
+success_criteria:
+  launch_readiness:
+    - criterion: "All 8 FRs implemented (FR8-FR15)"
+      measurement: "Feature flag check (8/8 enabled)"
+      target: "100%"
+
+    - criterion: "All 9 NFRs met (NFR1-NFR9)"
+      measurement: "Automated NFR validation suite"
+      target: "100%"
+
+    - criterion: "Kubernetes production deployment working"
+      measurement: "kubectl get pods (3/3 ready)"
+      target: "HA confirmed"
+
+    - criterion: "Zero P0 bugs in staging"
+      measurement: "Jira query (P0 bugs)"
+      target: "0"
+
+  adoption_metrics:
+    - criterion: "≥80% adoption rate (36/45 developers)"
+      measurement: "User analytics (active users last 7 days)"
+      target: "≥36 users"
+      timeline: "Week 8"
+
+    - criterion: "≥50 SOPs generated across 8 types"
+      measurement: "Database count (GROUP BY sop_type)"
+      target: "≥50 total, ≥3 per type"
+      timeline: "Week 8"
+
+    - criterion: "≥70% teams use Confluence/Jira integration"
+      measurement: "Integration usage logs"
+      target: "≥3/5 teams"
+      timeline: "Week 8"
+
+  quality_metrics:
+    - criterion: "Developer satisfaction ≥4.5/5"
+      measurement: "Post-rollout survey (Week 8)"
+      target: "≥4.5/5 average"
+
+    - criterion: "ISO 9001 automated validation ≥95% pass rate"
+      measurement: "Validation report (SOPs validated / SOPs generated)"
+      target: "≥95%"
+
+    - criterion: "System uptime ≥99.9% (first 30 days)"
+      measurement: "Prometheus uptime metric"
+      target: "≥99.9% (43 min downtime allowed)"
+
+  business_metrics:
+    - criterion: "Time savings ≥1200 hours/year (vs manual)"
+      measurement: "1349 hours projected - 10% buffer"
+      target: "≥1200 hours"
+
+    - criterion: "AI cost <$200/month"
+      measurement: "Billing dashboard (Ollama + Claude + GPT-4o)"
+      target: "<$200/month"
+
+    - criterion: "ROI ≥300% Year 1"
+      measurement: "($134,900 savings - $25,000 investment) / $25,000"
+      target: "≥300% (actual: 440%)"
+
+# ============================================================================
+# 7. ASSUMPTIONS & CONSTRAINTS
+# ============================================================================
+
+assumptions:
+  technical:
+    - "Kubernetes cluster available (GKE/EKS/AKS)"
+    - "Ollama instances can run on K8s (GPU nodes available)"
+    - "PostgreSQL HA setup supported (Cloud SQL or self-hosted)"
+    - "Confluence/Jira Cloud APIs stable (v2/v3)"
+
+  organizational:
+    - "5 teams committed to pilot participation (signed up)"
+    - "Admin access to Confluence/Jira (for API credentials)"
+    - "CTO approval received (VCR-PILOT-001 APPROVED)"
+    - "Budget $25K approved (Finance team sign-off)"
+
+  timeline:
+    - "8 weeks available (Feb 3 - March 27, 2026)"
+    - "Gate G4 approval by Feb 7, 2026 (prerequisite)"
+    - "Teams available for onboarding Weeks 7-8"
+
+constraints:
+  budget:
+    - "Total: $25,000"
+    - "Infrastructure: $10,000 (Kubernetes, storage)"
+    - "Development: $12,000 (2 FTE x 8 weeks)"
+    - "Integration: $2,000 (Confluence, Jira licenses)"
+    - "Contingency: $1,000 (10% buffer)"
+
+  technical:
+    - "Must maintain AGPL containment (no MinIO/Grafana imports)"
+    - "Must maintain Zero Mock Policy (100% real implementations)"
+    - "Must maintain OWASP ASVS Level 2 (98.4%+)"
+    - "Must use existing SDLC Orchestrator infrastructure"
+
+  timeline:
+    - "Week 1-2: Infrastructure + multi-provider fallback"
+    - "Week 3-4: New SOP types + integrations"
+    - "Week 5-6: UX improvements + ISO validation"
+    - "Week 7-8: Production deployment + team onboarding"
+
+# ============================================================================
+# 8. OUT OF SCOPE
+# ============================================================================
+
+out_of_scope:
+  phase3:
+    - "SASE Level 3 artifacts (BRS + MRP + VCR + LPS + ATP - Automated Test Protocol)"
+    - "SOP versioning with diff view (Phase 4)"
+    - "Multi-user collaborative editing (Phase 4)"
+    - "AI suggestions for procedure steps (Phase 4)"
+    - "SharePoint integration (only Confluence/Jira Phase 3)"
+    - "Mobile app (web-only Phase 3)"
+
+  future_phases:
+    - "Phase 4: Advanced Features (Q2 2026)"
+    - "Phase 5: Enterprise Scale (Q3 2026, 20+ teams)"
+
+# ============================================================================
+# 9. RISKS & MITIGATION
+# ============================================================================
+
+risks:
+  high:
+    - risk: "Kubernetes deployment complexity (team has limited K8s experience)"
+      probability: "Medium (40%)"
+      impact: "High (2 week delay)"
+      mitigation:
+        - "Hire DevOps consultant Week 1 ($2000 from contingency)"
+        - "Use Helm charts (infrastructure-as-code)"
+        - "Dry-run deployment in staging Week 2"
+      owner: "Platform Team Lead"
+
+    - risk: "Ollama HA setup unstable (GPU node failures)"
+      probability: "Medium (30%)"
+      impact: "High (uptime SLA miss)"
+      mitigation:
+        - "Multi-provider fallback ready Week 2 (FR14)"
+        - "Grafana alerts for Ollama failures (<5s detection)"
+        - "Runbook for manual failover (<15 min recovery)"
+      owner: "Platform Team Lead"
+
+  medium:
+    - risk: "Confluence/Jira API rate limits (5 teams = 5x traffic)"
+      probability: "Medium (40%)"
+      impact: "Medium (integration failures)"
+      mitigation:
+        - "Rate limiting per team (max 10 exports/day)"
+        - "Request batching (queue exports, process async)"
+        - "Exponential backoff on 429 errors"
+      owner: "Backend Lead"
+
+    - risk: "Developer adoption <80% (pilot was 1 team, easier to control)"
+      probability: "Low (20%)"
+      impact: "Medium (success criteria miss)"
+      mitigation:
+        - "Onboarding workshops Week 7 (30 min per team)"
+        - "Champion program (1 advocate per team, swag rewards)"
+        - "Weekly usage reports (gamification, leaderboard)"
+      owner: "Product Owner"
+
+  low:
+    - risk: "AI cost exceeds $200/month (fallback overused)"
+      probability: "Low (15%)"
+      impact: "Low (budget overrun <$1000)"
+      mitigation:
+        - "Aggressive Ollama monitoring (fix issues fast)"
+        - "Fallback alerts (if >10% traffic to Claude/GPT-4o)"
+        - "Rate limiting as last resort (slow down, don't fail)"
+      owner: "CTO"
+
+# ============================================================================
+# 10. DEPENDENCIES
+# ============================================================================
+
+dependencies:
+  internal:
+    - dependency: "Gate G4 approval (Feb 7, 2026)"
+      status: "PENDING"
+      blocker: "Phase 3 cannot start until G4 approval"
+      mitigation: "VCR-PILOT-001 APPROVED (5/5 rating, high confidence)"
+
+    - dependency: "Kubernetes cluster provisioned"
+      status: "PENDING"
+      required_by: "Week 1"
+      owner: "Platform Team"
+
+    - dependency: "GPU nodes for Ollama (3 nodes, 1 GPU each)"
+      status: "PENDING"
+      required_by: "Week 2"
+      owner: "Platform Team"
+
+  external:
+    - dependency: "Confluence admin access (API token)"
+      status: "PENDING"
+      required_by: "Week 4"
+      owner: "IT Admin"
+
+    - dependency: "Jira admin access (API token)"
+      status: "PENDING"
+      required_by: "Week 4"
+      owner: "IT Admin"
+
+    - dependency: "Anthropic API key (Claude fallback)"
+      status: "PENDING"
+      required_by: "Week 2"
+      owner: "CTO"
+
+    - dependency: "OpenAI API key (GPT-4o fallback)"
+      status: "PENDING"
+      required_by: "Week 2"
+      owner: "CTO"
+
+# ============================================================================
+# 11. ACCEPTANCE CRITERIA (SUMMARY)
+# ============================================================================
+
+acceptance_criteria:
+  mandatory:
+    - "All 8 FRs implemented (FR8-FR15)"
+    - "All 9 NFRs met (NFR1-NFR9)"
+    - "Kubernetes HA deployment (3 replicas, 99.9% uptime)"
+    - "≥80% adoption (36/45 developers)"
+    - "≥50 SOPs generated (8 types)"
+    - "Developer satisfaction ≥4.5/5"
+    - "AI cost <$200/month"
+    - "Zero P0 incidents (first 30 days)"
+    - "SASE Level 2 artifacts complete (BRS + MRP + VCR + LPS)"
+
+  recommended:
+    - "≥70% teams use Confluence/Jira integration"
+    - "ISO 9001 automated validation ≥95% pass rate"
+    - "p99 latency <45s"
+    - "Penetration test PASS"
+
+# ============================================================================
+# 12. SASE LEVEL 2 ARTIFACTS PLAN
+# ============================================================================
+
+sase_level2:
+  brs:
+    file: "BRS-PHASE3-ROLLOUT-001.yaml"
+    status: "COMPLETE (this document)"
+    owner: "Product Owner"
+
+  mrp:
+    file: "MRP-PHASE3-ROLLOUT-001.md"
+    timeline: "Week 8 (evidence compilation)"
+    sections:
+      - "1. Evidence Overview"
+      - "2. Requirements Evidence (8 FRs, 9 NFRs)"
+      - "3. Code Evidence (backend + frontend changes)"
+      - "4. Test Evidence (E2E, load, security)"
+      - "5. Config Evidence (Kubernetes manifests)"
+      - "6. Runtime Evidence (metrics, logs)"
+      - "7. Documentation Evidence (runbooks, user guide)"
+      - "8. Quality Assurance (OWASP, ISO 9001)"
+      - "9. Completeness Scoring"
+      - "10. Integrity Verification (SHA256)"
+    owner: "Tech Lead"
+
+  vcr:
+    file: "VCR-PHASE3-ROLLOUT-001.md"
+    timeline: "Week 8 (CTO review)"
+    decision: "PENDING"
+    reviewer: "CTO"
+    quality_target: "≥4.5/5"
+    owner: "CTO"
+
+  lps:
+    file: "LPS-PHASE3-ROLLOUT-001.md"
+    timeline: "Week 8 (formal logic proofs)"
+    description: "Logical Proof Statement - mathematical proofs for critical claims"
+    proofs:
+      - claim: "Multi-provider fallback guarantees ≤5s recovery"
+        proof_type: "Timing analysis"
+
+      - claim: "Kubernetes HA guarantees 99.9% uptime"
+        proof_type: "Availability calculation"
+
+      - claim: "ISO 9001 validation catches 100% violations"
+        proof_type: "Completeness proof"
+
+    owner: "Tech Lead"
+
+# ============================================================================
+# 13. REFERENCES
+# ============================================================================
+
+references:
+  parent_documents:
+    - "BRS-PILOT-001-NQH-Bot-SOP-Generator.yaml (Phase 2)"
+    - "VCR-PILOT-001.md (Phase 2 approval, 5/5 rating)"
+    - "MRP-PILOT-001.md (Phase 2 evidence, 100% complete)"
+
+  framework:
+    - "SDLC 5.1.0 Complete Lifecycle"
+    - "SE 3.0 SASE Integration (Track 1)"
+    - "SASE Level 2 (arXiv:2509.06216v2)"
+
+  architecture:
+    - "System-Architecture-Document.md"
+    - "ADR-007-AI-Context-Engine-Ollama-Integration.md"
+    - "ADR-011-AI-Governance-Layer.md"
+
+  compliance:
+    - "Security-Baseline.md (OWASP ASVS Level 2)"
+    - "ISO 9001:2015 Quality Management Standard"
+
+# ============================================================================
+# 14. APPROVAL
+# ============================================================================
+
+approval:
+  created_by: "Product Owner (NQH Team)"
+  created_date: "2026-02-01"
+
+  reviewed_by: "CTO"
+  reviewed_date: "2026-02-02"
+
+  approved_by: "CTO"
+  approved_date: "2026-02-03"
+
+  status: "APPROVED"
+
+  signatures:
+    product_owner: "(Digital Signature Placeholder)"
+    cto: "(Digital Signature Placeholder)"
+    ceo: "(Digital Signature Placeholder - if >$50K)"
+
+# ============================================================================
+# END OF BRS-PHASE3-ROLLOUT-001
+# ============================================================================
