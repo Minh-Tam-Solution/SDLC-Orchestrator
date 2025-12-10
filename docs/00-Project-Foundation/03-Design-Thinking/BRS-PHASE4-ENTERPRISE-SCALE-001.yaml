@@ -1,0 +1,1394 @@
+# BRS-PHASE4-ENTERPRISE-SCALE-001
+# Business Requirements Specification: SOP Generator - Phase 4 Enterprise Scale
+# SASE Level 2: BRS + MRP + VCR + LPS
+
+metadata:
+  brs_id: BRS-PHASE4-ENTERPRISE-SCALE-001
+  project_name: "SOP Generator - Phase 4 Enterprise Scale"
+  version: "1.0.0"
+  created_date: "2026-04-08"
+  status: "DRAFT"
+  sase_level: "Level 2 (BRS + MRP + VCR + LPS)"
+  phase: "Phase 4 - Enterprise Scale"
+  previous_phase: "Phase 3 - Rollout (VCR approved 5/5 ⭐⭐⭐⭐⭐)"
+  classification: "STANDARD"
+
+authors:
+  - role: "CTO"
+    name: "NQH"
+    responsibility: "Overall approval, LPS validation"
+  - role: "Product Manager"
+    name: "PM Lead"
+    responsibility: "Requirements definition, success metrics"
+  - role: "Tech Lead"
+    name: "Backend Lead"
+    responsibility: "Technical feasibility, architecture review"
+  - role: "UX Lead"
+    name: "Frontend Lead"
+    responsibility: "User experience, multi-user collaboration UX"
+
+approvers:
+  - role: "CTO"
+    name: "NQH"
+    status: "PENDING"
+    date: null
+  - role: "CEO"
+    name: "CEO"
+    status: "PENDING"
+    date: null
+  - role: "CPO"
+    name: "CPO"
+    status: "PENDING"
+    date: null
+
+related_documents:
+  - id: "BRS-PHASE3-ROLLOUT-001"
+    title: "Phase 3 Rollout BRS"
+    url: "docs/00-Project-Foundation/03-Design-Thinking/BRS-PHASE3-ROLLOUT-001.yaml"
+  - id: "VCR-PHASE3-ROLLOUT-001"
+    title: "Phase 3 VCR (5/5 approval + Phase 4 authorization)"
+    url: "docs/03-Development-Implementation/06-Test-Reports/VCR-PHASE3-ROLLOUT-001.md"
+  - id: "LPS-PHASE3-ROLLOUT-001"
+    title: "Phase 3 LPS (First mathematical proofs in SE 3.0)"
+    url: "docs/03-Development-Implementation/06-Test-Reports/LPS-PHASE3-ROLLOUT-001.md"
+  - id: "ADR-011"
+    title: "AI Governance Layer Architecture"
+    url: "docs/02-Design-Architecture/03-ADRs/ADR-011-AI-Governance-Layer.md"
+
+# ==============================================================================
+# EXECUTIVE SUMMARY
+# ==============================================================================
+
+executive_summary:
+  overview: |
+    Phase 4-Enterprise-Scale builds on Phase 3's proven success (5/5 VCR, 533% ROI,
+    84.4% adoption) to scale SOP Generator from 5 pilot teams → 20 enterprise teams,
+    serving 180 developers across the organization.
+
+    This phase introduces enterprise-grade features required for Fortune 500 deployment:
+    - SOP Versioning (Git-like workflow with conflict resolution)
+    - Multi-User Collaboration (real-time editing with lock-free consistency)
+    - 5 New SOP Types (total 13 types)
+    - Advanced Analytics (team insights, usage trends)
+    - Enterprise Integrations (ServiceNow, PagerDuty, Datadog, Slack)
+
+    SASE Level 2 continues with LPS proofs for critical new guarantees:
+    - Proof: Conflict-free merge algorithm (CRDTs)
+    - Proof: Lock-free multi-user consistency
+    - Proof: 100K concurrent user scalability
+
+  business_problem:
+    current_state: |
+      Phase 3-Rollout Success (8 weeks, Feb 2026):
+      - 5 teams, 45 developers
+      - 57 SOPs generated
+      - 84.4% adoption rate
+      - 4.6/5 satisfaction
+      - 100% uptime (0 P0 incidents)
+      - 533% Year 1 ROI proven
+
+      **Remaining Pain Points** (discovered in Phase 3):
+      1. SOP versioning is manual (devs use Google Docs history - error-prone)
+      2. No collaboration (only 1 person can edit at a time - bottleneck)
+      3. Limited SOP types (8 types insufficient for enterprise needs)
+      4. No analytics (teams can't measure SOP effectiveness)
+      5. Manual integrations (copy-paste to ServiceNow, PagerDuty)
+
+      **Growth Constraint**:
+      - 15 teams waiting for access (180 developers total)
+      - Current system can't handle 180 concurrent users (tested max 50)
+      - Enterprise customers require ServiceNow integration (compliance mandate)
+
+    desired_state: |
+      Phase 4-Enterprise-Scale Target (12 weeks, Q2 2026):
+      - 20 teams, 180 developers (4x scale)
+      - 250+ SOPs generated (4.4x growth)
+      - ≥80% adoption rate maintained
+      - ≥4.5/5 satisfaction maintained
+      - 99.9% uptime SLA (enterprise tier)
+      - 700% Year 1 ROI (economies of scale)
+
+      **New Capabilities**:
+      1. Git-like SOP versioning (branch, merge, conflict resolution)
+      2. Real-time collaboration (5 users editing simultaneously)
+      3. 13 SOP types (add 5 enterprise types)
+      4. Team analytics dashboard (usage, effectiveness, trends)
+      5. Native integrations (ServiceNow, PagerDuty, Datadog, Slack)
+
+      **Scalability Proven**:
+      - Load tested: 100K concurrent users (10-year headroom)
+      - Database: Sharding ready (horizontal scaling)
+      - Infrastructure: Multi-region HA (99.99% uptime)
+
+  key_stakeholders:
+    - name: "CTO (NQH)"
+      role: "Executive Sponsor"
+      interest: "Prove SDLC 5.0.0 scales to enterprise (20+ teams)"
+      success_criteria: "VCR 5/5 rating + LPS proofs validated"
+
+    - name: "CEO"
+      role: "Business Owner"
+      interest: "700% ROI + Fortune 500 customer acquisition"
+      success_criteria: "3 enterprise pilots signed (ServiceNow integration)"
+
+    - name: "CPO"
+      role: "Product Strategy"
+      interest: "Multi-user collaboration UX excellence"
+      success_criteria: "≥4.5/5 satisfaction maintained at 4x scale"
+
+    - name: "20 Team Leads"
+      role: "End Users"
+      interest: "SOP versioning + analytics + integrations"
+      success_criteria: "≥80% adoption + 250+ SOPs generated"
+
+    - name: "DevOps Lead"
+      role: "Infrastructure Owner"
+      interest: "99.9% uptime at 180 concurrent users"
+      success_criteria: "0 P0 incidents + <5s failover"
+
+    - name: "Security Lead"
+      role: "Compliance Officer"
+      interest: "Enterprise audit trail + RBAC"
+      success_criteria: "SOC 2 Type II audit ready"
+
+  success_metrics:
+    adoption:
+      metric: "Active developers (last 7 days)"
+      baseline: "38/45 (84.4%) - Phase 3"
+      target: "≥144/180 (≥80%)"
+      measurement: "User analytics (Google Analytics + Mixpanel)"
+      timeline: "Week 12"
+
+    volume:
+      metric: "SOPs generated"
+      baseline: "57 SOPs - Phase 3"
+      target: "≥250 SOPs"
+      measurement: "Database query (SELECT COUNT(*) FROM sops)"
+      timeline: "Week 12"
+
+    satisfaction:
+      metric: "Developer satisfaction (NPS)"
+      baseline: "4.6/5 - Phase 3"
+      target: "≥4.5/5"
+      measurement: "Weekly survey (Google Forms)"
+      timeline: "Week 12"
+
+    collaboration:
+      metric: "Multi-user edit sessions"
+      baseline: "0 (not supported) - Phase 3"
+      target: "≥30% of edits involve 2+ users"
+      measurement: "Collaboration analytics (edit sessions table)"
+      timeline: "Week 12"
+
+    versioning:
+      metric: "SOPs with ≥2 versions"
+      baseline: "0 (manual Google Docs) - Phase 3"
+      target: "≥40% of SOPs"
+      measurement: "Database query (sop_versions table)"
+      timeline: "Week 12"
+
+    integrations:
+      metric: "ServiceNow export usage"
+      baseline: "0 (manual copy-paste) - Phase 3"
+      target: "≥60% of SOPs exported"
+      measurement: "Integration logs (servicenow_exports table)"
+      timeline: "Week 12"
+
+    cost:
+      metric: "AI generation cost per SOP"
+      baseline: "$3.12 (Ollama 93%) - Phase 3"
+      target: "<$3.00 (optimize Ollama routing)"
+      measurement: "Cost tracking (ai_usage_logs table)"
+      timeline: "Week 12"
+
+    reliability:
+      metric: "System uptime"
+      baseline: "100% (8 weeks) - Phase 3"
+      target: "≥99.9% (43 min downtime/month allowed)"
+      measurement: "Prometheus uptime metric"
+      timeline: "Week 12"
+
+    incidents:
+      metric: "P0 production incidents"
+      baseline: "0 - Phase 3"
+      target: "0"
+      measurement: "PagerDuty incident count"
+      timeline: "Week 12"
+
+    roi:
+      metric: "Year 1 Return on Investment"
+      baseline: "533% - Phase 3"
+      target: "≥700% (economies of scale)"
+      calculation: "(Time_saved × $110/hr - $45K) / $45K × 100%"
+      timeline: "Week 12"
+
+# ==============================================================================
+# FUNCTIONAL REQUIREMENTS (FR16-FR25)
+# ==============================================================================
+
+functional_requirements:
+  # NEW FEATURES (Phase 4)
+
+  - id: FR16
+    title: "SOP Versioning System"
+    priority: "MANDATORY"
+    user_story: |
+      As a developer, I want to create versions of my SOPs (like Git commits)
+      so that I can track changes, revert mistakes, and compare versions.
+
+    acceptance_criteria:
+      - criterion: "Create new SOP version with commit message"
+        test_method: "Manual test: Edit SOP → Click 'Save as Version' → Enter message"
+        expected_result: "New version saved with SHA256 hash + timestamp"
+
+      - criterion: "View version history (list of all versions)"
+        test_method: "Manual test: Click 'Version History' → See list"
+        expected_result: "Table showing version, author, date, message, hash"
+
+      - criterion: "Compare 2 versions (side-by-side diff)"
+        test_method: "Manual test: Select 2 versions → Click 'Compare'"
+        expected_result: "Diff view (green additions, red deletions)"
+
+      - criterion: "Revert to previous version"
+        test_method: "Manual test: Select old version → Click 'Revert'"
+        expected_result: "SOP content restored + new version created (revert commit)"
+
+      - criterion: "Version storage uses <5% additional space"
+        test_method: "Load test: 1000 SOPs, 10 versions each"
+        expected_result: "Storage: 1000 SOPs × 10KB = 10MB, versions: <500KB (delta compression)"
+
+    technical_details:
+      implementation: |
+        Database Schema:
+        - `sop_versions` table (id, sop_id, version_number, content_delta,
+          author_id, commit_message, created_at, sha256_hash)
+        - Delta compression: Store only diffs (not full content) using
+          diff-match-patch algorithm
+        - Version numbering: Semantic versioning (1.0.0 → 1.1.0 → 2.0.0)
+
+      api_endpoints:
+        - "POST /api/v1/sops/{id}/versions - Create new version"
+        - "GET /api/v1/sops/{id}/versions - List all versions"
+        - "GET /api/v1/sops/{id}/versions/{version_id} - Get specific version"
+        - "POST /api/v1/sops/{id}/versions/{version_id}/revert - Revert to version"
+        - "GET /api/v1/sops/{id}/versions/compare?v1={id1}&v2={id2} - Compare versions"
+
+      dependencies:
+        - "Python `diff-match-patch` library (Apache 2.0 license)"
+        - "PostgreSQL JSONB for delta storage"
+
+    estimated_effort:
+      backend: "3 days (2 FTE)"
+      frontend: "2 days (2 FTE)"
+      testing: "1 day (1 FTE QA)"
+      total: "6 FTE-days"
+
+  - id: FR17
+    title: "Multi-User Real-Time Collaboration"
+    priority: "MANDATORY"
+    user_story: |
+      As a team lead, I want 5 developers to edit the same SOP simultaneously
+      so that we can co-create SOPs in real-time (like Google Docs).
+
+    acceptance_criteria:
+      - criterion: "5 users can edit same SOP concurrently"
+        test_method: "Manual test: Open SOP in 5 browsers → Type in each"
+        expected_result: "All edits visible in real-time (<500ms latency)"
+
+      - criterion: "See other users' cursors + names"
+        test_method: "Manual test: 2 users editing → See cursor positions"
+        expected_result: "Color-coded cursor with username label"
+
+      - criterion: "Conflict-free merge (no data loss)"
+        test_method: "Chaos test: 5 users edit same sentence simultaneously"
+        expected_result: "All edits preserved (CRDT algorithm)"
+
+      - criterion: "Offline editing supported (sync when back online)"
+        test_method: "Manual test: Disconnect WiFi → Edit → Reconnect"
+        expected_result: "Changes synced after reconnect (<5s)"
+
+      - criterion: "Performance: 5 concurrent editors, <500ms update latency"
+        test_method: "Load test: 5 users typing 100 chars/min for 10 min"
+        expected_result: "p95 latency <500ms, 0 conflicts"
+
+    technical_details:
+      implementation: |
+        Real-Time Stack:
+        - WebSocket server (Python `websockets` library)
+        - CRDT algorithm (Yjs library - MIT license)
+        - Redis Pub/Sub for multi-instance sync
+
+        Database Schema:
+        - `collaboration_sessions` table (id, sop_id, user_id, cursor_position,
+          last_seen, color_code)
+        - `edit_operations` table (id, session_id, operation_type, timestamp,
+          content_delta)
+
+        Conflict Resolution:
+        - Yjs CRDT: Operational Transformation (OT) for text edits
+        - Last-Write-Wins (LWW) for metadata (title, tags)
+
+      api_endpoints:
+        - "WebSocket /ws/sops/{id}/collaborate - Real-time edit stream"
+        - "GET /api/v1/sops/{id}/collaborators - List active users"
+        - "POST /api/v1/sops/{id}/cursor - Update cursor position"
+
+      dependencies:
+        - "Yjs (CRDT library) - MIT license"
+        - "websockets (Python) - BSD license"
+        - "Redis Pub/Sub for WebSocket scaling"
+
+    estimated_effort:
+      backend: "5 days (2 FTE)"
+      frontend: "4 days (2 FTE)"
+      testing: "2 days (1 FTE QA)"
+      total: "11 FTE-days"
+
+  - id: FR18
+    title: "5 New Enterprise SOP Types"
+    priority: "MANDATORY"
+    user_story: |
+      As an enterprise team, I need 5 additional SOP types (disaster recovery,
+      change management, training, compliance audit, capacity planning) to cover
+      all operational scenarios.
+
+    acceptance_criteria:
+      - criterion: "9. Disaster Recovery SOP type available"
+        test_method: "Manual test: Click 'New SOP' → Select 'Disaster Recovery'"
+        expected_result: "Template includes: Scenario, RTO/RPO, Runbook, Contacts"
+
+      - criterion: "10. Change Management SOP type available"
+        test_method: "Manual test: Select 'Change Management' type"
+        expected_result: "Template includes: Change request, Impact analysis, Rollback plan, Approval"
+
+      - criterion: "11. Training SOP type available"
+        test_method: "Manual test: Select 'Training' type"
+        expected_result: "Template includes: Learning objectives, Prerequisites, Steps, Quiz"
+
+      - criterion: "12. Compliance Audit SOP type available"
+        test_method: "Manual test: Select 'Compliance Audit' type"
+        expected_result: "Template includes: Audit scope, Checklist, Evidence, Findings"
+
+      - criterion: "13. Capacity Planning SOP type available"
+        test_method: "Manual test: Select 'Capacity Planning' type"
+        expected_result: "Template includes: Current capacity, Forecast, Thresholds, Scaling plan"
+
+      - criterion: "AI generates high-quality content for all 5 types"
+        test_method: "User test: Generate 10 SOPs per type → Rate quality"
+        expected_result: "Average quality ≥4.2/5 for each type"
+
+    technical_details:
+      implementation: |
+        Database Schema:
+        - Add 5 new enum values to `sop_type` column:
+          DISASTER_RECOVERY, CHANGE_MANAGEMENT, TRAINING,
+          COMPLIANCE_AUDIT, CAPACITY_PLANNING
+
+        AI Prompts:
+        - Create 5 new prompt templates (1 per type)
+        - Total: 13 SOP types (8 existing + 5 new)
+
+        Frontend:
+        - Update SOP type selector (dropdown menu)
+        - Add 5 new template forms
+
+      api_endpoints:
+        - "GET /api/v1/sop-types - List all 13 types"
+        - "POST /api/v1/sops/generate - Enhanced with 5 new types"
+
+      dependencies:
+        - "Ollama prompt engineering for 5 new types"
+
+    estimated_effort:
+      backend: "2 days (1 FTE)"
+      frontend: "2 days (1 FTE)"
+      ai_prompts: "3 days (1 FTE)"
+      testing: "1 day (1 FTE QA)"
+      total: "8 FTE-days"
+
+  - id: FR19
+    title: "Advanced Team Analytics Dashboard"
+    priority: "MANDATORY"
+    user_story: |
+      As a team lead, I want to see analytics (who creates SOPs, which types
+      are popular, usage trends) so that I can measure team SOP effectiveness.
+
+    acceptance_criteria:
+      - criterion: "Team usage dashboard (SOPs created per team)"
+        test_method: "Manual test: Navigate to /analytics → See team breakdown"
+        expected_result: "Bar chart: Team A (15 SOPs), Team B (23 SOPs), ..."
+
+      - criterion: "SOP type distribution (pie chart)"
+        test_method: "Manual test: View analytics → See type breakdown"
+        expected_result: "Pie chart: Deployment (30%), Troubleshooting (25%), ..."
+
+      - criterion: "User leaderboard (top SOP creators)"
+        test_method: "Manual test: View analytics → See leaderboard"
+        expected_result: "Table: 1. John (12 SOPs), 2. Jane (10 SOPs), ..."
+
+      - criterion: "Time series chart (SOPs created over time)"
+        test_method: "Manual test: View analytics → See trend"
+        expected_result: "Line chart: Week 1 (5 SOPs), Week 2 (12 SOPs), ..."
+
+      - criterion: "Export analytics as CSV"
+        test_method: "Manual test: Click 'Export CSV' button"
+        expected_result: "CSV file downloaded with all analytics data"
+
+      - criterion: "Dashboard loads in <2s with 250+ SOPs"
+        test_method: "Load test: Seed 250 SOPs → Measure load time"
+        expected_result: "Time to Interactive (TTI) <2s (p95)"
+
+    technical_details:
+      implementation: |
+        Database Schema:
+        - `analytics_events` table (id, event_type, user_id, sop_id,
+          team_id, timestamp, metadata)
+        - Pre-aggregated views: `analytics_daily_summary` (materialized view)
+
+        Frontend:
+        - React + Recharts library (MIT license)
+        - Real-time updates (WebSocket or 30s polling)
+
+        Caching:
+        - Redis cache (30 min TTL for analytics)
+        - Reduce DB load (aggregations are expensive)
+
+      api_endpoints:
+        - "GET /api/v1/analytics/teams - Team usage stats"
+        - "GET /api/v1/analytics/users - User leaderboard"
+        - "GET /api/v1/analytics/types - SOP type distribution"
+        - "GET /api/v1/analytics/timeline - Time series data"
+        - "GET /api/v1/analytics/export - CSV export"
+
+      dependencies:
+        - "Recharts (React charting) - MIT license"
+        - "PostgreSQL materialized views for aggregation"
+
+    estimated_effort:
+      backend: "3 days (2 FTE)"
+      frontend: "3 days (2 FTE)"
+      testing: "1 day (1 FTE QA)"
+      total: "7 FTE-days"
+
+  - id: FR20
+    title: "ServiceNow Integration"
+    priority: "MANDATORY"
+    user_story: |
+      As an enterprise team using ServiceNow, I want to export SOPs directly
+      to ServiceNow Knowledge Base so that I don't manually copy-paste (error-prone).
+
+    acceptance_criteria:
+      - criterion: "Connect ServiceNow account (OAuth 2.0)"
+        test_method: "Manual test: Settings → ServiceNow → Authorize"
+        expected_result: "OAuth flow completes → Token stored securely"
+
+      - criterion: "Export SOP to ServiceNow KB (1-click)"
+        test_method: "Manual test: SOP page → Click 'Export to ServiceNow'"
+        expected_result: "SOP created in ServiceNow KB with title, content, tags"
+
+      - criterion: "Sync SOP updates (bi-directional)"
+        test_method: "Manual test: Edit SOP locally → Click 'Sync to ServiceNow'"
+        expected_result: "ServiceNow KB article updated with changes"
+
+      - criterion: "Link to ServiceNow article (view in ServiceNow)"
+        test_method: "Manual test: Exported SOP shows ServiceNow icon + link"
+        expected_result: "Click link → Opens ServiceNow article in new tab"
+
+      - criterion: "Export succeeds in <5s (p95)"
+        test_method: "Load test: Export 100 SOPs concurrently"
+        expected_result: "p95 latency <5s, 0 failures"
+
+    technical_details:
+      implementation: |
+        ServiceNow API:
+        - REST API: /api/now/table/kb_knowledge
+        - OAuth 2.0: Client credentials flow
+        - Rate limit: 100 req/min (implement retry with backoff)
+
+        Database Schema:
+        - `servicenow_integrations` table (id, user_id, instance_url,
+          access_token_encrypted, refresh_token_encrypted)
+        - `servicenow_syncs` table (id, sop_id, kb_article_id,
+          last_synced_at, sync_status)
+
+        Security:
+        - Encrypt tokens with AES-256 (PostgreSQL pgcrypto)
+        - Rotate tokens every 90 days (OAuth refresh)
+
+      api_endpoints:
+        - "POST /api/v1/integrations/servicenow/auth - OAuth flow"
+        - "POST /api/v1/integrations/servicenow/export - Export SOP"
+        - "POST /api/v1/integrations/servicenow/sync - Sync SOP"
+        - "DELETE /api/v1/integrations/servicenow - Disconnect"
+
+      dependencies:
+        - "ServiceNow REST API (external dependency)"
+        - "requests library for HTTP calls"
+
+    estimated_effort:
+      backend: "4 days (2 FTE)"
+      frontend: "2 days (1 FTE)"
+      testing: "2 days (1 FTE QA + ServiceNow sandbox)"
+      total: "8 FTE-days"
+
+  - id: FR21
+    title: "Jira Integration (Enhanced)"
+    priority: "RECOMMENDED"
+    user_story: |
+      As a developer, I want to link SOPs to Jira tickets (not just export)
+      so that I can track which SOPs are related to which incidents/projects.
+
+    acceptance_criteria:
+      - criterion: "Link SOP to Jira ticket (bi-directional)"
+        test_method: "Manual test: SOP page → 'Link Jira' → Enter ticket ID"
+        expected_result: "SOP shows Jira ticket badge + link"
+
+      - criterion: "View all SOPs for a Jira ticket"
+        test_method: "Manual test: Jira ticket → See linked SOPs in sidebar"
+        expected_result: "List of SOPs with titles + links"
+
+      - criterion: "Auto-link on SOP creation (if Jira ticket in context)"
+        test_method: "Integration test: Create SOP from Jira plugin → Auto-linked"
+        expected_result: "SOP metadata includes jira_ticket_id"
+
+      - criterion: "Sync status: Jira ticket closed → SOP marked 'Archived'"
+        test_method: "Manual test: Close Jira ticket → Check SOP status"
+        expected_result: "SOP status = 'Archived' (automatic sync)"
+
+    technical_details:
+      implementation: |
+        Jira API:
+        - REST API: /rest/api/3/issue/{issueIdOrKey}
+        - Webhook: Receive ticket status changes
+
+        Database Schema:
+        - `jira_links` table (id, sop_id, jira_ticket_id, project_key,
+          created_at, sync_status)
+
+      api_endpoints:
+        - "POST /api/v1/integrations/jira/link - Link SOP to ticket"
+        - "GET /api/v1/integrations/jira/sops?ticket_id={id} - Get SOPs for ticket"
+        - "POST /api/v1/integrations/jira/webhook - Receive Jira events"
+
+      dependencies:
+        - "Jira Cloud REST API v3"
+
+    estimated_effort:
+      backend: "3 days (1 FTE)"
+      frontend: "2 days (1 FTE)"
+      testing: "1 day (1 FTE QA)"
+      total: "6 FTE-days"
+
+  - id: FR22
+    title: "PagerDuty Integration"
+    priority: "RECOMMENDED"
+    user_story: |
+      As an on-call engineer, I want SOPs to appear in PagerDuty incident notes
+      so that I can access runbooks without leaving PagerDuty.
+
+    acceptance_criteria:
+      - criterion: "PagerDuty incident triggers SOP recommendation"
+        test_method: "Integration test: Trigger alert → Check incident notes"
+        expected_result: "PagerDuty note includes: 'Recommended SOP: [link]'"
+
+      - criterion: "SOP linked to PagerDuty service"
+        test_method: "Manual test: Link SOP to 'API Service' → Trigger alert"
+        expected_result: "Alert for API Service includes linked SOP"
+
+      - criterion: "Create SOP from resolved incident (1-click)"
+        test_method: "Manual test: Resolve incident → Click 'Create SOP'"
+        expected_result: "SOP pre-filled with incident timeline + resolution"
+
+    technical_details:
+      implementation: |
+        PagerDuty API:
+        - REST API: /incidents, /services
+        - Webhook: Receive incident.triggered events
+
+        Database Schema:
+        - `pagerduty_links` table (id, sop_id, service_id, created_at)
+
+      api_endpoints:
+        - "POST /api/v1/integrations/pagerduty/link - Link SOP to service"
+        - "POST /api/v1/integrations/pagerduty/webhook - Receive incidents"
+
+      dependencies:
+        - "PagerDuty REST API v2"
+
+    estimated_effort:
+      backend: "2 days (1 FTE)"
+      frontend: "1 day (1 FTE)"
+      testing: "1 day (1 FTE QA)"
+      total: "4 FTE-days"
+
+  - id: FR23
+    title: "Datadog Integration"
+    priority: "OPTIONAL"
+    user_story: |
+      As a DevOps engineer, I want SOPs to be linked to Datadog monitors
+      so that alerts include remediation runbooks.
+
+    acceptance_criteria:
+      - criterion: "Link SOP to Datadog monitor"
+        test_method: "Manual test: Link SOP to 'API Latency' monitor"
+        expected_result: "Monitor alert includes SOP link in notification"
+
+      - criterion: "Create SOP from monitor alert history"
+        test_method: "Manual test: Review monitor history → 'Create SOP'"
+        expected_result: "SOP pre-filled with alert details + common fixes"
+
+    technical_details:
+      implementation: |
+        Datadog API:
+        - REST API: /api/v1/monitor
+        - Webhook: Receive monitor.triggered events
+
+        Database Schema:
+        - `datadog_links` table (id, sop_id, monitor_id, created_at)
+
+      api_endpoints:
+        - "POST /api/v1/integrations/datadog/link"
+        - "POST /api/v1/integrations/datadog/webhook"
+
+      dependencies:
+        - "Datadog API v1"
+
+    estimated_effort:
+      backend: "2 days (1 FTE)"
+      frontend: "1 day (1 FTE)"
+      testing: "1 day (1 FTE QA)"
+      total: "4 FTE-days"
+
+  - id: FR24
+    title: "Slack Integration (Enhanced Notifications)"
+    priority: "RECOMMENDED"
+    user_story: |
+      As a team member, I want Slack notifications when SOPs are created/updated
+      so that I stay informed without checking the dashboard.
+
+    acceptance_criteria:
+      - criterion: "Slack channel receives SOP creation notification"
+        test_method: "Manual test: Create SOP → Check #sop-updates channel"
+        expected_result: "Message: 'John created SOP: Deploy API v2 [link]'"
+
+      - criterion: "Slack bot command: /sop search [query]"
+        test_method: "Manual test: Type '/sop search deployment' in Slack"
+        expected_result: "Bot replies with top 5 matching SOPs + links"
+
+      - criterion: "Slack bot command: /sop create [title]"
+        test_method: "Manual test: Type '/sop create Rollback API' in Slack"
+        expected_result: "Bot opens modal → AI generates SOP → Posts to channel"
+
+    technical_details:
+      implementation: |
+        Slack API:
+        - Slack Bot API (OAuth 2.0)
+        - Slash commands: /sop search, /sop create
+        - Incoming webhooks for notifications
+
+        Database Schema:
+        - `slack_integrations` table (id, team_id, channel_id,
+          webhook_url_encrypted, created_at)
+
+      api_endpoints:
+        - "POST /api/v1/integrations/slack/auth"
+        - "POST /api/v1/integrations/slack/notify"
+        - "POST /api/v1/integrations/slack/commands/search"
+        - "POST /api/v1/integrations/slack/commands/create"
+
+      dependencies:
+        - "Slack Bolt SDK (Python) - MIT license"
+
+    estimated_effort:
+      backend: "3 days (1 FTE)"
+      testing: "1 day (1 FTE QA)"
+      total: "4 FTE-days"
+
+  - id: FR25
+    title: "Keyboard Shortcuts (Enhanced)"
+    priority: "OPTIONAL"
+    user_story: |
+      As a power user, I want more keyboard shortcuts (Ctrl+N for new SOP,
+      Ctrl+F for search) so that I can navigate faster.
+
+    acceptance_criteria:
+      - criterion: "Ctrl+N: Create new SOP"
+        test_method: "Manual test: Press Ctrl+N anywhere"
+        expected_result: "New SOP modal opens"
+
+      - criterion: "Ctrl+F: Global search"
+        test_method: "Manual test: Press Ctrl+F"
+        expected_result: "Search bar focused"
+
+      - criterion: "Ctrl+K: Command palette (like VS Code)"
+        test_method: "Manual test: Press Ctrl+K"
+        expected_result: "Command palette opens (fuzzy search all actions)"
+
+      - criterion: "?: Show keyboard shortcuts help"
+        test_method: "Manual test: Press '?'"
+        expected_result: "Modal displays all shortcuts"
+
+    technical_details:
+      implementation: |
+        Frontend:
+        - React Hook: `useKeyboardShortcut` (custom hook)
+        - Library: `react-hotkeys-hook` (MIT license)
+
+        Shortcuts:
+        - Ctrl+N: New SOP
+        - Ctrl+F: Search
+        - Ctrl+K: Command palette
+        - Ctrl+S: Save (existing)
+        - Ctrl+Enter: Generate (existing)
+        - Esc: Close modal (existing)
+        - ?: Help
+
+      dependencies:
+        - "react-hotkeys-hook (MIT)"
+
+    estimated_effort:
+      frontend: "2 days (1 FTE)"
+      testing: "0.5 day (1 FTE QA)"
+      total: "2.5 FTE-days"
+
+# ==============================================================================
+# NON-FUNCTIONAL REQUIREMENTS (NFR10-NFR20)
+# ==============================================================================
+
+non_functional_requirements:
+  - id: NFR10
+    category: "Performance"
+    title: "100K Concurrent User Scalability"
+    requirement: |
+      System must support 100,000 concurrent users (10-year headroom) with
+      <2s page load time (p95) and <100ms API latency (p95).
+
+    measurement:
+      test_method: "Load test with Locust (100K virtual users)"
+      success_criteria:
+        - "API p95 latency: <100ms"
+        - "Dashboard load (TTI): <2s"
+        - "WebSocket connections: 100K stable"
+        - "CPU usage: <70% (4 backend pods)"
+        - "Memory usage: <80% (4 backend pods)"
+
+      test_scenarios:
+        - "Scenario 1: 100K users browsing (read-heavy)"
+        - "Scenario 2: 10K users editing (write-heavy)"
+        - "Scenario 3: 5K concurrent real-time collaborations"
+
+    implementation:
+      - "Horizontal scaling: 4 backend pods → 20 pods (auto-scaling)"
+      - "Database: PostgreSQL read replicas (3 replicas)"
+      - "Redis: Redis Cluster (6 nodes, sharding)"
+      - "CDN: CloudFront for static assets"
+      - "Load balancer: NGINX with least-connections algorithm"
+
+    estimated_effort: "5 days (2 FTE DevOps)"
+
+  - id: NFR11
+    category: "Reliability"
+    title: "99.9% Uptime SLA (Enterprise Tier)"
+    requirement: |
+      System must maintain 99.9% uptime (43.2 min downtime/month allowed)
+      with multi-region HA and <5s failover.
+
+    measurement:
+      test_method: "Chaos engineering (kill pods, zones, regions)"
+      success_criteria:
+        - "Uptime: ≥99.9% (measured monthly)"
+        - "Failover time: <5s (pod/node failure)"
+        - "Data loss: 0 bytes (synchronous replication)"
+        - "P0 incidents: 0/month"
+
+      test_scenarios:
+        - "Kill 1 backend pod → Failover <5s"
+        - "Kill 1 Kubernetes node → Reschedule <60s"
+        - "Simulate zone outage → Multi-zone HA recovers"
+
+    implementation:
+      - "Multi-region: US-East (primary) + US-West (standby)"
+      - "PostgreSQL: Synchronous replication (primary + standby)"
+      - "Redis: Redis Sentinel (3 nodes, auto-failover)"
+      - "Kubernetes: 3-node control plane (HA)"
+      - "Monitoring: Prometheus + Alertmanager + PagerDuty"
+
+    estimated_effort: "4 days (2 FTE DevOps)"
+
+  - id: NFR12
+    category: "Security"
+    title: "SOC 2 Type II Audit Ready"
+    requirement: |
+      System must meet SOC 2 Type II requirements for Trust Services Criteria
+      (Security, Availability, Confidentiality).
+
+    measurement:
+      test_method: "External audit by SOC 2 auditor (Deloitte)"
+      success_criteria:
+        - "0 critical findings"
+        - "0 high findings"
+        - "<3 medium findings"
+
+      controls:
+        - "Access control: RBAC with 13 roles"
+        - "Audit logging: Immutable logs (append-only)"
+        - "Encryption: AES-256 at-rest, TLS 1.3 in-transit"
+        - "Secrets: HashiCorp Vault (90-day rotation)"
+        - "Vulnerability: Weekly scans (Grype)"
+        - "Incident response: Runbooks + drills"
+
+    implementation:
+      - "Audit log: PostgreSQL append-only table (no DELETE)"
+      - "Log retention: 7 years (compliance requirement)"
+      - "RBAC: Fine-grained permissions (sops.read, sops.write, etc)"
+      - "MFA: Mandatory for admin roles"
+
+    estimated_effort: "6 days (2 FTE Security + 1 FTE DevOps)"
+
+  - id: NFR13
+    category: "Performance"
+    title: "Real-Time Collaboration Latency <500ms"
+    requirement: |
+      Multi-user editing must have <500ms update latency (p95) for 5 concurrent
+      editors on same SOP.
+
+    measurement:
+      test_method: "Load test: 5 users typing 100 chars/min for 10 min"
+      success_criteria:
+        - "p95 latency: <500ms (edit → all users see update)"
+        - "p99 latency: <1s"
+        - "0 conflicts (CRDT algorithm)"
+        - "0 data loss"
+
+      test_scenarios:
+        - "5 users editing different paragraphs (no conflicts)"
+        - "5 users editing same sentence (CRDT merge)"
+        - "1 user offline → reconnect → sync <5s"
+
+    implementation:
+      - "WebSocket server: Python `websockets` (3 replicas)"
+      - "Redis Pub/Sub: Broadcast edits to all WebSocket instances"
+      - "CRDT: Yjs library (MIT license)"
+      - "Message queue: Redis Streams (ordered delivery)"
+
+    estimated_effort: "3 days (2 FTE Backend)"
+
+  - id: NFR14
+    category: "Usability"
+    title: "≥4.5/5 Satisfaction Score at 4x Scale"
+    requirement: |
+      Maintain ≥4.5/5 developer satisfaction (Phase 3: 4.6/5) despite 4x scale
+      (45 → 180 developers).
+
+    measurement:
+      test_method: "Weekly NPS survey (Google Forms)"
+      success_criteria:
+        - "Average: ≥4.5/5"
+        - "Response rate: ≥50% (90/180 devs)"
+
+      survey_questions:
+        - "Ease of use (1-5)"
+        - "Feature completeness (1-5)"
+        - "Performance (1-5)"
+        - "Would you recommend to others? (NPS)"
+
+    implementation:
+      - "In-app survey (pop-up after Week 4)"
+      - "Weekly email survey (Google Forms)"
+      - "Feedback widget (always visible in dashboard)"
+
+    estimated_effort: "1 day (1 FTE PM)"
+
+  - id: NFR15
+    category: "Cost"
+    title: "AI Cost <$3.00/SOP (Optimize Ollama Routing)"
+    requirement: |
+      Reduce AI generation cost from $3.12/SOP (Phase 3) to <$3.00/SOP by
+      optimizing Ollama routing (increase from 93% → 95%).
+
+    measurement:
+      test_method: "Cost tracking (ai_usage_logs table)"
+      success_criteria:
+        - "Average cost/SOP: <$3.00"
+        - "Ollama usage: ≥95%"
+        - "Total AI cost (12 weeks): <$750"
+
+      calculation:
+        - "250 SOPs × $3.00 = $750 budget"
+        - "Ollama: $0.00/SOP (local), Claude: $50/SOP, GPT-4o: $40/SOP"
+
+    implementation:
+      - "Ollama health check: Ping every 10s (detect failures faster)"
+      - "Retry logic: 3 retries before Claude fallback (reduce false failures)"
+      - "Load balancing: Route to least-loaded Ollama replica"
+
+    estimated_effort: "2 days (1 FTE Backend)"
+
+  - id: NFR16
+    category: "Data Integrity"
+    title: "Zero Data Loss (CRDT + Conflict-Free Merge)"
+    requirement: |
+      Multi-user collaboration must guarantee zero data loss even with
+      simultaneous edits (CRDT algorithm proven).
+
+    measurement:
+      test_method: "Chaos test: 5 users edit same sentence simultaneously"
+      success_criteria:
+        - "All edits preserved (no overwrites)"
+        - "Merge is commutative: merge(A,B) = merge(B,A)"
+        - "Merge is associative: merge(A, merge(B,C)) = merge(merge(A,B), C)"
+
+      test_scenarios:
+        - "User A types 'Hello', User B types 'World' → Result: 'HelloWorld' or 'WorldHello' (order preserved)"
+        - "User A deletes char, User B inserts char → Both operations applied"
+
+    implementation:
+      - "Yjs CRDT: Proven conflict-free algorithm (10+ years production)"
+      - "Operation log: Store all edit operations (audit trail)"
+      - "LPS Proof: Mathematical proof of CRDT properties"
+
+    estimated_effort: "Covered in FR17 (no additional effort)"
+
+  - id: NFR17
+    category: "Maintainability"
+    title: "≥95% Test Coverage (Unit + Integration + E2E)"
+    requirement: |
+      Maintain ≥95% test coverage (Phase 3: 96%) with increased codebase complexity.
+
+    measurement:
+      test_method: "pytest-cov (backend), vitest coverage (frontend)"
+      success_criteria:
+        - "Backend: ≥95%"
+        - "Frontend: ≥85% (lower due to UI complexity)"
+        - "E2E: 50 critical user journeys (Playwright)"
+
+      test_types:
+        - "Unit: 500+ tests (backend + frontend)"
+        - "Integration: 80+ tests (API contracts)"
+        - "E2E: 50+ tests (Playwright)"
+
+    implementation:
+      - "Pre-commit hook: Block commits if coverage drops"
+      - "CI/CD: Run all tests on every PR"
+      - "Coverage report: Posted to PR comments"
+
+    estimated_effort: "Ongoing (2 FTE QA)"
+
+  - id: NFR18
+    category: "Compliance"
+    title: "GDPR + CCPA Data Privacy"
+    requirement: |
+      Support data privacy regulations (GDPR, CCPA) with user data export/deletion.
+
+    measurement:
+      test_method: "Manual test: Request data export/deletion"
+      success_criteria:
+        - "Data export: <24 hours (JSON file)"
+        - "Data deletion: <7 days (hard delete)"
+        - "Audit trail: 7-year retention"
+
+      controls:
+        - "Data export API: GET /api/v1/users/me/export"
+        - "Data deletion API: DELETE /api/v1/users/me (+ cascade)"
+        - "Privacy policy: Updated for GDPR/CCPA"
+
+    implementation:
+      - "Export: JSON file with all user data (SOPs, edits, analytics)"
+      - "Deletion: Cascade delete (user → sops → versions → edits)"
+      - "Anonymization: Replace PII with 'DELETED_USER'"
+
+    estimated_effort: "3 days (1 FTE Backend + 1 FTE Legal)"
+
+  - id: NFR19
+    category: "Observability"
+    title: "Full-Stack Observability (Traces + Logs + Metrics)"
+    requirement: |
+      Implement distributed tracing, structured logging, and Prometheus metrics
+      for 100% observability.
+
+    measurement:
+      test_method: "Simulate production load → Trace all requests"
+      success_criteria:
+        - "Traces: 100% of API requests (OpenTelemetry)"
+        - "Logs: Structured JSON logs (Elasticsearch)"
+        - "Metrics: 50+ Prometheus metrics (Grafana dashboards)"
+
+      tools:
+        - "Tracing: OpenTelemetry → Jaeger"
+        - "Logging: Python logging → Fluentd → Elasticsearch"
+        - "Metrics: Prometheus → Grafana"
+
+    implementation:
+      - "OpenTelemetry SDK: Auto-instrument FastAPI"
+      - "Trace context: Propagate across services (Redis, PostgreSQL)"
+      - "Dashboards: Grafana (p95 latency, error rate, throughput)"
+
+    estimated_effort: "4 days (2 FTE DevOps)"
+
+  - id: NFR20
+    category: "Zero Mock Policy"
+    title: "100% Real Implementations (No Mocks)"
+    requirement: |
+      Continue Zero Mock Policy (Phase 3: 100%) - all features must be fully
+      implemented (no placeholders, no TODOs).
+
+    measurement:
+      test_method: "Code review + pre-commit hook"
+      success_criteria:
+        - "0 occurrences: `// TODO`, `pass # implement`, `return { mock: true }`"
+        - "100% integration tests with real services"
+
+      enforcement:
+        - "Pre-commit hook: Grep for banned keywords"
+        - "CI/CD: Fail build if mocks detected"
+        - "Code review: 2+ approvers check for mocks"
+
+    implementation:
+      - "Same as Phase 3 (policy already enforced)"
+
+    estimated_effort: "0 days (existing policy)"
+
+# ==============================================================================
+# SUCCESS CRITERIA
+# ==============================================================================
+
+success_criteria:
+  launch_readiness:
+    - criterion: "All 10 FRs implemented (FR16-FR25)"
+      target: "10/10 (100%)"
+      mandatory: true
+
+    - criterion: "All 11 NFRs met (NFR10-NFR20)"
+      target: "11/11 (100%)"
+      mandatory: true
+
+    - criterion: "Load test: 100K concurrent users"
+      target: "p95 API latency <100ms, 0 errors"
+      mandatory: true
+
+    - criterion: "Security audit: SOC 2 Type II ready"
+      target: "0 critical, 0 high, <3 medium findings"
+      mandatory: true
+
+    - criterion: "SASE Level 2: BRS + MRP + VCR + LPS complete"
+      target: "5/5 artifacts delivered"
+      mandatory: true
+
+  adoption_metrics:
+    - criterion: "≥80% adoption rate (144/180 developers active)"
+      measurement: "User analytics (last 7 days)"
+      timeline: "Week 12"
+      mandatory: true
+
+    - criterion: "≥250 SOPs generated"
+      measurement: "Database count"
+      timeline: "Week 12"
+      mandatory: true
+
+    - criterion: "≥30% multi-user edit sessions (75/250 SOPs)"
+      measurement: "Collaboration analytics"
+      timeline: "Week 12"
+      mandatory: true
+
+    - criterion: "≥40% SOPs versioned (100/250 SOPs)"
+      measurement: "sop_versions table count"
+      timeline: "Week 12"
+      mandatory: true
+
+    - criterion: "≥60% ServiceNow export usage (150/250 SOPs)"
+      measurement: "servicenow_syncs table"
+      timeline: "Week 12"
+      mandatory: false  # Optional if no ServiceNow customers
+
+  quality_metrics:
+    - criterion: "≥4.5/5 developer satisfaction (NPS)"
+      measurement: "Weekly survey"
+      timeline: "Week 12"
+      mandatory: true
+
+    - criterion: "0 P0 production incidents"
+      measurement: "PagerDuty incident log"
+      timeline: "Week 12"
+      mandatory: true
+
+    - criterion: "99.9% system uptime (43 min downtime allowed)"
+      measurement: "Prometheus uptime metric"
+      timeline: "Week 12"
+      mandatory: true
+
+    - criterion: "≥95% test coverage (unit + integration)"
+      measurement: "pytest-cov, vitest coverage"
+      timeline: "Week 12"
+      mandatory: true
+
+  business_metrics:
+    - criterion: "≥700% Year 1 ROI"
+      calculation: "(Time_saved × $110/hr - $45K) / $45K × 100%"
+      target: "≥700%"
+      timeline: "Week 12"
+      mandatory: true
+
+    - criterion: "<$3.00 AI cost per SOP"
+      measurement: "ai_usage_logs table"
+      timeline: "Week 12"
+      mandatory: true
+
+    - criterion: "3 enterprise pilot customers signed (Fortune 500)"
+      measurement: "Sales contracts"
+      timeline: "Week 12"
+      mandatory: false  # Stretch goal
+
+# ==============================================================================
+# TIMELINE & BUDGET
+# ==============================================================================
+
+timeline:
+  start_date: "2026-04-14"
+  end_date: "2026-07-03"
+  duration: "12 weeks"
+  phases:
+    - phase: "Weeks 1-3: Foundation"
+      duration: "3 weeks"
+      deliverables:
+        - "SOP Versioning (FR16)"
+        - "Multi-user collaboration backend (FR17)"
+        - "100K user load testing infrastructure (NFR10)"
+
+    - phase: "Weeks 4-6: Enterprise Features"
+      duration: "3 weeks"
+      deliverables:
+        - "5 new SOP types (FR18)"
+        - "ServiceNow integration (FR20)"
+        - "Jira integration enhanced (FR21)"
+
+    - phase: "Weeks 7-9: Analytics & Integrations"
+      duration: "3 weeks"
+      deliverables:
+        - "Analytics dashboard (FR19)"
+        - "PagerDuty integration (FR22)"
+        - "Datadog integration (FR23)"
+        - "Slack integration (FR24)"
+
+    - phase: "Weeks 10-12: Polish & Scale"
+      duration: "3 weeks"
+      deliverables:
+        - "SOC 2 Type II audit prep (NFR12)"
+        - "100K user load test (NFR10)"
+        - "SASE Level 2: MRP + VCR + LPS"
+        - "20-team onboarding"
+
+budget:
+  total: "$45,000"
+  breakdown:
+    backend_development:
+      cost: "$15,000"
+      allocation: "2 FTE × 12 weeks × $625/week"
+      responsibilities:
+        - "FR16-FR25 backend implementation"
+        - "NFR10-NFR20 compliance"
+
+    frontend_development:
+      cost: "$12,000"
+      allocation: "2 FTE × 12 weeks × $500/week"
+      responsibilities:
+        - "FR16-FR25 frontend UI"
+        - "Analytics dashboard"
+        - "Real-time collaboration UX"
+
+    devops_infrastructure:
+      cost: "$8,000"
+      allocation: "1 FTE × 12 weeks × $666/week"
+      responsibilities:
+        - "100K user load testing"
+        - "Multi-region HA setup"
+        - "Kubernetes scaling"
+        - "Observability stack"
+
+    qa_testing:
+      cost: "$6,000"
+      allocation: "1 FTE × 12 weeks × $500/week"
+      responsibilities:
+        - "E2E test suite (50+ tests)"
+        - "Load testing execution"
+        - "Security audit support"
+
+    security_audit:
+      cost: "$3,000"
+      allocation: "External auditor (SOC 2 Type II prep)"
+      responsibilities:
+        - "SOC 2 controls review"
+        - "Penetration testing"
+        - "Compliance gap analysis"
+
+    miscellaneous:
+      cost: "$1,000"
+      allocation: "Buffer (2.2%)"
+      items:
+        - "Cloud infrastructure (GCP/AWS)"
+        - "External API costs (ServiceNow, PagerDuty)"
+        - "License costs (monitoring tools)"
+
+risks:
+  - risk: "100K load test reveals scalability bottleneck"
+    impact: "HIGH"
+    probability: "MEDIUM"
+    mitigation: |
+      - Conduct load test in Week 1 (early validation)
+      - Budget 1 week for optimization (built into timeline)
+      - Fallback: Horizontal scaling (add more pods)
+
+  - risk: "CRDT algorithm complexity delays multi-user collaboration"
+    impact: "HIGH"
+    probability: "LOW"
+    mitigation: |
+      - Use proven library (Yjs - 10+ years production)
+      - Prototype in Week 1 (validate before full implementation)
+      - Fallback: Pessimistic locking (1 user edits at a time)
+
+  - risk: "ServiceNow API rate limits cause sync failures"
+    impact: "MEDIUM"
+    probability: "MEDIUM"
+    mitigation: |
+      - Implement exponential backoff + retry (3 attempts)
+      - Queue exports (Redis queue, process async)
+      - Contact ServiceNow for rate limit increase
+
+  - risk: "SOC 2 audit finds critical security gaps"
+    impact: "HIGH"
+    probability: "LOW"
+    mitigation: |
+      - Conduct pre-audit in Week 8 (identify gaps early)
+      - Budget 1 week for remediation (Weeks 11-12)
+      - Phase 3 OWASP ASVS L2 compliance reduces risk
+
+  - risk: "180 developers adopt slowly (adoption <80%)"
+    impact: "MEDIUM"
+    probability: "LOW"
+    mitigation: |
+      - Phase 3 success (84.4%) provides confidence
+      - Dedicated onboarding (Week 12, 1 team/day)
+      - Champion program (1 power user per team)
+
+assumptions:
+  - assumption: "Phase 3 infrastructure (K8s, Ollama, PostgreSQL) scales to 180 users"
+    validation: "Load test in Week 1 (100K concurrent users)"
+
+  - assumption: "Yjs CRDT library handles 5 concurrent editors"
+    validation: "Prototype in Week 1 (chaos test: 5 users edit simultaneously)"
+
+  - assumption: "ServiceNow API is stable (99.9% uptime)"
+    validation: "ServiceNow SLA review (external dependency)"
+
+  - assumption: "20 teams have ServiceNow access (for integration testing)"
+    validation: "Survey teams in Week 1 (confirm ServiceNow usage)"
+
+  - assumption: "Team leads champion SOP adoption (reduce change resistance)"
+    validation: "Kickoff meeting (Week 1, explain benefits + ROI)"
+
+# ==============================================================================
+# SASE LEVEL 2 ARTIFACTS
+# ==============================================================================
+
+sase_artifacts:
+  - artifact: "BRS-PHASE4-ENTERPRISE-SCALE-001"
+    status: "DRAFT (this document)"
+    due_date: "2026-04-08"
+    owner: "PM Lead + CTO"
+
+  - artifact: "PHASE-04-ENTERPRISE-SCALE-PLAN.md"
+    status: "PENDING"
+    due_date: "2026-04-09"
+    description: "12-week detailed implementation plan (Week 1-12 breakdown)"
+    owner: "Tech Lead + PM Lead"
+
+  - artifact: "MRP-PHASE4-ENTERPRISE-SCALE-001.md"
+    status: "PENDING"
+    due_date: "2026-07-03"
+    description: "Evidence compilation (code, tests, load tests, audit results)"
+    owner: "QA Lead + Tech Lead"
+
+  - artifact: "VCR-PHASE4-ENTERPRISE-SCALE-001.md"
+    status: "PENDING"
+    due_date: "2026-07-04"
+    description: "CTO approval document (target: 5/5 rating)"
+    owner: "CTO"
+
+  - artifact: "LPS-PHASE4-ENTERPRISE-SCALE-001.md"
+    status: "PENDING"
+    due_date: "2026-07-04"
+    description: |
+      Logical Proof Statement with 3 new proofs:
+      1. Proof: CRDT conflict-free merge (all edits preserved)
+      2. Proof: Lock-free consistency (5 concurrent editors, <500ms latency)
+      3. Proof: 100K concurrent user scalability (p95 <100ms API latency)
+    owner: "CTO + Tech Lead"
+
+# ==============================================================================
+# APPROVAL SECTION
+# ==============================================================================
+
+approval:
+  status: "PENDING"
+  required_approvals:
+    - role: "CTO"
+      name: "NQH"
+      status: "PENDING"
+      comments: null
+
+    - role: "CEO"
+      name: "CEO"
+      status: "PENDING"
+      comments: null
+
+    - role: "CPO"
+      name: "CPO"
+      status: "PENDING"
+      comments: null
+
+  approval_criteria:
+    - criterion: "Budget approved ($45,000)"
+    - criterion: "Timeline feasible (12 weeks)"
+    - criterion: "Success criteria agreed (≥80% adoption, ≥250 SOPs)"
+    - criterion: "Risks mitigated (load testing Week 1, SOC 2 pre-audit Week 8)"
+    - criterion: "Team capacity confirmed (6 FTE available)"
+
+# ==============================================================================
+# CHANGELOG
+# ==============================================================================
+
+changelog:
+  - version: "1.0.0"
+    date: "2026-04-08"
+    author: "PM Lead + CTO"
+    changes:
+      - "Initial BRS draft"
+      - "10 FRs defined (FR16-FR25)"
+      - "11 NFRs defined (NFR10-NFR20)"
+      - "12-week timeline + $45K budget"
+      - "SASE Level 2 artifacts planned (BRS + MRP + VCR + LPS)"
+
+# ==============================================================================
+# NOTES
+# ==============================================================================
+
+notes: |
+  **Phase 4 builds on Phase 3's proven success:**
+  - Phase 3: 5 teams, 84.4% adoption, 533% ROI, 100% uptime, VCR 5/5 ⭐⭐⭐⭐⭐
+  - Phase 4: 20 teams (4x scale), same quality bar, enterprise features
+
+  **Key Innovation: Multi-User Collaboration**
+  - Real-time editing (like Google Docs) for SOPs
+  - CRDT algorithm (Yjs) - proven conflict-free merge
+  - LPS mathematical proof validates zero data loss
+
+  **Enterprise Readiness:**
+  - ServiceNow integration (compliance mandate for Fortune 500)
+  - SOC 2 Type II audit prep (Trust Services Criteria)
+  - 100K concurrent user scalability (10-year headroom)
+
+  **SASE Level 2 continues:**
+  - 3 new LPS proofs (CRDT, lock-free, 100K scale)
+  - Sets methodology gold standard for enterprise platforms
+
+  **CTO Authorization:** "Phase 4 approved based on Phase 3 success (VCR 5/5).
+  Proceed with BRS + 12-week plan. Target: VCR 5/5 + 3 LPS proofs validated."
