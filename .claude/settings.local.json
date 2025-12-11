@@ -67,7 +67,13 @@
       "Bash(git reset:*)",
       "Bash(npm run lint:fix:*)",
       "Bash(git stash:*)",
-      "Bash(git stash pop:*)"
+      "Bash(git stash pop:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(for i in {1..20})",
+      "Bash(do curl -s -w %{time_total}n -o /dev/null http://localhost:8000/health)",
+      "Bash(chmod:*)",
+      "Bash(git clone:*)",
+      "Bash(git config:*)"
     ],
     "deny": [],
     "ask": []
