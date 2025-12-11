@@ -1498,12 +1498,12 @@ Response (200 OK):
    - **Stage 00 (WHY)**: Design Thinking policies (G0.1, G0.2)
    - **Stage 01 (WHAT)**: Planning & Analysis policies (G1)
    - **Stage 02 (HOW)**: Design & Architecture policies (G1)
-   - **Stage 03 (BUILD)**: Development policies (G2)
-   - **Stage 04 (TEST)**: Testing policies (G3)
-   - **Stage 05 (DEPLOY)**: Deployment policies (G4)
-   - **Stage 06 (OPERATE)**: Operations policies (G5)
+   - **Stage 04 (BUILD)**: Development policies (G2)
+   - **Stage 05 (TEST)**: Testing policies (G3)
+   - **Stage 06 (DEPLOY)**: Deployment policies (G4)
+   - **Stage 07 (OPERATE)**: Operations policies (G5)
    - **Stage 07-09**: Integration, Collaboration, Governance
-3. User expands "Stage 03 (BUILD)" category
+3. User expands "Stage 04 (BUILD)" category
 4. System displays policies:
    | Policy | Description | Gate | Severity |
    |--------|-------------|------|----------|

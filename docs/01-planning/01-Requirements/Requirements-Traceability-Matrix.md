@@ -366,12 +366,12 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
    - Database Schema (PostgreSQL migrations)
    - API Design (REST endpoints, OpenAPI 3.0)
 
-2. **Stage 03: Implementation** (BUILD)
+2. **Stage 04 (BUILD)
    - Backend API (FastAPI)
    - Frontend Dashboard (React)
    - VS Code Extension (TypeScript)
 
-3. **Stage 04: Testing** (TEST)
+3. **Stage 05 (TEST)
    - Unit tests (pytest, jest)
    - Integration tests (Postman, Cypress)
    - Load testing (JMeter, Locust)

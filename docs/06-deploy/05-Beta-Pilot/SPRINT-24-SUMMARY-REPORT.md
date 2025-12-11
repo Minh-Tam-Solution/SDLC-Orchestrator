@@ -1,6 +1,6 @@
 # Sprint 24 Summary Report: Beta Pilot Preparation
 
-## SDLC Orchestrator - Stage 03 (BUILD)
+## SDLC Orchestrator - Stage 04 (BUILD)
 
 **Version**: 1.0.0
 **Sprint**: 24 - Beta Pilot Preparation

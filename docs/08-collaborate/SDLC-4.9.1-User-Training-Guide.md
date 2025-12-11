@@ -84,7 +84,7 @@ SDLC Orchestrator được thiết kế để **enforce** - không chỉ **sugge
 Enforcement Rules:
 
   1. Sequential Stages:
-     - Bạn KHÔNG THỂ bắt đầu Stage 03 (BUILD) nếu Stage 02 (HOW) chưa pass
+     - Bạn KHÔNG THỂ bắt đầu Stage 04 (BUILD) nếu Stage 02 (HOW) chưa pass
      - Platform block hành động nếu gate trước chưa approved
 
   2. Evidence Required:
@@ -110,11 +110,11 @@ Khi bạn tạo project trong SDLC Orchestrator:
   Stage 00 (WHY)       → Gate G0.1 + G0.2 → Evidence required
   Stage 01 (WHAT)      → Gate G1          → Evidence required
   Stage 02 (HOW)       → Gate G2          → Evidence required
-  Stage 03 (BUILD)     → Gate G3          → Evidence required
-  Stage 04 (TEST)      → Gate G4          → Evidence required
-  Stage 05 (DEPLOY)    → Gate G5          → Evidence required
-  Stage 06 (OPERATE)   → Gate G6          → Evidence required
-  Stage 07 (INTEGRATE) → Gate G7          → Evidence required
+  Stage 04 (BUILD)     → Gate G3          → Evidence required
+  Stage 05 (TEST)      → Gate G4          → Evidence required
+  Stage 06 (DEPLOY)    → Gate G5          → Evidence required
+  Stage 07 (OPERATE)   → Gate G6          → Evidence required
+  Stage 03 (INTEGRATE) → Gate G7          → Evidence required
   Stage 08 (COLLABORATE)→ Gate G8         → Evidence required
   Stage 09 (GOVERN)    → Gate G9          → Evidence required
 
@@ -303,9 +303,9 @@ Request Approval → CTO/Admin reviews → Approved/Request Changes
 
 ---
 
-## 5. Stage 03-04: BUILD và TEST
+## 5. Stage 04 (BUILD) và TEST
 
-### 5.1 Stage 03 (BUILD): Development
+### 5.1 Stage 04 (BUILD): Development
 
 **Evidence Required:**
 - Code committed to repository
@@ -334,7 +334,7 @@ Evidence Type: "Screenshot"
 Request Approval → Dev Lead reviews → Approved/Request Changes
 ```
 
-### 5.2 Stage 04 (TEST): Quality Assurance
+### 5.2 Stage 05 (TEST): Quality Assurance
 
 **Evidence Required:**
 - Test Report (Unit + Integration + E2E)
@@ -363,9 +363,9 @@ Request Approval → QA Lead reviews
 
 ---
 
-## 6. Stage 05-06: DEPLOY và OPERATE
+## 6. Stage 06 (DEPLOY) và OPERATE
 
-### 6.1 Stage 05 (DEPLOY): Go-Live
+### 6.1 Stage 06 (DEPLOY): Go-Live
 
 **Evidence Required:**
 - Deployment Plan
@@ -386,7 +386,7 @@ Stage 05 → Gate G5 → Upload Evidence:
 Request Approval → DevOps Lead reviews
 ```
 
-### 6.2 Stage 06 (OPERATE): Production
+### 6.2 Stage 07 (OPERATE): Production
 
 **Evidence Required:**
 - Runbook
@@ -409,9 +409,9 @@ Request Approval → DevOps Lead reviews
 
 ---
 
-## 7. Stage 07-09: INTEGRATE, COLLABORATE, GOVERN
+## 7. Stage 03 (INTEGRATE), COLLABORATE, GOVERN
 
-### 7.1 Stage 07 (INTEGRATE)
+### 7.1 Stage 03 (INTEGRATE)
 
 **Evidence:** Integration tests, API contracts, data validation
 **Approvers:** CTO, Data Lead

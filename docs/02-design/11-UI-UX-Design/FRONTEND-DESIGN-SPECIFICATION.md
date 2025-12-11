@@ -504,7 +504,7 @@ ProjectsListPage
 │   └── ProjectCard (repeated)
 │       ├── CardHeader
 │       │   ├── h3 "Project Name"
-│       │   └── Badge "Stage 03 - BUILD"
+│       │   └── Badge "Stage 04 (BUILD)"
 │       ├── CardContent
 │       │   ├── GateStatusIndicator (🔴 4 Gates)
 │       │   └── DocumentCount (📄 12 Docs)

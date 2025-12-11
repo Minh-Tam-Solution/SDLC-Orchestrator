@@ -220,11 +220,11 @@ And decryption only with valid user authentication
 | G0.2 | Stage 00 (WHY - Business Case) | CEO + CPO | Strategic alignment ($4.7M+ value) |
 | G1 | Stage 01 (WHAT - Requirements & Planning) | CTO + CPO | Scope defined (100+ ideas → Top 3) |
 | G2 | Stage 02 (HOW - Design & Architecture) | CTO + Security Lead | API contracts validated, security reviewed |
-| G3 | Stage 03 (BUILD - Development) | CTO + Dev Lead | Code quality (80%+ coverage, CI/CD passing) |
-| G4 | Stage 04 (TEST - Quality Assurance) | CPO + QA Lead | UAT ≥8.5/10, zero P0 bugs, coverage ≥80% |
-| G5 | Stage 05 (DEPLOY - Production Go-Live) | CTO + CIO | Pre-checks passed, rollback <5min, war room 24/7 |
-| G6 | Stage 06 (OPERATE - Production Excellence) | CIO + DevOps Lead | Uptime ≥99.9%, P0 response <15min, monitoring ≥95% |
-| G7 | Stage 07 (INTEGRATE - Systems Integration) | CTO + Data Lead | API contracts validated, integration tests ≥90% |
+| G3 | Stage 04 (BUILD - Development| | CTO + Dev Lead | Code quality (80%+ coverage, CI/CD passing) |
+| G4 | Stage 05 (TEST - Quality Assurance| | CPO + QA Lead | UAT ≥8.5/10, zero P0 bugs, coverage ≥80% |
+| G5 | Stage 06 (DEPLOY - Production Go-Live| | CTO + CIO | Pre-checks passed, rollback <5min, war room 24/7 |
+| G6 | Stage 07 (OPERATE - Production Excellence| | CIO + DevOps Lead | Uptime ≥99.9%, P0 response <15min, monitoring ≥95% |
+| G7 | Stage 03 (INTEGRATE - Systems Integration| | CTO + Data Lead | API contracts validated, integration tests ≥90% |
 | G8 | Stage 08 (COLLABORATE - Team Coordination) | CPO + EM | Documentation ≥90%, velocity stable ±20% |
 | G9 | Stage 09 (GOVERN - Strategic Oversight) | CEO + CFO | Zero violations, budget ±10%, stakeholder ≥8/10 |
 

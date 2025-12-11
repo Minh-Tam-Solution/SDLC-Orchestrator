@@ -16,7 +16,7 @@ This document specifies the complete onboarding flows for SDLC Orchestrator, cov
 
 | Aspect | SDLC 4.9.x | SDLC 5.0.0 |
 |--------|------------|------------|
-| **Stage Order** | INTEGRATE at Stage 07 | INTEGRATE at Stage 03 (Contract-First) |
+| **Stage Order** | INTEGRATE at Stage 03 (INTEGRATE) at Stage 03 (Contract-First) |
 | **Stage Names** | CamelCase (00-Project-Foundation) | lowercase (00-foundation) |
 | **Classification** | 3-pack system | 4-Tier (LITE/STANDARD/PROFESSIONAL/ENTERPRISE) |
 | **Onboarding** | Policy Pack selection | Tier selection with stage requirements |

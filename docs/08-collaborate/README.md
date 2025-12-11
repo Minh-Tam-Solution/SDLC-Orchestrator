@@ -157,8 +157,8 @@ This stage maps to **Stage 08: Team Management (COLLABORATE)** in SDLC 5.0.0.
 
 | Stage | Relationship |
 |-------|--------------|
-| Stage 03 (BUILD) | Sprint execution, development work |
-| Stage 06 (OPERATE) | Incident escalation, on-call handoff |
+| Stage 04 (BUILD) | Sprint execution, development work |
+| Stage 07 (OPERATE) | Incident escalation, on-call handoff |
 | Stage 09 (GOVERN) | Executive reporting, governance |
 
 ---

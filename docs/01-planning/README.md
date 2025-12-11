@@ -1,13 +1,13 @@
-# Stage 01: Planning & Analysis (WHAT?)
+# Stage 01: Planning (WHAT?)
 ## Functional Requirements & System Specifications
 
-**Version**: 2.0.0
-**Date**: November 29, 2025
+**Stage**: 01 - PLANNING
+**Question**: What are we building?
+**Version**: 3.0.0
+**Date**: December 11, 2025
 **Status**: ✅ COMPLETED - Gate G1 PASSED
 **Authority**: PM + CTO + CPO Approved
-**Foundation**: Stage 00 (WHY) - Project Foundation COMPLETED
-**Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 4.9.1 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 5.1.0 Complete Lifecycle (10 Stages)
 
 ---
 
@@ -17,7 +17,7 @@ Stage 01 answers the fundamental question: **"WHAT are we building?"**
 
 This stage transforms validated problems (Stage 00) into detailed requirements:
 - **Functional Requirements** (FR1-FR20+) - WHAT features to build
-- **Non-Functional Requirements** (NFR1-NFR15+) - WHAT quality attributes (performance, security, scalability)
+- **Non-Functional Requirements** (NFR1-NFR15+) - WHAT quality attributes
 - **User Stories** (Epics → Stories → Tasks) - WHAT users can do
 - **Data Model** (ERD, Schema) - WHAT data to store
 - **API Specifications** (OpenAPI 3.0) - WHAT endpoints to expose
@@ -26,36 +26,37 @@ This stage transforms validated problems (Stage 00) into detailed requirements:
 
 ---
 
-## Folder Structure (SDLC 4.9.1 Compliant)
+## Folder Structure (SDLC 5.1.0 Compliant)
 
 ```
-01-Planning-Analysis/
-├── README.md (this file)
+01-planning/
+├── README.md                               # This file
 ├── 01-Requirements/
-│   ├── Functional-Requirements-Document.md (FR1-FR5) ✅
-│   ├── Non-Functional-Requirements.md (NFR1-NFR15+) ✅
-│   └── Requirements-Traceability-Matrix.md ✅
+│   ├── Functional-Requirements-Document.md # FR1-FR5 detailed specs
+│   ├── Non-Functional-Requirements.md      # NFR1-NFR15+ quality attributes
+│   ├── Requirements-Traceability-Matrix.md # FR → Design → Test mapping
+│   └── FR-21-USER-AI-API-KEY-MANAGEMENT.md # Additional FRs
 ├── 02-User-Stories/
-│   ├── User-Stories-Epics.md ✅
-│   ├── Acceptance-Criteria.md ✅
-│   └── Story-Mapping.md ✅
+│   ├── User-Stories-Epics.md               # Epic breakdown
+│   ├── Acceptance-Criteria.md              # Definition of Done
+│   └── Story-Mapping.md                    # Story map visualization
 ├── 03-Data-Model/
-│   ├── Data-Model-v0.1.md (1.0.0 - IMPLEMENTED) ✅
-│   ├── Data-Model-ERD.md (2.0.0 - 24 tables) ✅
-│   ├── Database-Schema.md ✅
-│   └── Data-Dictionary.md ✅
+│   ├── Data-Model-v0.1.md                  # Initial data model
+│   ├── Data-Model-ERD.md                   # Entity-Relationship Diagram
+│   ├── Database-Schema.md                  # PostgreSQL schema
+│   └── Data-Dictionary.md                  # Field definitions
 ├── 04-API-Design/
-│   ├── API-Specification.md (OpenAPI 3.0) ✅
-│   ├── API-Authentication.md ✅
-│   └── API-Versioning-Strategy.md ✅
+│   ├── API-Specification.md                # OpenAPI 3.0
+│   ├── API-Authentication.md               # JWT + OAuth
+│   └── API-Versioning-Strategy.md          # v1/v2 strategy
 ├── 05-Legal-Compliance/
-│   ├── AGPL-Containment-Strategy.md ✅
-│   ├── AGPL-Containment-Legal-Brief.md ✅
-│   ├── Legal-Review-Report.md ✅
-│   └── License-Audit-Report.md ✅
+│   ├── AGPL-Containment-Strategy.md        # OSS legal strategy
+│   ├── AGPL-Containment-Legal-Brief.md     # Legal opinion
+│   ├── Legal-Review-Report.md              # External counsel report
+│   └── License-Audit-Report.md             # License scan results
 ├── 99-Legacy/
-│   └── Functional-Requirements-Document.md (old draft)
-└── STAGE-01-PROGRESS-REPORT.md
+│   └── [Old drafts and superseded docs]
+└── STAGE-01-PROGRESS-REPORT.md             # Progress tracking
 ```
 
 ---
@@ -294,7 +295,7 @@ This stage transforms validated problems (Stage 00) into detailed requirements:
 
 ---
 
-## Next Stages Preview (SDLC 4.9 Complete Lifecycle)
+## Next Stages Preview (SDLC 5.1 Complete Lifecycle)
 
 **Stage 02: Design & Architecture (HOW)** - Week 3-4
 - System Architecture Diagram (4-layer architecture)
@@ -304,12 +305,12 @@ This stage transforms validated problems (Stage 00) into detailed requirements:
 - Security Architecture (RBAC, encryption, audit logging)
 - **Gate G2**: CTO + Security Lead approval
 
-**Stage 03-09: Implementation to Governance** - Week 5-12
-- **Stage 03** (BUILD): FastAPI backend, React frontend, VS Code extension
-- **Stage 04** (TEST): 80%+ coverage, UAT ≥8.5/10, zero P0 bugs
-- **Stage 05** (DEPLOY): Blue-green deployment, rollback <5min, 24/7 war room
-- **Stage 06** (OPERATE): 99.9%+ uptime, P0 response <15min, monitoring ≥95%
-- **Stage 07** (INTEGRATE): API contracts, integration tests ≥90%, event-driven
+**Stage 03-09: Integration to Governance** - Week 5-12
+- **Stage 03** (INTEGRATE): API contracts, integration tests ≥90%, event-driven
+- **Stage 04** (BUILD): FastAPI backend, React frontend, VS Code extension
+- **Stage 05** (TEST): 80%+ coverage, UAT ≥8.5/10, zero P0 bugs
+- **Stage 06** (DEPLOY): Blue-green deployment, rollback <5min, 24/7 war room
+- **Stage 07** (OPERATE): 99.9%+ uptime, P0 response <15min, monitoring ≥95%
 - **Stage 08** (COLLABORATE): Documentation ≥90%, velocity stable ±20%
 - **Stage 09** (GOVERN): Zero violations, budget ±10%, ROI tracking (target: 827:1)
 
@@ -317,13 +318,13 @@ This stage transforms validated problems (Stage 00) into detailed requirements:
 
 ## References
 
-- [Stage 00: Project Foundation](../00-Project-Foundation/README.md) - WHY we're building
-- [Product Roadmap](../00-Project-Foundation/04-Roadmap/Product-Roadmap.md) - 90-day timeline
-- [SDLC 4.9 Complete Lifecycle](/SDLC-Enterprise-Framework/README.md) - 10-Stage Framework
+- [Stage 00: Foundation](../00-foundation/README.md) - WHY we're building
+- [Product Roadmap](../00-foundation/04-Roadmap/Product-Roadmap.md) - 90-day timeline
+- [SDLC 5.1 Core Methodology](../../SDLC-Enterprise-Framework/02-Core-Methodology/)
 
 ---
 
-**Last Updated**: 2025-11-29
+**Last Updated**: December 11, 2025
 **Owner**: PM + Backend Lead + Legal Counsel + CTO
 **Status**: ✅ COMPLETED
 
@@ -335,7 +336,7 @@ This stage transforms validated problems (Stage 00) into detailed requirements:
 **Total Lines**: 250,000+ lines across all documents
 **Quality Gates**: G1 (Planning & Analysis) - ✅ PASSED
 **Next Stage**: Stage 02 (Design & Architecture) - ✅ PASSED
-**Current Stage**: Stage 03 (BUILD) - IN PROGRESS
+**Current Stage**: Stage 04 (BUILD) - IN PROGRESS
 
 ---
 

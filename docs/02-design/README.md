@@ -7,7 +7,7 @@
 **Authority**: CTO + Tech Lead + Backend Lead Approved
 **Foundation**: SDLC 4.9.1 Complete Lifecycle (10 Stages)
 **Previous Stage**: Stage 01 (Planning & Analysis - WHAT) ✅ COMPLETE
-**Next Stage**: Stage 03 (BUILD) - IN PROGRESS
+**Next Stage**: Stage 04 (BUILD) - IN PROGRESS
 
 ---
 
@@ -161,7 +161,7 @@ This stage transforms requirements (Stage 01 - WHAT) into technical architecture
 - [x] Security design approved (OWASP ASVS Level 2) ✅
 - [x] Scalability validated (modular monolith → microservices path) ✅
 
-**Stage 02 Status**: ✅ COMPLETED - Ready for Stage 03 (BUILD)
+**Stage 02 Status**: ✅ COMPLETED - Ready for Stage 04 (BUILD)
 
 ---
 
@@ -278,10 +278,10 @@ Metadata:
 - **Stage 00 (WHY)**: Empathy maps, problem statements, HMW questions
 - **Stage 01 (WHAT)**: User stories, acceptance criteria, API specs
 - **Stage 02 (HOW)**: Architecture diagrams, tech stack, security design
-- **Stage 03 (BUILD)**: Code generation, code review, refactoring
-- **Stage 04 (TEST)**: Test case generation, test data, edge cases
-- **Stage 05 (DEPLOY)**: Deployment scripts, rollback procedures, runbooks
-- **Stage 06 (OPERATE)**: Incident response, RCA, postmortems
+- **Stage 04 (BUILD)**: Code generation, code review, refactoring
+- **Stage 05 (TEST)**: Test case generation, test data, edge cases
+- **Stage 06 (DEPLOY)**: Deployment scripts, rollback procedures, runbooks
+- **Stage 07 (OPERATE)**: Incident response, RCA, postmortems
 
 **Example AI Prompt** (Stage 02):
 ```
@@ -463,7 +463,7 @@ Generate:
 
 ## Next Stage
 
-Once Stage 02 is complete → **[Stage 03: Development & Implementation (BUILD)](../03-Development-Implementation/README.md)**
+Once Stage 02 is complete → **[Stage 04 (BUILD)](../03-Development-Implementation/README.md)**
 
 ---
 
@@ -488,7 +488,7 @@ Once Stage 02 is complete → **[Stage 03: Development & Implementation (BUILD)]
 **Total Documents**: 24 (across 11 folders)
 **Total Lines**: 50,000+ lines of architecture documentation
 **Quality Gates**: G2 (Technical Feasibility) ✅ PASSED (Dec 9, 2025)
-**Next Stage**: Stage 03 (BUILD) - IN PROGRESS
+**Next Stage**: Stage 04 (BUILD) - IN PROGRESS
 **Current Stage**: ✅ Stage 02 COMPLETED
 
 ---

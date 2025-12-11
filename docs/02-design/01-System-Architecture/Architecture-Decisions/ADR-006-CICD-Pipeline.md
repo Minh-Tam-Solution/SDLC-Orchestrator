@@ -60,8 +60,8 @@ Implement **GitHub Actions-based CI/CD** with:
 ### Pipeline Philosophy
 
 Following SDLC 4.9 stages:
-- **Stage 03 (BUILD)**: Code compilation, unit tests
-- **Stage 04 (TEST)**: Integration tests, E2E tests
+- **Stage 04 (BUILD)**: Code compilation, unit tests
+- **Stage 05 (TEST)**: Integration tests, E2E tests
 - **Stage 05 (SHIP)**: Deployment, smoke tests
 - **Stage 06 (RUN)**: Monitoring, health checks
 

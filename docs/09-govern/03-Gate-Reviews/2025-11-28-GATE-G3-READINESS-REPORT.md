@@ -128,8 +128,8 @@ SDLC Orchestrator has achieved **96% Gate G3 readiness**, exceeding the 95% targ
 | Stage 00 (WHY) | 14 | 5,000+ | 9.5/10 |
 | Stage 01 (WHAT) | 15 | 10,500+ | 9.6/10 |
 | Stage 02 (HOW) | 28 | 9,300+ | 9.5/10 |
-| Stage 03 (BUILD) | 10+ | 5,000+ | 9.4/10 |
-| Stage 05 (DEPLOY) | 5 | 3,850+ | 9.5/10 |
+| Stage 04 (BUILD) | 10+ | 5,000+ | 9.4/10 |
+| Stage 06 (DEPLOY) | 5 | 3,850+ | 9.5/10 |
 | **TOTAL** | **72+** | **33,650+** | **9.5/10** |
 
 ### Key Documents

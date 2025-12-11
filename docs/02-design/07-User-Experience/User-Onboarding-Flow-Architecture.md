@@ -606,8 +606,8 @@ Success Factors:
 Mapping Logic:
   /docs → Stage 00 (WHY)
   /requirements → Stage 01 (WHAT)
-  /src → Stage 03 (BUILD)
-  /tests → Stage 04 (TEST)
+  /src → Stage 04 (BUILD)
+  /tests → Stage 05 (TEST)
   /.github/workflows → Stage 05 (SHIP)
 ```
 

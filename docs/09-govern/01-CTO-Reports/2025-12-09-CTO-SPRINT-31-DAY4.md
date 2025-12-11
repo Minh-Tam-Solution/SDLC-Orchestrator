@@ -136,7 +136,7 @@ kubectl rollout undo deployment/backend
 |----------|--------|-------|
 | Root README | ✅ Complete | Quick start, architecture overview |
 | Setup guides | ✅ Detailed | Docker, local dev, production |
-| Operations README | ✅ Complete | Stage 06 OPERATE procedures |
+| Operations README | ✅ Complete | Stage 07 (OPERATE) procedures |
 | Training guide | ✅ Current | SDLC 5.0 referenced correctly |
 
 **Rating**: 9.5/10 - Clear onboarding path

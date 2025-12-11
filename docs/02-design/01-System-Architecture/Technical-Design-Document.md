@@ -1351,5 +1351,5 @@ graph TB
 
 **Last Updated**: November 13, 2025
 **Status**: ✅ ACCEPTED - Technical design complete
-**Next Review**: Stage 03 (BUILD - Implementation)
+**Next Review**: Stage 04 (BUILD) - Implementation)
 **Gate G2 Evidence**: `tdd_diagram: present`

@@ -219,7 +219,7 @@ Compliance Documents (Stage 09):
 ✅ openapi.yml (API contract)
 ```
 
-### Stage 03 (BUILD - Development)
+### Stage 04 (BUILD - Development|
 **Location**: `/docs/03-Development-Implementation/`
 
 ```

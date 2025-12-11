@@ -4,7 +4,7 @@
 **Date**: December 4, 2025
 **Decision Makers**: CTO, Backend Lead
 **Sprint**: 26 - AI Council Service
-**SDLC Stage**: Stage 03 (BUILD)
+**SDLC Stage**: Stage 04 (BUILD)
 
 ---
 

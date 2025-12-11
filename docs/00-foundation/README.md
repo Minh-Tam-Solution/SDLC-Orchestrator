@@ -1,11 +1,13 @@
-# Stage 00: Project Foundation (WHY?)
+# Stage 00: Foundation (WHY?)
 ## Design Thinking + Business Validation
 
-**Version**: 2.0.0
-**Date**: November 29, 2025
+**Stage**: 00 - FOUNDATION
+**Question**: Why are we building this?
+**Version**: 3.0.0
+**Date**: December 11, 2025
 **Status**: ✅ COMPLETED - Gate G0.1 + G0.2 PASSED
 **Authority**: PM + CEO + CTO + CPO Approved (9.5/10 Confidence)
-**Foundation**: SDLC 4.9.1 Complete Lifecycle (10 Stages)  
+**Framework**: SDLC 5.1.0 Complete Lifecycle (10 Stages)
 
 ---
 
@@ -21,35 +23,33 @@ This stage combines:
 
 ---
 
-## Folder Structure (SDLC 4.9.1 Compliant)
+## Folder Structure (SDLC 5.1.0 Compliant)
 
 ```
-00-Project-Foundation/
-├── README.md (this file)
+00-foundation/
+├── README.md                           # This file
 ├── 01-Vision/
-│   └── Product-Vision.md ✅
+│   └── Product-Vision.md               # Vision statement, market opportunity
 ├── 02-Business-Case/
-│   ├── Financial-Model.md ✅
-│   ├── Stakeholder-Alignment.md ✅
-│   └── Business-Requirements-Document.md ✅
+│   ├── Financial-Model.md              # Budget, ROI projections
+│   ├── Stakeholder-Alignment.md        # Leadership approval
+│   └── Business-Requirements-Document.md # High-level requirements
 ├── 03-Design-Thinking/
-│   ├── User-Personas.md ✅
-│   ├── Problem-Statement.md ✅
-│   ├── POV-Statement.md ✅
-│   ├── HMW-Questions.md ✅
-│   ├── Empathy-Maps.md ✅
-│   └── User-Journey-Maps.md ✅
+│   ├── User-Personas.md                # 3 personas with evidence
+│   ├── Problem-Statement.md            # Gate G0.1 evidence
+│   ├── POV-Statement.md                # User-centered framing
+│   ├── HMW-Questions.md                # 47 questions, top 10 prioritized
+│   ├── Empathy-Maps.md                 # Think/Feel/Say/Do
+│   └── User-Journey-Maps.md            # Idea → Production journey
 ├── 04-Roadmap/
-│   ├── Product-Roadmap.md ✅
-│   └── TIMELINE-UPDATE-NOV-2025.md
+│   ├── Product-Roadmap.md              # 90-day timeline, gates
+│   └── TIMELINE-UPDATE-NOV-2025.md     # Timeline adjustments
 ├── 05-Market-Analysis/
-│   ├── Competitive-Landscape.md ✅
-│   ├── Market-Sizing.md ✅
-│   └── OSS-Landscape-Research.md ✅
-└── 99-Legacy/
-    ├── STAGE-00-SDLC-4.9-UPDATE-REPORT.md
-    ├── STRATEGY-UPDATE-NOV-14-2025.md
-    └── UPDATES-COMPLETED-NOV-14-2025.md
+│   ├── Competitive-Landscape.md        # 5 competitor categories
+│   ├── Market-Sizing.md                # TAM/SAM/SOM analysis
+│   └── OSS-Landscape-Research.md       # OSS components evaluation
+└── 99-Legacy/                          # Archived documents
+    └── [Historical update reports]
 ```
 
 ---
@@ -136,20 +136,19 @@ This stage combines:
 
 ## Next Stage
 
-Once Stage 00 is complete → **[Stage 01: Planning & Analysis (WHAT)](../01-Planning-Analysis/README.md)**
+Once Stage 00 is complete → **[Stage 01: Planning (WHAT)](../01-planning/README.md)**
 
 ---
 
 ## References
 
-- [SDLC 4.9 Core Methodology](../../SDLC-Enterprise-Framework/README.md) - Complete 10-Stage Lifecycle
+- [SDLC 5.1 Core Methodology](../../SDLC-Enterprise-Framework/02-Core-Methodology/)
 - [PROJECT-KICKOFF.md](../../PROJECT-KICKOFF.md) - CEO approval summary
-- [Design Thinking Principles](../../SDLC-Enterprise-Framework/06-Templates-Tools/Design-Thinking/)
-- [Experts Validation - Stage 00 v1.2](../../../Experts Validation/stage00.md) - Bridge-First alignment
+- [Design Thinking Principles](../../SDLC-Enterprise-Framework/02-Core-Methodology/SDLC-Design-Thinking-Principles.md)
 
 ---
 
-**Last Updated**: 2025-11-29
+**Last Updated**: December 11, 2025
 **Owner**: PM + Design Lead + CEO
 **Status**: ✅ COMPLETED
 
@@ -157,8 +156,10 @@ Once Stage 00 is complete → **[Stage 01: Planning & Analysis (WHAT)](../01-Pla
 
 ## Document Summary
 
-**Total Documents**: 14 (+ 3 legacy reports)
-**Total Lines**: 30,000+ lines of comprehensive documentation
-**Quality Gates**: G0.1 ✅ PASSED, G0.2 ✅ PASSED
-**Next Stage**: Stage 01 (WHAT) - ✅ PASSED
-**Current Stage**: Stage 03 (BUILD) - IN PROGRESS
+| Metric | Value |
+|--------|-------|
+| Total Documents | 14 (+ 3 legacy reports) |
+| Total Lines | 30,000+ lines |
+| Quality Gates | G0.1 ✅ PASSED, G0.2 ✅ PASSED |
+| Next Stage | Stage 01 (WHAT) - ✅ PASSED |
+| Current Stage | Stage 04 (BUILD) - IN PROGRESS |

@@ -865,25 +865,25 @@ type Subscription {
 - [ ] Design GraphQL schema evolution strategy (deprecation, field versioning)
 - [ ] Create OpenAPI specs for v1 and v2 (OpenAPI Generator)
 
-### Stage 03 (BUILD - Development) - Week 5-8
+### Stage 04 (BUILD - Development| - Week 5-8
 - [ ] Implement REST API v1 with URL-based versioning
 - [ ] Implement GraphQL API with `@deprecated` directive
 - [ ] Build version metadata endpoint (`GET /`)
 - [ ] Implement deprecation warning headers
 - [ ] Create version migration scripts (database schema, data transformation)
 
-### Stage 04 (TEST - Quality Assurance) - Week 9-10
+### Stage 05 (TEST - Quality Assurance| - Week 9-10
 - [ ] Unit tests: version routing (v1 vs v2 requests)
 - [ ] Integration tests: backward compatibility (v1.0 → v1.5)
 - [ ] E2E tests: client migration (VS Code Ext v1 → v2)
 - [ ] Load tests: version-specific rate limits
 
-### Stage 05 (DEPLOY - Production Go-Live) - Week 11
+### Stage 06 (DEPLOY - Production Go-Live| - Week 11
 - [ ] Deploy v1.0.0 to production
 - [ ] Configure CDN routing (Cloudflare/AWS CloudFront)
 - [ ] Set up version monitoring (Datadog APM)
 
-### Stage 06 (OPERATE - Production Excellence) - Week 12+
+### Stage 07 (OPERATE - Production Excellence| - Week 12+
 - [ ] Monitor version adoption metrics (v1 vs v2 usage)
 - [ ] Track deprecated endpoint usage (sunset dashboard)
 - [ ] Send deprecation notifications (email, in-app)

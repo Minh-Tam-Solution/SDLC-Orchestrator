@@ -153,7 +153,7 @@ docs/
 
 ### 1. Contract-First Principle ✅
 
-**INTEGRATE (Stage 03)** now **BEFORE BUILD (Stage 04)** to enforce:
+**INTEGRATE (Stage 04 (BUILD) (Stage 04)** to enforce:
 - API Design happens BEFORE coding begins
 - OpenAPI specs defined BEFORE implementation
 - ISO/IEC 12207 compliance (Integration in Technical processes)

@@ -12,7 +12,7 @@
 
 ### Problem Statement
 
-SDLC 5.0.0 places **Stage 07 (INTEGRATE)** after **Stage 06 (OPERATE)**, which is logically incorrect:
+SDLC 5.0.0 places **Stage 03 (INTEGRATE)** after **Stage 07 (OPERATE)**, which is logically incorrect:
 
 1. **Temporal Impossibility**: If a project is already in OPERATE (production), it cannot "go back" to define API contracts
 2. **Design Phase Logic**: Integration/API Design belongs in the Design phase, not post-production
@@ -34,7 +34,7 @@ SDLC 5.0.0 places **Stage 07 (INTEGRATE)** after **Stage 06 (OPERATE)**, which i
 09-GOVERN:      Compliance & Governance
 ```
 
-**Issue**: Stage 07 (INTEGRATE) appears after Stage 06 (OPERATE), making it impossible to design APIs before production.
+**Issue**: Stage 03 (INTEGRATE) appears after Stage 07 (OPERATE), making it impossible to design APIs before production.
 
 ---
 

@@ -561,10 +561,10 @@ Example Flow (NQH-Bot Platform):
   Stage 00 (WHY): CEO defines problem → CPO approves G0.1
   Stage 01 (WHAT): PM writes FRD → CPO approves G1
   Stage 02 (HOW): CTO designs architecture → CTO approves G2
-  Stage 03 (BUILD): Dev team builds → Dev Lead approves G3
-  Stage 04 (TEST): QA team tests → QA Lead approves G4
-  Stage 05 (DEPLOY): DevOps deploys → DevOps Lead approves G5
-  Stage 06 (OPERATE): Team operates → DevOps Lead approves G6
+  Stage 04 (BUILD): Dev team builds → Dev Lead approves G3
+  Stage 05 (TEST): QA team tests → QA Lead approves G4
+  Stage 06 (DEPLOY): DevOps deploys → DevOps Lead approves G5
+  Stage 07 (OPERATE): Team operates → DevOps Lead approves G6
   ...
   Stage 09 (GOVERN): CEO reviews → CEO approves G9
 ```
@@ -684,34 +684,34 @@ Stage 02 (HOW - Design):
   GitHub Usage: Analyze repo structure, suggest architecture
   Roles Active: CTO, Dev Lead, Security Lead
 
-Stage 03 (BUILD - Development):
+Stage 04 (BUILD - Development|:
   GitHub Usage:
     - Sync commits/PRs as evidence
     - Auto-evaluate code quality gates
     - Track branch policies
   Roles Active: Dev Lead, DevOps Lead, QA Lead
 
-Stage 04 (TEST - Quality):
+Stage 05 (TEST) - Quality):
   GitHub Usage:
     - Link test results to PRs
     - Collect CI/CD artifacts as evidence
     - Track test coverage
   Roles Active: QA Lead, Security Lead
 
-Stage 05 (DEPLOY - Go-Live):
+Stage 06 (DEPLOY) - Go-Live):
   GitHub Usage:
     - Release creation webhook
     - Deployment artifacts
     - Rollback tracking
   Roles Active: DevOps Lead, CTO
 
-Stage 06 (OPERATE - Production):
+Stage 07 (OPERATE) - Production):
   GitHub Usage:
     - Issue/bug tracking sync
     - Incident correlation
   Roles Active: DevOps Lead, Data Lead
 
-Stage 07 (INTEGRATE):
+Stage 03 (INTEGRATE):
   GitHub Usage: API/webhook management
   Roles Active: CIO, DevOps Lead
 

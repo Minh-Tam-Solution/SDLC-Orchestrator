@@ -76,11 +76,11 @@ This Business Requirements Document (BRD) answers **WHY** we are building SDLC O
 1. **Stage 00 (WHY - Foundation)**: Problem validation, business case, design thinking
 2. **Stage 01 (WHAT - Planning)**: Requirements, user stories, solution design
 3. **Stage 02 (HOW - Architecture)**: System design, database schema, API specs
-4. **Stage 03 (BUILD - Development)**: Implementation, code review, CI/CD
-5. **Stage 04 (TEST - Quality Assurance)**: Unit tests, integration tests, UAT
-6. **Stage 05 (DEPLOY - Go-Live)**: Blue-green deployment, rollback strategy, production readiness
-7. **Stage 06 (OPERATE - Production Excellence)**: Monitoring, incident response, SRE practices
-8. **Stage 07 (INTEGRATE - Systems Integration)**: API contracts, third-party integrations, data flows
+4. **Stage 04 (BUILD - Development|**: Implementation, code review, CI/CD
+5. **Stage 05 (TEST - Quality Assurance|**: Unit tests, integration tests, UAT
+6. **Stage 06 (DEPLOY) - Go-Live)**: Blue-green deployment, rollback strategy, production readiness
+7. **Stage 07 (OPERATE - Production Excellence|**: Monitoring, incident response, SRE practices
+8. **Stage 03 (INTEGRATE - Systems Integration|**: API contracts, third-party integrations, data flows
 9. **Stage 08 (COLLABORATE - Team Coordination)**: Documentation, knowledge sharing, team velocity
 10. **Stage 09 (GOVERN - Strategic Oversight)**: Compliance, governance, strategic alignment
 
@@ -481,7 +481,7 @@ This Business Requirements Document (BRD) answers **WHY** we are building SDLC O
 - Security architecture
 - Deployment architecture
 
-**Stage 03 (BUILD)** will create:
+**Stage 04 (BUILD)** will create:
 - Working code
 - Unit tests
 - Integration tests

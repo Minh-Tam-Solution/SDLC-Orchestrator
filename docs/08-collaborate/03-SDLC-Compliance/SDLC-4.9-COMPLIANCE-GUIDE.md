@@ -235,8 +235,8 @@ Required Documentation (Per Stage):
   Stage 00 (WHY): Mission, Problem Statement, Solution Hypothesis
   Stage 01 (WHAT): FRD, API Spec, Data Model
   Stage 02 (HOW): System Architecture, ADRs, Security Baseline
-  Stage 03 (BUILD): Sprint Plans, Code Standards, Test Plans
-  Stage 04 (TEST): Test Reports, QA Sign-off
+  Stage 04 (BUILD): Sprint Plans, Code Standards, Test Plans
+  Stage 05 (TEST): Test Reports, QA Sign-off
   Stage 05 (SHIP): Deployment Guide, Release Notes
   Stage 06-09: Operate, Support, Evolve docs
 
@@ -304,13 +304,13 @@ Real-time Monitoring:
 │         ↓                                                        │
 │  Stage 02 (HOW)      → Architecture, design decisions           │
 │         ↓                                                        │
-│  Stage 03 (BUILD)    → Development, implementation ← CURRENT    │
+│  Stage 04 (BUILD)    → Development, implementation ← CURRENT    │
 │         ↓                                                        │
-│  Stage 04 (TEST)     → Quality assurance, validation            │
+│  Stage 05 (TEST)     → Quality assurance, validation            │
 │         ↓                                                        │
 │  Stage 05 (SHIP)     → Deployment, release                      │
 │         ↓                                                        │
-│  Stage 06 (OPERATE)  → Production monitoring                    │
+│  Stage 07 (OPERATE)  → Production monitoring                    │
 │         ↓                                                        │
 │  Stage 07 (SUPPORT)  → User support, maintenance                │
 │         ↓                                                        │
@@ -363,7 +363,7 @@ Real-time Monitoring:
 
 **Exit Criteria**: CTO 9.4/10 + CPO 9.2/10 approval
 
-### Stage 03: BUILD (Development) ← CURRENT
+### Stage 04 (BUILD) (Development) ← CURRENT
 
 **Gate: G3 (Ship Ready)**
 
@@ -386,9 +386,9 @@ Real-time Monitoring:
 
 | Stage | Gate | Status | Target |
 |-------|------|--------|--------|
-| Stage 04 (TEST) | G4 | PLANNED | Feb 2026 |
+| Stage 05 (TEST) | G4 | PLANNED | Feb 2026 |
 | Stage 05 (SHIP) | G5 | PLANNED | Feb 2026 |
-| Stage 06 (OPERATE) | G6 | PLANNED | Mar 2026 |
+| Stage 07 (OPERATE) | G6 | PLANNED | Mar 2026 |
 | Stage 07 (SUPPORT) | - | PLANNED | Mar 2026 |
 | Stage 08 (LEARN) | - | PLANNED | Quarterly |
 | Stage 09 (EVOLVE) | - | PLANNED | Continuous |
