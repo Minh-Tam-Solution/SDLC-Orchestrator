@@ -76,7 +76,8 @@
       "Bash(git config:*)",
       "Bash(mv:*)",
       "Bash(__NEW_LINE__ sed -i 's/Stage 05 DEPLOY/Stage 06 DEPLOY/g' README.md)",
-      "Bash(__NEW_LINE__ echo \"Fixed Stage 05 DEPLOY → Stage 06 DEPLOY\")"
+      "Bash(__NEW_LINE__ echo \"Fixed Stage 05 DEPLOY → Stage 06 DEPLOY\")",
+      "Bash(trong từng stage và 99-legacy trong backend, frontend và tools\"\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

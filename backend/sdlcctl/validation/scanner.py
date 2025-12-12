@@ -48,13 +48,18 @@ class ScanResult:
 
 class FolderScanner:
     """
-    Scanner for SDLC 5.0.0 folder structure.
+    Scanner for SDLC 5.1.0 folder structure.
 
     Identifies:
-    - SDLC stages (00-10)
+    - SDLC stages (00-09)
     - Naming violations
-    - Legacy folders (99-Legacy)
+    - Legacy/Archive folders (automatically skipped)
     - P0 artifact locations
+
+    Legacy/Archive Detection (CTO Knowledge Transfer):
+    - 99-Legacy (docs root, within stages, backend, frontend, tools)
+    - 10-Archive (docs root, within stages)
+    - legacy, archive (anywhere, case-insensitive)
     """
 
     # Patterns to ignore during scanning
@@ -74,11 +79,18 @@ class FolderScanner:
         ".DS_Store",
     }
 
-    # Legacy folder pattern
-    LEGACY_PATTERN = re.compile(r"^99-Legacy$", re.IGNORECASE)
+    # Legacy/Archive folder patterns - skip validation everywhere
+    # Locations: docs root, within each stage, backend, frontend, tools
+    LEGACY_ARCHIVE_PATTERNS = [
+        re.compile(r"^99-[Ll]egacy$"),           # 99-Legacy, 99-legacy
+        re.compile(r"^10-[Aa]rchive$"),          # 10-Archive, 10-archive
+        re.compile(r"^legacy$", re.IGNORECASE),  # legacy (anywhere)
+        re.compile(r"^archive$", re.IGNORECASE), # archive (anywhere)
+    ]
 
-    # Archive folder pattern (Stage 10 - should be skipped in validation)
-    ARCHIVE_PATTERN = re.compile(r"^10-[Aa]rchive$", re.IGNORECASE)
+    # Keep backward compatibility
+    LEGACY_PATTERN = re.compile(r"^99-[Ll]egacy$")
+    ARCHIVE_PATTERN = re.compile(r"^10-[Aa]rchive$")
 
     # Stage pattern (e.g., 00-Project-Foundation)
     STAGE_PATTERN = re.compile(r"^(\d{2})-(.+)$")
@@ -102,6 +114,23 @@ class FolderScanner:
         self.ignore_patterns = self.IGNORE_PATTERNS.copy()
         if ignore_patterns:
             self.ignore_patterns.update(ignore_patterns)
+
+    def _is_legacy_or_archive(self, folder_name: str) -> bool:
+        """
+        Check if folder is a legacy or archive folder.
+
+        Matches:
+        - 99-Legacy, 99-legacy (in docs, stages, backend, frontend, tools)
+        - 10-Archive, 10-archive (in docs, stages)
+        - legacy, archive (anywhere, case-insensitive)
+
+        Args:
+            folder_name: Name of the folder to check
+
+        Returns:
+            True if folder should be skipped as legacy/archive
+        """
+        return any(pattern.match(folder_name) for pattern in self.LEGACY_ARCHIVE_PATTERNS)
 
     def scan(self) -> ScanResult:
         """
@@ -146,14 +175,10 @@ class FolderScanner:
 
             total_folders += 1
 
-            # Check for legacy folder
-            if self.LEGACY_PATTERN.match(folder_name):
+            # Check for legacy/archive folder (skip validation but note existence)
+            # Includes: 99-Legacy, 10-Archive, legacy, archive
+            if self._is_legacy_or_archive(folder_name):
                 legacy_folders.append(item)
-                continue
-
-            # Check for archive folder (Stage 10 - skip validation but note existence)
-            if self.ARCHIVE_PATTERN.match(folder_name):
-                legacy_folders.append(item)  # Treat as legacy for reporting
                 continue
 
             # Check for stage pattern
@@ -219,9 +244,8 @@ class FolderScanner:
             # Skip ignored directories
             dirs[:] = [d for d in dirs if d not in self.ignore_patterns]
 
-            # Skip legacy and archive folders
-            dirs[:] = [d for d in dirs if not self.LEGACY_PATTERN.match(d)]
-            dirs[:] = [d for d in dirs if not self.ARCHIVE_PATTERN.match(d)]
+            # Skip legacy and archive folders (99-Legacy, 10-Archive, legacy, archive)
+            dirs[:] = [d for d in dirs if not self._is_legacy_or_archive(d)]
 
             # Calculate depth
             rel_path = Path(root).relative_to(stage_path)
@@ -267,6 +291,9 @@ class FolderScanner:
             if item.is_file():
                 # Skip ignored directories
                 if any(p in item.parts for p in self.ignore_patterns):
+                    continue
+                # Skip legacy/archive folders
+                if any(self._is_legacy_or_archive(p) for p in item.parts):
                     continue
                 return item
 
