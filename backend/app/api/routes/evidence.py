@@ -422,7 +422,7 @@ async def list_evidence(
     - Increments download_count
 
     **Response** (200 OK):
-    - Redirect to MinIO pre-signed download URL
+    - JSON with presigned_url for frontend to open
     - URL valid for 15 minutes (900 seconds)
 
     **Response** (404 Not Found):
@@ -435,8 +435,6 @@ async def download_evidence(
     current_user: User = Depends(get_current_active_user),
 ):
     """Download evidence file via pre-signed URL."""
-    from fastapi.responses import RedirectResponse
-
     # Fetch evidence
     result = await db.execute(
         select(GateEvidence).where(GateEvidence.id == evidence_id)
@@ -462,14 +460,16 @@ async def download_evidence(
         )
 
     # Increment download count (if column exists)
-    # Note: download_count field specified in API-CHANGELOG.md but may not be in model yet
-    # This is a defensive approach - will work with or without the field
     if hasattr(evidence, 'download_count'):
         evidence.download_count = (evidence.download_count or 0) + 1
         await db.commit()
 
-    # Redirect to pre-signed URL for direct download
-    return RedirectResponse(url=presigned_url, status_code=302)
+    # Return JSON with presigned URL (frontend will open this URL)
+    return {
+        "presigned_url": presigned_url,
+        "file_name": evidence.file_name,
+        "expires_in": 900,
+    }
 
 
 @router.post(

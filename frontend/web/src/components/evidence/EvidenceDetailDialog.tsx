@@ -82,17 +82,12 @@ export default function EvidenceDetailDialog({
         if (downloadUrl.startsWith('http')) {
           window.open(downloadUrl, '_blank')
         } else {
-          const response = await apiClient.get(downloadUrl, {
-            responseType: 'blob',
-          })
-          const url = window.URL.createObjectURL(new Blob([response.data]))
-          const link = document.createElement('a')
-          link.href = url
-          link.setAttribute('download', evidence.file_name)
-          document.body.appendChild(link)
-          link.click()
-          link.remove()
-          window.URL.revokeObjectURL(url)
+          // Get presigned URL from API
+          const response = await apiClient.get(downloadUrl)
+          const { presigned_url } = response.data
+          if (presigned_url) {
+            window.open(presigned_url, '_blank')
+          }
         }
       }
     } catch (error) {

@@ -98,22 +98,19 @@ export default function EvidencePage() {
       // Use download_url if available, otherwise use s3_url
       const downloadUrl = evidence.download_url || evidence.s3_url
       if (downloadUrl) {
-        // If it's a full URL, open it directly
+        // If it's a full URL (s3_url), open it directly
         if (downloadUrl.startsWith('http')) {
           window.open(downloadUrl, '_blank')
         } else {
-          // If it's a relative path, use apiClient
-          const response = await apiClient.get(downloadUrl, {
-            responseType: 'blob',
-          })
-          const url = window.URL.createObjectURL(new Blob([response.data]))
-          const link = document.createElement('a')
-          link.href = url
-          link.setAttribute('download', evidence.file_name)
-          document.body.appendChild(link)
-          link.click()
-          link.remove()
-          window.URL.revokeObjectURL(url)
+          // If it's a relative path (download_url), get presigned URL from API
+          const response = await apiClient.get(downloadUrl)
+          const { presigned_url } = response.data
+          if (presigned_url) {
+            // Open presigned URL in new tab for download
+            window.open(presigned_url, '_blank')
+          } else {
+            alert('Download URL not available')
+          }
         }
       } else {
         alert('Download URL not available')
