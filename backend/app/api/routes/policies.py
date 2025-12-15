@@ -15,11 +15,12 @@ Purpose:
 - Policy evaluation (OPA integration)
 - Policy evaluation history
 
-API Endpoints (4):
+API Endpoints (5):
 1. GET /policies - List policies with filters ✅ Production-ready
 2. GET /policies/{id} - Get policy details ✅ Production-ready
-3. POST /policies/evaluate - Evaluate policy against gate ✅ REAL OPA
-4. GET /policies/evaluations/{gate_id} - Get policy evaluations for gate ✅ Production-ready
+3. PUT /policies/{id} - Update policy ✅ Production-ready
+4. POST /policies/evaluate - Evaluate policy against gate ✅ REAL OPA
+5. GET /policies/evaluations/{gate_id} - Get policy evaluations for gate ✅ Production-ready
 
 Week 4 Day 4 Upgrade:
 ✅ OPA integration COMPLETE (REST API, real Rego execution)
@@ -51,6 +52,7 @@ from app.schemas.policy import (
     PolicyEvaluationResponse,
     PolicyListResponse,
     PolicyResponse,
+    PolicyUpdate,
 )
 from app.services.opa_service import OPAEvaluationError, opa_service
 
@@ -171,6 +173,75 @@ async def get_policy(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Policy with ID {policy_id} not found",
         )
+
+    return PolicyResponse(
+        id=policy.id,
+        policy_name=policy.policy_name,
+        policy_code=policy.policy_code,
+        stage=policy.stage,
+        description=policy.description,
+        rego_code=policy.rego_code,
+        severity=policy.severity,
+        is_active=policy.is_active,
+        version=policy.version,
+        created_at=policy.created_at,
+        updated_at=policy.updated_at,
+    )
+
+
+@router.put(
+    "/policies/{policy_id}",
+    response_model=PolicyResponse,
+    summary="Update policy",
+    description="""
+    Update an existing policy.
+
+    **Design Reference**: API-CHANGELOG.md v1.0.0
+    - Version history tracking
+    - Partial updates supported
+
+    **Request Body** (partial update):
+    - policy_name: Updated name (optional)
+    - description: Updated description (optional)
+    - rego_code: Updated Rego code (optional)
+    - severity: INFO | WARNING | ERROR | CRITICAL (optional)
+    - is_active: Active status (optional)
+    - version: Semantic version e.g. "1.0.1" (optional)
+
+    **Response** (200 OK):
+    - Updated policy details
+
+    **Response** (404 Not Found):
+    - Policy not found
+    """,
+)
+async def update_policy(
+    policy_id: UUID,
+    policy_update: PolicyUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Update an existing policy."""
+    # Fetch policy
+    result = await db.execute(select(Policy).where(Policy.id == policy_id))
+    policy = result.scalar_one_or_none()
+
+    if not policy:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Policy with ID {policy_id} not found",
+        )
+
+    # Update fields if provided
+    update_data = policy_update.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(policy, field, value)
+
+    # Update timestamp
+    policy.updated_at = datetime.utcnow()
+
+    await db.commit()
+    await db.refresh(policy)
 
     return PolicyResponse(
         id=policy.id,

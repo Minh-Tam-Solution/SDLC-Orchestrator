@@ -67,6 +67,29 @@ class PolicyResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class PolicyUpdate(BaseModel):
+    """
+    Policy update request schema.
+
+    Request Body:
+        {
+            "policy_name": "Updated Policy Name",
+            "description": "Updated description",
+            "rego_code": "package updated...",
+            "severity": "ERROR",
+            "is_active": true,
+            "version": "1.0.1"
+        }
+    """
+
+    policy_name: Optional[str] = Field(None, min_length=1, max_length=200)
+    description: Optional[str] = Field(None, max_length=2000)
+    rego_code: Optional[str] = Field(None, min_length=1)
+    severity: Optional[str] = Field(None, pattern="^(INFO|WARNING|ERROR|CRITICAL)$")
+    is_active: Optional[bool] = None
+    version: Optional[str] = Field(None, pattern=r"^\d+\.\d+\.\d+$")
+
+
 class PolicyListResponse(BaseModel):
     """
     Policy list response schema with pagination.
