@@ -188,7 +188,7 @@ export default function PoliciesPage() {
   const { data: allPoliciesData, isLoading: allPoliciesLoading } = useQuery<PolicyListResponse>({
     queryKey: ['policies', 'all-summary'],
     queryFn: async () => {
-      const response = await apiClient.get<PolicyListResponse>('/policies?page_size=500')
+      const response = await apiClient.get<PolicyListResponse>('/policies?page_size=100')
       return response.data
     },
   })
