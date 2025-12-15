@@ -82,8 +82,9 @@ export default function EvidenceDetailDialog({
         if (downloadUrl.startsWith('http')) {
           window.open(downloadUrl, '_blank')
         } else {
-          // Get presigned URL from API
-          const response = await apiClient.get(downloadUrl)
+          // Remove /api/v1 prefix if present since apiClient already has baseURL
+          const cleanUrl = downloadUrl.replace(/^\/api\/v1/, '')
+          const response = await apiClient.get(cleanUrl)
           const { presigned_url } = response.data
           if (presigned_url) {
             window.open(presigned_url, '_blank')

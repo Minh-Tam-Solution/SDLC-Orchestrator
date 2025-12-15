@@ -103,7 +103,9 @@ export default function EvidencePage() {
           window.open(downloadUrl, '_blank')
         } else {
           // If it's a relative path (download_url), get presigned URL from API
-          const response = await apiClient.get(downloadUrl)
+          // Remove /api/v1 prefix if present since apiClient already has baseURL
+          const cleanUrl = downloadUrl.replace(/^\/api\/v1/, '')
+          const response = await apiClient.get(cleanUrl)
           const { presigned_url } = response.data
           if (presigned_url) {
             // Open presigned URL in new tab for download
