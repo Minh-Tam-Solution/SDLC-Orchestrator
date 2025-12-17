@@ -1,7 +1,7 @@
 /**
  * File: frontend/web/e2e/admin-access-control.spec.ts
- * Version: 1.0.0
- * Status: ACTIVE - Sprint 38 E2E Testing
+ * Version: 1.1.0
+ * Status: ACTIVE - Sprint 39 E2E Testing
  * Date: 2025-12-17
  * Authority: Frontend Lead + CTO Approved
  * Foundation: SDLC 5.1.1 Complete Lifecycle
@@ -14,10 +14,13 @@
  * - REQ-SEC-001: Superuser-only access
  * - REQ-SEC-002: Access denied for non-superusers
  * - REQ-SEC-003: Sidebar visibility based on role
+ *
+ * Sprint 39: Non-Superuser Rejection Test
+ * - Added explicit test for regular user access denial
  */
 
 import { test, expect } from '@playwright/test'
-import { login, loginAsAdmin, logout } from './helpers/auth'
+import { login, loginAsAdmin, loginAsRegularUser, logout, TEST_REGULAR_USER } from './helpers/auth'
 
 test.describe('Admin Panel Access Control', () => {
   test.describe('Unauthenticated Access', () => {
@@ -47,6 +50,80 @@ test.describe('Admin Panel Access Control', () => {
     test('should redirect to login when accessing /admin/health without authentication', async ({ page }) => {
       await page.goto('/admin/health')
       await expect(page).toHaveURL(/\/login/, { timeout: 5000 })
+    })
+  })
+
+  test.describe('Non-Superuser Access (Regular User)', () => {
+    test('should redirect regular user away from /admin', async ({ page }) => {
+      // Login as regular user (non-superuser)
+      await login(page, TEST_REGULAR_USER.email, TEST_REGULAR_USER.password)
+      await page.waitForLoadState('networkidle')
+
+      // Try to access admin dashboard
+      await page.goto('/admin')
+      await page.waitForLoadState('networkidle')
+
+      // Should be redirected away from admin (to dashboard or forbidden)
+      // ProtectedRoute with requireSuperuser redirects non-superusers
+      const url = page.url()
+      expect(url).not.toContain('/admin')
+    })
+
+    test('should redirect regular user away from /admin/users', async ({ page }) => {
+      await login(page, TEST_REGULAR_USER.email, TEST_REGULAR_USER.password)
+      await page.waitForLoadState('networkidle')
+
+      await page.goto('/admin/users')
+      await page.waitForLoadState('networkidle')
+
+      const url = page.url()
+      expect(url).not.toContain('/admin/users')
+    })
+
+    test('should redirect regular user away from /admin/audit-logs', async ({ page }) => {
+      await login(page, TEST_REGULAR_USER.email, TEST_REGULAR_USER.password)
+      await page.waitForLoadState('networkidle')
+
+      await page.goto('/admin/audit-logs')
+      await page.waitForLoadState('networkidle')
+
+      const url = page.url()
+      expect(url).not.toContain('/admin/audit-logs')
+    })
+
+    test('should redirect regular user away from /admin/settings', async ({ page }) => {
+      await login(page, TEST_REGULAR_USER.email, TEST_REGULAR_USER.password)
+      await page.waitForLoadState('networkidle')
+
+      await page.goto('/admin/settings')
+      await page.waitForLoadState('networkidle')
+
+      const url = page.url()
+      expect(url).not.toContain('/admin/settings')
+    })
+
+    test('should redirect regular user away from /admin/health', async ({ page }) => {
+      await login(page, TEST_REGULAR_USER.email, TEST_REGULAR_USER.password)
+      await page.waitForLoadState('networkidle')
+
+      await page.goto('/admin/health')
+      await page.waitForLoadState('networkidle')
+
+      const url = page.url()
+      expect(url).not.toContain('/admin/health')
+    })
+
+    test('should NOT show Admin Panel in sidebar for regular user', async ({ page }) => {
+      await login(page, TEST_REGULAR_USER.email, TEST_REGULAR_USER.password)
+      await page.waitForLoadState('networkidle')
+
+      // Navigate to dashboard
+      await page.goto('/')
+      await page.waitForLoadState('networkidle')
+
+      // Admin Panel link should NOT be visible
+      const adminLink = page.locator('a[href="/admin"]')
+      await expect(adminLink).not.toBeVisible({ timeout: 3000 })
     })
   })
 

@@ -1,10 +1,10 @@
 /**
  * File: frontend/web/src/App.tsx
- * Version: 1.1.0
+ * Version: 1.2.0
  * Status: ACTIVE - STAGE 03 (BUILD)
- * Date: 2025-12-03
+ * Date: 2025-12-17
  * Authority: Frontend Lead + CTO Approved
- * Foundation: SDLC 4.9 Complete Lifecycle, Zero Mock Policy
+ * Foundation: SDLC 5.1.1 Complete Lifecycle, Zero Mock Policy
  *
  * Description:
  * Root component for SDLC Orchestrator frontend application.
@@ -14,12 +14,16 @@
  * - React.lazy for code splitting (route-based)
  * - Suspense for loading states
  * - Reduces initial bundle by ~60%
+ *
+ * Sprint 39: Toast Notification System
+ * - Added Toaster component for global toast notifications
  */
 
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from '@/contexts/AuthContext'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import { Toaster } from '@/components/ui/toaster'
 
 // Lazy-loaded pages (route-based code splitting)
 // Critical path: Login loaded immediately
@@ -255,6 +259,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
+        <Toaster />
       </AuthProvider>
     </BrowserRouter>
   )

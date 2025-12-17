@@ -1,8 +1,8 @@
 /**
  * File: frontend/web/src/pages/admin/UserManagementPage.tsx
- * Version: 1.0.0
- * Status: ACTIVE - Sprint 37 Admin Panel
- * Date: 2025-12-16
+ * Version: 1.1.0
+ * Status: ACTIVE - Sprint 39 Toast Notifications
+ * Date: 2025-12-17
  * Authority: CTO Approved (ADR-017)
  * Framework: SDLC 5.1.1 Complete Lifecycle
  *
@@ -14,6 +14,9 @@
  * - Requires is_superuser=true
  * - Self-action prevention (cannot modify own account)
  * - Minimum superuser protection (always keep at least 1)
+ *
+ * Sprint 39: Toast Notifications
+ * - Added toast feedback for user actions
  */
 
 import { useState } from 'react'
@@ -23,6 +26,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { useAuth } from '@/contexts/AuthContext'
+import { useToast } from '@/hooks/useToast'
 import {
   useAdminUsers,
   useUpdateAdminUser,
@@ -65,6 +69,7 @@ function SuperuserBadge({ isSuperuser }: { isSuperuser: boolean }) {
 export default function UserManagementPage() {
   const navigate = useNavigate()
   const { user: currentUser } = useAuth()
+  const { toast } = useToast()
 
   // Search and filter state
   const [search, setSearch] = useState('')
@@ -95,8 +100,18 @@ export default function UserManagementPage() {
         userId: user.id,
         data: { is_active: !user.is_active },
       })
+      toast({
+        title: user.is_active ? 'User Deactivated' : 'User Activated',
+        description: `${user.email} has been ${user.is_active ? 'deactivated' : 'activated'}`,
+        variant: user.is_active ? 'warning' : 'success',
+      })
     } catch (error) {
       console.error('Failed to update user:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to update user status',
+        variant: 'error',
+      })
     }
   }
 
@@ -107,8 +122,18 @@ export default function UserManagementPage() {
         userId: user.id,
         data: { is_superuser: !user.is_superuser },
       })
+      toast({
+        title: user.is_superuser ? 'Admin Removed' : 'Admin Added',
+        description: `${user.email} ${user.is_superuser ? 'is no longer an admin' : 'is now an admin'}`,
+        variant: 'success',
+      })
     } catch (error) {
       console.error('Failed to update user:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to update admin status',
+        variant: 'error',
+      })
     }
   }
 
@@ -123,13 +148,28 @@ export default function UserManagementPage() {
       })
 
       if (result.failed_count > 0) {
-        console.warn('Some users failed:', result.failed_users)
+        toast({
+          title: 'Partial Success',
+          description: `${result.success_count} users ${action}d, ${result.failed_count} failed`,
+          variant: 'warning',
+        })
+      } else {
+        toast({
+          title: 'Bulk Action Complete',
+          description: `${result.success_count} user(s) ${action}d successfully`,
+          variant: 'success',
+        })
       }
 
       setSelectedUsers([])
       refetch()
     } catch (error) {
       console.error('Bulk action failed:', error)
+      toast({
+        title: 'Bulk Action Failed',
+        description: `Failed to ${action} users`,
+        variant: 'error',
+      })
     }
   }
 

@@ -1,8 +1,8 @@
 /**
  * File: frontend/web/src/pages/admin/SystemSettingsPage.tsx
- * Version: 1.0.0
- * Status: ACTIVE - Sprint 37 Admin Panel
- * Date: 2025-12-16
+ * Version: 1.1.0
+ * Status: ACTIVE - Sprint 39 Toast Notifications
+ * Date: 2025-12-17
  * Authority: CTO Approved (ADR-017)
  * Framework: SDLC 5.1.1 Complete Lifecycle
  *
@@ -14,6 +14,9 @@
  * - Requires is_superuser=true
  * - All changes are audit logged
  * - Rollback capability (CTO requirement)
+ *
+ * Sprint 39: Toast Notifications
+ * - Added toast feedback for settings changes
  */
 
 import { useState } from 'react'
@@ -22,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import DashboardLayout from '@/components/layout/DashboardLayout'
+import { useToast } from '@/hooks/useToast'
 import {
   useSystemSettings,
   useUpdateSystemSetting,
@@ -229,6 +233,7 @@ function SettingsSection({
  */
 export default function SystemSettingsPage() {
   const navigate = useNavigate()
+  const { toast } = useToast()
 
   // Fetch settings
   const { data: settings, isLoading, refetch } = useSystemSettings()
@@ -241,8 +246,18 @@ export default function SystemSettingsPage() {
   const handleUpdate = async (key: string, value: unknown) => {
     try {
       await updateMutation.mutateAsync({ key, data: { value } })
+      toast({
+        title: 'Setting Updated',
+        description: `"${key}" has been updated successfully`,
+        variant: 'success',
+      })
     } catch (error) {
       console.error('Failed to update setting:', error)
+      toast({
+        title: 'Update Failed',
+        description: `Failed to update "${key}"`,
+        variant: 'error',
+      })
     }
   }
 
@@ -254,8 +269,18 @@ export default function SystemSettingsPage() {
 
     try {
       await rollbackMutation.mutateAsync(key)
+      toast({
+        title: 'Setting Rolled Back',
+        description: `"${key}" has been reverted to the previous version`,
+        variant: 'info',
+      })
     } catch (error) {
       console.error('Failed to rollback setting:', error)
+      toast({
+        title: 'Rollback Failed',
+        description: `Failed to rollback "${key}"`,
+        variant: 'error',
+      })
     }
   }
 
