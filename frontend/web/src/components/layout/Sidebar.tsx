@@ -1,14 +1,19 @@
 /**
  * File: frontend/web/src/components/layout/Sidebar.tsx
- * Version: 1.0.0
- * Status: ACTIVE - STAGE 03 (BUILD)
- * Date: 2025-11-27
+ * Version: 1.1.0
+ * Status: ACTIVE - Sprint 37 Admin Panel
+ * Date: 2025-12-16
  * Authority: Frontend Lead + CTO Approved
- * Foundation: SDLC 4.9 Complete Lifecycle, Zero Mock Policy
+ * Foundation: SDLC 5.1.1 Complete Lifecycle, Zero Mock Policy
  *
  * Description:
  * Sidebar navigation component for SDLC Orchestrator dashboard.
  * Provides navigation to main sections: Dashboard, Projects, Evidence, Policies.
+ * Admin Panel navigation visible only to superusers (ADR-017).
+ *
+ * Changelog:
+ * - v1.1.0 (2025-12-16): Add Admin Panel navigation for superusers
+ * - v1.0.0 (2025-11-27): Initial implementation
  */
 
 import { Link, useLocation, useNavigate } from 'react-router-dom'
@@ -19,6 +24,8 @@ interface NavItem {
   title: string
   href: string
   icon: React.ReactNode
+  /** If true, only visible to superusers (Admin Panel) */
+  requireSuperuser?: boolean
 }
 
 const navItems: NavItem[] = [
@@ -95,6 +102,16 @@ const navItems: NavItem[] = [
     ),
   },
   {
+    title: 'Admin Panel',
+    href: '/admin',
+    icon: (
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    ),
+    requireSuperuser: true,
+  },
+  {
     title: 'Settings',
     href: '/settings',
     icon: (
@@ -137,25 +154,27 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="space-y-1 p-4 flex-1">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.href ||
-            (item.href !== '/' && location.pathname.startsWith(item.href))
-          return (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-              )}
-            >
-              {item.icon}
-              {item.title}
-            </Link>
-          )
-        })}
+        {navItems
+          .filter((item) => !item.requireSuperuser || user?.is_superuser)
+          .map((item) => {
+            const isActive = location.pathname === item.href ||
+              (item.href !== '/' && location.pathname.startsWith(item.href))
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                )}
+              >
+                {item.icon}
+                {item.title}
+              </Link>
+            )
+          })}
       </nav>
 
       {/* User Profile & Logout */}

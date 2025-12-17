@@ -39,8 +39,8 @@ from app.models.ai_engine import AIProvider, AIRequest, AIUsageLog, AIEvidenceDr
 # Policy Library (FR5) - 3 models
 from app.models.policy import Policy, CustomPolicy, PolicyTest
 
-# Supporting - 4 models
-from app.models.support import StageTransition, Webhook, AuditLog, Notification
+# Supporting - 5 models
+from app.models.support import StageTransition, Webhook, AuditLog, Notification, SystemSetting
 
 # Compliance Scanning (Sprint 21) - 3 models
 from app.models.compliance_scan import ComplianceScan, ComplianceViolation, ScanJob
@@ -81,11 +81,12 @@ __all__ = [
     "Policy",
     "CustomPolicy",
     "PolicyTest",
-    # Supporting (4)
+    # Supporting (5)
     "StageTransition",
     "Webhook",
     "AuditLog",
     "Notification",
+    "SystemSetting",
     # Compliance Scanning (3)
     "ComplianceScan",
     "ComplianceViolation",

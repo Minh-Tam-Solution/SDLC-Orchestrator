@@ -59,6 +59,15 @@ class AuditAction(str, Enum):
     ROLE_REVOKED = "ROLE_REVOKED"
     PERMISSION_CHANGED = "PERMISSION_CHANGED"
 
+    # Admin Panel Events (Sprint 37 - ADR-017)
+    USER_SUPERUSER_GRANTED = "USER_SUPERUSER_GRANTED"
+    USER_SUPERUSER_REVOKED = "USER_SUPERUSER_REVOKED"
+    ADMIN_LOGIN = "ADMIN_LOGIN"
+    ADMIN_LOGIN_FAILED = "ADMIN_LOGIN_FAILED"
+    SETTING_UPDATED = "SETTING_UPDATED"
+    SETTING_ROLLBACK = "SETTING_ROLLBACK"
+    ADMIN_BULK_ACTION = "ADMIN_BULK_ACTION"
+
     # Project Events
     PROJECT_CREATED = "PROJECT_CREATED"
     PROJECT_UPDATED = "PROJECT_UPDATED"
@@ -149,6 +158,7 @@ class AuditService:
         user_id: UUID | None = None,
         resource_type: str | None = None,
         resource_id: UUID | None = None,
+        target_name: str | None = None,
         details: dict[str, Any] | None = None,
         request: Request | None = None,
         ip_address: str | None = None,
@@ -162,6 +172,7 @@ class AuditService:
             user_id: UUID of the user performing the action (None for system events)
             resource_type: Type of resource affected ('user', 'gate', 'evidence', etc.)
             resource_id: UUID of the affected resource
+            target_name: Human-readable name of the target (e.g., user email, setting key)
             details: Additional context as JSON-serializable dict
             request: FastAPI Request object (for extracting IP/user agent)
             ip_address: Client IP address (if not using request)
@@ -195,6 +206,7 @@ class AuditService:
             action=action.value if isinstance(action, AuditAction) else action,
             resource_type=resource_type,
             resource_id=resource_id,
+            target_name=target_name,
             details=details or {},
             ip_address=ip_address,
             user_agent=user_agent,
@@ -382,6 +394,164 @@ class AuditService:
             user_id=user_id,
             resource_type="ai_council",
             resource_id=violation_id,
+            details=log_details,
+            request=request,
+        )
+
+    # =====================================================
+    # Admin Panel Methods (Sprint 37 - ADR-017)
+    # =====================================================
+
+    async def log_user_activation(
+        self,
+        admin_user_id: UUID,
+        target_user_id: UUID,
+        target_email: str,
+        is_activating: bool,
+        request: Request,
+        details: dict[str, Any] | None = None,
+    ) -> AuditLog:
+        """
+        Log user activation or deactivation by admin.
+
+        Args:
+            admin_user_id: UUID of admin performing the action
+            target_user_id: UUID of user being activated/deactivated
+            target_email: Email of the target user (for display)
+            is_activating: True if activating, False if deactivating
+            request: FastAPI request
+            details: Additional context
+
+        Example:
+            await audit_service.log_user_activation(
+                admin_user_id=admin.id,
+                target_user_id=user.id,
+                target_email=user.email,
+                is_activating=False,
+                request=request,
+                details={"reason": "Policy violation"}
+            )
+        """
+        action = AuditAction.USER_ACTIVATED if is_activating else AuditAction.USER_DEACTIVATED
+        log_details = {"previous_status": "inactive" if is_activating else "active"}
+        if details:
+            log_details.update(details)
+
+        return await self.log(
+            action=action,
+            user_id=admin_user_id,
+            resource_type="user",
+            resource_id=target_user_id,
+            target_name=target_email,
+            details=log_details,
+            request=request,
+        )
+
+    async def log_superuser_change(
+        self,
+        admin_user_id: UUID,
+        target_user_id: UUID,
+        target_email: str,
+        is_granting: bool,
+        request: Request,
+        details: dict[str, Any] | None = None,
+    ) -> AuditLog:
+        """
+        Log superuser status grant or revocation.
+
+        Args:
+            admin_user_id: UUID of admin performing the action
+            target_user_id: UUID of user being granted/revoked superuser
+            target_email: Email of the target user
+            is_granting: True if granting, False if revoking
+            request: FastAPI request
+            details: Additional context
+        """
+        action = AuditAction.USER_SUPERUSER_GRANTED if is_granting else AuditAction.USER_SUPERUSER_REVOKED
+        log_details = {"previous_superuser_status": not is_granting}
+        if details:
+            log_details.update(details)
+
+        return await self.log(
+            action=action,
+            user_id=admin_user_id,
+            resource_type="user",
+            resource_id=target_user_id,
+            target_name=target_email,
+            details=log_details,
+            request=request,
+        )
+
+    async def log_setting_change(
+        self,
+        admin_user_id: UUID,
+        setting_key: str,
+        old_value: Any,
+        new_value: Any,
+        request: Request,
+        details: dict[str, Any] | None = None,
+    ) -> AuditLog:
+        """
+        Log system setting change.
+
+        Args:
+            admin_user_id: UUID of admin changing the setting
+            setting_key: Key of the setting being changed
+            old_value: Previous setting value
+            new_value: New setting value
+            request: FastAPI request
+            details: Additional context
+        """
+        log_details = {
+            "old_value": old_value,
+            "new_value": new_value,
+        }
+        if details:
+            log_details.update(details)
+
+        return await self.log(
+            action=AuditAction.SETTING_UPDATED,
+            user_id=admin_user_id,
+            resource_type="setting",
+            resource_id=None,
+            target_name=setting_key,
+            details=log_details,
+            request=request,
+        )
+
+    async def log_setting_rollback(
+        self,
+        admin_user_id: UUID,
+        setting_key: str,
+        from_version: int,
+        to_version: int,
+        request: Request,
+        details: dict[str, Any] | None = None,
+    ) -> AuditLog:
+        """
+        Log system setting rollback.
+
+        Args:
+            admin_user_id: UUID of admin performing rollback
+            setting_key: Key of the setting being rolled back
+            from_version: Version rolling back from
+            to_version: Version rolling back to
+            request: FastAPI request
+            details: Additional context
+        """
+        log_details = {
+            "from_version": from_version,
+            "to_version": to_version,
+        }
+        if details:
+            log_details.update(details)
+
+        return await self.log(
+            action=AuditAction.SETTING_ROLLBACK,
+            user_id=admin_user_id,
+            resource_type="setting",
+            resource_id=None,
+            target_name=setting_key,
             details=log_details,
             request=request,
         )

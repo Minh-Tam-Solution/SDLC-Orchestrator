@@ -179,7 +179,7 @@ async def lifespan(app: FastAPI):
 # ============================================================================
 
 # Import API routers (after lifespan is defined)
-from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, council, sdlc_structure, sop
+from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, council, sdlc_structure, sop, admin
 
 # Create FastAPI app with lifespan
 app = FastAPI(
@@ -245,6 +245,7 @@ app.include_router(analytics.router, prefix="/api/v1", tags=["Analytics"])
 app.include_router(council.router, prefix="/api/v1", tags=["AI Council"])  # Sprint 26 Day 3
 app.include_router(sdlc_structure.router, prefix="/api/v1", tags=["SDLC Structure"])  # Sprint 30 Day 3
 app.include_router(sop.router, prefix="/api/v1", tags=["SOP Generator"])  # Phase 2-Pilot Week 1
+app.include_router(admin.router, prefix="/api/v1", tags=["Admin Panel"])  # Sprint 37 - ADR-017
 
 # ============================================================================
 # Health Check Endpoints

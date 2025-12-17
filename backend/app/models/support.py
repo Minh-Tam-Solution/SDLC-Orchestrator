@@ -283,6 +283,7 @@ class AuditLog(Base):
     # Resource
     resource_type = Column(String(50), nullable=True, index=True)  # 'user', 'gate', 'evidence'
     resource_id = Column(UUID(as_uuid=True), nullable=True, index=True)
+    target_name = Column(String(255), nullable=True)  # Human-readable target name for display
 
     # Details
     details = Column(JSONB, nullable=False, default=dict)  # Additional context
@@ -299,6 +300,79 @@ class AuditLog(Base):
 
     def __repr__(self) -> str:
         return f"<AuditLog(action={self.action}, user_id={self.user_id}, resource_type={self.resource_type})>"
+
+
+class SystemSetting(Base):
+    """
+    System Setting model for platform configuration.
+
+    Purpose:
+        - Store system-wide configuration (session timeout, limits, features)
+        - Runtime configuration without redeployment
+        - Audit trail for setting changes (who changed what when)
+        - Version control for rollback capability (CTO requirement)
+
+    Categories:
+        - security: Session timeout, MFA, password policy
+        - limits: Max projects, max file size, retention periods
+        - features: Feature flags (AI Council, etc.)
+        - notifications: Email/Slack settings
+
+    Fields:
+        - key: Setting key (primary key, e.g., 'session_timeout_minutes')
+        - value: JSONB value (flexible for different types)
+        - version: Version number for rollback capability
+        - previous_value: Previous value for rollback
+        - category: Setting category ('security', 'limits', 'features')
+        - description: Human-readable description
+        - updated_at: Last update timestamp
+        - updated_by: Foreign key to User (who made the change)
+
+    Indexes:
+        - category (B-tree) - Category filtering
+        - updated_at (B-tree) - Recent changes queries
+
+    Usage Example:
+        setting = SystemSetting(
+            key='session_timeout_minutes',
+            value=30,
+            category='security',
+            description='Session timeout in minutes'
+        )
+
+    ADR Reference: ADR-017 Admin Panel Architecture
+    CTO Condition: Version field for rollback capability (Dec 16, 2025)
+    """
+
+    __tablename__ = "system_settings"
+
+    # Primary Key
+    key = Column(String(100), primary_key=True)
+
+    # Value (JSONB for flexibility)
+    value = Column(JSONB, nullable=False)
+
+    # Version control for rollback (CTO requirement)
+    version = Column(Integer, nullable=False, default=1)
+    previous_value = Column(JSONB, nullable=True)
+
+    # Metadata
+    category = Column(String(50), nullable=False, default="general")
+    description = Column(Text, nullable=True)
+
+    # Audit
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    updated_by = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
+    # Relationships
+    updater = relationship("User", backref="system_settings_updated")
+
+    def __repr__(self) -> str:
+        return f"<SystemSetting(key={self.key}, category={self.category}, version={self.version})>"
 
 
 class Notification(Base):

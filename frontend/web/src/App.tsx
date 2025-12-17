@@ -42,6 +42,13 @@ const SOPGeneratorPage = lazy(() => import('@/pages/SOPGeneratorPage'))  // Phas
 const SOPHistoryPage = lazy(() => import('@/pages/SOPHistoryPage'))  // Phase 2-Pilot Week 4
 const SOPDetailPage = lazy(() => import('@/pages/SOPDetailPage'))  // Phase 2-Pilot Week 4
 
+// Admin Panel pages (Sprint 37)
+const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'))
+const UserManagementPage = lazy(() => import('@/pages/admin/UserManagementPage'))
+const AuditLogsPage = lazy(() => import('@/pages/admin/AuditLogsPage'))
+const SystemSettingsPage = lazy(() => import('@/pages/admin/SystemSettingsPage'))
+const SystemHealthPage = lazy(() => import('@/pages/admin/SystemHealthPage'))
+
 /**
  * Loading fallback component for Suspense
  * Displays centered spinner during lazy load
@@ -198,6 +205,48 @@ function App() {
             element={
               <ProtectedRoute>
                 <SOPDetailPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Panel routes (Sprint 37) - Requires is_superuser=true */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requireSuperuser>
+                <AdminDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute requireSuperuser>
+                <UserManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/audit-logs"
+            element={
+              <ProtectedRoute requireSuperuser>
+                <AuditLogsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute requireSuperuser>
+                <SystemSettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/health"
+            element={
+              <ProtectedRoute requireSuperuser>
+                <SystemHealthPage />
               </ProtectedRoute>
             }
           />
