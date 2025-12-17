@@ -1,7 +1,7 @@
 /**
  * File: frontend/web/src/pages/admin/UserManagementPage.tsx
- * Version: 1.1.0
- * Status: ACTIVE - Sprint 39 Toast Notifications
+ * Version: 1.2.0
+ * Status: ACTIVE - Sprint 40 Part 2 Edit User Dialog
  * Date: 2025-12-17
  * Authority: CTO Approved (ADR-017)
  * Framework: SDLC 5.1.1 Complete Lifecycle
@@ -17,6 +17,11 @@
  *
  * Sprint 39: Toast Notifications
  * - Added toast feedback for user actions
+ *
+ * Sprint 40 Part 2: Edit User Dialog
+ * - Added Edit button for each user
+ * - Integrated EditUserDialog component
+ * - Supports email change, password reset, name/status updates
  */
 
 import { useState } from 'react'
@@ -35,6 +40,7 @@ import {
 } from '@/api/admin'
 import { CreateUserDialog } from '@/components/admin/CreateUserDialog'
 import { DeleteUserDialog } from '@/components/admin/DeleteUserDialog'
+import { EditUserDialog } from '@/components/admin/EditUserDialog'
 
 /**
  * User status badge
@@ -85,6 +91,7 @@ export default function UserManagementPage() {
   // Dialog state (Sprint 40)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [deleteDialogUser, setDeleteDialogUser] = useState<AdminUserListItem | null>(null)
+  const [editDialogUser, setEditDialogUser] = useState<AdminUserListItem | null>(null)
 
   // Fetch users
   const { data: usersData, isLoading, refetch } = useAdminUsers({
@@ -413,6 +420,14 @@ export default function UserManagementPage() {
                               <Button
                                 variant="outline"
                                 size="sm"
+                                onClick={() => setEditDialogUser(user)}
+                                title="Edit user details"
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => handleToggleActive(user)}
                                 disabled={user.id === currentUser?.id || updateUserMutation.isPending}
                                 title={user.id === currentUser?.id ? 'Cannot modify your own account' : ''}
@@ -489,6 +504,11 @@ export default function UserManagementPage() {
         <CreateUserDialog
           open={createDialogOpen}
           onOpenChange={setCreateDialogOpen}
+        />
+        <EditUserDialog
+          user={editDialogUser}
+          open={editDialogUser !== null}
+          onOpenChange={(open) => !open && setEditDialogUser(null)}
         />
         <DeleteUserDialog
           user={deleteDialogUser}
