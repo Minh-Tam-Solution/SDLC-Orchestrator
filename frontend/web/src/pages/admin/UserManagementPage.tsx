@@ -422,6 +422,7 @@ export default function UserManagementPage() {
                                 size="sm"
                                 onClick={() => setEditDialogUser(user)}
                                 title="Edit user details"
+                                className="min-w-[70px]"
                               >
                                 Edit
                               </Button>
@@ -431,6 +432,7 @@ export default function UserManagementPage() {
                                 onClick={() => handleToggleActive(user)}
                                 disabled={user.id === currentUser?.id || updateUserMutation.isPending}
                                 title={user.id === currentUser?.id ? 'Cannot modify your own account' : ''}
+                                className="min-w-[100px]"
                               >
                                 {user.is_active ? 'Deactivate' : 'Activate'}
                               </Button>
@@ -440,6 +442,7 @@ export default function UserManagementPage() {
                                 onClick={() => handleToggleSuperuser(user)}
                                 disabled={user.id === currentUser?.id || updateUserMutation.isPending}
                                 title={user.id === currentUser?.id ? 'Cannot modify your own account' : ''}
+                                className="min-w-[120px]"
                               >
                                 {user.is_superuser ? 'Remove Admin' : 'Make Admin'}
                               </Button>
@@ -449,6 +452,7 @@ export default function UserManagementPage() {
                                 onClick={() => setDeleteDialogUser(user)}
                                 disabled={user.id === currentUser?.id}
                                 title={user.id === currentUser?.id ? 'Cannot delete your own account' : ''}
+                                className="min-w-[70px]"
                               >
                                 Delete
                               </Button>
