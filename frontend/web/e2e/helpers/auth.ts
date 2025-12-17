@@ -1,14 +1,18 @@
 /**
  * File: frontend/web/e2e/helpers/auth.ts
- * Version: 1.0.0
- * Status: ACTIVE - STAGE 03 (BUILD)
- * Date: 2025-11-27
+ * Version: 1.1.0
+ * Status: ACTIVE - Sprint 38 E2E Testing
+ * Date: 2025-12-17
  * Authority: Frontend Lead + CTO Approved
- * Foundation: SDLC 4.9 Complete Lifecycle, Zero Mock Policy
+ * Foundation: SDLC 5.1.1 Complete Lifecycle, Zero Mock Policy
  *
  * Description:
  * Authentication helper functions for E2E tests.
  * Provides reusable login/logout utilities.
+ *
+ * Changelog:
+ * - v1.1.0 (2025-12-17): Add admin login helper for Admin Panel tests
+ * - v1.0.0 (2025-11-27): Initial implementation
  */
 
 import { Page, expect } from '@playwright/test'
@@ -18,10 +22,21 @@ export const TEST_USER = {
   password: 'Admin@123',
 }
 
+export const TEST_ADMIN = {
+  email: 'admin@sdlc-orchestrator.io',
+  password: 'Admin@123',
+  is_superuser: true,
+}
+
+export const TEST_REGULAR_USER = {
+  email: 'user@sdlc-orchestrator.io',
+  password: 'User@123',
+  is_superuser: false,
+}
+
 /**
  * Login to the application with test credentials.
  * Uses flexible selectors to handle different input implementations.
-<<<<<<< HEAD
  * Includes retry logic for parallel test stability.
  */
 export async function login(page: Page, email = TEST_USER.email, password = TEST_USER.password): Promise<void> {
@@ -60,7 +75,6 @@ export async function login(page: Page, email = TEST_USER.email, password = TEST
       await loginButton.click()
 
       // Wait for navigation away from login page
-      // Use Promise.race to handle both redirect and error scenarios
       await Promise.race([
         page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15000 }),
         page.waitForSelector('.error, [role="alert"]', { timeout: 15000 }).then(() => {
@@ -86,46 +100,36 @@ export async function login(page: Page, email = TEST_USER.email, password = TEST
   }
 
   throw lastError || new Error('Login failed after max retries')
-=======
+}
+
+/**
+ * Login as admin user (superuser).
+ * Verifies that the logged-in user has admin privileges.
  */
-export async function login(page: Page, email = TEST_USER.email, password = TEST_USER.password): Promise<void> {
-  // Navigate to login page
-  await page.goto('/login')
+export async function loginAsAdmin(page: Page): Promise<void> {
+  await login(page, TEST_ADMIN.email, TEST_ADMIN.password)
 
-  // Wait for page to be ready
-  await page.waitForLoadState('networkidle')
+  // Verify admin sidebar item is visible (only for superusers)
+  await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {})
 
-  // Find and fill email input (try multiple selectors)
-  const emailInput = page.locator('input[type="email"], input#email, input[name="email"]').first()
-  await emailInput.waitFor({ state: 'visible', timeout: 10000 })
-  await emailInput.fill(email)
+  // Admin Panel link should be visible in sidebar
+  const adminLink = page.locator('a[href="/admin"]')
+  await expect(adminLink).toBeVisible({ timeout: 5000 })
+}
 
-  // Find and fill password input
-  const passwordInput = page.locator('input[type="password"], input#password, input[name="password"]').first()
-  await passwordInput.waitFor({ state: 'visible', timeout: 5000 })
-  await passwordInput.fill(password)
+/**
+ * Login as regular user (non-superuser).
+ * Verifies that admin features are NOT visible.
+ */
+export async function loginAsRegularUser(page: Page): Promise<void> {
+  await login(page, TEST_REGULAR_USER.email, TEST_REGULAR_USER.password)
 
-  // Click login button
-  const loginButton = page.getByRole('button', { name: /sign in|login|submit/i })
-  await loginButton.click()
+  // Verify admin sidebar item is NOT visible
+  await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {})
 
-  // Wait for login to complete - button changes to "Signing in..." then redirects
-  // Wait for the button to not be disabled (loading finished)
-  await page.waitForFunction(
-    () => {
-      const btn = document.querySelector('button[type="submit"], button:has-text("Sign in"), button:has-text("Login")')
-      return !btn || !btn.hasAttribute('disabled')
-    },
-    { timeout: 20000 }
-  ).catch(() => {
-    // Ignore if button is gone (redirected)
-  })
-
-  // Wait for redirect - dashboard is at / or /dashboard
-  // After login, we should NOT be on /login anymore
-  await page.waitForTimeout(1000)
-  await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 })
->>>>>>> e4e08a4422114f82896f50256a793810a38a0c5b
+  // Admin Panel link should NOT be visible
+  const adminLink = page.locator('a[href="/admin"]')
+  await expect(adminLink).not.toBeVisible({ timeout: 3000 })
 }
 
 /**
@@ -133,9 +137,16 @@ export async function login(page: Page, email = TEST_USER.email, password = TEST
  * Handles different logout implementations (button, menu item).
  */
 export async function logout(page: Page): Promise<void> {
-  // Try direct logout button first
-  const logoutButton = page.getByRole('button', { name: /logout|sign out/i })
+  // Try direct logout button first (with testid)
+  const logoutButtonTestId = page.getByTestId('logout')
+  if (await logoutButtonTestId.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await logoutButtonTestId.click()
+    await expect(page).toHaveURL(/\/(login|auth)/, { timeout: 5000 })
+    return
+  }
 
+  // Try logout button by role
+  const logoutButton = page.getByRole('button', { name: /logout|sign out/i })
   if (await logoutButton.isVisible({ timeout: 2000 }).catch(() => false)) {
     await logoutButton.click()
   } else {
@@ -163,10 +174,22 @@ export async function logout(page: Page): Promise<void> {
  */
 export async function isLoggedIn(page: Page): Promise<boolean> {
   try {
-    await page.goto('/dashboard')
-    await page.waitForURL(/\/dashboard/, { timeout: 5000 })
-    return true
+    await page.goto('/')
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {})
+    return !page.url().includes('/login')
   } catch {
     return false
   }
+}
+
+/**
+ * Navigate to Admin Panel.
+ * Requires admin login first.
+ */
+export async function navigateToAdmin(page: Page): Promise<void> {
+  await page.goto('/admin')
+  await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {})
+
+  // Verify we're on admin page
+  await expect(page.getByRole('heading', { name: /admin dashboard/i })).toBeVisible({ timeout: 5000 })
 }
