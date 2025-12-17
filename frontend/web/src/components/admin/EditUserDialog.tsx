@@ -77,15 +77,15 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
     const newErrors: Record<string, string> = {}
 
     // Email validation (required)
-    if (!formData.email) {
-      newErrors.email = 'Email is required'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format'
+    if (!formData['email']) {
+      newErrors['email'] = 'Email is required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData['email'])) {
+      newErrors['email'] = 'Invalid email format'
     }
 
     // Password validation (optional, but must be 12+ chars if provided)
-    if (formData.new_password && formData.new_password.length < 12) {
-      newErrors.new_password = 'Password must be at least 12 characters'
+    if (formData['new_password'] && formData['new_password'].length < 12) {
+      newErrors['new_password'] = 'Password must be at least 12 characters'
     }
 
     setErrors(newErrors)
@@ -100,15 +100,33 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
     }
 
     try {
+      const updatePayload: Partial<{
+        email: string
+        name: string
+        new_password: string
+        is_active: boolean
+        is_superuser: boolean
+      }> = {}
+
+      if (formData.email !== user.email) {
+        updatePayload.email = formData.email
+      }
+      if (formData.name !== user.name) {
+        updatePayload.name = formData.name
+      }
+      if (formData.new_password) {
+        updatePayload.new_password = formData.new_password
+      }
+      if (formData.is_active !== user.is_active) {
+        updatePayload.is_active = formData.is_active
+      }
+      if (formData.is_superuser !== user.is_superuser) {
+        updatePayload.is_superuser = formData.is_superuser
+      }
+
       await updateUserMutation.mutateAsync({
         userId: user.id,
-        data: {
-          email: formData.email !== user.email ? formData.email : undefined,
-          name: formData.name !== user.name ? formData.name : undefined,
-          new_password: formData.new_password || undefined,
-          is_active: formData.is_active !== user.is_active ? formData.is_active : undefined,
-          is_superuser: formData.is_superuser !== user.is_superuser ? formData.is_superuser : undefined,
-        },
+        data: updatePayload as any,
       })
 
       toast({
@@ -166,10 +184,10 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
                 placeholder="user@example.com"
-                className={errors.email ? 'border-red-500' : ''}
+                className={errors['email'] ? 'border-red-500' : ''}
               />
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email}</p>
+              {errors['email'] && (
+                <p className="text-sm text-red-500">{errors['email']}</p>
               )}
             </div>
 
@@ -184,10 +202,10 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
                 value={formData.new_password}
                 onChange={(e) => handleChange('new_password', e.target.value)}
                 placeholder="Leave empty to keep current password"
-                className={errors.new_password ? 'border-red-500' : ''}
+                className={errors['new_password'] ? 'border-red-500' : ''}
               />
-              {errors.new_password && (
-                <p className="text-sm text-red-500">{errors.new_password}</p>
+              {errors['new_password'] && (
+                <p className="text-sm text-red-500">{errors['new_password']}</p>
               )}
               <p className="text-xs text-gray-500">
                 Password must be at least 12 characters (if changing)
@@ -211,7 +229,7 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
               <Checkbox
                 id="is_active"
                 checked={formData.is_active}
-                onCheckedChange={(checked) => handleChange('is_active', !!checked)}
+                onCheckedChange={(checked: boolean) => handleChange('is_active', !!checked)}
               />
               <Label
                 htmlFor="is_active"
@@ -226,7 +244,7 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
               <Checkbox
                 id="is_superuser"
                 checked={formData.is_superuser}
-                onCheckedChange={(checked) => handleChange('is_superuser', !!checked)}
+                onCheckedChange={(checked: boolean) => handleChange('is_superuser', !!checked)}
               />
               <Label
                 htmlFor="is_superuser"

@@ -179,10 +179,10 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                   setFormData({ ...formData, password: e.target.value })
                   setErrors({ ...errors, password: '' })
                 }}
-                className={errors.password ? 'border-red-500' : ''}
+                className={errors['password'] ? 'border-red-500' : ''}
               />
-              {errors.password && (
-                <p className="text-sm text-red-500">{errors.password}</p>
+              {errors['password'] && (
+                <p className="text-sm text-red-500">{errors['password']}</p>
               )}
               <p className="text-sm text-muted-foreground">
                 Password must be at least 12 characters long
@@ -206,7 +206,7 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
               <Checkbox
                 id="is_active"
                 checked={formData.is_active}
-                onCheckedChange={(checked) =>
+                onCheckedChange={(checked: boolean) =>
                   setFormData({ ...formData, is_active: checked === true })
                 }
               />
@@ -220,7 +220,7 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
               <Checkbox
                 id="is_superuser"
                 checked={formData.is_superuser}
-                onCheckedChange={(checked) =>
+                onCheckedChange={(checked: boolean) =>
                   setFormData({ ...formData, is_superuser: checked === true })
                 }
               />
