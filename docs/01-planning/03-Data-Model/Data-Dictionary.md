@@ -1,13 +1,17 @@
 # Data Dictionary
-## Complete Field Definitions (16 Tables)
+## Complete Field Definitions (25 Tables)
 
-**Version**: 1.0.0
-**Date**: January 13, 2025
-**Status**: ACTIVE - DRAFT
-**Authority**: Backend Lead + CTO Review (PENDING)
-**Foundation**: Data Model ERD v1.0, Database Schema v1.0
+**Version**: 2.1.0
+**Date**: December 16, 2025
+**Status**: ACTIVE - Gate Status Normalization
+**Authority**: Backend Lead + CTO Review (APPROVED)
+**Foundation**: Data Model ERD v2.0, Database Schema v2.1
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 4.9 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 5.1.1 Complete Lifecycle (10 Stages)
+
+**Changelog**:
+- v2.1.0 (Dec 16, 2025): Gate status normalized to UPPERCASE, added Source of Truth references
+- v1.0.0 (Jan 13, 2025): Initial data dictionary
 
 ---
 
@@ -82,13 +86,34 @@ This document defines **WHAT each database field means** with data types, constr
 
 ## Table 4: gates
 
+**Source of Truth**: `backend/app/models/gate.py`
+**Updated**: 2025-12-16 - Status values normalized to UPPERCASE
+
 | Field | Type | Required | Constraints | Description | Example |
 |-------|------|----------|-------------|-------------|---------|
-| gate_code | VARCHAR(20) | Yes | NOT NULL | Gate identifier (G0.1, G0.2, G1, G2, G3, G4, G5, G6, G7, G8, G9) | `G1`, `G2` |
-| stage | VARCHAR(20) | Yes | NOT NULL, CHECK(stage-00 to stage-09) | SDLC 4.9 stage (stage-00 to stage-09) | `stage-01` |
-| status | VARCHAR(20) | Yes | NOT NULL, DEFAULT not_evaluated, CHECK(not_evaluated/pending/blocked/passed/override) | Gate evaluation status | `passed`, `blocked` |
-| override_reason | TEXT | No | - | Reason for manual override (CTO/CEO only) | `Legal review delayed, proceeding with internal risk assessment` |
-| override_expires_at | TIMESTAMP | No | - | Override expiration (default: +7 days from override_at) | `2025-01-20 10:00:00` |
+| id | UUID | Yes | PRIMARY KEY | Unique gate identifier | `550e8400-...` |
+| gate_name | VARCHAR(255) | Yes | NOT NULL | Human-readable gate name | `E-commerce Platform v2.0 - G1 Design Ready` |
+| gate_type | VARCHAR(50) | Yes | NOT NULL | Gate type identifier | `G1_DESIGN_READY`, `G2_SHIP_READY` |
+| gate_code | VARCHAR(20) | Yes | NOT NULL | Gate code (G0.1, G0.2, G1-G9) | `G1`, `G2` |
+| stage | VARCHAR(20) | Yes | NOT NULL | SDLC stage | `WHY`, `WHAT`, `BUILD`, `TEST` |
+| status | VARCHAR(20) | Yes | NOT NULL, DEFAULT 'DRAFT' | Gate status (UPPERCASE) | `DRAFT`, `APPROVED` |
+| description | TEXT | No | - | Gate description | `Design validation gate for Q4 release` |
+| exit_criteria | JSONB | Yes | NOT NULL, DEFAULT '[]' | Exit criteria array | `[{"id": "FRD", "met": true}]` |
+| created_by | UUID | No | FOREIGN KEY(users.id) | Creator user ID | `7f3e8400-...` |
+| approved_at | TIMESTAMP | No | - | Approval timestamp | `2025-01-13 15:30:00` |
+| rejected_at | TIMESTAMP | No | - | Rejection timestamp | `2025-01-13 15:30:00` |
+| archived_at | TIMESTAMP | No | - | Archive timestamp | `2025-01-13 15:30:00` |
+| deleted_at | TIMESTAMP | No | - | Soft delete timestamp | `2025-01-13 15:30:00` |
+
+**Gate Status Values (UPPERCASE)**:
+| Status | Description |
+|--------|-------------|
+| `DRAFT` | Gate created, not yet submitted for approval |
+| `PENDING_APPROVAL` | Submitted, awaiting reviewer approval |
+| `IN_PROGRESS` | Under active review/evaluation |
+| `APPROVED` | Passed all exit criteria |
+| `REJECTED` | Did not meet exit criteria |
+| `ARCHIVED` | No longer active, kept for audit |
 
 ---
 

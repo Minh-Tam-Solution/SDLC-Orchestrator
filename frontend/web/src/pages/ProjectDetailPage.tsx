@@ -272,7 +272,7 @@ export default function ProjectDetailPage() {
         {/* SDLC Stage Timeline */}
         <Card>
           <CardHeader>
-            <CardTitle>SDLC 4.9 Stage Timeline</CardTitle>
+            <CardTitle>SDLC 5.1.1 Stage Timeline</CardTitle>
             <CardDescription>Track progress through all 10 stages</CardDescription>
           </CardHeader>
           <CardContent>

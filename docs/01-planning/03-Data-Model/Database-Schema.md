@@ -1,12 +1,13 @@
 # Database Schema (SQL Migrations)
 ## PostgreSQL 15.5 Schema Definitions
 
-**Version**: 2.0.0
-**Date**: December 3, 2025
-**Status**: ACTIVE - AI Governance Extension
+**Version**: 2.1.0
+**Date**: December 16, 2025
+**Status**: ACTIVE - Gate Status Normalization
 **Authority**: Backend Lead + CTO Review (APPROVED)
 **Foundation**: Data Model ERD v2.0 (with AI Governance)
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
+**Framework**: SDLC 5.1.1 Complete Lifecycle
 
 **Changelog v2.0.0** (Dec 3, 2025):
 - Added Migration 006: AI Governance Tables (stage_requirements, requirement_overrides)
@@ -139,21 +140,32 @@ CREATE INDEX idx_projects_current_stage ON projects(current_stage);
 CREATE INDEX idx_projects_created_by ON projects(created_by);
 
 -- Table: gates
+-- Source of Truth: backend/app/models/gate.py
+-- Updated: 2025-12-16 - Status values normalized to UPPERCASE
 CREATE TABLE gates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
   gate_code VARCHAR(20) NOT NULL,  -- G0.1, G0.2, G1, G2, etc.
   gate_name VARCHAR(255) NOT NULL,
-  stage VARCHAR(20) NOT NULL,
-  status VARCHAR(20) NOT NULL DEFAULT 'not_evaluated' CHECK (status IN (
-    'not_evaluated', 'pending', 'blocked', 'passed', 'override'
+  gate_type VARCHAR(50) NOT NULL,  -- G1_DESIGN_READY, G2_SHIP_READY, etc.
+  stage VARCHAR(20) NOT NULL,  -- WHY, WHAT, BUILD, TEST, etc.
+  status VARCHAR(20) NOT NULL DEFAULT 'DRAFT' CHECK (status IN (
+    'DRAFT',            -- Gate created, not yet submitted
+    'PENDING_APPROVAL', -- Submitted, awaiting reviewer approval
+    'IN_PROGRESS',      -- Under review/evaluation
+    'APPROVED',         -- Passed all criteria
+    'REJECTED',         -- Did not meet criteria
+    'ARCHIVED'          -- No longer active
   )),
-  override_reason TEXT,
-  override_by UUID REFERENCES users(id),
-  override_at TIMESTAMP,
-  override_expires_at TIMESTAMP,
+  description TEXT,
+  exit_criteria JSONB NOT NULL DEFAULT '[]',  -- [{"id": "...", "description": "...", "met": false}]
+  created_by UUID REFERENCES users(id),
+  approved_at TIMESTAMP,
+  rejected_at TIMESTAMP,
+  archived_at TIMESTAMP,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  evaluated_at TIMESTAMP
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  deleted_at TIMESTAMP  -- Soft delete
 );
 
 CREATE INDEX idx_gates_project_id ON gates(project_id);
@@ -161,15 +173,22 @@ CREATE INDEX idx_gates_status ON gates(status);
 CREATE INDEX idx_gates_stage ON gates(stage);
 
 -- Table: gate_approvals (multi-approval workflow)
+-- Source of Truth: backend/app/models/gate_approval.py
+-- Updated: 2025-12-16 - Status values normalized to UPPERCASE
 CREATE TABLE gate_approvals (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   gate_id UUID NOT NULL REFERENCES gates(id) ON DELETE CASCADE,
   approver_id UUID NOT NULL REFERENCES users(id),
   approver_role VARCHAR(20) NOT NULL,
-  approval_status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'approved', 'rejected')),
-  approval_reason TEXT,
+  status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN (
+    'PENDING',   -- Awaiting reviewer decision
+    'APPROVED',  -- Approved by reviewer
+    'REJECTED'   -- Rejected by reviewer
+  )),
+  comment TEXT,  -- Approval/rejection reason
   approved_at TIMESTAMP,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_gate_approvals_gate_id ON gate_approvals(gate_id);
@@ -738,6 +757,7 @@ CREATE INDEX idx_backlog_traceability ON backlog_items(linked_decomposition_task
 **Status**: ✅ APPROVED (AI Governance Extension)
 
 **Version History**:
+- v2.1.0 (Dec 16, 2025): Gate status normalized to UPPERCASE (DRAFT, PENDING_APPROVAL, IN_PROGRESS, APPROVED, REJECTED, ARCHIVED)
 - v2.0.0 (Dec 3, 2025): Added Migrations 006-008 for AI Governance (25 tables)
 - v1.0.0 (Jan 13, 2025): Initial schema (16 tables)
 

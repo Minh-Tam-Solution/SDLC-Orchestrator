@@ -47,7 +47,7 @@ const WELCOME_MESSAGE: ChatMessageType = {
 • Fixing compliance violations
 • Understanding gate requirements
 • Generating evidence templates
-• Answering SDLC 4.9 questions
+• Answering SDLC 5.1.1 questions
 
 How can I help you today?`,
   timestamp: new Date(),
@@ -307,7 +307,7 @@ This recommendation is based on consensus from 3 AI providers.`,
           {
             provider: 'Claude',
             model: 'claude-3-5-sonnet',
-            response: 'Based on SDLC 4.9 guidelines, the security review evidence should include threat modeling documentation, penetration test results, and security architecture review sign-off.',
+            response: 'Based on SDLC 5.1.1 guidelines, the security review evidence should include threat modeling documentation, penetration test results, and security architecture review sign-off.',
             duration_ms: 450,
             confidence: 85,
           },
@@ -340,7 +340,7 @@ This recommendation is based on consensus from 3 AI providers.`,
           {
             ranker: 'Gemini',
             rankings: ['Claude', 'Gemini', 'OpenAI'],
-            reasoning: 'Better alignment with SDLC 4.9 framework',
+            reasoning: 'Better alignment with SDLC 5.1.1 framework',
           },
         ],
         stage3_synthesis: {

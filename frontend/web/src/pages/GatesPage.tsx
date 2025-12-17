@@ -1,18 +1,37 @@
 /**
  * File: frontend/web/src/pages/GatesPage.tsx
- * Version: 1.0.0
+ * Version: 1.1.0
  * Status: ACTIVE - STAGE 03 (BUILD)
- * Date: 2025-11-27
+ * Date: 2025-12-16
  * Authority: Frontend Lead + CTO Approved
- * Foundation: SDLC 4.9 Complete Lifecycle, Zero Mock Policy
+ * Foundation: SDLC 5.1.1 Complete Lifecycle, Zero Mock Policy
  *
  * Description:
  * Gates list page showing all quality gates across projects.
+ * Supports URL query param filtering by status.
+ *
+ * Design References:
+ * - Data Model: docs/01-planning/03-Data-Model/Database-Schema.md
+ * - Gate Model: backend/app/models/gate.py (source of truth for status values)
+ * - Gate Status: DRAFT | PENDING_APPROVAL | IN_PROGRESS | APPROVED | REJECTED | ARCHIVED
+ * - Dashboard Integration: frontend/web/src/pages/DashboardPage.tsx
+ *
+ * Changelog:
+ * - v1.1.0 (2025-12-16): Add URL query param filtering, normalize to UPPERCASE status
+ * - v1.0.0 (2025-11-27): Initial implementation
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import apiClient from '@/api/client'
 
@@ -22,23 +41,61 @@ interface Gate {
   project_id: string
   project_name: string
   stage: string
-  status: 'pending' | 'approved' | 'rejected' | 'in_review'
+  // Status values are normalized to UPPERCASE in database
+  status: 'DRAFT' | 'PENDING_APPROVAL' | 'IN_PROGRESS' | 'APPROVED' | 'REJECTED' | 'ARCHIVED'
   created_at: string
   updated_at: string
 }
 
+// Status options for filtering
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'All Statuses' },
+  { value: 'ACTIVE', label: 'Active (In Progress/Pending)' },
+  { value: 'PENDING_APPROVAL', label: 'Pending Approval' },
+  { value: 'IN_PROGRESS', label: 'In Progress' },
+  { value: 'DRAFT', label: 'Draft' },
+  { value: 'APPROVED', label: 'Approved' },
+  { value: 'REJECTED', label: 'Rejected' },
+]
+
+// Map ACTIVE filter to multiple statuses for API
+const ACTIVE_STATUSES = ['PENDING', 'PENDING_APPROVAL', 'IN_PROGRESS']
+
 /**
- * Gates page component
+ * Gates page component with URL query param filtering
  *
- * @returns Gates list with status
+ * @returns Gates list with status filtering
  */
 export default function GatesPage() {
-  // Fetch gates
+  const [searchParams, setSearchParams] = useSearchParams()
+  const statusFilter = searchParams.get('status') || 'all'
+
+  // Fetch gates with optional status filter
   const { data: gatesData, isLoading } = useQuery<{ items: Gate[], total: number }>({
-    queryKey: ['gates'],
+    queryKey: ['gates', statusFilter],
     queryFn: async () => {
       try {
-        const response = await apiClient.get<{ items: Gate[], total: number }>('/gates')
+        const params = new URLSearchParams()
+        // For ACTIVE filter, we fetch all and filter client-side
+        // For specific statuses, we can pass to API
+        if (statusFilter && statusFilter !== 'all' && statusFilter !== 'ACTIVE') {
+          params.append('status', statusFilter)
+        }
+        params.append('page_size', '100') // Get all gates for filtering
+        const url = `/gates?${params}`
+        const response = await apiClient.get<{ items: Gate[], total: number }>(url)
+
+        // Client-side filter for ACTIVE status (multiple statuses)
+        if (statusFilter === 'ACTIVE') {
+          const filteredItems = response.data.items.filter(gate =>
+            ACTIVE_STATUSES.includes(gate.status.toUpperCase())
+          )
+          return {
+            items: filteredItems,
+            total: filteredItems.length
+          }
+        }
+
         return response.data
       } catch {
         // Return empty array if API not available yet
@@ -47,19 +104,54 @@ export default function GatesPage() {
     },
   })
 
+  // Handle status filter change
+  const handleStatusChange = (value: string) => {
+    if (value === 'all') {
+      searchParams.delete('status')
+    } else {
+      searchParams.set('status', value)
+    }
+    setSearchParams(searchParams)
+  }
+
+  // Clear all filters
+  const handleClearFilters = () => {
+    setSearchParams({})
+  }
+
   const gates = gatesData?.items || []
 
+  // Get status color (all statuses are UPPERCASE)
   const getStatusColor = (status: Gate['status']) => {
     switch (status) {
-      case 'approved':
+      case 'APPROVED':
         return 'bg-green-100 text-green-700'
-      case 'rejected':
+      case 'REJECTED':
         return 'bg-red-100 text-red-700'
-      case 'in_review':
+      case 'IN_PROGRESS':
         return 'bg-blue-100 text-blue-700'
-      default:
+      case 'PENDING_APPROVAL':
         return 'bg-yellow-100 text-yellow-700'
+      case 'DRAFT':
+        return 'bg-gray-100 text-gray-700'
+      case 'ARCHIVED':
+        return 'bg-slate-100 text-slate-700'
+      default:
+        return 'bg-gray-100 text-gray-700'
     }
+  }
+
+  // Format status for display (all statuses are UPPERCASE)
+  const formatStatus = (status: Gate['status']) => {
+    const statusMap: Record<string, string> = {
+      'DRAFT': 'Draft',
+      'PENDING_APPROVAL': 'Pending Approval',
+      'IN_PROGRESS': 'In Progress',
+      'APPROVED': 'Approved',
+      'REJECTED': 'Rejected',
+      'ARCHIVED': 'Archived',
+    }
+    return statusMap[status] || status
   }
 
   const getStageLabel = (stage: string) => {
@@ -75,18 +167,88 @@ export default function GatesPage() {
     return stages[stage] || stage
   }
 
+  // Get page title based on filter
+  const getPageTitle = () => {
+    switch (statusFilter) {
+      case 'ACTIVE':
+        return 'Active Gates'
+      case 'PENDING_APPROVAL':
+        return 'Pending Approvals'
+      case 'IN_PROGRESS':
+        return 'Gates In Progress'
+      case 'DRAFT':
+        return 'Draft Gates'
+      case 'APPROVED':
+        return 'Approved Gates'
+      case 'REJECTED':
+        return 'Rejected Gates'
+      default:
+        return 'All Gates'
+    }
+  }
+
+  // Get page description based on filter
+  const getPageDescription = () => {
+    switch (statusFilter) {
+      case 'ACTIVE':
+        return 'Gates that are in progress, pending, or awaiting approval'
+      case 'PENDING_APPROVAL':
+        return 'Gates waiting for approval from authorized reviewers'
+      case 'IN_PROGRESS':
+        return 'Gates currently being worked on'
+      case 'DRAFT':
+        return 'Gates that are still being drafted'
+      case 'APPROVED':
+        return 'Gates that have passed quality checks'
+      case 'REJECTED':
+        return 'Gates that did not meet quality criteria'
+      default:
+        return 'Review and approve quality gates across all projects'
+    }
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Page header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Gates</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{getPageTitle()}</h1>
             <p className="text-muted-foreground">
-              Review and approve quality gates across all projects
+              {getPageDescription()}
             </p>
           </div>
         </div>
+
+        {/* Filters */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="flex-1 max-w-xs">
+                <Select value={statusFilter} onValueChange={handleStatusChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {statusFilter !== 'all' && (
+                <Button variant="outline" onClick={handleClearFilters}>
+                  Clear Filter
+                </Button>
+              )}
+              <div className="ml-auto text-sm text-muted-foreground">
+                {gatesData?.total ?? 0} gate{(gatesData?.total ?? 0) !== 1 ? 's' : ''} found
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Gates list */}
         {isLoading ? (
@@ -109,7 +271,7 @@ export default function GatesPage() {
                           gate.status
                         )}`}
                       >
-                        {gate.status}
+                        {formatStatus(gate.status)}
                       </span>
                     </div>
                   </CardHeader>

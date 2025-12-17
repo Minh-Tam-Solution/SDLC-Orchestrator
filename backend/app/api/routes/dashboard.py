@@ -1,14 +1,23 @@
 """
 File: backend/app/api/routes/dashboard.py
-Version: 1.0.0
+Version: 1.1.0
 Status: ACTIVE - STAGE 03 (BUILD)
-Date: 2025-11-27
+Date: 2025-12-16
 Authority: Backend Lead + CTO Approved
-Foundation: SDLC 4.9 Complete Lifecycle, Zero Mock Policy
+Foundation: SDLC 5.1.1 Complete Lifecycle, Zero Mock Policy
 
 Description:
 Dashboard API routes for SDLC Orchestrator.
 Provides statistics and recent activity data.
+
+Design References:
+- Data Model: docs/01-planning/03-Data-Model/Database-Schema.md
+- Gate Model: backend/app/models/gate.py (source of truth for status values)
+- Gate Status: DRAFT | PENDING_APPROVAL | IN_PROGRESS | APPROVED | REJECTED | ARCHIVED
+
+Changelog:
+- v1.1.0 (2025-12-16): Normalize status values to UPPERCASE per gate.py model
+- v1.0.0 (2025-11-27): Initial implementation
 """
 
 from fastapi import APIRouter, Depends
@@ -44,7 +53,8 @@ async def get_dashboard_stats(
     )
     total_projects = total_projects_result.scalar() or 0
 
-    # Active gates (pending)
+    # Active gates (PENDING, PENDING_APPROVAL, IN_PROGRESS)
+    # Note: All status values are normalized to UPPERCASE in database
     active_gates_result = await db.execute(
         select(func.count(Gate.id)).where(
             Gate.deleted_at.is_(None),
@@ -53,7 +63,7 @@ async def get_dashboard_stats(
     )
     active_gates = active_gates_result.scalar() or 0
 
-    # Pending approvals
+    # Pending approvals (PENDING_APPROVAL only)
     pending_approvals_result = await db.execute(
         select(func.count(Gate.id)).where(
             Gate.deleted_at.is_(None),
@@ -62,7 +72,7 @@ async def get_dashboard_stats(
     )
     pending_approvals = pending_approvals_result.scalar() or 0
 
-    # Calculate pass rate
+    # Calculate pass rate (APPROVED / (APPROVED + REJECTED))
     total_gates_result = await db.execute(
         select(func.count(Gate.id)).where(
             Gate.deleted_at.is_(None),

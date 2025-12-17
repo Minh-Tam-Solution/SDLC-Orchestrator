@@ -37,7 +37,7 @@ const POLICY_PACKS: PolicyPackInfo[] = [
   {
     name: 'standard',
     title: 'Standard',
-    description: 'Complete SDLC 4.9 gates for growing teams',
+    description: 'Complete SDLC 5.1.1 gates for growing teams',
     features: ['All gates (G0.1-G6)', 'Full evidence vault', 'Unlimited projects', 'AI recommendations'],
   },
   {

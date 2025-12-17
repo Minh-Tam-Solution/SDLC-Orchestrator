@@ -85,7 +85,15 @@
       "Bash(npx tsc --noEmit)",
       "Bash(npx vite build:*)",
       "Bash(docker compose build:*)",
-      "Bash(docker compose logs:*)"
+      "Bash(docker compose logs:*)",
+      "Bash(jq:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjU4ODE5NDksImlhdCI6MTc2NTg3ODM0OSwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImEwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSJ9.PfyxOu5DCVBkuq-YVFvCVqzkANXIttRkxxQlR0Q2pGU\")",
+      "Bash(echo:*)",
+      "Bash(timeout 10 docker exec:*)",
+      "Bash(docker exec sdlc-backend bash -c '\nTOKEN=$(curl -s -X POST http://localhost:8300/api/v1/auth/login -H \"\"Content-Type: application/json\"\" -d \"\"{\\\"\"email\\\"\":\\\"\"admin@sdlc-orchestrator.io\\\"\",\\\"\"password\\\"\":\\\"\"Admin@123\\\"\"}\"\" | python3 -c \"\"import sys, json; print(json.load(sys.stdin)[\\\"\"access_token\\\"\"])\"\")\n\necho \"\"=== Testing AI Council Endpoints ===\"\"\necho \"\"\"\"\n\n# 1. List projects first\necho \"\"1. GET /projects\"\"\ncurl -s \"\"http://localhost:8300/api/v1/projects\"\" -H \"\"Authorization: Bearer $TOKEN\"\" | python3 -c \"\"import sys, json; data=json.load(sys.stdin); print(f\\\"\"Projects: {len(data.get(\\\"\"items\\\"\", []))} found\\\"\")\"\"\n\n# 2. Test council recommend endpoint (if exists)\necho \"\"\"\"\necho \"\"2. GET /council/health (check if endpoint exists)\"\"\ncurl -s \"\"http://localhost:8300/api/v1/council/health\"\" -H \"\"Authorization: Bearer $TOKEN\"\" | head -c 200\n')",
+      "Bash(docker exec sdlc-backend bash -c '\nTOKEN=$(curl -s -X POST http://localhost:8300/api/v1/auth/login -H \"\"Content-Type: application/json\"\" -d \"\"{\\\"\"email\\\"\":\\\"\"admin@sdlc-orchestrator.io\\\"\",\\\"\"password\\\"\":\\\"\"Admin@123\\\"\"}\"\" | python3 -c \"\"import sys, json; print(json.load(sys.stdin)[\\\"\"access_token\\\"\"])\"\")\n\necho \"\"=== 1. List Projects ===\"\"\ncurl -s \"\"http://localhost:8300/api/v1/projects\"\" -H \"\"Authorization: Bearer $TOKEN\"\" | python3 -m json.tool | head -20\n\necho \"\"\"\"\necho \"\"=== 2. Check Council Deliberate Endpoint ===\"\"\ncurl -s -X POST \"\"http://localhost:8300/api/v1/council/deliberate\"\" -H \"\"Authorization: Bearer $TOKEN\"\" -H \"\"Content-Type: application/json\"\" -d \"\"{}\"\" | python3 -m json.tool\n')",
+      "Bash(docker cp:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

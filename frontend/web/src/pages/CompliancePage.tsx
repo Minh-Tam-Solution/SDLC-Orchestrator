@@ -121,7 +121,7 @@ export default function CompliancePage() {
               )}
             </div>
             <p className="text-muted-foreground">
-              SDLC 4.9.1 compliance scanning and violation tracking
+              SDLC 5.1.1 compliance scanning and violation tracking
             </p>
           </div>
 
@@ -375,7 +375,7 @@ export default function CompliancePage() {
                   <div>
                     <CardTitle>Violations</CardTitle>
                     <CardDescription>
-                      SDLC 4.9.1 compliance issues requiring attention
+                      SDLC 5.1.1 compliance issues requiring attention
                     </CardDescription>
                   </div>
                   <div className="flex items-center gap-2">

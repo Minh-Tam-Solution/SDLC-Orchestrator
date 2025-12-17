@@ -1479,6 +1479,39 @@ Format your response as JSON:
             },
         }
 
+    async def deliberate(
+        self,
+        violation: ComplianceViolation,
+        council_mode: CouncilMode = CouncilMode.AUTO,
+        providers: Optional[list[CouncilProvider]] = None,
+        user_id: Optional[UUID] = None,
+    ) -> CouncilResponse:
+        """
+        Alias for generate_recommendation - matches router interface.
+
+        This method is called by the council router to trigger AI Council
+        deliberation for a compliance violation.
+
+        Args:
+            violation: ComplianceViolation object to analyze
+            council_mode: Execution mode (single, council, auto)
+            providers: Specific providers to use (default: all available)
+            user_id: Requesting user (for audit logging)
+
+        Returns:
+            CouncilResponse with recommendation and deliberation details
+
+        Note:
+            This is an alias for generate_recommendation() that accepts
+            the violation object directly instead of violation_id.
+        """
+        return await self.generate_recommendation(
+            violation_id=violation.id,
+            council_mode=council_mode,
+            user_id=user_id,
+            providers=providers,
+        )
+
 
 # ============================================================================
 # Factory Function

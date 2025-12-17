@@ -3,12 +3,12 @@
 Gate Model - Quality Gate Management (FR1)
 SDLC Orchestrator - Stage 03 (BUILD)
 
-Version: 1.0.0
-Date: November 28, 2025
-Status: ACTIVE - Week 3 Architecture Design
+Version: 1.1.0
+Date: 2025-12-16
+Status: ACTIVE - STAGE 03 (BUILD)
 Authority: Backend Lead + CTO Approved
 Foundation: Data Model v0.1 (9.8/10 quality), FR1 (Quality Gate Management)
-Framework: SDLC 4.9 Complete Lifecycle
+Framework: SDLC 5.1.1 Complete Lifecycle
 
 Purpose:
 - Quality gate creation and lifecycle management
@@ -16,7 +16,20 @@ Purpose:
 - Stage progression tracking (WHY → WHAT → BUILD...G9)
 - Policy evaluation results storage
 
-SDLC 4.9 Gates:
+Design References:
+- Data Model: docs/01-planning/03-Data-Model/Database-Schema.md
+- Data Dictionary: docs/01-planning/03-Data-Model/Data-Dictionary.md
+- FR1: docs/01-planning/01-Requirements/Functional-Requirements-Document.md
+
+Gate Status Values (UPPERCASE - Source of Truth):
+- DRAFT: Gate created, not yet submitted
+- PENDING_APPROVAL: Submitted, awaiting reviewer approval
+- IN_PROGRESS: Under review/evaluation
+- APPROVED: Passed all criteria
+- REJECTED: Did not meet criteria
+- ARCHIVED: No longer active
+
+SDLC 5.1.1 Gates:
 - G0.1: Foundation Ready (WHY stage)
 - G0.2: Solution Diversity (WHY stage)
 - G1: Design Ready (WHAT stage)
@@ -25,6 +38,10 @@ SDLC 4.9 Gates:
 
 Performance: Indexed for <200ms query response (p95)
 Zero Mock Policy: Real SQLAlchemy model with all fields
+
+Changelog:
+- v1.1.0 (2025-12-16): Add Design References, document status values
+- v1.0.0 (2025-11-28): Initial implementation
 =========================================================================
 """
 

@@ -159,7 +159,7 @@ function CustomPieTooltip({ active, payload }: { active?: boolean; payload?: Arr
 export default function ViolationsByCategoryChart({
   data,
   title = 'Violations by Category',
-  description = 'Distribution across SDLC 4.9.1 policy categories',
+  description = 'Distribution across SDLC 5.1.1 policy categories',
   height = 300,
   defaultType = 'bar',
   isLoading = false,

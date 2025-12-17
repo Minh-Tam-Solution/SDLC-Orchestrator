@@ -220,7 +220,7 @@ export default function PoliciesPage() {
         {/* Policy pack summary */}
         <Card>
           <CardHeader>
-            <CardTitle>SDLC 4.9 Policy Pack</CardTitle>
+            <CardTitle>SDLC 5.1.1 Policy Pack</CardTitle>
             <CardDescription>
               Pre-configured policies for all 10 SDLC stages
             </CardDescription>

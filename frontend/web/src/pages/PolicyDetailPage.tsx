@@ -19,12 +19,14 @@
  * - Pillar 3: Quality Governance (Type hints)
  */
 
+import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import DashboardLayout from '@/components/layout/DashboardLayout'
+import EditPolicyDialog from '@/components/policies/EditPolicyDialog'
 import apiClient from '@/api/client'
 import type { PolicyResponse, PolicySeverity } from '@/types/api'
 
@@ -69,6 +71,7 @@ const severityIcons: Record<PolicySeverity, React.ReactNode> = {
  */
 export default function PolicyDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
 
   // Fetch policy detail
   const { data: policy, isLoading, error } = useQuery<PolicyResponse>({
@@ -166,7 +169,7 @@ export default function PolicyDetailPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
               <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
@@ -174,6 +177,13 @@ export default function PolicyDetailPage() {
             </Button>
           </div>
         </div>
+
+        {/* Edit Policy Dialog */}
+        <EditPolicyDialog
+          policy={policy}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+        />
 
         {/* Policy info grid */}
         <div className="grid gap-4 md:grid-cols-4">
