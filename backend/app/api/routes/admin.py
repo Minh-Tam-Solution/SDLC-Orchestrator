@@ -468,11 +468,11 @@ async def create_user(
 
     # Audit log
     audit_service = get_audit_service(db)
-    await audit_service.log_action(
+    await audit_service.log(
         action=AuditAction.USER_CREATED,
-        actor_id=admin.id,
-        target_type="user",
-        target_id=new_user.id,
+        user_id=admin.id,
+        resource_type="user",
+        resource_id=new_user.id,
         target_name=new_user.email,
         details={
             "email": new_user.email,
@@ -581,11 +581,11 @@ async def delete_user(
 
     # Audit log
     audit_service = get_audit_service(db)
-    await audit_service.log_action(
+    await audit_service.log(
         action=AuditAction.USER_DELETED,
-        actor_id=admin.id,
-        target_type="user",
-        target_id=user.id,
+        user_id=admin.id,
+        resource_type="user",
+        resource_id=user.id,
         target_name=user.email,
         details={
             "email": user.email,
