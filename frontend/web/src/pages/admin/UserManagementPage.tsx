@@ -1,8 +1,8 @@
 /**
  * File: frontend/web/src/pages/admin/UserManagementPage.tsx
- * Version: 1.2.0
- * Status: ACTIVE - Sprint 40 Part 2 Edit User Dialog
- * Date: 2025-12-17
+ * Version: 1.3.0
+ * Status: ACTIVE - Sprint 40 Part 3 (Bulk Delete)
+ * Date: 2025-12-18
  * Authority: CTO Approved (ADR-017)
  * Framework: SDLC 5.1.1 Complete Lifecycle
  *
@@ -22,6 +22,12 @@
  * - Added Edit button for each user
  * - Integrated EditUserDialog component
  * - Supports email change, password reset, name/status updates
+ *
+ * Sprint 40 Part 3: Bulk Delete Users
+ * - Added Delete Selected button to bulk action bar
+ * - Integrated BulkDeleteUsersDialog component
+ * - Requires typing "DELETE" to confirm (safety measure)
+ * - CTO conditions: max 50 users, partial success handling
  */
 
 import { useState } from 'react'
@@ -41,6 +47,7 @@ import {
 import { CreateUserDialog } from '@/components/admin/CreateUserDialog'
 import { DeleteUserDialog } from '@/components/admin/DeleteUserDialog'
 import { EditUserDialog } from '@/components/admin/EditUserDialog'
+import { BulkDeleteUsersDialog } from '@/components/admin/BulkDeleteUsersDialog'
 
 /**
  * User status badge
@@ -92,6 +99,7 @@ export default function UserManagementPage() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [deleteDialogUser, setDeleteDialogUser] = useState<AdminUserListItem | null>(null)
   const [editDialogUser, setEditDialogUser] = useState<AdminUserListItem | null>(null)
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false)
 
   // Fetch users
   const { data: usersData, isLoading, refetch } = useAdminUsers({
@@ -313,12 +321,20 @@ export default function UserManagementPage() {
                     Activate Selected
                   </Button>
                   <Button
-                    variant="destructive"
+                    variant="outline"
                     size="sm"
                     onClick={() => handleBulkAction('deactivate')}
                     disabled={bulkActionMutation.isPending}
                   >
                     Deactivate Selected
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setBulkDeleteDialogOpen(true)}
+                    disabled={bulkActionMutation.isPending}
+                  >
+                    Delete Selected
                   </Button>
                   <Button
                     variant="ghost"
@@ -518,6 +534,16 @@ export default function UserManagementPage() {
           user={deleteDialogUser}
           open={deleteDialogUser !== null}
           onOpenChange={(open) => !open && setDeleteDialogUser(null)}
+        />
+        {/* Bulk Delete Dialog (Sprint 40 Part 3) */}
+        <BulkDeleteUsersDialog
+          users={usersData?.items.filter((u) => selectedUsers.includes(u.id)) ?? []}
+          open={bulkDeleteDialogOpen}
+          onOpenChange={setBulkDeleteDialogOpen}
+          onSuccess={() => {
+            setSelectedUsers([])
+            refetch()
+          }}
         />
       </div>
     </DashboardLayout>

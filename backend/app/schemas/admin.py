@@ -508,3 +508,110 @@ class BulkUserActionResponse(BaseModel):
     success_count: int = Field(..., ge=0, description="Number of successful actions")
     failed_count: int = Field(..., ge=0, description="Number of failed actions")
     failed_users: List[dict] = Field(default_factory=list, description="Failed users with reasons")
+
+
+# =========================================================================
+# Bulk Delete Schemas (Sprint 40 Part 3)
+# =========================================================================
+
+
+class BulkDeleteRequest(BaseModel):
+    """
+    Bulk delete users request (Sprint 40 Part 3).
+
+    Request Body:
+        {
+            "user_ids": ["uuid1", "uuid2", "uuid3"]
+        }
+
+    Security:
+        - Maximum 50 users per request (CTO condition)
+        - Cannot include self in bulk delete
+        - Cannot delete last superuser
+        - Rate limited to 5 requests per minute
+
+    CTO Approved: Dec 18, 2025
+    """
+
+    user_ids: List[UUID] = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        description="List of user UUIDs to delete (max 50)"
+    )
+
+
+class DeletedUserInfo(BaseModel):
+    """
+    Information about a successfully deleted user.
+
+    Response Body:
+        {
+            "user_id": "550e8400-e29b-41d4-a716-446655440001",
+            "email": "user@example.com"
+        }
+    """
+
+    user_id: UUID = Field(..., description="Deleted user's UUID")
+    email: str = Field(..., description="Deleted user's email (for confirmation)")
+
+
+class FailedUserInfo(BaseModel):
+    """
+    Information about a user that failed to delete.
+
+    Response Body:
+        {
+            "user_id": "550e8400-e29b-41d4-a716-446655440003",
+            "reason": "User is the last superuser"
+        }
+    """
+
+    user_id: UUID = Field(..., description="User UUID that failed to delete")
+    reason: str = Field(..., description="Reason for failure")
+
+
+class BulkDeleteResponse(BaseModel):
+    """
+    Bulk delete users response (Sprint 40 Part 3).
+
+    Response Body (Success):
+        {
+            "success_count": 3,
+            "failed_count": 0,
+            "deleted_users": [
+                {"user_id": "...", "email": "user1@example.com"},
+                {"user_id": "...", "email": "user2@example.com"},
+                {"user_id": "...", "email": "user3@example.com"}
+            ],
+            "failed_users": []
+        }
+
+    Response Body (Partial Success):
+        {
+            "success_count": 2,
+            "failed_count": 1,
+            "deleted_users": [...],
+            "failed_users": [
+                {"user_id": "...", "reason": "User is the last superuser"}
+            ]
+        }
+
+    CTO Conditions Applied:
+        1. Batch size limit: max 50 users
+        2. Partial success handling: detailed report
+        3. Rate limiting: 5 req/min per admin
+
+    CTO Approved: Dec 18, 2025
+    """
+
+    success_count: int = Field(..., ge=0, description="Number of successfully deleted users")
+    failed_count: int = Field(..., ge=0, description="Number of failed deletions")
+    deleted_users: List[DeletedUserInfo] = Field(
+        default_factory=list,
+        description="List of successfully deleted users with emails"
+    )
+    failed_users: List[FailedUserInfo] = Field(
+        default_factory=list,
+        description="List of failed deletions with reasons"
+    )

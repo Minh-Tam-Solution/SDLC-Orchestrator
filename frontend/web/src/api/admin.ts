@@ -99,6 +99,28 @@ export interface BulkUserActionResponse {
   failed_users: Array<{ user_id: string; reason: string }>
 }
 
+// Bulk Delete Types (Sprint 40 Part 3)
+export interface BulkDeleteRequest {
+  user_ids: string[]
+}
+
+export interface DeletedUserInfo {
+  user_id: string
+  email: string
+}
+
+export interface FailedUserInfo {
+  user_id: string
+  reason: string
+}
+
+export interface BulkDeleteResponse {
+  success_count: number
+  failed_count: number
+  deleted_users: DeletedUserInfo[]
+  failed_users: FailedUserInfo[]
+}
+
 // =========================================================================
 // Types - Audit Logs
 // =========================================================================
@@ -317,6 +339,29 @@ export function useBulkUserAction() {
   return useMutation({
     mutationFn: async (data: BulkUserActionRequest) => {
       const response = await apiClient.post<BulkUserActionResponse>('/admin/users/bulk', data)
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.users() })
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.stats() })
+    },
+  })
+}
+
+/**
+ * Hook for bulk deleting users (Sprint 40 Part 3)
+ *
+ * CTO Conditions Applied:
+ * 1. Maximum 50 users per request
+ * 2. Returns detailed success/failed report
+ * 3. Rate limited to 5 requests/minute
+ */
+export function useBulkDeleteUsers() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (data: BulkDeleteRequest) => {
+      const response = await apiClient.delete<BulkDeleteResponse>('/admin/users/bulk', { data })
       return response.data
     },
     onSuccess: () => {
