@@ -167,7 +167,8 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
               </Label>
               <Input
                 id="email"
-                type="email"
+                type="text"
+                autoComplete="email"
                 placeholder="user@example.com"
                 value={formData.email}
                 onChange={(e) => {

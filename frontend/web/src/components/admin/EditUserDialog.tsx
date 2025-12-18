@@ -185,7 +185,8 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
               </Label>
               <Input
                 id="email"
-                type="email"
+                type="text"
+                autoComplete="email"
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
                 placeholder="user@example.com"
