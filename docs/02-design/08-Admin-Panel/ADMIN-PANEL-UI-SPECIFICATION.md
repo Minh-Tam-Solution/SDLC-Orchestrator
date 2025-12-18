@@ -1,11 +1,15 @@
 # Admin Panel - UI Specification
 ## SDLC 5.1.1 Complete Lifecycle - Design Phase
 
-**Version**: 1.0.0
-**Date**: 2025-12-16
-**Status**: APPROVED - CTO Signed Dec 16, 2025
+**Version**: 1.1.0
+**Date**: 2025-12-18
+**Status**: DESIGN - Sprint 40 Part 3 (Bulk Delete)
 **Author**: Frontend Lead
 **Reviewer**: CTO
+
+**Changelog**:
+- v1.1.0 (Dec 18, 2025): Added Bulk Delete Selected Users UI (Sprint 40 Part 3)
+- v1.0.0 (Dec 16, 2025): Initial UI specification (Sprint 37)
 
 ---
 
@@ -113,6 +117,24 @@
 └─────────────────┘
 ```
 
+#### Bulk Action Bar (When users selected)
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  ☑ 3 user(s) selected                                          │
+│                                                                 │
+│  [Activate Selected] [Deactivate Selected] [🗑️ Delete Selected]│
+│                                                                 │
+│  [Clear Selection]                                              │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Notes**:
+- "Delete Selected" button uses destructive variant (red)
+- Button is disabled if current user (self) is in selection
+- Tooltip explains why button is disabled
+
+---
+
 #### Dialogs
 
 **Deactivate User Dialog**:
@@ -147,6 +169,73 @@
 │                                      │
 │            [Cancel] [Make Admin]     │
 └──────────────────────────────────────┘
+```
+
+**Bulk Delete Users Dialog** (NEW - Sprint 40 Part 3):
+```
+┌──────────────────────────────────────────────────┐
+│ 🗑️ Delete 3 Users                                │
+│                                                  │
+│ ⚠️ Warning: This action will permanently        │
+│ deactivate the following user accounts:          │
+│                                                  │
+│ ┌──────────────────────────────────────────────┐│
+│ │ • john@example.com                           ││
+│ │ • jane@example.com                           ││
+│ │ • bob@example.com                            ││
+│ └──────────────────────────────────────────────┘│
+│                                                  │
+│ This will:                                       │
+│ • Soft delete all selected accounts              │
+│ • Prevent future logins for these users          │
+│ • Keep all their data for audit purposes         │
+│                                                  │
+│ Type "DELETE" to confirm:                        │
+│ ┌──────────────────────────────────────────────┐│
+│ │ ________________                             ││
+│ └──────────────────────────────────────────────┘│
+│                                                  │
+│              [Cancel] [Delete 3 Users]           │
+└──────────────────────────────────────────────────┘
+```
+
+**Notes for Bulk Delete Dialog**:
+- Requires typing "DELETE" for confirmation (safety measure)
+- Delete button disabled until "DELETE" is typed
+- Shows scrollable list if more than 5 users selected
+- Delete button uses destructive variant (red)
+- Loading state shows "Deleting..." with spinner
+
+**Bulk Delete Error States**:
+
+*Self-delete prevention*:
+```
+┌──────────────────────────────────────────────────┐
+│ ❌ Cannot Delete Selected Users                  │
+│                                                  │
+│ Your account is included in the selection.       │
+│ You cannot delete your own account.              │
+│                                                  │
+│ Please deselect yourself and try again.          │
+│                                                  │
+│                              [OK]                │
+└──────────────────────────────────────────────────┘
+```
+
+*Last superuser protection*:
+```
+┌──────────────────────────────────────────────────┐
+│ ⚠️ Last Administrator Warning                    │
+│                                                  │
+│ admin@sdlc-orchestrator.io is the last           │
+│ administrator and cannot be deleted.             │
+│                                                  │
+│ This user has been removed from selection.       │
+│ You can proceed with deleting the remaining      │
+│ 2 users.                                         │
+│                                                  │
+│              [Cancel] [Continue]                 │
+└──────────────────────────────────────────────────┘
 ```
 
 ---
@@ -313,6 +402,7 @@
 | AuditLogTable | `components/admin/AuditLogTable.tsx` | Audit log list |
 | AuditLogDrawer | `components/admin/AuditLogDrawer.tsx` | Log detail drawer |
 | SettingsForm | `components/admin/SettingsForm.tsx` | Settings editor |
+| **BulkDeleteUsersDialog** | `components/admin/BulkDeleteUsersDialog.tsx` | **NEW** - Bulk delete confirmation |
 | ConfirmDialog | `components/ui/confirm-dialog.tsx` | ✅ EXISTS |
 | DataTable | `components/ui/table.tsx` | ✅ EXISTS |
 
@@ -336,12 +426,16 @@ frontend/web/src/
 │       ├── ServiceStatus.tsx
 │       ├── UserTable.tsx
 │       ├── UserActionMenu.tsx
+│       ├── CreateUserDialog.tsx
+│       ├── EditUserDialog.tsx
+│       ├── DeleteUserDialog.tsx
+│       ├── BulkDeleteUsersDialog.tsx    # NEW - Sprint 40 Part 3
 │       ├── AuditLogTable.tsx
 │       ├── AuditLogDrawer.tsx
 │       ├── SystemMetrics.tsx
 │       └── SettingsForm.tsx
 └── api/
-    └── admin.ts                  # Admin API client
+    └── admin.ts                  # Admin API client (add bulkDeleteUsers)
 ```
 
 ---

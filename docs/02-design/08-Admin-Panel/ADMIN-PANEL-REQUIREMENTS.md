@@ -1,13 +1,14 @@
 # Admin Panel - Functional Requirements
 ## SDLC 5.1.1 Complete Lifecycle - Design Phase
 
-**Version**: 2.0.0
-**Date**: 2025-12-17
-**Status**: IMPLEMENTED - Sprint 37-40 Complete
+**Version**: 2.1.0
+**Date**: 2025-12-18
+**Status**: DESIGN - Sprint 40 Part 3 (Bulk Delete)
 **Author**: Design Lead
 **Reviewer**: CTO
 
 **Changelog**:
+- v2.1.0 (Dec 18, 2025): Added Bulk Delete Selected Users feature (Sprint 40 Part 3)
 - v2.0.0 (Dec 17, 2025): Added Full CRUD, Soft Delete, Toast Notifications (Sprint 40)
 - v1.1.0 (Dec 17, 2025): Added E2E Tests (Sprint 38), Toast Notifications (Sprint 39)
 - v1.0.0 (Dec 16, 2025): Initial requirements (Sprint 37)
@@ -27,6 +28,7 @@ Admin Panel cung cấp giao diện quản trị cho Platform Admin để quản 
 | - Read (list, detail, search) | Custom reporting |
 | - Update (email, password, role) | Data export tools |
 | - Delete (soft delete with audit) | |
+| - **Bulk Delete Selected** (NEW) | |
 | System Settings (version control) | |
 | Audit Logs (SOC 2 compliant) | |
 | System Health Dashboard | |
@@ -35,6 +37,7 @@ Admin Panel cung cấp giao diện quản trị cho Platform Admin để quản 
 ### 1.2 Success Criteria
 
 - [x] Admin có thể quản lý tất cả users (CRUD - Sprint 40)
+- [ ] Admin có thể xóa nhiều users cùng lúc (Bulk Delete - Sprint 40 Part 3) **NEW**
 - [x] Mọi admin action được audit logged (SOC 2 - Sprint 37)
 - [x] System health visible trong dashboard (Sprint 37)
 - [x] Response time < 200ms cho tất cả operations (Sprint 37)
@@ -165,6 +168,82 @@ Feature: User Activation/Deactivation
 **Technical Notes**:
 - Deactivation is soft-delete (is_active=false)
 - Invalidate user's tokens on deactivation
+
+---
+
+### US-ADMIN-03B: Bulk Delete Selected Users (NEW - Sprint 40 Part 3)
+
+**Story**: As a Platform Admin, I want to delete multiple users at once so that I can efficiently manage large numbers of user accounts.
+
+**Priority**: P1
+
+**Acceptance Criteria**:
+
+```gherkin
+Feature: Bulk Delete Selected Users
+
+  Scenario: Delete multiple selected users
+    Given I am on /admin/users
+    And I have selected 3 users via checkboxes
+    When I click "Delete Selected" button
+    Then I should see confirmation dialog showing:
+      | Field | Value |
+      | Title | Delete 3 Users |
+      | Warning | This action will soft delete the selected users |
+      | User List | List of emails to be deleted |
+    When I confirm deletion
+    Then all 3 users should be soft deleted (deleted_at set)
+    And I should see success toast "3 users deleted successfully"
+    And audit log should record each deletion
+    And users should be removed from the list
+
+  Scenario: Cannot bulk delete if self is selected
+    Given I am logged in as "admin@sdlc-orchestrator.io"
+    And I have selected my own account and 2 other users
+    When I click "Delete Selected" button
+    Then I should see error "Cannot delete your own account. Please deselect yourself."
+    And deletion should be blocked
+
+  Scenario: Cannot bulk delete last superuser
+    Given there is only one superuser in selection
+    And no other superusers exist outside selection
+    When I click "Delete Selected" button
+    Then I should see warning about last superuser
+    And last superuser should be automatically deselected
+    And remaining users can be deleted
+
+  Scenario: Empty selection
+    Given no users are selected
+    Then "Delete Selected" button should be disabled
+    Or not visible in bulk action bar
+
+  Scenario: Cancel bulk delete
+    Given I have selected 2 users
+    When I click "Delete Selected" button
+    And I click "Cancel" on confirmation dialog
+    Then no users should be deleted
+    And selection should remain intact
+
+  Scenario: Show loading state during bulk delete
+    Given I have selected 5 users
+    When I confirm bulk deletion
+    Then "Delete Selected" button should show "Deleting..." state
+    And be disabled during operation
+    And show progress if available
+```
+
+**Technical Notes**:
+- API: DELETE /api/v1/admin/users/bulk with body: `{ user_ids: string[] }`
+- Each deletion creates separate audit log entry
+- Self-delete prevention at frontend AND backend
+- Last superuser protection with automatic deselection
+- Soft delete only (sets deleted_at, deleted_by)
+- Toast shows count of successfully deleted users
+
+**UI Components**:
+- Bulk Action Bar: Add "Delete Selected" button (red/destructive variant)
+- Confirmation Dialog: Show list of users to be deleted
+- Progress indicator for large deletions
 
 ---
 
@@ -396,12 +475,53 @@ Feature: System Settings
 - Integration with all Admin mutations
 - Auto-dismiss after 5 seconds
 
-### Sprint 40: Full CRUD Operations
+### Sprint 40 Part 1-2: Full CRUD Operations
 - POST /admin/users (create user)
 - DELETE /admin/users/{id} (soft delete)
 - Extended PATCH for email/password changes
 - User model: deleted_at, deleted_by fields
 - Soft delete with audit trail
+- E2E tests: 41 tests passed (admin-users-crud + admin-users)
+
+### Sprint 40 Part 3: Bulk Delete Selected Users (NEW - DESIGN)
+**Status**: 📋 DESIGN PHASE
+
+**Scope**:
+- DELETE /api/v1/admin/users/bulk (new endpoint)
+- Bulk Delete confirmation dialog (BulkDeleteUsersDialog.tsx)
+- "Delete Selected" button in Bulk Action Bar
+- Protection: Cannot delete self, last superuser
+- Audit log for each deleted user
+
+**API Design**:
+```yaml
+DELETE /api/v1/admin/users/bulk
+Request Body:
+  {
+    "user_ids": ["uuid1", "uuid2", "uuid3"]
+  }
+Response (200 OK):
+  {
+    "deleted_count": 3,
+    "failed_count": 0,
+    "failures": []
+  }
+Response (400 Bad Request):
+  {
+    "detail": "Cannot delete your own account"
+  }
+Response (400 Bad Request):
+  {
+    "detail": "Cannot delete last superuser"
+  }
+```
+
+**Frontend Components**:
+- BulkDeleteUsersDialog.tsx (confirmation with user list)
+- Updated UserManagementPage.tsx (add Delete Selected button)
+- E2E tests for bulk delete scenarios
+
+**Estimated Effort**: 1 day (backend + frontend + tests)
 
 ---
 
