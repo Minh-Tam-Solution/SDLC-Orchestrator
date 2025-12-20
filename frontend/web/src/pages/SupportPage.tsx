@@ -37,7 +37,6 @@ import {
   ExternalLink, 
   Mail, 
   Phone, 
-  Github,
   Rocket,
   Settings,
   Wrench
@@ -67,10 +66,8 @@ interface DocCategory {
 
 /**
  * Static documentation data
- * All paths point to GitHub repository for live documentation
+ * Links to dedicated UI pages for better UX
  */
-const GITHUB_BASE = 'https://github.com/Minh-Tam-Solution/SDLC-Orchestrator/blob/main/docs/07-operate/03-User%20Support'
-
 const DOCUMENTATION_CATEGORIES: DocCategory[] = [
   {
     id: 'getting-started',
@@ -80,15 +77,15 @@ const DOCUMENTATION_CATEGORIES: DocCategory[] = [
     docs: [
       {
         id: '01',
-        title: '01-Getting-Started.md',
+        title: 'Getting Started',
         description: '5-minute quick start guide',
-        path: `${GITHUB_BASE}/01-Getting-Started.md`
+        path: '/support/getting-started'
       },
       {
         id: '02',
-        title: '02-SDLC-Framework-Overview.md',
+        title: 'SDLC Framework Overview',
         description: 'Understanding SDLC 5.1.1 Framework',
-        path: `${GITHUB_BASE}/02-SDLC-Framework-Overview.md`
+        path: '/support/docs/02-SDLC-Framework-Overview.md'
       }
     ]
   },
@@ -100,21 +97,21 @@ const DOCUMENTATION_CATEGORIES: DocCategory[] = [
     docs: [
       {
         id: '03',
-        title: '03-Platform-Features.md',
+        title: 'Platform Features',
         description: 'Complete feature overview',
-        path: `${GITHUB_BASE}/03-Platform-Features.md`
+        path: '/support/docs/03-Platform-Features.md'
       },
       {
         id: '04',
-        title: '04-User-Roles-Permissions.md',
+        title: 'User Roles & Permissions',
         description: 'Access control and roles',
-        path: `${GITHUB_BASE}/04-User-Roles-Permissions.md`
+        path: '/support/docs/04-User-Roles-Permissions.md'
       },
       {
         id: '05',
-        title: '05-Common-Tasks.md',
+        title: 'Common Tasks',
         description: 'Step-by-step how-to guides',
-        path: `${GITHUB_BASE}/05-Common-Tasks.md`
+        path: '/support/docs/05-Common-Tasks.md'
       }
     ]
   },
@@ -126,27 +123,27 @@ const DOCUMENTATION_CATEGORIES: DocCategory[] = [
     docs: [
       {
         id: '06',
-        title: '06-Troubleshooting.md',
+        title: 'Troubleshooting',
         description: 'Common issues and solutions',
-        path: `${GITHUB_BASE}/06-Troubleshooting.md`
+        path: '/support/docs/06-Troubleshooting.md'
       },
       {
         id: '07',
-        title: '07-FAQ.md',
+        title: 'FAQ',
         description: 'Frequently asked questions',
-        path: `${GITHUB_BASE}/07-FAQ.md`
+        path: '/support/docs/07-FAQ.md'
       },
       {
         id: '08',
-        title: '08-Best-Practices.md',
+        title: 'Best Practices',
         description: 'Optimization and guidelines',
-        path: `${GITHUB_BASE}/08-Best-Practices.md`
+        path: '/support/docs/08-Best-Practices.md'
       },
       {
         id: '09',
-        title: '09-Support-Channels.md',
+        title: 'Support Channels',
         description: 'Contact and support options',
-        path: `${GITHUB_BASE}/09-Support-Channels.md`
+        path: '/support/docs/09-Support-Channels.md'
       }
     ]
   }
@@ -163,25 +160,14 @@ const STATS = [
 
 /**
  * External resource links
+ * Note: Repository access requires authorization
  */
 const EXTERNAL_LINKS = [
   {
-    title: 'SDLC Framework',
-    description: 'Enterprise Framework v5.1.1',
-    url: 'https://github.com/Minh-Tam-Solution/SDLC-Enterprise-Framework',
+    title: 'SDLC Framework Documentation',
+    description: 'Contact admin for Framework v5.1.1 access',
+    url: '#',
     icon: <BookOpen className="h-4 w-4" aria-hidden="true" />
-  },
-  {
-    title: 'GitHub Repository',
-    description: 'SDLC Orchestrator source code',
-    url: 'https://github.com/Minh-Tam-Solution/SDLC-Orchestrator',
-    icon: <Github className="h-4 w-4" aria-hidden="true" />
-  },
-  {
-    title: 'Report Issue',
-    description: 'Bug reports and feature requests',
-    url: 'https://github.com/Minh-Tam-Solution/SDLC-Orchestrator/issues',
-    icon: <ExternalLink className="h-4 w-4" aria-hidden="true" />
   }
 ]
 
