@@ -85,7 +85,7 @@ const DOCUMENTATION_CATEGORIES: DocCategory[] = [
         id: '02',
         title: 'SDLC Framework Overview',
         description: 'Understanding SDLC 5.1.1 Framework',
-        path: '/support/docs/02-SDLC-Framework-Overview.md'
+        path: '/support/framework-overview'
       }
     ]
   },
@@ -99,19 +99,19 @@ const DOCUMENTATION_CATEGORIES: DocCategory[] = [
         id: '03',
         title: 'Platform Features',
         description: 'Complete feature overview',
-        path: '/support/docs/03-Platform-Features.md'
+        path: '/support/platform-features'
       },
       {
         id: '04',
         title: 'User Roles & Permissions',
         description: 'Access control and roles',
-        path: '/support/docs/04-User-Roles-Permissions.md'
+        path: '/support/user-roles'
       },
       {
         id: '05',
         title: 'Common Tasks',
         description: 'Step-by-step how-to guides',
-        path: '/support/docs/05-Common-Tasks.md'
+        path: '/support/common-tasks'
       }
     ]
   },
@@ -125,25 +125,25 @@ const DOCUMENTATION_CATEGORIES: DocCategory[] = [
         id: '06',
         title: 'Troubleshooting',
         description: 'Common issues and solutions',
-        path: '/support/docs/06-Troubleshooting.md'
+        path: '/support/troubleshooting'
       },
       {
         id: '07',
         title: 'FAQ',
         description: 'Frequently asked questions',
-        path: '/support/docs/07-FAQ.md'
+        path: '/support/faq'
       },
       {
         id: '08',
         title: 'Best Practices',
         description: 'Optimization and guidelines',
-        path: '/support/docs/08-Best-Practices.md'
+        path: '/support/best-practices'
       },
       {
         id: '09',
         title: 'Support Channels',
         description: 'Contact and support options',
-        path: '/support/docs/09-Support-Channels.md'
+        path: '/support/support-channels'
       }
     ]
   }

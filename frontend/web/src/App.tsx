@@ -48,6 +48,14 @@ const SOPDetailPage = lazy(() => import('@/pages/SOPDetailPage'))  // Phase 2-Pi
 const SupportPage = lazy(() => import('@/pages/SupportPage'))  // User Support & Documentation
 const DocumentationViewerPage = lazy(() => import('@/pages/DocumentationViewerPage'))  // Documentation Viewer
 const GettingStartedPage = lazy(() => import('@/pages/support/GettingStartedPage'))  // Getting Started Guide
+const FrameworkOverviewPage = lazy(() => import('@/pages/support/FrameworkOverviewPage'))  // Framework Overview
+const PlatformFeaturesPage = lazy(() => import('@/pages/support/PlatformFeaturesPage'))  // Platform Features
+const UserRolesPage = lazy(() => import('@/pages/support/UserRolesPage'))  // User Roles & Permissions
+const CommonTasksPage = lazy(() => import('@/pages/support/CommonTasksPage'))  // Common Tasks
+const TroubleshootingPage = lazy(() => import('@/pages/support/TroubleshootingPage'))  // Troubleshooting
+const FAQPage = lazy(() => import('@/pages/support/FAQPage'))  // FAQ
+const BestPracticesPage = lazy(() => import('@/pages/support/BestPracticesPage'))  // Best Practices
+const SupportChannelsPage = lazy(() => import('@/pages/support/SupportChannelsPage'))  // Support Channels
 
 // Admin Panel pages (Sprint 37)
 const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'))
@@ -188,6 +196,70 @@ function App() {
             element={
               <ProtectedRoute>
                 <GettingStartedPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/support/framework-overview"
+            element={
+              <ProtectedRoute>
+                <FrameworkOverviewPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/support/platform-features"
+            element={
+              <ProtectedRoute>
+                <PlatformFeaturesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/support/user-roles"
+            element={
+              <ProtectedRoute>
+                <UserRolesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/support/common-tasks"
+            element={
+              <ProtectedRoute>
+                <CommonTasksPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/support/troubleshooting"
+            element={
+              <ProtectedRoute>
+                <TroubleshootingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/support/faq"
+            element={
+              <ProtectedRoute>
+                <FAQPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/support/best-practices"
+            element={
+              <ProtectedRoute>
+                <BestPracticesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/support/support-channels"
+            element={
+              <ProtectedRoute>
+                <SupportChannelsPage />
               </ProtectedRoute>
             }
           />
