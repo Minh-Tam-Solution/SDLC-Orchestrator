@@ -48,6 +48,12 @@ from app.schemas.analytics import (
     AISafetyEventProperties,
     GateEventProperties,
 )
+from app.middleware.analytics_metrics import (
+    record_circuit_breaker_state,
+    record_circuit_breaker_transition,
+    record_event_tracked,
+    analytics_circuit_breaker_failures_total,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +80,14 @@ class AnalyticsService:
 
     def __init__(self):
         """Initialize Mixpanel client with project token and circuit breaker."""
+        # CTO Recommendation: Validate ANALYTICS_USER_SALT on startup
+        if not settings.ANALYTICS_USER_SALT or settings.ANALYTICS_USER_SALT == "change-me-in-production":
+            logger.warning(
+                "⚠️  ANALYTICS_USER_SALT not configured properly! "
+                "Using weak default salt compromises user privacy. "
+                "Set ANALYTICS_USER_SALT environment variable with a strong random value."
+            )
+
         if not settings.MIXPANEL_TOKEN:
             logger.warning("MIXPANEL_TOKEN not configured - analytics disabled")
             self.mp = None
@@ -87,6 +101,11 @@ class AnalyticsService:
         self._last_failure_time: Optional[datetime] = None
         self._threshold = settings.ANALYTICS_CIRCUIT_BREAKER_THRESHOLD
         self._timeout_seconds = settings.ANALYTICS_CIRCUIT_BREAKER_TIMEOUT
+
+        logger.info(
+            f"Analytics Service initialized - "
+            f"Circuit breaker: threshold={self._threshold}, timeout={self._timeout_seconds}s"
+        )
 
     async def track_event(
         self,
@@ -544,14 +563,21 @@ class AnalyticsService:
 
         Resets failure count and closes circuit if it was open/half-open.
         """
+        old_state = self._circuit_state
+
         if self._circuit_state != CircuitState.CLOSED:
             logger.info(
                 f"Circuit breaker CLOSED (recovered after {self._failure_count} failures)"
             )
+            # Record state transition to Prometheus
+            record_circuit_breaker_transition(old_state, CircuitState.CLOSED)
 
         self._circuit_state = CircuitState.CLOSED
         self._failure_count = 0
         self._last_failure_time = None
+
+        # Update Prometheus metrics
+        record_circuit_breaker_state(CircuitState.CLOSED)
 
     def _record_failure(self) -> None:
         """
@@ -559,8 +585,13 @@ class AnalyticsService:
 
         Opens circuit if failure count exceeds threshold.
         """
+        old_state = self._circuit_state
+
         self._failure_count += 1
         self._last_failure_time = datetime.utcnow()
+
+        # Record failure in Prometheus
+        analytics_circuit_breaker_failures_total.inc()
 
         # If we were in HALF_OPEN, reopen immediately
         if self._circuit_state == CircuitState.HALF_OPEN:
@@ -569,6 +600,9 @@ class AnalyticsService:
                 f"Circuit breaker REOPENED (recovery test failed, "
                 f"failures: {self._failure_count}/{self._threshold})"
             )
+            # Record state transition
+            record_circuit_breaker_transition(CircuitState.HALF_OPEN, CircuitState.OPEN)
+            record_circuit_breaker_state(CircuitState.OPEN)
             return
 
         # Check if we've exceeded threshold
@@ -580,6 +614,9 @@ class AnalyticsService:
                 f"Mixpanel tracking disabled for {self._timeout_seconds}s. "
                 f"Fallback: PostgreSQL-only mode."
             )
+            # Record state transition
+            record_circuit_breaker_transition(old_state, CircuitState.OPEN)
+            record_circuit_breaker_state(CircuitState.OPEN)
 
     def get_circuit_breaker_status(self) -> Dict[str, Any]:
         """
