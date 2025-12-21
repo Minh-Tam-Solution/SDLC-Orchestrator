@@ -24,7 +24,114 @@ Automate large-scale SDLC version migration (e.g., 4.9 → 5.1) for enterprise p
 
 ## Problem Statement
 
-### Current State (Manual Migration)
+### Current State (Without SDLC Orchestrator)
+
+#### Pain Point 1: Manual Compliance Oversight
+
+> **"Without Orchestrator, CTO/CPO/PJM must periodically monitor and remind team members (AI or Human) to read and comply with SDLC."**
+
+| Oversight Task | Frequency | Time/Week | Who |
+|----------------|-----------|-----------|-----|
+| Review PRs for SDLC compliance | Daily | 2-4 hours | Tech Lead |
+| Remind team to check docs before coding | Weekly | 30 min | PJM |
+| Spot-check AI-generated code compliance | Daily | 1-2 hours | Senior Dev |
+| Update compliance docs when SDLC changes | Per release | 8+ hours | CTO |
+| Onboard new members on SDLC standards | Per hire | 4 hours | Tech Lead |
+| **Total Manual Oversight** | - | **~15 hours/week** | Multiple |
+
+**Problems with Manual Oversight:**
+- 😓 **Fatigue**: CTO/PJM can't review every commit
+- 🔄 **Drift**: Team gradually deviates from standards
+- 🤖 **AI Blindspot**: AI tools (Cursor, Copilot) don't know SDLC rules
+- 📚 **Stale Docs**: Compliance docs become outdated
+- ⏰ **Reactive**: Violations caught late (in PR review, not at coding time)
+
+#### Pain Point 2: Manual Project-Specific Compliance Documentation
+
+Instead of requiring team to read entire SDLC Framework (300+ files), CTO creates a **project-specific compliance folder** focusing on what matters for that project:
+
+```
+# Bflow Example: Manual compliance folder (2 weeks to create, 700KB)
+docs/08-collaborate/03-SDLC-Compliance/
+├── README.md                    # "I want to..." navigation
+├── Core-Methodology/            # Subset of SDLC Framework
+├── Situation-Specific-Guides/   # Project-specific guides
+├── Quick-Reference/             # Cheatsheets
+└── SDLC-5.1-UPGRADE-SUMMARY.md  # Migration notes
+```
+
+**Problems:**
+- 📝 Manual creation: 2 weeks CTO time
+- 🔄 Manual sync: Must update when Framework changes
+- 📦 Duplication: 700KB copied content per project
+- 👀 Still requires reading: Team must know to check docs
+
+**With SDLC Orchestrator:** `.sdlc-config.json` replaces the manual folder:
+
+```bash
+# Initialize project-specific SDLC config
+sdlcctl init --project "Bflow Platform" --tier professional --version 5.1
+
+# Or auto-detect from existing project
+sdlcctl scan --generate-config
+```
+
+```json
+// .sdlc-config.json - Project-specific SDLC compliance (auto-generated)
+{
+  "$schema": "https://sdlc-orchestrator.io/schemas/sdlc-config-v1.json",
+  "version": "1.0.0",
+  "sdlc_version": "5.1.0",
+  
+  "project": {
+    "name": "Bflow Platform",
+    "tier": "professional",      // LITE | STANDARD | PROFESSIONAL | ENTERPRISE
+    "team_size": 11,
+    "maturity_level": "L1"       // L0 | L1 | L2 | L3 (Agentic Maturity)
+  },
+  
+  "structure": {
+    "docs_root": "docs",
+    "stages": ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09"],
+    "naming": "short",           // "short" (00-foundation) or "long" (00-Project-Foundation)
+    "legacy_folders": ["10-archive", "99-legacy"]
+  },
+  
+  "validation": {
+    "strict_naming": true,
+    "require_headers": true,
+    "required_header_fields": ["Version", "Date", "Stage", "Status"],
+    "min_compliance_rate": 90,
+    "auto_fix_enabled": true
+  },
+  
+  "enforcement": {
+    "pre_commit_hook": true,
+    "github_action": true,
+    "block_on_violation": true,
+    "allow_override": ["CTO", "Tech Lead"]  // VCR override roles
+  },
+  
+  "ai_safety": {
+    "detect_ai_code": true,
+    "require_ai_review": true,
+    "ai_tools": ["cursor", "copilot", "claude_code", "chatgpt"]
+  }
+}
+```
+
+**Benefits of `.sdlc-config.json`:**
+
+| Aspect | Manual Folder | `.sdlc-config.json` |
+|--------|---------------|---------------------|
+| Creation | 2 weeks | 5 seconds (`sdlcctl init`) |
+| Size | 700KB | 1KB |
+| Maintenance | Manual sync | Auto-validated |
+| Reading required | Yes (team must read docs) | No (enforced by tools) |
+| AI awareness | None | Tools use config |
+| Version control | Difficult to diff | Easy JSON diff |
+
+#### Pain Point 3: SDLC Version Migration
 
 When upgrading SDLC version (e.g., 4.9 → 5.1) for a large project:
 
@@ -34,8 +141,41 @@ When upgrading SDLC version (e.g., 4.9 → 5.1) for a large project:
 | Update version fields | 16+ hours | 5-10% typos |
 | Update stage fields | 8+ hours | 10-15% wrong stage |
 | Update cross-references | 4+ hours | 5% broken links |
-| Generate team documentation | 8+ hours | - |
+| Update `.sdlc-config.json` | 1 min | 0% (CLI handles) |
 | **Total** | **44+ hours** | **~35% error rate** |
+
+### Target State (With SDLC Orchestrator)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│          SDLC Orchestrator: Automated Compliance                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  BEFORE (Manual)              AFTER (Orchestrator)              │
+│  ───────────────              ────────────────────              │
+│                                                                 │
+│  CTO creates 700KB folder →   `sdlcctl init` creates 1KB config │
+│  CTO reminds team weekly  →   Pre-commit hook blocks bad code   │
+│  PJM spot-checks PRs      →   GitHub Action auto-reviews        │
+│  "Did you read the docs?" →   `sdlcctl explain` on-demand       │
+│  Compliance docs 700KB    →   `.sdlc-config.json` (1KB)         │
+│  AI ignores SDLC rules    →   AI-generated code auto-validated  │
+│  Violations found in PR   →   Violations blocked at commit      │
+│                                                                 │
+│  Time: 15 hrs/week        →   Time: 0 hrs/week (automated)      │
+│  Coverage: ~60% (human)   →   Coverage: 100% (every commit)     │
+│  Latency: Hours/Days      →   Latency: Seconds (real-time)      │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**CTO/CPO/PJM Benefits:**
+- ✅ **No manual reminders** - Orchestrator enforces automatically
+- ✅ **No PR compliance reviews** - GitHub Action handles it
+- ✅ **No "did you read docs?"** - VS Code shows rules inline
+- ✅ **No compliance drift** - Pre-commit blocks violations
+- ✅ **No AI blindspot** - All AI-generated code validated
+- ✅ **No stale docs** - On-demand delivery always current
 
 ### Evidence: Bflow Platform Migration (Dec 2025)
 
@@ -333,13 +473,91 @@ sdlcctl fix fields --target-version 5.1
 sdlcctl fix legacy --format sdlc51
 ```
 
-### Feature 4: Team Documentation Generator
+### Feature 4: Real-Time Compliance (Replaces Manual Documentation)
 
-**Purpose:** Generate "ONE FOLDER" compliance docs for team
+> **Key Insight:** With SDLC Orchestrator, teams **NO LONGER NEED** to create manual compliance documentation folders like Bflow's `03-SDLC-Compliance/` (700KB, 38 files). Instead, compliance knowledge is delivered **on-demand** through:
 
-**Based on Bflow Pattern:**
+**Bflow Approach (Legacy - Without Orchestrator):**
 ```
-docs/08-Team-Management/03-SDLC-Compliance/
+docs/08-collaborate/03-SDLC-Compliance/
+├── README.md (15KB)           # Manual navigation hub
+├── Core-Methodology/          # Manual copy from Framework
+├── Situation-Specific-Guides/ # Manual guides
+├── Quick-Reference/           # Manual cheatsheets
+└── ... (700KB, 38 files, 2 weeks to create)
+```
+
+**SDLC Orchestrator Approach (Automated):**
+```
+┌─────────────────────────────────────────────────────────────┐
+│              SDLC Compliance Delivery Methods               │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1️⃣ VS Code Extension (Real-Time)                          │
+│     ├── Inline warnings on SDLC violations                 │
+│     ├── Quick-fix suggestions (click to fix)               │
+│     ├── Hover tooltips with stage/naming rules             │
+│     └── Command palette: "SDLC: Validate File"             │
+│                                                             │
+│  2️⃣ CLI Tool (On-Demand)                                   │
+│     ├── sdlcctl scan         # Check compliance            │
+│     ├── sdlcctl validate     # Validate structure          │
+│     ├── sdlcctl fix          # Auto-fix violations         │
+│     └── sdlcctl explain 02   # Show stage 02 rules         │
+│                                                             │
+│  3️⃣ Pre-Commit Hook (Auto-Scan)                            │
+│     ├── Blocks non-compliant commits                       │
+│     ├── Shows violation details                            │
+│     └── Suggests auto-fix command                          │
+│                                                             │
+│  4️⃣ GitHub Action (CI/CD Gate)                             │
+│     ├── PR review comments with violations                 │
+│     ├── Blocks merge if compliance < threshold             │
+│     └── Auto-fix via `/sdlc fix` comment                   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Benefits of On-Demand Delivery:**
+
+| Aspect | Bflow Manual | SDLC Orchestrator |
+|--------|--------------|-------------------|
+| Setup time | 2 weeks | 5 minutes (`sdlcctl init`) |
+| Maintenance | Manual sync with Framework | Auto-updated |
+| Documentation size | 700KB per project | 0 KB (delivered on-demand) |
+| Version consistency | Risk of drift | Always current |
+| New member onboarding | "Read this folder" | "Install extension" |
+
+**CLI "Explain" Commands (Replaces Static Docs):**
+```bash
+# What is stage 02?
+sdlcctl explain stage 02
+# Output: Stage 02 (design) - HOW
+#         Architecture + ADRs
+#         Subfolders: 01-ADRs/, 02-System-Architecture/, ...
+
+# What are the naming rules?
+sdlcctl explain naming
+# Output: Folder: NN-shortname/ (e.g., 02-design)
+#         Files: kebab-case.md (e.g., API-Design.md)
+#         Code: see 'sdlcctl explain code-naming'
+
+# How to fix a specific violation?
+sdlcctl explain violation "duplicate-folder-number"
+# Output: Duplicate folder number detected
+#         Fix: Rename to next sequential number
+#         Auto-fix: sdlcctl fix --rule duplicate-folder-number
+```
+
+### Feature 5: Team Documentation Generator (Optional - Enterprise Tier)
+
+> **Note:** This feature is **OPTIONAL** for teams that need offline/printed compliance references or for regulated industries requiring documentation artifacts.
+
+**Purpose:** Generate static compliance docs for teams without internet access or audit requirements
+
+**Based on Bflow Pattern (for offline use only):**
+```
+docs/08-collaborate/03-SDLC-Compliance/
 ├── README.md               ← Navigation hub ("I want to...")
 ├── Core-Methodology/       ← What is SDLC X.Y?
 ├── SASE-Artifacts/         ← How to work with AI agents?
@@ -438,36 +656,38 @@ sdlcctl generate team-docs --target-version 5.1 \
 
 ---
 
-### Sprint 49: Team Documentation Generator (Apr 28 - May 9, 2026)
+### Sprint 49: Real-Time Compliance & CLI Explain (Apr 28 - May 9, 2026)
 
-**Goal:** Auto-generate "ONE FOLDER" team compliance docs
+**Goal:** Implement on-demand compliance delivery (replaces manual docs)
 
 **User Stories:**
 | ID | Story | Points |
 |----|-------|--------|
-| EP05-009 | As a PM, compliance docs are generated for my team | 8 |
-| EP05-010 | As a developer, I get situation-specific guides | 5 |
-| EP05-011 | As a developer, I get quick-reference cheatsheets | 3 |
-| EP05-012 | As a CTO, docs are customized to our project tier | 5 |
+| EP05-009 | As a developer, I can run `sdlcctl explain stage 02` to learn about a stage | 5 |
+| EP05-010 | As a developer, I can run `sdlcctl explain naming` to see naming rules | 3 |
+| EP05-011 | As a developer, VS Code shows inline SDLC violation warnings | 8 |
+| EP05-012 | As a developer, pre-commit hook blocks non-compliant commits | 5 |
 
 **Technical Tasks:**
-- [ ] Create documentation templates (Jinja2)
-- [ ] Implement folder structure generator
-- [ ] Create "I want to..." navigation hub
-- [ ] Generate situation-specific guides
-- [ ] Generate quick-reference cheatsheets
-- [ ] Add tier customization (Small/Medium/Large/Enterprise)
+- [ ] Implement `sdlcctl explain` command suite
+- [ ] Create VS Code extension inline diagnostics
+- [ ] Implement pre-commit hook with violation details
+- [ ] Add quick-fix suggestions in VS Code
+- [ ] Create hover tooltips with stage/naming rules
 
 **Deliverables:**
-- `backend/app/services/docs_generator/`
-- `backend/sdlcctl/commands/generate.py`
-- `backend/sdlcctl/templates/team_docs/`
+- `backend/sdlcctl/commands/explain.py`
+- `vscode-extension/src/diagnostics/sdlcDiagnostics.ts`
+- `.pre-commit-hooks.yaml` template
+- VS Code extension hover provider
+
+**Key Insight:** This sprint **replaces** the need for manual compliance documentation folders. Teams get compliance knowledge on-demand through CLI and extension.
 
 ---
 
-### Sprint 50: Web Dashboard & Polish (May 12-23, 2026)
+### Sprint 50: Dashboard & Team Docs Generator (May 12-23, 2026)
 
-**Goal:** Enterprise dashboard and production polish
+**Goal:** Enterprise dashboard + optional offline docs generator
 
 **User Stories:**
 | ID | Story | Points |
@@ -475,7 +695,7 @@ sdlcctl generate team-docs --target-version 5.1 \
 | EP05-013 | As a CTO, I see compliance score on dashboard | 5 |
 | EP05-014 | As a CTO, I track migration progress visually | 5 |
 | EP05-015 | As a PM, I export compliance reports as PDF | 3 |
-| EP05-016 | As a developer, the CLI has helpful error messages | 3 |
+| EP05-016 | (Enterprise) As a PM in regulated industry, I can generate offline compliance docs | 3 |
 
 **Technical Tasks:**
 - [ ] Create compliance dashboard UI
@@ -502,11 +722,17 @@ sdlcctl generate team-docs --target-version 5.1 \
 | Version migration | ❌ | ✅ | ✅ |
 | Auto-fix (dry-run only) | ✅ | ✅ | ✅ |
 | Auto-fix (execute) | ❌ | ✅ | ✅ |
-| Team docs generation | ❌ | ✅ | ✅ |
+| `sdlcctl explain` commands | ✅ | ✅ | ✅ |
+| VS Code inline warnings | ✅ | ✅ | ✅ |
+| Pre-commit hook | ✅ | ✅ | ✅ |
+| GitHub Action | ❌ | ✅ | ✅ |
+| Offline team docs generator | ❌ | ❌ | ✅ |
 | Web dashboard | ❌ | ❌ | ✅ |
 | PDF reports | ❌ | ❌ | ✅ |
 | Migration history | ❌ | ❌ | ✅ |
 | Multi-project support | ❌ | ❌ | ✅ |
+
+> **Note:** With `sdlcctl explain` and VS Code extension available in Free tier, teams **no longer need** to create manual compliance documentation folders. On-demand compliance delivery replaces static docs.
 
 ---
 
@@ -516,8 +742,9 @@ sdlcctl generate team-docs --target-version 5.1 \
 |--------|--------|-------------|
 | Scan speed | <5 min for 5,000 files | Timer |
 | Migration accuracy | 99%+ | Manual validation sample |
-| Team doc quality | 90%+ satisfaction | Survey |
 | CLI usability | <5 min learning curve | User testing |
+| New member onboarding | <30 min (with extension) | Onboarding survey |
+| Manual docs created | 0 (for Orchestrator users) | Team survey |
 
 ---
 
