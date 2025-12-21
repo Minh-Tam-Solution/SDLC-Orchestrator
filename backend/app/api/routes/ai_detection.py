@@ -11,11 +11,13 @@ API endpoints for AI detection service including:
 - Detection status and configuration
 - Shadow mode management
 - Manual detection trigger for testing
+- Circuit breaker monitoring (CTO P2)
 
 Endpoints:
 - GET /api/v1/ai-detection/status - Get detection service status
 - GET /api/v1/ai-detection/shadow-mode - Get shadow mode status
 - POST /api/v1/ai-detection/analyze - Analyze a PR for AI content
+- GET /api/v1/ai-detection/circuit-breakers - Get circuit breaker stats
 """
 
 from typing import Any, Dict, List, Optional
@@ -32,6 +34,11 @@ from app.services.ai_detection.shadow_mode import (
     get_shadow_mode_status,
     log_shadow_result,
     shadow_mode_config,
+)
+from app.services.ai_detection.circuit_breaker import (
+    get_all_circuit_breaker_stats,
+    github_api_breaker,
+    external_ai_breaker,
 )
 
 router = APIRouter(prefix="/ai-detection", tags=["AI Detection"])
@@ -170,4 +177,61 @@ async def get_supported_tools() -> Dict[str, Any]:
             for tool in AIToolType
         ],
         "count": len(AIToolType),
+    }
+
+
+@router.get("/circuit-breakers")
+async def get_circuit_breakers() -> Dict[str, Any]:
+    """
+    Get circuit breaker status for all external services.
+
+    CTO P2: Monitor circuit breaker health for external API calls.
+
+    Returns:
+        Status of all circuit breakers including:
+        - Current state (closed/open/half_open)
+        - Failure/success counts
+        - Configuration thresholds
+    """
+    return {
+        "circuit_breakers": get_all_circuit_breaker_stats(),
+        "description": (
+            "Circuit breakers protect against cascading failures "
+            "when external services are unavailable."
+        ),
+    }
+
+
+@router.post("/circuit-breakers/{breaker_name}/reset")
+async def reset_circuit_breaker(breaker_name: str) -> Dict[str, Any]:
+    """
+    Reset a circuit breaker to closed state.
+
+    Use this endpoint to manually recover a circuit breaker
+    after fixing the underlying issue.
+
+    Args:
+        breaker_name: Name of the circuit breaker (github_api, external_ai)
+
+    Returns:
+        Updated circuit breaker status
+    """
+    breakers = {
+        "github_api": github_api_breaker,
+        "external_ai": external_ai_breaker,
+    }
+
+    if breaker_name not in breakers:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Circuit breaker '{breaker_name}' not found. "
+            f"Available: {list(breakers.keys())}",
+        )
+
+    breaker = breakers[breaker_name]
+    await breaker.reset()
+
+    return {
+        "message": f"Circuit breaker '{breaker_name}' reset to CLOSED state",
+        "stats": breaker.get_stats(),
     }
