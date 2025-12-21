@@ -1,20 +1,40 @@
 # SDLC Orchestrator - Financial Model
 ## 90-Day Development Budget & 3-Year Revenue Projections
 
-**Version**: 1.0.0
-**Date**: November 13, 2025
-**Status**: ACTIVE - APPROVED FOR EXECUTION
+**Version**: 1.1.0
+**Date**: December 21, 2025
+**Status**: ACTIVE - APPROVED FOR EXECUTION (Updated)
 **Authority**: CEO + CFO Approved
-**Foundation**: BRD v1.2, Product Vision 1.0.0
+**Foundation**: BRD v1.2, Product Vision 3.1.0
+**Framework**: SDLC 5.1.1 Complete Lifecycle
+
+**Changelog v1.1.0** (Dec 21, 2025):
+- Added EP-04/05/06 investment breakdown ($124.5K additional)
+- Added NQH AI Platform cost savings ($0 infrastructure for codegen)
+- Updated Year 1 revenue projection (+$34.5K ARR from new epics)
+- Added customer savings metrics (up to $71.7K per migration)
 
 ---
 
 ## 🎯 Executive Summary
 
-**Total Development Budget**: $552.85K (90 days)
-**Year 1 Target Revenue**: $240K ARR (100 teams)
+**Total Development Budget**: $552.85K (90 days initial) + $124.5K (EP-04/05/06)
+**Year 1 Target Revenue**: $240K ARR + $34.5K upsells = **$274.5K ARR**
 **Break-Even**: Month 18
 **ROI at Year 3**: 312% ($1.72M revenue vs $552.85K investment)
+
+**Strategic Investments (Q1-Q3 2026)**:
+| Epic | Investment | Story Points | Revenue Impact |
+|------|------------|--------------|----------------|
+| EP-04 | $16,500 | 117 SP | +$3,564 ARR (upsells) |
+| EP-05 | $58,000 | 89 SP | +$15,492 ARR (upsells) |
+| EP-06 | ~$50,000 | 99 SP | +$11,928 ARR (upsells) |
+| **Total** | **$124,500** | **305 SP** | **+$34,548 ARR** |
+
+**NQH AI Platform Savings** (IT Admin Infrastructure):
+- GPU Server: RTX 5090 32GB ready (qwen2.5-coder:32b - 92.7% HumanEval)
+- Infrastructure cost for Codegen: **$0** (company-owned)
+- Mode B customers: Save $12K/year vs Claude Code Max
 
 **Investment Recommendation**: ✅ **PROCEED** - Strong unit economics, clear path to profitability
 
@@ -402,10 +422,13 @@
 🔴 **HIGH RISK**:
 1. **AI Provider Pricing Changes**: Claude/GPT-4o could increase 2-3x
    - Mitigation: Multi-provider strategy, pass-through pricing
+   - **NEW**: NQH AI Platform (qwen2.5-coder:32b) as $0 fallback
 2. **OSS License Violations**: AGPL contamination risk
    - Mitigation: Legal review Week 2 (budgeted $75K)
+   - **Status**: ✅ RESOLVED (Dec 2025)
 3. **Competitive Response**: Jira/Linear could add similar features
-   - Mitigation: SDLC 4.8 IP moat (1-2 years to replicate)
+   - Mitigation: SDLC 5.1.1 IP moat (1-2 years to replicate)
+   - **NEW**: AI Safety positioning unique in market
 
 🟡 **MEDIUM RISK**:
 4. **Customer Acquisition Cost**: Could be 2x higher than projected
@@ -465,8 +488,9 @@
 ---
 
 **Document**: SDLC-Orchestrator-Financial-Model
-**Framework**: SDLC 4.8 Stage 00 (WHY)
+**Framework**: SDLC 5.1.1 Stage 00 (WHY)
 **Component**: Business Case - Financial Validation
 **Review**: Monthly financial review with CEO/CFO
+**Session Log**: [SESSION-2025-12-21](../../01-planning/99-Session-Logs/SESSION-2025-12-21-CTO-Strategic-Planning.md)
 
 *"Build the RIGHT things with the RIGHT budget"* 💰
