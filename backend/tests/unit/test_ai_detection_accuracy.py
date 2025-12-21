@@ -7,15 +7,18 @@ Framework: SDLC 5.1.1
 Day: 5 - Test Dataset Validation
 
 Purpose:
-Validate AI detection accuracy against 100-PR test dataset.
-Target: ≥85% accuracy (85/100 correct classifications).
+Validate AI detection accuracy against 110-PR test dataset.
+Target: ≥85% accuracy on true AI PRs, <20% false positive rate.
+
+CTO P0 Fix: Added adversarial test cases for false positive protection.
 
 Test Structure:
 1. Overall accuracy validation
 2. Per-category accuracy (Cursor, Copilot, Claude, etc.)
 3. Confusion matrix analysis
 4. False positive/negative analysis
-5. Performance validation (<600ms p95)
+5. Adversarial test validation (false positive protection)
+6. Performance validation (<600ms p95)
 
 Coverage Target: 95%+
 """
@@ -30,6 +33,7 @@ import pytest
 from app.services.ai_detection import AIToolType
 from app.services.ai_detection.service import GitHubAIDetectionService
 from tests.fixtures.ai_detection_test_dataset import (
+    ADVERSARIAL_PRS,
     ALL_TEST_PRS,
     CHATGPT_PRS,
     CLAUDE_PRS,
@@ -389,6 +393,46 @@ async def test_human_false_positive_rate(detection_service):
 
     # CRITICAL: Low false positive rate (<20%)
     assert fp_rate <= 0.20, f"False positive rate {fp_rate:.1%} exceeds 20% threshold"
+
+
+@pytest.mark.asyncio
+async def test_adversarial_false_positive_protection(detection_service):
+    """
+    CTO P0 CRITICAL TEST: Adversarial false positive protection.
+
+    These PRs contain words like "cursor", "pilot", "claude" in non-AI contexts.
+    They should NOT be detected as AI-generated.
+    """
+    results = []
+    for pr in ADVERSARIAL_PRS:
+        result = await run_detection_test(detection_service, pr)
+        results.append(result)
+
+    report = calculate_accuracy_report(results)
+
+    # False positive rate on adversarial cases
+    false_positives = sum(1 for r in results if r.actual_detected)
+    fp_rate = false_positives / len(results)
+
+    print(f"\n{'='*60}")
+    print("ADVERSARIAL TEST - False Positive Protection")
+    print(f"{'='*60}")
+    print(f"Total Adversarial PRs: {len(results)}")
+    print(f"False Positives: {false_positives}")
+    print(f"False Positive Rate: {fp_rate:.1%}")
+
+    # List any failures
+    failures = [r for r in results if r.actual_detected]
+    if failures:
+        print(f"\nFalse Positive Details:")
+        for f in failures:
+            print(f"  {f.pr_id}: detected as {f.actual_tool} (conf={f.confidence:.2f})")
+
+    print(f"{'='*60}\n")
+
+    # CTO P0 CRITICAL: <30% false positive rate on adversarial cases
+    # (these are harder cases than typical human PRs)
+    assert fp_rate <= 0.30, f"Adversarial FP rate {fp_rate:.1%} exceeds 30% threshold"
 
 
 # ============================================================================

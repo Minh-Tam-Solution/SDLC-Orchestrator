@@ -5,7 +5,7 @@ SDLC Stage: 04 - BUILD
 Sprint: 42 - AI Detection & Validation Pipeline
 Framework: SDLC 5.1.1
 Epic: EP-02 AI Safety Layer v1
-CTO Review: P1 Metrics Integrated
+CTO Review: P0 Overfitting Fix Applied
 
 Purpose:
 Orchestrate multiple AI detection strategies with weighted voting.
@@ -14,15 +14,21 @@ Combines metadata, commit, and pattern analysis for ≥85% accuracy.
 Architecture:
 - 3 detection strategies running in parallel
 - Weighted voting: Metadata (40%), Commit (40%), Pattern (20%)
-- Decision threshold: 0.50 confidence
+- Configurable detection threshold (default: 0.50)
 - Async/await for performance
 - Prometheus metrics for observability
+
+CTO P0 Fix (Sprint 42 Day 5):
+- Reverted from OR-based to weighted voting (prevents overfitting)
+- Added configurable threshold for precision/recall trade-off
+- Production validation required before deployment
 
 Performance Target: <600ms p95 latency
 """
 
 import asyncio
 import logging
+import os
 import time
 from typing import List, Tuple
 
@@ -33,6 +39,12 @@ from .pattern_detector import PatternDetector
 
 # Structured logging (CTO P2)
 logger = logging.getLogger(__name__)
+
+# Configurable detection threshold (CTO P0 recommendation)
+# Default: 0.50 (balanced precision/recall)
+# Precision-focused: 0.65 (fewer false positives)
+# Recall-focused: 0.35 (fewer false negatives)
+DETECTION_THRESHOLD = float(os.getenv("AI_DETECTION_THRESHOLD", "0.50"))
 
 # Import metrics (may fail in test environment)
 try:
@@ -157,39 +169,36 @@ class GitHubAIDetectionService(AIDetectionService):
                             duration_seconds=strategy_times.get(strategy_names[i], 0),
                         )
 
-            # Improved Detection Logic (Sprint 42 Day 5 accuracy tuning)
+            # Detection Logic (CTO P0 Fix - Reverted to Weighted Voting)
             #
-            # Strategy: OR-based detection with weighted confidence
-            # - If ANY detector has high confidence (detected=True), mark as AI
-            # - Use max confidence for final score (not weighted average)
-            # - This ensures body-only mentions are still detected
+            # Strategy: Weighted voting with configurable threshold
+            # - Calculate weighted average of all detector confidences
+            # - Compare against configurable threshold (default 0.50)
+            # - This prevents overfitting to synthetic test data
             #
-            # Rationale: A single explicit AI mention in title/body/commits
-            # is sufficient evidence. We shouldn't require multiple signals.
+            # CTO Rationale: OR-based detection led to 100% accuracy on
+            # synthetic data but risks high false positive rate in production.
+            # Weighted voting is more robust and production-ready.
 
-            # Check if any detector flagged as AI
-            detected_results = [r for r in processed_results if r.detected]
-            any_detector_positive = len(detected_results) > 0
-
-            # Use max confidence (not weighted average) for better accuracy
-            # This ensures a body-only match (0.6) isn't diluted to 0.24
-            max_confidence = max(r.confidence for r in processed_results)
-
-            # Weighted confidence for reporting (secondary metric)
+            # Calculate weighted confidence (primary decision metric)
             weighted_confidence = sum(
                 result.confidence * weight
                 for result, (_, weight) in zip(processed_results, self.detectors)
             )
 
-            # Final confidence: use max for decision, report weighted
-            # This achieves higher recall while maintaining precision
-            final_confidence = max_confidence if any_detector_positive else weighted_confidence
+            # Also track max confidence for reporting
+            max_confidence = max(r.confidence for r in processed_results)
+
+            # Decision: Use weighted confidence against threshold
+            # Threshold is configurable via AI_DETECTION_THRESHOLD env var
+            is_ai_detected = weighted_confidence > DETECTION_THRESHOLD
 
             # Determine detected tool (highest confidence wins)
+            detected_results = [r for r in processed_results if r.detected]
             detected_tool = None
             detected_model = None
 
-            if detected_results:
+            if detected_results and is_ai_detected:
                 best_result = max(detected_results, key=lambda x: x.confidence)
                 detected_tool = best_result.tool
                 # Try to extract model from metadata evidence
@@ -198,8 +207,8 @@ class GitHubAIDetectionService(AIDetectionService):
                         best_result.evidence
                     )
 
-            # Decision: AI detected if any detector was positive
-            is_ai_detected = any_detector_positive
+            # Final confidence for reporting
+            final_confidence = weighted_confidence
 
             # Aggregate evidence from all detectors
             combined_evidence = {
@@ -214,6 +223,7 @@ class GitHubAIDetectionService(AIDetectionService):
                 },
                 "weighted_confidence": weighted_confidence,
                 "max_confidence": max_confidence,
+                "detection_threshold": DETECTION_THRESHOLD,
                 "strategy_durations_ms": {
                     k: int(v * 1000) for k, v in strategy_times.items()
                 },

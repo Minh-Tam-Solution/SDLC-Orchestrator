@@ -1120,7 +1120,116 @@ HUMAN_PRS = [
 ]
 
 # ============================================================================
-# COMBINED DATASET (100 PRs)
+# ADVERSARIAL TEST CASES - False Positive Protection (CTO P0)
+# These PRs contain words that could trigger false positives but are NOT AI-generated
+# ============================================================================
+
+ADVERSARIAL_PRS = [
+    TestPR(
+        id="adversarial-001",
+        title="fix: move cursor to end of line",
+        body="Fixed cursor positioning in text editor. The cursor now correctly moves to EOL.",
+        commits=[{"commit": {"message": "fix cursor position"}}],
+        diff="cursor.moveToEndOfLine()",
+        expected_tool=None,
+        expected_detected=False,  # "cursor" here means text cursor, not Cursor AI
+        category="adversarial",
+    ),
+    TestPR(
+        id="adversarial-002",
+        title="feat: implement pilot project",
+        body="This is a pilot project for the new feature. Running pilot tests.",
+        commits=[{"commit": {"message": "add pilot implementation"}}],
+        diff="class PilotProject:",
+        expected_tool=None,
+        expected_detected=False,  # "pilot" != "copilot"
+        category="adversarial",
+    ),
+    TestPR(
+        id="adversarial-003",
+        title="docs: Claude Shannon's information theory",
+        body="Added documentation about Claude Shannon's work on information theory.",
+        commits=[{"commit": {"message": "add shannon theory docs"}}],
+        diff="# Claude Shannon's Information Theory",
+        expected_tool=None,
+        expected_detected=False,  # "Claude Shannon" != "Claude AI"
+        category="adversarial",
+    ),
+    TestPR(
+        id="adversarial-004",
+        title="refactor: database cursor handling",
+        body="Improved database cursor management for better connection pooling.",
+        commits=[{"commit": {"message": "fix db cursor leak"}}],
+        diff="with connection.cursor() as cursor:",
+        expected_tool=None,
+        expected_detected=False,  # database cursor != Cursor AI
+        category="adversarial",
+    ),
+    TestPR(
+        id="adversarial-005",
+        title="feat: OpenAPI spec generation",
+        body="Added OpenAPI specification for REST API documentation.",
+        commits=[{"commit": {"message": "add openapi spec"}}],
+        diff="openapi: 3.0.0",
+        expected_tool=None,
+        expected_detected=False,  # "OpenAPI" != "OpenAI"
+        category="adversarial",
+    ),
+    TestPR(
+        id="adversarial-006",
+        title="fix: autopilot mode toggle",
+        body="Fixed the autopilot mode in the navigation system.",
+        commits=[{"commit": {"message": "fix autopilot toggle"}}],
+        diff="def toggle_autopilot():",
+        expected_tool=None,
+        expected_detected=False,  # "autopilot" != "copilot"
+        category="adversarial",
+    ),
+    TestPR(
+        id="adversarial-007",
+        title="docs: update GPT-2 paper citations",
+        body="Updated academic citations for GPT-2 paper references.",
+        commits=[{"commit": {"message": "update citations"}}],
+        diff="# References to GPT-2 paper",
+        expected_tool=None,
+        expected_detected=False,  # Academic reference != AI-generated code
+        category="adversarial",
+    ),
+    TestPR(
+        id="adversarial-008",
+        title="feat: add cody bear mascot",
+        body="Added the Cody bear mascot image to the homepage.",
+        commits=[{"commit": {"message": "add mascot"}}],
+        diff="<img src='cody-bear.png' />",
+        expected_tool=None,
+        expected_detected=False,  # "Cody" as name != "Cody" AI tool
+        category="adversarial",
+    ),
+    TestPR(
+        id="adversarial-009",
+        title="chore: cleanup windsurf event handler",
+        body="Refactored the windsurf sports event handler for the booking system.",
+        commits=[{"commit": {"message": "cleanup windsurf handler"}}],
+        diff="class WindsurfEventHandler:",
+        expected_tool=None,
+        expected_detected=False,  # Windsurfing sport != Windsurf AI
+        category="adversarial",
+    ),
+    TestPR(
+        id="adversarial-010",
+        title="test: add co-pilot seat allocation tests",
+        body="Added tests for the co-pilot seat allocation in the flight booking system.",
+        commits=[{"commit": {"message": "add seat tests"}}],
+        diff="def test_copilot_seat():",
+        expected_tool=None,
+        expected_detected=False,  # Aviation co-pilot != GitHub Copilot
+        category="adversarial",
+    ),
+]
+
+
+# ============================================================================
+# COMBINED DATASET (110 PRs - including adversarial cases)
 # ============================================================================
 
 ALL_TEST_PRS = (
@@ -1131,14 +1240,15 @@ ALL_TEST_PRS = (
     + WINDSURF_PRS
     + OTHER_AI_PRS
     + HUMAN_PRS
+    + ADVERSARIAL_PRS  # CTO P0: Added adversarial test cases
 )
 
 # Verify dataset size
-assert len(ALL_TEST_PRS) == 100, f"Expected 100 PRs, got {len(ALL_TEST_PRS)}"
+assert len(ALL_TEST_PRS) == 110, f"Expected 110 PRs, got {len(ALL_TEST_PRS)}"
 
 # Dataset summary
 DATASET_SUMMARY = {
-    "total": 100,
+    "total": 110,
     "cursor": 25,
     "copilot": 25,
     "claude": 15,
@@ -1146,6 +1256,7 @@ DATASET_SUMMARY = {
     "windsurf": 5,
     "other": 5,
     "human": 15,
+    "adversarial": 10,  # CTO P0: False positive test cases
     "ai_generated": 85,
-    "human_written": 15,
+    "human_written": 25,  # 15 human + 10 adversarial
 }

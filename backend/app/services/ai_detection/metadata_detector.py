@@ -26,6 +26,64 @@ from . import AIDetectionStrategy, AIToolType, DetectionMethod, DetectionResult
 class MetadataDetector(AIDetectionStrategy):
     """Detect AI tools from PR metadata (title, body, commits)."""
 
+    # False positive protection patterns (CTO P0 - Sprint 42 Day 5)
+    # These patterns indicate NON-AI contexts for ambiguous keywords
+    FALSE_POSITIVE_PATTERNS: Dict[AIToolType, List[str]] = {
+        AIToolType.CURSOR: [
+            # Database/text cursor contexts
+            r"database\s+cursor",
+            r"db\s+cursor",
+            r"cursor\s+position",
+            r"cursor\s+movement",
+            r"move\s+cursor",
+            r"text\s+cursor",
+            r"cursor\s+to\s+(end|start|line|position)",
+            r"cursor\s+handling",
+            r"cursor\s+management",
+            r"connection\.cursor",
+            r"cursor\s+leak",
+            r"with.*cursor.*as",
+        ],
+        AIToolType.COPILOT: [
+            # Aviation/vehicle copilot contexts
+            r"co-?pilot\s+seat",
+            r"autopilot",
+            r"pilot\s+project",
+            r"pilot\s+test",
+            r"flight.*co-?pilot",
+            r"aircraft.*co-?pilot",
+        ],
+        AIToolType.CLAUDE_CODE: [
+            # Claude Shannon or other Claude references
+            r"claude\s+shannon",
+            r"shannon.*claude",
+            r"information\s+theory.*claude",
+        ],
+        AIToolType.CHATGPT: [
+            # Academic paper references
+            r"gpt-?2\s+paper",
+            r"paper.*gpt-?2",
+            r"citation.*gpt",
+            r"reference.*gpt-?2",
+        ],
+        AIToolType.WINDSURF: [
+            # Windsurfing sport contexts
+            r"windsurf\s+sport",
+            r"windsurf\s+event",
+            r"windsurf\s+booking",
+            r"windsurfing",
+            r"windsurf\s+handler",
+            r"windsurf.*event.*handler",
+        ],
+        AIToolType.CODY: [
+            # Cody as a name/mascot
+            r"cody\s+bear",
+            r"cody\s+mascot",
+            r"cody\s+image",
+            r"mascot.*cody",
+        ],
+    }
+
     # Tool keyword patterns (case-insensitive regex)
     # Expanded patterns for Sprint 42 Day 5 accuracy target (≥85%)
     TOOL_PATTERNS: Dict[AIToolType, List[str]] = {
@@ -188,6 +246,10 @@ class MetadataDetector(AIDetectionStrategy):
         - Multiple matches across sources → higher confidence
         - Ensures body-only matches still exceed 0.5 threshold
 
+        False Positive Protection (CTO P0 - Sprint 42 Day 5):
+        - Check for negative patterns that indicate non-AI contexts
+        - e.g., "database cursor" != Cursor AI, "pilot project" != Copilot
+
         Detection Philosophy:
         - If AI tool is explicitly mentioned anywhere, we should detect it
         - Single mention in body is sufficient evidence for AI usage
@@ -203,6 +265,13 @@ class MetadataDetector(AIDetectionStrategy):
         Returns:
             Confidence score (0.0 - 1.0)
         """
+        # CTO P0: Check for false positive patterns first
+        fp_patterns = self.FALSE_POSITIVE_PATTERNS.get(tool, [])
+        combined_text = f"{title} {body} {' '.join(commit_messages)}"
+        if any(re.search(p, combined_text, re.IGNORECASE) for p in fp_patterns):
+            # False positive detected - return zero confidence
+            return 0.0
+
         title_match = any(re.search(p, title, re.IGNORECASE) for p in patterns)
         body_match = any(re.search(p, body, re.IGNORECASE) for p in patterns)
 

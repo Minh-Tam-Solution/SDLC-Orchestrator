@@ -29,6 +29,36 @@ from . import AIDetectionStrategy, AIToolType, DetectionMethod, DetectionResult
 class CommitDetector(AIDetectionStrategy):
     """Detect AI tools from commit message patterns."""
 
+    # False positive protection patterns (CTO P0 - Sprint 42 Day 5)
+    # These patterns indicate NON-AI contexts for ambiguous keywords
+    FALSE_POSITIVE_PATTERNS: Dict[AIToolType, List[str]] = {
+        AIToolType.CURSOR: [
+            r"database\s+cursor",
+            r"db\s+cursor",
+            r"cursor\s+position",
+            r"cursor\s+leak",
+            r"fix\s+cursor\s+position",
+            r"cursor\s+handling",
+        ],
+        AIToolType.COPILOT: [
+            r"co-?pilot\s+seat",
+            r"autopilot",
+            r"pilot\s+project",
+        ],
+        AIToolType.CLAUDE_CODE: [
+            r"claude\s+shannon",
+        ],
+        AIToolType.WINDSURF: [
+            r"windsurf\s+event",
+            r"windsurf\s+handler",
+            r"windsurf\s+sport",
+        ],
+        AIToolType.CODY: [
+            r"cody\s+bear",
+            r"cody\s+mascot",
+        ],
+    }
+
     # Commit message patterns (regex)
     # Expanded patterns for Sprint 42 Day 5 accuracy target (≥85%)
     COMMIT_PATTERNS: Dict[AIToolType, List[str]] = {
@@ -119,6 +149,12 @@ class CommitDetector(AIDetectionStrategy):
             msg = (commit.get("commit", {}).get("message") or "").lower()
 
             for tool, patterns in self.COMMIT_PATTERNS.items():
+                # CTO P0: Check for false positive patterns first
+                fp_patterns = self.FALSE_POSITIVE_PATTERNS.get(tool, [])
+                if any(re.search(p, msg, re.IGNORECASE) for p in fp_patterns):
+                    # Skip this tool - false positive detected
+                    continue
+
                 for pattern in patterns:
                     match = re.search(pattern, msg, re.IGNORECASE)
                     if match:
