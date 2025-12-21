@@ -36,20 +36,24 @@ This stage transforms validated problems (Stage 00) into detailed requirements:
 │   ├── Non-Functional-Requirements.md      # NFR1-NFR15+ quality attributes
 │   ├── Requirements-Traceability-Matrix.md # FR → Design → Test mapping
 │   └── FR-21-USER-AI-API-KEY-MANAGEMENT.md # Additional FRs
-├── 02-User-Stories/
+├── 02-Epics/
+│   ├── EP-04-SDLC-Structure-Enforcement.md # Universal AI Codex Structure Validation
+│   ├── EP-05-ENTERPRISE-SDLC-MIGRATION.md  # Automated SDLC Version Migration (Pro/Ent)
+│   └── EP-06-Codegen-Engine-Dual-Mode.md   # Dual-Mode Codegen Engine (SASE)
+├── 03-User-Stories/
 │   ├── User-Stories-Epics.md               # Epic breakdown
 │   ├── Acceptance-Criteria.md              # Definition of Done
 │   └── Story-Mapping.md                    # Story map visualization
-├── 03-Data-Model/
+├── 04-Data-Model/
 │   ├── Data-Model-v0.1.md                  # Initial data model
 │   ├── Data-Model-ERD.md                   # Entity-Relationship Diagram
 │   ├── Database-Schema.md                  # PostgreSQL schema
 │   └── Data-Dictionary.md                  # Field definitions
-├── 04-API-Design/
+├── 05-API-Design/
 │   ├── API-Specification.md                # OpenAPI 3.0
 │   ├── API-Authentication.md               # JWT + OAuth
 │   └── API-Versioning-Strategy.md          # v1/v2 strategy
-├── 05-Legal-Compliance/
+├── 06-Legal-Compliance/
 │   ├── AGPL-Containment-Strategy.md        # OSS legal strategy
 │   ├── AGPL-Containment-Legal-Brief.md     # Legal opinion
 │   ├── Legal-Review-Report.md              # External counsel report
@@ -101,29 +105,34 @@ This stage transforms validated problems (Stage 00) into detailed requirements:
 - ✅ Non-Functional-Requirements.md (NFR1-NFR15)
 - ✅ Requirements-Traceability-Matrix.md
 
-### 02-User-Stories (100% complete)
+### 02-Epics (NEW - Dec 2025)
+- ✅ EP-04-SDLC-Structure-Enforcement.md (Universal AI Codex Validation)
+- ✅ EP-05-ENTERPRISE-SDLC-MIGRATION.md (Automated Migration for Pro/Ent)
+- ✅ EP-06-Codegen-Engine-Dual-Mode.md (SASE Dual-Mode Codegen)
+
+### 03-User-Stories (100% complete)
 - ✅ User-Stories-Epics.md
 - ✅ Acceptance-Criteria.md
 - ✅ Story-Mapping.md
 
-### 03-Data-Model (100% complete)
+### 04-Data-Model (100% complete)
 - ✅ Data-Model-v0.1.md (1.0.0 - IMPLEMENTED, 24 tables, 45KB)
 - ✅ Data-Model-ERD.md (2.0.0 - 6-layer diagram)
 - ✅ Database-Schema.md
 - ✅ Data-Dictionary.md
 
-### 04-API-Design (100% complete)
+### 05-API-Design (100% complete)
 - ✅ API-Specification.md (OpenAPI 3.0, 30+ endpoints)
 - ✅ API-Authentication.md (JWT + OAuth)
 - ✅ API-Versioning-Strategy.md
 
-### 05-Legal-Compliance (100% complete)
+### 06-Legal-Compliance (100% complete)
 - ✅ AGPL-Containment-Strategy.md (42KB)
 - ✅ AGPL-Containment-Legal-Brief.md
 - ✅ Legal-Review-Report.md (37KB)
 - ✅ License-Audit-Report.md
 
-**Overall Progress**: 100% (17 of 17 documents complete)
+**Overall Progress**: 100% (20 of 20 documents complete)
 
 ---
 
@@ -131,7 +140,7 @@ This stage transforms validated problems (Stage 00) into detailed requirements:
 
 - [x] G1: Planning & Analysis validated ✅
 - [x] Legal review PASSED (AGPL containment approved) ✅
-- [x] All 17 required documents completed ✅
+- [x] All 20 required documents completed ✅
 - [x] CTO review (data model 9.8/10, API specs approved) ✅
 - [x] Backend Lead review (API specs, schema migrations planned) ✅
 - [x] QA Lead review (test strategy defined based on requirements) ✅
@@ -332,7 +341,7 @@ This stage transforms validated problems (Stage 00) into detailed requirements:
 
 ## Document Summary
 
-**Total Documents**: 17 (delivered)
+**Total Documents**: 20 (delivered)
 **Total Lines**: 250,000+ lines across all documents
 **Quality Gates**: G1 (Planning & Analysis) - ✅ PASSED
 **Next Stage**: Stage 02 (Design & Architecture) - ✅ PASSED
