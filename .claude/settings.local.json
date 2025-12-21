@@ -129,7 +129,10 @@
       "Bash(/home/nqh/shared/SDLC-Orchestrator/docs/02-design/03-Technical-Specs/AI-Safety-Layer-v1.md)",
       "Bash(/home/nqh/shared/SDLC-Orchestrator/docs/08-operate/99-Legacy/Hotfixes/2025-12-20-bulk-delete-422-fix.md)",
       "Bash(rmdir:*)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(git restore:*)",
+      "Bash(for file in SPRINT-44 SPRINT-45 SPRINT-46 SPRINT-47 SPRINT-48 SPRINT-49 SPRINT-50)",
+      "Bash(do)"
     ],
     "deny": [],
     "ask": []

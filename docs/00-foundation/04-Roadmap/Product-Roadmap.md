@@ -1,12 +1,23 @@
 # Product Roadmap
 ## AI-Native SDLC Governance & Safety Platform
 
-**Version**: 4.0.0
-**Date**: December 20, 2025
-**Status**: ✅ CTO APPROVED - Q1-Q2 2026 AI Safety First
-**Authority**: CTO Approval (Dec 20, 2025), Board Decision December 2024
-**Foundation**: Financial Model v1.0, Product Vision v3.0.0
+**Version**: 4.1.0
+**Date**: December 21, 2025
+**Status**: ✅ CTO APPROVED - Q1-Q2 2026 AI Safety First + EP-04/05/06
+**Authority**: CTO Approval (Dec 21, 2025), Board Decision December 2024
+**Foundation**: Financial Model v1.0, Product Vision v3.1.0
 **Framework**: SDLC 5.1.1 + SASE Level 2
+
+**Changelog v4.1.0** (Dec 21, 2025):
+- **EP-04**: SDLC Structure Enforcement (Sprint 41-46, $16.5K, 117 SP)
+- **EP-05**: Enterprise SDLC Migration Engine (Sprint 47-50, $58K, 89 SP)
+- **EP-06**: Codegen Engine Tri-Mode (Sprint 51-55, ~$50K, 99 SP)
+- **Mode C Hybrid Fallback**: Claude → Continue.dev auto-failover
+- **Model Roles Strategy**: IT Admin 10-model structure integrated
+- **NQH AI Platform**: qwen2.5-coder:32b (92.7% HumanEval) ready
+- **.sdlc-config.json**: 1KB replaces 700KB manual compliance docs
+- **Total Investment**: $74.5K+ committed (305+ SP)
+- **Revenue Projection**: +$34.5K ARR Year 1 from new epics
 
 **Changelog v4.0.0** (Dec 20, 2025):
 - **POSITIONING PIVOT**: "Project Governance Tool" → "AI-Native SDLC Governance & Safety Platform"
@@ -83,9 +94,11 @@
 | Quarter | Theme | Primary Epics | Investment |
 |---------|-------|---------------|------------|
 | **Q1-Q2 2026** | AI Safety First | EP-01, EP-02, EP-03 | $60,000 |
-| **Q3 2026** | Ecosystem & Marketplace | EP-04, EP-05 | $80,000 |
-| **Q4 2026** | Enterprise Governance | EP-06, EP-07, EP-08 | $100,000 |
-| **2027** | Become the Standard | EP-09, EP-10 | TBD |
+| **Q1-Q2 2026** | Structure & Migration | EP-04, EP-05 | $74,500 |
+| **Q2-Q3 2026** | Codegen Engine | EP-06 | ~$50,000 |
+| **Q3 2026** | Ecosystem & Marketplace | EP-07, EP-08 | $80,000 |
+| **Q4 2026** | Enterprise Governance | EP-09, EP-10 | $100,000 |
+| **2027** | Become the Standard | EP-11+ | TBD |
 
 ---
 
@@ -210,15 +223,46 @@
 
 ---
 
-## Sprint Planning (Q1 2026)
+## Sprint Planning (Q1-Q3 2026)
 
-| Sprint | Dates | Focus | Status |
-|--------|-------|-------|--------|
-| **Sprint 41** | Jan 6-17 | AI Safety Foundation | [PLANNED](../../../04-build/02-Sprint-Plans/SPRINT-41-AI-SAFETY-FOUNDATION.md) |
-| **Sprint 42** | Jan 20-31 | AI Detection & Pipeline | [PLANNED](../../../04-build/02-Sprint-Plans/SPRINT-42-AI-DETECTION-PIPELINE.md) |
-| **Sprint 43** | Feb 3-14 | Policy Guards & Evidence UI | [PLANNED](../../../04-build/02-Sprint-Plans/SPRINT-43-POLICY-GUARDS-EVIDENCE-UI.md) |
-| **Sprint 44** | Feb 17-28 | Stalled Project Flow | Planning |
-| **Sprint 45** | Mar 3-14 | M1 Milestone Delivery | Planning |
+### EP-01/02/03: AI Safety First (Sprint 41-45)
+
+| Sprint | Dates | Focus | Story Points |
+|--------|-------|-------|-------------|
+| **Sprint 41** | Jan 6-17 | AI Safety Foundation | 18 SP |
+| **Sprint 42** | Jan 20-31 | AI Detection & Pipeline | 20 SP |
+| **Sprint 43** | Feb 3-14 | Policy Guards & Evidence UI | 22 SP |
+| **Sprint 44** | Feb 17-28 | Stalled Project Flow | 18 SP |
+| **Sprint 45** | Mar 3-14 | M1 Milestone Delivery | 20 SP |
+
+### EP-04: SDLC Structure Enforcement (Sprint 44-46) - $16.5K
+
+| Sprint | Dates | Focus | Story Points |
+|--------|-------|-------|-------------|
+| **Sprint 44** | Feb 17-28 | SDLC Structure Scanner | 39 SP |
+| **Sprint 45** | Mar 3-14 | Auto-Fix Engine | 44 SP |
+| **Sprint 46** | Mar 17-28 | CI/CD Integration | 34 SP |
+
+### EP-05: Enterprise SDLC Migration (Sprint 47-50) - $58K
+
+| Sprint | Dates | Focus | Story Points |
+|--------|-------|-------|-------------|
+| **Sprint 47** | Mar 31 - Apr 11 | Scanner + Config Generator | 22 SP |
+| **Sprint 48** | Apr 14-25 | Fixer + Backup Engine | 23 SP |
+| **Sprint 49** | Apr 28 - May 9 | Real-time Compliance | 22 SP |
+| **Sprint 50** | May 12-23 | Dashboard + Enterprise | 22 SP |
+
+### EP-06: Codegen Engine Tri-Mode (Sprint 51-55) - ~$50K
+
+| Sprint | Dates | Focus | Story Points |
+|--------|-------|-------|-------------|
+| **Sprint 51** | May 26 - Jun 6 | IR v0 Schemas + Codegen API | ~20 SP |
+| **Sprint 52** | Jun 9-20 | Mode B: qwen2.5-coder:32b | ~20 SP |
+| **Sprint 53** | Jun 23 - Jul 4 | Mode A: BYO Integration | ~20 SP |
+| **Sprint 54** | Jul 7-18 | Mode C: Hybrid Fallback | ~20 SP |
+| **Sprint 55** | Jul 21 - Aug 1 | Non-Tech Journey + Polish | ~19 SP |
+
+**Total Investment (Sprint 41-55)**: $184.5K (459+ SP)
 
 ---
 
@@ -246,11 +290,13 @@ Previous roadmap versions archived at:
 
 | Role | Name | Approval Date | Status |
 |------|------|---------------|--------|
-| **CTO** | Mr. Tai | December 20, 2025 | ✅ APPROVED |
+| **CTO** | Mr. Tai | December 21, 2025 | ✅ APPROVED (v4.1.0) |
 | **CPO** | TBD | Pending | ⏳ |
 | **CEO** | TBD | Pending | ⏳ |
 
-**Next Review**: January 15, 2026 (Sprint 41 Mid-Point)
+**Session Log**: [SESSION-2025-12-21-CTO-Strategic-Planning.md](../../01-planning/99-Session-Logs/SESSION-2025-12-21-CTO-Strategic-Planning.md)
+**Next Review**: December 27, 2025 (CTO Review Meeting, 3pm)
+**Sprint 41 Kickoff**: January 6, 2026, 9am
 
 ---
 

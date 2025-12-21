@@ -3,11 +3,19 @@
 
 **Stage**: 00 - FOUNDATION
 **Question**: Why are we building this?
-**Version**: 3.0.0
-**Date**: December 11, 2025
+**Version**: 3.1.0
+**Date**: December 21, 2025
 **Status**: ✅ COMPLETED - Gate G0.1 + G0.2 PASSED
 **Authority**: PM + CEO + CTO + CPO Approved (9.5/10 Confidence)
-**Framework**: SDLC 5.1.0 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 5.1.1 Complete Lifecycle (10 Stages)
+
+**Changelog v3.1.0** (Dec 21, 2025):
+- Vision updated to v3.1.0 with EP-04/05/06 strategic extensions
+- Roadmap updated to v4.1.0 with Sprint 41-55 (15 sprints, 305+ SP)
+- NQH AI Platform integration: qwen2.5-coder:32b (92.7% HumanEval)
+- Mode C Hybrid Fallback: Claude → Continue.dev auto-failover
+- Investment committed: $124.5K for Q1-Q3 2026
+- Revenue projection: +$34.5K ARR Year 1 from new epics
 
 ---
 
@@ -148,7 +156,7 @@ Once Stage 00 is complete → **[Stage 01: Planning (WHAT)](../01-planning/READM
 
 ---
 
-**Last Updated**: December 17, 2025
+**Last Updated**: December 21, 2025
 **Owner**: PM + Design Lead + CEO
 **Status**: ✅ COMPLETED
 
@@ -163,6 +171,33 @@ Once Stage 00 is complete → **[Stage 01: Planning (WHAT)](../01-planning/READM
 | Quality Gates | G0.1 ✅ PASSED, G0.2 ✅ PASSED |
 | Next Stage | Stage 01 (WHAT) - ✅ PASSED |
 | Current Stage | Stage 04 (BUILD) - IN PROGRESS |
+| Vision Version | v3.1.0 (Dec 21, 2025) |
+| Roadmap Version | v4.1.0 (Dec 21, 2025) |
+
+---
+
+## Strategic Updates (Dec 21, 2025)
+
+### New Epics Approved
+
+| Epic | Focus | Investment | Timeline |
+|------|-------|------------|----------|
+| **EP-04** | SDLC Structure Enforcement | $16,500 (117 SP) | Sprint 41-46 |
+| **EP-05** | Enterprise SDLC Migration | $58,000 (89 SP) | Sprint 47-50 |
+| **EP-06** | Codegen Engine Tri-Mode | ~$50,000 (99 SP) | Sprint 51-55 |
+
+### Key Innovations
+
+1. **`.sdlc-config.json`** - 1KB replaces 700KB manual compliance docs (700x smaller!)
+2. **Mode C Hybrid Fallback** - Claude → Continue.dev auto-failover when credits exhausted
+3. **qwen2.5-coder:32b** - 92.7% HumanEval (IT Admin's NQH AI Platform ready)
+4. **IR Decomposition** - 128K → 5K tokens (96% context reduction)
+
+### Business Value
+
+- Customer savings: Up to $71.7K per SDLC migration (Enterprise tier)
+- Revenue projection: +$34.5K ARR Year 1 from EP-04/05/06 upsells
+- Churn prevention: $3.5K+ ARR retained
 
 ---
 
