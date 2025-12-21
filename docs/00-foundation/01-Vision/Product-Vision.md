@@ -140,7 +140,7 @@ We envision a world where:
 **Category Differentiation**:
 - **Jira/Linear**: Task execution tools (track WHAT, not WHY/HOW/WHO)
 - **GitLab/Azure DevOps**: CI/CD platforms (4-stage pipeline, not 10-stage governance)
-- **SDLC Orchestrator**: **FIRST governance platform on SDLC 4.9.1** (complete lifecycle)
+- **SDLC Orchestrator**: **FIRST governance platform on SDLC 5.1.1** (complete lifecycle)
 
 ---
 
