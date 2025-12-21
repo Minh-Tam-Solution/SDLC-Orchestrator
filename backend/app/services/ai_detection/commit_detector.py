@@ -30,43 +30,68 @@ class CommitDetector(AIDetectionStrategy):
     """Detect AI tools from commit message patterns."""
 
     # Commit message patterns (regex)
+    # Expanded patterns for Sprint 42 Day 5 accuracy target (≥85%)
     COMMIT_PATTERNS: Dict[AIToolType, List[str]] = {
         AIToolType.COPILOT: [
             r"co-authored-by:.*copilot",
             r"generated\s+by\s+copilot",
             r"\[copilot\]",
             r"github\s+copilot",
+            r"\bcopilot\b",
+            r"co-pilot",
+            r"copilot:",
+            r"copilot\s+\w+",  # "copilot sort", "copilot metrics"
         ],
         AIToolType.CURSOR: [
             r"generated\s+by\s+cursor",
             r"\[cursor\]",
             r"cursor\.sh",
             r"cursor\s+ai",
+            r"\bcursor\b",
+            r"\(cursor\)",
+            r"cursor:",
+            r"cursor\s+\w+",  # "cursor add", "cursor fix"
         ],
         AIToolType.CLAUDE_CODE: [
             r"generated\s+with\s+claude",
             r"claude\s+code",
             r"\[claude\]",
             r"anthropic\s+claude",
+            r"\bclaude\b",
+            r"\(claude\)",
+            r"claude:",
+            r"claude\s+\w+",  # "claude tests", "claude DR"
         ],
         AIToolType.CHATGPT: [
             r"generated\s+by\s+chatgpt",
             r"\[chatgpt\]",
             r"openai\s+gpt",
             r"gpt-4\s+generated",
+            r"\bchatgpt\b",
+            r"\bopenai\b",
+            r"chatgpt:",
+            r"openai:",
         ],
         AIToolType.WINDSURF: [
             r"generated\s+by\s+windsurf",
             r"\[windsurf\]",
+            r"\bwindsurf\b",
+            r"codeium\s+windsurf",
+            r"windsurf:",
         ],
         AIToolType.CODY: [
             r"generated\s+by\s+cody",
             r"\[cody\]",
             r"sourcegraph\s+cody",
+            r"\bcody\b",
+            r"cody:",
         ],
         AIToolType.TABNINE: [
             r"generated\s+by\s+tabnine",
             r"\[tabnine\]",
+            r"\btabnine\b",
+            r"tab\s+nine",
+            r"tabnine:",
         ],
     }
 

@@ -27,12 +27,19 @@ class MetadataDetector(AIDetectionStrategy):
     """Detect AI tools from PR metadata (title, body, commits)."""
 
     # Tool keyword patterns (case-insensitive regex)
+    # Expanded patterns for Sprint 42 Day 5 accuracy target (≥85%)
     TOOL_PATTERNS: Dict[AIToolType, List[str]] = {
         AIToolType.CURSOR: [
             r"\bcursor\b",
             r"cursor\.sh",
             r"cursor\s+ai",
             r"cursor-generated",
+            r"cursor\s+generated",
+            r"with\s+cursor",
+            r"using\s+cursor",
+            r"\(cursor\)",
+            r"\[cursor\]",
+            r"cursor\s+assist",
         ],
         AIToolType.COPILOT: [
             r"\bcopilot\b",
@@ -40,6 +47,12 @@ class MetadataDetector(AIDetectionStrategy):
             r"🤖",
             r"co-pilot",
             r"copilot-suggested",
+            r"copilot\s+generated",
+            r"with\s+copilot",
+            r"using\s+copilot",
+            r"\(copilot\)",
+            r"\[copilot\]",
+            r"copilot\s+assist",
         ],
         AIToolType.CLAUDE_CODE: [
             r"\bclaude\b",
@@ -47,6 +60,12 @@ class MetadataDetector(AIDetectionStrategy):
             r"anthropic",
             r"claude\s+ai",
             r"generated\s+by\s+claude",
+            r"generated\s+with\s+claude",
+            r"with\s+claude",
+            r"using\s+claude",
+            r"\(claude\)",
+            r"\[claude\]",
+            r"claude\s+assist",
         ],
         AIToolType.CHATGPT: [
             r"\bchatgpt\b",
@@ -54,18 +73,37 @@ class MetadataDetector(AIDetectionStrategy):
             r"gpt-3\.5",
             r"openai",
             r"chatgpt-generated",
+            r"chatgpt\s+generated",
+            r"with\s+chatgpt",
+            r"using\s+chatgpt",
+            r"\(chatgpt\)",
+            r"\[chatgpt\]",
         ],
         AIToolType.WINDSURF: [
             r"\bwindsurf\b",
             r"codeium\s+windsurf",
+            r"codeium",
+            r"with\s+windsurf",
+            r"using\s+windsurf",
+            r"\(windsurf\)",
+            r"\[windsurf\]",
         ],
         AIToolType.CODY: [
             r"\bcody\b",
             r"sourcegraph\s+cody",
+            r"sourcegraph",
+            r"with\s+cody",
+            r"using\s+cody",
+            r"\(cody\)",
+            r"\[cody\]",
         ],
         AIToolType.TABNINE: [
             r"\btabnine\b",
             r"tab\s+nine",
+            r"with\s+tabnine",
+            r"using\s+tabnine",
+            r"\(tabnine\)",
+            r"\[tabnine\]",
         ],
     }
 
@@ -145,10 +183,15 @@ class MetadataDetector(AIDetectionStrategy):
         """
         Calculate confidence score for a specific tool.
 
-        Weighted formula:
-        - Title match: 40% (most explicit signal)
-        - Body match: 30% (often contains details)
-        - Commit ratio: 30% (consistent signal across commits)
+        Improved Scoring (Sprint 42 Day 5 accuracy tuning):
+        - Any single match in title/body/commits → baseline 0.6 confidence
+        - Multiple matches across sources → higher confidence
+        - Ensures body-only matches still exceed 0.5 threshold
+
+        Detection Philosophy:
+        - If AI tool is explicitly mentioned anywhere, we should detect it
+        - Single mention in body is sufficient evidence for AI usage
+        - Multiple mentions increase confidence
 
         Args:
             tool: AI tool to check
@@ -168,16 +211,25 @@ class MetadataDetector(AIDetectionStrategy):
             any(re.search(p, msg, re.IGNORECASE) for p in patterns)
             for msg in commit_messages
         )
-        commit_ratio = (
-            commit_matches / len(commit_messages) if commit_messages else 0.0
-        )
+        has_commit_match = commit_matches > 0
 
-        # Weighted score
-        score = (
-            (1.0 if title_match else 0.0) * 0.4
-            + (1.0 if body_match else 0.0) * 0.3
-            + commit_ratio * 0.3
-        )
+        # Count total match sources (0-3)
+        match_count = sum([title_match, body_match, has_commit_match])
+
+        if match_count == 0:
+            return 0.0
+
+        # Base confidence for any match: 0.6 (above 0.5 threshold)
+        # Additional matches add 0.15 each (max 0.9 for all 3)
+        base_confidence = 0.6
+        additional_confidence = (match_count - 1) * 0.15
+
+        # Bonus for high commit ratio (all commits have AI marker)
+        commit_ratio_bonus = 0.0
+        if commit_messages and commit_matches == len(commit_messages):
+            commit_ratio_bonus = 0.1
+
+        score = min(base_confidence + additional_confidence + commit_ratio_bonus, 1.0)
 
         return score
 

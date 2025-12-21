@@ -157,14 +157,35 @@ class GitHubAIDetectionService(AIDetectionService):
                             duration_seconds=strategy_times.get(strategy_names[i], 0),
                         )
 
-            # Calculate weighted confidence
-            total_confidence = sum(
+            # Improved Detection Logic (Sprint 42 Day 5 accuracy tuning)
+            #
+            # Strategy: OR-based detection with weighted confidence
+            # - If ANY detector has high confidence (detected=True), mark as AI
+            # - Use max confidence for final score (not weighted average)
+            # - This ensures body-only mentions are still detected
+            #
+            # Rationale: A single explicit AI mention in title/body/commits
+            # is sufficient evidence. We shouldn't require multiple signals.
+
+            # Check if any detector flagged as AI
+            detected_results = [r for r in processed_results if r.detected]
+            any_detector_positive = len(detected_results) > 0
+
+            # Use max confidence (not weighted average) for better accuracy
+            # This ensures a body-only match (0.6) isn't diluted to 0.24
+            max_confidence = max(r.confidence for r in processed_results)
+
+            # Weighted confidence for reporting (secondary metric)
+            weighted_confidence = sum(
                 result.confidence * weight
                 for result, (_, weight) in zip(processed_results, self.detectors)
             )
 
+            # Final confidence: use max for decision, report weighted
+            # This achieves higher recall while maintaining precision
+            final_confidence = max_confidence if any_detector_positive else weighted_confidence
+
             # Determine detected tool (highest confidence wins)
-            detected_results = [r for r in processed_results if r.detected]
             detected_tool = None
             detected_model = None
 
@@ -177,6 +198,9 @@ class GitHubAIDetectionService(AIDetectionService):
                         best_result.evidence
                     )
 
+            # Decision: AI detected if any detector was positive
+            is_ai_detected = any_detector_positive
+
             # Aggregate evidence from all detectors
             combined_evidence = {
                 "metadata": processed_results[0].evidence,
@@ -188,6 +212,8 @@ class GitHubAIDetectionService(AIDetectionService):
                     "commit": processed_results[1].confidence,
                     "pattern": processed_results[2].confidence,
                 },
+                "weighted_confidence": weighted_confidence,
+                "max_confidence": max_confidence,
                 "strategy_durations_ms": {
                     k: int(v * 1000) for k, v in strategy_times.items()
                 },
@@ -200,10 +226,10 @@ class GitHubAIDetectionService(AIDetectionService):
             # Record detection result metrics (CTO P1)
             if METRICS_ENABLED:
                 record_detection_result(
-                    detected=total_confidence > 0.50,
+                    detected=is_ai_detected,
                     tool=detected_tool,
                     method=DetectionMethod.COMBINED,
-                    confidence=total_confidence,
+                    confidence=final_confidence,
                     duration_seconds=duration_seconds,
                 )
 
@@ -211,16 +237,16 @@ class GitHubAIDetectionService(AIDetectionService):
             logger.info(
                 "AI detection completed",
                 extra={
-                    "is_ai_generated": total_confidence > 0.50,
-                    "confidence": round(total_confidence, 3),
+                    "is_ai_generated": is_ai_detected,
+                    "confidence": round(final_confidence, 3),
                     "detected_tool": detected_tool.value if detected_tool else None,
                     "duration_ms": duration_ms,
                 },
             )
 
             return AIDetectionResult(
-                is_ai_generated=total_confidence > 0.50,
-                confidence=total_confidence,
+                is_ai_generated=is_ai_detected,
+                confidence=final_confidence,
                 detected_tool=detected_tool,
                 detected_model=detected_model,
                 detected_model_version=None,
