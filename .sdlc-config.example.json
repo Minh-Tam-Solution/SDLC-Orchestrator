@@ -1,0 +1,61 @@
+{
+  "$schema": "https://sdlc-orchestrator.com/schemas/config-v1.json",
+  "validators": [
+    "stage-folder",
+    "sequential-numbering",
+    "naming-convention",
+    "header-metadata",
+    "cross-reference"
+  ],
+  "rules": {
+    "STAGE-001": {
+      "enabled": true,
+      "severity": "ERROR",
+      "auto_fix": true
+    },
+    "STAGE-002": {
+      "enabled": true,
+      "severity": "ERROR"
+    },
+    "STAGE-003": {
+      "enabled": true,
+      "severity": "WARNING",
+      "auto_fix": true
+    },
+    "NUM-001": {
+      "enabled": true,
+      "severity": "ERROR"
+    },
+    "NUM-002": {
+      "enabled": true,
+      "severity": "INFO",
+      "auto_fix": true
+    },
+    "NAME-001": {
+      "enabled": true,
+      "severity": "WARNING",
+      "auto_fix": true
+    },
+    "HDR-001": {
+      "enabled": true,
+      "severity": "WARNING",
+      "auto_fix": true
+    },
+    "REF-001": {
+      "enabled": true,
+      "severity": "ERROR"
+    }
+  },
+  "ignore_patterns": [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/__pycache__/**",
+    "**/10-archive/**",
+    "**/99-legacy/**"
+  ],
+  "max_workers": 4,
+  "docs_root": "docs",
+  "fail_on_error": true,
+  "fail_on_warning": false,
+  "output_format": "text"
+}
