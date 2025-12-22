@@ -94,7 +94,8 @@ services:
       - sdlc-network
 
   # ============================================================================
-  # Open Policy Agent (OPA) - Gate Engine
+  # Open Policy Agent (OPA) - Gate Engine & Policy Guards
+  # Sprint 43: Policy Guards Integration
   # ============================================================================
   opa:
     image: openpolicyagent/opa:0.58.0
@@ -106,13 +107,16 @@ services:
       - "--server"
       - "--addr=0.0.0.0:8181"
       - "--log-level=info"
-      - "/policies"
+      - "--log-format=json"
     ports:
       - "8185:8181"  # IT Admin: SDLC OPA on 8185
     volumes:
-      - ./policy-packs/rego:/policies:ro
+      - ./backend/policy-packs/rego:/policies:ro
     healthcheck:
-      disable: true
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8181/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - sdlc-network
 
@@ -255,7 +259,7 @@ services:
       # App
       ENVIRONMENT: development
       DEBUG: "true"
-      ALLOWED_ORIGINS: https://sdlc.nqh.vn,http://localhost:8310,http://localhost:3000,http://localhost:4000,http://localhost:5173
+      ALLOWED_ORIGINS: https://sdlc.nhatquangholding.com,https://sdlc.nqh.vn,http://localhost:8310,http://localhost:3000,http://localhost:4000,http://localhost:5173
 
     ports:
       - "8300:8300"

@@ -1,14 +1,10 @@
 """
-=========================================================================
-Policy Pydantic Schemas - Request/Response Models
-SDLC Orchestrator - Stage 03 (BUILD)
+Policy Schemas - OPA Policy Library
 
-Version: 1.0.0
-Date: November 18, 2025
-Status: ACTIVE - Week 3 Day 4 API Implementation
-Authority: Backend Lead + CTO Approved
-Foundation: FR5 (Policy Pack Library), Data Model v0.1
-Framework: SDLC 4.9 Complete Lifecycle
+SDLC Stage: 04 - BUILD
+Sprint: 43 - Policy Guards & Evidence UI
+Framework: SDLC 5.1.1 (10-Stage Lifecycle, 4-Tier Classification)
+Epic: EP-02 AI Safety Layer v1
 
 Purpose:
 - Policy library request/response schemas
@@ -17,12 +13,25 @@ Purpose:
 - Policy test case schemas
 
 Policy Types:
-- Pre-built policies: 110+ policies for all 10 SDLC 4.9 stages
+- Pre-built policies: 110+ policies for all 10 SDLC stages (00-09)
 - Custom policies: Project-specific policy customizations
 - Policy tests: Test cases for policy validation
 
+SDLC 5.1.1 Stages:
+- 00-foundation (WHY?)
+- 01-planning (WHAT?)
+- 02-design (HOW?)
+- 03-integrate (How connect?)
+- 04-build (Building right?)
+- 05-test (Works correctly?)
+- 06-deploy (Ship safely?)
+- 07-operate (Running reliably?)
+- 08-collaborate (Team effective?)
+- 09-govern (Compliant?)
+
+Version: 2.0.0
+Updated: December 2025
 Zero Mock Policy: Production-ready Pydantic v2 schemas
-=========================================================================
 """
 
 from datetime import datetime
