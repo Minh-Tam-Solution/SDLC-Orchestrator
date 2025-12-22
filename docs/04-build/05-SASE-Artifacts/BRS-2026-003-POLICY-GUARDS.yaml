@@ -1,0 +1,669 @@
+# BriefingScript: Policy Guards & Evidence UI
+# SASE Level 2 - Sprint 43
+# Framework: SDLC 5.1.1
+
+---
+briefing_script:
+  id: BRS-2026-003
+  version: "1.0.0"
+  status: APPROVED
+  created: 2025-12-22
+  author: CTO Office
+  framework: SDLC 5.1.1 + SASE Level 2
+
+# ============================================================================
+# SECTION 1: CONTEXT & OBJECTIVES
+# ============================================================================
+
+context:
+  sprint: 43
+  epic: EP-02 AI Safety Layer v1
+  duration: 2 weeks (Feb 3-14, 2026)
+  team_size: 7 (3 Backend + 2 Frontend + 1 DevOps + 1 QA)
+
+  business_context: |
+    Sprint 43 completes the AI Safety Layer v1 by adding policy enforcement
+    (OPA-based Policy Guards) and visibility (Evidence Timeline UI).
+    This is the final sprint before M1 milestone (March 2026).
+
+  technical_context: |
+    Prerequisites from Sprint 42:
+    - GitHubAIDetectionService operational (3 strategies, 85%+ accuracy)
+    - Validation Pipeline with Circuit Breaker pattern
+    - Shadow Mode for safe deployment
+    - Partner Onboarding documentation complete
+
+objectives:
+  primary:
+    - id: OBJ-01
+      name: Implement Policy Guards (OPA-based)
+      priority: P0
+      success_criteria:
+        - 100% of policy failures block merge
+        - <100ms policy evaluation latency
+        - 5+ default AI safety policies
+
+    - id: OBJ-02
+      name: Create Evidence Timeline UI
+      priority: P0
+      success_criteria:
+        - View all AI detection events per project
+        - Filter by date, tool, confidence level
+        - Export to CSV/JSON for audit
+
+    - id: OBJ-03
+      name: Add SAST Validator (Semgrep)
+      priority: P0
+      success_criteria:
+        - 5+ security rules for AI-generated code
+        - Integration with Validation Pipeline
+        - <30s scan time for typical PR
+
+    - id: OBJ-04
+      name: Implement VCR Override Flow
+      priority: P1
+      success_criteria:
+        - Human can override blocked PRs
+        - Audit trail for all overrides
+        - <5% override rate target
+
+  secondary:
+    - id: OBJ-05
+      name: Begin "Ý tưởng mới" flow UI
+      priority: P1
+      success_criteria:
+        - v0.1 prototype demo
+        - Design review with CTO
+
+    - id: OBJ-06
+      name: Onboard remaining partners
+      priority: P1
+      success_criteria:
+        - 6 total active partners
+        - Slack channel engagement
+
+# ============================================================================
+# SECTION 2: TECHNICAL REQUIREMENTS
+# ============================================================================
+
+technical_requirements:
+
+  # Day 1-2: Policy Guards (OPA Integration)
+  policy_guards:
+    description: Policy-as-code enforcement using OPA engine
+
+    components:
+      - name: PolicyPackSchema
+        file: backend/app/schemas/policy_pack.py
+        interfaces:
+          - PolicyRule (id, name, rego_policy, severity, blocking)
+          - ValidatorConfig (name, enabled, blocking, config)
+          - PolicyPackCreate (name, version, tier, validators, policies)
+
+      - name: OPAPolicyService
+        file: backend/app/services/opa_policy_service.py
+        interfaces:
+          - evaluate_policies(policies, input_data) -> List[PolicyResult]
+          - load_policy(policy_id, rego_content) -> bool
+          - get_policy_status(policy_id) -> PolicyStatus
+        dependencies:
+          - OPA Server (http://opa:8181)
+          - httpx for async HTTP calls
+
+      - name: PolicyGuardValidator
+        file: backend/app/services/validators/policy_guard_validator.py
+        interfaces:
+          - validate(project_id, pr_number, files, diff) -> ValidatorResult
+        integration:
+          - Extends BaseValidator
+          - Plugs into ValidationPipeline
+
+    default_policies:
+      - id: ai-safety-no-hardcoded-secrets
+        severity: critical
+        blocking: true
+        description: Detect hardcoded secrets in AI-generated code
+
+      - id: ai-safety-no-legacy-imports
+        severity: high
+        blocking: true
+        description: Block forbidden/deprecated imports
+
+      - id: ai-safety-architecture-boundaries
+        severity: high
+        blocking: true
+        description: Enforce layer separation (presentation -> business -> data)
+
+      - id: ai-safety-no-sql-injection
+        severity: critical
+        blocking: true
+        description: Detect SQL injection vulnerabilities
+
+      - id: ai-safety-input-validation
+        severity: medium
+        blocking: false
+        description: Ensure user input is validated
+
+    api_endpoints:
+      - POST /api/v1/projects/{id}/policies
+      - GET /api/v1/projects/{id}/policies
+      - PUT /api/v1/projects/{id}/policies/{policy_id}
+      - DELETE /api/v1/projects/{id}/policies/{policy_id}
+      - POST /api/v1/projects/{id}/policies/evaluate
+
+  # Day 3-4: SAST Validator (Semgrep)
+  sast_validator:
+    description: Static Application Security Testing using Semgrep
+
+    components:
+      - name: SemgrepValidator
+        file: backend/app/services/validators/semgrep_validator.py
+        interfaces:
+          - validate(project_id, pr_number, files, diff) -> ValidatorResult
+          - get_rules() -> List[SemgrepRule]
+        dependencies:
+          - semgrep CLI (installed in container)
+          - Custom rule pack for AI-generated code
+
+    default_rules:
+      - id: ai-code-hardcoded-credentials
+        languages: [python, javascript, typescript]
+        severity: ERROR
+
+      - id: ai-code-sql-injection
+        languages: [python, javascript]
+        severity: ERROR
+
+      - id: ai-code-xss-vulnerability
+        languages: [javascript, typescript]
+        severity: ERROR
+
+      - id: ai-code-path-traversal
+        languages: [python, javascript]
+        severity: ERROR
+
+      - id: ai-code-insecure-deserialization
+        languages: [python, javascript]
+        severity: WARNING
+
+    api_endpoints:
+      - POST /api/v1/validators/sast/scan
+      - GET /api/v1/validators/sast/rules
+      - PUT /api/v1/validators/sast/rules/{rule_id}
+
+  # Day 5-7: Evidence Timeline UI
+  evidence_timeline:
+    description: Dashboard for viewing AI detection events
+
+    components:
+      - name: EvidenceTimelineAPI
+        file: backend/app/api/routes/evidence.py
+        endpoints:
+          - GET /api/v1/projects/{id}/evidence
+          - GET /api/v1/projects/{id}/evidence/{event_id}
+          - GET /api/v1/projects/{id}/evidence/export
+          - POST /api/v1/projects/{id}/evidence/{event_id}/override
+
+      - name: EvidenceTimelinePage
+        file: frontend/web/src/pages/EvidenceTimeline.tsx
+        features:
+          - Timeline view with infinite scroll
+          - Filters (date range, AI tool, confidence, status)
+          - Event detail modal
+          - Export functionality (CSV, JSON)
+          - VCR override action
+
+      - name: EvidenceEventCard
+        file: frontend/web/src/components/evidence/EventCard.tsx
+        displays:
+          - PR title and number
+          - Detection confidence
+          - AI tool detected
+          - Validation results
+          - Override status (if any)
+
+    database_tables:
+      - name: evidence_events
+        columns:
+          - id: UUID PRIMARY KEY
+          - project_id: UUID FK
+          - pr_number: INTEGER
+          - detected_at: TIMESTAMP
+          - ai_tool: VARCHAR(50)
+          - confidence: FLOAT
+          - detection_method: VARCHAR(20)
+          - validation_status: VARCHAR(20)
+          - evidence_data: JSONB
+          - created_at: TIMESTAMP
+
+      - name: evidence_overrides
+        columns:
+          - id: UUID PRIMARY KEY
+          - evidence_event_id: UUID FK
+          - overridden_by: UUID FK (users)
+          - reason: TEXT
+          - override_type: VARCHAR(20)
+          - created_at: TIMESTAMP
+
+  # Day 8-10: VCR Override Flow
+  vcr_override:
+    description: Human override for blocked AI PRs
+
+    workflow:
+      - step: 1
+        action: Developer receives PR block notification
+        ui: PR page shows "AI Safety Block" banner
+
+      - step: 2
+        action: Developer requests override
+        ui: "Request Override" button opens modal
+        fields:
+          - reason: TEXT (required, min 50 chars)
+          - override_type: ENUM (false_positive, approved_risk, emergency)
+
+      - step: 3
+        action: Reviewer (Tech Lead+) approves/rejects
+        ui: Override queue in Admin Panel
+        notification: Slack + Email
+
+      - step: 4
+        action: Override recorded in Evidence Vault
+        audit: Full trail with timestamps
+
+    api_endpoints:
+      - POST /api/v1/evidence/{event_id}/override/request
+      - GET /api/v1/overrides/pending
+      - POST /api/v1/overrides/{id}/approve
+      - POST /api/v1/overrides/{id}/reject
+
+# ============================================================================
+# SECTION 3: ACCEPTANCE CRITERIA
+# ============================================================================
+
+acceptance_criteria:
+
+  policy_guards:
+    functional:
+      - "GIVEN a PR with hardcoded secrets WHEN evaluated THEN policy blocks merge"
+      - "GIVEN a PR violating architecture boundaries WHEN evaluated THEN policy reports violation"
+      - "GIVEN a PR with all policies passing WHEN evaluated THEN merge is allowed"
+      - "GIVEN custom policies configured WHEN evaluating THEN custom policies are applied"
+
+    performance:
+      - "Policy evaluation completes in <100ms (p95)"
+      - "OPA server handles 100 concurrent evaluations"
+
+    security:
+      - "Only project admins can modify policies"
+      - "Policy changes are audited"
+
+  sast_validator:
+    functional:
+      - "GIVEN Python code with SQL injection WHEN scanned THEN vulnerability detected"
+      - "GIVEN TypeScript code with XSS WHEN scanned THEN vulnerability detected"
+      - "GIVEN clean code WHEN scanned THEN no vulnerabilities reported"
+
+    performance:
+      - "Scan completes in <30s for 100 files"
+      - "Rules loaded in <1s"
+
+  evidence_timeline:
+    functional:
+      - "GIVEN a project WHEN viewing timeline THEN all AI events shown"
+      - "GIVEN date filter WHEN applied THEN only matching events shown"
+      - "GIVEN export request WHEN processing THEN CSV/JSON generated"
+      - "GIVEN override action WHEN clicked THEN override modal opens"
+
+    ux:
+      - "Timeline loads in <1s"
+      - "Infinite scroll works smoothly"
+      - "Filters apply instantly (<100ms)"
+
+  vcr_override:
+    functional:
+      - "GIVEN blocked PR WHEN override requested THEN request recorded"
+      - "GIVEN pending override WHEN approved THEN PR unblocked"
+      - "GIVEN override WHEN completed THEN audit trail complete"
+
+    security:
+      - "Only Tech Lead+ can approve overrides"
+      - "All overrides require reason"
+      - "Override rate tracked (<5% target)"
+
+# ============================================================================
+# SECTION 4: DAILY BREAKDOWN
+# ============================================================================
+
+daily_breakdown:
+
+  day_1:
+    focus: Policy Pack Schema & OPA Service Setup
+    deliverables:
+      - PolicyRule, ValidatorConfig, PolicyPackCreate schemas
+      - OPAPolicyService with evaluate_policies()
+      - Docker Compose update with OPA container
+    tasks:
+      - id: TASK-01-01
+        title: Create policy_pack.py schemas
+        estimate: 2h
+        assignee: Backend Lead
+
+      - id: TASK-01-02
+        title: Create opa_policy_service.py
+        estimate: 3h
+        assignee: Backend Lead
+
+      - id: TASK-01-03
+        title: Add OPA to Docker Compose
+        estimate: 1h
+        assignee: DevOps
+
+  day_2:
+    focus: Default Policies & PolicyGuardValidator
+    deliverables:
+      - 5 default Rego policies
+      - PolicyGuardValidator implementation
+      - Integration with ValidationPipeline
+    tasks:
+      - id: TASK-02-01
+        title: Write 5 Rego policies
+        estimate: 4h
+        assignee: Backend Dev
+
+      - id: TASK-02-02
+        title: Create policy_guard_validator.py
+        estimate: 3h
+        assignee: Backend Lead
+
+      - id: TASK-02-03
+        title: Integrate with ValidationPipeline
+        estimate: 1h
+        assignee: Backend Lead
+
+  day_3:
+    focus: SAST Validator (Semgrep) Setup
+    deliverables:
+      - Semgrep container setup
+      - SemgrepValidator implementation
+      - 5 custom rules for AI code
+    tasks:
+      - id: TASK-03-01
+        title: Add Semgrep to Docker
+        estimate: 1h
+        assignee: DevOps
+
+      - id: TASK-03-02
+        title: Create semgrep_validator.py
+        estimate: 3h
+        assignee: Backend Dev
+
+      - id: TASK-03-03
+        title: Write custom Semgrep rules
+        estimate: 4h
+        assignee: Backend Dev
+
+  day_4:
+    focus: SAST Integration & Policy API Endpoints
+    deliverables:
+      - SAST integrated with ValidationPipeline
+      - Policy CRUD endpoints
+      - Policy evaluation endpoint
+    tasks:
+      - id: TASK-04-01
+        title: Integrate SAST with pipeline
+        estimate: 2h
+        assignee: Backend Dev
+
+      - id: TASK-04-02
+        title: Create policy API routes
+        estimate: 4h
+        assignee: Backend Lead
+
+      - id: TASK-04-03
+        title: Write integration tests
+        estimate: 2h
+        assignee: QA
+
+  day_5:
+    focus: Database Schema & Evidence API
+    deliverables:
+      - evidence_events table migration
+      - evidence_overrides table migration
+      - Evidence CRUD endpoints
+    tasks:
+      - id: TASK-05-01
+        title: Create Alembic migrations
+        estimate: 2h
+        assignee: Backend Dev
+
+      - id: TASK-05-02
+        title: Create evidence API routes
+        estimate: 4h
+        assignee: Backend Dev
+
+      - id: TASK-05-03
+        title: Write evidence service
+        estimate: 2h
+        assignee: Backend Dev
+
+  day_6:
+    focus: Evidence Timeline UI - Timeline Component
+    deliverables:
+      - EvidenceTimeline page
+      - EventCard component
+      - Infinite scroll implementation
+    tasks:
+      - id: TASK-06-01
+        title: Create EvidenceTimeline page
+        estimate: 4h
+        assignee: Frontend Lead
+
+      - id: TASK-06-02
+        title: Create EventCard component
+        estimate: 3h
+        assignee: Frontend Dev
+
+      - id: TASK-06-03
+        title: Implement infinite scroll
+        estimate: 1h
+        assignee: Frontend Lead
+
+  day_7:
+    focus: Evidence Timeline UI - Filters & Export
+    deliverables:
+      - Filter components (date, tool, confidence)
+      - Export functionality (CSV, JSON)
+      - Event detail modal
+    tasks:
+      - id: TASK-07-01
+        title: Create filter components
+        estimate: 3h
+        assignee: Frontend Dev
+
+      - id: TASK-07-02
+        title: Implement export function
+        estimate: 2h
+        assignee: Frontend Dev
+
+      - id: TASK-07-03
+        title: Create event detail modal
+        estimate: 3h
+        assignee: Frontend Lead
+
+  day_8:
+    focus: VCR Override - Request Flow
+    deliverables:
+      - Override request API
+      - Override request modal (frontend)
+      - Notification integration
+    tasks:
+      - id: TASK-08-01
+        title: Create override request endpoint
+        estimate: 3h
+        assignee: Backend Dev
+
+      - id: TASK-08-02
+        title: Create override request modal
+        estimate: 3h
+        assignee: Frontend Dev
+
+      - id: TASK-08-03
+        title: Integrate Slack notifications
+        estimate: 2h
+        assignee: Backend Dev
+
+  day_9:
+    focus: VCR Override - Approval Flow
+    deliverables:
+      - Override approval endpoints
+      - Admin override queue UI
+      - Audit trail logging
+    tasks:
+      - id: TASK-09-01
+        title: Create approval endpoints
+        estimate: 3h
+        assignee: Backend Lead
+
+      - id: TASK-09-02
+        title: Create override queue page
+        estimate: 4h
+        assignee: Frontend Lead
+
+      - id: TASK-09-03
+        title: Implement audit logging
+        estimate: 1h
+        assignee: Backend Dev
+
+  day_10:
+    focus: Integration Testing & Documentation
+    deliverables:
+      - E2E tests for all features
+      - API documentation updated
+      - User guide for Policy Guards
+    tasks:
+      - id: TASK-10-01
+        title: Write E2E tests
+        estimate: 4h
+        assignee: QA
+
+      - id: TASK-10-02
+        title: Update OpenAPI spec
+        estimate: 2h
+        assignee: Backend Lead
+
+      - id: TASK-10-03
+        title: Write user documentation
+        estimate: 2h
+        assignee: PM
+
+# ============================================================================
+# SECTION 5: RISKS & MITIGATIONS
+# ============================================================================
+
+risks:
+
+  - id: RISK-01
+    description: OPA performance bottleneck under load
+    probability: MEDIUM
+    impact: HIGH
+    mitigation: |
+      - Pre-load policies at startup
+      - Use OPA bundles for efficiency
+      - Implement policy caching
+      - Fallback to simple rules if OPA unavailable
+
+  - id: RISK-02
+    description: Semgrep scan timeout on large PRs
+    probability: MEDIUM
+    impact: MEDIUM
+    mitigation: |
+      - Set 60s timeout per file
+      - Scan only changed files (not full repo)
+      - Use --skip-unknown-extensions
+      - Async processing with progress updates
+
+  - id: RISK-03
+    description: Override abuse (too many overrides)
+    probability: LOW
+    impact: HIGH
+    mitigation: |
+      - Track override rate per project/user
+      - Alert if rate exceeds 5%
+      - Require Tech Lead+ approval
+      - Weekly override review meeting
+
+  - id: RISK-04
+    description: False positives in policy evaluation
+    probability: HIGH
+    impact: MEDIUM
+    mitigation: |
+      - Start with warning-only mode (non-blocking)
+      - Collect feedback before enabling blocking
+      - Allow per-project policy customization
+      - Document false positive patterns
+
+# ============================================================================
+# SECTION 6: SUCCESS METRICS
+# ============================================================================
+
+success_metrics:
+
+  quantitative:
+    - metric: Policy Evaluation Latency
+      target: <100ms (p95)
+      measurement: Prometheus histogram
+
+    - metric: SAST Scan Duration
+      target: <30s for 100 files
+      measurement: Prometheus histogram
+
+    - metric: Evidence Timeline Load Time
+      target: <1s
+      measurement: Lighthouse/WebVitals
+
+    - metric: Override Rate
+      target: <5% of blocked PRs
+      measurement: Analytics dashboard
+
+    - metric: False Positive Rate
+      target: <10%
+      measurement: User feedback + override reasons
+
+  qualitative:
+    - metric: Developer Satisfaction
+      target: >4/5 rating
+      measurement: Survey after 2 weeks
+
+    - metric: Policy Customization Usage
+      target: >50% of projects
+      measurement: Feature adoption tracking
+
+# ============================================================================
+# SECTION 7: SIGN-OFF
+# ============================================================================
+
+sign_off:
+  author:
+    name: CTO Office
+    date: 2025-12-22
+
+  reviewers:
+    - role: Backend Lead
+      status: PENDING
+
+    - role: Frontend Lead
+      status: PENDING
+
+    - role: DevOps Lead
+      status: PENDING
+
+    - role: QA Lead
+      status: PENDING
+
+  approver:
+    role: CTO
+    status: PENDING
+    notes: ""
+
+---
+# End of BRS-2026-003
