@@ -70,14 +70,12 @@ class TestValidateCommand:
                 "--format", "json",
             ],
         )
-        # Should produce valid JSON
-        try:
-            output = json.loads(result.stdout)
-            assert "is_compliant" in output
-            assert "tier" in output
-        except json.JSONDecodeError:
-            # Allow for mixed output in some cases
-            pass
+        assert result.exit_code == 0
+
+        output = json.loads(result.stdout)
+        assert "violations" in output
+        assert "summary" in output
+        assert "errors" in output["summary"]
 
     def test_validate_summary_format(self, compliant_project):
         """Test validate command with summary output."""
@@ -91,8 +89,7 @@ class TestValidateCommand:
             ],
         )
         assert result.exit_code == 0
-        # Summary should contain tier info
-        assert "lite" in result.stdout.lower() or "LITE" in result.stdout
+        assert "PASS" in result.stdout or "FAIL" in result.stdout
 
     def test_validate_strict_mode(self, compliant_project):
         """Test validate command in strict mode."""

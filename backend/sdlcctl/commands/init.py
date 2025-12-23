@@ -47,8 +47,13 @@ def init_command(
     ),
     scaffold: bool = typer.Option(
         True,
-        "--scaffold/--no-scaffold",
+        "--scaffold",
         help="Create full folder structure with READMEs",
+    ),
+    no_scaffold: bool = typer.Option(
+        False,
+        "--no-scaffold",
+        help="Do not create READMEs and templates",
     ),
     force: bool = typer.Option(
         False,
@@ -58,9 +63,14 @@ def init_command(
     ),
     interactive: bool = typer.Option(
         True,
-        "--interactive/--no-interactive",
-        "-i/-I",
+        "--interactive",
+        "-i",
         help="Interactive mode with prompts",
+    ),
+    no_interactive: bool = typer.Option(
+        False,
+        "--no-interactive",
+        help="Do not prompt; use defaults where needed",
     ),
 ) -> None:
     """
@@ -87,6 +97,13 @@ def init_command(
             border_style="blue",
         )
     )
+
+    # Resolve boolean flag precedence (Click 8.3.x is incompatible with
+    # Typer's '--foo/--no-foo' style declarations).
+    if no_interactive:
+        interactive = False
+    if no_scaffold:
+        scaffold = False
 
     # Check if docs folder already exists
     docs_path = path / docs_root

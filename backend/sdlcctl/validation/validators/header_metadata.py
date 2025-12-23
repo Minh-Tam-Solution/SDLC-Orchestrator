@@ -82,6 +82,11 @@ class HeaderMetadataValidator(BaseValidator):
             if self._should_skip_file(file):
                 continue
 
+            # Stage/section READMEs are conventional and may not include
+            # the full metadata header.
+            if file.name.lower() == "readme.md":
+                continue
+
             # Extract headers
             headers = self._extract_headers(file)
 

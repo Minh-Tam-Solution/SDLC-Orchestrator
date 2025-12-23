@@ -51,24 +51,44 @@ def fix_command(
     ),
     interactive: bool = typer.Option(
         True,
-        "--interactive/--no-interactive",
-        "-i/-I",
+        "--interactive",
+        "-i",
         help="Prompt before each fix",
+    ),
+    no_interactive: bool = typer.Option(
+        False,
+        "--no-interactive",
+        help="Do not prompt before each fix",
     ),
     fix_stages: bool = typer.Option(
         True,
-        "--stages/--no-stages",
+        "--stages",
         help="Fix missing stage folders",
+    ),
+    no_stages: bool = typer.Option(
+        False,
+        "--no-stages",
+        help="Do not fix missing stage folders",
     ),
     fix_p0: bool = typer.Option(
         True,
-        "--p0/--no-p0",
+        "--p0",
         help="Generate missing P0 artifacts",
+    ),
+    no_p0: bool = typer.Option(
+        False,
+        "--no-p0",
+        help="Do not generate missing P0 artifacts",
     ),
     fix_naming: bool = typer.Option(
         False,
-        "--naming/--no-naming",
+        "--naming",
         help="Fix stage naming violations (requires confirmation)",
+    ),
+    no_naming: bool = typer.Option(
+        False,
+        "--no-naming",
+        help="Do not fix stage naming violations",
     ),
 ) -> None:
     """
@@ -93,6 +113,17 @@ def fix_command(
         except ValueError:
             console.print(f"[red]Error:[/red] Invalid tier '{tier}'")
             raise typer.Exit(code=1)
+
+    # Resolve boolean flag precedence (Click 8.3.x is incompatible with
+    # Typer's '--foo/--no-foo' style declarations).
+    if no_interactive:
+        interactive = False
+    if no_stages:
+        fix_stages = False
+    if no_p0:
+        fix_p0 = False
+    if no_naming:
+        fix_naming = False
 
     # Run validation first
     validator = SDLCValidator(

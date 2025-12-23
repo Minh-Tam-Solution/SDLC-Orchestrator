@@ -132,6 +132,11 @@ class NamingConventionValidator(BaseValidator):
             if file.name.startswith("."):
                 continue
 
+            # README.md is a conventional documentation entrypoint and is
+            # intentionally exempt from strict kebab-case naming.
+            if file.name.lower() == "readme.md":
+                continue
+
             # Only check specific extensions
             if file.suffix.lower() not in self.CHECKED_EXTENSIONS:
                 continue
