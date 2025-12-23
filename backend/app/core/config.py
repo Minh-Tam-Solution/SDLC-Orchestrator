@@ -107,7 +107,7 @@ class Settings(BaseSettings):
     # MinIO (S3-Compatible Storage)
     # Port configurable via MINIO_ENDPOINT env var (default: 9000)
     MINIO_ENDPOINT: str = "minio:9000"
-    MINIO_PUBLIC_URL: str = "http://localhost:9097"  # Browser-accessible URL (mapped port)
+    MINIO_PUBLIC_URL: str = "http://localhost:9010"  # Browser-accessible URL (mapped port)
     MINIO_ACCESS_KEY: str = "minioadmin"
     MINIO_SECRET_KEY: str = "minioadmin_changeme"
     MINIO_BUCKET: str = "evidence-vault"
