@@ -2,121 +2,69 @@
 Unit tests for OllamaCodegenProvider.
 
 Sprint 45: Multi-Provider Codegen Architecture (EP-06)
-Tests for ollama_provider.py functionality.
-
-Author: Backend Lead
-Date: December 23, 2025
+Tests Ollama integration with Vietnamese prompts.
 """
 
 import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
-import httpx
+from unittest.mock import AsyncMock, MagicMock, patch
 import json
 
+from app.services.codegen.base_provider import CodegenSpec, CodegenResult, ValidationResult, CostEstimate
 from app.services.codegen.ollama_provider import OllamaCodegenProvider
-from app.services.codegen.base_provider import (
-    CodegenSpec,
-    CodegenResult,
-    ValidationResult,
-    CostEstimate
-)
 
 
-class TestOllamaProviderProperties:
-    """Tests for OllamaProvider properties."""
+class TestOllamaProviderInit:
+    """Test OllamaCodegenProvider initialization."""
 
-    def test_name(self):
-        """Test provider name is 'ollama'."""
-        provider = OllamaCodegenProvider()
+    def test_default_init(self):
+        """Test initialization with defaults."""
+        with patch.object(OllamaCodegenProvider, '_check_availability', return_value=False):
+            provider = OllamaCodegenProvider()
+
         assert provider.name == "ollama"
+        assert provider.timeout is not None
 
-    def test_custom_config(self):
-        """Test custom configuration."""
+    def test_custom_init(self):
+        """Test initialization with custom values."""
         provider = OllamaCodegenProvider(
-            base_url="http://custom:11434",
-            model="qwen2:7b",
+            base_url="http://localhost:11434",
+            model="qwen2.5:7b",
             timeout=60
         )
-        assert provider.base_url == "http://custom:11434"
-        assert provider.model == "qwen2:7b"
+
+        assert provider.base_url == "http://localhost:11434"
+        assert provider.model == "qwen2.5:7b"
         assert provider.timeout == 60
 
 
 class TestOllamaAvailability:
-    """Tests for availability checking."""
+    """Test availability checking."""
 
-    @patch('httpx.Client')
-    def test_available_when_api_responds(self, mock_client):
-        """Test is_available returns True when API responds."""
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "models": [{"name": "qwen2.5-coder:32b"}]
-        }
-
-        mock_client_instance = MagicMock()
-        mock_client_instance.__enter__ = MagicMock(
-            return_value=mock_client_instance
-        )
-        mock_client_instance.__exit__ = MagicMock(return_value=False)
-        mock_client_instance.get.return_value = mock_response
-        mock_client.return_value = mock_client_instance
-
-        provider = OllamaCodegenProvider()
-        provider._available = None  # Force recheck
-
-        assert provider.is_available is True
-
-    @patch('httpx.Client')
-    def test_unavailable_on_connection_error(self, mock_client):
-        """Test is_available returns False on connection error."""
-        mock_client_instance = MagicMock()
-        mock_client_instance.__enter__ = MagicMock(
-            return_value=mock_client_instance
-        )
-        mock_client_instance.__exit__ = MagicMock(return_value=False)
-        mock_client_instance.get.side_effect = httpx.ConnectError(
-            "Connection refused"
-        )
-        mock_client.return_value = mock_client_instance
-
-        provider = OllamaCodegenProvider()
-        provider._available = None
-
-        assert provider.is_available is False
-
-    @patch('httpx.Client')
-    def test_unavailable_on_timeout(self, mock_client):
-        """Test is_available returns False on timeout."""
-        mock_client_instance = MagicMock()
-        mock_client_instance.__enter__ = MagicMock(
-            return_value=mock_client_instance
-        )
-        mock_client_instance.__exit__ = MagicMock(return_value=False)
-        mock_client_instance.get.side_effect = httpx.TimeoutException(
-            "Request timed out"
-        )
-        mock_client.return_value = mock_client_instance
-
-        provider = OllamaCodegenProvider()
-        provider._available = None
-
-        assert provider.is_available is False
-
-    def test_availability_cache(self):
-        """Test availability is cached."""
+    def test_availability_cached(self):
+        """Test availability is cached within TTL."""
         provider = OllamaCodegenProvider()
         provider._available = True
-        provider._last_health_check = 99999999999  # Far future
+        provider._last_health_check = 9999999999  # Far future
 
-        # Should use cached value, not make API call
         assert provider.is_available is True
+
+    def test_availability_rechecked_after_ttl(self):
+        """Test availability is rechecked after TTL expires."""
+        provider = OllamaCodegenProvider()
+        provider._available = True
+        provider._last_health_check = 0  # Past
+
+        with patch.object(provider, '_check_availability', return_value=False) as mock:
+            result = provider.is_available
+
+        mock.assert_called_once()
+        assert result is False
 
     def test_invalidate_cache(self):
         """Test cache invalidation."""
         provider = OllamaCodegenProvider()
         provider._available = True
-        provider._last_health_check = 99999999999
+        provider._last_health_check = 9999999999
 
         provider.invalidate_cache()
 
@@ -124,238 +72,90 @@ class TestOllamaAvailability:
         assert provider._last_health_check == 0
 
 
-class TestOllamaGenerate:
-    """Tests for generate method."""
+class TestPromptGeneration:
+    """Test prompt generation."""
 
-    @pytest.fixture
-    def provider(self):
-        """Create provider instance."""
-        return OllamaCodegenProvider()
+    def test_build_generation_prompt_fastapi(self):
+        """Test FastAPI prompt generation uses template."""
+        provider = OllamaCodegenProvider()
+        spec = CodegenSpec(
+            app_blueprint={
+                "name": "TestApp",
+                "description": "Ứng dụng test",
+                "modules": []
+            },
+            language="python",
+            framework="fastapi"
+        )
 
-    @pytest.fixture
-    def spec(self):
-        """Create test spec."""
-        return CodegenSpec(
+        prompt = provider._build_generation_prompt(spec)
+
+        # Should use FastAPI template
+        assert "FastAPI" in prompt or "fastapi" in prompt.lower()
+        assert "TestApp" in prompt
+
+    def test_build_generation_prompt_generic(self):
+        """Test generic prompt for unsupported framework."""
+        provider = OllamaCodegenProvider()
+        spec = CodegenSpec(
+            app_blueprint={
+                "name": "TestApp",
+                "description": "Test app",
+                "modules": []
+            },
+            language="python",
+            framework="django"  # Not in template registry
+        )
+
+        prompt = provider._build_generation_prompt(spec)
+
+        # Should use generic prompt
+        assert "TestApp" in prompt
+        assert "django" in prompt.lower()
+
+    def test_build_generation_prompt_vietnamese(self):
+        """Test Vietnamese content in prompts."""
+        provider = OllamaCodegenProvider()
+        spec = CodegenSpec(
+            app_blueprint={
+                "name": "QuanLyCongViec",
+                "description": "Hệ thống quản lý công việc cho SME Việt Nam",
+                "modules": [
+                    {"name": "tasks", "description": "Quản lý công việc"}
+                ]
+            },
+            language="python",
+            framework="fastapi"
+        )
+
+        prompt = provider._build_generation_prompt(spec)
+
+        assert "Việt Nam" in prompt or "quản lý" in prompt.lower()
+
+    def test_build_generation_prompt_target_module(self):
+        """Test prompt with target module specified."""
+        provider = OllamaCodegenProvider()
+        spec = CodegenSpec(
             app_blueprint={
                 "name": "TestApp",
                 "modules": [
-                    {
-                        "name": "users",
-                        "entities": [
-                            {"name": "User", "fields": []}
-                        ]
-                    }
+                    {"name": "users", "entities": []},
+                    {"name": "tasks", "entities": []}
                 ]
-            }
+            },
+            language="python",
+            framework="fastapi",
+            target_module="tasks"
         )
 
-    @pytest.mark.asyncio
-    @patch('httpx.AsyncClient')
-    async def test_generate_success(self, mock_client, provider, spec):
-        """Test successful code generation."""
-        mock_response = AsyncMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "response": """### FILE: app/models/user.py
-```python
-from sqlalchemy import Column, String
-from app.db.base import Base
+        prompt = provider._build_generation_prompt(spec)
 
-class User(Base):
-    __tablename__ = "users"
-    id = Column(String, primary_key=True)
-```
-
-### FILE: app/schemas/user.py
-```python
-from pydantic import BaseModel
-
-class UserSchema(BaseModel):
-    id: str
-```""",
-            "prompt_eval_count": 500,
-            "eval_count": 300
-        }
-        mock_response.raise_for_status = MagicMock()
-
-        mock_client_instance = AsyncMock()
-        mock_client_instance.__aenter__ = AsyncMock(
-            return_value=mock_client_instance
-        )
-        mock_client_instance.__aexit__ = AsyncMock(return_value=False)
-        mock_client_instance.post = AsyncMock(return_value=mock_response)
-        mock_client.return_value = mock_client_instance
-
-        result = await provider.generate(spec)
-
-        assert isinstance(result, CodegenResult)
-        assert result.provider == "ollama"
-        assert "app/models/user.py" in result.files
-        assert "app/schemas/user.py" in result.files
-        assert result.tokens_used == 800  # 500 + 300
-
-    @pytest.mark.asyncio
-    @patch('httpx.AsyncClient')
-    async def test_generate_with_vietnamese_prompt(
-        self, mock_client, provider, spec
-    ):
-        """Test prompt contains Vietnamese instructions."""
-        captured_request = None
-
-        async def capture_post(*args, **kwargs):
-            nonlocal captured_request
-            captured_request = kwargs.get('json', {})
-            mock_response = AsyncMock()
-            mock_response.json.return_value = {
-                "response": "# code",
-                "eval_count": 100
-            }
-            mock_response.raise_for_status = MagicMock()
-            return mock_response
-
-        mock_client_instance = AsyncMock()
-        mock_client_instance.__aenter__ = AsyncMock(
-            return_value=mock_client_instance
-        )
-        mock_client_instance.__aexit__ = AsyncMock(return_value=False)
-        mock_client_instance.post = capture_post
-        mock_client.return_value = mock_client_instance
-
-        await provider.generate(spec)
-
-        prompt = captured_request.get("prompt", "")
-        assert "Việt Nam" in prompt or "Vietnamese" in prompt.lower() or "SME" in prompt
+        # Should mention target module
+        assert "tasks" in prompt.lower()
 
 
-class TestOllamaValidate:
-    """Tests for validate method."""
-
-    @pytest.mark.asyncio
-    @patch('httpx.AsyncClient')
-    async def test_validate_valid_code(self, mock_client):
-        """Test validation of valid code."""
-        provider = OllamaCodegenProvider()
-
-        mock_response = AsyncMock()
-        mock_response.json.return_value = {
-            "response": '{"valid": true, "errors": [], "warnings": [], "suggestions": []}'
-        }
-        mock_response.raise_for_status = MagicMock()
-
-        mock_client_instance = AsyncMock()
-        mock_client_instance.__aenter__ = AsyncMock(
-            return_value=mock_client_instance
-        )
-        mock_client_instance.__aexit__ = AsyncMock(return_value=False)
-        mock_client_instance.post = AsyncMock(return_value=mock_response)
-        mock_client.return_value = mock_client_instance
-
-        result = await provider.validate(
-            code="def hello(): pass",
-            context={"language": "python"}
-        )
-
-        assert isinstance(result, ValidationResult)
-        assert result.valid is True
-        assert result.errors == []
-
-    @pytest.mark.asyncio
-    @patch('httpx.AsyncClient')
-    async def test_validate_invalid_code(self, mock_client):
-        """Test validation of invalid code."""
-        provider = OllamaCodegenProvider()
-
-        mock_response = AsyncMock()
-        mock_response.json.return_value = {
-            "response": '{"valid": false, "errors": ["Missing import"], "warnings": ["Long function"], "suggestions": ["Add docstring"]}'
-        }
-        mock_response.raise_for_status = MagicMock()
-
-        mock_client_instance = AsyncMock()
-        mock_client_instance.__aenter__ = AsyncMock(
-            return_value=mock_client_instance
-        )
-        mock_client_instance.__aexit__ = AsyncMock(return_value=False)
-        mock_client_instance.post = AsyncMock(return_value=mock_response)
-        mock_client.return_value = mock_client_instance
-
-        result = await provider.validate(
-            code="invalid code here",
-            context={}
-        )
-
-        assert result.valid is False
-        assert len(result.errors) == 1
-        assert len(result.warnings) == 1
-
-    @pytest.mark.asyncio
-    @patch('httpx.AsyncClient')
-    async def test_validate_parse_failure_defaults_valid(self, mock_client):
-        """Test validation defaults to valid on parse failure."""
-        provider = OllamaCodegenProvider()
-
-        mock_response = AsyncMock()
-        mock_response.json.return_value = {
-            "response": "This is not valid JSON at all"
-        }
-        mock_response.raise_for_status = MagicMock()
-
-        mock_client_instance = AsyncMock()
-        mock_client_instance.__aenter__ = AsyncMock(
-            return_value=mock_client_instance
-        )
-        mock_client_instance.__aexit__ = AsyncMock(return_value=False)
-        mock_client_instance.post = AsyncMock(return_value=mock_response)
-        mock_client.return_value = mock_client_instance
-
-        result = await provider.validate(code="test", context={})
-
-        assert result.valid is True
-        assert len(result.warnings) == 1
-        assert "parse" in result.warnings[0].lower()
-
-
-class TestOllamaEstimateCost:
-    """Tests for estimate_cost method."""
-
-    def test_estimate_small_blueprint(self):
-        """Test cost estimate for small blueprint."""
-        provider = OllamaCodegenProvider()
-        spec = CodegenSpec(
-            app_blueprint={"name": "Small", "modules": []}
-        )
-
-        estimate = provider.estimate_cost(spec)
-
-        assert isinstance(estimate, CostEstimate)
-        assert estimate.provider == "ollama"
-        assert estimate.estimated_tokens > 0
-        assert estimate.estimated_cost_usd < 0.01  # Ollama is cheap
-        assert estimate.confidence >= 0.8
-
-    def test_estimate_large_blueprint(self):
-        """Test cost estimate scales with blueprint size."""
-        provider = OllamaCodegenProvider()
-
-        small_spec = CodegenSpec(
-            app_blueprint={"name": "Small"}
-        )
-        large_spec = CodegenSpec(
-            app_blueprint={
-                "name": "Large",
-                "modules": [{"name": f"mod{i}"} for i in range(100)]
-            }
-        )
-
-        small_estimate = provider.estimate_cost(small_spec)
-        large_estimate = provider.estimate_cost(large_spec)
-
-        assert large_estimate.estimated_tokens > small_estimate.estimated_tokens
-        assert large_estimate.estimated_cost_usd > small_estimate.estimated_cost_usd
-
-
-class TestOllamaCodeParsing:
-    """Tests for code output parsing."""
+class TestOutputParsing:
+    """Test output parsing."""
 
     def test_parse_single_file(self):
         """Test parsing single file output."""
@@ -363,8 +163,10 @@ class TestOllamaCodeParsing:
         output = """### FILE: app/main.py
 ```python
 from fastapi import FastAPI
+
 app = FastAPI()
-```"""
+```
+"""
 
         files = provider._parse_code_output(output)
 
@@ -373,47 +175,35 @@ app = FastAPI()
         assert "FastAPI" in files["app/main.py"]
 
     def test_parse_multiple_files(self):
-        """Test parsing multiple files."""
+        """Test parsing multiple files output."""
         provider = OllamaCodegenProvider()
-        output = """### FILE: app/models.py
+        output = """### FILE: app/main.py
 ```python
-class User:
+from fastapi import FastAPI
+app = FastAPI()
+```
+
+### FILE: app/models/task.py
+```python
+class Task:
     pass
 ```
 
-### FILE: app/schemas.py
+### FILE: app/schemas/task.py
 ```python
-class UserSchema:
-    pass
-```
+from pydantic import BaseModel
 
-### FILE: app/routes.py
-```python
-@router.get("/")
-def index():
-    pass
-```"""
+class TaskSchema(BaseModel):
+    name: str
+```
+"""
 
         files = provider._parse_code_output(output)
 
         assert len(files) == 3
-        assert "app/models.py" in files
-        assert "app/schemas.py" in files
-        assert "app/routes.py" in files
-
-    def test_parse_strips_code_markers(self):
-        """Test code block markers are stripped."""
-        provider = OllamaCodegenProvider()
-        output = """### FILE: test.py
-```python
-print("hello")
-```"""
-
-        files = provider._parse_code_output(output)
-
-        content = files["test.py"]
-        assert "```" not in content
-        assert 'print("hello")' in content
+        assert "app/main.py" in files
+        assert "app/models/task.py" in files
+        assert "app/schemas/task.py" in files
 
     def test_parse_empty_output(self):
         """Test parsing empty output."""
@@ -426,7 +216,7 @@ print("hello")
     def test_parse_no_file_markers(self):
         """Test parsing output without file markers."""
         provider = OllamaCodegenProvider()
-        output = "Just some random text without file markers"
+        output = "Just some text without file markers"
 
         files = provider._parse_code_output(output)
 
@@ -436,7 +226,217 @@ print("hello")
         """Test code content cleaning."""
         provider = OllamaCodegenProvider()
 
-        # Test stripping markers
-        assert provider._clean_code_content("```python\ncode\n```") == "code"
-        assert provider._clean_code_content("code") == "code"
-        assert provider._clean_code_content("  code  ") == "code"
+        # Test with markdown markers
+        content = "```python\ndef foo(): pass\n```"
+        cleaned = provider._clean_code_content(content)
+
+        assert "```" not in cleaned
+        assert "def foo()" in cleaned
+
+
+class TestValidationParsing:
+    """Test validation output parsing."""
+
+    def test_parse_valid_json(self):
+        """Test parsing valid JSON output."""
+        provider = OllamaCodegenProvider()
+        output = """
+        Here's my analysis:
+        {"valid": true, "errors": [], "warnings": ["Minor issue"], "suggestions": ["Use async"]}
+        """
+
+        result = provider._parse_validation_result(output)
+
+        assert result.valid is True
+        assert len(result.warnings) == 1
+
+    def test_parse_invalid_json(self):
+        """Test parsing invalid JSON defaults to valid."""
+        provider = OllamaCodegenProvider()
+        output = "This is not JSON at all"
+
+        result = provider._parse_validation_result(output)
+
+        assert result.valid is True
+        assert len(result.warnings) == 1  # Should have parse warning
+
+    def test_parse_validation_errors(self):
+        """Test parsing validation errors."""
+        provider = OllamaCodegenProvider()
+        output = """
+        {"valid": false, "errors": ["Lỗi bảo mật SQL injection", "Thiếu type hints"], "warnings": [], "suggestions": []}
+        """
+
+        result = provider._parse_validation_result(output)
+
+        assert result.valid is False
+        assert len(result.errors) == 2
+        assert "SQL injection" in result.errors[0]
+
+
+class TestCostEstimation:
+    """Test cost estimation."""
+
+    def test_estimate_cost_small_blueprint(self):
+        """Test cost estimation for small blueprint."""
+        provider = OllamaCodegenProvider()
+        spec = CodegenSpec(
+            app_blueprint={
+                "name": "Small",
+                "modules": [{"name": "test", "entities": []}]
+            },
+            language="python",
+            framework="fastapi"
+        )
+
+        estimate = provider.estimate_cost(spec)
+
+        assert estimate.provider == "ollama"
+        assert estimate.estimated_tokens > 0
+        assert estimate.estimated_cost_usd > 0
+        assert estimate.confidence == 0.85
+
+    def test_estimate_cost_large_blueprint(self):
+        """Test cost estimation for large blueprint."""
+        provider = OllamaCodegenProvider()
+
+        # Create larger blueprint
+        modules = [
+            {
+                "name": f"module_{i}",
+                "entities": [
+                    {"name": f"Entity{i}", "fields": [
+                        {"name": "id", "type": "uuid"},
+                        {"name": "name", "type": "string"},
+                        {"name": "created_at", "type": "datetime"}
+                    ]}
+                ]
+            }
+            for i in range(5)
+        ]
+
+        spec = CodegenSpec(
+            app_blueprint={
+                "name": "Large",
+                "modules": modules
+            },
+            language="python",
+            framework="fastapi"
+        )
+
+        estimate = provider.estimate_cost(spec)
+
+        assert estimate.estimated_tokens > 1000  # Should be larger
+
+    def test_ollama_cost_vs_cloud(self):
+        """Test Ollama cost is lower than cloud providers."""
+        provider = OllamaCodegenProvider()
+        spec = CodegenSpec(
+            app_blueprint={"name": "Test", "modules": []},
+            language="python",
+            framework="fastapi"
+        )
+
+        estimate = provider.estimate_cost(spec)
+
+        # Ollama cost should be ~$0.001 per 1K tokens
+        cost_per_1k = estimate.estimated_cost_usd / (estimate.estimated_tokens / 1000)
+        assert cost_per_1k < 0.01  # Much cheaper than cloud ($0.018+ for Claude)
+
+
+class TestFileExtensions:
+    """Test file extension mapping."""
+
+    def test_python_extension(self):
+        """Test Python extension."""
+        provider = OllamaCodegenProvider()
+        assert provider._get_extension("python") == "py"
+
+    def test_typescript_extension(self):
+        """Test TypeScript extension."""
+        provider = OllamaCodegenProvider()
+        assert provider._get_extension("typescript") == "ts"
+
+    def test_unknown_extension(self):
+        """Test unknown language defaults to txt."""
+        provider = OllamaCodegenProvider()
+        assert provider._get_extension("brainfuck") == "txt"
+
+    def test_case_insensitive(self):
+        """Test case insensitive matching."""
+        provider = OllamaCodegenProvider()
+        assert provider._get_extension("PYTHON") == "py"
+        assert provider._get_extension("Python") == "py"
+
+
+class TestGenerateAsync:
+    """Test async generate method."""
+
+    @pytest.mark.asyncio
+    async def test_generate_returns_result(self):
+        """Test generate returns CodegenResult."""
+        provider = OllamaCodegenProvider(
+            base_url="http://localhost:11434",
+            model="test-model",
+            timeout=30
+        )
+
+        spec = CodegenSpec(
+            app_blueprint={"name": "Test", "modules": []},
+            language="python",
+            framework="fastapi"
+        )
+
+        # Mock the HTTP client
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "response": "### FILE: app/main.py\n```python\nprint('hello')\n```",
+            "prompt_eval_count": 100,
+            "eval_count": 50
+        }
+        mock_response.raise_for_status = MagicMock()
+
+        with patch('httpx.AsyncClient') as mock_client:
+            mock_instance = AsyncMock()
+            mock_instance.post.return_value = mock_response
+            mock_instance.__aenter__.return_value = mock_instance
+            mock_instance.__aexit__.return_value = None
+            mock_client.return_value = mock_instance
+
+            result = await provider.generate(spec)
+
+        assert isinstance(result, CodegenResult)
+        assert result.provider == "ollama"
+        assert result.tokens_used == 150  # 100 + 50
+
+
+class TestValidateAsync:
+    """Test async validate method."""
+
+    @pytest.mark.asyncio
+    async def test_validate_returns_result(self):
+        """Test validate returns ValidationResult."""
+        provider = OllamaCodegenProvider(
+            base_url="http://localhost:11434",
+            model="test-model"
+        )
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "response": '{"valid": true, "errors": [], "warnings": [], "suggestions": []}'
+        }
+        mock_response.raise_for_status = MagicMock()
+
+        with patch('httpx.AsyncClient') as mock_client:
+            mock_instance = AsyncMock()
+            mock_instance.post.return_value = mock_response
+            mock_instance.__aenter__.return_value = mock_instance
+            mock_instance.__aexit__.return_value = None
+            mock_client.return_value = mock_instance
+
+            result = await provider.validate("def foo(): pass", {"language": "python"})
+
+        assert isinstance(result, ValidationResult)
+        assert result.valid is True

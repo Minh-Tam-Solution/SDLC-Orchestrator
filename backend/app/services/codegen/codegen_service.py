@@ -116,7 +116,10 @@ class CodegenService:
             custom_registry: Optional custom registry (default: global registry)
             auto_register: Whether to auto-register default providers
         """
-        self._registry = custom_registry or registry
+        # NOTE: ProviderRegistry implements __len__, so an empty registry is
+        # falsy. We must explicitly check for None to respect a caller-provided
+        # custom registry even when it starts empty.
+        self._registry = custom_registry if custom_registry is not None else registry
         self._initialized = False
 
         if auto_register:

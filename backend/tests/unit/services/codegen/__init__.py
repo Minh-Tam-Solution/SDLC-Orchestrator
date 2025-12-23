@@ -1,1 +1,1 @@
-"""Unit tests for Codegen Service - Sprint 45."""
+"""Codegen service unit tests package."""

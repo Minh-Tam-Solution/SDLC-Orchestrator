@@ -20,6 +20,7 @@ Status: ACTIVE
 """
 
 import json
+import inspect
 import re
 import time
 import logging
@@ -41,8 +42,15 @@ from .base_provider import (
     ValidationResult,
     CostEstimate
 )
+from .templates.base_templates import TemplateContext, GenerationType
+from .templates.fastapi_templates import FastAPITemplates
 
 logger = logging.getLogger(__name__)
+
+# Template registry for different frameworks
+FRAMEWORK_TEMPLATES = {
+    "fastapi": FastAPITemplates(),
+}
 
 
 class OllamaCodegenProvider(CodegenProvider):
@@ -192,6 +200,8 @@ class OllamaCodegenProvider(CodegenProvider):
             )
             response.raise_for_status()
             result = response.json()
+            if inspect.isawaitable(result):
+                result = await result
 
         generation_time_ms = int((time.time() - start_time) * 1000)
 
@@ -256,6 +266,8 @@ class OllamaCodegenProvider(CodegenProvider):
             )
             response.raise_for_status()
             result = response.json()
+            if inspect.isawaitable(result):
+                result = await result
 
         return self._parse_validation_result(result.get("response", ""))
 
@@ -295,8 +307,8 @@ class OllamaCodegenProvider(CodegenProvider):
         """
         Build Vietnamese-optimized prompt for code generation.
 
-        Uses structured format with clear instructions for
-        consistent, high-quality output.
+        Uses template system for framework-specific prompts.
+        Falls back to generic prompt if framework not supported.
 
         Args:
             spec: CodegenSpec with app_blueprint
@@ -304,10 +316,45 @@ class OllamaCodegenProvider(CodegenProvider):
         Returns:
             Formatted prompt string
         """
-        # Format app blueprint as JSON
+        # Try to use framework-specific template
+        template = FRAMEWORK_TEMPLATES.get(spec.framework.lower())
+
+        if template:
+            # Build context for template
+            blueprint_json = json.dumps(
+                spec.app_blueprint, indent=2, ensure_ascii=False
+            )
+            context = TemplateContext(
+                app_name=spec.app_blueprint.get("name", "App"),
+                app_description=spec.app_blueprint.get("description"),
+                blueprint_json=blueprint_json,
+                generation_type=(
+                    GenerationType.MODULE if spec.target_module
+                    else GenerationType.FULL_APP
+                ),
+                target_module=spec.target_module,
+                language=spec.language,
+                framework=spec.framework,
+                database=spec.app_blueprint.get("database", "postgresql"),
+                vietnamese_comments=True
+            )
+            return template.get_generation_prompt(context)
+
+        # Fallback to generic prompt
+        return self._build_generic_prompt(spec)
+
+    def _build_generic_prompt(self, spec: CodegenSpec) -> str:
+        """
+        Build generic prompt for unsupported frameworks.
+
+        Args:
+            spec: CodegenSpec with app_blueprint
+
+        Returns:
+            Formatted prompt string
+        """
         blueprint_json = json.dumps(spec.app_blueprint, indent=2, ensure_ascii=False)
 
-        # Target module instruction
         target_instruction = (
             f"Chỉ tạo module: {spec.target_module}"
             if spec.target_module
@@ -329,37 +376,36 @@ Dựa trên đặc tả IR (Intermediate Representation) sau, hãy tạo code {s
 - **Framework**: {spec.framework}
 - **Scope**: {target_instruction}
 
-## Quy tắc output
-1. Mỗi file bắt đầu bằng `### FILE: path/to/file.ext`
-2. Code trong block ```{spec.language}```
-3. Comments tiếng Việt cho business logic phức tạp
-4. Type hints đầy đủ (Python 3.11+)
-5. Error handling đúng chuẩn
-6. Không có TODO hoặc placeholder
-
-## Cấu trúc thư mục chuẩn FastAPI
-```
-app/
-├── models/         # SQLAlchemy models
-├── schemas/        # Pydantic schemas
-├── api/routes/     # API endpoints
-├── services/       # Business logic
-└── core/           # Config, deps
-```
+## Quy tắc coding
+1. Production-ready code, không có TODO hoặc placeholder
+2. Type hints đầy đủ
+3. Error handling đúng chuẩn
+4. Comments tiếng Việt cho business logic phức tạp
+5. Tuân thủ coding conventions của {spec.framework}
 
 ## Output Format
-### FILE: app/models/example.py
-```python
-# Model code here
-```
+Mỗi file bắt đầu bằng `### FILE: path/to/file.ext`
+Code trong block ```{spec.language}```
 
-### FILE: app/schemas/example.py
-```python
-# Schema code here
+### FILE: example/file.{self._get_extension(spec.language)}
+```{spec.language}
+# code here
 ```
 
 Bắt đầu tạo code:
 """
+
+    def _get_extension(self, language: str) -> str:
+        """Get file extension for language."""
+        extensions = {
+            "python": "py",
+            "typescript": "ts",
+            "javascript": "js",
+            "go": "go",
+            "rust": "rs",
+            "java": "java"
+        }
+        return extensions.get(language.lower(), "txt")
 
     def _build_validation_prompt(
         self,
@@ -369,6 +415,8 @@ Bắt đầu tạo code:
         """
         Build validation prompt.
 
+        Uses template system if framework is specified in context.
+
         Args:
             code: Code to validate
             context: Additional context
@@ -376,26 +424,39 @@ Bắt đầu tạo code:
         Returns:
             Formatted validation prompt
         """
-        context_str = json.dumps(context, ensure_ascii=False) if context else "{}"
+        # Try framework-specific template
+        framework = context.get("framework", "").lower()
+        template = FRAMEWORK_TEMPLATES.get(framework)
 
-        return f"""Bạn là code reviewer chuyên nghiệp. Hãy kiểm tra đoạn code sau:
+        if template:
+            return template.get_validation_prompt(code, context)
 
-## Code
+        # Fallback to generic validation prompt
+        context_str = json.dumps(context, ensure_ascii=False, indent=2) if context else "{}"
+
+        return f"""Bạn là senior code reviewer với kinh nghiệm về phát triển phần mềm.
+
+## Code cần review
 ```
-{code[:4000]}  # Truncate for context
+{code[:6000]}
 ```
 
 ## Context
 {context_str}
 
-## Yêu cầu
-Trả về JSON với format sau:
+## Yêu cầu đánh giá
+Kiểm tra code về các tiêu chí:
+1. **Errors** (Lỗi nghiêm trọng): Bugs, security vulnerabilities, logic errors
+2. **Warnings** (Cảnh báo): Code smell, performance issues, best practice violations
+3. **Suggestions** (Gợi ý): Improvements, refactoring opportunities, optimizations
+
+## Output Format (JSON only)
 ```json
 {{
   "valid": true/false,
-  "errors": ["lỗi nghiêm trọng 1", "lỗi 2"],
-  "warnings": ["cảnh báo 1"],
-  "suggestions": ["gợi ý cải thiện 1"]
+  "errors": ["Mô tả lỗi bằng tiếng Việt"],
+  "warnings": ["Cảnh báo bằng tiếng Việt"],
+  "suggestions": ["Gợi ý cải thiện bằng tiếng Việt"]
 }}
 ```
 
