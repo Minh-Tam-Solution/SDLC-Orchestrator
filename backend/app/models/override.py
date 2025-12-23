@@ -258,7 +258,7 @@ class OverrideAuditLog(Base):
     user_agent = Column(String(500), nullable=True)
 
     # Metadata
-    metadata = Column(Text, nullable=True)  # JSON for additional context
+    metadata_json = Column("metadata", Text, nullable=True)  # JSON for additional context
 
     # Relationships
     override = relationship("ValidationOverride", back_populates="audit_logs")

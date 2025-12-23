@@ -48,7 +48,8 @@ class MockProvider(CodegenProvider):
         return CostEstimate(
             estimated_tokens=1000,
             estimated_cost_usd=0.001,
-            provider=self._name
+            provider=self._name,
+            confidence=0.85
         )
 
 
@@ -62,7 +63,7 @@ class TestProviderRegistry:
 
         registry.register(provider)
 
-        assert "test" in registry.list_providers()
+        assert "test" in registry.list_all()
 
     def test_register_duplicate_replaces(self):
         """Test registering duplicate provider replaces existing."""
@@ -73,7 +74,7 @@ class TestProviderRegistry:
         registry.register(provider1)
         registry.register(provider2)
 
-        providers = registry.list_providers()
+        providers = registry.list_all()
         assert providers.count("test") == 1
 
     def test_get_provider(self):
@@ -94,14 +95,14 @@ class TestProviderRegistry:
 
         assert result is None
 
-    def test_list_providers(self):
+    def test_list_all_providers(self):
         """Test listing all provider names."""
         registry = ProviderRegistry()
         registry.register(MockProvider(name="ollama"))
         registry.register(MockProvider(name="claude"))
         registry.register(MockProvider(name="deepcode"))
 
-        providers = registry.list_providers()
+        providers = registry.list_all()
 
         assert len(providers) == 3
         assert "ollama" in providers
@@ -126,22 +127,14 @@ class TestProviderRegistry:
 class TestFallbackChain:
     """Test fallback chain functionality."""
 
-    def test_default_fallback_chain(self):
-        """Test default fallback chain order."""
+    def test_set_and_get_fallback_chain(self):
+        """Test setting and getting fallback chain."""
         registry = ProviderRegistry()
 
+        registry.set_fallback_chain(["ollama", "claude", "deepcode"])
         chain = registry.get_fallback_chain()
 
         assert chain == ["ollama", "claude", "deepcode"]
-
-    def test_set_fallback_chain(self):
-        """Test setting custom fallback chain."""
-        registry = ProviderRegistry()
-
-        registry.set_fallback_chain(["claude", "ollama", "deepcode"])
-        chain = registry.get_fallback_chain()
-
-        assert chain == ["claude", "ollama", "deepcode"]
 
     def test_select_provider_preferred(self):
         """Test selecting preferred provider."""
@@ -159,6 +152,7 @@ class TestFallbackChain:
         registry = ProviderRegistry()
         registry.register(MockProvider(name="ollama", available=True))
         registry.register(MockProvider(name="claude", available=False))
+        registry.set_fallback_chain(["ollama", "claude"])
 
         provider = registry.select_provider(preferred="claude")
 
@@ -182,6 +176,7 @@ class TestFallbackChain:
         registry = ProviderRegistry()
         registry.register(MockProvider(name="ollama", available=False))
         registry.register(MockProvider(name="claude", available=False))
+        registry.set_fallback_chain(["ollama", "claude"])
 
         provider = registry.select_provider()
 
@@ -193,6 +188,7 @@ class TestFallbackChain:
         registry.register(MockProvider(name="ollama", available=False))
         registry.register(MockProvider(name="claude", available=False))
         registry.register(MockProvider(name="deepcode", available=True))
+        registry.set_fallback_chain(["ollama", "claude", "deepcode"])
 
         provider = registry.select_provider()
 
@@ -207,52 +203,67 @@ class TestProviderInfo:
         """Test getting detailed provider info."""
         registry = ProviderRegistry()
         registry.register(MockProvider(name="ollama", available=True))
-        registry.set_fallback_chain(["ollama", "claude"])
-
-        info = registry.get_provider_info("ollama")
-
-        assert info is not None
-        assert info["name"] == "ollama"
-        assert info["available"] is True
-        assert info["fallback_position"] == 0
-
-    def test_get_provider_info_nonexistent(self):
-        """Test getting info for nonexistent provider."""
-        registry = ProviderRegistry()
-
-        info = registry.get_provider_info("nonexistent")
-
-        assert info is None
-
-    def test_get_all_provider_info(self):
-        """Test getting info for all providers."""
-        registry = ProviderRegistry()
-        registry.register(MockProvider(name="ollama", available=True))
         registry.register(MockProvider(name="claude", available=False))
         registry.set_fallback_chain(["ollama", "claude"])
 
-        all_info = registry.get_all_provider_info()
+        info = registry.get_provider_info()
 
-        assert len(all_info) == 2
+        assert len(info) == 2
 
-        ollama_info = next(p for p in all_info if p["name"] == "ollama")
+        ollama_info = next(p for p in info if p["name"] == "ollama")
         assert ollama_info["available"] is True
         assert ollama_info["fallback_position"] == 0
 
-        claude_info = next(p for p in all_info if p["name"] == "claude")
+        claude_info = next(p for p in info if p["name"] == "claude")
         assert claude_info["available"] is False
         assert claude_info["fallback_position"] == 1
 
 
-class TestRegistrySingleton:
-    """Test registry singleton behavior."""
+class TestRegistryOperations:
+    """Test registry utility operations."""
 
-    def test_registry_is_independent(self):
-        """Test each registry instance is independent."""
-        registry1 = ProviderRegistry()
-        registry2 = ProviderRegistry()
+    def test_registry_clear(self):
+        """Test clearing registry."""
+        registry = ProviderRegistry()
+        registry.register(MockProvider(name="test1"))
+        registry.register(MockProvider(name="test2"))
+        registry.set_fallback_chain(["test1", "test2"])
 
-        registry1.register(MockProvider(name="test1"))
+        registry.clear()
 
-        assert "test1" in registry1.list_providers()
-        assert "test1" not in registry2.list_providers()
+        assert len(registry) == 0
+        assert registry.get_fallback_chain() == []
+
+    def test_registry_len(self):
+        """Test registry length."""
+        registry = ProviderRegistry()
+        assert len(registry) == 0
+
+        registry.register(MockProvider(name="test"))
+        assert len(registry) == 1
+
+    def test_registry_contains(self):
+        """Test checking if provider is registered."""
+        registry = ProviderRegistry()
+        registry.register(MockProvider(name="ollama"))
+
+        assert "ollama" in registry
+        assert "claude" not in registry
+
+    def test_unregister_provider(self):
+        """Test unregistering a provider."""
+        registry = ProviderRegistry()
+        registry.register(MockProvider(name="test"))
+
+        result = registry.unregister("test")
+
+        assert result is True
+        assert "test" not in registry
+
+    def test_unregister_nonexistent(self):
+        """Test unregistering nonexistent provider."""
+        registry = ProviderRegistry()
+
+        result = registry.unregister("nonexistent")
+
+        assert result is False

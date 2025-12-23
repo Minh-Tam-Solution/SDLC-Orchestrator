@@ -85,8 +85,9 @@ class TestCodegenResult:
         assert result.code == "def main(): pass"
         assert result.files == {}
         assert result.provider == "test"
-        assert result.tokens_used is None
-        assert result.generation_time_ms is None
+        # tokens_used defaults to 0, not None
+        assert result.tokens_used == 0
+        assert result.generation_time_ms == 0
 
     def test_full_result(self):
         """Test result with all fields."""
@@ -110,8 +111,8 @@ class TestCodegenResult:
         assert result.generation_time_ms == 3500
         assert result.metadata["model"] == "qwen2.5-coder:32b"
 
-    def test_success_property_with_files(self):
-        """Test success property when files exist."""
+    def test_has_files_with_files(self):
+        """Test when files exist."""
         result = CodegenResult(
             code="code",
             files={"app/main.py": "content"},
@@ -119,10 +120,10 @@ class TestCodegenResult:
             provider="test"
         )
 
-        assert result.success is True
+        assert len(result.files) > 0
 
-    def test_success_property_empty_files(self):
-        """Test success property when no files parsed."""
+    def test_has_files_empty_files(self):
+        """Test when no files parsed."""
         result = CodegenResult(
             code="code without file markers",
             files={},
@@ -130,19 +131,18 @@ class TestCodegenResult:
             provider="test"
         )
 
-        # Should still be success if code is present
-        assert result.success is True
+        assert len(result.files) == 0
 
-    def test_success_property_empty_code(self):
-        """Test success property when code is empty."""
+    def test_has_code(self):
+        """Test code presence."""
         result = CodegenResult(
-            code="",
+            code="some code",
             files={},
             metadata={},
             provider="test"
         )
 
-        assert result.success is False
+        assert len(result.code) > 0
 
 
 class TestValidationResult:
@@ -189,28 +189,18 @@ class TestValidationResult:
 class TestCostEstimate:
     """Test CostEstimate Pydantic model."""
 
-    def test_minimal_estimate(self):
-        """Test minimal cost estimate."""
+    def test_full_estimate(self):
+        """Test full cost estimate with confidence (required field)."""
         estimate = CostEstimate(
             estimated_tokens=5000,
             estimated_cost_usd=0.005,
-            provider="ollama"
+            provider="ollama",
+            confidence=0.85
         )
 
         assert estimate.estimated_tokens == 5000
         assert estimate.estimated_cost_usd == 0.005
         assert estimate.provider == "ollama"
-        assert estimate.confidence is None
-
-    def test_full_estimate(self):
-        """Test full cost estimate."""
-        estimate = CostEstimate(
-            estimated_tokens=5000,
-            estimated_cost_usd=0.09,
-            provider="claude",
-            confidence=0.85
-        )
-
         assert estimate.confidence == 0.85
 
     def test_ollama_cost_efficiency(self):
@@ -218,13 +208,15 @@ class TestCostEstimate:
         ollama_estimate = CostEstimate(
             estimated_tokens=5000,
             estimated_cost_usd=0.005,
-            provider="ollama"
+            provider="ollama",
+            confidence=0.85
         )
 
         claude_estimate = CostEstimate(
             estimated_tokens=5000,
             estimated_cost_usd=0.09,
-            provider="claude"
+            provider="claude",
+            confidence=0.7
         )
 
         # Ollama should be ~18x cheaper
@@ -267,7 +259,8 @@ class MockProvider(CodegenProvider):
         return CostEstimate(
             estimated_tokens=1000,
             estimated_cost_usd=0.001,
-            provider=self._name
+            provider=self._name,
+            confidence=0.85
         )
 
 

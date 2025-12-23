@@ -74,6 +74,9 @@ AsyncSessionLocal = async_sessionmaker(
     autoflush=False,  # Manual flush control (better performance)
 )
 
+# Alias for backward compatibility with analytics_retention task
+async_session_maker = AsyncSessionLocal
+
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """

@@ -196,6 +196,10 @@ def require_roles(allowed_roles: List[str]):
     return check_roles
 
 
+# Alias for backward compatibility (singular form)
+require_role = require_roles
+
+
 def require_superuser(current_user: User = Depends(get_current_active_user)) -> User:
     """
     Dependency to require superuser access.

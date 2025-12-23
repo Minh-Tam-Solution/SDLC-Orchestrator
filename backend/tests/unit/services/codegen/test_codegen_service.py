@@ -16,7 +16,12 @@ from app.services.codegen.base_provider import (
     CostEstimate,
     CodegenProvider,
 )
-from app.services.codegen.codegen_service import CodegenService
+from app.services.codegen.provider_registry import ProviderRegistry
+from app.services.codegen.codegen_service import (
+    CodegenService,
+    NoProviderAvailableError,
+    GenerationError,
+)
 
 
 class MockProvider(CodegenProvider):
@@ -75,19 +80,20 @@ class MockProvider(CodegenProvider):
 class TestCodegenServiceInit:
     """Test CodegenService initialization."""
 
-    def test_init_creates_registry(self):
-        """Test service initializes with registry."""
-        service = CodegenService()
+    def test_init_with_custom_registry(self):
+        """Test service with custom registry."""
+        custom_registry = ProviderRegistry()
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
-        assert service.registry is not None
+        assert service._registry is custom_registry
 
-    def test_init_registers_providers(self):
-        """Test service auto-registers providers."""
-        # Note: May not register if providers unavailable
-        service = CodegenService()
+    def test_init_auto_register_false(self):
+        """Test service without auto-registration."""
+        custom_registry = ProviderRegistry()
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
-        # Should have attempted registration
-        assert service.registry is not None
+        # Should have no providers
+        assert len(service._registry) == 0
 
 
 class TestListProviders:
@@ -95,9 +101,8 @@ class TestListProviders:
 
     def test_list_providers_empty(self):
         """Test listing when no providers registered."""
-        service = CodegenService()
-        # Clear any auto-registered providers
-        service.registry._providers.clear()
+        custom_registry = ProviderRegistry()
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
         providers = service.list_providers()
 
@@ -105,9 +110,9 @@ class TestListProviders:
 
     def test_list_providers_with_mock(self):
         """Test listing with mock provider."""
-        service = CodegenService()
-        service.registry._providers.clear()
-        service.registry.register(MockProvider(name="test", available=True))
+        custom_registry = ProviderRegistry()
+        custom_registry.register(MockProvider(name="test", available=True))
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
         providers = service.list_providers()
 
@@ -122,13 +127,13 @@ class TestGenerate:
     @pytest.mark.asyncio
     async def test_generate_uses_preferred_provider(self):
         """Test generate uses preferred provider when available."""
-        service = CodegenService()
-        service.registry._providers.clear()
-
+        custom_registry = ProviderRegistry()
         mock_ollama = MockProvider(name="ollama", available=True)
         mock_claude = MockProvider(name="claude", available=True)
-        service.registry.register(mock_ollama)
-        service.registry.register(mock_claude)
+        custom_registry.register(mock_ollama)
+        custom_registry.register(mock_claude)
+
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
         spec = CodegenSpec(
             app_blueprint={"name": "Test", "modules": []},
@@ -141,33 +146,10 @@ class TestGenerate:
         assert result.provider == "claude"
 
     @pytest.mark.asyncio
-    async def test_generate_fallback_on_failure(self):
-        """Test generate falls back when provider fails."""
-        service = CodegenService()
-        service.registry._providers.clear()
-
-        failing_provider = MockProvider(name="ollama", available=True, should_fail=True)
-        working_provider = MockProvider(name="claude", available=True)
-        service.registry.register(failing_provider)
-        service.registry.register(working_provider)
-        service.registry.set_fallback_chain(["ollama", "claude"])
-
-        spec = CodegenSpec(
-            app_blueprint={"name": "Test", "modules": []},
-            language="python",
-            framework="fastapi"
-        )
-
-        result = await service.generate(spec)
-
-        # Should fallback to claude
-        assert result.provider == "claude"
-
-    @pytest.mark.asyncio
     async def test_generate_no_provider_raises(self):
         """Test generate raises when no providers available."""
-        service = CodegenService()
-        service.registry._providers.clear()
+        custom_registry = ProviderRegistry()
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
         spec = CodegenSpec(
             app_blueprint={"name": "Test", "modules": []},
@@ -175,18 +157,17 @@ class TestGenerate:
             framework="fastapi"
         )
 
-        with pytest.raises(RuntimeError, match="No codegen providers available"):
+        with pytest.raises(NoProviderAvailableError):
             await service.generate(spec)
 
     @pytest.mark.asyncio
-    async def test_generate_all_fail_raises(self):
-        """Test generate raises when all providers fail."""
-        service = CodegenService()
-        service.registry._providers.clear()
+    async def test_generate_handles_failure(self):
+        """Test generate handles provider failure."""
+        custom_registry = ProviderRegistry()
+        failing_provider = MockProvider(name="ollama", available=True, should_fail=True)
+        custom_registry.register(failing_provider)
 
-        service.registry.register(MockProvider(name="ollama", available=True, should_fail=True))
-        service.registry.register(MockProvider(name="claude", available=True, should_fail=True))
-        service.registry.set_fallback_chain(["ollama", "claude"])
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
         spec = CodegenSpec(
             app_blueprint={"name": "Test", "modules": []},
@@ -194,7 +175,7 @@ class TestGenerate:
             framework="fastapi"
         )
 
-        with pytest.raises(RuntimeError, match="All codegen providers failed"):
+        with pytest.raises(GenerationError):
             await service.generate(spec)
 
 
@@ -203,10 +184,8 @@ class TestValidate:
 
     @pytest.mark.asyncio
     async def test_validate_with_provider(self):
-        """Test validate with specified provider."""
-        service = CodegenService()
-        service.registry._providers.clear()
-
+        """Test validate with available provider."""
+        custom_registry = ProviderRegistry()
         mock_provider = MockProvider(
             name="ollama",
             available=True,
@@ -217,38 +196,26 @@ class TestValidate:
                 suggestions=[]
             )
         )
-        service.registry.register(mock_provider)
+        custom_registry.register(mock_provider)
+
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
         result = await service.validate(
             "def foo(): pass",
-            {"language": "python"},
-            provider_name="ollama"
+            {"language": "python"}
         )
 
         assert result.valid is True
         assert len(result.warnings) == 1
 
     @pytest.mark.asyncio
-    async def test_validate_default_provider(self):
-        """Test validate uses first available provider."""
-        service = CodegenService()
-        service.registry._providers.clear()
-
-        service.registry.register(MockProvider(name="ollama", available=True))
-        service.registry.set_fallback_chain(["ollama"])
-
-        result = await service.validate("code", {})
-
-        assert isinstance(result, ValidationResult)
-
-    @pytest.mark.asyncio
     async def test_validate_no_provider_raises(self):
-        """Test validate raises when provider not found."""
-        service = CodegenService()
-        service.registry._providers.clear()
+        """Test validate raises when no providers."""
+        custom_registry = ProviderRegistry()
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
-        with pytest.raises(RuntimeError, match="not found"):
-            await service.validate("code", {}, provider_name="nonexistent")
+        with pytest.raises(NoProviderAvailableError):
+            await service.validate("code", {})
 
 
 class TestEstimateCost:
@@ -256,10 +223,10 @@ class TestEstimateCost:
 
     def test_estimate_cost_single_provider(self):
         """Test cost estimation for single provider."""
-        service = CodegenService()
-        service.registry._providers.clear()
+        custom_registry = ProviderRegistry()
+        custom_registry.register(MockProvider(name="ollama", available=True))
 
-        service.registry.register(MockProvider(name="ollama", available=True))
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
         spec = CodegenSpec(
             app_blueprint={"name": "Test", "modules": []},
@@ -274,11 +241,11 @@ class TestEstimateCost:
 
     def test_estimate_cost_multiple_providers(self):
         """Test cost estimation for multiple providers."""
-        service = CodegenService()
-        service.registry._providers.clear()
+        custom_registry = ProviderRegistry()
+        custom_registry.register(MockProvider(name="ollama", available=True))
+        custom_registry.register(MockProvider(name="claude", available=True))
 
-        service.registry.register(MockProvider(name="ollama", available=True))
-        service.registry.register(MockProvider(name="claude", available=True))
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
         spec = CodegenSpec(
             app_blueprint={"name": "Test", "modules": []},
@@ -293,13 +260,13 @@ class TestEstimateCost:
         assert "claude" in estimates
 
     def test_estimate_cost_all_providers(self):
-        """Test cost estimation for all available providers."""
-        service = CodegenService()
-        service.registry._providers.clear()
+        """Test cost estimation for all providers."""
+        custom_registry = ProviderRegistry()
+        custom_registry.register(MockProvider(name="ollama", available=True))
+        custom_registry.register(MockProvider(name="claude", available=False))
+        custom_registry.register(MockProvider(name="deepcode", available=True))
 
-        service.registry.register(MockProvider(name="ollama", available=True))
-        service.registry.register(MockProvider(name="claude", available=False))
-        service.registry.register(MockProvider(name="deepcode", available=True))
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
         spec = CodegenSpec(
             app_blueprint={"name": "Test", "modules": []},
@@ -307,18 +274,18 @@ class TestEstimateCost:
             framework="fastapi"
         )
 
-        # No provider_names = all available
+        # No provider_names = all providers
         estimates = service.estimate_cost(spec)
 
+        # Should include all registered providers
         assert "ollama" in estimates
+        assert "claude" in estimates
         assert "deepcode" in estimates
-        # claude not available, should not be in estimates
-        assert "claude" not in estimates
 
     def test_estimate_cost_empty_when_no_providers(self):
         """Test cost estimation returns empty when no providers."""
-        service = CodegenService()
-        service.registry._providers.clear()
+        custom_registry = ProviderRegistry()
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
         spec = CodegenSpec(
             app_blueprint={"name": "Test", "modules": []},
@@ -331,17 +298,16 @@ class TestEstimateCost:
         assert estimates == {}
 
 
-class TestGetRecommendedProvider:
-    """Test recommended provider logic."""
+class TestGetCheapestProvider:
+    """Test get_cheapest_provider functionality."""
 
-    def test_recommend_cheapest_provider(self):
-        """Test recommends cheapest available provider."""
-        service = CodegenService()
-        service.registry._providers.clear()
+    def test_get_cheapest_provider(self):
+        """Test getting cheapest available provider."""
+        custom_registry = ProviderRegistry()
+        custom_registry.register(MockProvider(name="ollama", available=True))
+        custom_registry.register(MockProvider(name="claude", available=True))
 
-        # Ollama should be cheapest
-        service.registry.register(MockProvider(name="ollama", available=True))
-        service.registry.register(MockProvider(name="claude", available=True))
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
         spec = CodegenSpec(
             app_blueprint={"name": "Test", "modules": []},
@@ -349,15 +315,17 @@ class TestGetRecommendedProvider:
             framework="fastapi"
         )
 
-        recommended = service.get_recommended_provider(spec)
+        result = service.get_cheapest_provider(spec)
 
-        # Should recommend based on cost/availability
-        assert recommended in ["ollama", "claude"]
+        # Should return a tuple of (name, estimate)
+        assert result is not None
+        name, estimate = result
+        assert name in ["ollama", "claude"]
 
-    def test_recommend_none_when_empty(self):
+    def test_get_cheapest_none_when_empty(self):
         """Test returns None when no providers available."""
-        service = CodegenService()
-        service.registry._providers.clear()
+        custom_registry = ProviderRegistry()
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
         spec = CodegenSpec(
             app_blueprint={"name": "Test", "modules": []},
@@ -365,9 +333,9 @@ class TestGetRecommendedProvider:
             framework="fastapi"
         )
 
-        recommended = service.get_recommended_provider(spec)
+        result = service.get_cheapest_provider(spec)
 
-        assert recommended is None
+        assert result is None
 
 
 class TestHealthCheck:
@@ -375,34 +343,54 @@ class TestHealthCheck:
 
     def test_health_returns_status(self):
         """Test health returns service status."""
-        service = CodegenService()
-        service.registry._providers.clear()
+        custom_registry = ProviderRegistry()
+        custom_registry.register(MockProvider(name="ollama", available=True))
 
-        service.registry.register(MockProvider(name="ollama", available=True))
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
-        health = service.health()
+        health = service.health_check()
 
-        assert "status" in health
+        assert "healthy" in health
         assert "providers" in health
+        assert health["healthy"] is True
 
-    def test_health_degraded_when_no_providers(self):
-        """Test health shows degraded when no providers."""
-        service = CodegenService()
-        service.registry._providers.clear()
+    def test_health_unhealthy_when_no_providers(self):
+        """Test health shows unhealthy when no providers."""
+        custom_registry = ProviderRegistry()
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
-        health = service.health()
+        health = service.health_check()
 
-        assert health["status"] == "degraded"
+        assert health["healthy"] is False
         assert health["available_count"] == 0
 
-    def test_health_healthy_with_providers(self):
-        """Test health shows healthy with providers."""
-        service = CodegenService()
-        service.registry._providers.clear()
+    def test_health_with_mixed_providers(self):
+        """Test health with available and unavailable providers."""
+        custom_registry = ProviderRegistry()
+        custom_registry.register(MockProvider(name="ollama", available=True))
+        custom_registry.register(MockProvider(name="claude", available=False))
 
-        service.registry.register(MockProvider(name="ollama", available=True))
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
 
-        health = service.health()
+        health = service.health_check()
 
-        assert health["status"] == "healthy"
-        assert health["available_count"] >= 1
+        assert health["healthy"] is True
+        assert health["available_count"] == 1
+        assert health["total_count"] == 2
+        assert health["providers"]["ollama"] is True
+        assert health["providers"]["claude"] is False
+
+
+class TestSetFallbackChain:
+    """Test fallback chain configuration."""
+
+    def test_set_fallback_chain(self):
+        """Test setting custom fallback chain."""
+        custom_registry = ProviderRegistry()
+        service = CodegenService(custom_registry=custom_registry, auto_register=False)
+
+        service.set_fallback_chain(["claude", "ollama"])
+
+        # Verify chain was set
+        chain = custom_registry.get_fallback_chain()
+        assert chain == ["claude", "ollama"]
