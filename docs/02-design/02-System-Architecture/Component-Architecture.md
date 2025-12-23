@@ -426,7 +426,7 @@ export class AIContextEngineComponent {
     private initializeProviders() {
       this.providers = new Map([
         ['ollama', new OllamaProvider({
-          baseUrl: 'https://api.nqh.vn',
+          baseUrl: 'https://api.nhatquangholding.com',
           model: 'qwen2.5:14b'
         })],
         ['claude', new ClaudeProvider({

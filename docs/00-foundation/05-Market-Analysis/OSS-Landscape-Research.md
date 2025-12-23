@@ -70,7 +70,7 @@ This document answers **WHY we're using OSS components and WHY Option C (Hybrid)
                         ↓
 ┌─────────────────────────────────────────────────────────┐
 │ Layer 3: AI Infrastructure (MULTI-PROVIDER)            │
-│ - Ollama (api.nqh.vn, qwen2.5-coder) [PRIMARY, $0]     │
+│ - Ollama (api.nhatquangholding.com, qwen2.5-coder) [PRIMARY, $0]     │
 │ - Claude API (fallback) [PAID, $1K/month budget]       │
 │ - DeepCode (DEFERRED Q2 2026) [Decision gate pending]  │
 └─────────────────────────────────────────────────────────┘
@@ -86,7 +86,7 @@ This document answers **WHY we're using OSS components and WHY Option C (Hybrid)
 **Infrastructure**:
 - **Hardware**: RTX 5090 32GB VRAM
 - **Model**: qwen2.5-coder:32b (92.7% HumanEval - better than GPT-4!)
-- **API**: https://api.nqh.vn (Cloudflare Tunnel)
+- **API**: https://api.nhatquangholding.com (NAT)
 - **Cost**: $0/month (owned infrastructure)
 
 **Model Roles Strategy** (IT Admin Dec 2025):
@@ -127,7 +127,7 @@ This document answers **WHY we're using OSS components and WHY Option C (Hybrid)
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  1. OLLAMA (Primary) ──────────────────────────────────────────→│
-│     - api.nqh.vn (qwen2.5-coder:14b/32b)                        │
+│     - api.nhatquangholding.com (qwen2.5-coder:14b/32b)                        │
 │     - Cost: $0/month                                             │
 │     - Latency: <100ms                                            │
 │     - Use case: 95% of requests                                  │

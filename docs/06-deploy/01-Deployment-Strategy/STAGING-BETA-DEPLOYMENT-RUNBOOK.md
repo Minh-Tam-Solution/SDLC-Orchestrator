@@ -20,7 +20,7 @@ Server: 192.168.0.223 (NQH Infrastructure)
 Services: 8 (Backend, Frontend, PostgreSQL, Redis, MinIO, OPA, Prometheus, Grafana)
 Public URLs:
   - Frontend: https://sdlc.nqh.vn (port 8310)
-  - Backend API: https://sdlc-api.nqh.vn (port 8300)
+  - Backend API: https://sdlc-api.nhatquangholding.com (port 8300)
 Deployment Type: Blue-Green (with Docker Compose)
 Rollback Target: <5 minutes
 ```
@@ -157,8 +157,8 @@ ENVIRONMENT=production
 
 # Public URLs (Cloudflare Tunnel)
 FRONTEND_PUBLIC_URL=https://sdlc.nqh.vn
-BACKEND_PUBLIC_URL=https://sdlc-api.nqh.vn
-CORS_ORIGINS=https://sdlc.nqh.vn,https://sdlc-api.nqh.vn
+BACKEND_PUBLIC_URL=https://sdlc-api.nhatquangholding.com
+CORS_ORIGINS=https://sdlc.nqh.vn,https://sdlc-api.nhatquangholding.com
 
 # Backend API (FastAPI)
 BACKEND_HOST=0.0.0.0
@@ -171,7 +171,7 @@ FRONTEND_HOST=0.0.0.0
 FRONTEND_PORT=8310
 FRONTEND_CONTAINER_NAME=sdlc-frontend-prod
 FRONTEND_IMAGE=sdlc-orchestrator/frontend:1.0.0-beta
-REACT_APP_API_BASE_URL=https://sdlc-api.nqh.vn
+REACT_APP_API_BASE_URL=https://sdlc-api.nhatquangholding.com
 
 # PostgreSQL Database
 POSTGRES_HOST=sdlc-postgres-prod
@@ -441,14 +441,14 @@ docker ps --filter "name=sdlc-*" --format "table {{.Names}}\t{{.Status}}\t{{.Por
 nslookup sdlc.nqh.vn
 # Expected: Cloudflare IP addresses
 
-nslookup sdlc-api.nqh.vn
+nslookup sdlc-api.nhatquangholding.com
 # Expected: Cloudflare IP addresses
 
 # Test HTTPS access (from external)
 curl -I https://sdlc.nqh.vn
 # Expected: HTTP/2 200 OK
 
-curl -I https://sdlc-api.nqh.vn/health
+curl -I https://sdlc-api.nhatquangholding.com/health
 # Expected: HTTP/2 200 OK
 ```
 
@@ -476,7 +476,7 @@ curl http://localhost:8300/health
 # }
 
 # Test health endpoint (public via Cloudflare)
-curl https://sdlc-api.nqh.vn/health
+curl https://sdlc-api.nhatquangholding.com/health
 # Expected: Same as above
 ```
 
@@ -498,7 +498,7 @@ curl -I https://sdlc.nqh.vn
 
 ```bash
 # Test login endpoint
-curl -X POST https://sdlc-api.nqh.vn/api/v1/auth/login \
+curl -X POST https://sdlc-api.nhatquangholding.com/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "admin@sdlc.nqh.vn",
@@ -521,7 +521,7 @@ export ACCESS_TOKEN="<access_token_from_response>"
 
 ```bash
 # Test project creation
-curl -X POST https://sdlc-api.nqh.vn/api/v1/projects \
+curl -X POST https://sdlc-api.nhatquangholding.com/api/v1/projects \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -547,7 +547,7 @@ cd /home/nqh/shared/SDLC-Orchestrator/tests/e2e
 
 # Set environment for E2E tests
 export PLAYWRIGHT_BASE_URL=https://sdlc.nqh.vn
-export API_BASE_URL=https://sdlc-api.nqh.vn
+export API_BASE_URL=https://sdlc-api.nhatquangholding.com
 export TEST_ADMIN_EMAIL=admin@sdlc.nqh.vn
 export TEST_ADMIN_PASSWORD=<ADMIN_PASSWORD_FROM_SEED>
 
@@ -643,7 +643,7 @@ curl -u admin:admin http://192.168.0.223:3001/api/dashboards/db/sdlc-overview
 
 | Service | SLO | Verification Command | Expected Result |
 |---------|-----|----------------------|-----------------|
-| **Backend API** | 99.9% uptime | `curl -I https://sdlc-api.nqh.vn/health` | HTTP 200 OK |
+| **Backend API** | 99.9% uptime | `curl -I https://sdlc-api.nhatquangholding.com/health` | HTTP 200 OK |
 | **Frontend** | 99.9% uptime | `curl -I https://sdlc.nqh.vn` | HTTP 200 OK |
 | **PostgreSQL** | <10ms query p95 | Check Grafana | p95 < 10ms |
 | **Redis** | <5ms latency p95 | Check Grafana | p95 < 5ms |
@@ -688,7 +688,7 @@ docker ps --filter "name=sdlc-*"
 
 # 3. Remove Cloudflare routes (IT Team - 2 min)
 # - Remove sdlc.nqh.vn route
-# - Remove sdlc-api.nqh.vn route
+# - Remove sdlc-api.nhatquangholding.com route
 
 # 4. Verify rollback complete
 curl -I https://sdlc.nqh.vn

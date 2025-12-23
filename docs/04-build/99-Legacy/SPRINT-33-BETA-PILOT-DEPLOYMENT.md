@@ -43,7 +43,7 @@ Acceptance Criteria:
   - [ ] Restrict to specific methods: GET, POST, PUT, PATCH, DELETE, OPTIONS
   - [ ] Lock CORS origins to production domains:
       - https://sdlc.nqh.vn
-      - https://sdlc-api.nqh.vn
+      - https://sdlc-api.nhatquangholding.com
   - [ ] Add environment-based CORS config:
       - Dev: localhost:5173, localhost:8000
       - Staging: staging URLs
@@ -61,7 +61,7 @@ Implementation:
     # AFTER (SECURE)
     CORS_ORIGINS = [
         "https://sdlc.nqh.vn",
-        "https://sdlc-api.nqh.vn"
+        "https://sdlc-api.nhatquangholding.com"
     ] if ENV == "production" else [
         "http://localhost:5173",
         "http://localhost:8000"
@@ -346,7 +346,7 @@ Pre-Deployment Checklist:
      - [ ] Configure firewall rules (block external access to internal ports)
      - [ ] Setup Cloudflare Tunnel routes:
          - sdlc.nqh.vn → localhost:8310
-         - sdlc-api.nqh.vn → localhost:8300
+         - sdlc-api.nhatquangholding.com → localhost:8300
      - [ ] Test DNS propagation
 
   2. DevOps Actions:
@@ -371,7 +371,7 @@ Deployment Steps:
 
   5. Verify health:
      docker ps --filter "name=sdlc-*" --format "table {{.Names}}\t{{.Status}}"
-     curl -I https://sdlc-api.nqh.vn/health
+     curl -I https://sdlc-api.nhatquangholding.com/health
      curl -I https://sdlc.nqh.vn
 
   6. Run smoke tests:
@@ -533,7 +533,7 @@ Acceptance Criteria:
 
 Channel Resources:
   - Deployment guide: https://sdlc.nqh.vn/docs/deployment
-  - API docs: https://sdlc-api.nqh.vn/docs
+  - API docs: https://sdlc-api.nhatquangholding.com/docs
   - FAQ: [Link to FAQ doc]
   - Bug report template: [Link to template]
 

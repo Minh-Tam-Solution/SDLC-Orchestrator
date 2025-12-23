@@ -191,7 +191,7 @@
 - ✅ 3+ years retention (compliance requirement)
 
 **AI Innovation** (Ollama integration - 95% cost savings):
-- ✅ Primary: Ollama (api.nqh.vn) - $50/month, <100ms latency
+- ✅ Primary: Ollama (api.nhatquangholding.com) - $50/month, <100ms latency
 - ✅ Fallback: Claude ($1,000/month), GPT-4 ($800/month)
 - ✅ **95% cost savings** vs Claude, **3x faster** latency
 

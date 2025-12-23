@@ -21,7 +21,7 @@ I am requesting **Gate G3 (Ship Ready) approval** for the **SDLC Orchestrator** 
 
 ### Executive Summary
 
-Sprint 33 delivered a production-ready SDLC Orchestrator with all core features operational, external HTTPS access verified (https://sdlc.nqh.vn + https://sdlc-api.nqh.vn), and OWASP ASVS Level 2 security compliance (98.4%). The platform is ready for **Beta Pilot Launch** with 5 internal teams.
+Sprint 33 delivered a production-ready SDLC Orchestrator with all core features operational, external HTTPS access verified (https://sdlc.nqh.vn + https://sdlc-api.nhatquangholding.com), and OWASP ASVS Level 2 security compliance (98.4%). The platform is ready for **Beta Pilot Launch** with 5 internal teams.
 
 ### Key Achievements
 - ✅ **100% Core Features** operational (Authentication, Gate Management, Evidence Vault, Policy Engine, AI Context, Compliance)

@@ -279,7 +279,7 @@ SDLC Orchestrator Policy:
 **Principle 4: Innovation - Ollama AI Integration**
 ```yaml
 Cost Optimization (ADR-007):
-  Primary: Ollama (api.nqh.vn) - $50/month, <100ms latency
+  Primary: Ollama (api.nhatquangholding.com) - $50/month, <100ms latency
   Fallback 1: Claude (Anthropic) - $1000/month, 300ms
   Fallback 2: GPT-4 (OpenAI) - $800/month, 250ms
   Fallback 3: Rule-based - $0/month, 50ms

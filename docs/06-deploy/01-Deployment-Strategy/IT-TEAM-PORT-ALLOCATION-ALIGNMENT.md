@@ -50,7 +50,7 @@ Document Version: 2.1
 
 | Port | Service | Container Name | Purpose | Protocol | Public URL |
 |------|---------|----------------|---------|----------|------------|
-| **8300** | **SDLC Backend** | `sdlc-backend-prod` | **FastAPI REST API** | HTTP | https://sdlc-api.nqh.vn |
+| **8300** | **SDLC Backend** | `sdlc-backend-prod` | **FastAPI REST API** | HTTP | https://sdlc-api.nhatquangholding.com |
 | **8310** | **SDLC Frontend** | `sdlc-frontend-prod` | **React SPA (Nginx)** | HTTP | https://sdlc.nqh.vn |
 | 5450 | PostgreSQL | `sdlc-postgres-prod` | SDLC Database | TCP | Internal only |
 | 6395 | Redis | `sdlc-redis-prod` | Cache/Sessions | TCP | Internal only |
@@ -69,7 +69,7 @@ Document Version: 2.1
 | Subdomain | Public URL | Local Service | Port | Status | Notes |
 |-----------|------------|---------------|------|--------|-------|
 | **sdlc** | **https://sdlc.nqh.vn** | localhost:8310 | 8310 | 🆕 Approved | SDLC Frontend (React SPA) |
-| **sdlc-api** | **https://sdlc-api.nqh.vn** | localhost:8300 | 8300 | 🆕 Approved | SDLC Backend API (FastAPI) |
+| **sdlc-api** | **https://sdlc-api.nhatquangholding.com** | localhost:8300 | 8300 | 🆕 Approved | SDLC Backend API (FastAPI) |
 
 ### Tunnel Configuration (Cloudflare Dashboard)
 
@@ -83,7 +83,7 @@ Status: Approved (Nov 29, 2025)
 
 # Cloudflare Tunnel Route 2: Backend API
 Subdomain: sdlc-api
-Public Hostname: sdlc-api.nqh.vn
+Public Hostname: sdlc-api.nhatquangholding.com
 Type: HTTP
 URL: localhost:8300
 Status: Approved (Nov 29, 2025)
@@ -141,8 +141,8 @@ ENVIRONMENT=production
 # Public URLs (Cloudflare Tunnel)
 # ============================================================================
 FRONTEND_PUBLIC_URL=https://sdlc.nqh.vn
-BACKEND_PUBLIC_URL=https://sdlc-api.nqh.vn
-CORS_ORIGINS=https://sdlc.nqh.vn,https://sdlc-api.nqh.vn
+BACKEND_PUBLIC_URL=https://sdlc-api.nhatquangholding.com
+CORS_ORIGINS=https://sdlc.nqh.vn,https://sdlc-api.nhatquangholding.com
 
 # ============================================================================
 # Backend API (FastAPI)
@@ -159,7 +159,7 @@ FRONTEND_HOST=0.0.0.0
 FRONTEND_PORT=8310
 FRONTEND_CONTAINER_NAME=sdlc-frontend-prod
 FRONTEND_IMAGE=sdlc-orchestrator/frontend:1.0.0
-REACT_APP_API_BASE_URL=https://sdlc-api.nqh.vn
+REACT_APP_API_BASE_URL=https://sdlc-api.nhatquangholding.com
 
 # ============================================================================
 # PostgreSQL Database
@@ -279,7 +279,7 @@ services:
 | **Port Range Allocation** | 8300-8399 (100 ports reserved) | ✅ Compliant |
 | **Container Naming** | `sdlc-<service>-prod` | ✅ Compliant |
 | **Network Isolation** | Docker network `sdlc-network-prod` | ✅ Compliant |
-| **Public-Facing via Cloudflare** | `sdlc.nqh.vn`, `sdlc-api.nqh.vn` | ✅ Approved |
+| **Public-Facing via Cloudflare** | `sdlc.nqh.vn`, `sdlc-api.nhatquangholding.com` | ✅ Approved |
 | **Database Port Prefix** | 5xxx range (5450) | ✅ Compliant |
 | **Redis Port Prefix** | 6xxx range (6395) | ✅ Compliant |
 | **Service Port Range** | 8xxx range (8300, 8310, 8185) | ✅ Compliant |
@@ -318,7 +318,7 @@ The following services are **NOT exposed** via Cloudflare Tunnel (internal netwo
    - TLS termination at Cloudflare
    - DDoS protection enabled
 
-2. **Backend API** (https://sdlc-api.nqh.vn → localhost:8300)
+2. **Backend API** (https://sdlc-api.nhatquangholding.com → localhost:8300)
    - FastAPI REST API
    - TLS termination at Cloudflare
    - Rate limiting: 100 req/min/user (application-level)
@@ -344,7 +344,7 @@ The following services are **NOT exposed** via Cloudflare Tunnel (internal netwo
 
 - [ ] **Setup Cloudflare Tunnel Routes** (IT Team + PM)
   - Add route: `sdlc.nqh.vn → localhost:8310`
-  - Add route: `sdlc-api.nqh.vn → localhost:8300`
+  - Add route: `sdlc-api.nhatquangholding.com → localhost:8300`
   - Test DNS propagation
 
 ### Deployment Day (Sprint 32 Day 3)
@@ -360,7 +360,7 @@ The following services are **NOT exposed** via Cloudflare Tunnel (internal netwo
 
 - [ ] **Test Public URLs** (PM + IT Team)
   - Frontend: `curl -I https://sdlc.nqh.vn`
-  - Backend: `curl -I https://sdlc-api.nqh.vn/health`
+  - Backend: `curl -I https://sdlc-api.nhatquangholding.com/health`
 
 ### Post-Deployment (Sprint 32 Day 4-5)
 
@@ -441,7 +441,7 @@ docker exec sdlc-backend-prod curl -I http://sdlc-redis-prod:6379
 
 # Test public URLs
 curl -I https://sdlc.nqh.vn
-curl https://sdlc-api.nqh.vn/health
+curl https://sdlc-api.nhatquangholding.com/health
 ```
 
 ---
@@ -453,7 +453,7 @@ curl https://sdlc-api.nqh.vn/health
 - [ ] Verify port availability (all 7 ports)
 - [ ] Configure firewall rules
 - [ ] Setup Cloudflare Tunnel routes (2 routes)
-- [ ] Test DNS resolution for `sdlc.nqh.vn` and `sdlc-api.nqh.vn`
+- [ ] Test DNS resolution for `sdlc.nqh.vn` and `sdlc-api.nhatquangholding.com`
 - [ ] Verify Docker network `sdlc-network-prod` created
 
 ### DevOps Deployment

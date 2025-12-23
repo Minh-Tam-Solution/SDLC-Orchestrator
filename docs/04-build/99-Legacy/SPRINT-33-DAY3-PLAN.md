@@ -16,7 +16,7 @@ Deploy production-ready beta environment with external access via Cloudflare Tun
 
 1. ✅ Beta environment running with 8/8 services healthy
 2. ✅ Database schema populated (24+ tables)
-3. ✅ Cloudflare Tunnel configured (`sdlc.nqh.vn`, `sdlc-api.nqh.vn`)
+3. ✅ Cloudflare Tunnel configured (`sdlc.nqh.vn`, `sdlc-api.nhatquangholding.com`)
 4. ✅ Manual smoke tests passing (5/8 minimum)
 5. ✅ External access validated (from non-NQH network)
 6. ✅ P2 security fixes verified in beta
@@ -143,7 +143,7 @@ ACCESS_TOKEN_EXPIRE_HOURS=1
 REFRESH_TOKEN_EXPIRE_DAYS=30
 
 # Frontend
-VITE_API_URL=https://sdlc-api.nqh.vn
+VITE_API_URL=https://sdlc-api.nhatquangholding.com
 ```
 
 **Expected Output**: `.env.beta` with all secrets generated and validated
@@ -339,7 +339,7 @@ cloudflared tunnel list
 
 ### Task 3.4: Configure Tunnel Routes
 
-**Objective**: Route `sdlc.nqh.vn` and `sdlc-api.nqh.vn` to beta services
+**Objective**: Route `sdlc.nqh.vn` and `sdlc-api.nhatquangholding.com` to beta services
 
 **Create tunnel config**: `~/.cloudflared/config.yml`
 
@@ -354,8 +354,8 @@ ingress:
     originRequest:
       noTLSVerify: true
 
-  # Backend API: sdlc-api.nqh.vn → localhost:8300
-  - hostname: sdlc-api.nqh.vn
+  # Backend API: sdlc-api.nhatquangholding.com → localhost:8300
+  - hostname: sdlc-api.nhatquangholding.com
     service: http://localhost:8300
     originRequest:
       noTLSVerify: true
@@ -371,11 +371,11 @@ ingress:
 cloudflared tunnel route dns sdlc-beta sdlc.nqh.vn
 
 # 2. Create DNS CNAME for backend
-cloudflared tunnel route dns sdlc-beta sdlc-api.nqh.vn
+cloudflared tunnel route dns sdlc-beta sdlc-api.nhatquangholding.com
 
 # 3. Verify DNS records created
 nslookup sdlc.nqh.vn
-nslookup sdlc-api.nqh.vn
+nslookup sdlc-api.nhatquangholding.com
 # Expected: CNAME pointing to <tunnel-id>.cfargotunnel.com
 ```
 
@@ -440,13 +440,13 @@ curl -I https://sdlc.nqh.vn
 # Expected: 200 OK, HTML content
 
 # 2. Test backend API from external network
-curl https://sdlc-api.nqh.vn/health | jq
+curl https://sdlc-api.nhatquangholding.com/health | jq
 # Expected: {"status": "healthy", ...}
 
 # 3. Test from mobile network (outside NQH)
 # - Open https://sdlc.nqh.vn in mobile browser
 # - Verify dashboard loads
-# - Check network tab for API calls to sdlc-api.nqh.vn
+# - Check network tab for API calls to sdlc-api.nhatquangholding.com
 ```
 
 **Expected Output**: Both URLs accessible from internet, SSL working (Cloudflare cert)
@@ -464,7 +464,7 @@ curl https://sdlc-api.nqh.vn/health | jq
 # Example: admin@bflow.vn / SecurePassword123!
 
 # 2. Login via API
-curl -X POST https://sdlc-api.nqh.vn/api/v1/auth/login \
+curl -X POST https://sdlc-api.nhatquangholding.com/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "admin@bflow.vn",
@@ -477,7 +477,7 @@ curl -X POST https://sdlc-api.nqh.vn/api/v1/auth/login \
 TOKEN="<access_token_from_step_2>"
 
 # 4. Verify token works
-curl https://sdlc-api.nqh.vn/api/v1/auth/me \
+curl https://sdlc-api.nhatquangholding.com/api/v1/auth/me \
   -H "Authorization: Bearer $TOKEN" | jq
 
 # Expected: User profile with email, roles, etc.
@@ -495,7 +495,7 @@ curl https://sdlc-api.nqh.vn/api/v1/auth/me \
 
 ```bash
 # Test from allowed origin
-curl -X OPTIONS https://sdlc-api.nqh.vn/api/v1/auth/login \
+curl -X OPTIONS https://sdlc-api.nhatquangholding.com/api/v1/auth/login \
   -H "Origin: https://sdlc.nqh.vn" \
   -H "Access-Control-Request-Method: POST" \
   -v 2>&1 | grep "Access-Control-Allow-Methods"
@@ -503,7 +503,7 @@ curl -X OPTIONS https://sdlc-api.nqh.vn/api/v1/auth/login \
 # Expected: Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS
 
 # Verify TRACE blocked
-curl -X TRACE https://sdlc-api.nqh.vn/api/v1/auth/login \
+curl -X TRACE https://sdlc-api.nhatquangholding.com/api/v1/auth/login \
   -H "Origin: https://sdlc.nqh.vn" -v
 
 # Expected: 405 Method Not Allowed
@@ -513,7 +513,7 @@ curl -X TRACE https://sdlc-api.nqh.vn/api/v1/auth/login \
 
 ```bash
 # Check CSP header
-curl -I https://sdlc-api.nqh.vn/api/v1/auth/login | grep "Content-Security-Policy"
+curl -I https://sdlc-api.nhatquangholding.com/api/v1/auth/login | grep "Content-Security-Policy"
 
 # Expected: Content-Security-Policy: default-src 'self'; script-src 'self'; ...
 # NO 'unsafe-inline' or 'unsafe-eval'
@@ -564,7 +564,7 @@ open https://sdlc.nqh.vn
 # 1. Login and get token (from Test 1)
 
 # 2. Create test project
-curl -X POST https://sdlc-api.nqh.vn/api/v1/projects \
+curl -X POST https://sdlc-api.nhatquangholding.com/api/v1/projects \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -576,7 +576,7 @@ curl -X POST https://sdlc-api.nqh.vn/api/v1/projects \
 # Extract project_id
 
 # 3. Evaluate gate
-curl -X POST https://sdlc-api.nqh.vn/api/v1/gates/evaluate \
+curl -X POST https://sdlc-api.nhatquangholding.com/api/v1/gates/evaluate \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -601,7 +601,7 @@ curl -X POST https://sdlc-api.nqh.vn/api/v1/gates/evaluate \
 echo "Sprint 33 Day 3 Beta Smoke Test Evidence" > /tmp/beta-test-evidence.txt
 
 # 2. Upload to Evidence Vault
-curl -X POST https://sdlc-api.nqh.vn/api/v1/evidence/upload \
+curl -X POST https://sdlc-api.nhatquangholding.com/api/v1/evidence/upload \
   -H "Authorization: Bearer $TOKEN" \
   -F "file=@/tmp/beta-test-evidence.txt" \
   -F "project_id=<project_id>" \
@@ -611,7 +611,7 @@ curl -X POST https://sdlc-api.nqh.vn/api/v1/evidence/upload \
 # Expected: {"id": "...", "s3_path": "s3://evidence-vault/..."}
 
 # 3. Download evidence
-curl -X GET https://sdlc-api.nqh.vn/api/v1/evidence/<evidence_id>/download \
+curl -X GET https://sdlc-api.nhatquangholding.com/api/v1/evidence/<evidence_id>/download \
   -H "Authorization: Bearer $TOKEN" \
   -o /tmp/beta-downloaded.txt
 
@@ -671,7 +671,7 @@ Your beta access to SDLC Orchestrator is now ready!
 
 🔗 Access URLs:
 - Dashboard: https://sdlc.nqh.vn
-- API Docs: https://sdlc-api.nqh.vn/api/docs
+- API Docs: https://sdlc-api.nhatquangholding.com/api/docs
 
 🔐 Login Credentials:
 - Email: [team-specific email from seed data]
@@ -704,7 +704,7 @@ At end of Day 3, verify all criteria met:
 
 1. ✅ Beta environment running with 8/8 services healthy
 2. ✅ Database schema populated (24+ tables)
-3. ✅ Cloudflare Tunnel configured (`sdlc.nqh.vn`, `sdlc-api.nqh.vn`)
+3. ✅ Cloudflare Tunnel configured (`sdlc.nqh.vn`, `sdlc-api.nhatquangholding.com`)
 4. ✅ Manual smoke tests passing (5/8 minimum)
 5. ✅ External access validated (from non-NQH network)
 6. ✅ P2 security fixes verified in beta

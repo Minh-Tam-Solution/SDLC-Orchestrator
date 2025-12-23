@@ -24,7 +24,7 @@ NGINX Reverse Proxy (this config)
 ## Alternative Domain (via Cloudflare Tunnel)
 Per PORT_ALLOCATION_MANAGEMENT.md, Cloudflare routes are also available:
 - `https://sdlc.nqh.vn` → Frontend (8310)
-- `https://sdlc-api.nqh.vn` → Backend (8300)
+- `https://sdlc-api.nhatquangholding.com` → Backend (8300)
 
 ## Quick Install
 

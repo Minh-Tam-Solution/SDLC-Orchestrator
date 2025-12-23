@@ -374,7 +374,7 @@ def upload_to_minio(file_path: str) -> str:
 **Innovation**: Ollama (self-hosted LLM) as primary AI provider
 
 **Cost Savings**:
-- Primary: Ollama (api.nqh.vn) - **$50/month**
+- Primary: Ollama (api.nhatquangholding.com) - **$50/month**
 - Fallback 1: Claude (Anthropic) - $1000/month
 - Fallback 2: GPT-4 (OpenAI) - $800/month
 - Fallback 3: Rule-based - $0/month

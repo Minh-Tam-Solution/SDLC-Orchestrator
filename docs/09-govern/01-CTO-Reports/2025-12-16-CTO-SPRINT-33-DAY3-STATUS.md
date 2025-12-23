@@ -13,7 +13,7 @@ Day 3 successfully deployed **BOTH production and beta environments** with full 
 ### **Key Achievements**
 ✅ Production environment deployed (9/9 services healthy)
 ✅ Beta environment deployed (9/9 services healthy)
-✅ Cloudflare Tunnel configured for `sdlc.nqh.vn` (frontend) + `sdlc-api.nqh.vn` (backend)
+✅ Cloudflare Tunnel configured for `sdlc.nqh.vn` (frontend) + `sdlc-api.nhatquangholding.com` (backend)
 ✅ Port mapping documentation created (comprehensive 400+ line guide)
 ✅ Production backend migrated to port 8300 (as requested)
 ✅ Zero P0/P1 issues
@@ -43,7 +43,7 @@ Day 3 successfully deployed **BOTH production and beta environments** with full 
 ### **Production Environment** ✅ HEALTHY
 **Container Prefix**: `sdlc-*`
 **Network**: `sdlc-orchestrator_sdlc-network`
-**External Access**: `https://sdlc.nqh.vn` + `https://sdlc-api.nqh.vn`
+**External Access**: `https://sdlc.nqh.vn` + `https://sdlc-api.nhatquangholding.com`
 
 | Service | Container | Internal Port | Host Port | Status |
 |---------|-----------|---------------|-----------|--------|
@@ -112,7 +112,7 @@ File: `/home/dttai/.cloudflared/config.yml`
     keepAliveConnections: 100
 
 # SDLC Orchestrator Production - Backend API
-- hostname: sdlc-api.nqh.vn
+- hostname: sdlc-api.nhatquangholding.com
   service: http://localhost:8300
   originRequest:
     connectTimeout: 30s
@@ -125,7 +125,7 @@ File: `/home/dttai/.cloudflared/config.yml`
 1. **Add DNS Routes** (Cloudflare Dashboard):
    - Navigate to: Zero Trust → Networks → Tunnels → `my-tunnel`
    - Add public hostname: `sdlc.nqh.vn` → `http://localhost:8310`
-   - Add public hostname: `sdlc-api.nqh.vn` → `http://localhost:8300`
+   - Add public hostname: `sdlc-api.nhatquangholding.com` → `http://localhost:8300`
 
 2. **Reload Tunnel Daemon**:
    ```bash
@@ -137,7 +137,7 @@ File: `/home/dttai/.cloudflared/config.yml`
 3. **Verify External Access** (after 2-5 min DNS propagation):
    ```bash
    curl -I https://sdlc.nqh.vn
-   curl -I https://sdlc-api.nqh.vn/health
+   curl -I https://sdlc-api.nhatquangholding.com/health
    ```
 
 ---
@@ -307,13 +307,13 @@ Manual smoke tests from Day 2 deferred due to database migration blocker (TD-SPR
 1. **Add Cloudflare DNS Routes** (DevOps Team - 10 min):
    - Dashboard: Zero Trust → Networks → Tunnels → `my-tunnel`
    - Add `sdlc.nqh.vn` → `http://localhost:8310`
-   - Add `sdlc-api.nqh.vn` → `http://localhost:8300`
+   - Add `sdlc-api.nhatquangholding.com` → `http://localhost:8300`
    - Reload tunnel daemon: `sudo systemctl restart cloudflared`
 
 2. **Verify External Access** (QA Team - 5 min):
    ```bash
    curl -I https://sdlc.nqh.vn
-   curl -I https://sdlc-api.nqh.vn/health
+   curl -I https://sdlc-api.nhatquangholding.com/health
    ```
 
 3. **Investigate Database Migration** (Backend Lead - 2-4 hours):
@@ -329,7 +329,7 @@ Manual smoke tests from Day 2 deferred due to database migration blocker (TD-SPR
 5. **Pilot Team Onboarding** (PM - 30 min):
    - Notify 5 pilot teams:
      - External URL: https://sdlc.nqh.vn
-     - API endpoint: https://sdlc-api.nqh.vn
+     - API endpoint: https://sdlc-api.nhatquangholding.com
    - Share credentials (if authentication enabled)
 
 ### **Day 5+**
@@ -397,7 +397,7 @@ docker-compose.beta.yml
 
 /home/dttai/.cloudflared/config.yml
   - Added ingress: sdlc.nqh.vn → http://localhost:8310
-  - Added ingress: sdlc-api.nqh.vn → http://localhost:8300
+  - Added ingress: sdlc-api.nhatquangholding.com → http://localhost:8300
 ```
 
 ### **Created Files**
@@ -414,7 +414,7 @@ docs/09-govern/01-CTO-Reports/2025-12-16-CTO-SPRINT-33-DAY3-STATUS.md (this file
 2. infra: Beta environment deployment with isolated network
 3. docs: PORT-MAPPINGS comprehensive guide (400+ lines)
 4. docs: Cloudflare Tunnel setup guide
-5. infra: Cloudflare ingress rules for sdlc.nqh.vn + sdlc-api.nqh.vn
+5. infra: Cloudflare ingress rules for sdlc.nqh.vn + sdlc-api.nhatquangholding.com
 6. docs: Sprint 33 Day 3 Status Report
 ```
 
@@ -430,7 +430,7 @@ docs/09-govern/01-CTO-Reports/2025-12-16-CTO-SPRINT-33-DAY3-STATUS.md (this file
 - [x] Health checks passing (all services)
 
 **Cloudflare Tunnel**:
-- [x] Ingress rules added (sdlc.nqh.vn + sdlc-api.nqh.vn)
+- [x] Ingress rules added (sdlc.nqh.vn + sdlc-api.nhatquangholding.com)
 - [x] Configuration validated (config.yml syntax OK)
 - [ ] DNS routes configured in Cloudflare Dashboard ⏳ MANUAL PENDING
 - [ ] Tunnel daemon reloaded ⏳ MANUAL PENDING

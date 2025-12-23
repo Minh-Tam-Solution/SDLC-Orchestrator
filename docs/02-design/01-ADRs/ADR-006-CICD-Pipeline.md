@@ -21,7 +21,7 @@ We're using:
 - **GitHub** as code repository
 - **Docker** for containerization
 - **AWS** for cloud infrastructure
-- **Internal tools** (Ollama at api.nqh.vn)
+- **Internal tools** (Ollama at api.nhatquangholding.com)
 
 ---
 
@@ -219,7 +219,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/sdlc_test
           REDIS_URL: redis://localhost:6379
-          OLLAMA_API_URL: https://api.nqh.vn
+          OLLAMA_API_URL: https://api.nhatquangholding.com
         run: |
           # Zero Mock Policy - all tests use real services
           poetry run pytest tests/unit \

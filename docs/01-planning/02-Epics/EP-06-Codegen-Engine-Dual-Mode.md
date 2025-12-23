@@ -387,7 +387,7 @@ backend/app/schemas/codegen/
 ### 6.4. OSS Model Integration (NQH AI Platform - December 2025)
 
 > **IT Admin Infrastructure:** RTX 5090 32GB with 10 production models already deployed!
-> **API Endpoint:** `https://api.nqh.vn` (Cloudflare Tunnel to 192.168.1.2:11434)
+> **API Endpoint:** `https://api.nhatquangholding.com` (NAT to internal Ollama server)
 
 #### Available Models (via Continue.dev Training Docs)
 
@@ -453,7 +453,7 @@ backend/app/schemas/codegen/
 
 ```python
 # Configuration (backend/app/core/config.py)
-CODEGEN_OLLAMA_URL = "https://api.nqh.vn"  # IT Admin's Cloudflare Tunnel
+CODEGEN_OLLAMA_URL = "https://api.nhatquangholding.com"  # NAT via router
 CODEGEN_MODEL_PRIMARY = "qwen2.5-coder:32b-instruct-q4_K_M"  # 92.7% HumanEval!
 CODEGEN_MODEL_FAST = "qwen2.5:14b-instruct"  # For autocomplete
 CODEGEN_MODEL_VIETNAMESE = "qwen3:14b"  # For Vietnamese prompts

@@ -175,7 +175,7 @@ Week 3-4 (Dec 30 - Jan 10): Gate G4 Prep
 
 | Port | Service | Public URL | Status |
 |------|---------|------------|--------|
-| **8300** | Backend API | https://sdlc-api.nqh.vn | ✅ Approved |
+| **8300** | Backend API | https://sdlc-api.nhatquangholding.com | ✅ Approved |
 | **8310** | Frontend | https://sdlc.nqh.vn | ✅ Approved |
 | 5450 | PostgreSQL | Internal only | ✅ Approved |
 | 6395 | Redis | Internal only | ✅ Approved |
@@ -185,7 +185,7 @@ Week 3-4 (Dec 30 - Jan 10): Gate G4 Prep
 
 **IT Team Contact**: dvhiep@nqh.com.vn (0938559119)
 
-**Action Required**: Configure Cloudflare Tunnel routes for `sdlc.nqh.vn` and `sdlc-api.nqh.vn` before deployment.
+**Action Required**: Configure Cloudflare Tunnel routes for `sdlc.nqh.vn` and `sdlc-api.nhatquangholding.com` before deployment.
 
 ---
 

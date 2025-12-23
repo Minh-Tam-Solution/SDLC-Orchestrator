@@ -691,7 +691,7 @@ Critical Systems:
     - Archives: s3://sdlc-archives-prod
 
   Dependencies:
-    - Ollama AI: https://api.nqh.vn
+    - Ollama AI: https://api.nhatquangholding.com
     - GitHub: https://api.github.com
     - Jenkins: https://jenkins.sdlc-orchestrator.com
 ```

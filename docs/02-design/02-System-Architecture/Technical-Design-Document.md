@@ -1289,7 +1289,7 @@ graph TB
 
     subgraph "AI Gateway (ADR-007)"
         GW[AI Gateway]
-        OLLAMA[Ollama<br/>api.nqh.vn]
+        OLLAMA[Ollama<br/>api.nhatquangholding.com]
         CLAUDE[Claude<br/>Anthropic]
         GPT[GPT-4<br/>OpenAI]
     end

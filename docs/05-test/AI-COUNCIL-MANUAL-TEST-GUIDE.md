@@ -46,7 +46,7 @@ Stage 3: Chairman Synthesis
 ✅ **Frontend**: Running on http://localhost:8310
 ✅ **Database**: PostgreSQL with seed data loaded
 ✅ **AI Providers**:
-- Ollama (api.nqh.vn) - Primary
+- Ollama (api.nhatquangholding.com) - Primary
 - Claude API key configured (fallback)
 - GPT-4o API key configured (fallback)
 
@@ -385,7 +385,7 @@ After deliberating with multiple AI experts, here's the recommended RBAC impleme
 - Check backend logs: `docker logs sdlc-backend | grep -i council`
 - Verify AI providers configured in `.env`:
   ```bash
-  OLLAMA_API_URL=http://api.nqh.vn
+  OLLAMA_API_URL=http://api.nhatquangholding.com
   ANTHROPIC_API_KEY=sk-ant-xxx
   OPENAI_API_KEY=sk-xxx
   ```

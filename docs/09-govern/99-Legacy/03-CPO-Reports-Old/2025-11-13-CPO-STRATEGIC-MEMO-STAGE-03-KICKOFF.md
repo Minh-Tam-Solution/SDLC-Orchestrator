@@ -39,7 +39,7 @@ Quality: Production-ready code + architecture
 
 Key Components:
   1. ✅ Multi-Provider Strategy:
-     - Primary: Ollama (api.nqh.vn) - $0.001/1K tokens
+     - Primary: Ollama (api.nhatquangholding.com) - $0.001/1K tokens
      - Fallback 1: Claude (Anthropic) - $0.045/1K tokens
      - Fallback 2: GPT-4 (OpenAI) - $0.045/1K tokens
      - Automatic fallback on failure
@@ -196,7 +196,7 @@ Before (Cloud-Only):
   Claude API: $1,000/month × 12 = $12,000/year
   
 After (Ollama + Cloud Fallback):
-  Ollama (api.nqh.vn): $50/month × 12 = $600/year
+  Ollama (api.nhatquangholding.com): $50/month × 12 = $600/year
   Cloud fallback (20%): $200/month × 12 = $2,400/year
   Total: $3,000/year
   
@@ -308,7 +308,7 @@ Priority 2: AI Context Engine (CRITICAL 🔴)
   Target: 95% cost savings validated
   
   Tasks:
-    - [ ] Ollama provider (api.nqh.vn)
+    - [ ] Ollama provider (api.nhatquangholding.com)
     - [ ] Claude fallback provider
     - [ ] GPT-4 fallback provider
     - [ ] Cost tracking and budget controls

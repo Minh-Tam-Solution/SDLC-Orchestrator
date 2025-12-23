@@ -184,7 +184,7 @@ Human-Required Tasks (Critical):
   ✅ Gate approvals
 
 AI Provider Strategy:
-  Primary: Ollama (api.nqh.vn) - $50/month, <100ms
+  Primary: Ollama (api.nhatquangholding.com) - $50/month, <100ms
   Fallback 1: Claude (Anthropic) - $1000/month
   Fallback 2: GPT-4 (OpenAI) - $800/month
   Fallback 3: Rule-based - $0/month

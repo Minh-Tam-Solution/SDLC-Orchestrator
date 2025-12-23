@@ -16,7 +16,7 @@ Day 4 focused on **unblocking database migrations**, **executing smoke tests**, 
 ### Key Achievements
 - ✅ **Database Migration Blocker Resolved** - 36 tables created (exceeds 24-table target)
 - ✅ **P1 Critical Fix** - Added missing SECRET_KEY, JWT auth now working
-- ✅ **External Access Enabled** - https://sdlc.nqh.vn + https://sdlc-api.nqh.vn verified
+- ✅ **External Access Enabled** - https://sdlc.nqh.vn + https://sdlc-api.nhatquangholding.com verified
 - ✅ **Smoke Tests Executed** - 6/8 tests passed (75% success rate)
 - ⚠️ **P2 Issue Documented** - Gates API schema mismatch (non-blocking, has workaround)
 
@@ -44,7 +44,7 @@ Day 4 focused on **unblocking database migrations**, **executing smoke tests**, 
 - Updated Cloudflare Tunnel ingress rules for production endpoints
 - Added DNS routes via Cloudflare Dashboard:
   - `sdlc.nqh.vn` → http://localhost:8310 (Frontend)
-  - `sdlc-api.nqh.vn` → http://localhost:8300 (Backend API)
+  - `sdlc-api.nhatquangholding.com` → http://localhost:8300 (Backend API)
 - Restarted cloudflared tunnel daemon
 - Verified external HTTPS access
 
@@ -61,11 +61,11 @@ HTTP/2 200
 content-type: text/html
 
 # Backend API Access
-$ curl https://sdlc-api.nqh.vn/health
+$ curl https://sdlc-api.nhatquangholding.com/health
 {"status":"healthy","version":"1.1.0","service":"sdlc-orchestrator-backend"}
 
 # External Auth Test
-$ curl -X POST https://sdlc-api.nqh.vn/api/v1/auth/login \
+$ curl -X POST https://sdlc-api.nhatquangholding.com/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@sdlc-orchestrator.io","password":"Admin@123"}'
 {"access_token":"eyJhbGci...","token_type":"bearer"}
@@ -242,7 +242,7 @@ LIMIT 5;
 
 **Create New Gates** (POST endpoint works):
 ```bash
-curl -X POST https://sdlc-api.nqh.vn/api/v1/gates \
+curl -X POST https://sdlc-api.nhatquangholding.com/api/v1/gates \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -331,7 +331,7 @@ Apply thresholds from [MONITORING-ALERT-THRESHOLDS.md](../03-Deployment-Guides/M
 ### Security Scan Results
 ```bash
 # Backend Security Headers
-$ curl -I https://sdlc-api.nqh.vn/health
+$ curl -I https://sdlc-api.nhatquangholding.com/health
 strict-transport-security: max-age=31536000; includeSubDomains; preload
 content-security-policy: default-src 'self'; ...
 x-frame-options: DENY
@@ -538,7 +538,7 @@ sdlc-alertmanager    Up 4 hours       0.0.0.0:9095->9093/tcp
 > "DB migrations working - 36 tables operational. Fixed SECRET_KEY missing (P1). Gates API needs schema fix (P2) - 3 options documented, recommend Option A + C for Sprint 34 Day 1."
 
 ### DevOps Team Update
-> "Cloudflare Tunnel configured - sdlc.nqh.vn + sdlc-api.nqh.vn verified working. All external endpoints accessible via HTTPS. Monitoring alerts pending Day 5."
+> "Cloudflare Tunnel configured - sdlc.nqh.vn + sdlc-api.nhatquangholding.com verified working. All external endpoints accessible via HTTPS. Monitoring alerts pending Day 5."
 
 ---
 

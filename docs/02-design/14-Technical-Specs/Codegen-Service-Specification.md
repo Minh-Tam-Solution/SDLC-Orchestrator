@@ -94,7 +94,7 @@ This specification defines the technical implementation of the Codegen Service -
         │
         v
 ┌───────────────────────────────────────────────────────────────┐
-│              External: Ollama API (api.nqh.vn)                │
+│              External: Ollama API (api.nhatquangholding.com)                │
 │              Model: qwen2.5-coder:14b                         │
 └───────────────────────────────────────────────────────────────┘
 
@@ -662,7 +662,7 @@ class Settings(BaseSettings):
     # ... existing settings ...
 
     # Codegen Provider Settings
-    OLLAMA_API_URL: str = "https://api.nqh.vn"
+    OLLAMA_API_URL: str = "https://api.nhatquangholding.com"
     OLLAMA_CODEGEN_MODEL: str = "qwen2.5-coder:14b"
     OLLAMA_TIMEOUT_SECONDS: int = 60
     OLLAMA_MAX_RETRIES: int = 3
@@ -910,7 +910,7 @@ echo "=== Codegen Service Smoke Test ==="
 
 # 1. Check Ollama availability
 echo "1. Checking Ollama availability..."
-curl -sf "${OLLAMA_API_URL:-https://api.nqh.vn}/api/tags" > /dev/null || {
+curl -sf "${OLLAMA_API_URL:-https://api.nhatquangholding.com}/api/tags" > /dev/null || {
     echo "ERROR: Ollama not reachable"
     exit 1
 }
@@ -986,7 +986,7 @@ echo "=== All smoke tests passed ==="
 # .env.example (additions)
 
 # Codegen - Ollama (Primary)
-OLLAMA_API_URL=https://api.nqh.vn
+OLLAMA_API_URL=https://api.nhatquangholding.com
 OLLAMA_CODEGEN_MODEL=qwen2.5-coder:14b
 OLLAMA_TIMEOUT_SECONDS=60
 OLLAMA_MAX_RETRIES=3
@@ -1008,7 +1008,7 @@ services:
   # ... existing services ...
 
   # No additional containers needed - Ollama is external
-  # Just ensure network access to api.nqh.vn
+  # Just ensure network access to api.nhatquangholding.com
 ```
 
 ### 7.3 Kubernetes (Production)
@@ -1020,7 +1020,7 @@ kind: ConfigMap
 metadata:
   name: codegen-config
 data:
-  OLLAMA_API_URL: "https://api.nqh.vn"
+  OLLAMA_API_URL: "https://api.nhatquangholding.com"
   OLLAMA_CODEGEN_MODEL: "qwen2.5-coder:14b"
   CODEGEN_DEFAULT_PROVIDER: "ollama"
   CODEGEN_FALLBACK_CHAIN: "ollama,claude,deepcode"

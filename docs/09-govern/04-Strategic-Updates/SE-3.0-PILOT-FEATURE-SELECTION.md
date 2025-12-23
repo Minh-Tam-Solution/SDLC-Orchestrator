@@ -91,7 +91,7 @@ NQH-Bot generates Standard Operating Procedures (SOPs) from workflow description
 **Dependencies:**
 - Framework submodule (already set up ✅)
 - NQH-Bot codebase access (available ✅)
-- Ollama API (api.nqh.vn, operational ✅)
+- Ollama API (api.nhatquangholding.com, operational ✅)
 - ISO 9001 SOP quality criteria (needs PM/PO definition ⚠️)
 
 ### **Risk Mitigation Plan**
@@ -109,7 +109,7 @@ NQH-Bot generates Standard Operating Procedures (SOPs) from workflow description
 - **Probability:** 30% (Ollama primary provider is cheap)
 - **Mitigation:**
   - Monitor weekly agent cost during pilot
-  - Use Ollama (api.nqh.vn) as primary ($0.001/token)
+  - Use Ollama (api.nhatquangholding.com) as primary ($0.001/token)
   - Fallback to Claude only if Ollama quality insufficient
 
 **Risk 3: NQH-Bot Integration Breaks Existing Functionality**
@@ -177,7 +177,7 @@ NQH needs ISO 9001 compliant SOPs for all documented workflows. Current manual p
 
 **Technology Stack:**
 - NQH-Bot (existing Python FastAPI backend)
-- Ollama (api.nqh.vn) for AI generation
+- Ollama (api.nhatquangholding.com) for AI generation
 - Framework SOP templates (SDLC-Enterprise-Framework/03-Templates-Tools/SOP-Templates/)
 
 **Performance Budget:**
@@ -347,7 +347,7 @@ NQH needs ISO 9001 compliant SOPs for all documented workflows. Current manual p
 - ✅ Backward compatible: Old NQH-Bot data unaffected
 
 **Configuration:**
-- ⚠️ New env var: `OLLAMA_API_URL` (default: api.nqh.vn, required for SOP generation)
+- ⚠️ New env var: `OLLAMA_API_URL` (default: api.nhatquangholding.com, required for SOP generation)
 - ✅ Fallback: Uses Claude if Ollama unavailable (graceful degradation)
 
 ---
@@ -371,7 +371,7 @@ git revert <commit-hash-range>
 kubectl rollout undo deployment/nqh-bot
 
 # Step 4: Verify
-curl https://api.nqh.vn/api/v1/nqh-bot/generate-sop
+curl https://api.nhatquangholding.com/api/v1/nqh-bot/generate-sop
 # Should return 404 (endpoint disabled)
 ```
 
@@ -649,7 +649,7 @@ curl https://api.nqh.vn/api/v1/nqh-bot/generate-sop
 **Day 2 (Dec 17): NQH-Bot Integration**
 - [ ] Create API endpoint: POST /api/v1/nqh-bot/generate-sop
 - [ ] Implement SOP generator service (read Framework template)
-- [ ] Integrate Ollama API (api.nqh.vn)
+- [ ] Integrate Ollama API (api.nhatquangholding.com)
 - [ ] Add input validation (max 2000 words, markdown sanitization)
 - [ ] **Deliverable:** Working SOP generation endpoint
 
@@ -784,7 +784,7 @@ Net ROI:
 
 - [ ] **Secure Resources**
   - [ ] Confirm NQH-Bot codebase access
-  - [ ] Verify Ollama API (api.nqh.vn) operational
+  - [ ] Verify Ollama API (api.nhatquangholding.com) operational
   - [ ] Assign 2 pilot users (Backend Developer + QA Lead)
 
 - [ ] **Framework-First Preparation**

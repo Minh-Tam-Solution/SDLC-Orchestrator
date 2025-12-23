@@ -70,7 +70,7 @@ Following NQH allocation strategy:
 | Subdomain | Public URL | Local Service | Port | Status |
 |-----------|------------|---------------|------|--------|
 | sdlc | https://sdlc.nqh.vn | localhost:8310 | 8310 | ✅ Approved |
-| sdlc-api | https://sdlc-api.nqh.vn | localhost:8300 | 8300 | ✅ Approved |
+| sdlc-api | https://sdlc-api.nhatquangholding.com | localhost:8300 | 8300 | ✅ Approved |
 
 ---
 
@@ -128,7 +128,7 @@ ALLOWED_ORIGINS=http://localhost:8310,https://sdlc.nqh.vn
 2. **Database Setup**: Create PostgreSQL database on port 5450
 3. **Redis Instance**: Configure Redis on port 6395
 4. **MinIO Setup**: Deploy MinIO on ports 9010/9011
-5. **Cloudflare Tunnel**: Add routes for sdlc.nqh.vn and sdlc-api.nqh.vn
+5. **Cloudflare Tunnel**: Add routes for sdlc.nqh.vn and sdlc-api.nhatquangholding.com
 6. **Firewall Rules**: Open necessary ports for internal access
 
 ---

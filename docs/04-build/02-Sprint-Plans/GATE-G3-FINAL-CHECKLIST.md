@@ -19,7 +19,7 @@ Sprint 33 successfully delivered a **production-ready SDLC Orchestrator** with *
 - ✅ **36 Database Tables** created (target: 24+, **+50%**)
 - ✅ **100% Smoke Tests** passed (target: 80%, **+25%**)
 - ✅ **Zero P0/P1 Bugs** (target: 0)
-- ✅ **External HTTPS Access** verified (sdlc.nqh.vn + sdlc-api.nqh.vn)
+- ✅ **External HTTPS Access** verified (sdlc.nqh.vn + sdlc-api.nhatquangholding.com)
 - ✅ **OWASP ASVS Level 2** compliance (98.4%, target: 90%)
 
 **Recommendation**: ✅ **APPROVE G3 - Ship Ready**
@@ -63,9 +63,9 @@ Sprint 33 successfully delivered a **production-ready SDLC Orchestrator** with *
 
 | Criterion | Target | Actual | Status | Evidence |
 |-----------|--------|--------|--------|----------|
-| **HTTPS Access** | Working | https://sdlc.nqh.vn + https://sdlc-api.nqh.vn | ✅ PASS | [Cloudflare Verification](SPRINT-33-DAY4-STATUS-REPORT.md#task-1) |
+| **HTTPS Access** | Working | https://sdlc.nqh.vn + https://sdlc-api.nhatquangholding.com | ✅ PASS | [Cloudflare Verification](SPRINT-33-DAY4-STATUS-REPORT.md#task-1) |
 | **Cloudflare Tunnel** | Configured | Zero Trust + DDoS protection | ✅ PASS | [Config](../../../.cloudflared/config.yml) |
-| **TLS Version** | 1.3 | TLS 1.3 enforced | ✅ PASS | `curl -I https://sdlc-api.nqh.vn \| grep -i tls` |
+| **TLS Version** | 1.3 | TLS 1.3 enforced | ✅ PASS | `curl -I https://sdlc-api.nhatquangholding.com \| grep -i tls` |
 | **Security Headers** | OWASP ASVS L2 | All headers present (CSP, HSTS, X-Frame, etc) | ✅ PASS | [Smoke Test](SPRINT-33-DAY4-STATUS-REPORT.md#security--compliance) |
 | **CORS Configuration** | Configured | Allowed origins: sdlc.nqh.vn + dev ports | ✅ PASS | [.env.production](../../../.env.production) |
 | **JWT Secret Rotation** | Ready | SECRET_KEY configured, 90-day rotation plan | ✅ PASS | [Security Baseline](../../02-Design-Architecture/Security-Baseline.md) |

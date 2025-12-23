@@ -20,7 +20,7 @@ Usage:
     python3 backend/scripts/test_e2e_sop_workflow.py
 
 Requirements:
-    - Ollama running at http://api.nqh.vn:11434 (or OLLAMA_URL env)
+    - Ollama running at http://api.nhatquangholding.com:11434 (or OLLAMA_URL env)
     - Backend API running at http://localhost:8000 (or API_URL env)
 
 BRS Reference: BRS-PILOT-001-NQH-Bot-SOP-Generator.yaml
@@ -41,7 +41,7 @@ import requests
 # ============================================================================
 
 API_URL = os.getenv("API_URL", "http://localhost:8000/api/v1")
-OLLAMA_URL = os.getenv("OLLAMA_URL", "http://api.nqh.vn:11434")
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://api.nhatquangholding.com:11434")
 
 # Test data for all 5 SOP types
 TEST_WORKFLOWS = {

@@ -183,7 +183,7 @@
 
 **Backend Settings**:
 ```yaml
-OLLAMA_URL: http://api.nqh.vn:11434
+OLLAMA_URL: http://api.nhatquangholding.com:11434
 OLLAMA_MODEL: qwen2.5:14b-instruct
 DATABASE_URL: postgresql://user:pass@localhost:5432/sdlc
 REDIS_URL: redis://localhost:6379

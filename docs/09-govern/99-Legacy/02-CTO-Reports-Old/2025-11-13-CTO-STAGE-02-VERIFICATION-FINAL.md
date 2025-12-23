@@ -224,7 +224,7 @@ CTO Quote:
 **Why INNOVATION**:
 ```yaml
 Achievement:
-  - Ollama AI integration (api.nqh.vn existing infra)
+  - Ollama AI integration (api.nhatquangholding.com existing infra)
   - Cost: $50/month (vs $1,000 Claude) = 95% savings
   - Latency: <100ms (vs 300ms cloud) = 3x faster
   - Privacy: No external API calls (compliance win)

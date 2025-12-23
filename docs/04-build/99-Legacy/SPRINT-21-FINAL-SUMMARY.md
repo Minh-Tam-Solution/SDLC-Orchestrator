@@ -88,7 +88,7 @@ async def cancel_job(job_id)  # Manual cancellation
 
 **AI Provider Chain**:
 ```
-Primary:   Ollama (api.nqh.vn) - $50/month, <100ms
+Primary:   Ollama (api.nhatquangholding.com) - $50/month, <100ms
 Fallback1: Claude (Anthropic) - $1000/month, 300ms
 Fallback2: GPT-4 (OpenAI) - $800/month, 250ms
 Fallback3: Rule-based - $0/month, 50ms

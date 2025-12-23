@@ -156,7 +156,7 @@ curl -X POST http://localhost:8310/api/v1/auth/login -d '{"email":"test","passwo
 
 **Public Routes (Planned)**:
 - Frontend: https://sdlc.nqh.vn → localhost:8310
-- Backend API: https://sdlc-api.nqh.vn → localhost:8300
+- Backend API: https://sdlc-api.nhatquangholding.com → localhost:8300
 
 ---
 

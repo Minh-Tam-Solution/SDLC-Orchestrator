@@ -232,7 +232,7 @@ Gate G2 (Design Ready) validates that the SDLC Orchestrator system architecture,
 - Alertmanager (alert routing, Slack/PagerDuty)
 
 **AI Integration** ⭐ **INNOVATION**:
-- **Primary**: Ollama (api.nqh.vn) - $50/month, <100ms latency
+- **Primary**: Ollama (api.nhatquangholding.com) - $50/month, <100ms latency
 - **Fallback 1**: Claude 3.5 Sonnet - $1,000/month, 300ms
 - **Fallback 2**: GPT-4o - $800/month, 250ms
 - **Fallback 3**: Rule-based - $0/month, 50ms
@@ -345,7 +345,7 @@ Gate G2 (Design Ready) validates that the SDLC Orchestrator system architecture,
 **Risk**: AI API costs exceed budget ($500/month target)
 
 **Mitigation** ✅ **COMPLETE** (ADR-007):
-- ✅ Primary: Ollama (api.nqh.vn) - $50/month, 95% cost savings
+- ✅ Primary: Ollama (api.nhatquangholding.com) - $50/month, 95% cost savings
 - ✅ Fallback cascade: Claude → GPT-4 → Rule-based
 - ✅ Cost monitoring (budget alerts at 80% usage)
 - ✅ Rate limiting (10 requests/min per user)

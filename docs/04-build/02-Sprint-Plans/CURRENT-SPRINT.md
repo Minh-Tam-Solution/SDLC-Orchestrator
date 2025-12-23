@@ -500,7 +500,7 @@ CIRCUIT_BREAKER_ENABLED=true
 - [x] Staging infrastructure healthy (8/8 services) ✅ **DAY 2 COMPLETE** (DB migration deferred)
 - [x] Production environment deployed (9/9 services, port 8300 backend) ✅ **DAY 3 COMPLETE**
 - [x] Beta environment deployed (9/9 services, isolated network) ✅ **DAY 3 COMPLETE**
-- [x] Cloudflare Tunnel configured (sdlc.nqh.vn + sdlc-api.nqh.vn) ✅ **DAY 3 COMPLETE** (DNS pending)
+- [x] Cloudflare Tunnel configured (sdlc.nqh.vn + sdlc-api.nhatquangholding.com) ✅ **DAY 3 COMPLETE** (DNS pending)
 - [ ] External access verified (after DNS routes added)
 - [ ] 5 teams onboarded (38 users total)
 - [ ] Monitoring & alerting operational
@@ -534,7 +534,7 @@ CIRCUIT_BREAKER_ENABLED=true
 **Port Allocation**: ✅ **APPROVED** (Nov 29, 2025)
 **Cloudflare Tunnel**: ⏳ Pending setup
 - `sdlc.nqh.vn` → Frontend (port 8310)
-- `sdlc-api.nqh.vn` → Backend (port 8300)
+- `sdlc-api.nhatquangholding.com` → Backend (port 8300)
 
 **Services Health**: 8/8 ✅ All healthy
 

@@ -189,7 +189,7 @@ Sprint 33 planning successfully completed and pushed to GitHub. Comprehensive pl
 
 **Configuration**:
 - `sdlc.nqh.vn` → Frontend (port 8310)
-- `sdlc-api.nqh.vn` → Backend (port 8300)
+- `sdlc-api.nhatquangholding.com` → Backend (port 8300)
 
 **Status**: ⏳ Pending setup (Day 3 - Dec 18)
 

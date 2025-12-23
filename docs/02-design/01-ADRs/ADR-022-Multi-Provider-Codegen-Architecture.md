@@ -280,7 +280,7 @@ class OllamaCodegenProvider(CodegenProvider):
     """
 
     def __init__(self):
-        self.base_url = settings.OLLAMA_API_URL  # https://api.nqh.vn
+        self.base_url = settings.OLLAMA_API_URL  # https://api.nhatquangholding.com
         self.model = settings.OLLAMA_CODEGEN_MODEL  # qwen2.5-coder:14b
         self._available: bool = False
         self._check_availability()
@@ -783,7 +783,7 @@ codegen:
   providers:
     ollama:
       enabled: true
-      base_url: "https://api.nqh.vn"
+      base_url: "https://api.nhatquangholding.com"
       model: "qwen2.5-coder:14b"
       timeout_seconds: 60
       max_retries: 3
@@ -800,7 +800,7 @@ codegen:
 
 ```bash
 # .env
-OLLAMA_API_URL=https://api.nqh.vn
+OLLAMA_API_URL=https://api.nhatquangholding.com
 OLLAMA_CODEGEN_MODEL=qwen2.5-coder:14b
 ANTHROPIC_API_KEY=  # Optional, for Claude fallback
 ```

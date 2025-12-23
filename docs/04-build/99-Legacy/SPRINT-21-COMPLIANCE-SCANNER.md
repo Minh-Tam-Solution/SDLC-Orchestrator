@@ -288,7 +288,7 @@ async def get_scan_history(
 """
 Ollama AI Service - Stage-Aware Recommendations
 
-Uses local Ollama (api.nqh.vn) for 95% cost savings.
+Uses local Ollama (api.nhatquangholding.com) for 95% cost savings.
 Fallback: Claude > GPT-4o > Gemini > Rule-based
 """
 import httpx
@@ -304,7 +304,7 @@ class OllamaService:
     """
 
     def __init__(self):
-        self.base_url = settings.OLLAMA_BASE_URL  # http://api.nqh.vn:11434
+        self.base_url = settings.OLLAMA_BASE_URL  # http://api.nhatquangholding.com:11434
         self.model = settings.OLLAMA_MODEL  # qwen2.5-coder:32b
 
     async def generate_recommendation(
@@ -406,7 +406,7 @@ async def list_ai_providers() -> List[AIProviderStatus]:
 ```
 
 ### Success Criteria
-- [ ] Ollama service connected to api.nqh.vn
+- [ ] Ollama service connected to api.nhatquangholding.com
 - [ ] AI recommendations generated for violations
 - [ ] Fallback chain working (Ollama > Claude > GPT-4o)
 - [ ] Response time <100ms (Ollama)

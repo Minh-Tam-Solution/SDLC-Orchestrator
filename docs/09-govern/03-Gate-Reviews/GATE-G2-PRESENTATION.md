@@ -72,7 +72,7 @@ INFRASTRUCTURE (PostgreSQL, Redis, OPA, MinIO, Grafana - OSS components)
 ### **Key Innovation** ⭐
 
 **AI Integration (ADR-007)**:
-- Primary: Ollama (api.nqh.vn) - $50/month, <100ms latency
+- Primary: Ollama (api.nhatquangholding.com) - $50/month, <100ms latency
 - **95% cost savings** vs Claude ($1,000/month), **3x faster**
 
 ---

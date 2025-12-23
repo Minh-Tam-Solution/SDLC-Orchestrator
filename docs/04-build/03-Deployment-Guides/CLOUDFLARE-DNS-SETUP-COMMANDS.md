@@ -41,7 +41,7 @@
    - You should now see 2 new entries in the Public Hostnames list:
      ```
      sdlc.nqh.vn → http://localhost:8310
-     sdlc-api.nqh.vn → http://localhost:8300
+     sdlc-api.nhatquangholding.com → http://localhost:8300
      ```
 
 ### Option B: Via CLI (Requires Authentication)
@@ -53,7 +53,7 @@ If you have cloudflared authenticated and prefer CLI:
 cloudflared tunnel route dns my-tunnel sdlc.nqh.vn
 
 # Add backend API hostname
-cloudflared tunnel route dns my-tunnel sdlc-api.nqh.vn
+cloudflared tunnel route dns my-tunnel sdlc-api.nhatquangholding.com
 ```
 
 **Note**: If you get "Authentication error", use Option A (Dashboard) instead.
@@ -149,10 +149,10 @@ dig sdlc.nqh.vn
 # sdlc.nqh.vn.  300  IN  CNAME  4eb54608-b582-450e-b081-bd6bcc8f59f9.cfargotunnel.com.
 
 # Backend API DNS
-dig sdlc-api.nqh.vn
+dig sdlc-api.nhatquangholding.com
 
 # Expected output includes:
-# sdlc-api.nqh.vn.  300  IN  CNAME  4eb54608-b582-450e-b081-bd6bcc8f59f9.cfargotunnel.com.
+# sdlc-api.nhatquangholding.com.  300  IN  CNAME  4eb54608-b582-450e-b081-bd6bcc8f59f9.cfargotunnel.com.
 ```
 
 ### Test External HTTPS Access
@@ -168,7 +168,7 @@ curl -I https://sdlc.nqh.vn
 # ...
 
 # Test backend API
-curl -I https://sdlc-api.nqh.vn/health
+curl -I https://sdlc-api.nhatquangholding.com/health
 
 # Expected output:
 # HTTP/2 200
@@ -177,7 +177,7 @@ curl -I https://sdlc-api.nqh.vn/health
 # ...
 
 # Get full health response
-curl -s https://sdlc-api.nqh.vn/health | python3 -m json.tool
+curl -s https://sdlc-api.nhatquangholding.com/health | python3 -m json.tool
 
 # Expected output:
 # {
@@ -198,13 +198,13 @@ curl -s https://sdlc-api.nqh.vn/health | python3 -m json.tool
 3. Check for errors:
    - ✅ No CORS errors
    - ✅ No CSP violations
-   - ✅ Network tab shows API calls to https://sdlc-api.nqh.vn
+   - ✅ Network tab shows API calls to https://sdlc-api.nhatquangholding.com
 
 ### Test CORS from Command Line
 
 ```bash
 # Test CORS preflight (OPTIONS request from allowed origin)
-curl -I -X OPTIONS https://sdlc-api.nqh.vn/health \
+curl -I -X OPTIONS https://sdlc-api.nhatquangholding.com/health \
   -H "Origin: https://sdlc.nqh.vn" \
   -H "Access-Control-Request-Method: GET"
 
@@ -214,7 +214,7 @@ curl -I -X OPTIONS https://sdlc-api.nqh.vn/health \
 # Access-Control-Allow-Headers: Content-Type, Authorization
 
 # Test CORS from disallowed origin (should fail)
-curl -I https://sdlc-api.nqh.vn/health \
+curl -I https://sdlc-api.nhatquangholding.com/health \
   -H "Origin: https://evil.com"
 
 # Expected: No Access-Control-Allow-Origin header or 403
@@ -316,11 +316,11 @@ curl http://localhost:8300/health
 
 After completing all steps, verify:
 
-- [ ] DNS routes added in Cloudflare Dashboard (sdlc.nqh.vn + sdlc-api.nqh.vn)
+- [ ] DNS routes added in Cloudflare Dashboard (sdlc.nqh.vn + sdlc-api.nhatquangholding.com)
 - [ ] Tunnel daemon restarted/reloaded
 - [ ] DNS resolution working (`dig sdlc.nqh.vn` returns CNAME)
 - [ ] Frontend accessible (`curl -I https://sdlc.nqh.vn` returns 200)
-- [ ] Backend API accessible (`curl -I https://sdlc-api.nqh.vn/health` returns 200)
+- [ ] Backend API accessible (`curl -I https://sdlc-api.nhatquangholding.com/health` returns 200)
 - [ ] CORS working (browser console clean, no errors)
 - [ ] CSP working (browser console clean, no violations)
 
@@ -338,19 +338,19 @@ echo "=== CLOUDFLARE TUNNEL VERIFICATION ==="
 echo -n "Frontend DNS (sdlc.nqh.vn): "
 dig +short sdlc.nqh.vn | grep -q "cfargotunnel.com" && echo "✅ OK" || echo "❌ FAIL"
 
-echo -n "Backend DNS (sdlc-api.nqh.vn): "
-dig +short sdlc-api.nqh.vn | grep -q "cfargotunnel.com" && echo "✅ OK" || echo "❌ FAIL"
+echo -n "Backend DNS (sdlc-api.nhatquangholding.com): "
+dig +short sdlc-api.nhatquangholding.com | grep -q "cfargotunnel.com" && echo "✅ OK" || echo "❌ FAIL"
 
 # 2. HTTPS Access
 echo -n "Frontend HTTPS: "
 curl -sf -I https://sdlc.nqh.vn > /dev/null 2>&1 && echo "✅ OK" || echo "❌ FAIL"
 
 echo -n "Backend HTTPS: "
-curl -sf -I https://sdlc-api.nqh.vn/health > /dev/null 2>&1 && echo "✅ OK" || echo "❌ FAIL"
+curl -sf -I https://sdlc-api.nhatquangholding.com/health > /dev/null 2>&1 && echo "✅ OK" || echo "❌ FAIL"
 
 # 3. Backend Health
 echo "Backend Health Response:"
-curl -s https://sdlc-api.nqh.vn/health | python3 -m json.tool
+curl -s https://sdlc-api.nhatquangholding.com/health | python3 -m json.tool
 
 # 4. Tunnel Status
 echo -e "\nTunnel Connections:"

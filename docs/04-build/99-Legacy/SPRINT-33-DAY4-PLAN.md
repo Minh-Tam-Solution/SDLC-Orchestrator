@@ -34,7 +34,7 @@
 1. Add DNS routes via Cloudflare Dashboard:
    - Navigate to: Zero Trust → Networks → Tunnels → `my-tunnel`
    - Add hostname: `sdlc.nqh.vn` → `http://localhost:8310`
-   - Add hostname: `sdlc-api.nqh.vn` → `http://localhost:8300`
+   - Add hostname: `sdlc-api.nhatquangholding.com` → `http://localhost:8300`
 
 2. Reload tunnel daemon:
    ```bash
@@ -44,7 +44,7 @@
 3. Verify external access (wait 2-5 min for DNS):
    ```bash
    curl -I https://sdlc.nqh.vn
-   curl -I https://sdlc-api.nqh.vn/health
+   curl -I https://sdlc-api.nhatquangholding.com/health
    ```
 
 **Expected Output**:
@@ -149,7 +149,7 @@ server: cloudflare
 #### **Test 1: Auth (Login + JWT) - 10 min**
 ```bash
 # Login
-curl -X POST https://sdlc-api.nqh.vn/api/v1/auth/login \
+curl -X POST https://sdlc-api.nhatquangholding.com/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin123"}'
 
@@ -160,7 +160,7 @@ TOKEN="<access_token_from_above>"
 
 # Test authenticated endpoint
 curl -H "Authorization: Bearer $TOKEN" \
-  https://sdlc-api.nqh.vn/api/v1/projects
+  https://sdlc-api.nhatquangholding.com/api/v1/projects
 
 # Expected: 200 OK with project list
 ```
@@ -173,11 +173,11 @@ curl -H "Authorization: Bearer $TOKEN" \
 ```bash
 # Get project ID
 PROJECT_ID=$(curl -s -H "Authorization: Bearer $TOKEN" \
-  https://sdlc-api.nqh.vn/api/v1/projects | \
+  https://sdlc-api.nhatquangholding.com/api/v1/projects | \
   python3 -c "import sys,json; print(json.load(sys.stdin)['items'][0]['id'])")
 
 # Evaluate gate
-curl -X POST https://sdlc-api.nqh.vn/api/v1/gates/evaluate \
+curl -X POST https://sdlc-api.nhatquangholding.com/api/v1/gates/evaluate \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d "{\"project_id\":\"$PROJECT_ID\",\"gate_type\":\"G0_1\"}"
@@ -195,7 +195,7 @@ curl -X POST https://sdlc-api.nqh.vn/api/v1/gates/evaluate \
 echo "Test evidence document" > /tmp/test_evidence.txt
 
 # Upload evidence
-EVIDENCE_RESP=$(curl -X POST https://sdlc-api.nqh.vn/api/v1/evidence \
+EVIDENCE_RESP=$(curl -X POST https://sdlc-api.nhatquangholding.com/api/v1/evidence \
   -H "Authorization: Bearer $TOKEN" \
   -F "file=@/tmp/test_evidence.txt" \
   -F "gate_id=$GATE_ID" \
@@ -206,7 +206,7 @@ EVIDENCE_ID=$(echo $EVIDENCE_RESP | python3 -c "import sys,json; print(json.load
 
 # Download evidence
 curl -H "Authorization: Bearer $TOKEN" \
-  https://sdlc-api.nqh.vn/api/v1/evidence/$EVIDENCE_ID/download \
+  https://sdlc-api.nhatquangholding.com/api/v1/evidence/$EVIDENCE_ID/download \
   -o /tmp/downloaded_evidence.txt
 
 # Verify checksum
@@ -222,13 +222,13 @@ diff /tmp/test_evidence.txt /tmp/downloaded_evidence.txt
 ```bash
 # Test AI context endpoint
 curl -H "Authorization: Bearer $TOKEN" \
-  https://sdlc-api.nqh.vn/api/v1/ai/context?gate_type=G0_1
+  https://sdlc-api.nhatquangholding.com/api/v1/ai/context?gate_type=G0_1
 
 # Expected: 200 OK with AI context payload
 
 # Test OPA policy fetch
 curl -H "Authorization: Bearer $TOKEN" \
-  https://sdlc-api.nqh.vn/api/v1/policies/gate/G0_1
+  https://sdlc-api.nhatquangholding.com/api/v1/policies/gate/G0_1
 
 # Expected: 200 OK with policy rules
 ```
@@ -260,13 +260,13 @@ open -na "Google Chrome" --args --incognito https://sdlc.nqh.vn
 ```bash
 # Test from allowed origin (should succeed)
 curl -I -H "Origin: https://sdlc.nqh.vn" \
-  https://sdlc-api.nqh.vn/api/v1/projects
+  https://sdlc-api.nhatquangholding.com/api/v1/projects
 
 # Expected: Access-Control-Allow-Origin: https://sdlc.nqh.vn
 
 # Test from disallowed origin (should fail)
 curl -I -H "Origin: https://evil.com" \
-  https://sdlc-api.nqh.vn/api/v1/projects
+  https://sdlc-api.nhatquangholding.com/api/v1/projects
 
 # Expected: No Access-Control-Allow-Origin header
 ```
@@ -293,7 +293,7 @@ docker run -e SECRET_KEY="short" sdlc-orchestrator-backend
 #### **Test 8: Health & Metrics - 10 min**
 ```bash
 # Backend health
-curl https://sdlc-api.nqh.vn/health
+curl https://sdlc-api.nhatquangholding.com/health
 # Expected: {"status":"healthy",...}
 
 # Prometheus scrape (internal)
@@ -386,7 +386,7 @@ curl http://localhost:9096/api/v1/query?query='rate(sdlc_http_requests_total{sta
 3. Test alert firing:
    ```bash
    # Trigger high latency (simulate slow query)
-   ab -n 1000 -c 50 https://sdlc-api.nqh.vn/api/v1/projects
+   ab -n 1000 -c 50 https://sdlc-api.nhatquangholding.com/api/v1/projects
    ```
 
 ---

@@ -666,7 +666,7 @@ Status: Active documentation. Used by all NQH development teams.''',
             'created_at': datetime(2025, 10, 5, 10, 0, 0),
             'updated_at': datetime(2025, 10, 15, 17, 0, 0),
             'approved_at': datetime(2025, 10, 15, 17, 0, 0),
-            'description': 'Event-driven architecture. Ollama integration at api.nqh.vn. Multi-tenant design.',
+            'description': 'Event-driven architecture. Ollama integration at api.nhatquangholding.com. Multi-tenant design.',
         },
         {
             'id': next_gate_id(),

@@ -7,7 +7,7 @@
 # Port Range: 8300-8399 (SDLC Platform)
 # Public URLs:
 #   - Frontend: https://sdlc.nqh.vn (port 8310)
-#   - Backend API: https://sdlc-api.nqh.vn (port 8300)
+#   - Backend API: https://sdlc-api.nhatquangholding.com (port 8300)
 # =============================================================================
 
 services:
@@ -124,7 +124,7 @@ services:
 
   # ============================================================================
   # FastAPI Backend (Production - Port 8300)
-  # Public URL: https://sdlc-api.nqh.vn
+  # Public URL: https://sdlc-api.nhatquangholding.com
   # ============================================================================
   backend:
     build:
@@ -160,7 +160,7 @@ services:
       ENVIRONMENT: production
       DEBUG: "false"
       LOG_LEVEL: INFO
-      ALLOWED_ORIGINS: https://sdlc.nqh.vn,https://sdlc-api.nqh.vn
+      ALLOWED_ORIGINS: https://sdlc.nqh.vn,https://sdlc-api.nhatquangholding.com
 
       # OAuth (Production URLs)
       OAUTH_REDIRECT_URL: https://sdlc.nqh.vn/auth/callback
@@ -197,7 +197,7 @@ services:
       context: ./frontend/web
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: https://sdlc-api.nqh.vn
+        VITE_API_URL: https://sdlc-api.nhatquangholding.com
     container_name: sdlc-prod-frontend
     restart: always
     ports:

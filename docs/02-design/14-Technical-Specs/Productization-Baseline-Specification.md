@@ -268,7 +268,7 @@ codegen:
   providers:
     ollama:
       enabled: true
-      base_url: "${OLLAMA_API_URL:https://api.nqh.vn}"
+      base_url: "${OLLAMA_API_URL:https://api.nhatquangholding.com}"
       model: "${OLLAMA_MODEL:qwen2.5-coder:14b}"
       timeout_seconds: 60
       max_retries: 3
@@ -321,7 +321,7 @@ codegen:
 # .env.production
 
 # Ollama (Primary)
-OLLAMA_API_URL=https://api.nqh.vn
+OLLAMA_API_URL=https://api.nhatquangholding.com
 OLLAMA_MODEL=qwen2.5-coder:14b
 
 # Claude (Fallback - optional)

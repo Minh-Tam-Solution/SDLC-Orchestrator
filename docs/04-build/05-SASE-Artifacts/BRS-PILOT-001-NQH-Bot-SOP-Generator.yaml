@@ -189,7 +189,7 @@ constraints:
   technical:
     - id: "TC1"
       type: "AI Provider"
-      description: "Use Ollama (api.nqh.vn) as primary AI provider"
+      description: "Use Ollama (api.nhatquangholding.com) as primary AI provider"
       rationale: "Cost-effective, <100ms latency, $50/month"
 
     - id: "TC2"
@@ -334,7 +334,7 @@ scope:
   dependencies:
     - id: "DEP1"
       type: "Infrastructure"
-      description: "Ollama API available at api.nqh.vn"
+      description: "Ollama API available at api.nhatquangholding.com"
       owner: "DevOps"
       status: "AVAILABLE"
 

@@ -83,7 +83,7 @@ PHASE-01 implements the **AI Council Service** - the core engine for AI-powered 
 
 ```yaml
 Provider Chain (Priority Order):
-  1. Ollama (api.nqh.vn):
+  1. Ollama (api.nhatquangholding.com):
      - Latency: <100ms
      - Cost: $50/month
      - Model: llama3.1:70b or similar
@@ -260,7 +260,7 @@ CREATE INDEX idx_tasks_session ON decomposed_tasks(session_id);
 ### Day 2: Ollama Integration (Dec 10)
 
 **Tasks**:
-1. Implement Ollama adapter (HTTP client to api.nqh.vn)
+1. Implement Ollama adapter (HTTP client to api.nhatquangholding.com)
 2. Create context builder (project state → prompt)
 3. Implement task parser (AI response → structured tasks)
 4. Integration tests with Ollama
@@ -373,7 +373,7 @@ CREATE INDEX idx_tasks_session ON decomposed_tasks(session_id);
 
 | Dependency | Owner | Status | Risk |
 |------------|-------|--------|------|
-| Ollama API (api.nqh.vn) | Infra Team | ✅ Available | Low |
+| Ollama API (api.nhatquangholding.com) | Infra Team | ✅ Available | Low |
 | Anthropic API key | DevOps | ✅ Available | Low |
 | OpenAI API key | DevOps | ✅ Available | Low |
 

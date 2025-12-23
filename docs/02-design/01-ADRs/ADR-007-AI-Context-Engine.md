@@ -18,7 +18,7 @@ SDLC Orchestrator requires AI capabilities for:
 5. **Automated suggestions** for gate approvals
 
 We have access to:
-- **Internal Infrastructure**: Ollama at `https://api.nqh.vn/` (qwen2.5:14b with 96.4% Vietnamese accuracy)
+- **Internal Infrastructure**: Ollama at `https://api.nhatquangholding.com/` (qwen2.5:14b with 96.4% Vietnamese accuracy)
 - **AI-Platform Heritage**: Battle-tested from BFlow/NQH-Bot/MTEP (86% test coverage, Zero Mock Policy)
 - **Cloud Providers**: OpenAI (GPT-4), Anthropic (Claude 3), Google (Gemini)
 
@@ -28,7 +28,7 @@ We have access to:
 
 We will implement a **Hybrid AI Architecture** with:
 
-1. **Primary**: Internal Ollama API (api.nqh.vn) for cost-effective, private processing
+1. **Primary**: Internal Ollama API (api.nhatquangholding.com) for cost-effective, private processing
 2. **Fallback**: Cloud providers (Claude → GPT-4 → Gemini) for advanced reasoning
 3. **Orchestration**: Unified AI Gateway with provider abstraction
 4. **Context Management**: Stage-aware prompting with evidence inclusion
@@ -78,10 +78,10 @@ class AIProvider(ABC):
         pass
 
 class OllamaProvider(AIProvider):
-    """Internal Ollama at api.nqh.vn"""
+    """Internal Ollama at api.nhatquangholding.com"""
 
     def __init__(self):
-        self.base_url = "https://api.nqh.vn"
+        self.base_url = "https://api.nhatquangholding.com"
         self.model = "qwen2.5:14b"  # 96.4% Vietnamese accuracy
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
@@ -626,7 +626,7 @@ class AICostManager:
 
 ### Phase 1: Foundation (Week 1 BUILD)
 - [ ] Setup AI Gateway with provider abstraction
-- [ ] Implement Ollama provider with api.nqh.vn
+- [ ] Implement Ollama provider with api.nhatquangholding.com
 - [ ] Add Claude and OpenAI providers
 - [ ] Create context engine with stage-aware prompting
 - [ ] Add Redis caching layer
