@@ -1,6 +1,6 @@
 # sdlcctl - SDLC 5.0.0 Structure Validator CLI
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Framework**: SDLC 5.0.0
 **Author**: SDLC Orchestrator Team
 
@@ -347,6 +347,126 @@ sdlcctl validate --team-size 25  # → PROFESSIONAL
 
 # Explicit tier
 sdlcctl validate --tier enterprise
+```
+
+---
+
+## Configuration (.sdlc-config.json)
+
+sdlcctl supports project-specific configuration via `.sdlc-config.json`. Place this file in your project root or docs folder.
+
+### Minimal Configuration
+
+```json
+{
+  "tier": "professional",
+  "docs_root": "docs"
+}
+```
+
+### Full Configuration Example
+
+```json
+{
+  "$schema": "https://sdlc-orchestrator.com/schemas/config-v1.json",
+  "validators": [
+    "stage-folder",
+    "sequential-numbering",
+    "naming-convention",
+    "header-metadata",
+    "cross-reference"
+  ],
+  "rules": {
+    "STAGE-001": { "enabled": true, "severity": "ERROR", "auto_fix": true },
+    "STAGE-002": { "enabled": true, "severity": "ERROR" },
+    "STAGE-003": { "enabled": true, "severity": "WARNING", "auto_fix": true },
+    "STAGE-005": { "enabled": true, "severity": "ERROR" },
+    "NUM-001": { "enabled": true, "severity": "ERROR" },
+    "NUM-002": { "enabled": true, "severity": "INFO", "auto_fix": true },
+    "NUM-003": { "enabled": true, "severity": "WARNING", "auto_fix": true },
+    "NAME-001": { "enabled": true, "severity": "WARNING", "auto_fix": true },
+    "NAME-002": { "enabled": true, "severity": "INFO" },
+    "HDR-001": { "enabled": true, "severity": "WARNING" },
+    "HDR-002": { "enabled": true, "severity": "INFO" },
+    "REF-001": { "enabled": true, "severity": "ERROR" },
+    "REF-002": { "enabled": true, "severity": "WARNING" }
+  },
+  "ignore_patterns": [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/__pycache__/**",
+    "**/10-archive/**",
+    "**/99-legacy/**"
+  ],
+  "max_workers": 4,
+  "docs_root": "docs",
+  "fail_on_error": true,
+  "fail_on_warning": false,
+  "output_format": "text"
+}
+```
+
+### Configuration Options
+
+| Option | Type | Description | Default |
+|--------|------|-------------|---------|
+| `validators` | string[] | List of validators to run | All 5 validators |
+| `rules` | object | Per-rule overrides | See below |
+| `ignore_patterns` | string[] | Glob patterns to skip | node_modules, .git, etc. |
+| `max_workers` | int | Parallel validation threads | 4 |
+| `docs_root` | string | Documentation folder name | "docs" |
+| `fail_on_error` | bool | Exit code 1 on errors | true |
+| `fail_on_warning` | bool | Exit code 1 on warnings | false |
+| `output_format` | string | Default output format | "text" |
+
+### Per-Rule Configuration
+
+Each rule can be configured with:
+
+```json
+{
+  "RULE-ID": {
+    "enabled": true,      // Enable/disable this rule
+    "severity": "ERROR",  // Override severity: ERROR, WARNING, INFO
+    "auto_fix": true,     // Allow auto-fix for this rule
+    "options": {}         // Rule-specific options
+  }
+}
+```
+
+### Example: Disable Orphaned File Warnings
+
+```json
+{
+  "rules": {
+    "REF-002": { "enabled": false }
+  }
+}
+```
+
+### Example: Strict Mode (All Warnings → Errors)
+
+```json
+{
+  "rules": {
+    "STAGE-003": { "severity": "ERROR" },
+    "NAME-001": { "severity": "ERROR" },
+    "NUM-002": { "severity": "ERROR" }
+  },
+  "fail_on_warning": true
+}
+```
+
+### Example: Lite Tier (Minimal Validation)
+
+```json
+{
+  "validators": ["stage-folder"],
+  "rules": {
+    "STAGE-005": { "enabled": false }
+  },
+  "ignore_patterns": ["**/99-legacy/**", "**/10-archive/**"]
+}
 ```
 
 ---
