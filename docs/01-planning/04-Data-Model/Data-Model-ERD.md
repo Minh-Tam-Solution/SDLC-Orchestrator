@@ -1,15 +1,16 @@
 # Data Model & Entity-Relationship Diagram
 ## Database Schema and Relationships
 
-**Version**: 3.0.0
-**Date**: December 21, 2025
-**Status**: IMPLEMENTED - Production Ready
+**Version**: 3.1.0
+**Date**: December 23, 2025
+**Status**: IMPLEMENTED - Production Ready + EP-06 Codegen
 **Authority**: CTO + Backend Lead ✅ APPROVED
-**Foundation**: FRD v3.0.0, Vision v3.1.0, EP-04/05/06 Data Requirements
+**Foundation**: FRD v3.1.0, Vision v4.0.0, EP-04/05/06 Data Requirements
 **Stage**: Stage 04 (BUILD)
 **Framework**: SDLC 5.1.1 Complete Lifecycle (10 Stages)
 
 **Changelog**:
+- v3.1.0 (Dec 23, 2025): Added EP-06 Codegen tables (codegen_evidence, codegen_attempts, codegen_escalations)
 - v3.0.0 (Dec 21, 2025): SDLC 5.1.1 update, EP-04/05/06 entities added
 - v2.0.0 (Nov 29, 2025): ERD updated to reflect implemented 24-table schema
 
@@ -128,6 +129,37 @@ This document defines **WHAT data to store**, not HOW to implement database (Sta
 │  │ audit_logs │         │ notifications │                   │
 │  └────────────┘         └───────────────┘                   │
 └─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│               EP-06 CODEGEN LAYER (NEW v3.1)                │
+├─────────────────────────────────────────────────────────────┤
+│  ┌──────────────────┐    ┌─────────────────────┐            │
+│  │   ir_modules     │───▶│ codegen_generations │            │
+│  └──────────────────┘    └─────────────────────┘            │
+│           │                      │ 1:N                      │
+│           │                      ▼                          │
+│           │              ┌─────────────────────┐            │
+│           │              │  codegen_attempts   │            │
+│           │              └─────────────────────┘            │
+│           │                      │                          │
+│           │                      │ N:1 (if escalated)       │
+│           │                      ▼                          │
+│           │              ┌─────────────────────┐            │
+│           │              │codegen_escalations  │            │
+│           │              └─────────────────────┘            │
+│           │                      │                          │
+│           │                      │ (if approved)            │
+│           │                      ▼                          │
+│           └─────────────▶┌─────────────────────┐            │
+│                          │  codegen_evidence   │            │
+│                          └─────────────────────┘            │
+│                                  │                          │
+│                                  │ (VCR workflow)           │
+│                                  ▼                          │
+│                          ┌─────────────────────┐            │
+│                          │  vcr_requests       │            │
+│                          └─────────────────────┘            │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Table Count by Layer
@@ -140,7 +172,8 @@ This document defines **WHAT data to store**, not HOW to implement database (Sta
 | Policy | policies, policy_tests, custom_policies | 3 |
 | AI Engine | ai_providers, ai_requests, ai_usage_logs, ai_evidence_drafts | 4 |
 | System | audit_logs, notifications | 2 |
-| **TOTAL** | | **24** |
+| **EP-06 Codegen** | **ir_modules, codegen_generations, codegen_attempts, codegen_escalations, codegen_evidence, vcr_requests** | **6** |
+| **TOTAL** | | **30** |
 
 **Key Relationships**:
 - **C-Suite Approval Workflow**: users (CEO/CTO/CPO/CIO/CFO) → gate_approvals → gates
@@ -709,26 +742,299 @@ def downgrade():
 
 ---
 
+## EP-06 Codegen Tables (NEW v3.1.0)
+
+*(Added December 23, 2025 - Sprint 48 Quality Gates)*
+
+### Table 11: ir_modules
+
+**Purpose**: IR (Intermediate Representation) module definitions for code generation.
+
+**Schema**:
+```sql
+CREATE TABLE ir_modules (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id        UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  module_name       VARCHAR(255) NOT NULL,
+  module_type       VARCHAR(50) NOT NULL CHECK (type IN ('entity', 'api_route', 'service', 'ui_component', 'schema')),
+  ir_content        JSONB NOT NULL, -- IR specification in JSON format
+  token_count       INT NOT NULL, -- Estimated tokens for context budgeting
+  dependencies      UUID[], -- References to other ir_modules
+  created_by        UUID REFERENCES users(id),
+  created_at        TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at        TIMESTAMP NOT NULL DEFAULT NOW(),
+
+  UNIQUE(project_id, module_name)
+);
+
+CREATE INDEX idx_ir_modules_project_id ON ir_modules(project_id);
+CREATE INDEX idx_ir_modules_type ON ir_modules(module_type);
+```
+
+**Relationships**:
+- N:1 with projects (many IR modules belong to one project)
+- 1:N with codegen_generations (one IR module can have many generation attempts)
+
+**Business Rules**:
+- token_count tracked for 96% context reduction (128K → 5K target)
+- dependencies array enables topological sort for generation order
+
+---
+
+### Table 12: codegen_generations
+
+**Purpose**: Code generation requests and lifecycle tracking.
+
+**Schema**:
+```sql
+CREATE TABLE codegen_generations (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ir_module_id      UUID NOT NULL REFERENCES ir_modules(id) ON DELETE CASCADE,
+  project_id        UUID NOT NULL REFERENCES projects(id),
+  generation_mode   VARCHAR(20) NOT NULL CHECK (mode IN ('single', 'batch', 'interactive')),
+  provider_preference VARCHAR(20) NOT NULL DEFAULT 'auto' CHECK (pref IN ('auto', 'ollama', 'claude', 'deepcode')),
+  state             VARCHAR(20) NOT NULL DEFAULT 'generated' CHECK (state IN (
+    'generated', 'validating', 'retrying', 'escalated',
+    'evidence_locked', 'awaiting_vcr', 'merged', 'aborted'
+  )),
+  current_attempt   INT NOT NULL DEFAULT 1,
+  max_retries       INT NOT NULL DEFAULT 3,
+  quality_config    JSONB, -- {skip_gate_4_tests: false, context_alignment_threshold: 80}
+  callback_url      VARCHAR(500), -- For batch mode async callback
+  created_by        UUID REFERENCES users(id),
+  created_at        TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at        TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_codegen_gen_ir_module ON codegen_generations(ir_module_id);
+CREATE INDEX idx_codegen_gen_project ON codegen_generations(project_id);
+CREATE INDEX idx_codegen_gen_state ON codegen_generations(state);
+```
+
+**Relationships**:
+- N:1 with ir_modules (many generations per IR module)
+- 1:N with codegen_attempts (one generation has many attempts)
+- 1:1 with codegen_evidence (once locked)
+
+**State Machine** (8 states):
+```
+generated → validating → retrying → escalated → evidence_locked → awaiting_vcr → merged/aborted
+```
+
+---
+
+### Table 13: codegen_attempts
+
+**Purpose**: Individual generation attempts with quality gate results.
+
+**Schema**:
+```sql
+CREATE TABLE codegen_attempts (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  generation_id     UUID NOT NULL REFERENCES codegen_generations(id) ON DELETE CASCADE,
+  attempt_number    INT NOT NULL,
+  provider_used     VARCHAR(20) NOT NULL CHECK (provider IN ('ollama', 'claude', 'deepcode', 'rule_based')),
+  generated_code    TEXT NOT NULL,
+  generation_latency_ms INT NOT NULL,
+
+  -- 4-Gate Quality Results
+  gate_1_syntax     VARCHAR(10) CHECK (result IN ('pass', 'fail')),
+  gate_1_feedback   JSONB, -- {errors: [{line: 1, col: 5, message: "..."}]}
+  gate_2_security   VARCHAR(10) CHECK (result IN ('pass', 'fail')),
+  gate_2_feedback   JSONB, -- {findings: [{severity: "HIGH", rule: "..."}]}
+  gate_3_context    VARCHAR(10) CHECK (result IN ('pass', 'fail')),
+  gate_3_feedback   JSONB, -- {ctx_checks: [{id: "CTX-01", pass: true}], alignment_score: 85}
+  gate_4_tests      VARCHAR(10) CHECK (result IN ('pass', 'fail', 'skipped')),
+  gate_4_feedback   JSONB, -- {passed: 8, failed: 2, coverage: 80}
+
+  overall_result    VARCHAR(10) NOT NULL CHECK (result IN ('pass', 'fail')),
+  feedback_summary  TEXT, -- Vietnamese summary for retry prompt
+  recommendation    VARCHAR(30) CHECK (rec IN ('retry_same_provider', 'try_fallback', 'escalate')),
+
+  created_at        TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_codegen_attempts_gen ON codegen_attempts(generation_id);
+CREATE INDEX idx_codegen_attempts_number ON codegen_attempts(generation_id, attempt_number);
+```
+
+**Relationships**:
+- N:1 with codegen_generations (many attempts per generation)
+
+**Business Rules**:
+- attempt_number increments with each retry (max = max_retries + 1)
+- feedback_summary used for deterministic retry prompts
+- recommendation logic: syntax errors → retry_same; security → fallback; repeated → escalate
+
+---
+
+### Table 14: codegen_escalations
+
+**Purpose**: Escalation tickets for failed generations.
+
+**Schema**:
+```sql
+CREATE TABLE codegen_escalations (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  generation_id     UUID NOT NULL REFERENCES codegen_generations(id) ON DELETE CASCADE,
+  escalation_channel VARCHAR(20) NOT NULL CHECK (channel IN ('council', 'human', 'abort')),
+  escalation_reason TEXT NOT NULL,
+  attempt_history   JSONB NOT NULL, -- Array of attempt summaries
+  ir_context        JSONB NOT NULL, -- IR module + project constraints
+
+  -- Resolution
+  resolution_status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'modified')),
+  resolved_by       UUID REFERENCES users(id),
+  resolution_reason TEXT,
+  override_justification TEXT, -- Required if approved despite failures
+
+  -- SLA tracking
+  escalated_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+  sla_deadline      TIMESTAMP NOT NULL, -- escalated_at + 24 hours
+  resolved_at       TIMESTAMP,
+
+  created_at        TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_codegen_esc_gen ON codegen_escalations(generation_id);
+CREATE INDEX idx_codegen_esc_status ON codegen_escalations(resolution_status);
+CREATE INDEX idx_codegen_esc_deadline ON codegen_escalations(sla_deadline);
+```
+
+**Relationships**:
+- N:1 with codegen_generations (one escalation per generation, but could retry)
+
+**Business Rules**:
+- sla_deadline = escalated_at + CODEGEN_ESCALATION_SLA_HOURS (default 24)
+- Council escalations auto-resolved by AI Council multi-agent
+- Human escalations trigger Slack notification
+
+---
+
+### Table 15: codegen_evidence
+
+**Purpose**: Locked evidence for approved generated code.
+
+**Schema**:
+```sql
+CREATE TABLE codegen_evidence (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  generation_id     UUID NOT NULL UNIQUE REFERENCES codegen_generations(id),
+  project_id        UUID NOT NULL REFERENCES projects(id),
+
+  -- Locked code
+  generated_code    TEXT NOT NULL,
+  code_hash         VARCHAR(64) NOT NULL, -- SHA256 hash
+
+  -- Quality results snapshot
+  gate_results      JSONB NOT NULL, -- Final gate results at lock time
+  alignment_score   INT NOT NULL, -- Context alignment 0-100
+
+  -- State machine
+  state             VARCHAR(20) NOT NULL DEFAULT 'evidence_locked' CHECK (state IN (
+    'evidence_locked', 'awaiting_vcr', 'merged', 'aborted'
+  )),
+  state_transitions JSONB NOT NULL DEFAULT '[]', -- [{from, to, timestamp, actor}]
+
+  -- VCR tracking
+  vcr_request_id    UUID REFERENCES vcr_requests(id),
+
+  -- Immutability
+  locked_at         TIMESTAMP NOT NULL DEFAULT NOW(),
+  locked_by         UUID REFERENCES users(id),
+
+  created_at        TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at        TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_codegen_ev_gen ON codegen_evidence(generation_id);
+CREATE INDEX idx_codegen_ev_project ON codegen_evidence(project_id);
+CREATE INDEX idx_codegen_ev_state ON codegen_evidence(state);
+CREATE INDEX idx_codegen_ev_hash ON codegen_evidence(code_hash);
+```
+
+**Relationships**:
+- 1:1 with codegen_generations (one evidence per generation)
+- N:1 with vcr_requests (evidence submitted for VCR review)
+
+**Business Rules**:
+- code_hash must be verified on every access
+- State transitions logged for audit trail
+- Unlock requires CTO override + audit log entry
+
+---
+
+### Table 16: vcr_requests
+
+**Purpose**: Version Control Review (VCR) requests for merge approval.
+
+**Schema**:
+```sql
+CREATE TABLE vcr_requests (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  evidence_id       UUID NOT NULL REFERENCES codegen_evidence(id),
+  project_id        UUID NOT NULL REFERENCES projects(id),
+
+  -- VCR details
+  target_branch     VARCHAR(255) NOT NULL DEFAULT 'main',
+  source_branch     VARCHAR(255), -- If creating PR
+  commit_message    TEXT NOT NULL,
+
+  -- Review workflow
+  status            VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  reviewer_id       UUID REFERENCES users(id),
+  review_comments   TEXT,
+
+  -- Integration
+  github_pr_url     VARCHAR(500), -- If PR created
+  merge_commit_sha  VARCHAR(40), -- If merged
+
+  created_at        TIMESTAMP NOT NULL DEFAULT NOW(),
+  reviewed_at       TIMESTAMP,
+  merged_at         TIMESTAMP
+);
+
+CREATE INDEX idx_vcr_req_evidence ON vcr_requests(evidence_id);
+CREATE INDEX idx_vcr_req_project ON vcr_requests(project_id);
+CREATE INDEX idx_vcr_req_status ON vcr_requests(status);
+```
+
+**Relationships**:
+- 1:1 with codegen_evidence (one VCR request per evidence)
+- N:1 with users (reviewer)
+
+**Business Rules**:
+- VCR approval triggers evidence state → 'merged'
+- VCR rejection triggers evidence state → 'aborted'
+- github_pr_url populated if GitHub integration enabled
+
+---
+
 ## Document Control
 
 **Version History**:
+- v3.1.0 (December 23, 2025): Added 6 EP-06 Codegen tables (ir_modules, codegen_*, vcr_requests)
 - v2.0.0 (November 29, 2025): Updated to reflect 24 implemented tables, NQH Portfolio seed data
 - v1.0.0 (January 13, 2025): Initial data model (15 tables - draft)
 
 **Related Documents**:
 - [Data-Model-v0.1.md](../Data-Model/Data-Model-v0.1.md) - Detailed column definitions
-- [FRD](../01-Requirements/Functional-Requirements-Document.md)
-- [NFR](../01-Requirements/Non-Functional-Requirements.md)
+- [FRD](../01-Requirements/Functional-Requirements-Document.md) (v3.1.0)
+- [NFR](../01-Requirements/Non-Functional-Requirements.md) (v3.1.0)
+- [EP-06 IR-Based Codegen Engine](../02-Epics/EP-06-IR-Based-Codegen-Engine.md)
+- **[Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)** *(NEW v3.1)*
 
 **Implementation**:
-- Migration: `backend/alembic/versions/dce31118ffb7_initial_schema_24_tables.py`
+- Migration (Base): `backend/alembic/versions/dce31118ffb7_initial_schema_24_tables.py`
+- Migration (EP-06): `backend/alembic/versions/[TBD]_codegen_tables.py` *(Sprint 48)*
 - Seed Data: `backend/alembic/versions/a502ce0d23a7_seed_data_realistic_mtc_nqh_examples.py`
 - Models: `backend/app/models/*.py`
 
 ---
 
-**End of Data Model v2.0.0**
+**End of Data Model v3.1.0**
 
-**Status**: ✅ IMPLEMENTED - Production Ready
-**Date**: November 29, 2025
+**Status**: ✅ IMPLEMENTED - Production Ready + EP-06 Codegen Designed
+**Date**: December 23, 2025
 **Gate G3**: ✅ PASSED
+**Sprint 48**: EP-06 Codegen Tables Designed (Implementation Pending)

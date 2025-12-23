@@ -1,13 +1,24 @@
 # System Architecture Document
-## 4-Layer Architecture + Bridge-First Design
+## 5-Layer Architecture + Bridge-First Design (Software 3.0)
 
-**Version**: 2.0.0
-**Date**: December 3, 2025
+**Version**: 3.0.0
+**Date**: December 23, 2025
 **Status**: ACTIVE - APPROVED
 **Authority**: CTO + Tech Lead + Backend Lead
-**Foundation**: Stage 01 (Requirements, API Specs, Data Model)
+**Foundation**: Stage 01 (Requirements v3.1.0, API Specs v3.1.0, Data Model v3.1.0)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 4.9.1 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 5.1.1 Complete Lifecycle (10 Stages)
+**Positioning**: Operating System for Software 3.0
+
+**Changelog v3.0.0** (Dec 23, 2025):
+- **SOFTWARE 3.0 PIVOT**: 5-Layer Architecture (EP-06 Codegen Layer added)
+- Added EP-06 Codegen Layer (Section 12)
+- Added 4-Gate Quality Pipeline for Codegen
+- Added Validation Loop Orchestration (max_retries=3)
+- Added Evidence State Machine (8 states)
+- Added Multi-Provider Fallback (Ollama → Claude → DeepCode)
+- Updated table count: 24 → 30 tables (EP-06 Codegen tables)
+- Updated API endpoints: 52 → 64 endpoints
 
 **Changelog v2.0.0** (Dec 3, 2025):
 - Added AI Governance Layer (Section 11)
@@ -21,16 +32,17 @@
 ## Table of Contents
 
 1. [Architecture Overview](#1-architecture-overview)
-2. [4-Layer Architecture](#2-4-layer-architecture)
+2. [5-Layer Architecture](#2-5-layer-architecture)
 3. [Bridge-First Strategy](#3-bridge-first-strategy)
 4. [Component Breakdown](#4-component-breakdown)
 5. [Data Flow](#5-data-flow)
-11. [AI Governance Layer](#11-ai-governance-layer) *(NEW v2.0.0)*
 6. [Technology Stack](#6-technology-stack)
 7. [Scalability Design](#7-scalability-design)
 8. [Security Architecture](#8-security-architecture)
 9. [Deployment Architecture](#9-deployment-architecture)
 10. [Architecture Decisions (ADRs)](#10-architecture-decisions-adrs)
+11. [AI Governance Layer](#11-ai-governance-layer) *(v2.0.0)*
+12. [EP-06 Codegen Layer](#12-ep-06-codegen-layer) *(NEW v3.0.0)*
 
 ---
 
@@ -721,4 +733,340 @@ Tools:
 
 ---
 
-*End of System Architecture Document v2.0.0*
+---
+
+## 12. EP-06 Codegen Layer
+
+*(Added in v3.0.0 - December 23, 2025)*
+
+### 12.1 Overview
+
+EP-06 Codegen Layer is the **Software 3.0** extension that transforms SDLC Orchestrator from a governance platform into a **Control Plane for AI Coders**.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ EP-06 CODEGEN LAYER (NEW in v3.0.0)                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────┐  │
+│  │ IR Processor     │  │ Multi-Provider   │  │ Quality      │  │
+│  │ Service          │  │ Codegen Gateway  │  │ Gate Engine  │  │
+│  │ (Sprint 46)      │  │ (Sprint 45)      │  │ (Sprint 48)  │  │
+│  └────────┬─────────┘  └────────┬─────────┘  └──────┬───────┘  │
+│           │                     │                    │          │
+│           └─────────────────────┼────────────────────┘          │
+│                                 │                               │
+│                    ┌────────────┴────────────┐                  │
+│                    │ Validation Loop         │                  │
+│                    │ Orchestrator            │                  │
+│                    │ (max_retries=3)         │                  │
+│                    └────────────┬────────────┘                  │
+│                                 │                               │
+│  ┌──────────────────────────────┴───────────────────────────┐  │
+│  │ Evidence State Machine (8 states)                        │  │
+│  │ generated → validating → retrying → escalated →          │  │
+│  │ evidence_locked → awaiting_vcr → merged/aborted          │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 12.2 Core Components
+
+#### 12.2.1 IR Processor Service
+
+**Purpose**: Parse and decompose IR (Intermediate Representation) modules for code generation.
+
+```python
+# backend/app/services/codegen/ir_processor.py
+
+class IRProcessor:
+    """
+    IR Decomposition: 128K tokens → 5K tokens (96% context reduction)
+    """
+
+    async def parse_ir_module(self, ir_content: dict) -> ParsedIRModule:
+        """
+        Parse IR module into smaller, context-efficient units.
+
+        Args:
+            ir_content: Raw IR specification in JSON format
+
+        Returns:
+            ParsedIRModule with entities, routes, services, schemas
+        """
+        pass
+
+    async def estimate_tokens(self, module: ParsedIRModule) -> int:
+        """Estimate token count for context budgeting."""
+        pass
+
+    async def resolve_dependencies(self, modules: List[ParsedIRModule]) -> List[ParsedIRModule]:
+        """Topological sort for generation order."""
+        pass
+```
+
+**Database Table**: `ir_modules` (see Data Model ERD v3.1.0)
+
+#### 12.2.2 Multi-Provider Codegen Gateway
+
+**Purpose**: Route code generation requests to optimal AI provider with fallback.
+
+```python
+# backend/app/services/codegen/provider_gateway.py
+
+class ProviderGateway:
+    """
+    Multi-Provider Fallback: Ollama → Claude → DeepCode (Q2 2026)
+    """
+
+    PROVIDER_CHAIN = [
+        ("ollama", "qwen2.5-coder:32b", 15),   # Primary, <15s latency
+        ("claude", "claude-sonnet-4-5-20250929", 25),  # Fallback 1, <25s
+        ("deepcode", "deepcode-v1", None),     # Fallback 2, Q2 2026
+    ]
+
+    async def generate_code(
+        self,
+        ir_module: ParsedIRModule,
+        provider_preference: str = "auto"
+    ) -> GeneratedCode:
+        """
+        Generate code with automatic provider fallback.
+
+        Args:
+            ir_module: Parsed IR module to generate code for
+            provider_preference: auto | ollama | claude | deepcode
+
+        Returns:
+            GeneratedCode with provider metadata
+        """
+        for provider, model, timeout in self.PROVIDER_CHAIN:
+            if provider_preference != "auto" and provider != provider_preference:
+                continue
+
+            try:
+                return await self._call_provider(provider, model, ir_module, timeout)
+            except ProviderTimeoutError:
+                continue  # Try next provider
+            except ProviderQuotaError:
+                continue  # Try next provider
+
+        raise AllProvidersFailedError("All providers failed")
+```
+
+**Cost Optimization** (ADR-007):
+- Ollama (NQH AI Platform): $50/month, <15s latency
+- Claude (Anthropic): $1000/month, <25s latency
+- DeepCode (Q2 2026): TBD
+
+#### 12.2.3 4-Gate Quality Pipeline
+
+**Purpose**: Validate generated code before locking evidence.
+
+```python
+# backend/app/services/codegen/quality_gates.py
+
+class QualityGatePipeline:
+    """
+    4-Gate Quality Pipeline:
+    - Gate 1: Syntax Validation (ast.parse, ruff, tsc)
+    - Gate 2: Security Validation (Semgrep SAST)
+    - Gate 3: Architecture & Context Validation (5 CTX checks)
+    - Gate 4: Test Validation (unit tests, Dockerized)
+    """
+
+    async def run_pipeline(
+        self,
+        code: GeneratedCode,
+        ir_module: ParsedIRModule
+    ) -> QualityGateResult:
+        """
+        Run 4-gate quality pipeline sequentially.
+
+        Target: <30 seconds total for Gate 1-3
+        """
+        # Gate 1: Syntax (< 5s)
+        gate_1 = await self._validate_syntax(code)
+        if not gate_1.passed:
+            return self._fail_early(gate_1, "syntax")
+
+        # Gate 2: Security (< 10s)
+        gate_2 = await self._validate_security(code)
+        if not gate_2.passed:
+            return self._fail_early(gate_2, "security")
+
+        # Gate 3: Context (< 10s)
+        gate_3 = await self._validate_context(code, ir_module)
+        if not gate_3.passed:
+            return self._fail_early(gate_3, "context")
+
+        # Gate 4: Tests (< 60s, async, optional)
+        gate_4 = await self._validate_tests(code)
+
+        return QualityGateResult(
+            passed=gate_4.passed,
+            gates=[gate_1, gate_2, gate_3, gate_4],
+            recommendation=self._get_recommendation(gate_4)
+        )
+```
+
+**5 Context Alignment Checks (Gate 3)**:
+| Check ID | Description | Target |
+|----------|-------------|--------|
+| CTX-01 | IR Module Coverage | <2s |
+| CTX-02 | Entity-Schema Consistency | <3s |
+| CTX-03 | Route-Module Binding | <3s |
+| CTX-04 | Reference Existence | <3s |
+| CTX-05 | API Shape vs IR | <4s |
+
+#### 12.2.4 Validation Loop Orchestrator
+
+**Purpose**: Orchestrate retry logic with deterministic feedback.
+
+```python
+# backend/app/services/codegen/validation_loop.py
+
+class ValidationLoopOrchestrator:
+    """
+    Validation Loop: generate → validate → retry → escalate
+
+    Configuration:
+    - CODEGEN_MAX_RETRIES: 3 (default)
+    - CODEGEN_ESCALATION_SLA_HOURS: 24 (default)
+    - CODEGEN_ESCALATION_CHANNEL: council | human | abort
+    """
+
+    async def orchestrate(
+        self,
+        generation_id: UUID,
+        ir_module: ParsedIRModule
+    ) -> OrchestrationResult:
+        """
+        Main orchestration loop with state persistence.
+
+        State Machine:
+        generated → validating → retrying → escalated →
+        evidence_locked → awaiting_vcr → merged/aborted
+        """
+        generation = await self._get_generation(generation_id)
+
+        while generation.current_attempt <= generation.max_retries:
+            # Generate code
+            code = await self.provider_gateway.generate_code(ir_module)
+
+            # Run quality gates
+            result = await self.quality_pipeline.run_pipeline(code, ir_module)
+
+            # Log attempt
+            await self._log_attempt(generation, code, result)
+
+            if result.passed:
+                # Lock evidence
+                return await self._lock_evidence(generation, code, result)
+
+            # Prepare deterministic feedback for retry
+            feedback = self._build_feedback(result)
+            generation.current_attempt += 1
+
+            if generation.current_attempt > generation.max_retries:
+                # Escalate
+                return await self._escalate(generation, result)
+
+            # Retry with feedback
+            ir_module = self._augment_with_feedback(ir_module, feedback)
+
+        return OrchestrationResult(status="max_retries_exceeded")
+```
+
+**Database Tables**: `codegen_generations`, `codegen_attempts`, `codegen_escalations`
+
+#### 12.2.5 Evidence State Machine
+
+**Purpose**: Track evidence lifecycle from generation to merge.
+
+```
+State Transitions:
+┌──────────┐     ┌────────────┐     ┌──────────┐     ┌───────────┐
+│ generated│────▶│ validating │────▶│ retrying │────▶│ escalated │
+└──────────┘     └────────────┘     └──────────┘     └───────────┘
+                                           │                │
+                                           ▼                ▼
+                                    ┌──────────────────────────┐
+                                    │   evidence_locked        │
+                                    └────────────┬─────────────┘
+                                                 │
+                                                 ▼
+                                    ┌─────────────────────────┐
+                                    │    awaiting_vcr         │
+                                    └────────────┬────────────┘
+                                                 │
+                                    ┌────────────┴────────────┐
+                                    ▼                         ▼
+                              ┌──────────┐             ┌──────────┐
+                              │  merged  │             │ aborted  │
+                              └──────────┘             └──────────┘
+```
+
+**Database Tables**: `codegen_evidence`, `vcr_requests`
+
+### 12.3 API Endpoints (12 new)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/codegen/generate` | Initiate code generation |
+| GET | `/codegen/{id}/status` | Poll generation status |
+| GET | `/codegen/{id}/attempts` | List generation attempts |
+| POST | `/codegen/{id}/retry` | Manual retry |
+| POST | `/codegen/{id}/escalate` | Manual escalation |
+| GET | `/codegen/escalations` | List pending escalations |
+| GET | `/codegen/escalations/{id}` | Get escalation details |
+| POST | `/codegen/escalations/{id}/resolve` | Resolve escalation |
+| GET | `/codegen/evidence` | List codegen evidence |
+| GET | `/codegen/evidence/{id}` | Get evidence details |
+| POST | `/codegen/evidence/{id}/vcr` | Initiate VCR workflow |
+| GET | `/codegen/metrics` | Prometheus metrics |
+
+**Total API Endpoints**: 64 (52 original + 12 EP-06)
+
+### 12.4 Observability (7 Prometheus Metrics)
+
+| Metric | Type | Labels |
+|--------|------|--------|
+| `codegen_attempts_total` | Counter | provider, status |
+| `codegen_retry_count` | Histogram | provider |
+| `codegen_gate_failures_total` | Counter | gate, reason |
+| `codegen_latency_seconds` | Histogram | provider, mode |
+| `codegen_evidence_state` | Gauge | state |
+| `codegen_escalation_queue_size` | Gauge | channel |
+| `codegen_provider_cost_usd` | Counter | provider |
+
+### 12.5 Related Documents
+
+| Document | Description |
+|----------|-------------|
+| [Quality-Gates-Codegen-Specification.md](../14-Technical-Specs/Quality-Gates-Codegen-Specification.md) | Sprint 48 technical spec |
+| [IR-Processor-Specification.md](../14-Technical-Specs/IR-Processor-Specification.md) | Sprint 46 technical spec |
+| [Vietnamese-Domain-Templates-Specification.md](../14-Technical-Specs/Vietnamese-Domain-Templates-Specification.md) | Sprint 47 templates |
+| [EP-06-IR-Based-Codegen-Engine.md](../../01-planning/02-Epics/EP-06-IR-Based-Codegen-Engine.md) | Epic specification |
+| [Data-Model-ERD.md](../../01-planning/04-Data-Model/Data-Model-ERD.md) | Database schema v3.1.0 |
+| [API-Specification.md](../../01-planning/05-API-Design/API-Specification.md) | API endpoints v3.1.0 |
+
+### 12.6 CTO 10-Point Definition of Done (Sprint 48)
+
+| # | Checkpoint | Target |
+|---|------------|--------|
+| 1 | 4 Gate Modules Exist | ✓ syntax, security, context, tests |
+| 2 | All Gates Executable | Unit test per gate |
+| 3 | Orchestrator Routes Correctly | Integration test |
+| 4 | Retry with Deterministic Feedback | Feedback schema frozen |
+| 5 | Escalation Pathway | council/human/abort |
+| 6 | Evidence Locking | SHA-256 hash, immutable |
+| 7 | State Machine Implemented | 8 states, transitions logged |
+| 8 | Prometheus Metrics | 7 metrics scraped |
+| 9 | Vietnamese Error Messages | All gate feedback Vietnamese |
+| 10 | Audit Trail Complete | All attempts logged with context |
+
+---
+
+*End of System Architecture Document v3.0.0*

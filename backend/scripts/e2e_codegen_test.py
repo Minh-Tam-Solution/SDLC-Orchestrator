@@ -32,7 +32,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.services.codegen import CodegenService, CodegenSpec
-from app.services.codegen.demos.vietnamese_sme_demo import get_vietnamese_sme_blueprint
+from app.services.codegen.demos.vietnamese_sme_demo import get_retail_store_blueprint
 
 
 class Colors:
@@ -253,7 +253,8 @@ async def test_generate_vietnamese():
         return None
 
     # Get the full Vietnamese SME blueprint
-    blueprint_dict = get_vietnamese_sme_blueprint()
+    blueprint = get_retail_store_blueprint()
+    blueprint_dict = blueprint.model_dump()
 
     # Only generate one module to save time
     spec = CodegenSpec(

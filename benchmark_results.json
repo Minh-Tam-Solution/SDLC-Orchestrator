@@ -1,0 +1,46 @@
+{
+  "minimal_app": {
+    "total_runs": 3,
+    "successful_runs": 3,
+    "failed_runs": 0,
+    "latency_ms": {
+      "min": 48501.71,
+      "max": 63236.19,
+      "mean": 54300.73,
+      "median": 51164.29,
+      "p95": 62029.0,
+      "p99": 62994.75
+    },
+    "tokens": {
+      "total": 14561,
+      "mean": 4853.67,
+      "per_second": 89.38
+    },
+    "files": {
+      "total": 62,
+      "mean": 20.67
+    }
+  },
+  "vietnamese_sme": {
+    "total_runs": 3,
+    "successful_runs": 3,
+    "failed_runs": 0,
+    "latency_ms": {
+      "min": 51015.04,
+      "max": 59818.82,
+      "mean": 54588.77,
+      "median": 52932.45,
+      "p95": 59130.18,
+      "p99": 59681.09
+    },
+    "tokens": {
+      "total": 32917,
+      "mean": 10972.33,
+      "per_second": 201.0
+    },
+    "files": {
+      "total": 12,
+      "mean": 4
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # SDLC Orchestrator
 
-**The ONLY platform that ensures teams build the RIGHT things RIGHT** - combining Design Thinking validation, SDLC 5.0.0 governance, and multi-provider AI - built on battle-tested OSS infrastructure.
+**Operating System for Software 3.0** - The control plane that governs AI coders (Cursor, Claude Code, Copilot), combining Design Thinking validation, SDLC 5.0.0 governance, IR-based codegen, and multi-provider AI - built on battle-tested OSS infrastructure.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
@@ -8,45 +8,63 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.5-blue.svg)](https://www.postgresql.org/)
 [![OPA](https://img.shields.io/badge/OPA-0.58-orange.svg)](https://www.openpolicyagent.org/)
+[![Sprint](https://img.shields.io/badge/Sprint-45-brightgreen.svg)](docs/04-build/02-Sprint-Plans/CURRENT-SPRINT.md)
 
 ---
 
 ## 🎯 What is SDLC Orchestrator?
 
-**SDLC Orchestrator** is a **governance-first platform** that sits on top of your existing tools (GitHub, Jira, Linear) to enforce SDLC 5.0.0 quality gates, ensure evidence-based decisions, and eliminate the 70% feature waste plaguing engineering teams.
+**SDLC Orchestrator** is the **Operating System for Software 3.0** - a control plane that sits ABOVE AI coders (Cursor, Claude Code, Copilot) to govern, validate, and ensure quality. We don't compete with AI coding tools - we orchestrate them.
+
+### Software 3.0 Vision
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ LAYER 5: AI CODERS (External - We Orchestrate)                  │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌───────────┐ │
+│  │   Cursor    │ │ Claude Code │ │   Copilot   │ │  DeepCode │ │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └───────────┘ │
+│         ↑               ↑               ↑              ↑        │
+│         └───────────────┴───────────────┴──────────────┘        │
+│                    Governance API + Quality Gates               │
+├─────────────────────────────────────────────────────────────────┤
+│ LAYER 4: EP-06 CODEGEN (Our Innovation)                         │
+│  • IR-Based Code Generation (qwen2.5-coder:32b)                 │
+│  • 4-Gate Quality Pipeline (Syntax → Security → Context → Test) │
+│  • Validation Loop with max_retries=3                           │
+├─────────────────────────────────────────────────────────────────┤
+│ LAYER 3: BUSINESS LOGIC (Our Core)                              │
+│  • Gate Engine (OPA-powered Policy-as-Code)                     │
+│  • Evidence Vault (Immutable audit trail)                       │
+│  • AI Context Engine (Stage-aware prompts)                      │
+├─────────────────────────────────────────────────────────────────┤
+│ LAYER 2: INTEGRATION (Thin Adapters)                            │
+│  • OPA REST API • MinIO S3 API • GitHub API • Semgrep CLI       │
+├─────────────────────────────────────────────────────────────────┤
+│ LAYER 1: INFRASTRUCTURE (OSS Components)                        │
+│  • PostgreSQL • Redis • OPA • MinIO • Grafana                   │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ### The Problem We Solve
 
-Engineering teams waste **60-70% of effort building features users don't need** because traditional PM tools focus on **task execution** instead of **governance and validation**.
-
-**Root Cause**: Project management tools track WHAT you're building, but don't enforce:
-- ✅ **WHY** you should build it (Design Thinking validation missing)
-- ✅ **WHAT** quality standards must be met (No automated quality gates)
-- ✅ **HOW** it will operate in production (Runbooks often forgotten)
-- ✅ **WHO** approved each decision (No audit trail for compliance)
+Engineering teams waste **60-70% of effort building features users don't need** because:
+- AI coders generate code fast, but without governance
+- No validation loop ensures AI-generated code meets quality standards
+- Traditional PM tools focus on **task execution** instead of **governance and validation**
 
 ### Our Solution
 
 The **ONLY platform** combining:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│ 1. DESIGN THINKING VALIDATION (WHY/WHAT)                   │
-│    Gates 0.1, 0.2 ensure we build the RIGHT things         │
-├─────────────────────────────────────────────────────────────┤
-│ 2. AUTOMATED QUALITY GATES (HOW/BUILD/TEST)                │
-│    Policy-as-Code enforcement (OPA-powered)                 │
-├─────────────────────────────────────────────────────────────┤
-│ 3. OPERATE-FIRST MINDSET (DEPLOY/OPERATE)                  │
-│    Production excellence enforced                           │
-├─────────────────────────────────────────────────────────────┤
-│ 4. AI CONTEXT ENGINE (Multi-Provider)                      │
-│    Stage-aware AI assistance (10 stages)                    │
-├─────────────────────────────────────────────────────────────┤
-│ 5. EVIDENCE VAULT (Permanent Traceability)                 │
-│    100% audit trail for compliance                          │
-└─────────────────────────────────────────────────────────────┘
-```
+| Layer | Capability | Value |
+|-------|------------|-------|
+| **Design Thinking** | Gates 0.1, 0.2 validation | Build the RIGHT things |
+| **Quality Gates** | OPA-powered Policy-as-Code | Enforce quality standards |
+| **EP-06 Codegen** | IR-based code generation | Vietnamese SME templates |
+| **4-Gate Pipeline** | Syntax → Security → Context → Tests | 95%+ validation pass rate |
+| **Evidence Vault** | Immutable audit trail | 100% compliance traceability |
+| **AI Orchestration** | Multi-provider fallback | Ollama → Claude → DeepCode |
 
 ---
 
@@ -410,11 +428,26 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 ## 📊 Project Status
 
 **Current Stage**: Stage 03 (BUILD - Development & Implementation)
-**Sprint**: Sprint 31 - Gate G3 Preparation ✅ COMPLETE
-**Gate G3 Readiness**: 98.2% (EXCEEDS 95% threshold)
-**Framework**: SDLC 5.0.0 Complete Lifecycle
-**Timeline**: 90 days (Nov 14, 2025 - Feb 10, 2026)
-**Investment**: $564K total budget
+**Current Sprint**: Sprint 45 - Auto-Fix Engine
+**Framework**: SDLC 5.0.0 Complete Lifecycle (10 Stages)
+**Positioning**: Operating System for Software 3.0
+**Investment**: $564K total budget (90-day MVP) + $50K EP-06 extension
+
+### Current Sprint: Sprint 45 - Auto-Fix Engine
+
+| Focus | Status | Description |
+|-------|--------|-------------|
+| **Auto-Fix Service** | 🔄 In Progress | LLM-based code fix generation |
+| **Fix Template System** | 🔄 In Progress | Deterministic fix patterns |
+| **Evidence Integration** | 🔄 In Progress | Fix tracking in Evidence Vault |
+| **Dashboard UI** | 🔄 In Progress | Fix suggestion interface |
+
+### Recent Sprints (Sprint 43-44)
+
+| Sprint | Focus | Status | Key Deliverables |
+|--------|-------|--------|------------------|
+| **Sprint 44** | CrossReferenceValidator | ✅ Complete | File reference validation, import path checks |
+| **Sprint 43** | OPA + SAST Integration | ✅ Complete | Policy Guards, Semgrep Validator, Override Queue |
 
 ### Gate G3: Ship Ready - APPROVED (Dec 12, 2025)
 
@@ -423,36 +456,34 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
 | **Overall Readiness** | 95% | 98.2% | ✅ EXCEEDS |
-| **Sprint 31 Rating** | 9.5/10 | 9.56/10 | ✅ EXCEEDS |
 | **OWASP ASVS L2** | 90% | 98.4% | ✅ EXCEEDS |
 | **API p95 Latency** | <100ms | ~80ms | ✅ EXCEEDS |
 | **Test Coverage** | 90% | 94% | ✅ EXCEEDS |
 | **P0/P1 Bugs** | 0 | 0 | ✅ MET |
 
+### EP-06 IR-Based Codegen Engine (Sprint 45-50)
+
+**NEW** - Vietnamese SME-focused code generation:
+
+| Component | Sprint | Status | Description |
+|-----------|--------|--------|-------------|
+| **Multi-Provider Architecture** | 45 | 🔄 In Progress | Ollama → Claude → DeepCode fallback |
+| **IR Processor** | 46 | ⏳ Planned | Spec → Intermediate Representation |
+| **Vietnamese Templates** | 47 | ⏳ Planned | E-commerce, HRM, CRM domain templates |
+| **4-Gate Quality Pipeline** | 48 | ⏳ Planned | Syntax → Security → Context → Tests |
+| **Vietnam SME Pilot** | 49 | ⏳ Planned | 5 founding customer deployments |
+| **Productization** | 50 | ⏳ Planned | GA readiness, pricing launch |
+
 ### MVP v1.0.0 Complete (Dec 1, 2025)
 
-**90-Day Build Phase COMPLETE** - All core features delivered:
-
-- ✅ **Backend**: 50+ API endpoints, FastAPI, PostgreSQL, Redis
+- ✅ **Backend**: 64 API endpoints, FastAPI, PostgreSQL, Redis
 - ✅ **Frontend**: React Dashboard, shadcn/ui, TanStack Query
 - ✅ **Security**: JWT + OAuth + MFA, RBAC (13 roles), OWASP ASVS Level 2 (98.4%)
-- ✅ **Evidence Vault**: MinIO S3, SHA256 integrity, permanent audit trail
+- ✅ **Evidence Vault**: MinIO S3, SHA256 integrity, 8-state lifecycle
 - ✅ **Policy Engine**: OPA integration, 110 pre-built policies
-- ✅ **AI Context Engine**: Multi-provider (Claude, GPT-4o, Gemini)
-- ✅ **Compliance Dashboard**: Real-time scanning, violation management
-- ✅ **Operations**: Prometheus metrics, Grafana dashboards, Job Queue
-
-### Sprint 31: Gate G3 Preparation (Dec 9-12, 2025) - COMPLETE
-
-| Day | Focus | Rating | Key Achievement |
-|-----|-------|--------|-----------------|
-| Day 1 | Load Testing | 9.5/10 | 30+ API test scenarios, Grafana dashboards |
-| Day 2 | Performance | 9.6/10 | 8 DB indexes, Redis cache, 130KB bundle |
-| Day 3 | Security | 9.7/10 | 98.4% OWASP ASVS L2, 0 critical findings |
-| Day 4 | Documentation | 9.4/10 | OpenAPI 9.8/10, all guides verified |
-| Day 5 | G3 Checklist | 9.6/10 | All criteria validated, CTO approved |
-
-**Sprint 31 Average**: 9.56/10 ✅
+- ✅ **AI Context Engine**: Multi-provider (Ollama, Claude, GPT-4o)
+- ✅ **SAST Integration**: Semgrep with AI-specific security rules
+- ✅ **Operations**: Prometheus metrics, Grafana dashboards
 
 ### Quick Start
 
@@ -483,11 +514,11 @@ cd frontend/web && npm install && npm run dev
 ### Upcoming Milestones
 
 - ✅ **Gate G3 (Ship Ready)**: APPROVED (Dec 12, 2025) - 98.2% readiness
-- 🎯 **Beta Pilot Launch**: Deploy to 5 internal teams (Week 1-2 post-G3)
-- 🎯 **External Penetration Test**: Scheduled within 2 weeks of beta launch
-- 🎯 **Gate G4 (Internal Validation)**: 30 days post-launch
-- 🎯 **SOC 2 Type II Audit**: Q1 2026
-- 🎯 **Production Deployment (Gate G6)**: Q1 2026
+- ✅ **Sprint 43-44**: OPA + SAST + CrossReferenceValidator (Dec 22, 2025)
+- 🔄 **Sprint 45**: Auto-Fix Engine (Dec 23-27, 2025)
+- 🎯 **Sprint 46-48**: EP-06 Codegen Pipeline (Q1 2026)
+- 🎯 **Sprint 49**: Vietnam SME Pilot (Q1 2026)
+- 🎯 **Sprint 50**: GA Launch (Q1 2026)
 
 ---
 
@@ -498,23 +529,37 @@ cd frontend/web && npm install && npm run dev
 - **Multi-Approval Workflow**: CEO, CTO, CPO sign-off (role-based)
 - **Stage Progression Control**: Cannot skip stages (WHY → WHAT → HOW → BUILD...)
 
-### 2. Evidence Vault
+### 2. Evidence Vault (8-State Lifecycle)
 - **Permanent Audit Trail**: SHA256 integrity (SOC 2 compliant)
+- **8-State Machine**: generated → validating → retrying → escalated → evidence_locked → awaiting_vcr → merged/aborted
 - **GitHub Auto-Collection**: PRs, commits, CI/CD logs auto-attached
 - **Export for Compliance**: ZIP/PDF exports for auditors
 
-### 3. AI Context Engine
-- **Multi-Provider**: Claude (reasoning), GPT-4o (code), Gemini (bulk)
+### 3. EP-06 IR-Based Codegen (NEW)
+- **Intermediate Representation**: Spec → IR → Code (deterministic)
+- **Multi-Provider Fallback**: Ollama (qwen2.5-coder:32b) → Claude → DeepCode
+- **4-Gate Quality Pipeline**: Syntax → Security → Context → Tests
+- **Vietnamese SME Templates**: E-commerce, HRM, CRM domain-specific
+
+### 4. AI Context Engine
+- **Multi-Provider**: Ollama (primary), Claude (fallback), GPT-4o (fallback)
 - **Stage-Aware Prompts**: Different prompts for WHY/WHAT/HOW/BUILD stages
-- **Cost Tracking**: $500/month budget monitoring
+- **Cost Optimization**: $50/month Ollama vs $1000/month external APIs
 
-### 4. Real-Time Dashboard
+### 5. Real-Time Dashboard
 - **WebSocket Updates**: Live gate status (no refresh needed)
-- **Executive Reports**: PDF exports for stakeholders
-- **Metrics**: Gate pass rate, time to approval, AI cost
+- **Evidence Timeline**: Visual code generation history
+- **Override Queue**: Admin review for security exceptions
+- **Metrics**: Gate pass rate, codegen success rate, AI cost
 
-### 5. Policy Pack Library
-- **100+ Pre-Built Policies**: All 10 SDLC 4.9 stages covered
+### 6. SAST Integration (Sprint 43)
+- **Semgrep Integration**: AI-specific security rules
+- **Custom Rule Packs**: ai-codegen-security, prompt-injection-prevention
+- **Override Management**: Tiered approval (Lead → Senior → CTO)
+- **Evidence Linking**: Security findings attached to code artifacts
+
+### 7. Policy Pack Library
+- **110+ Pre-Built Policies**: All 10 SDLC 5.0.0 stages covered
 - **Customizable**: Parameters (min_reviewers, test_coverage, etc.)
 - **Versioned**: Semantic versioning (v1.0, v1.1, etc.)
 
@@ -544,50 +589,62 @@ cd frontend/web && npm install && npm run dev
 
 ## 🏆 Competitive Advantage
 
-**Why NOT Jira/Linear/GitLab**:
-- ❌ No Design Thinking validation (build wrong features)
-- ❌ No automated quality gates (manual reviews = slow)
-- ❌ No evidence vault (no compliance audit trail)
-- ❌ No operate-first enforcement (runbooks forgotten)
+### Where We Don't Compete
 
-**Why SDLC Orchestrator**:
-- ✅ **FIRST** platform on SDLC 5.0.0 (10-stage complete lifecycle)
-- ✅ **ONLY** platform combining Design Thinking + Quality Gates + AI
-- ✅ **Experience Moat**: 6-12 months to understand SDLC 4.9 nuances
-- ✅ **Knowledge Moat**: 100+ pre-built policies (vs competitors' 0)
+| Category | Leaders | Our Position |
+|----------|---------|--------------|
+| **IDE-level autocomplete** | Copilot, Cursor | We orchestrate them |
+| **Pure PM tools** | Jira, Linear | We complement, not replace |
+| **1-click app builders** | Lovable, v0.dev | Different complexity tier |
+
+### Why SDLC Orchestrator
+
+**Control Plane Positioning** - We sit ABOVE AI coders, not alongside them:
+
+```
+Layer 3: AI Coders (Claude/Cursor/Copilot) ← They generate
+Layer 2: SDLC Orchestrator                 ← We govern & validate
+Layer 1: SDLC Framework                    ← Methodology foundation
+```
+
+**Unique Value**:
+- ✅ **FIRST** Operating System for Software 3.0 (10-stage complete lifecycle)
+- ✅ **ONLY** platform combining Design Thinking + Quality Gates + IR Codegen
+- ✅ **Experience Moat**: 6-12 months to understand SDLC 5.0.0 nuances
+- ✅ **Knowledge Moat**: 110+ pre-built policies, Vietnamese SME templates
+- ✅ **Cost Moat**: Ollama-first = 95% cost reduction vs external APIs
 
 ---
 
 ## 🛣️ Roadmap
 
-### Q4 2025 - Q1 2026: MVP Launch (13 Weeks)
-- ✅ **Week 1** (Nov 14-18): Foundation documents (DONE - 15 docs, 6,545+ lines)
-- ✅ **Week 2** (Nov 21-25): Legal review + FRD + Data model (DONE - FRD 8,500+ lines, 21 tables)
-- ✅ **Week 3** (Nov 28 - Dec 2): Backend APIs + Infrastructure (DONE - 23 endpoints, 28 tests, 8 Docker services)
-- ⏳ **Week 4** (Dec 3-6): Architecture docs + Real OSS integration (MinIO, OPA) - **IN PROGRESS**
-- ⏳ **Week 5** (Dec 9-13): Frontend Dashboard foundation (React + shadcn/ui setup)
-- ⏳ **Week 6-7** (Dec 16-27): Frontend Dashboard (Authentication + Gates UI)
-- ⏳ **Week 8-9** (Dec 30 - Jan 10): VS Code Extension + CLI
-- ⏳ **Week 10-11** (Jan 13-24): Internal beta testing (BFlow team)
-- ⏳ **Week 12-13** (Jan 27 - Feb 7): Production hardening + compliance
-- 🎯 **Feb 10, 2026**: MVP Launch (First 100 paying teams)
+### 2025 Q4: MVP + Gate G3 (Complete)
+- ✅ **Gate G3**: Ship Ready APPROVED (Dec 12, 2025) - 98.2%
+- ✅ **Sprint 43**: OPA Policy Guards + Semgrep SAST (Dec 20, 2025)
+- ✅ **Sprint 44**: CrossReferenceValidator (Dec 22, 2025)
+- 🔄 **Sprint 45**: Auto-Fix Engine (Dec 23-27, 2025)
 
-### Q1 2026: Scale to $10K MRR
-- GitHub Enterprise integration
-- Slack Enterprise integration
+### 2026 Q1: EP-06 Codegen Engine (Sprint 45-50)
+| Sprint | Focus | Target |
+|--------|-------|--------|
+| 45 | Multi-Provider Architecture | Ollama → Claude → DeepCode |
+| 46 | IR Processor Backend | Spec → IR transformation |
+| 47 | Vietnamese Domain Templates | E-commerce, HRM, CRM |
+| 48 | 4-Gate Quality Pipeline | 95%+ validation pass rate |
+| 49 | Vietnam SME Pilot | 5 founding customers |
+| 50 | Productization + GA | Public launch, pricing |
+
+### 2026 Q2: Scale
+- Multi-VCS support (GitLab, Bitbucket)
 - Advanced RBAC (custom roles)
+- Enterprise SSO (SAML 2.0)
 - API v2 (GraphQL)
 
-### Q3 2026: Enterprise Ready
+### 2026 Q3-Q4: Enterprise Ready
 - SOC 2 Type II certification
-- SAML SSO
-- First enterprise customer ($999/month tier)
-
-### Q4 2026: Profitability Path
-- Multi-language support (Spanish, Mandarin)
-- Advanced analytics dashboards
-- AI v2 (fine-tuned models)
+- ISO 27001 compliance
 - Mobile app (iOS, Android)
+- Multi-language support (Vietnamese, English, Mandarin)
 
 ---
 
@@ -630,12 +687,14 @@ This project is licensed under the **Apache License 2.0** - see the [LICENSE](LI
 
 ---
 
-**Built with ❤️ by the SDLC Orchestrator team**
+**Built with discipline by the SDLC Orchestrator team**
 
 **Status**: ✅ Gate G3 APPROVED - Ship Ready (98.2%)
 **Version**: 1.0.0 (Beta Pilot Ready)
-**Framework**: SDLC 5.0.0 Complete Lifecycle
-**Last Updated**: December 12, 2025
+**Current Sprint**: Sprint 45 - Auto-Fix Engine
+**Framework**: SDLC 5.0.0 Complete Lifecycle (10 Stages)
+**Positioning**: Operating System for Software 3.0
+**Last Updated**: December 23, 2025
 
 ---
 

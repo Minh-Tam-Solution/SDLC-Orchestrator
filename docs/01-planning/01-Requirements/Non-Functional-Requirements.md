@@ -1,19 +1,29 @@
 # Non-Functional Requirements (NFR)
 ## Quality Attributes and System Constraints
 
-**Version**: 3.0.0
-**Date**: December 21, 2025
-**Status**: ACTIVE - AI Safety + Governance Extension
+**Version**: 3.1.0
+**Date**: December 23, 2025
+**Status**: ACTIVE - AI Safety + Governance + Codegen Quality Gates
 **Authority**: CTO + DevOps Lead Review (APPROVED)
-**Foundation**: FRD v3.0.0, Product Vision 3.1.0
+**Foundation**: FRD v3.1.0, Product Vision 4.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
 **Framework**: SDLC 5.1.1 Complete Lifecycle
+
+**Changelog v3.1.0** (Dec 23, 2025):
+- Added NFR29-NFR35: EP-06 Codegen Quality Gates performance requirements
+- NFR29: Codegen Generation Latency (<30s per module, multi-provider)
+- NFR30: 4-Gate Quality Pipeline Latency (<30s total validation)
+- NFR31: Validation Loop Orchestration (max_retries=3, state persistence)
+- NFR32: Evidence State Machine (8 states, <100ms transitions)
+- NFR33: Codegen Observability (7 Prometheus metrics)
+- NFR34: Context Alignment Performance (5 CTX checks <15s)
+- NFR35: Escalation SLA (24 hours, queue monitoring)
+- References: [Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
 
 **Changelog v3.0.0** (Dec 21, 2025):
 - Updated framework to SDLC 5.1.1
 - Added NFR22-NFR25: AI Safety Layer performance requirements
 - Added NFR26-NFR28: Migration Engine scalability (1M+ LOC)
-- Added NFR29-NFR30: Codegen Engine latency (<100ms Mode B)
 - Updated foundation references
 
 **Changelog v2.0.0** (Dec 3, 2025):
@@ -50,7 +60,8 @@ This document defines **WHAT quality attributes the system must meet**, not HOW 
 | Availability | NFR11-NFR12 | P0 | SLA, reliability |
 | Usability | NFR13-NFR14 | P1 | Adoption rate |
 | Compliance | NFR15-NFR17 | P0 | Legal, SOC 2 |
-| AI Governance | NFR18-NFR21 | P0 | AI quality, CEO value *(NEW v2.0)* |
+| AI Governance | NFR18-NFR21 | P0 | AI quality, CEO value *(v2.0)* |
+| **EP-06 Codegen** | **NFR29-NFR35** | **P0** | **Quality Gates, Validation Loop** *(v3.1)* |
 
 ---
 
@@ -556,6 +567,244 @@ And violations listed with fix suggestions
 
 ---
 
+## NFR29: Codegen Generation Latency (EP-06)
+
+*(Added in v3.1.0 - December 23, 2025)*
+
+**Requirement**: Code generation must complete <30 seconds per IR module (p95) with multi-provider fallback.
+
+**Measurements**:
+- Simple module (1 entity): <10 seconds
+- Complex module (5+ entities with relations): <20 seconds
+- Full project (50 modules batch): <5 minutes total
+- Provider fallback: <5 seconds per provider switch
+
+**Acceptance Criteria**:
+```gherkin
+Given IR module with 3 entities
+When user clicks "Generate Code"
+Then generation completes <30 seconds (p95)
+And provider used is logged with latency
+And cost tracked per generation
+```
+
+**Provider Latency Targets**:
+| Provider | Target Latency | Fallback Order |
+|----------|---------------|----------------|
+| Ollama (qwen2.5-coder:32b) | <15 seconds | Primary |
+| Claude (Anthropic) | <25 seconds | Secondary |
+| DeepCode (Q2 2026) | TBD | Tertiary |
+
+**Technical Spec**: [Quality-Gates-Codegen-Specification.md §3.2](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+---
+
+## NFR30: 4-Gate Quality Pipeline Latency (EP-06)
+
+*(Added in v3.1.0 - December 23, 2025)*
+
+**Requirement**: 4-Gate quality validation must complete <30 seconds total for generated code.
+
+**Measurements per Gate**:
+| Gate | Validation | Target Latency | Cumulative |
+|------|------------|----------------|------------|
+| Gate 1 | Syntax (ast.parse, ruff) | <5 seconds | 5s |
+| Gate 2 | Security (Semgrep SAST) | <10 seconds | 15s |
+| Gate 3 | Context (5 CTX checks) | <10 seconds | 25s |
+| Gate 4 | Tests (unit only, Dockerized) | <60 seconds | 85s* |
+
+*Gate 4 runs async, not blocking evidence creation if skipped.
+
+**Acceptance Criteria**:
+```gherkin
+Given generated code from IR module
+When system runs quality pipeline
+Then Gate 1-3 completes <25 seconds total
+And Gate 4 completes <60 seconds (if enabled)
+And gate results include Vietnamese error messages
+```
+
+**Technical Spec**: [Quality-Gates-Codegen-Specification.md §2](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+---
+
+## NFR31: Validation Loop Orchestration (EP-06)
+
+*(Added in v3.1.0 - December 23, 2025)*
+
+**Requirement**: Validation loop must support configurable retries with state persistence across service restarts.
+
+**Configuration**:
+```yaml
+CODEGEN_MAX_RETRIES: 3              # Configurable
+CODEGEN_ESCALATION_SLA_HOURS: 24    # Configurable
+CODEGEN_ESCALATION_CHANNEL: council # council | human | abort
+```
+
+**Acceptance Criteria**:
+```gherkin
+Given generation fails Gate 2 (security)
+When system retries generation
+Then retry uses deterministic feedback
+And attempt_number incremented
+And state persisted to database
+
+Given max_retries exceeded (attempt > 3)
+When escalation triggered
+Then escalation ticket created
+And council/human notified within SLA
+```
+
+**State Persistence**:
+- Loop state survives service restart
+- Each attempt logged with full context
+- Feedback deterministic (no AI randomness)
+
+**Technical Spec**: [Quality-Gates-Codegen-Specification.md §3.1](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+---
+
+## NFR32: Evidence State Machine (EP-06)
+
+*(Added in v3.1.0 - December 23, 2025)*
+
+**Requirement**: Evidence state transitions must complete <100ms with full audit trail.
+
+**8 States**:
+```
+generated → validating → retrying → escalated → evidence_locked → awaiting_vcr → merged/aborted
+```
+
+**Acceptance Criteria**:
+```gherkin
+Given evidence in 'validating' state
+When all gates pass
+Then state transitions to 'evidence_locked' <100ms
+And transition logged with timestamp and actor
+And evidence hash computed and locked
+
+Given evidence in 'evidence_locked' state
+When VCR workflow initiated
+Then state transitions to 'awaiting_vcr' <100ms
+And evidence immutable (no modifications allowed)
+```
+
+**Database Schema**:
+```sql
+CREATE TABLE codegen_evidence (
+    id UUID PRIMARY KEY,
+    state VARCHAR(20) NOT NULL,
+    state_transitions JSONB, -- Array of {from, to, timestamp, actor}
+    locked_hash VARCHAR(64),
+    locked_at TIMESTAMP
+);
+```
+
+**Technical Spec**: [Quality-Gates-Codegen-Specification.md §3.4](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+---
+
+## NFR33: Codegen Observability (EP-06)
+
+*(Added in v3.1.0 - December 23, 2025)*
+
+**Requirement**: 7 Prometheus metrics must be exposed for codegen monitoring.
+
+**Required Metrics**:
+| Metric | Type | Labels | Alert Threshold |
+|--------|------|--------|-----------------|
+| `codegen_attempts_total` | Counter | provider, status | - |
+| `codegen_retry_count` | Histogram | provider | p95 > 2 |
+| `codegen_gate_failures_total` | Counter | gate, reason | >10/hour |
+| `codegen_latency_seconds` | Histogram | provider, mode | p95 > 60s |
+| `codegen_evidence_state` | Gauge | state | escalated > 5 |
+| `codegen_escalation_queue_size` | Gauge | channel | >5 |
+| `codegen_provider_cost_usd` | Counter | provider | >$100/day |
+
+**Acceptance Criteria**:
+```gherkin
+Given codegen service running
+When Prometheus scrapes /metrics
+Then all 7 metrics available
+And metrics labeled correctly
+And Grafana dashboard shows 3+ panels
+
+Given escalation queue > 5
+When alert rule evaluates
+Then PagerDuty/Slack notification sent
+```
+
+**Technical Spec**: [Quality-Gates-Codegen-Specification.md §3.5](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+---
+
+## NFR34: Context Alignment Performance (EP-06)
+
+*(Added in v3.1.0 - December 23, 2025)*
+
+**Requirement**: 5 Context Alignment Checks (CTX-01 to CTX-05) must complete <15 seconds total.
+
+**CTX Checks**:
+| Check | Description | Target Latency |
+|-------|-------------|----------------|
+| CTX-01 | IR Module Coverage | <2 seconds |
+| CTX-02 | Entity-Schema Consistency | <3 seconds |
+| CTX-03 | Route-Module Binding | <3 seconds |
+| CTX-04 | Reference Existence | <3 seconds |
+| CTX-05 | API Shape vs IR | <4 seconds |
+
+**Acceptance Criteria**:
+```gherkin
+Given generated code with 10 entity references
+When Gate 3 context validation runs
+Then all 5 CTX checks complete <15 seconds
+And alignment score calculated (0-100%)
+And failures include Vietnamese remediation suggestions
+```
+
+**Alignment Score Threshold**: ≥80% required for Gate 3 PASS
+
+**Technical Spec**: [Quality-Gates-Codegen-Specification.md §3.2.4](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+---
+
+## NFR35: Escalation SLA (EP-06)
+
+*(Added in v3.1.0 - December 23, 2025)*
+
+**Requirement**: Escalation handling must complete within 24-hour SLA with queue monitoring.
+
+**Escalation Channels**:
+| Channel | Target | SLA | Notification |
+|---------|--------|-----|--------------|
+| council | AI Council | 4 hours | Async processing |
+| human | Slack/PagerDuty | 24 hours | Real-time alert |
+| abort | None | Immediate | Evidence marked ABORTED |
+
+**Acceptance Criteria**:
+```gherkin
+Given escalation ticket created
+When 24 hours elapsed without resolution
+Then ticket auto-escalated to CTO
+And warning email sent to PM
+And evidence state remains 'escalated'
+
+Given council escalation
+When multi-agent deliberation completes
+Then decision logged (approve/reject/modify)
+And evidence state updated accordingly
+And audit trail includes reasoning
+```
+
+**Queue Monitoring**:
+- Alert: `codegen_escalation_queue_size > 5`
+- Dashboard: Escalation aging chart
+- SLA Breach: Auto-escalate to CTO
+
+**Technical Spec**: [Quality-Gates-Codegen-Specification.md §3.1.2](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+---
+
 ## NFR Traceability to Functional Requirements
 
 | NFR | Related FR | Rationale |
@@ -566,10 +815,17 @@ And violations listed with fix suggestions
 | NFR11-NFR12 | All FRs | Availability ensures 99.9% uptime SLA |
 | NFR13-NFR14 | FR4-FR5 | Usability drives adoption (Feature Adoption Rate 70%+) |
 | NFR15-NFR17 | FR2 | Compliance enables Enterprise sales (SOC 2) |
-| NFR18 | FR7 | AI Task Decomposition must match CEO-level quality *(NEW v2.0)* |
-| NFR19 | FR8 | Planning Hierarchy enables full traceability *(NEW v2.0)* |
-| NFR20 | FR6 | Context-Aware Requirements dynamically classify *(NEW v2.0)* |
-| NFR21 | FR9 | SDLC Structure Validator enforces compliance *(NEW v2.0)* |
+| NFR18 | FR7 | AI Task Decomposition must match CEO-level quality *(v2.0)* |
+| NFR19 | FR8 | Planning Hierarchy enables full traceability *(v2.0)* |
+| NFR20 | FR6 | Context-Aware Requirements dynamically classify *(v2.0)* |
+| NFR21 | FR9 | SDLC Structure Validator enforces compliance *(v2.0)* |
+| **NFR29** | **FR41** | **Codegen Generation Latency <30s per module** *(v3.1)* |
+| **NFR30** | **FR42** | **4-Gate Quality Pipeline <30s total** *(v3.1)* |
+| **NFR31** | **FR43** | **Validation Loop max_retries=3, state persistence** *(v3.1)* |
+| **NFR32** | **FR44** | **Evidence State Machine 8 states, <100ms transitions** *(v3.1)* |
+| **NFR33** | **FR45** | **Codegen Observability 7 Prometheus metrics** *(v3.1)* |
+| **NFR34** | **FR42.3** | **Context Alignment 5 CTX checks <15s** *(v3.1)* |
+| **NFR35** | **FR43.3** | **Escalation SLA 24 hours, queue monitoring** *(v3.1)* |
 
 ---
 
@@ -598,6 +854,7 @@ And violations listed with fix suggestions
 ## Document Control
 
 **Version History**:
+- v3.1.0 (December 23, 2025): Added NFR29-NFR35 for EP-06 Codegen Quality Gates (28 requirements total)
 - v3.0.0 (December 21, 2025): SDLC 5.1.1 update, EP-02/04/05/06 NFRs added
 - v2.0.0 (December 3, 2025): Added NFR18-NFR21 for AI Governance (21 requirements total)
 - v1.0.0 (November 13, 2025): Initial NFR (17 requirements)
@@ -608,12 +865,13 @@ And violations listed with fix suggestions
 - Security Review: Week 2 ✅ APPROVED
 
 **Related Documents**:
-- [Functional Requirements Document](./Functional-Requirements-Document.md) (v3.0.0)
-- [Product Roadmap](../../00-foundation/04-Roadmap/Product-Roadmap.md) (v4.1.0)
-- [Product Vision](../../00-foundation/01-Vision/Product-Vision.md) (v3.1.0)
+- [Functional Requirements Document](./Functional-Requirements-Document.md) (v3.1.0)
+- [Product Roadmap](../../00-foundation/04-Roadmap/Product-Roadmap.md) (v5.0.0)
+- [Product Vision](../../00-foundation/01-Vision/Product-Vision.md) (v4.0.0)
 - [EP-04 SDLC Structure Enforcement](../02-Epics/EP-04-SDLC-Structure-Enforcement.md)
 - [EP-05 Enterprise Migration](../02-Epics/EP-05-ENTERPRISE-SDLC-MIGRATION.md)
-- [EP-06 Codegen Engine](../02-Epics/EP-06-Codegen-Engine-Dual-Mode.md)
+- [EP-06 IR-Based Codegen Engine](../02-Epics/EP-06-IR-Based-Codegen-Engine.md)
+- **[Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)** *(NEW v3.1)*
 
 ---
 
@@ -621,6 +879,6 @@ And violations listed with fix suggestions
 **Framework**: SDLC 5.1.1 Stage 01 (WHAT) - Planning & Analysis
 **Component**: Quality Attributes and System Constraints
 **Review**: Quarterly with CTO + DevOps Lead
-**Last Updated**: December 21, 2025
+**Last Updated**: December 23, 2025
 
-*"Define quality before you build quality."* 📊
+*"Define quality before you build quality."*

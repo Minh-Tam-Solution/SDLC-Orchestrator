@@ -1,15 +1,16 @@
 # Requirements Traceability Matrix (RTM)
 ## Stage 00 (WHY) → Stage 01 (WHAT) Mapping
 
-**Version**: 2.0.0
-**Date**: December 21, 2025
-**Status**: ACTIVE - EP-04/05/06 EXTENDED
+**Version**: 2.1.0
+**Date**: December 23, 2025
+**Status**: ACTIVE - EP-06 Quality Gates + Validation Loop
 **Authority**: PM + CTO Review (✅ APPROVED)
-**Foundation**: FRD v3.0.0, Vision v3.1.0, Roadmap v4.1.0
+**Foundation**: FRD v3.1.0, Vision v4.0.0, Roadmap v5.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
 **Framework**: SDLC 5.1.1 Complete Lifecycle (10 Stages)
 
 **Changelog**:
+- v2.1.0 (Dec 23, 2025): Added EP-06 Codegen Quality Gates (P8 problem, FR41-FR45, NFR29-NFR35)
 - v2.0.0 (Dec 21, 2025): SDLC 5.1.1 update, added EP-04/05/06 requirements tracing
 - v1.0.0 (Jan 13, 2025): Initial RTM (25 FRs traced to 7 problems)
 
@@ -39,9 +40,10 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 | P5 | Siloed SDLC tools (Jira, Slack, GitHub) | 7/10 | FR11-FR13 | Integration coverage 0% → 80% |
 | P6 | No real-time SDLC visibility | 7/10 | FR4, FR14-FR15 | Dashboard usage 0% → 80% |
 | P7 | No policy reusability (reinvent wheel) | 6/10 | FR3 | Pre-built policy usage 0% → 70% |
+| **P8** | **AI-generated code quality ungoverned** *(v2.1)* | **9/10** | **FR41-FR45** | **Codegen quality ≥80%, escalation <5%** |
 
-**Total Problems Validated**: 7 (from Stage 00 user interviews)
-**Total FRs Mapped**: 25 (100% traceability)
+**Total Problems Validated**: 8 (from Stage 00 user interviews + Expert Feedback)
+**Total FRs Mapped**: 30 (100% traceability)
 
 ---
 
@@ -249,6 +251,51 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 
 ---
 
+### P8: AI-Generated Code Quality Ungoverned (EP-06)
+
+*(Added in v2.1.0 - December 23, 2025)*
+
+**Problem Statement** (from Expert Feedback):
+> "Sau khi gen code xong cần phải validate đầy đủ testcase về tính năng cũng như syntax. Cần có loop ở Orchestrator và Code Gen để đảm bảo code gen ra đúng syntax, đúng context của toàn bộ dự án trước khi chốt evidence và merge."
+
+**Translation**: "After code generation, full validation of syntax and features is required. There must be a loop between Orchestrator and Code Gen to ensure generated code has correct syntax and project context before locking evidence and merging."
+
+**Pain Level**: 9/10 (Critical for production-quality AI codegen)
+
+**Related FRs** (EP-06 Quality Gates + Validation Loop):
+- **FR41.1**: IR Decomposition & Parsing - Parse IR into 96% smaller modules
+- **FR41.2**: Multi-Provider Code Generation - Ollama → Claude → DeepCode fallback
+- **FR42.1**: Gate 1 - Syntax Validation (ast.parse, ruff, tsc)
+- **FR42.2**: Gate 2 - Security Validation (Semgrep SAST)
+- **FR42.3**: Gate 3 - Architecture & Context Validation (5 CTX checks)
+- **FR42.4**: Gate 4 - Test Validation (unit tests, Dockerized)
+- **FR43.1**: Loop Configuration & Control (max_retries=3)
+- **FR43.2**: Deterministic Feedback Contract (QualityGateFeedback schema)
+- **FR43.3**: Escalation Workflow (council/human/abort channels)
+- **FR44.1**: Evidence State Transitions (8 states)
+- **FR44.2**: Evidence Locking Rules (SHA256 immutability)
+- **FR45.1**: Unified Codegen API (POST /api/v1/codegen/generate)
+- **FR45.2**: Generation Mode Support (single/batch/interactive)
+- **FR45.3**: Observability Metrics (7 Prometheus metrics)
+
+**Success Metrics**:
+- **Baseline**: AI-generated code quality = 0% validation (manual review only)
+- **Target**: Codegen quality gates pass rate ≥80% first attempt
+- **Target**: Escalation rate <5% (most code passes within 3 retries)
+- **Target**: Evidence locking integrity 100% (SHA256 verified)
+- **Measurement**: Prometheus metrics (codegen_gate_failures_total, codegen_escalation_queue_size)
+- **Timeline**: Sprint 48 (Quality Gates), Sprint 49 (Pilot Validation)
+
+**Validation** (from Expert Feedback - December 2025):
+- Expert highlighted gap: No validation loop between generation and evidence
+- Expert requirement: Syntax + context validation before merge
+- CTO 10-point Definition of Done created for Sprint 48
+- Pain level 9/10 (production code quality non-negotiable)
+
+**Technical Spec Reference**: [Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+---
+
 ## Orphaned FRs (FRs without Problem Validation)
 
 **CRITICAL**: All FRs must trace back to validated problems (Stage 00). Orphaned FRs are "nice-to-have" features that risk low adoption.
@@ -301,9 +348,23 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 | FR14.2 | Dashboard Analytics (Google Analytics) | P6 | 7/10 |
 | FR14.3 | Evidence Completeness Meter | P2, P6 | 9/10 |
 | FR15.1 | Mobile-Responsive Dashboard | P6 | 7/10 |
+| **FR41.1** | **IR Decomposition & Parsing** | **P8** | **9/10** |
+| **FR41.2** | **Multi-Provider Code Generation** | **P8** | **9/10** |
+| **FR42.1** | **Gate 1 - Syntax Validation** | **P8** | **9/10** |
+| **FR42.2** | **Gate 2 - Security Validation (SAST)** | **P8** | **9/10** |
+| **FR42.3** | **Gate 3 - Context Validation (5 CTX)** | **P8** | **9/10** |
+| **FR42.4** | **Gate 4 - Test Validation** | **P8** | **9/10** |
+| **FR43.1** | **Loop Configuration & Control** | **P8** | **9/10** |
+| **FR43.2** | **Deterministic Feedback Contract** | **P8** | **9/10** |
+| **FR43.3** | **Escalation Workflow** | **P8** | **9/10** |
+| **FR44.1** | **Evidence State Transitions** | **P8, P2** | **9/10** |
+| **FR44.2** | **Evidence Locking Rules** | **P8, P2** | **9/10** |
+| **FR45.1** | **Unified Codegen API** | **P8** | **9/10** |
+| **FR45.2** | **Generation Mode Support** | **P8** | **9/10** |
+| **FR45.3** | **Observability Metrics** | **P8, P6** | **9/10** |
 
-**Total FRs**: 39 (FR1.1-FR15.1 when expanded)
-**Total Mapped**: 39 (100% traceability)
+**Total FRs**: 53 (FR1.1-FR15.1 + FR41-FR45 when expanded)
+**Total Mapped**: 53 (100% traceability)
 
 ---
 
@@ -317,9 +378,16 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 | NFR11-NFR12 | Availability (99.9% uptime, RTO <1hr, RPO <5min) | P6 | Real-time visibility requires high uptime |
 | NFR13-NFR14 | Usability (Time to first value <1hr, SUS >70) | P3 | Easy onboarding (43h → 16h user journey) |
 | NFR15-NFR17 | Compliance (SOC 2, GDPR, 7-year retention) | P2 | Audit compliance (Enterprise requirement) |
+| **NFR29** | **Codegen Generation Latency (<30s/module)** | **P8** | **Production codegen requires fast generation** |
+| **NFR30** | **4-Gate Quality Pipeline (<30s total)** | **P8** | **Quality validation must not bottleneck** |
+| **NFR31** | **Validation Loop (max_retries=3)** | **P8** | **Retry logic for codegen quality** |
+| **NFR32** | **Evidence State Machine (<100ms transitions)** | **P8, P2** | **Fast state changes for evidence lifecycle** |
+| **NFR33** | **Codegen Observability (7 metrics)** | **P8, P6** | **Monitoring codegen quality and performance** |
+| **NFR34** | **Context Alignment (<15s for 5 CTX checks)** | **P8** | **Fast architecture validation** |
+| **NFR35** | **Escalation SLA (24 hours)** | **P8** | **Timely human intervention for failures** |
 
-**Total NFRs**: 17
-**Total Mapped**: 17 (100% traceability)
+**Total NFRs**: 24 (17 + 7 EP-06 Codegen)
+**Total Mapped**: 24 (100% traceability)
 
 ---
 
@@ -333,8 +401,8 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 - ✅ CEO/CTO/CPO approval: 9.5/8.5/9.0
 
 ### Requirements Definition (Stage 01)
-- ✅ 25 Functional Requirements (FR1-FR25)
-- ✅ 17 Non-Functional Requirements (NFR1-NFR17)
+- ✅ 30 Functional Requirements (FR1-FR25 + FR41-FR45)
+- ✅ 24 Non-Functional Requirements (NFR1-NFR17 + NFR29-NFR35)
 - ✅ 100% traceability (all FRs map to validated problems)
 - ✅ 0 orphaned FRs (no "nice-to-have" features)
 
@@ -348,19 +416,23 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 | Integration Coverage | 0% | 80% (Slack, GitHub, Figma) | FR11-FR13 |
 | Dashboard Usage | 0% | 80% (8 out of 10 EMs) | FR4, FR14-FR15 |
 | Pre-Built Policy Usage | 0% | 70% | FR3 |
+| **Codegen Quality Pass Rate** | **0%** | **≥80% first attempt** | **FR41-FR45** |
+| **Codegen Escalation Rate** | **N/A** | **<5%** | **FR43** |
+| **Evidence Locking Integrity** | **0%** | **100% SHA256** | **FR44** |
 
 ---
 
 ## Quality Gate G1: Planning & Analysis
 
 **G1 Criteria**:
-- ✅ All FRs (FR1-FR25) trace back to validated problems (P1-P7)
+- ✅ All FRs (FR1-FR25 + FR41-FR45) trace back to validated problems (P1-P8)
 - ✅ 0 orphaned FRs (100% traceability)
-- ✅ All NFRs (NFR1-NFR17) linked to business outcomes
-- ✅ Success metrics defined (7 measurable outcomes)
-- ✅ RTM reviewed by PM + CTO (PENDING)
+- ✅ All NFRs (NFR1-NFR17 + NFR29-NFR35) linked to business outcomes
+- ✅ Success metrics defined (10 measurable outcomes)
+- ✅ RTM reviewed by PM + CTO (APPROVED)
+- ✅ EP-06 Quality Gates mapped to P8 (Expert Feedback)
 
-**Status**: 🟡 PENDING (Week 2 review)
+**Status**: ✅ APPROVED (v2.1.0 - December 23, 2025)
 
 ---
 
@@ -385,13 +457,14 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 
 ## References
 
-- [Stage 00: Problem Definition](../../00-foundation/01-Vision/Product-Vision.md) (v3.1.0)
-- [Functional Requirements Document](./Functional-Requirements-Document.md) (v3.0.0)
-- [Non-Functional Requirements](./Non-Functional-Requirements.md) (v3.0.0)
+- [Stage 00: Problem Definition](../../00-foundation/01-Vision/Product-Vision.md) (v4.0.0)
+- [Functional Requirements Document](./Functional-Requirements-Document.md) (v3.1.0)
+- [Non-Functional Requirements](./Non-Functional-Requirements.md) (v3.1.0)
 - [User Stories & Epics](../03-User-Stories/User-Stories-Epics.md) (v2.0.0)
 - [EP-04 SDLC Structure Enforcement](../02-Epics/EP-04-SDLC-Structure-Enforcement.md)
 - [EP-05 Enterprise Migration](../02-Epics/EP-05-ENTERPRISE-SDLC-MIGRATION.md)
-- [EP-06 Codegen Engine](../02-Epics/EP-06-Codegen-Engine-Dual-Mode.md)
+- [EP-06 IR-Based Codegen Engine](../02-Epics/EP-06-IR-Based-Codegen-Engine.md)
+- **[Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)** *(NEW v2.1)*
 
 ---
 
@@ -399,6 +472,6 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 **Framework**: SDLC 5.1.1 Stage 01 (WHAT) - Planning & Analysis
 **Component**: Problem-to-Requirement Traceability
 **Review**: Quarterly with PM + CTO
-**Last Updated**: December 21, 2025
+**Last Updated**: December 23, 2025
 
-*"Every feature must trace back to a validated problem."* 🔗
+*"Every feature must trace back to a validated problem."*

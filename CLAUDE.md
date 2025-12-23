@@ -1,13 +1,15 @@
 # CLAUDE AI PROJECT CONTEXT - SDLC ORCHESTRATOR
-## AI Assistant Configuration for SDLC 5.0.0 Governance Platform
+## AI Assistant Configuration for Software 3.0 Operating System
 
-**Version**: 1.5.0
+**Version**: 2.0.0
 **Status**: Gate G3 APPROVED - Ship Ready (98.2%)
-**Effective Date**: December 12, 2025
-**Project**: SDLC Orchestrator - First Governance-First Platform on SDLC 5.0.0
+**Current Sprint**: Sprint 45 - Auto-Fix Engine
+**Effective Date**: December 23, 2025
+**Project**: SDLC Orchestrator - Operating System for Software 3.0
 **Authority**: CTO + CPO + CEO Approved
 **Framework**: SDLC 5.0.0 Complete Lifecycle (10 Stages + 4-Tier Classification)
 **SE 3.0 Status**: Track 1 APPROVED - SDLC 5.1.0 Framework Enhancement (Dec 8, 2025)
+**EP-06 Status**: IR-Based Codegen Engine - Sprint 45-50 (~$50K investment)
 
 ---
 
@@ -15,43 +17,58 @@
 
 ### **What is SDLC Orchestrator?**
 
-SDLC Orchestrator is the **FIRST governance-first platform** built on SDLC 5.0.0 Complete Lifecycle methodology. It's a bridge-layer tool that enforces quality gates, collects evidence, and ensures teams follow proven SDLC practices - WITHOUT replacing existing tools (GitHub, Jira, Linear).
+SDLC Orchestrator is the **Operating System for Software 3.0** - a control plane that sits ABOVE AI coders (Cursor, Claude Code, Copilot) to govern, validate, and ensure quality. We don't compete with AI coding tools - we orchestrate them.
 
-**Core Value Proposition**: Reduce feature waste from 60-70% → <30% by enforcing evidence-based development practices.
+**Core Value Proposition**:
+- Reduce feature waste from 60-70% → <30% by enforcing evidence-based development practices
+- Govern AI-generated code through 4-Gate Quality Pipeline
+- Enable Vietnamese SME to build enterprise-grade software with IR-based codegen
+
+**Software 3.0 Positioning**:
+- **Layer 5**: AI Coders (Cursor, Claude Code, Copilot) - External, we orchestrate
+- **Layer 4**: EP-06 Codegen (IR-based code generation) - Our innovation
+- **Layer 3**: Business Logic (Gate Engine, Evidence Vault) - Our core
+- **Layer 2**: Integration (OPA, MinIO, Semgrep adapters) - Thin adapters
+- **Layer 1**: Infrastructure (PostgreSQL, Redis, OPA, MinIO) - OSS components
 
 ### **Project Status**
 
 ```yaml
 Current Stage: Stage 03 (BUILD - Development & Implementation)
-Current Sprint: Sprint 31 - Gate G3 Preparation ✅ COMPLETE
+Current Sprint: Sprint 45 - Auto-Fix Engine
 Gate G3 Readiness: 98.2% (EXCEEDS 95% threshold)
-Timeline: 90 days (13 weeks) - Launched Nov 13, 2025
-Budget: $564K (8.5 FTE team)
-Target: Beta Pilot Launch (5 internal teams)
+Timeline: 90 days MVP + 6 sprints EP-06 extension
+Budget: $564K (8.5 FTE team) + $50K EP-06 investment
+Target: Vietnam SME Pilot (5 founding customers)
+
+Recent Sprints:
+  ✅ Sprint 43: OPA Policy Guards + Semgrep SAST Integration
+  ✅ Sprint 44: CrossReferenceValidator (file/import validation)
+  🔄 Sprint 45: Auto-Fix Engine (LLM-based code fixes)
+
+EP-06 IR-Based Codegen Engine (Sprint 45-50):
+  Sprint 45: Multi-Provider Architecture (Ollama → Claude → DeepCode)
+  Sprint 46: IR Processor Backend (Spec → IR transformation)
+  Sprint 47: Vietnamese Domain Templates (E-commerce, HRM, CRM)
+  Sprint 48: 4-Gate Quality Pipeline (Syntax → Security → Context → Tests)
+  Sprint 49: Vietnam SME Pilot (5 founding customers)
+  Sprint 50: Productization + GA Launch
 
 Gate G3 Metrics (Dec 12, 2025):
   ✅ Overall Readiness: 98.2% (target: 95%)
-  ✅ Sprint 31 Rating: 9.56/10 (target: 9.5/10)
   ✅ OWASP ASVS L2: 98.4% (target: 90%)
   ✅ API p95 Latency: ~80ms (target: <100ms)
   ✅ Test Coverage: 94% (target: 90%)
   ✅ P0/P1 Bugs: 0 (target: 0)
 
-Sprint 31 (Gate G3 Preparation - Dec 9-12, 2025):
-  ✅ Day 1: Load Testing - 9.5/10
-  ✅ Day 2: Performance Optimization - 9.6/10
-  ✅ Day 3: Security Audit - 9.7/10
-  ✅ Day 4: Documentation Review - 9.4/10
-  ✅ Day 5: G3 Checklist Complete - 9.6/10
-
 MVP v1.0.0 Status: COMPLETE (Dec 1, 2025)
-  ✅ Backend: 50+ API endpoints (FastAPI, PostgreSQL, Redis)
+  ✅ Backend: 64 API endpoints (FastAPI, PostgreSQL, Redis)
   ✅ Frontend: React Dashboard (shadcn/ui, TanStack Query)
   ✅ Security: JWT + OAuth + MFA, RBAC (13 roles), OWASP ASVS L2 (98.4%)
-  ✅ Evidence Vault: MinIO S3, SHA256 integrity
+  ✅ Evidence Vault: MinIO S3, SHA256 integrity, 8-state lifecycle
   ✅ Policy Engine: OPA integration, 110 policies
-  ✅ AI Engine: Multi-provider (Claude, GPT-4o, Gemini)
-  ✅ Compliance: Real-time scanning, violation management
+  ✅ SAST Integration: Semgrep with AI-specific security rules
+  ✅ AI Engine: Multi-provider (Ollama, Claude, GPT-4o)
   ✅ Operations: Prometheus metrics, Grafana dashboards
 
 Gates Status:
@@ -196,39 +213,46 @@ git push origin main
 
 ## 📐 **PROJECT ARCHITECTURE**
 
-### **4-Layer Architecture (Bridge-First Pattern)**
+### **5-Layer Architecture (Software 3.0 Pattern)**
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ LAYER 1: USER-FACING (Proprietary - Apache-2.0)               │
-│ - React Dashboard (shadcn/ui + TanStack Query)                 │
-│ - VS Code Extension (Templates, AI Panel, Evidence Submit)     │
-│ - CLI (sdlcctl - typer-based)                                  │
-└─────────────────┬───────────────────────────────────────────────┘
-                  │
-┌─────────────────┴───────────────────────────────────────────────┐
-│ LAYER 2: BUSINESS LOGIC (Proprietary - Apache-2.0)            │
-│ - Gate Engine API (Policy-as-Code evaluation)                  │
-│ - Evidence Vault API (S3 + metadata management)                │
-│ - AI Context Engine (Stage-aware prompts, multi-provider)      │
-│ - GitHub Bridge (Read-only sync: Issues, PRs, Projects)        │
-└─────────────────┬───────────────────────────────────────────────┘
-                  │
-┌─────────────────┴───────────────────────────────────────────────┐
-│ LAYER 3: INTEGRATION (Thin Adapters - Apache-2.0)             │
-│ - opa_service.py → OPA REST API (network-only)                │
-│ - minio_service.py → MinIO S3 API (network-only)              │
-│ - grafana_service.py → Grafana Embed API (iframe-only)        │
-│ - redis_service.py → Redis Protocol (network-only)            │
-└─────────────────┬───────────────────────────────────────────────┘
-                  │
-┌─────────────────┴───────────────────────────────────────────────┐
-│ LAYER 4: INFRASTRUCTURE (OSS Components)                       │
-│ - OPA 0.58.0 (Apache-2.0) - Policy evaluation engine           │
-│ - MinIO (AGPL v3) - Evidence storage (S3-compatible)           │
-│ - Grafana 10.2 (AGPL v3) - Operate dashboards                 │
-│ - PostgreSQL 15.5 (PostgreSQL License) - Metadata DB          │
-│ - Redis 7.2 (BSD 3-Clause) - Caching + sessions               │
+│ LAYER 5: AI CODERS (External - We Orchestrate)                  │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌───────────┐ │
+│  │   Cursor    │ │ Claude Code │ │   Copilot   │ │  DeepCode │ │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └───────────┘ │
+│         ↑               ↑               ↑              ↑        │
+│         └───────────────┴───────────────┴──────────────┘        │
+│                    Governance API + Quality Gates               │
+├─────────────────────────────────────────────────────────────────┤
+│ LAYER 4: EP-06 CODEGEN (Our Innovation - Sprint 45-50)          │
+│  • IR Processor Service (Spec → Intermediate Representation)   │
+│  • Multi-Provider Gateway (Ollama → Claude → DeepCode)          │
+│  • 4-Gate Quality Pipeline (Syntax → Security → Context → Test) │
+│  • Validation Loop Orchestrator (max_retries=3, escalation)     │
+│  • Evidence State Machine (8 states, immutable audit)           │
+├─────────────────────────────────────────────────────────────────┤
+│ LAYER 3: BUSINESS LOGIC (Our Core - Proprietary Apache-2.0)     │
+│  • Gate Engine API (OPA-powered Policy-as-Code)                 │
+│  • Evidence Vault API (S3 + 8-state lifecycle)                  │
+│  • AI Context Engine (Stage-aware prompts, multi-provider)      │
+│  • SAST Integration (Semgrep with AI-specific rules)            │
+│  • Override Queue (Tiered approval: Lead → Senior → CTO)        │
+├─────────────────────────────────────────────────────────────────┤
+│ LAYER 2: INTEGRATION (Thin Adapters - Apache-2.0)               │
+│  • opa_service.py → OPA REST API (network-only)                │
+│  • minio_service.py → MinIO S3 API (network-only)              │
+│  • semgrep_service.py → Semgrep CLI (subprocess)               │
+│  • ollama_service.py → Ollama REST API (network-only)          │
+│  • redis_service.py → Redis Protocol (network-only)            │
+├─────────────────────────────────────────────────────────────────┤
+│ LAYER 1: INFRASTRUCTURE (OSS Components)                        │
+│  • OPA 0.58.0 (Apache-2.0) - Policy evaluation engine           │
+│  • MinIO (AGPL v3) - Evidence storage (network-only, AGPL-safe) │
+│  • Grafana 10.2 (AGPL v3) - Dashboards (iframe embed only)     │
+│  • PostgreSQL 15.5 (PostgreSQL License) - 30 tables             │
+│  • Redis 7.2 (BSD 3-Clause) - Caching + sessions               │
+│  • Semgrep (LGPL) - SAST scanning (CLI subprocess)             │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -276,21 +300,61 @@ SDLC Orchestrator Policy:
   ❌ BANNED: `// TODO: Implement`, `pass # placeholder`, `return { mock: true }`
 ```
 
-**Principle 4: Innovation - Ollama AI Integration**
+**Principle 4: Innovation - Multi-Provider AI Integration**
 ```yaml
-Cost Optimization (ADR-007):
-  Primary: Ollama (api.nhatquangholding.com) - $50/month, <100ms latency
-  Fallback 1: Claude (Anthropic) - $1000/month, 300ms
-  Fallback 2: GPT-4 (OpenAI) - $800/month, 250ms
+Cost Optimization (ADR-007 + EP-06):
+  Primary: Ollama (api.nhatquangholding.com) - $50/month, <15s latency
+    Model: qwen2.5-coder:32b (code generation)
+  Fallback 1: Claude (Anthropic) - $1000/month, <25s latency
+    Model: claude-sonnet-4-5-20250929 (reasoning + code)
+  Fallback 2: DeepCode (Q2 2026) - TBD
+    Model: deepcode-v1 (Vietnamese-optimized)
   Fallback 3: Rule-based - $0/month, 50ms
+    Templates: Deterministic patterns for common cases
 
 Savings:
   - Year 1: $11,400 saved (95% cost reduction)
-  - Latency: 3x faster (<100ms vs 300ms)
-  - Privacy: No external API calls (compliance win)
+  - Latency: 3x faster (<100ms vs 300ms for simple tasks)
+  - Privacy: No external API calls for primary provider
+  - Quality: 4-Gate validation ensures consistency
 ```
 
-**Principle 5: AI Governance Layer (v2.0.0 - NEW)**
+**Principle 5: EP-06 IR-Based Codegen (Sprint 45-50 - NEW)**
+```yaml
+Vision: Vietnamese SME Code Generation
+  - IR (Intermediate Representation) for deterministic output
+  - Vietnamese domain templates (E-commerce, HRM, CRM)
+  - 4-Gate Quality Pipeline for validation
+  - Evidence-based code generation with full audit trail
+
+Core Components:
+  1. IR Processor Service
+     - Spec → IR transformation (deterministic)
+     - Vietnamese domain-specific schemas
+     - Template instantiation engine
+
+  2. Multi-Provider Codegen Gateway
+     - Provider chain: Ollama → Claude → DeepCode
+     - Latency targets: <15s (Ollama), <25s (Claude)
+     - Automatic fallback on timeout/quota
+
+  3. 4-Gate Quality Pipeline
+     - Gate 1 (Syntax): ast.parse, ruff, tsc - <5s
+     - Gate 2 (Security): Semgrep SAST - <10s
+     - Gate 3 (Context): 5 CTX checks - <10s
+     - Gate 4 (Tests): Dockerized pytest - <60s
+
+  4. Validation Loop Orchestrator
+     - max_retries: 3 (configurable)
+     - Deterministic feedback to LLM
+     - Escalation: council → human → abort
+
+  5. Evidence State Machine (8 states)
+     - generated → validating → retrying → escalated
+     - evidence_locked → awaiting_vcr → merged/aborted
+```
+
+**Principle 6: AI Governance Layer (v2.0.0)**
 ```yaml
 Vision: Encode CEO's Brain into Platform
   - Any PM achieves CEO-level AI productivity
@@ -881,54 +945,53 @@ ADR-014: SDLC Structure Validator
 
 ```
 /docs/
-├── 00-Project-Foundation/ (14 docs, Stage 00 - WHY)
-│   ├── 01-Vision/Product-Vision.md (v2.0.0 - AI Governance)
-│   ├── 03-Design-Thinking/Problem-Statement.md (v2.0.0)
-│   ├── 04-Roadmap/Product-Roadmap.md (v3.0.0 - 4-Phase Plan)
-│   └── ...
-├── 01-Planning-Analysis/ (15 docs, Stage 01 - WHAT)
-│   ├── Functional-Requirements.md (FR1-FR20 + AI Governance)
-│   ├── API-Specification.md (OpenAPI 3.0)
-│   ├── Data-Model-ERD.md
-│   └── ...
-├── 02-Design-Architecture/ (32 docs, Stage 02 - HOW)
-│   ├── 03-ADRs/
-│   │   ├── ADR-001 to ADR-010 (Existing decisions)
-│   │   ├── ADR-011-AI-Governance-Layer.md ⭐ NEW
-│   │   ├── ADR-012-Context-Aware-Requirements.md ⭐ NEW
-│   │   ├── ADR-013-Planning-Hierarchy.md ⭐ NEW
-│   │   └── ADR-014-SDLC-Validator.md ⭐ NEW
-│   ├── System-Architecture-Document.md (568 lines)
-│   ├── Technical-Design-Document.md (1,128 lines, 10+ diagrams)
-│   ├── openapi.yml (1,629 lines, 30+ endpoints)
-│   ├── Security-Baseline.md (OWASP ASVS Level 2) ⭐ GOLD STANDARD
-│   └── ...
-└── 03-Development-Implementation/ (Stage 03 - BUILD)
-    ├── 02-Sprint-Plans/
-    │   ├── SPRINT-26-AI-COUNCIL-SERVICE.md
-    │   ├── SPRINT-27-VSCODE-EXTENSION.md
-    │   └── SPRINT-28-WEB-DASHBOARD-AI.md
-    └── 04-Phase-Plans/ ⭐ NEW
-        ├── PHASE-01-AI-COUNCIL-SERVICE.md
-        ├── PHASE-02-VSCODE-EXTENSION.md
-        ├── PHASE-03-WEB-DASHBOARD-AI.md
-        └── PHASE-04-SDLC-VALIDATOR.md
+├── 00-discover/        # Stage 00: WHY - Design Thinking
+├── 01-planning/        # Stage 01: WHAT - Requirements & API Design
+│   ├── 03-Functional-Requirements/
+│   ├── 04-Data-Model/Data-Model-ERD.md (30 tables)
+│   └── 05-API-Design/API-Specification.md (64 endpoints)
+├── 02-design/          # Stage 02: HOW - Architecture & Design
+│   ├── 02-System-Architecture/
+│   │   └── System-Architecture-Document.md (v3.0.0 - 5-Layer)
+│   ├── 03-ADRs/ (22 ADRs)
+│   │   ├── ADR-001 to ADR-019 (Existing decisions)
+│   │   ├── ADR-020-EP-04-VCR-Workflow.md
+│   │   ├── ADR-021-EP-05-SDLC-Scanner.md
+│   │   └── ADR-022-EP-06-IR-Codegen.md ⭐ NEW
+│   └── 14-Technical-Specs/ (15 specs)
+│       ├── Quality-Gates-Codegen-Specification.md
+│       └── Policy-Guards-Design.md
+├── 03-integrate/       # Stage 07: Integration & APIs
+│   ├── 01-api-contracts/
+│   ├── 02-third-party/ (7 integrations)
+│   └── 03-integration-guides/
+├── 04-build/           # Stage 03: BUILD - Development
+│   └── 02-Sprint-Plans/
+│       ├── SPRINT-43-OPA-SAST.md ✅
+│       ├── SPRINT-44-CROSS-REFERENCE.md ✅
+│       ├── SPRINT-45-AUTO-FIX-ENGINE.md 🔄
+│       └── CURRENT-SPRINT.md
+└── 09-govern/          # Stage 09: GOVERN - Compliance & Reports
+    └── 01-CTO-Reports/
 ```
 
 ### **Critical Documents (Must Read Before Coding)**
 
 **Foundation Documents**:
 1. **[PROJECT-KICKOFF.md](PROJECT-KICKOFF.md)** - CEO approval, 90-day plan, $564K budget
-2. **[System-Architecture-Document.md](docs/02-Design-Architecture/System-Architecture-Document.md)** - 4-layer architecture, bridge-first pattern
-3. **[openapi.yml](docs/02-Design-Architecture/openapi.yml)** - 1,629 lines, 30+ endpoints, contract-first
-4. **[Security-Baseline.md](docs/02-Design-Architecture/Security-Baseline.md)** - OWASP ASVS Level 2, 264/264 requirements
-5. **[ADR-007-AI-Context-Engine](docs/02-Design-Architecture/03-ADRs/)** - Ollama integration, 95% cost savings
+2. **[System-Architecture-Document.md](docs/02-design/02-System-Architecture/System-Architecture-Document.md)** - 5-layer architecture (v3.0.0)
+3. **[API-Specification.md](docs/01-planning/05-API-Design/API-Specification.md)** - 64 endpoints (v3.1.0)
+4. **[Data-Model-ERD.md](docs/01-planning/04-Data-Model/Data-Model-ERD.md)** - 30 tables (v3.0.0)
 
-**AI Governance Documents (v2.0.0)** ⭐ NEW:
-6. **[Product-Vision.md](docs/00-Project-Foundation/01-Vision/Product-Vision.md)** - AI Governance Layer capabilities
-7. **[Product-Roadmap.md](docs/00-Project-Foundation/04-Roadmap/Product-Roadmap.md)** - 4-Phase implementation plan
-8. **[ADR-011 to ADR-014](docs/02-Design-Architecture/03-ADRs/)** - AI Governance architecture decisions
-9. **[PHASE-01 to PHASE-04](docs/03-Development-Implementation/04-Phase-Plans/)** - Detailed implementation plans
+**EP-06 Codegen Documents** ⭐ NEW:
+5. **[Quality-Gates-Codegen-Specification.md](docs/02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)** - 4-Gate Pipeline
+6. **[ADR-022-EP-06-IR-Codegen.md](docs/02-design/03-ADRs/)** - IR-based codegen architecture
+7. **[Stage 03 Integration README](docs/03-integrate/README.md)** - 7 third-party integrations
+
+**Sprint Plans**:
+8. **[SPRINT-43-OPA-SAST.md](docs/04-build/02-Sprint-Plans/)** - OPA Policy Guards + Semgrep
+9. **[SPRINT-44-CROSS-REFERENCE.md](docs/04-build/02-Sprint-Plans/)** - CrossReferenceValidator
+10. **[SPRINT-45-AUTO-FIX-ENGINE.md](docs/04-build/02-Sprint-Plans/)** - Auto-Fix Engine
 
 ---
 
@@ -966,12 +1029,20 @@ As Claude AI working on SDLC Orchestrator, you MUST:
 - Adopt **MTEP onboarding** (<30 min time to value)
 - Use **Ollama AI innovation** (95% cost savings)
 
-### **6. AI Governance Awareness (v2.0.0 - NEW)**
+### **6. AI Governance Awareness (v2.0.0)**
 - Understand **4-Phase implementation** (Sprint 26-30)
 - Apply **Context-Aware Requirements** (MANDATORY/RECOMMENDED/OPTIONAL)
 - Follow **4-Level Planning Hierarchy** (Roadmap → Phase → Sprint → Backlog)
 - Enforce **SDLC 5.0.0 folder structure** (10 stages: 00-10, 4-Tier Classification)
 - Reference **ADR-011 to ADR-014** for AI Governance decisions
+
+### **7. EP-06 Codegen Awareness (Sprint 45-50 - NEW)**
+- Understand **5-layer architecture** (AI Coders → EP-06 → Business → Integration → Infra)
+- Apply **4-Gate Quality Pipeline** (Syntax → Security → Context → Tests)
+- Follow **8-state Evidence lifecycle** (generated → validating → merged/aborted)
+- Use **Multi-Provider fallback** (Ollama → Claude → DeepCode)
+- Reference **ADR-022** for IR-based codegen decisions
+- Enforce **max_retries=3** validation loop with deterministic feedback
 
 ---
 
@@ -1031,14 +1102,28 @@ You are successful if:
 
 ---
 
-**Last Updated**: December 12, 2025
+**Last Updated**: December 23, 2025
 **Owner**: CTO + CPO + CEO
 **Status**: ✅ Gate G3 APPROVED - Ship Ready (98.2%)
+**Current Sprint**: Sprint 45 - Auto-Fix Engine
 **Next Review**: Weekly CEO Review (Every Friday 3pm)
 
 ---
 
 ## 📋 **CHANGELOG**
+
+### v2.0.0 (December 23, 2025)
+- **Software 3.0 Positioning** - "Operating System for Software 3.0"
+- **5-Layer Architecture** - AI Coders → EP-06 → Business → Integration → Infra
+- **EP-06 Codegen Engine** - Sprint 45-50 roadmap with ~$50K investment
+- **Sprint 43-44 Complete** - OPA Policy Guards, Semgrep SAST, CrossReferenceValidator
+- **Sprint 45 Active** - Auto-Fix Engine in progress
+- Added **Principle 5: EP-06 IR-Based Codegen** with 4-Gate Quality Pipeline
+- Added **8-state Evidence lifecycle** (generated → validating → merged/aborted)
+- Added **Multi-Provider Gateway** (Ollama → Claude → DeepCode)
+- Updated **Documentation Structure** to match new folder layout
+- Added **EP-06 Codegen Awareness** mandate (Section 7)
+- Updated all document references for 64 endpoints, 30 tables
 
 ### v1.5.0 (December 12, 2025)
 - **Gate G3 APPROVED** - Ship Ready with 98.2% readiness score

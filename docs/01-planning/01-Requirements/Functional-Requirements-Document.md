@@ -1,11 +1,19 @@
 # Functional Requirements Document (FRD) - SDLC Orchestrator
 
-**Version**: 3.0.0
-**Date**: December 21, 2025
-**Status**: ACTIVE - AI Safety + Governance Extension
+**Version**: 3.1.0
+**Date**: December 23, 2025
+**Status**: ACTIVE - AI Safety + Governance + Codegen Quality Gates
 **Authority**: PM + CTO + CPO + Full Team Approved
-**Foundation**: Product Vision 3.1.0, BRD 1.2.0, Stage 02 Architecture
+**Foundation**: Product Vision 4.0.0, BRD 1.2.0, Stage 02 Architecture
 **Framework**: SDLC 5.1.1 Complete Lifecycle
+
+**Changelog v3.1.0** (Dec 23, 2025):
+- Updated FR41-FR45: Codegen Engine with Quality Gates + Validation Loop (CTO 10-point DoD)
+- FR42: 4-Gate Quality Pipeline (Syntax → Security → Context → Tests)
+- FR43: Validation Loop Orchestration (max_retries=3, deterministic feedback, escalation)
+- FR44: Evidence State Machine (8 states, transition rules, locking)
+- FR45: Codegen Integration Points (unified API, 3 modes, observability metrics)
+- References: [Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
 
 **Changelog v3.0.0** (Dec 21, 2025):
 - Updated framework to SDLC 5.1.1
@@ -30,21 +38,30 @@
 
 **Purpose**: Define WHAT the SDLC Orchestrator will build in Sprint 1-4 (November 14 - February 10, 2026).
 
-**Scope**: 10 core functional requirements aligned with Product Vision MVP features:
+**Scope**: Core functional requirements aligned with Product Vision MVP features + EP-06 Codegen:
+
+### Core Platform (FR1-FR9)
 1. **FR1: Quality Gate Management** - Policy-as-Code enforcement using OPA
 2. **FR2: Evidence Vault** - Permanent audit trail with SHA256 integrity
 3. **FR3: AI Context Engine** - Multi-provider stage-aware assistance
 4. **FR4: Real-Time Dashboard** - Live gate status visualization
 5. **FR5: Policy Pack Library** - Pre-built SDLC 4.9 policies
-6. **FR6: Context-Aware Stage Requirements** - Dynamic MANDATORY/RECOMMENDED/OPTIONAL *(NEW v2.0)*
-7. **FR7: AI Task Decomposition** - User story → Tasks with CEO-level quality *(NEW v2.0)*
-8. **FR8: 4-Level Planning Hierarchy** - Roadmap → Phase → Sprint → Backlog *(NEW v2.0)*
-9. **FR9: SDLC Structure Validator** - Folder compliance enforcement *(NEW v2.0)*
-10. **FR21: User API Key Management** - BYOK for third-party AI providers *(NEW v2.1)*
+6. **FR6: Context-Aware Stage Requirements** - Dynamic MANDATORY/RECOMMENDED/OPTIONAL *(v2.0)*
+7. **FR7: AI Task Decomposition** - User story → Tasks with CEO-level quality *(v2.0)*
+8. **FR8: 4-Level Planning Hierarchy** - Roadmap → Phase → Sprint → Backlog *(v2.0)*
+9. **FR9: SDLC Structure Validator** - Folder compliance enforcement *(v2.0)*
+10. **FR21: User API Key Management** - BYOK for third-party AI providers *(v2.1)*
+
+### EP-06 IR-Based Codegen Engine (FR41-FR45) *(v3.1 - Sprint 48 Quality Gates)*
+11. **FR41: IR-Based Code Generation** - Multi-provider codegen from IR specifications
+12. **FR42: 4-Gate Quality Pipeline** - Syntax → Security → Context → Tests validation
+13. **FR43: Validation Loop Orchestration** - max_retries=3, deterministic feedback, escalation
+14. **FR44: Evidence State Machine** - 8-state lifecycle (generated → merged/aborted)
+15. **FR45: Codegen Integration Points** - Unified API, 3 modes, observability metrics
 
 **Timeline**: Week 2 (Nov 21-25) - Detailed specs for Week 3-4 architecture design.
 
-**Success Criteria**: All 9 FRs approved by Friday Nov 25 → Gate G1 passage.
+**Success Criteria**: All FRs approved → Gate G1 passage. EP-06 FRs require CTO 10-point DoD.
 
 ---
 
@@ -2120,6 +2137,469 @@ Response (400 Bad Request - Regression Tests Failed):
 - AC1: Hook blocks non-compliant commits
 - AC2: Clear error messages with fix suggestions
 - AC3: --fix option available for auto-fixable issues
+
+---
+
+## FR41: IR-Based Code Generation Engine (EP-06)
+
+*(Added in v3.0.0 - December 21, 2025)*
+*(Updated in v3.1.0 - December 23, 2025: Quality Gates + Validation Loop)*
+
+### Overview
+
+**Capability**: Intermediate Representation (IR) based code generation from structured project specifications.
+
+**Business Value**: Enable Vietnam SME to generate production-ready code from IR specifications, reducing development time by 60-80%.
+
+**Epic Reference**: [EP-06-IR-Based-Codegen-Engine](../02-Epics/EP-06-IR-Based-Codegen-Engine.md)
+
+**Technical Spec**: [Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+---
+
+### FR41.1: IR Decomposition & Parsing
+
+**Actor**: System (automated)
+**Precondition**: Project has `.sdlc-config.json` with IR modules defined
+
+**Main Flow**:
+1. User uploads or generates IR specification (JSON/YAML)
+2. System parses IR into component modules:
+   - Entity definitions (database schemas)
+   - API routes (RESTful endpoints)
+   - Business logic (services, validators)
+   - UI components (React/Vue templates)
+3. System validates IR structure against schema
+4. System decomposes 128K tokens → ~5K tokens per module (96% context reduction)
+5. System stores parsed IR in database with traceability links
+
+**Acceptance Criteria**:
+- AC1: IR parsing completes in <5 seconds for typical project (50 modules)
+- AC2: 96%+ context reduction achieved via IR decomposition
+- AC3: IR validation errors provide actionable Vietnamese error messages
+- AC4: Parsed IR modules linked to source specification
+
+---
+
+### FR41.2: Multi-Provider Code Generation
+
+**Actor**: Developer/PM
+**Precondition**: IR parsed and validated
+
+**Main Flow**:
+1. User selects IR module(s) for code generation
+2. System routes request through Multi-Provider Gateway:
+   - **Provider 1**: Ollama (qwen2.5-coder:32b) - Local, fast, cost-effective
+   - **Provider 2**: Claude (Anthropic) - Fallback for complex logic
+   - **Provider 3**: DeepCode - Q2 2026 decision gate
+3. System builds context-aware prompt:
+   - IR module content
+   - Project constraints (framework, language, patterns)
+   - Vietnamese domain context (if applicable)
+4. Provider generates code
+5. System captures generated code with provider metadata
+
+**Acceptance Criteria**:
+- AC1: Multi-provider fallback chain: Ollama → Claude → DeepCode
+- AC2: Provider selection based on complexity score and availability
+- AC3: Generation latency <30 seconds per module (p95)
+- AC4: Provider cost tracking per generation request
+
+---
+
+## FR42: 4-Gate Quality Pipeline for Codegen
+
+*(Added in v3.1.0 - December 23, 2025)*
+
+### Overview
+
+**Capability**: 4-stage quality validation pipeline ensuring generated code meets production standards.
+
+**Business Value**: Prevent defective code from reaching evidence vault, ensuring compliance and quality.
+
+**Technical Spec**: [Quality-Gates-Codegen-Specification.md §2](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+---
+
+### FR42.1: Gate 1 - Syntax Validation
+
+**Actor**: System (automated)
+**Precondition**: Code generated from IR module
+
+**Main Flow**:
+1. System extracts language from generation context (Python, TypeScript, SQL)
+2. System runs language-specific parser:
+   - Python: `ast.parse()` + `ruff --check`
+   - TypeScript: `tsc --noEmit` + `eslint`
+   - SQL: `sqlparse.parse()` + schema validation
+3. System collects syntax errors with line numbers
+4. System generates feedback with Vietnamese error messages
+
+**Acceptance Criteria**:
+- AC1: Syntax validation <5 seconds per file
+- AC2: Parser errors include line:column position
+- AC3: Vietnamese error messages for common syntax issues
+- AC4: Gate 1 FAIL blocks progression to Gate 2
+
+---
+
+### FR42.2: Gate 2 - Security Validation (SAST)
+
+**Actor**: System (automated)
+**Precondition**: Gate 1 PASS
+
+**Main Flow**:
+1. System runs Semgrep with AI-specific rules:
+   - Prompt injection detection
+   - Hardcoded secrets detection
+   - SQL injection patterns
+   - XSS vulnerabilities
+2. System categorizes findings by severity:
+   - CRITICAL: Generation FAIL, immediate escalation
+   - HIGH: Generation FAIL, retry with feedback
+   - MEDIUM/LOW: Warning, continue to Gate 3
+3. System generates security feedback with remediation suggestions
+
+**Acceptance Criteria**:
+- AC1: SAST scan <10 seconds per file
+- AC2: Custom AI-codegen rules detect prompt injection patterns
+- AC3: CRITICAL findings block evidence creation
+- AC4: Security findings logged in audit trail
+
+---
+
+### FR42.3: Gate 3 - Architecture & Context Validation
+
+**Actor**: System (automated)
+**Precondition**: Gate 2 PASS (no CRITICAL/HIGH findings)
+
+**Main Flow**:
+1. System runs 5 Context Alignment Checks (CTX-01 to CTX-05):
+   - **CTX-01**: IR Module Coverage (entity references match IR)
+   - **CTX-02**: Entity-Schema Consistency (foreign keys valid)
+   - **CTX-03**: Route-Module Binding (API routes resolve to services)
+   - **CTX-04**: Reference Existence (imported modules exist)
+   - **CTX-05**: API Shape vs IR (generated routes match spec)
+2. System calculates alignment score (0-100%)
+3. System generates context feedback with specific mismatches
+
+**Acceptance Criteria**:
+- AC1: Context validation <15 seconds per module
+- AC2: All 5 CTX checks implemented and passing
+- AC3: Alignment score ≥80% required for Gate 3 PASS
+- AC4: CTX failures include Vietnamese remediation suggestions
+
+---
+
+### FR42.4: Gate 4 - Test Validation
+
+**Actor**: System (automated)
+**Precondition**: Gate 3 PASS (alignment ≥80%)
+
+**Main Flow**:
+1. System generates unit tests for generated code (if not provided)
+2. System runs tests in isolated environment:
+   - Dockerized execution (recommended)
+   - Local pytest/vitest (fallback)
+3. System collects test results:
+   - Pass/Fail counts
+   - Coverage percentage
+   - Error messages
+4. System calculates quality score
+
+**Acceptance Criteria**:
+- AC1: Unit tests only (no integration tests for generated code)
+- AC2: Dockerized test execution preferred for isolation
+- AC3: Test timeout: 60 seconds maximum
+- AC4: Gate 4 PASS requires ≥80% test pass rate
+
+---
+
+## FR43: Validation Loop Orchestration
+
+*(Added in v3.1.0 - December 23, 2025)*
+
+### Overview
+
+**Capability**: Automated retry loop for failed code generation with deterministic feedback.
+
+**Business Value**: Maximize first-pass success rate while providing clear escalation path.
+
+**Technical Spec**: [Quality-Gates-Codegen-Specification.md §3](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+---
+
+### FR43.1: Loop Configuration & Control
+
+**Actor**: System (configurable)
+**Precondition**: Codegen request initiated
+
+**Configuration Parameters**:
+```yaml
+CODEGEN_MAX_RETRIES: 3              # Maximum retry attempts
+CODEGEN_ESCALATION_SLA_HOURS: 24    # Hours before escalation times out
+CODEGEN_ESCALATION_CHANNEL: council # Target: council | human | abort
+```
+
+**Main Flow**:
+1. System receives codegen request
+2. System initializes attempt counter (attempt_number = 1)
+3. System generates code via selected provider
+4. System runs 4-Gate Quality Pipeline
+5. **IF** all gates PASS: Proceed to evidence locking
+6. **IF** any gate FAILS:
+   - System increments attempt_number
+   - **IF** attempt_number ≤ MAX_RETRIES:
+     - System builds deterministic feedback
+     - System retries with same or fallback provider
+   - **IF** attempt_number > MAX_RETRIES:
+     - System escalates to council/human review
+
+**Acceptance Criteria**:
+- AC1: MAX_RETRIES configurable (default: 3)
+- AC2: Escalation SLA configurable (default: 24 hours)
+- AC3: Loop state persisted (survives service restart)
+- AC4: Each attempt logged with full context
+
+---
+
+### FR43.2: Deterministic Feedback Contract
+
+**Actor**: System (automated)
+**Precondition**: Quality gate failed
+
+**Feedback Schema**:
+```python
+class QualityGateFeedback:
+    attempt_number: int                    # Current attempt (1, 2, 3)
+    failed_gates: List[str]               # ["gate_2_security", "gate_3_context"]
+    gate_feedback: List[GateFeedbackItem] # Structured feedback per gate
+    overall_vietnamese_message: str       # User-friendly summary
+    previous_provider: str                # Provider that generated failed code
+    recommendation: str                   # "retry_same_provider" | "try_fallback" | "escalate"
+```
+
+**Main Flow**:
+1. Quality Pipeline returns failed gates with details
+2. System constructs QualityGateFeedback object
+3. System generates Vietnamese error message
+4. System determines recommendation:
+   - Syntax errors → retry same provider with specific fix
+   - Security errors → try fallback provider
+   - Context errors → retry with enriched IR context
+   - Repeated failures → escalate
+5. System injects feedback into next generation prompt
+
+**Acceptance Criteria**:
+- AC1: Feedback schema standardized (Pydantic model)
+- AC2: Vietnamese messages for all error categories
+- AC3: Recommendation logic deterministic (no AI randomness)
+- AC4: Feedback includes specific file:line references
+
+---
+
+### FR43.3: Escalation Workflow
+
+**Actor**: AI Council / Human Reviewer
+**Precondition**: MAX_RETRIES exceeded
+
+**Main Flow**:
+1. System creates escalation ticket:
+   - All attempt history (code, feedback, providers)
+   - IR module context
+   - Project constraints
+2. System routes to escalation channel:
+   - **council**: AI Council reviews with multi-agent deliberation
+   - **human**: Slack notification to human reviewer
+   - **abort**: Mark generation as failed, no evidence created
+3. Escalation handler reviews and decides:
+   - Approve generated code (override quality gates)
+   - Modify IR and retry
+   - Abort with explanation
+4. System applies decision and updates evidence state
+
+**Acceptance Criteria**:
+- AC1: Escalation SLA enforced (24 hours default)
+- AC2: Council escalation includes full context history
+- AC3: Human escalation sends Slack notification
+- AC4: Escalation decision logged in audit trail
+
+---
+
+## FR44: Evidence State Machine for Codegen
+
+*(Added in v3.1.0 - December 23, 2025)*
+
+### Overview
+
+**Capability**: 8-state evidence lifecycle management for generated code.
+
+**Business Value**: Clear audit trail from generation to merge, enabling compliance verification.
+
+**Technical Spec**: [Quality-Gates-Codegen-Specification.md §3.4](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+---
+
+### FR44.1: Evidence State Transitions
+
+**States**:
+```
+generated → validating → retrying → escalated → evidence_locked → awaiting_vcr → merged/aborted
+```
+
+**Transition Rules**:
+| From | To | Trigger | Guard |
+|------|----|---------|-------|
+| generated | validating | quality_check_started | code_exists |
+| validating | retrying | gate_failed | attempt < MAX_RETRIES |
+| validating | escalated | gate_failed | attempt >= MAX_RETRIES |
+| validating | evidence_locked | all_gates_passed | - |
+| retrying | validating | regeneration_complete | - |
+| escalated | evidence_locked | council_approved | override_justified |
+| escalated | aborted | council_rejected | - |
+| evidence_locked | awaiting_vcr | vcr_initiated | evidence_hash_locked |
+| awaiting_vcr | merged | vcr_approved | - |
+| awaiting_vcr | aborted | vcr_rejected | - |
+
+**Acceptance Criteria**:
+- AC1: State machine enforced (invalid transitions rejected)
+- AC2: All transitions logged with timestamp and actor
+- AC3: Evidence hash locked before VCR submission
+- AC4: State queryable via API
+
+---
+
+### FR44.2: Evidence Locking Rules
+
+**Actor**: System (automated)
+**Precondition**: All quality gates PASS
+
+**Main Flow**:
+1. System computes SHA256 hash of generated code
+2. System locks evidence record:
+   - `state = 'evidence_locked'`
+   - `locked_at = NOW()`
+   - `locked_hash = SHA256(code)`
+3. System prevents modifications:
+   - Code content immutable
+   - Metadata (except VCR fields) frozen
+4. System initiates VCR workflow if configured
+
+**Acceptance Criteria**:
+- AC1: Evidence immutable after locking
+- AC2: Hash verification on every access
+- AC3: VCR submission requires locked evidence
+- AC4: Unlock requires CTO override + audit log
+
+---
+
+## FR45: Codegen Integration Points
+
+*(Added in v3.1.0 - December 23, 2025)*
+
+### Overview
+
+**Capability**: Single integration entry point for codegen orchestration.
+
+**Business Value**: Consistent API surface for all codegen consumers (Dashboard, CLI, VS Code).
+
+**Technical Spec**: [Quality-Gates-Codegen-Specification.md §3.3](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+---
+
+### FR45.1: Unified Codegen API
+
+**Entry Point**: `POST /api/v1/codegen/generate`
+
+**Request Schema**:
+```typescript
+{
+  "project_id": "uuid",
+  "ir_module_id": "uuid",
+  "generation_mode": "single" | "batch" | "interactive",
+  "provider_preference": "auto" | "ollama" | "claude" | "deepcode",
+  "quality_gates_config": {
+    "skip_gate_4_tests": false,
+    "context_alignment_threshold": 80
+  },
+  "callback_url": "https://..." // For async batch mode
+}
+```
+
+**Response Schema**:
+```typescript
+{
+  "generation_id": "uuid",
+  "status": "queued" | "generating" | "validating" | "complete" | "failed" | "escalated",
+  "evidence_id": "uuid" | null,
+  "quality_result": {
+    "gate_1_syntax": "pass" | "fail",
+    "gate_2_security": "pass" | "fail",
+    "gate_3_context": "pass" | "fail",
+    "gate_4_tests": "pass" | "fail" | "skipped"
+  },
+  "attempt_number": 1,
+  "provider_used": "ollama",
+  "generated_at": "2025-12-23T10:00:00Z"
+}
+```
+
+**Acceptance Criteria**:
+- AC1: Single endpoint for all generation modes
+- AC2: Async support with callback_url for batch mode
+- AC3: Quality result included in response
+- AC4: Generation ID enables status polling
+
+---
+
+### FR45.2: Generation Mode Support
+
+**Modes**:
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| **single** | Generate one IR module, wait for result | Dashboard interactive |
+| **batch** | Queue multiple modules, callback on complete | CI/CD pipeline |
+| **interactive** | Stream generation with live feedback | VS Code extension |
+
+**Acceptance Criteria**:
+- AC1: Single mode: Response in <60 seconds
+- AC2: Batch mode: Callback within 5 minutes of completion
+- AC3: Interactive mode: SSE stream for progress updates
+- AC4: All modes use same quality pipeline
+
+---
+
+### FR45.3: Observability Metrics
+
+**Prometheus Metrics**:
+| Metric | Type | Labels | Description |
+|--------|------|--------|-------------|
+| `codegen_attempts_total` | Counter | provider, status | Total generation attempts |
+| `codegen_retry_count` | Histogram | provider | Retries per generation |
+| `codegen_gate_failures_total` | Counter | gate, reason | Quality gate failures |
+| `codegen_latency_seconds` | Histogram | provider, mode | End-to-end latency |
+| `codegen_evidence_state` | Gauge | state | Current evidence count per state |
+| `codegen_escalation_queue_size` | Gauge | channel | Pending escalations |
+| `codegen_provider_cost_usd` | Counter | provider | Generation cost tracking |
+
+**Grafana Dashboard Queries**:
+```promql
+# Success rate by provider
+sum(rate(codegen_attempts_total{status="success"}[1h])) by (provider)
+/ sum(rate(codegen_attempts_total[1h])) by (provider)
+
+# P95 latency
+histogram_quantile(0.95, sum(rate(codegen_latency_seconds_bucket[5m])) by (le, provider))
+
+# Gate failure distribution
+sum(rate(codegen_gate_failures_total[1h])) by (gate)
+```
+
+**Acceptance Criteria**:
+- AC1: All 7 metrics implemented
+- AC2: Grafana dashboard with 3 panels minimum
+- AC3: Alert on escalation queue > 5
+- AC4: Cost tracking accurate to $0.01
 
 ---
 

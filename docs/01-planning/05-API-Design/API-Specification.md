@@ -1,13 +1,27 @@
 # API Specification (OpenAPI 3.0)
 ## Complete REST + GraphQL Endpoints
 
-**Version**: 3.0.0
-**Date**: December 21, 2025
-**Status**: ACTIVE - EP-04/05/06 EXTENDED
+**Version**: 3.1.0
+**Date**: December 23, 2025
+**Status**: ACTIVE - EP-06 Quality Gates + Validation Loop
 **Authority**: Backend Lead + CTO Review (✅ APPROVED)
-**Foundation**: FRD v3.0.0, Data Model ERD v3.0.0, Roadmap v4.1.0
+**Foundation**: FRD v3.1.0, Data Model ERD v3.1.0, Roadmap v5.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
 **Framework**: SDLC 5.1.1 Complete Lifecycle (10 Stages)
+
+**Changelog v3.1.0** (Dec 23, 2025):
+- Added EP-06 Codegen Quality Gates endpoints (12 new endpoints)
+- POST /codegen/generate - Unified codegen entry point
+- GET /codegen/{id}/status - Generation status polling
+- GET /codegen/{id}/attempts - List generation attempts
+- POST /codegen/{id}/escalate - Manual escalation trigger
+- GET /codegen/escalations - List pending escalations
+- POST /codegen/escalations/{id}/resolve - Resolve escalation
+- GET /codegen/evidence - List codegen evidence
+- GET /codegen/evidence/{id} - Get evidence details
+- POST /codegen/evidence/{id}/vcr - Initiate VCR workflow
+- GET /codegen/metrics - Prometheus metrics endpoint
+- Total endpoints: 52 → 64 endpoints
 
 **Changelog v3.0.0** (Dec 21, 2025):
 - SDLC 5.1.1 update with EP-04/05/06 endpoint specifications
@@ -1350,7 +1364,163 @@ security:
 |--------|------|-------------|---------------|
 | POST | `/validate` | Validate SDLC structure | Any |
 
-**Total REST Endpoints**: 35 endpoints (19 original + 16 AI Governance)
+### EP-06 Codegen Quality Gates (12 endpoints) *(NEW v3.1)*
+
+| Method | Path | Description | Role Required |
+|--------|------|-------------|---------------|
+| POST | `/codegen/generate` | Initiate code generation | Any |
+| GET | `/codegen/{id}` | Get generation details | Any |
+| GET | `/codegen/{id}/status` | Poll generation status | Any |
+| GET | `/codegen/{id}/attempts` | List generation attempts | Any |
+| POST | `/codegen/{id}/retry` | Manual retry (within max_retries) | EM, PM, Admin |
+| POST | `/codegen/{id}/escalate` | Manual escalation trigger | EM, PM, CTO |
+| GET | `/codegen/escalations` | List pending escalations | CTO, Council |
+| GET | `/codegen/escalations/{id}` | Get escalation details | CTO, Council |
+| POST | `/codegen/escalations/{id}/resolve` | Resolve escalation (approve/reject) | CTO, Council |
+| GET | `/codegen/evidence` | List codegen evidence | Any |
+| GET | `/codegen/evidence/{id}` | Get evidence details + hash verification | Any |
+| POST | `/codegen/evidence/{id}/vcr` | Initiate VCR workflow | EM, PM, Admin |
+
+**Detailed EP-06 Codegen Endpoints:**
+
+#### POST /codegen/generate
+```json
+// Request
+{
+  "project_id": "uuid",
+  "ir_module_id": "uuid",
+  "generation_mode": "single" | "batch" | "interactive",
+  "provider_preference": "auto" | "ollama" | "claude" | "deepcode",
+  "quality_gates_config": {
+    "skip_gate_4_tests": false,
+    "context_alignment_threshold": 80
+  },
+  "callback_url": "https://..." // For async batch mode
+}
+
+// Response (201 Created)
+{
+  "generation_id": "uuid",
+  "status": "queued",
+  "ir_module_id": "uuid",
+  "created_at": "2025-12-23T10:00:00Z"
+}
+```
+
+#### GET /codegen/{id}/status
+```json
+// Response
+{
+  "generation_id": "uuid",
+  "status": "generating" | "validating" | "retrying" | "escalated" | "evidence_locked" | "complete" | "failed",
+  "current_attempt": 2,
+  "max_retries": 3,
+  "quality_result": {
+    "gate_1_syntax": "pass",
+    "gate_2_security": "pass",
+    "gate_3_context": "fail",
+    "gate_4_tests": "skipped"
+  },
+  "provider_used": "ollama",
+  "updated_at": "2025-12-23T10:05:00Z"
+}
+```
+
+#### GET /codegen/{id}/attempts
+```json
+// Response
+{
+  "generation_id": "uuid",
+  "attempts": [
+    {
+      "attempt_number": 1,
+      "provider_used": "ollama",
+      "gate_1_syntax": "pass",
+      "gate_2_security": "fail",
+      "gate_3_context": "skipped",
+      "gate_4_tests": "skipped",
+      "overall_result": "fail",
+      "feedback_summary": "Phát hiện lỗ hổng bảo mật: SQL Injection tại dòng 42",
+      "recommendation": "try_fallback",
+      "created_at": "2025-12-23T10:01:00Z"
+    },
+    {
+      "attempt_number": 2,
+      "provider_used": "claude",
+      "gate_1_syntax": "pass",
+      "gate_2_security": "pass",
+      "gate_3_context": "pass",
+      "gate_4_tests": "pass",
+      "overall_result": "pass",
+      "created_at": "2025-12-23T10:03:00Z"
+    }
+  ]
+}
+```
+
+#### POST /codegen/escalations/{id}/resolve
+```json
+// Request
+{
+  "resolution_status": "approved" | "rejected" | "modified",
+  "resolution_reason": "Code reviewed and approved with minor modifications",
+  "override_justification": "Business priority requires immediate deployment" // Required if approved despite failures
+}
+
+// Response
+{
+  "escalation_id": "uuid",
+  "resolution_status": "approved",
+  "resolved_by": "user_uuid",
+  "resolved_at": "2025-12-23T15:00:00Z",
+  "generation_state": "evidence_locked" // Updated state
+}
+```
+
+#### POST /codegen/evidence/{id}/vcr
+```json
+// Request
+{
+  "target_branch": "main",
+  "source_branch": "feature/generated-module-xyz",
+  "commit_message": "feat(entity): Add User entity from IR module"
+}
+
+// Response
+{
+  "vcr_request_id": "uuid",
+  "evidence_id": "uuid",
+  "status": "pending",
+  "github_pr_url": "https://github.com/org/repo/pull/123", // If GitHub integration enabled
+  "created_at": "2025-12-23T16:00:00Z"
+}
+```
+
+#### GET /codegen/metrics
+```
+# HELP codegen_attempts_total Total generation attempts
+# TYPE codegen_attempts_total counter
+codegen_attempts_total{provider="ollama",status="success"} 1234
+codegen_attempts_total{provider="claude",status="success"} 456
+
+# HELP codegen_gate_failures_total Quality gate failures
+# TYPE codegen_gate_failures_total counter
+codegen_gate_failures_total{gate="gate_1_syntax",reason="parse_error"} 23
+codegen_gate_failures_total{gate="gate_2_security",reason="sql_injection"} 12
+
+# HELP codegen_latency_seconds End-to-end latency
+# TYPE codegen_latency_seconds histogram
+codegen_latency_seconds_bucket{provider="ollama",mode="single",le="10"} 500
+
+# HELP codegen_escalation_queue_size Pending escalations
+# TYPE codegen_escalation_queue_size gauge
+codegen_escalation_queue_size{channel="council"} 2
+codegen_escalation_queue_size{channel="human"} 1
+```
+
+**Technical Spec Reference**: [Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+**Total REST Endpoints**: 64 endpoints (35 original + 16 AI Governance + 12 EP-06 Codegen + 1 SDLC Validation)
 
 ---
 
@@ -1909,17 +2079,22 @@ GET /projects?limit=20&cursor=eyJpZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NT
 
 ---
 
-**Last Updated**: 2025-12-03
+**Last Updated**: 2025-12-23
 **Owner**: Backend Lead + CTO
-**Status**: ✅ APPROVED (AI Governance Extension)
+**Status**: ✅ APPROVED (EP-06 Codegen Quality Gates Extension)
 
 **Version History**:
+- v3.1.0 (Dec 23, 2025): Added 12 EP-06 Codegen Quality Gates endpoints (64 total)
+- v3.0.0 (Dec 21, 2025): EP-04/05/06 SDLC Structure + Migration endpoints (52 total)
 - v2.0.0 (Dec 3, 2025): Added 16 AI Governance endpoints (35 total)
 - v1.0.0 (Nov 13, 2025): Initial API spec (19 endpoints)
 
 **Related Documents**:
-- [Functional Requirements Document](../01-Requirements/Functional-Requirements-Document.md) (v2.0.0)
-- [Database Schema](../03-Data-Model/Database-Schema.md) (v2.0.0)
+- [Functional Requirements Document](../01-Requirements/Functional-Requirements-Document.md) (v3.1.0)
+- [Data Model ERD](../04-Data-Model/Data-Model-ERD.md) (v3.1.0)
+- [Non-Functional Requirements](../01-Requirements/Non-Functional-Requirements.md) (v3.1.0)
+- [EP-06 IR-Based Codegen Engine](../02-Epics/EP-06-IR-Based-Codegen-Engine.md)
+- **[Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)** *(NEW v3.1)*
 - [ADR-011-Context-Aware-Requirements](../../02-design/01-ADRs/ADR-011-Context-Aware-Requirements.md)
 - [ADR-012-AI-Task-Decomposition](../../02-design/01-ADRs/ADR-012-AI-Task-Decomposition.md)
 - [ADR-013-Planning-Hierarchy](../../02-design/01-ADRs/ADR-013-Planning-Hierarchy.md)
@@ -1927,4 +2102,4 @@ GET /projects?limit=20&cursor=eyJpZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NT
 
 ---
 
-**End of API Specification v2.0.0**
+**End of API Specification v3.1.0**

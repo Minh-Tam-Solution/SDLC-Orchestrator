@@ -157,7 +157,14 @@
       "Bash(python3 -m pytest tests/unit/services/codegen/ -v --tb=short)",
       "Bash(source venv/bin/activate)",
       "Bash(pip3 show:*)",
-      "Bash(python3 -m py_compile:*)"
+      "Bash(python3 -m py_compile:*)",
+      "Bash(PYTHONPATH=/home/nqh/shared/SDLC-Orchestrator/backend /home/nqh/shared/SDLC-Orchestrator/.venv/bin/python -m pytest:*)",
+      "Bash(PYTHONPATH=/home/nqh/shared/SDLC-Orchestrator/backend .venv/bin/python -m pytest:*)",
+      "Bash(git -C /home/nqh/shared/SDLC-Orchestrator diff --stat)",
+      "Bash(git -C /home/nqh/shared/SDLC-Orchestrator diff backend/app/core/config.py docker-compose.yml)",
+      "Bash(PYTHONPATH=/home/nqh/shared/SDLC-Orchestrator/backend CODEGEN_OLLAMA_URL=http://localhost:11434 python:*)",
+      "Bash(PYTHONPATH=/home/nqh/shared/SDLC-Orchestrator/backend CODEGEN_OLLAMA_URL=http://localhost:11434 python3:*)",
+      "Bash(CODEGEN_OLLAMA_URL=http://localhost:11434 python:*)"
     ],
     "deny": [],
     "ask": []

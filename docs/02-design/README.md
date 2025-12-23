@@ -1,13 +1,27 @@
 # Stage 02: Design & Architecture (HOW?)
 ## System Architecture + Technical Design
 
-**Version**: 2.0.0
-**Date**: November 29, 2025
+**Version**: 3.0.0
+**Date**: December 23, 2025
 **Status**: ✅ COMPLETED - Gate G2 PASSED (CTO 9.4/10, CPO 9.2/10)
 **Authority**: CTO + Tech Lead + Backend Lead Approved
-**Foundation**: SDLC 4.9.1 Complete Lifecycle (10 Stages)
+**Foundation**: SDLC 5.1.1 Complete Lifecycle (10 Stages)
 **Previous Stage**: Stage 01 (Planning & Analysis - WHAT) ✅ COMPLETE
-**Next Stage**: Stage 04 (BUILD) - IN PROGRESS
+**Next Stage**: Stage 04 (BUILD) - Sprint 44-50 IN PROGRESS
+**Positioning**: Operating System for Software 3.0
+
+**Changelog v3.0.0** (Dec 23, 2025):
+- **SOFTWARE 3.0 PIVOT**: Control Plane for AI Coders positioning
+- **EP-06 Technical Specs**: Quality-Gates-Codegen-Specification.md (Sprint 48)
+- **EP-06 Sprint 45-50**: IR Processor, Vietnamese Templates, Pilot, Productization
+- **Sprint 43 OPA Integration**: Policy Guards Design complete
+- **Sprint 44 Scanner Engine**: CrossReferenceValidator, SDLC Structure Scanner
+- **14-Technical-Specs folder**: 15 specifications total
+- Updated framework reference: SDLC 4.9.1 → SDLC 5.1.1
+
+**Changelog v2.0.0** (Nov 29, 2025):
+- Added AI Governance Layer (Section 11)
+- Added Admin Panel Design (Sprint 37-40)
 
 ---
 
@@ -27,17 +41,17 @@ This stage transforms requirements (Stage 01 - WHAT) into technical architecture
 02-design/
 ├── README.md (this file)
 ├── 01-ADRs/ (Architecture Decision Records - Consolidated)
-│   ├── ADR-001 to ADR-019 (15 ADRs total) ✅
+│   ├── ADR-001 to ADR-022 (22 ADRs total) ✅
 │   └── All architecture decisions in one place
 ├── 02-System-Architecture/
-│   ├── System-Architecture-Document.md ✅
+│   ├── System-Architecture-Document.md ✅ (v3.0.0)
 │   ├── Component-Architecture.md ✅
 │   ├── Technical-Design-Document.md ✅
 │   ├── Integration-Architecture.md ✅
 │   ├── Event-Driven-Architecture.md ✅
 │   └── C4-ARCHITECTURE-DIAGRAMS.md ✅
 ├── 03-Database-Design/
-│   └── Database-Architecture.md ✅
+│   └── Database-Architecture.md ✅ (30 tables)
 ├── 04-API-Design/
 │   ├── API-DEVELOPER-GUIDE.md ✅
 │   ├── API-CHANGELOG.md ✅
@@ -76,12 +90,22 @@ This stage transforms requirements (Stage 01 - WHAT) into technical architecture
 │   └── Scalability-Architecture.md ✅
 ├── 13-Testing-Strategy/
 │   └── Testing-Architecture.md ✅
-├── 14-Technical-Specs/
+├── 14-Technical-Specs/ ⭐ EXPANDED (15 specs)
 │   ├── AI-Safety-Layer-v1.md ✅
 │   ├── AI-Detection-Service-Interface.md ✅
 │   ├── Analytics-Events-Taxonomy-v1.md ✅
 │   ├── Design-Partner-Scorecard-v1.md ✅
-│   └── Workshop-Deck-AI-Safety-v1.md ✅
+│   ├── Workshop-Deck-AI-Safety-v1.md ✅
+│   ├── Policy-Guards-Design.md ✅ (Sprint 43)
+│   ├── Validation-Pipeline-Interface.md ✅
+│   ├── Validator-Rules-Specification.md ✅
+│   ├── Scanner-Architecture-Design.md ✅ (Sprint 44)
+│   ├── Codegen-Service-Specification.md ✅ (EP-06)
+│   ├── IR-Processor-Specification.md ✅ (Sprint 46)
+│   ├── Vietnamese-Domain-Templates-Specification.md ✅ (Sprint 47)
+│   ├── Quality-Gates-Codegen-Specification.md ✅ (Sprint 48) ⭐
+│   ├── Pilot-Execution-Specification.md ✅ (Sprint 49)
+│   └── Productization-Baseline-Specification.md ✅ (Sprint 50)
 └── 99-Legacy/
     └── (archived docs, duplicate ADRs)
 ```
@@ -130,19 +154,22 @@ This stage transforms requirements (Stage 01 - WHAT) into technical architecture
 ## Progress Tracker
 
 ### 01-ADRs (100% complete)
-- ✅ ADR-001 to ADR-019 (15 Architecture Decision Records)
+- ✅ ADR-001 to ADR-022 (22 Architecture Decision Records)
 - ✅ All decisions consolidated in single folder
+- ✅ ADR-020: EP-04 SDLC Structure Enforcement
+- ✅ ADR-021: EP-05 Enterprise SDLC Migration
+- ✅ ADR-022: EP-06 Multi-Provider Codegen Architecture
 
 ### 02-System-Architecture (100% complete)
-- ✅ System-Architecture-Document.md (568 lines, 4-layer architecture)
+- ✅ System-Architecture-Document.md (v3.0.0 - 5-layer architecture with EP-06 Codegen Layer)
 - ✅ Component-Architecture.md (bridge-first pattern)
-- ✅ Technical-Design-Document.md
+- ✅ Technical-Design-Document.md (v2.0.0)
 - ✅ Integration-Architecture.md
 - ✅ Event-Driven-Architecture.md
 - ✅ C4-ARCHITECTURE-DIAGRAMS.md
 
 ### 03-Database-Design (100% complete)
-- ✅ Database-Architecture.md (24 tables, 6-layer design)
+- ✅ Database-Architecture.md (30 tables, 7-layer design including EP-06 Codegen Layer)
 
 ### 04-API-Design (100% complete)
 - ✅ API-DEVELOPER-GUIDE.md
@@ -192,14 +219,24 @@ This stage transforms requirements (Stage 01 - WHAT) into technical architecture
 ### 13-Testing-Strategy (100% complete)
 - ✅ Testing-Architecture.md (95%+ coverage target)
 
-### 14-Technical-Specs (100% complete)
+### 14-Technical-Specs (100% complete) ⭐ EXPANDED
 - ✅ AI-Safety-Layer-v1.md
 - ✅ AI-Detection-Service-Interface.md
 - ✅ Analytics-Events-Taxonomy-v1.md
 - ✅ Design-Partner-Scorecard-v1.md
 - ✅ Workshop-Deck-AI-Safety-v1.md
+- ✅ Policy-Guards-Design.md (Sprint 43 - OPA Integration)
+- ✅ Validation-Pipeline-Interface.md
+- ✅ Validator-Rules-Specification.md
+- ✅ Scanner-Architecture-Design.md (Sprint 44 - CrossReferenceValidator)
+- ✅ Codegen-Service-Specification.md (EP-06 Codegen)
+- ✅ IR-Processor-Specification.md (Sprint 46)
+- ✅ Vietnamese-Domain-Templates-Specification.md (Sprint 47)
+- ✅ **Quality-Gates-Codegen-Specification.md** (Sprint 48) ⭐ NEW
+- ✅ Pilot-Execution-Specification.md (Sprint 49)
+- ✅ Productization-Baseline-Specification.md (Sprint 50)
 
-**Overall Progress**: ✅ 100% (60+ documents complete)
+**Overall Progress**: ✅ 100% (75+ documents complete)
 
 ---
 
@@ -528,39 +565,82 @@ Once Stage 02 is complete → **[Stage 04 (BUILD)](../03-Development-Implementat
 
 ---
 
-**Last Updated**: November 29, 2025
+**Last Updated**: December 23, 2025
 **Owner**: CTO + Tech Lead + Backend Lead
 **Status**: ✅ COMPLETED - Gate G2 PASSED
+**Positioning**: Operating System for Software 3.0
 
 ---
 
 ## Document Summary
 
-**Total Documents**: 24 (across 11 folders)
-**Total Lines**: 50,000+ lines of architecture documentation
+**Total Documents**: 75+ (across 14 folders)
+**Total Lines**: 100,000+ lines of architecture documentation
 **Quality Gates**: G2 (Technical Feasibility) ✅ PASSED (Dec 9, 2025)
-**Next Stage**: Stage 04 (BUILD) - IN PROGRESS
+**Next Stage**: Stage 04 (BUILD) - Sprint 44-50 IN PROGRESS
 **Current Stage**: ✅ Stage 02 COMPLETED
+**Framework**: SDLC 5.1.1
 
 ---
 
-## Implementation Highlights (Week 10 of 13)
+## Strategic Design Updates (Dec 23, 2025)
+
+### Software 3.0 Positioning
+
+> **"Operating System for Software 3.0 - Where AI coders are governed, not feared."**
+
+**5-Layer Architecture** (updated from 4-layer):
+```
+Layer 5: AI Coders (Claude/Cursor/Copilot/OSS) ← We orchestrate
+Layer 4: EP-06 Codegen (IR Processor + Quality Gates) ← NEW ⭐
+Layer 3: Business Logic (Gate Engine + Evidence Vault) ← Core
+Layer 2: Integration Layer (OPA, MinIO, GitHub Bridge)
+Layer 1: Infrastructure (PostgreSQL, Redis, MinIO, Grafana)
+```
+
+### EP-06 Technical Specs (Sprint 45-50)
+
+| Sprint | Focus | Spec Document | Status |
+|--------|-------|---------------|--------|
+| 45 | Multi-Provider Architecture | ADR-022, Tech Spec | ✅ |
+| 46 | IR Processor Backend | IR-Processor-Specification.md | ✅ |
+| 47 | Vietnamese Domain Templates | Vietnamese-Domain-Templates-Specification.md | ✅ |
+| 48 | Quality Gates for Codegen | Quality-Gates-Codegen-Specification.md | ✅ ⭐ |
+| 49 | Vietnam SME Pilot | Pilot-Execution-Specification.md | ✅ |
+| 50 | Productization + GA | Productization-Baseline-Specification.md | ✅ |
+
+### Sprint 43-44 Implementations
+
+| Sprint | Feature | Key Design |
+|--------|---------|------------|
+| 43 | OPA Integration + Policy Guards | Policy-Guards-Design.md |
+| 43 | SAST Validator (Semgrep) | Validation-Pipeline-Interface.md |
+| 43 | Evidence Timeline UI | Component-Architecture.md |
+| 43 | Override Queue Management | Data-Flow-Architecture.md |
+| 44 | SDLC Structure Scanner | Scanner-Architecture-Design.md |
+| 44 | CrossReferenceValidator | Validator-Rules-Specification.md |
+
+---
+
+## Implementation Highlights
 
 ### Architecture Delivered:
 
 | Component | Status | Key Deliverable |
 |-----------|--------|-----------------|
-| **System Architecture** | ✅ | 4-layer architecture, bridge-first pattern |
-| **Database Design** | ✅ | 24 tables, 6-layer schema, Alembic migrations |
-| **API Design** | ✅ | openapi.yml (139KB, 30+ endpoints) |
+| **System Architecture** | ✅ | 5-layer architecture (EP-06 Codegen Layer added) |
+| **Database Design** | ✅ | 30 tables, 7-layer schema, Alembic migrations |
+| **API Design** | ✅ | openapi.yml (139KB, 64+ endpoints) |
 | **Security** | ✅ | OWASP ASVS Level 2, SOC 2 Type I matrix |
 | **Performance** | ✅ | <100ms p95 target, Redis caching strategy |
 | **DevOps** | ✅ | CI/CD pipeline, Docker/Kubernetes ready |
 | **Testing** | ✅ | 95%+ coverage target, E2E with Playwright |
 | **Admin Panel** | ✅ | Sprint 37-40, Full CRUD, 121 E2E tests |
+| **EP-06 Codegen** | ✅ | 4-Gate Quality Pipeline, Validation Loop, Evidence State Machine |
 
 ### ADRs (Architecture Decision Records):
 
+**Original ADRs (ADR-001 to ADR-019)**:
 1. **ADR-001**: FastAPI over Django (10x throughput, async-first)
 2. **ADR-002**: PostgreSQL over MongoDB (ACID, JSONB flexibility)
 3. **ADR-003**: Modular Monolith → Microservices path
@@ -569,6 +649,11 @@ Once Stage 02 is complete → **[Stage 04 (BUILD)](../03-Development-Implementat
 6. **ADR-006**: OPA Policy-as-Code (CNCF graduated)
 7. **ADR-007**: Ollama AI Integration (95% cost savings)
 8. **ADR-017**: Admin Panel Architecture (Sprint 37-40)
+
+**New ADRs (ADR-020 to ADR-022)** *(Dec 2025)*:
+9. **ADR-020**: EP-04 SDLC Structure Enforcement (Universal AI Codex Validation)
+10. **ADR-021**: EP-05 Enterprise SDLC Migration (.sdlc-config.json 700x smaller)
+11. **ADR-022**: EP-06 Multi-Provider Codegen Architecture (Ollama → Claude → DeepCode)
 
 ---
 

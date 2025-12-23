@@ -20,10 +20,11 @@
 - **Multi-Provider**: Ollama → Claude → DeepCode (DeepCode deferred Q2 2026)
 - **Vietnamese Domain Templates**: F&B, Hotel, Retail with Vietnamese questionnaire
 
-**Changelog v3.1.0** (Dec 21, 2025):
+**Changelog v3.1.0** (Dec 23, 2025):
 - **EP-04**: SDLC Structure Enforcement - Universal AI Codex Validation
 - **EP-05**: Enterprise SDLC Migration Engine - Automated Pro/Enterprise Migration
 - **EP-06**: Codegen Engine Tri-Mode - BYO + Native OSS + Hybrid Fallback
+- **EP-06 Quality Gates (Stage 01 refresh)**: FR41-FR45 + NFR29-NFR35 + P8 traceability + codegen data/API additions
 - **Model Roles**: IT Admin 10-model strategy integrated
 - **NQH AI Platform**: qwen2.5-coder:32b (92.7% HumanEval) configured
 - **.sdlc-config.json**: Revolutionary 1KB replacement for 700KB manual docs
@@ -42,6 +43,17 @@ This stage transforms validated problems (Stage 00) into detailed requirements:
 - **API Specifications** (OpenAPI 3.0) - WHAT endpoints to expose
 
 **Critical Success Factor**: We must define WHAT to build with enough detail that engineers can estimate effort and architects can design solutions.
+
+---
+
+## EP-06 (v3.1.0) Key Planning Additions
+
+Stage 01 documents were updated to support Sprint 48 implementation of Codegen Quality Gates:
+
+- **FR additions (FR41–FR45)**: IR-based codegen, 4-gate pipeline, validation loop (`max_retries=3`), evidence state machine (8 states), integration points.
+- **NFR additions (NFR29–NFR35)**: latency budgets, state transition time (<100ms), 7 Prometheus metrics, escalation SLA (24h), CTX checks performance.
+- **Data model**: 6 EP-06 tables added (ir_modules, codegen_generations, codegen_attempts, codegen_escalations, codegen_evidence, vcr_requests).
+- **API spec**: +12 endpoints for codegen generation/status/attempts/escalations/evidence/VCR/metrics (total 52 → 64).
 
 ---
 
@@ -103,26 +115,24 @@ This stage transforms validated problems (Stage 00) into detailed requirements:
 **Question**: "Have we defined WHAT to build with sufficient detail?"
 
 **Criteria**:
-- [ ] Legal review PASSED (AGPL containment approved)
+- [x] Legal review PASSED (AGPL containment approved)
 - [x] Internal-first strategy approved (5-8 MTS/NQH teams for Phase 1)
-- [ ] FR1-FR20 defined (functional requirements)
-- [ ] NFR1-NFR15 defined (non-functional requirements)
-- [ ] Data model reviewed (CTO approval, no N+1 queries)
-- [ ] API specs complete (OpenAPI 3.0, all endpoints documented)
-- [ ] User stories estimated (story points, velocity calculated)
+- [x] FRD updated (includes EP-06 FR41-FR45)
+- [x] NFR updated (includes EP-06 NFR29-NFR35)
+- [x] Data model reviewed (includes EP-06 codegen tables)
+- [x] API specs complete (includes EP-06 codegen endpoints)
+- [x] User stories estimated (story points, velocity calculated)
 
-**Status**: 🔴 PENDING - Week 2
-
-**CRITICAL Go/No-Go Decision**: Legal review MUST pass by Week 2 end. If AGPL contamination detected, entire architecture must pivot.
+**Status**: ✅ PASSED
 
 ---
 
 ## Progress Tracker
 
 ### 01-Requirements (100% complete)
-- ✅ Functional-Requirements-Document.md (FR1-FR5, 61KB)
-- ✅ Non-Functional-Requirements.md (NFR1-NFR15)
-- ✅ Requirements-Traceability-Matrix.md
+- ✅ Functional-Requirements-Document.md (v3.1.0, includes FR41-FR45)
+- ✅ Non-Functional-Requirements.md (v3.1.0, includes NFR29-NFR35)
+- ✅ Requirements-Traceability-Matrix.md (v2.1.0, includes P8 + FR41-FR45 + NFR29-NFR35)
 
 ### 02-Epics (Updated Dec 2025) ✅ COMPLETE
 - ✅ EP-04-SDLC-Structure-Enforcement.md (Universal AI Codex Validation, Sprint 44-46, $16.5K)
@@ -154,13 +164,13 @@ This stage transforms validated problems (Stage 00) into detailed requirements:
 - ✅ Story-Mapping.md
 
 ### 04-Data-Model (100% complete)
-- ✅ Data-Model-v0.1.md (1.0.0 - IMPLEMENTED, 24 tables, 45KB)
-- ✅ Data-Model-ERD.md (2.0.0 - 6-layer diagram)
+- ✅ Data-Model-v0.1.md (baseline)
+- ✅ Data-Model-ERD.md (v3.1.0, 30 tables incl. EP-06 codegen)
 - ✅ Database-Schema.md
 - ✅ Data-Dictionary.md
 
 ### 05-API-Design (100% complete)
-- ✅ API-Specification.md (OpenAPI 3.0, 30+ endpoints)
+- ✅ API-Specification.md (v3.1.0, 64 endpoints incl. +12 EP-06 codegen)
 - ✅ API-Authentication.md (JWT + OAuth)
 - ✅ API-Versioning-Strategy.md
 
@@ -174,7 +184,7 @@ This stage transforms validated problems (Stage 00) into detailed requirements:
 
 ---
 
-## Exit Criteria (Stage 02 COMPLETED)
+## Exit Criteria (Stage 01 COMPLETED)
 
 - [x] G1: Planning & Analysis validated ✅
 - [x] Legal review PASSED (AGPL containment approved) ✅
