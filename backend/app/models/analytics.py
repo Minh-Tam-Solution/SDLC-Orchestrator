@@ -148,6 +148,7 @@ class AICodeEvent(Base):
     user = relationship("User", foreign_keys=[user_id], back_populates="ai_code_events")
     project = relationship("Project", back_populates="ai_code_events")
     validated_by = relationship("User", foreign_keys=[validated_by_user_id])
+    overrides = relationship("ValidationOverride", back_populates="event", cascade="all, delete-orphan")
 
     # Indexes
     __table_args__ = (

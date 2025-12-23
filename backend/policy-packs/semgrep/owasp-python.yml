@@ -1,0 +1,497 @@
+# OWASP Top 10 Python Security Rules
+#
+# SDLC Stage: 04 - BUILD
+# Sprint: 43 - Policy Guards & Evidence UI
+# Framework: SDLC 5.1.1
+# Epic: EP-02 AI Safety Layer v1
+#
+# Purpose:
+# Semgrep rules for detecting OWASP Top 10 vulnerabilities in Python code.
+# Aligned with OWASP Top 10 2021.
+#
+# Reference:
+# - OWASP Top 10 2021: https://owasp.org/Top10/
+
+rules:
+  # ==========================================================================
+  # A01:2021 - Broken Access Control
+  # ==========================================================================
+
+  - id: owasp-a01-missing-auth-decorator
+    message: >
+      API endpoint missing authentication decorator. Add @require_auth or
+      similar authentication check.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: broken-access-control
+      cwe: CWE-306
+      owasp: A01:2021 Broken Access Control
+      confidence: MEDIUM
+    patterns:
+      - pattern: |
+          @$ROUTER.$METHOD("...")
+          async def $FUNC(...):
+              ...
+      - pattern-not-inside: |
+          @require_auth
+          ...
+      - pattern-not-inside: |
+          @Depends(get_current_user)
+          ...
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: (post|put|patch|delete)
+
+  - id: owasp-a01-direct-object-reference
+    message: >
+      Direct object reference without ownership check. Verify user owns
+      the resource before accessing.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: broken-access-control
+      cwe: CWE-639
+      owasp: A01:2021 Broken Access Control
+      confidence: MEDIUM
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $MODEL.query.get($ID)
+          - pattern: |
+              db.query($MODEL).filter($MODEL.id == $ID).first()
+      - pattern-not-inside: |
+          if $USER.id == ...:
+              ...
+
+  # ==========================================================================
+  # A02:2021 - Cryptographic Failures
+  # ==========================================================================
+
+  - id: owasp-a02-weak-hash-md5
+    message: >
+      MD5 is cryptographically weak. Use SHA-256 or bcrypt for passwords,
+      SHA-256 for integrity checks.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: cryptography
+      cwe: CWE-328
+      owasp: A02:2021 Cryptographic Failures
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: hashlib.md5(...)
+          - pattern: MD5.new(...)
+
+  - id: owasp-a02-weak-hash-sha1
+    message: >
+      SHA-1 is deprecated for security. Use SHA-256 or stronger.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: cryptography
+      cwe: CWE-328
+      owasp: A02:2021 Cryptographic Failures
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: hashlib.sha1(...)
+          - pattern: SHA.new(...)
+
+  - id: owasp-a02-hardcoded-secret
+    message: >
+      Hardcoded secret detected. Use environment variables or secret manager.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: secrets
+      cwe: CWE-798
+      owasp: A02:2021 Cryptographic Failures
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $VAR = "..."
+          - pattern: |
+              $VAR = '...'
+      - metavariable-regex:
+          metavariable: $VAR
+          regex: (password|secret|api_key|token|private_key)
+      - pattern-not: |
+          $VAR = os.environ.get(...)
+      - pattern-not: |
+          $VAR = os.getenv(...)
+
+  - id: owasp-a02-insecure-random
+    message: >
+      Using random module for security. Use secrets module instead.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: cryptography
+      cwe: CWE-330
+      owasp: A02:2021 Cryptographic Failures
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: random.random()
+          - pattern: random.randint(...)
+          - pattern: random.choice(...)
+      - pattern-inside: |
+          def $FUNC(...):
+              ...
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: (generate.*token|create.*key|generate.*password|auth|secret)
+
+  # ==========================================================================
+  # A03:2021 - Injection
+  # ==========================================================================
+
+  - id: owasp-a03-sql-injection
+    message: >
+      SQL injection vulnerability. Use parameterized queries instead of
+      string formatting.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: injection
+      cwe: CWE-89
+      owasp: A03:2021 Injection
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $CURSOR.execute(f"...")
+          - pattern: |
+              $CURSOR.execute("...".format(...))
+          - pattern: |
+              $CURSOR.execute("..." + $VAR)
+          - pattern: |
+              $CURSOR.execute("..." % (...))
+
+  - id: owasp-a03-command-injection
+    message: >
+      Command injection vulnerability. Use subprocess with list args,
+      not shell=True.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: command-injection
+      cwe: CWE-78
+      owasp: A03:2021 Injection
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: os.system($CMD)
+          - pattern: subprocess.call($CMD, shell=True)
+          - pattern: subprocess.run($CMD, shell=True)
+          - pattern: subprocess.Popen($CMD, shell=True)
+
+  - id: owasp-a03-xpath-injection
+    message: >
+      XPath injection vulnerability. Use parameterized XPath queries.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: injection
+      cwe: CWE-643
+      owasp: A03:2021 Injection
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $TREE.xpath(f"...")
+          - pattern: |
+              $TREE.xpath("...".format(...))
+
+  - id: owasp-a03-ldap-injection
+    message: >
+      LDAP injection vulnerability. Escape special characters in filters.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: injection
+      cwe: CWE-90
+      owasp: A03:2021 Injection
+      confidence: HIGH
+    patterns:
+      - pattern: |
+          $CONN.search(..., f"...", ...)
+
+  # ==========================================================================
+  # A04:2021 - Insecure Design
+  # ==========================================================================
+
+  - id: owasp-a04-no-rate-limit
+    message: >
+      Endpoint without rate limiting. Add rate limiting for abuse prevention.
+    severity: INFO
+    languages: [python]
+    metadata:
+      category: insecure-design
+      cwe: CWE-770
+      owasp: A04:2021 Insecure Design
+      confidence: LOW
+    patterns:
+      - pattern: |
+          @$ROUTER.post("/...$PATH...")
+          async def $FUNC(...):
+              ...
+      - pattern-not-inside: |
+          @limiter.limit(...)
+          ...
+      - metavariable-regex:
+          metavariable: $PATH
+          regex: (login|register|reset|token|auth)
+
+  # ==========================================================================
+  # A05:2021 - Security Misconfiguration
+  # ==========================================================================
+
+  - id: owasp-a05-debug-enabled
+    message: >
+      Debug mode enabled in production. Disable debug for production deployments.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: security-misconfiguration
+      cwe: CWE-489
+      owasp: A05:2021 Security Misconfiguration
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: app.run(debug=True)
+          - pattern: DEBUG = True
+          - pattern: FLASK_DEBUG = True
+
+  - id: owasp-a05-cors-wildcard
+    message: >
+      CORS allows all origins. Restrict to specific trusted domains.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: security-misconfiguration
+      cwe: CWE-942
+      owasp: A05:2021 Security Misconfiguration
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: CORS(app, origins="*")
+          - pattern: |
+              allow_origins=["*"]
+          - pattern: |
+              Access-Control-Allow-Origin: *
+
+  - id: owasp-a05-insecure-ssl
+    message: >
+      SSL verification disabled. Enable SSL verification in production.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: security-misconfiguration
+      cwe: CWE-295
+      owasp: A05:2021 Security Misconfiguration
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: requests.get(..., verify=False)
+          - pattern: requests.post(..., verify=False)
+          - pattern: httpx.get(..., verify=False)
+          - pattern: aiohttp.ClientSession(..., connector=...(ssl=False))
+
+  # ==========================================================================
+  # A06:2021 - Vulnerable and Outdated Components
+  # ==========================================================================
+
+  - id: owasp-a06-vulnerable-import
+    message: >
+      Importing potentially vulnerable package. Check for security updates.
+    severity: INFO
+    languages: [python]
+    metadata:
+      category: vulnerable-components
+      cwe: CWE-1104
+      owasp: A06:2021 Vulnerable Components
+      confidence: LOW
+    patterns:
+      - pattern-either:
+          - pattern: import pyyaml
+          - pattern: import jinja2
+          - pattern: import pillow
+      - pattern-not-inside: |
+          # nosec: verified secure version
+
+  # ==========================================================================
+  # A07:2021 - Identification and Authentication Failures
+  # ==========================================================================
+
+  - id: owasp-a07-weak-password-hash
+    message: >
+      Weak password hashing. Use bcrypt, argon2, or scrypt with proper cost.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: authentication
+      cwe: CWE-916
+      owasp: A07:2021 Authentication Failures
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: hashlib.sha256($PASSWORD.encode())
+          - pattern: hashlib.sha512($PASSWORD.encode())
+          - pattern: hashlib.md5($PASSWORD.encode())
+      - pattern-inside: |
+          def $FUNC(...):
+              ...
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: (hash_password|set_password|create_user|register)
+
+  - id: owasp-a07-session-fixation
+    message: >
+      Session not regenerated after login. Regenerate session ID after authentication.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: authentication
+      cwe: CWE-384
+      owasp: A07:2021 Authentication Failures
+      confidence: MEDIUM
+    patterns:
+      - pattern: |
+          session["user"] = ...
+      - pattern-not-inside: |
+          session.regenerate()
+          ...
+
+  # ==========================================================================
+  # A08:2021 - Software and Data Integrity Failures
+  # ==========================================================================
+
+  - id: owasp-a08-unsafe-yaml
+    message: >
+      Unsafe YAML loading. Use yaml.safe_load() instead of yaml.load().
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: insecure-deserialization
+      cwe: CWE-502
+      owasp: A08:2021 Data Integrity Failures
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: yaml.load($DATA)
+          - pattern: yaml.load($DATA, Loader=yaml.Loader)
+          - pattern: yaml.load($DATA, Loader=yaml.FullLoader)
+      - pattern-not: yaml.load($DATA, Loader=yaml.SafeLoader)
+      - pattern-not: yaml.safe_load($DATA)
+
+  - id: owasp-a08-unsafe-eval
+    message: >
+      Using eval() on user input is dangerous. Use ast.literal_eval() for
+      safe evaluation of literals.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: insecure-deserialization
+      cwe: CWE-95
+      owasp: A08:2021 Data Integrity Failures
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: eval($USER_INPUT)
+          - pattern: exec($USER_INPUT)
+      - metavariable-regex:
+          metavariable: $USER_INPUT
+          regex: (user|input|request|data|query)
+
+  # ==========================================================================
+  # A09:2021 - Security Logging and Monitoring Failures
+  # ==========================================================================
+
+  - id: owasp-a09-sensitive-data-logged
+    message: >
+      Sensitive data may be logged. Mask or redact sensitive information.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: logging
+      cwe: CWE-532
+      owasp: A09:2021 Logging Failures
+      confidence: MEDIUM
+    patterns:
+      - pattern-either:
+          - pattern: logger.info(..., $SENSITIVE, ...)
+          - pattern: logger.debug(..., $SENSITIVE, ...)
+          - pattern: print(..., $SENSITIVE, ...)
+      - metavariable-regex:
+          metavariable: $SENSITIVE
+          regex: (password|secret|token|api_key|credit_card|ssn)
+
+  - id: owasp-a09-no-logging-on-error
+    message: >
+      Exception caught without logging. Log security-relevant errors.
+    severity: INFO
+    languages: [python]
+    metadata:
+      category: logging
+      cwe: CWE-778
+      owasp: A09:2021 Logging Failures
+      confidence: LOW
+    patterns:
+      - pattern: |
+          except $EXCEPTION:
+              pass
+      - metavariable-regex:
+          metavariable: $EXCEPTION
+          regex: (AuthError|PermissionError|SecurityError|UnauthorizedError)
+
+  # ==========================================================================
+  # A10:2021 - Server-Side Request Forgery (SSRF)
+  # ==========================================================================
+
+  - id: owasp-a10-ssrf
+    message: >
+      Potential SSRF vulnerability. Validate and whitelist URLs before making requests.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: ssrf
+      cwe: CWE-918
+      owasp: A10:2021 SSRF
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: requests.get($URL)
+          - pattern: requests.post($URL, ...)
+          - pattern: httpx.get($URL)
+          - pattern: aiohttp.ClientSession().get($URL)
+      - metavariable-regex:
+          metavariable: $URL
+          regex: (user_url|url|request\.|input|target)
+      - pattern-not-inside: |
+          if validate_url($URL):
+              ...
+
+  - id: owasp-a10-open-redirect
+    message: >
+      Open redirect vulnerability. Validate redirect URLs against whitelist.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: ssrf
+      cwe: CWE-601
+      owasp: A10:2021 SSRF
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: redirect($URL)
+          - pattern: RedirectResponse(url=$URL)
+      - metavariable-regex:
+          metavariable: $URL
+          regex: (next|redirect|return_url|callback|url)
+      - pattern-not-inside: |
+          if is_safe_url($URL):
+              ...

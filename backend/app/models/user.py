@@ -150,6 +150,19 @@ class User(Base):
     sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
     usage_events = relationship("UsageEvent", back_populates="user", cascade="all, delete-orphan")
 
+    # Analytics Relationships (Sprint 41)
+    analytics_events = relationship("AnalyticsEvent", back_populates="user", cascade="all, delete-orphan")
+    ai_code_events = relationship(
+        "AICodeEvent", back_populates="user",
+        foreign_keys="[AICodeEvent.user_id]", cascade="all, delete-orphan"
+    )
+
+    # Override Relationships (Sprint 43)
+    override_requests = relationship(
+        "ValidationOverride", back_populates="requested_by",
+        foreign_keys="[ValidationOverride.requested_by_id]"
+    )
+
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email={self.email}, roles={[r.name for r in self.roles]})>"
 

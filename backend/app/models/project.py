@@ -126,6 +126,12 @@ class Project(Base):
         "CustomPolicy", back_populates="project", cascade="all, delete-orphan"
     )
     webhooks = relationship("Webhook", back_populates="project", cascade="all, delete-orphan")
+    ai_code_events = relationship(
+        "AICodeEvent", back_populates="project", cascade="all, delete-orphan"
+    )
+    validation_overrides = relationship(
+        "ValidationOverride", back_populates="project", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Project(id={self.id}, name={self.name}, slug={self.slug})>"

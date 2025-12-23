@@ -1,0 +1,350 @@
+# AI Security Rules for SDLC Orchestrator
+#
+# SDLC Stage: 04 - BUILD
+# Sprint: 43 - Policy Guards & Evidence UI
+# Framework: SDLC 5.1.1
+# Epic: EP-02 AI Safety Layer v1
+#
+# Purpose:
+# Semgrep rules for detecting AI/ML security vulnerabilities.
+# Focus on prompt injection, data leakage, and unsafe model operations.
+#
+# Categories:
+# - prompt-injection: User input in prompts/templates
+# - data-leakage: Sensitive data exposure via AI
+# - unsafe-model: Insecure model serialization
+# - api-misuse: Unsafe AI API usage patterns
+
+rules:
+  # ==========================================================================
+  # Prompt Injection Detection
+  # ==========================================================================
+
+  - id: ai-prompt-injection-fstring
+    message: >
+      Potential prompt injection: User input directly interpolated into f-string
+      that may be used as AI prompt. Use parameterized prompts or sanitize input.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: prompt-injection
+      cwe: CWE-94
+      owasp: A03:2021 Injection
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: |
+              f"...$USER_INPUT..."
+          - pattern: |
+              f'...$USER_INPUT...'
+      - metavariable-regex:
+          metavariable: $USER_INPUT
+          regex: (user_input|request\.|input_text|query|message|prompt)
+
+  - id: ai-prompt-injection-format
+    message: >
+      Potential prompt injection: User input used in string format() method.
+      Validate and sanitize user input before including in prompts.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: prompt-injection
+      cwe: CWE-94
+      owasp: A03:2021 Injection
+      confidence: HIGH
+    patterns:
+      - pattern: |
+          "...".format(..., $USER_INPUT, ...)
+      - metavariable-regex:
+          metavariable: $USER_INPUT
+          regex: (user_input|request\.|input|query|message)
+
+  - id: ai-prompt-injection-concat
+    message: >
+      Potential prompt injection: String concatenation with user input in prompt.
+      Use template with proper escaping instead of concatenation.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: prompt-injection
+      cwe: CWE-94
+      owasp: A03:2021 Injection
+      confidence: MEDIUM
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $PROMPT + $USER_INPUT
+          - pattern: |
+              $USER_INPUT + $PROMPT
+      - metavariable-regex:
+          metavariable: $PROMPT
+          regex: (prompt|system_prompt|template|instruction)
+      - metavariable-regex:
+          metavariable: $USER_INPUT
+          regex: (user|input|request|query|message)
+
+  - id: ai-langchain-prompt-injection
+    message: >
+      User input directly passed to LangChain prompt. Use input validation
+      or PromptGuard to prevent prompt injection attacks.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: prompt-injection
+      cwe: CWE-94
+      owasp: A03:2021 Injection
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $CHAIN.invoke($USER_INPUT)
+          - pattern: |
+              $CHAIN.run($USER_INPUT)
+          - pattern: |
+              $CHAIN($USER_INPUT)
+      - metavariable-regex:
+          metavariable: $USER_INPUT
+          regex: (user_input|request\.|input|query)
+
+  # ==========================================================================
+  # Data Leakage Detection
+  # ==========================================================================
+
+  - id: ai-api-key-in-code
+    message: >
+      Hardcoded AI API key detected. Use environment variables or secret
+      management instead. This could lead to credential theft.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: secrets
+      cwe: CWE-798
+      owasp: A02:2021 Cryptographic Failures
+      confidence: HIGH
+    patterns:
+      - pattern-regex: (openai|anthropic|cohere|huggingface|replicate).*['\"][a-zA-Z0-9_-]{20,}['\"]
+
+  - id: ai-logging-sensitive-prompt
+    message: >
+      Sensitive data may be logged with AI prompt. Ensure PII and secrets
+      are redacted before logging.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: data-leakage
+      cwe: CWE-532
+      owasp: A09:2021 Security Logging and Monitoring Failures
+      confidence: MEDIUM
+    patterns:
+      - pattern-either:
+          - pattern: |
+              logger.$METHOD(..., $PROMPT, ...)
+          - pattern: |
+              logging.$METHOD(..., $PROMPT, ...)
+          - pattern: |
+              print(..., $PROMPT, ...)
+      - metavariable-regex:
+          metavariable: $PROMPT
+          regex: (prompt|message|response|completion|context)
+
+  - id: ai-response-contains-secret
+    message: >
+      AI response may contain or expose secrets. Validate AI output
+      before returning to user.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: data-leakage
+      cwe: CWE-200
+      owasp: A01:2021 Broken Access Control
+      confidence: MEDIUM
+    patterns:
+      - pattern: |
+          return $RESPONSE.content
+
+  # ==========================================================================
+  # Unsafe Model Operations
+  # ==========================================================================
+
+  - id: ai-unsafe-pickle-load
+    message: >
+      Using pickle to load model is unsafe. Pickle can execute arbitrary code.
+      Use safetensors or verify model source before loading.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: unsafe-model
+      cwe: CWE-502
+      owasp: A08:2021 Insecure Deserialization
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: pickle.load(...)
+          - pattern: pickle.loads(...)
+          - pattern: cloudpickle.load(...)
+
+  - id: ai-unsafe-torch-load
+    message: >
+      torch.load() can execute arbitrary code. Use weights_only=True
+      or torch.load(..., weights_only=True) for untrusted models.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: unsafe-model
+      cwe: CWE-502
+      owasp: A08:2021 Insecure Deserialization
+      confidence: HIGH
+    patterns:
+      - pattern: torch.load($PATH)
+      - pattern-not: torch.load($PATH, weights_only=True)
+
+  - id: ai-unsafe-joblib-load
+    message: >
+      joblib.load() can execute arbitrary code on untrusted files.
+      Verify model source before loading.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: unsafe-model
+      cwe: CWE-502
+      owasp: A08:2021 Insecure Deserialization
+      confidence: HIGH
+    pattern: joblib.load(...)
+
+  # ==========================================================================
+  # API Misuse Detection
+  # ==========================================================================
+
+  - id: ai-openai-no-timeout
+    message: >
+      OpenAI API call without timeout. Set timeout to prevent hanging requests.
+    severity: INFO
+    languages: [python]
+    metadata:
+      category: api-misuse
+      cwe: CWE-400
+      confidence: MEDIUM
+    patterns:
+      - pattern: openai.ChatCompletion.create(...)
+      - pattern-not: openai.ChatCompletion.create(..., timeout=..., ...)
+
+  - id: ai-no-rate-limit
+    message: >
+      AI API call without rate limiting. Implement rate limiting to prevent
+      cost overruns and API abuse.
+    severity: INFO
+    languages: [python]
+    metadata:
+      category: api-misuse
+      cwe: CWE-770
+      confidence: LOW
+    patterns:
+      - pattern-either:
+          - pattern: |
+              async def $FUNC(...):
+                  ...
+                  $CLIENT.chat.completions.create(...)
+          - pattern: |
+              def $FUNC(...):
+                  ...
+                  $CLIENT.chat.completions.create(...)
+      - pattern-not-inside: |
+          @rate_limit(...)
+          def $FUNC(...):
+              ...
+
+  - id: ai-missing-error-handling
+    message: >
+      AI API call without error handling. Handle rate limits, timeouts,
+      and API errors gracefully.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: api-misuse
+      cwe: CWE-755
+      confidence: MEDIUM
+    patterns:
+      - pattern: |
+          $RESPONSE = $CLIENT.chat.completions.create(...)
+      - pattern-not-inside: |
+          try:
+              ...
+          except:
+              ...
+
+  # ==========================================================================
+  # TypeScript/JavaScript AI Security
+  # ==========================================================================
+
+  - id: ai-ts-prompt-injection
+    message: >
+      Potential prompt injection: User input directly in template literal
+      used for AI prompt.
+    severity: ERROR
+    languages: [javascript, typescript]
+    metadata:
+      category: prompt-injection
+      cwe: CWE-94
+      owasp: A03:2021 Injection
+      confidence: HIGH
+    patterns:
+      - pattern: |
+          `...${$USER_INPUT}...`
+      - metavariable-regex:
+          metavariable: $USER_INPUT
+          regex: (userInput|req\.|input|query|message|prompt)
+
+  - id: ai-ts-api-key-exposed
+    message: >
+      AI API key may be exposed to client. Use server-side API calls only.
+    severity: ERROR
+    languages: [javascript, typescript]
+    metadata:
+      category: secrets
+      cwe: CWE-798
+      confidence: HIGH
+    patterns:
+      - pattern-regex: (OPENAI_API_KEY|ANTHROPIC_API_KEY).*=.*['\"][a-zA-Z0-9_-]{20,}
+
+  # ==========================================================================
+  # Embedding & Vector DB Security
+  # ==========================================================================
+
+  - id: ai-vector-injection
+    message: >
+      User input directly used in vector search query. Validate and sanitize
+      metadata filters to prevent injection attacks.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: injection
+      cwe: CWE-89
+      confidence: MEDIUM
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $VECTORDB.query(..., filter=$USER_INPUT, ...)
+          - pattern: |
+              $VECTORDB.search(..., where=$USER_INPUT, ...)
+      - metavariable-regex:
+          metavariable: $USER_INPUT
+          regex: (user|input|request|query|filter)
+
+  - id: ai-embedding-pii
+    message: >
+      PII data may be embedded without anonymization. Consider hashing
+      or removing PII before creating embeddings.
+    severity: INFO
+    languages: [python]
+    metadata:
+      category: data-leakage
+      cwe: CWE-359
+      confidence: LOW
+    patterns:
+      - pattern: |
+          $EMBEDDINGS.embed_documents($DOCS)
+      - pattern-inside: |
+          $DOCS = [..., $PII, ...]
+      - metavariable-regex:
+          metavariable: $PII
+          regex: (email|phone|ssn|name|address)

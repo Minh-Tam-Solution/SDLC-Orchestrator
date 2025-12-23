@@ -179,7 +179,7 @@ async def lifespan(app: FastAPI):
 # ============================================================================
 
 # Import API routers (after lifespan is defined)
-from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, analytics_v2, council, sdlc_structure, sop, admin, docs, ai_detection  # Sprint 42: ai_detection
+from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, analytics_v2, council, sdlc_structure, sop, admin, docs, ai_detection, policy_packs, sast, evidence_timeline, override  # Sprint 42-43: AI Safety Layer
 
 # Create FastAPI app with lifespan
 app = FastAPI(
@@ -277,6 +277,10 @@ app.include_router(sop.router, prefix="/api/v1", tags=["SOP Generator"])  # Phas
 app.include_router(admin.router, prefix="/api/v1", tags=["Admin Panel"])  # Sprint 37 - ADR-017
 app.include_router(docs.router, prefix="/api/v1", tags=["Documentation"])  # User Support Documentation
 app.include_router(ai_detection.router, prefix="/api/v1", tags=["AI Detection"])  # Sprint 42 - AI Detection Service
+app.include_router(policy_packs.router, prefix="/api/v1", tags=["Policy Packs"])  # Sprint 43 - Policy Guards
+app.include_router(sast.router, prefix="/api/v1", tags=["SAST"])  # Sprint 43 - SAST Validator
+app.include_router(evidence_timeline.router, prefix="/api/v1", tags=["Evidence Timeline"])  # Sprint 43 - Evidence UI
+app.include_router(override.router, prefix="/api/v1", tags=["Override / VCR"])  # Sprint 43 - VCR Override Flow
 
 # ============================================================================
 # Health Check Endpoints

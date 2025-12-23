@@ -54,6 +54,12 @@ from app.models.feedback import PilotFeedback, FeedbackComment
 # SDLC Validation (Sprint 30) - 2 models
 from app.models.sdlc_validation import SDLCValidation, SDLCValidationIssue
 
+# Analytics (Sprint 41) - 2 models
+from app.models.analytics import AnalyticsEvent, AICodeEvent
+
+# Override / VCR Flow (Sprint 43) - 2 models
+from app.models.override import ValidationOverride, OverrideAuditLog
+
 __all__ = [
     # Base
     "Base",
@@ -102,4 +108,10 @@ __all__ = [
     # SDLC Validation (2)
     "SDLCValidation",
     "SDLCValidationIssue",
+    # Analytics (2)
+    "AnalyticsEvent",
+    "AICodeEvent",
+    # Override / VCR Flow (2)
+    "ValidationOverride",
+    "OverrideAuditLog",
 ]
