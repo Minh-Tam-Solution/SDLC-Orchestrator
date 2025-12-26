@@ -246,6 +246,85 @@ class ErrorEvent(StreamEvent):
 
 
 # =========================================================================
+# Checkpoint Events (Sprint 51B)
+# =========================================================================
+
+
+class CheckpointEvent(StreamEvent):
+    """
+    Event: Checkpoint saved.
+    Sent when a checkpoint is saved (every N files).
+
+    Example:
+        {
+            "type": "checkpoint",
+            "timestamp": "2025-12-25T10:30:10Z",
+            "session_id": "abc123",
+            "checkpoint_number": 1,
+            "files_completed": 3,
+            "total_files": 15,
+            "last_file": "app/models.py",
+            "can_resume": true,
+            "checkpoint_at": "2025-12-25T10:30:10Z"
+        }
+    """
+
+    type: Literal["checkpoint"] = "checkpoint"
+    checkpoint_number: int = Field(..., ge=1, description="Checkpoint sequence number")
+    files_completed: int = Field(..., ge=0, description="Total files completed so far")
+    total_files: int = Field(..., ge=0, description="Expected total files")
+    last_file: str = Field(..., description="Path of last file saved in checkpoint")
+    can_resume: bool = Field(default=True, description="Whether session can be resumed")
+    checkpoint_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class SessionCreatedEvent(StreamEvent):
+    """
+    Event: Session created.
+    Sent when a new generation session is created.
+
+    Example:
+        {
+            "type": "session_created",
+            "timestamp": "2025-12-25T10:30:00Z",
+            "session_id": "abc123",
+            "blueprint_hash": "sha256...",
+            "total_files_expected": 15,
+            "expires_at": "2025-12-26T10:30:00Z"
+        }
+    """
+
+    type: Literal["session_created"] = "session_created"
+    blueprint_hash: str = Field(..., description="SHA256 hash of blueprint for verification")
+    total_files_expected: int = Field(..., ge=0, description="Expected number of files")
+    expires_at: datetime = Field(..., description="Session expiration time")
+
+
+class SessionResumedEvent(StreamEvent):
+    """
+    Event: Session resumed.
+    Sent when resuming from a checkpoint.
+
+    Example:
+        {
+            "type": "session_resumed",
+            "timestamp": "2025-12-25T10:35:00Z",
+            "session_id": "abc123",
+            "resumed_from_checkpoint": 2,
+            "files_already_completed": 6,
+            "files_remaining": 9,
+            "completed_files": [...]
+        }
+    """
+
+    type: Literal["session_resumed"] = "session_resumed"
+    resumed_from_checkpoint: int = Field(..., ge=0, description="Checkpoint number resumed from")
+    files_already_completed: int = Field(..., ge=0, description="Files already generated")
+    files_remaining: int = Field(..., ge=0, description="Files left to generate")
+    completed_files: list = Field(default_factory=list, description="List of completed file data")
+
+
+# =========================================================================
 # Union Type for All Events
 # =========================================================================
 
@@ -257,6 +336,9 @@ CodegenStreamEvent = Union[
     QualityGateEvent,
     CompletedEvent,
     ErrorEvent,
+    CheckpointEvent,
+    SessionCreatedEvent,
+    SessionResumedEvent,
 ]
 
 

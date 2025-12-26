@@ -135,6 +135,10 @@ class Project(Base):
     policy_pack = relationship(
         "PolicyPack", back_populates="project", uselist=False, cascade="all, delete-orphan"
     )
+    # Stage Mappings (Sprint 49 - SDLC 5.1.2)
+    stage_mappings = relationship(
+        "ProjectStageMapping", back_populates="project", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Project(id={self.id}, name={self.name}, slug={self.slug})>"

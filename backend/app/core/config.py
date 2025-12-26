@@ -190,6 +190,12 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
 
+    # Session Checkpoint Configuration (Sprint 51B)
+    # See: docs/02-design/14-Technical-Specs/Session-Checkpoint-Design.md
+    REDIS_CHECKPOINT_TTL: int = 86400  # 24 hours for active sessions
+    CHECKPOINT_INTERVAL: int = 3  # Save checkpoint every N files
+    CHECKPOINT_COMPLETED_TTL: int = 604800  # 7 days for completed sessions
+
     @property
     def allowed_origins_list(self) -> list[str]:
         """Parse ALLOWED_ORIGINS into list"""

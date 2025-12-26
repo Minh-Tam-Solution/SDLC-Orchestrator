@@ -73,19 +73,7 @@ const POLICY_PACKS: PolicyPackInfo[] = [
   },
 ]
 
-interface RepositoryAnalysis extends GitHubAnalysisResult {
-  repository: {
-    name: string
-    full_name: string
-    description: string | null
-    language: string | null
-  }
-  team_size_estimate?: number
-  recommendations?: {
-    policy_pack: 'lite' | 'standard' | 'enterprise'
-    initial_gates: string[]
-  }
-}
+// Use GitHubAnalysisResult directly - it already has all needed fields
 
 /**
  * AI Analysis component (Step 3)
@@ -114,7 +102,7 @@ export default function AIAnalysis() {
   }, [navigate])
 
   // Analyze repository
-  const { data: analysis, isLoading } = useQuery<RepositoryAnalysis>({
+  const { data: analysis, isLoading } = useQuery<GitHubAnalysisResult>({
     queryKey: ['github', 'analyze', repo?.full_name],
     queryFn: async () => {
       if (!repo) return null
@@ -130,7 +118,7 @@ export default function AIAnalysis() {
   // Set recommended tier when analysis is ready
   useEffect(() => {
     if (analysis) {
-      const rec = (analysis.recommended_policy_pack || analysis.recommendations?.policy_pack || 'standard') as PolicyPack
+      const rec = (analysis.recommendations?.policy_pack || 'standard') as PolicyPack
       setRecommendedTier(rec)
       setSelectedTier(rec)
     }

@@ -348,6 +348,81 @@ class GitHubRateLimitInfo(BaseModel):
 # ============================================================================
 
 
+# ============================================================================
+# Stage Mapping Schemas (Sprint 49 - SDLC 5.1.2)
+# ============================================================================
+
+
+class StageMappingItem(BaseModel):
+    """Individual stage mapping for a folder."""
+
+    folder_path: str = Field(..., description="Folder path relative to repo root")
+    stage_code: str = Field(..., description="SDLC stage code: '00'-'09' or '10' for archive")
+    stage_name: Optional[str] = Field(None, description="Human-readable stage name")
+    is_auto_detected: bool = Field(default=True, description="Auto-detected or manually set")
+    confidence: Optional[float] = Field(None, description="Detection confidence (0.0-1.0)")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "folder_path": "docs/00-foundation",
+                "stage_code": "00",
+                "stage_name": "FOUNDATION",
+                "is_auto_detected": True,
+                "confidence": 0.95,
+            }
+        }
+
+
+class SaveStageMappingsRequest(BaseModel):
+    """Request to save stage mappings for a project."""
+
+    project_id: UUID = Field(..., description="Project ID to save mappings for")
+    stage_mappings: list[StageMappingItem] = Field(
+        ..., description="List of stage mappings to save"
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "project_id": "550e8400-e29b-41d4-a716-446655440000",
+                "stage_mappings": [
+                    {
+                        "folder_path": "docs/00-foundation",
+                        "stage_code": "00",
+                        "stage_name": "FOUNDATION",
+                        "is_auto_detected": True,
+                        "confidence": 0.95,
+                    },
+                    {
+                        "folder_path": "docs/01-planning",
+                        "stage_code": "01",
+                        "stage_name": "PLANNING",
+                        "is_auto_detected": True,
+                        "confidence": 0.90,
+                    },
+                ],
+            }
+        }
+
+
+class SaveStageMappingsResponse(BaseModel):
+    """Response after saving stage mappings."""
+
+    project_id: UUID = Field(..., description="Project ID")
+    mappings_saved: int = Field(..., description="Number of mappings saved")
+    mappings: list[StageMappingItem] = Field(..., description="Saved mappings")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "project_id": "550e8400-e29b-41d4-a716-446655440000",
+                "mappings_saved": 5,
+                "mappings": [],
+            }
+        }
+
+
 class GitHubConnectionStatus(BaseModel):
     """GitHub connection status for current user."""
 

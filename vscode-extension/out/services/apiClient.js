@@ -171,7 +171,8 @@ class ApiClient {
      */
     async getProjects(page = 1, pageSize = 50) {
         const response = await this.get(`/api/v1/projects?page=${page}&page_size=${pageSize}`);
-        return response.items;
+        // Defensive check for response format
+        return response?.items ?? [];
     }
     /**
      * Gets a single project by ID
@@ -194,7 +195,8 @@ class ApiClient {
      */
     async getGates(projectId) {
         const response = await this.get(`/api/v1/projects/${projectId}/gates`);
-        return response.items;
+        // Defensive check for response format
+        return response?.items ?? [];
     }
     /**
      * Gets a single gate by ID
@@ -228,7 +230,8 @@ class ApiClient {
             params.append('severity', severity);
         }
         const response = await this.get(`/api/v1/compliance/violations?${params.toString()}`);
-        return response.items;
+        // Defensive check for response format
+        return response?.items ?? [];
     }
     /**
      * Gets a single violation by ID
@@ -272,7 +275,8 @@ class ApiClient {
      */
     async getCouncilHistory(projectId, limit = 10) {
         const response = await this.get(`/api/v1/ai/council/history/${projectId}?limit=${limit}`);
-        return response.items;
+        // Defensive check for response format
+        return response?.items ?? [];
     }
     // ============================================
     // Compliance Scan APIs
@@ -329,7 +333,7 @@ class ApiClient {
      * Get SDLC structure template for a tier
      */
     async getSDLCTemplate(tier) {
-        return this.get(`/api/v1/templates/sdlc-structure?tier=${tier}&version=5.0.0`);
+        return this.get(`/api/v1/templates/sdlc-structure?tier=${tier}&version=5.1.2`);
     }
 }
 exports.ApiClient = ApiClient;

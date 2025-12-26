@@ -6,10 +6,11 @@
  * - Gate status sidebar (G0-G5 progress monitoring)
  * - Inline AI chat (Copilot-style @gate commands)
  * - Compliance violation tracking
+ * - App Builder with code generation (Sprint 53)
  * - Integration with SDLC Orchestrator backend
  *
- * Sprint 27 Day 1 - Extension Foundation
- * @version 0.1.0
+ * Sprint 53 - App Builder + Contract Lock
+ * @version 0.2.0
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -51,6 +52,7 @@ const vscode = __importStar(require("vscode"));
 const apiClient_1 = require("./services/apiClient");
 const authService_1 = require("./services/authService");
 const cacheService_1 = require("./services/cacheService");
+const codegenApi_1 = require("./services/codegenApi");
 const gateStatusView_1 = require("./views/gateStatusView");
 const violationsView_1 = require("./views/violationsView");
 const projectsView_1 = require("./views/projectsView");
@@ -59,14 +61,24 @@ const logger_1 = require("./utils/logger");
 const config_1 = require("./utils/config");
 const errors_1 = require("./utils/errors");
 const initCommand_1 = require("./commands/initCommand");
+const generateCommand_1 = require("./commands/generateCommand");
+const magicCommand_1 = require("./commands/magicCommand");
+const lockCommand_1 = require("./commands/lockCommand");
+const previewCommand_1 = require("./commands/previewCommand");
+const resumeCommand_1 = require("./commands/resumeCommand");
 const sdlcStructureService_1 = require("./services/sdlcStructureService");
+const blueprintProvider_1 = require("./providers/blueprintProvider");
+const appBuilderPanel_1 = require("./panels/appBuilderPanel");
+const generationPanel_1 = require("./panels/generationPanel");
 const state = {
     apiClient: undefined,
     authService: undefined,
     cacheService: undefined,
+    codegenApi: undefined,
     gateStatusProvider: undefined,
     violationsProvider: undefined,
     projectsProvider: undefined,
+    blueprintProvider: undefined,
     chatParticipant: undefined,
     refreshInterval: undefined,
 };
@@ -87,6 +99,7 @@ async function activate(context) {
         state.authService = new authService_1.AuthService(context);
         state.apiClient = new apiClient_1.ApiClient(context, state.authService);
         state.cacheService = new cacheService_1.CacheService(context);
+        state.codegenApi = new codegenApi_1.CodegenApiService(context, state.authService);
         // Check authentication status
         const isAuthenticated = await state.authService.isAuthenticated();
         await vscode.commands.executeCommand('setContext', 'sdlc.isAuthenticated', isAuthenticated);
@@ -94,8 +107,10 @@ async function activate(context) {
         state.gateStatusProvider = new gateStatusView_1.GateStatusProvider(state.apiClient, state.cacheService);
         state.violationsProvider = new violationsView_1.ViolationsProvider(state.apiClient, state.cacheService);
         state.projectsProvider = new projectsView_1.ProjectsProvider(state.apiClient, state.cacheService);
+        // Initialize Blueprint Provider (Sprint 53 Day 2)
+        state.blueprintProvider = new blueprintProvider_1.BlueprintProvider();
         // Register tree data providers
-        context.subscriptions.push(vscode.window.registerTreeDataProvider('sdlc-gate-status', state.gateStatusProvider), vscode.window.registerTreeDataProvider('sdlc-violations', state.violationsProvider), vscode.window.registerTreeDataProvider('sdlc-projects', state.projectsProvider));
+        context.subscriptions.push(vscode.window.registerTreeDataProvider('sdlc-gate-status', state.gateStatusProvider), vscode.window.registerTreeDataProvider('sdlc-violations', state.violationsProvider), vscode.window.registerTreeDataProvider('sdlc-projects', state.projectsProvider), vscode.window.registerTreeDataProvider('sdlc-blueprint', state.blueprintProvider));
         // Register chat participant for Copilot-style @gate commands
         state.chatParticipant = new complianceChat_1.ComplianceChatParticipant(state.apiClient);
         const chatParticipantDisposable = vscode.chat.createChatParticipant('sdlc-orchestrator.gate', state.chatParticipant.handleChatRequest.bind(state.chatParticipant));
@@ -103,8 +118,28 @@ async function activate(context) {
         context.subscriptions.push(chatParticipantDisposable);
         // Register commands
         registerCommands(context);
-        // Register init commands (SDLC 5.0.0 project initialization)
+        // Register init commands (SDLC 5.1.2 project initialization)
         (0, initCommand_1.registerInitCommand)(context, state.apiClient);
+        // Register App Builder commands (Sprint 53)
+        (0, generateCommand_1.registerGenerateCommand)(context, state.codegenApi);
+        (0, magicCommand_1.registerMagicCommand)(context, state.codegenApi);
+        (0, lockCommand_1.registerLockCommand)(context, state.codegenApi);
+        (0, lockCommand_1.registerLockStatusCommand)(context, state.codegenApi);
+        (0, previewCommand_1.registerPreviewCommand)(context, state.codegenApi);
+        (0, resumeCommand_1.registerResumeCommand)(context, state.codegenApi);
+        // Register Blueprint commands (Sprint 53 Day 2)
+        (0, blueprintProvider_1.registerBlueprintCommands)(context, state.blueprintProvider);
+        // Register App Builder Panel command (Sprint 53 Day 2)
+        context.subscriptions.push(vscode.commands.registerCommand('sdlc.openAppBuilder', () => {
+            if (state.codegenApi && state.blueprintProvider) {
+                appBuilderPanel_1.AppBuilderPanel.createOrShow(context.extensionUri, state.codegenApi, state.blueprintProvider);
+            }
+            else {
+                void vscode.window.showErrorMessage('Services not initialized');
+            }
+        }));
+        // Register Generation Panel command (Sprint 53 Day 3)
+        (0, generationPanel_1.registerGenerationPanelCommand)(context, state.codegenApi);
         // Check for empty folder and prompt for initialization
         await checkAndPromptForInit(context);
         // Setup auto-refresh
@@ -147,6 +182,7 @@ function deactivate() {
     state.apiClient = undefined;
     state.authService = undefined;
     state.cacheService = undefined;
+    state.codegenApi = undefined;
     state.gateStatusProvider = undefined;
     state.violationsProvider = undefined;
     state.projectsProvider = undefined;
@@ -250,15 +286,56 @@ async function handleLogin() {
     try {
         // Show login options
         const loginMethod = await vscode.window.showQuickPick([
+            { label: '$(mail) Email & Password', description: 'Login with email and password (Recommended)', value: 'email' },
             { label: '$(key) API Token', description: 'Login with API token', value: 'token' },
             { label: '$(github) GitHub OAuth', description: 'Login with GitHub', value: 'github' },
         ], { placeHolder: 'Select login method' });
         if (!loginMethod) {
             return;
         }
-        if (loginMethod.value === 'token') {
+        if (loginMethod.value === 'email') {
+            // Email/Password login
+            const email = await vscode.window.showInputBox({
+                prompt: 'Enter your email address',
+                placeHolder: 'admin@sdlc-orchestrator.io',
+                validateInput: (value) => {
+                    if (!value || !value.includes('@')) {
+                        return 'Please enter a valid email address';
+                    }
+                    return null;
+                },
+            });
+            if (!email) {
+                return;
+            }
+            const password = await vscode.window.showInputBox({
+                prompt: 'Enter your password',
+                password: true,
+                placeHolder: 'Your password',
+                validateInput: (value) => {
+                    if (!value || value.length < 6) {
+                        return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                },
+            });
+            if (!password) {
+                return;
+            }
+            await vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: 'Logging in...',
+                cancellable: false,
+            }, async () => {
+                await state.authService.loginWithEmailPassword(email, password);
+            });
+            await vscode.commands.executeCommand('setContext', 'sdlc.isAuthenticated', true);
+            await refreshAllViews();
+            void vscode.window.showInformationMessage(`Successfully logged in as ${email}`);
+        }
+        else if (loginMethod.value === 'token') {
             const token = await vscode.window.showInputBox({
-                prompt: 'Enter your SDLC Orchestrator API token',
+                prompt: 'Enter your SDLC Orchestrator API token (JWT)',
                 password: true,
                 placeHolder: 'Paste your API token here',
                 validateInput: (value) => {
@@ -471,11 +548,11 @@ async function checkAndPromptForInit(context) {
     let message;
     let actions;
     if (isEmptyOrMinimal) {
-        message = 'This folder is empty. Would you like to create an SDLC 5.0.0 project structure?';
+        message = 'This folder is empty. Would you like to create an SDLC 5.1.2 project structure?';
         actions = ['Create SDLC Project', 'Not Now', "Don't Ask Again"];
     }
     else {
-        message = 'This project doesn\'t have an SDLC configuration. Would you like to add SDLC 5.0.0 governance?';
+        message = 'This project doesn\'t have an SDLC configuration. Would you like to add SDLC 5.1.2 governance?';
         actions = ['Run Gap Analysis', 'Initialize', 'Not Now', "Don't Ask Again"];
     }
     const selection = await vscode.window.showInformationMessage(message, ...actions);

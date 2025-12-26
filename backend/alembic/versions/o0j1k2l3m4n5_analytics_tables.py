@@ -63,20 +63,17 @@ def upgrade() -> None:
     op.create_index(
         'ix_analytics_events_created_at',
         'analytics_events',
-        ['created_at'],
-        comment='For retention cleanup queries (DELETE WHERE created_at < cutoff)'
+        ['created_at']
     )
     op.create_index(
         'ix_analytics_events_user_created',
         'analytics_events',
-        ['user_id', 'created_at'],
-        comment='Composite index for user timeline queries'
+        ['user_id', 'created_at']
     )
     op.create_index(
         'ix_analytics_events_event_created',
         'analytics_events',
-        ['event_name', 'created_at'],
-        comment='Composite index for event-specific aggregations (DAU, funnel analysis)'
+        ['event_name', 'created_at']
     )
 
     # ========================================================================
@@ -149,26 +146,22 @@ def upgrade() -> None:
     op.create_index(
         'ix_ai_code_events_created_at',
         'ai_code_events',
-        ['created_at'],
-        comment='For time-based queries and retention cleanup (2-year retention)'
+        ['created_at']
     )
     op.create_index(
         'ix_ai_code_events_project_created',
         'ai_code_events',
-        ['project_id', 'created_at'],
-        comment='Composite index for project-specific AI Safety metrics'
+        ['project_id', 'created_at']
     )
     op.create_index(
         'ix_ai_code_events_tool_result',
         'ai_code_events',
-        ['ai_tool_detected', 'validation_result'],
-        comment='Composite index for AI tool effectiveness analysis (pass rate by tool)'
+        ['ai_tool_detected', 'validation_result']
     )
     op.create_index(
         'ix_ai_code_events_pr_commit',
         'ai_code_events',
-        ['pr_id', 'commit_sha'],
-        comment='Composite index for PR/commit lookups'
+        ['pr_id', 'commit_sha']
     )
 
 

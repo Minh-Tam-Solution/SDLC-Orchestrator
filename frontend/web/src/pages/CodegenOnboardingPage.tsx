@@ -12,6 +12,7 @@
  */
 
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
 import DashboardLayout from '@/components/layout/DashboardLayout'
@@ -25,6 +26,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useToast } from '@/hooks/useToast'
 import apiClient, { getErrorMessage } from '@/api/client'
+import { BlueprintJsonViewer } from '@/components/codegen/BlueprintJsonViewer'
 
 // ============================================================================
 // Types (mirrors backend response models)
@@ -77,6 +79,7 @@ type OnboardingBlueprintResponse = {
 
 export default function CodegenOnboardingPage() {
   const { toast } = useToast()
+  const navigate = useNavigate()
 
   const [locale] = useState<Locale>('vi')
   const [sessionId, setSessionId] = useState<string | null>(null)
@@ -294,7 +297,29 @@ export default function CodegenOnboardingPage() {
 
             {/* Features */}
             <div className="space-y-2">
-              <Label>Features</Label>
+              <div className="flex items-center justify-between">
+                <Label>Features</Label>
+                {sessionId && domain && featureOptions.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedFeatures(featureOptions.map(f => f.key))}
+                      disabled={selectedFeatures.length === featureOptions.length}
+                    >
+                      Chọn tất cả
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedFeatures([])}
+                      disabled={selectedFeatures.length === 0}
+                    >
+                      Bỏ chọn
+                    </Button>
+                  </div>
+                )}
+              </div>
               <Card className="border">
                 <CardContent className="p-3">
                   {!sessionId ? (
@@ -368,25 +393,49 @@ export default function CodegenOnboardingPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Generated IR (AppBlueprint)</CardTitle>
-            <CardDescription>Copy/export this IR to use with backend IR generation endpoints.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {generatedStats && (
-              <div className="text-sm text-muted-foreground">
-                Stats: <span className="font-mono text-xs">{JSON.stringify(generatedStats)}</span>
+        {/* Generated Blueprint with Copy Button */}
+        {generatedBlueprint ? (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Generated IR (AppBlueprint)</CardTitle>
+                  <CardDescription>Blueprint đã sẵn sàng cho quá trình tạo code.</CardDescription>
+                </div>
+                <Button
+                  onClick={() => navigate('/code-generation', {
+                    state: {
+                      blueprint: generatedBlueprint,
+                      stats: generatedStats,
+                    },
+                  })}
+                  className="gap-2"
+                >
+                  Tiếp tục tạo Code
+                  <span aria-hidden="true">&rarr;</span>
+                </Button>
               </div>
-            )}
-            <Textarea
-              value={blueprintText}
-              readOnly
-              placeholder="IR will appear here after generation"
-              className="min-h-[280px] font-mono text-xs"
-            />
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent>
+              <BlueprintJsonViewer blueprint={generatedBlueprint as any} />
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Generated IR (AppBlueprint)</CardTitle>
+              <CardDescription>Copy/export this IR to use with backend IR generation endpoints.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Textarea
+                value={blueprintText}
+                readOnly
+                placeholder="IR will appear here after generation"
+                className="min-h-[280px] font-mono text-xs"
+              />
+            </CardContent>
+          </Card>
+        )}
       </div>
     </DashboardLayout>
   )

@@ -43,6 +43,10 @@ from .validator import OnboardingValidator
 
 logger = logging.getLogger(__name__)
 
+# Module-level session storage (singleton pattern)
+# This ensures sessions persist across OnboardingService instances
+_global_sessions: Dict[str, "OnboardingSession"] = {}
+
 
 class OnboardingStep(str, Enum):
     """Steps in the onboarding flow."""
@@ -154,8 +158,9 @@ class OnboardingService:
         self.validator = OnboardingValidator()
         self.prompts = VIETNAMESE_PROMPTS
 
-        # Active sessions (in-memory, should be Redis in production)
-        self._sessions: Dict[str, OnboardingSession] = {}
+        # Use global session storage (singleton pattern)
+        # Sessions persist across service instances within same process
+        self._sessions = _global_sessions
 
         # Domain templates
         self._domain_templates: Dict[str, type] = {

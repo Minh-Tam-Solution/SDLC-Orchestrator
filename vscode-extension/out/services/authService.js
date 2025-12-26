@@ -152,6 +152,43 @@ class AuthService {
         logger_1.Logger.info('User logged out, tokens cleared');
     }
     /**
+     * Login with email and password
+     *
+     * Authenticates the user with the SDLC Orchestrator backend
+     * using email and password credentials.
+     *
+     * @param email - User's email address
+     * @param password - User's password
+     */
+    async loginWithEmailPassword(email, password) {
+        const config = config_1.ConfigManager.getInstance();
+        try {
+            logger_1.Logger.info('Initiating email/password login');
+            const response = await axios_1.default.post(`${config.apiUrl}/api/v1/auth/login`, { email, password }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            // Store tokens
+            await this.setToken(response.data.access_token, response.data.expires_in);
+            if (response.data.refresh_token) {
+                await this.setRefreshToken(response.data.refresh_token);
+            }
+            logger_1.Logger.info('Email/password authentication successful');
+        }
+        catch (error) {
+            if (axios_1.default.isAxiosError(error)) {
+                const detail = error.response?.data?.detail;
+                const message = detail ?? error.message ?? 'Authentication failed';
+                logger_1.Logger.error(`Email/password login failed: ${message}`);
+                throw new Error(message);
+            }
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            logger_1.Logger.error(`Email/password login failed: ${message}`);
+            throw new Error(`Login failed: ${message}`);
+        }
+    }
+    /**
      * Initiates GitHub OAuth device flow login
      *
      * This follows the OAuth 2.0 Device Authorization Grant flow:

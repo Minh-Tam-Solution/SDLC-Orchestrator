@@ -278,7 +278,8 @@ export class ApiClient {
         const response = await this.get<PaginatedResponse<Project>>(
             `/api/v1/projects?page=${page}&page_size=${pageSize}`
         );
-        return response.items;
+        // Defensive check for response format
+        return response?.items ?? [];
     }
 
     /**
@@ -307,7 +308,8 @@ export class ApiClient {
         const response = await this.get<PaginatedResponse<Gate>>(
             `/api/v1/projects/${projectId}/gates`
         );
-        return response.items;
+        // Defensive check for response format
+        return response?.items ?? [];
     }
 
     /**
@@ -352,7 +354,8 @@ export class ApiClient {
         const response = await this.get<PaginatedResponse<Violation>>(
             `/api/v1/compliance/violations?${params.toString()}`
         );
-        return response.items;
+        // Defensive check for response format
+        return response?.items ?? [];
     }
 
     /**
@@ -431,7 +434,8 @@ export class ApiClient {
                 created_at: string;
             }>
         >(`/api/v1/ai/council/history/${projectId}?limit=${limit}`);
-        return response.items;
+        // Defensive check for response format
+        return response?.items ?? [];
     }
 
     // ============================================
@@ -526,6 +530,6 @@ export class ApiClient {
         return this.get<{
             folders: string[];
             files: { path: string; content: string }[];
-        }>(`/api/v1/templates/sdlc-structure?tier=${tier}&version=5.0.0`);
+        }>(`/api/v1/templates/sdlc-structure?tier=${tier}&version=5.1.2`);
     }
 }

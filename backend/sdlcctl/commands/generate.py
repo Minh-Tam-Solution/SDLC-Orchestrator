@@ -1,26 +1,32 @@
 """
+=========================================================================
 Generate Command - Generate backend scaffold from AppBlueprint.
+SDLC Orchestrator - Sprint 46 + Sprint 52 Enhancement
 
-Sprint 46: EP-06 IR-Based Backend Scaffold Generation
-ADR-023: IR-Based Deterministic Code Generation
+Version: 2.0.0
+Date: December 26, 2025
+Status: ACTIVE - Sprint 52 CLI Streaming
+Authority: Backend Team + CTO Approved
 
-This command generates a complete FastAPI backend scaffold from an
-AppBlueprint specification file (JSON/YAML).
+Purpose:
+- Generate FastAPI backend scaffold from AppBlueprint (Sprint 46)
+- Stream generation progress via SSE (Sprint 52)
+- Resume interrupted generation sessions (Sprint 52)
 
 Usage:
     sdlcctl generate blueprint.json --output ./my-app
     sdlcctl generate blueprint.yaml -o ./my-app --preview
     sdlcctl generate blueprint.json -o ./my-app --force
+    sdlcctl generate blueprint.json -o ./my-app --stream  # Sprint 52
+    sdlcctl generate --resume SESSION_ID -o ./my-app      # Sprint 52
 
-Design Reference:
-    docs/02-design/14-Technical-Specs/IR-Processor-Specification.md
-
-Author: Backend Lead
-Date: December 23, 2025
-Version: 1.0.0
-Status: ACTIVE - Sprint 46 Implementation
+References:
+- docs/02-design/14-Technical-Specs/IR-Processor-Specification.md
+- docs/02-design/14-Technical-Specs/Session-Checkpoint-Design.md
+=========================================================================
 """
 
+import asyncio
 import json
 import io
 import os
@@ -94,8 +100,8 @@ def _echo(message: str = "") -> None:
 
 
 def generate_command(
-    blueprint_path: Path = typer.Argument(
-        ...,
+    blueprint_path: Optional[Path] = typer.Argument(
+        None,
         help="Path to AppBlueprint file (JSON or YAML)",
         exists=True,
         file_okay=True,
@@ -131,6 +137,24 @@ def generate_command(
         "--verbose",
         help="Show detailed output",
     ),
+    stream: bool = typer.Option(
+        False,
+        "--stream",
+        "-s",
+        help="Stream generation progress via SSE (Sprint 52)",
+    ),
+    resume: Optional[str] = typer.Option(
+        None,
+        "--resume",
+        "-r",
+        help="Resume from a previous session ID (Sprint 52)",
+    ),
+    api_url: Optional[str] = typer.Option(
+        None,
+        "--api-url",
+        envvar="SDLC_API_URL",
+        help="API URL for streaming (default: http://localhost:8320/api/v1)",
+    ),
 ) -> None:
     """
     Generate backend scaffold from AppBlueprint.
@@ -147,7 +171,7 @@ def generate_command(
 
     Examples:
 
-        # Generate from JSON blueprint
+        # Generate from JSON blueprint (local mode)
         sdlcctl generate my-app.json -o ./output
 
         # Preview without writing files
@@ -158,6 +182,12 @@ def generate_command(
 
         # Force overwrite existing files
         sdlcctl generate my-app.json -o ./output --force
+
+        # Stream generation via SSE (Sprint 52)
+        sdlcctl generate my-app.json -o ./output --stream
+
+        # Resume interrupted session (Sprint 52)
+        sdlcctl generate --resume SESSION_ID -o ./output
     """
     captured_stdout = sys.stdout
     captured_stderr = sys.stderr
@@ -166,6 +196,24 @@ def generate_command(
     use_rich = _use_rich_output()
 
     try:
+        # Handle streaming mode (Sprint 52)
+        if stream or resume:
+            _run_streaming_generation(
+                blueprint_path=blueprint_path,
+                output=output,
+                force=force,
+                resume_session=resume,
+                api_url=api_url or "http://localhost:8320/api/v1",
+                verbose=verbose,
+            )
+            return
+
+        # Validate arguments for local mode
+        if blueprint_path is None:
+            _echo("❌ Blueprint path is required for local generation")
+            _echo("Use --stream flag or provide a blueprint file")
+            raise typer.Exit(code=1)
+
         # Load blueprint
         blueprint = _load_blueprint(blueprint_path)
 
@@ -286,6 +334,148 @@ def generate_command(
             if sys.stderr is not captured_stderr:
                 sys.stderr = captured_stderr
         _ECHO_STREAM.reset(token)
+
+
+def _run_streaming_generation(
+    blueprint_path: Optional[Path],
+    output: Path,
+    force: bool,
+    resume_session: Optional[str],
+    api_url: str,
+    verbose: bool,
+) -> None:
+    """
+    Run streaming code generation via SSE.
+
+    Sprint 52: CLI Streaming + Session Resume
+
+    Args:
+        blueprint_path: Path to blueprint file (optional if resuming)
+        output: Output directory for generated files
+        force: Overwrite existing files without confirmation
+        resume_session: Session ID to resume from
+        api_url: Backend API URL
+        verbose: Show detailed output
+    """
+    # Delayed import for faster CLI startup
+    from ..lib.sse_client import SSEStreamClient
+    from ..lib.progress import StreamingProgress
+
+    console = _get_console()
+
+    # Validate arguments
+    if resume_session is None and blueprint_path is None:
+        _echo("❌ Either blueprint path or --resume session ID is required")
+        raise typer.Exit(code=1)
+
+    # Load blueprint if provided
+    blueprint: dict = {}
+    if blueprint_path is not None:
+        blueprint = _load_blueprint(blueprint_path)
+        _echo(f"📋 Loaded blueprint: {blueprint.get('name', 'unknown')}")
+
+    # Check output directory
+    if output.exists() and not force:
+        existing_files = list(output.rglob("*"))
+        if existing_files:
+            _echo()
+            _echo(f"⚠️  Output directory '{output}' already contains files.")
+            confirm = typer.confirm("Overwrite existing files?", default=False)
+            if not confirm:
+                _echo("Aborted.")
+                raise typer.Exit(code=0)
+
+    # Create output directory
+    output.mkdir(parents=True, exist_ok=True)
+
+    # Initialize SSE client and progress display
+    client = SSEStreamClient(api_url=api_url)
+    progress = StreamingProgress(console)
+
+    # Run streaming generation
+    _echo()
+    if resume_session:
+        _echo(f"🔄 Resuming session: {resume_session}")
+    else:
+        _echo("🚀 Starting streaming generation...")
+
+    async def stream_and_write():
+        """Async function to stream and write files."""
+        files_written = 0
+        session_id: Optional[str] = None
+
+        try:
+            async for event in client.stream_generate(
+                blueprint=blueprint,
+                session_id=resume_session,
+            ):
+                # Handle event with progress display
+                progress.handle_event(event)
+
+                # Track session ID
+                if hasattr(event, "session_id"):
+                    session_id = event.session_id
+
+                # Write file to disk when generated
+                if event.type == "file_generated":
+                    file_path = output / event.path
+                    file_path.parent.mkdir(parents=True, exist_ok=True)
+                    file_path.write_text(event.content, encoding="utf-8")
+                    files_written += 1
+
+                # Handle completion
+                if event.type == "completed":
+                    progress.show_file_tree()
+                    _echo()
+                    if _use_rich_output():
+                        console.print(
+                            Panel(
+                                f"[bold green]✅ Generation complete![/bold green]\n\n"
+                                f"[dim]Output directory:[/dim] {output.absolute()}\n"
+                                f"[dim]Files generated:[/dim] {event.total_files}\n"
+                                f"[dim]Total lines:[/dim] {event.total_lines}\n"
+                                f"[dim]Duration:[/dim] {event.duration_ms / 1000:.1f}s\n\n"
+                                f"[yellow]Next steps:[/yellow]\n"
+                                f"  1. cd {output}\n"
+                                f"  2. pip install -r requirements.txt\n"
+                                f"  3. docker-compose up -d db\n"
+                                f"  4. alembic upgrade head\n"
+                                f"  5. uvicorn app.main:app --reload",
+                                title="Generation Complete",
+                                border_style="green",
+                            )
+                        )
+                    else:
+                        _echo("✅ Generation complete!")
+                        _echo(f"Output directory: {output.absolute()}")
+                        _echo(f"Files generated: {event.total_files}")
+                        _echo(f"Total lines: {event.total_lines}")
+                        _echo(f"Duration: {event.duration_ms / 1000:.1f}s")
+                    return
+
+                # Handle error
+                if event.type == "error":
+                    _echo()
+                    _echo(f"❌ Generation failed: {event.message}")
+                    if event.recovery_id:
+                        _echo(f"💡 Resume with: sdlcctl generate --resume {event.recovery_id}")
+                    raise typer.Exit(code=1)
+
+        except Exception as e:
+            _echo()
+            _echo(f"❌ Streaming error: {e}")
+            if session_id:
+                _echo(f"💡 Resume with: sdlcctl generate --resume {session_id}")
+            raise typer.Exit(code=1)
+
+    # Run async event loop
+    try:
+        asyncio.run(stream_and_write())
+    except KeyboardInterrupt:
+        _echo()
+        _echo("⚠️  Generation interrupted by user")
+        _echo("💡 Files written so far are saved in the output directory")
+        raise typer.Exit(code=130)
 
 
 def _load_blueprint(path: Path) -> dict:

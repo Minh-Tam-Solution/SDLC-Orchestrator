@@ -1,11 +1,14 @@
 /**
  * SDLC Structure Generator Service
  *
- * Generates SDLC 5.0.0 compliant folder structures based on tier selection.
+ * Generates SDLC 5.1.2 compliant folder structures based on tier selection.
  * Supports offline mode with local-first approach.
  *
- * Sprint 32 - SDLC 5.0.0 Onboarding
- * @version 0.2.0
+ * IMPORTANT: Only folders under /docs are mapped to SDLC stages.
+ * Code folders (src, backend, frontend, tests) are NOT mapped to stages.
+ *
+ * Sprint 53 - SDLC 5.1.2 Compliance
+ * @version 1.0.0
  */
 
 import * as fs from 'fs';
@@ -13,12 +16,17 @@ import * as path from 'path';
 import { Logger } from '../utils/logger';
 
 /**
- * SDLC 5.0.0 Tier Classification
+ * SDLC 5.1.2 Tier Classification
  */
 export type SDLCTier = 'LITE' | 'STANDARD' | 'PROFESSIONAL' | 'ENTERPRISE';
 
 /**
- * SDLC 5.0.0 Stage definitions
+ * SDLC 5.1.2 Stage definitions
+ *
+ * CRITICAL: Stages only apply to /docs folders, NOT code folders.
+ * - docs/00-discover → Stage 00 (WHY)
+ * - docs/01-planning → Stage 01 (WHAT)
+ * - src/, backend/, frontend/, tests/ → NOT mapped to stages
  */
 export interface SDLCStage {
     number: string;
@@ -74,19 +82,22 @@ export interface GapAnalysisResult {
 }
 
 /**
- * SDLC 5.0.0 Stage Definitions (Contract-First Order)
+ * SDLC 5.1.2 Stage Definitions (Contract-First Order)
  *
- * Note: Folder names use SHORT format per SDLC 5.0.0 standard:
- * - docs/00-foundation (not docs/00-Project-Foundation)
- * - This is the new SDLC 5.0.0 naming convention used by SDLC Orchestrator
+ * Note: Folder names use SHORT format per SDLC 5.1.2 standard:
+ * - docs/00-discover (Stage 00 - WHY)
+ * - docs/01-planning (Stage 01 - WHAT)
+ *
+ * IMPORTANT: Only /docs folders are mapped to stages.
+ * Code folders (src, backend, frontend, tests) remain OUTSIDE stage mapping.
  */
 const SDLC_STAGES: SDLCStage[] = [
     {
         number: '00',
-        name: 'foundation',
-        displayName: 'Foundation (WHY)',
+        name: 'discover',
+        displayName: 'Discover (WHY)',
         description: 'Problem Definition - Design Thinking',
-        folder: 'docs/00-foundation',
+        folder: 'docs/00-discover',
         requiredTiers: ['LITE', 'STANDARD', 'PROFESSIONAL', 'ENTERPRISE'],
     },
     {
@@ -107,34 +118,34 @@ const SDLC_STAGES: SDLCStage[] = [
     },
     {
         number: '03',
-        name: 'integration',
-        displayName: 'Integration',
+        name: 'integrate',
+        displayName: 'Integrate',
         description: 'API Design & System Integration (Contract-First)',
-        folder: 'docs/03-integration',
+        folder: 'docs/03-integrate',
         requiredTiers: ['STANDARD', 'PROFESSIONAL', 'ENTERPRISE'],
     },
     {
         number: '04',
         name: 'build',
         displayName: 'Build',
-        description: 'Development & Implementation',
+        description: 'Development & Implementation (docs only)',
         folder: 'docs/04-build',
         requiredTiers: ['LITE', 'STANDARD', 'PROFESSIONAL', 'ENTERPRISE'],
     },
     {
         number: '05',
-        name: 'test',
-        displayName: 'Test',
-        description: 'Quality Assurance',
-        folder: 'docs/05-test',
+        name: 'deploy',
+        displayName: 'Deploy',
+        description: 'Release & Deployment',
+        folder: 'docs/05-deploy',
         requiredTiers: ['LITE', 'STANDARD', 'PROFESSIONAL', 'ENTERPRISE'],
     },
     {
         number: '06',
-        name: 'deploy',
-        displayName: 'Deploy',
-        description: 'Release & Deployment',
-        folder: 'docs/06-deploy',
+        name: 'validate',
+        displayName: 'Validate',
+        description: 'Quality Assurance & Testing',
+        folder: 'docs/06-validate',
         requiredTiers: ['LITE', 'STANDARD', 'PROFESSIONAL', 'ENTERPRISE'],
     },
     {
@@ -147,10 +158,10 @@ const SDLC_STAGES: SDLCStage[] = [
     },
     {
         number: '08',
-        name: 'collaborate',
-        displayName: 'Collaborate',
-        description: 'Team & Stakeholder Collaboration',
-        folder: 'docs/08-collaborate',
+        name: 'iterate',
+        displayName: 'Iterate',
+        description: 'Feedback & Continuous Improvement',
+        folder: 'docs/08-iterate',
         requiredTiers: ['PROFESSIONAL', 'ENTERPRISE'],
     },
     {
@@ -258,7 +269,7 @@ export class SDLCStructureService {
                 slug: slug,
             },
             sdlc: {
-                frameworkVersion: '5.0.0',
+                frameworkVersion: '5.1.2',
                 tier: tier,
                 stages: stageMapping,
             },
@@ -360,7 +371,7 @@ export class SDLCStructureService {
 ## Project: ${projectName}
 
 **Created**: ${date}
-**SDLC Framework**: 5.0.0
+**SDLC Framework**: 5.1.2
 **Tier**: ${tier}
 
 ---
@@ -424,7 +435,7 @@ export class SDLCStructureService {
 ## Project: ${projectName}
 
 **Created**: ${date}
-**SDLC Framework**: 5.0.0
+**SDLC Framework**: 5.1.2
 **Tier**: ${tier}
 
 ---
@@ -485,7 +496,7 @@ export class SDLCStructureService {
 ## Project: ${projectName}
 
 **Created**: ${date}
-**SDLC Framework**: 5.0.0
+**SDLC Framework**: 5.1.2
 **Tier**: ${tier}
 
 ---
@@ -549,7 +560,7 @@ export class SDLCStructureService {
 ## Project: ${projectName}
 
 **Created**: ${date}
-**SDLC Framework**: 5.0.0
+**SDLC Framework**: 5.1.2
 **Tier**: ${tier}
 
 ---
@@ -621,7 +632,7 @@ interface <!-- ModelName --> {
             path: 'README.md',
             content: `# ${projectName}
 
-[![SDLC 5.0.0](https://img.shields.io/badge/SDLC-5.0.0-blue)](https://sdlc-orchestrator.dev)
+[![SDLC 5.1.2](https://img.shields.io/badge/SDLC-5.1.2-blue)](https://sdlc-orchestrator.dev)
 [![Tier: ${tier}](https://img.shields.io/badge/Tier-${tier}-green)](https://sdlc-orchestrator.dev/tiers)
 
 ## Overview
@@ -630,7 +641,7 @@ interface <!-- ModelName --> {
 
 ## SDLC Configuration
 
-This project follows **SDLC 5.0.0** framework with **${tier}** tier governance.
+This project follows **SDLC 5.1.2** framework with **${tier}** tier governance.
 
 ### Project Structure
 
@@ -708,18 +719,19 @@ Generated by SDLC Orchestrator VS Code Extension
         const suggestedMappings: Record<string, string> = {};
         const recommendations: string[] = [];
 
-        // Common folder name patterns to detect (maps existing folders to SDLC 5.0.0 short names)
+        // SDLC 5.1.2: Only /docs folders are mapped to stages
+        // Code folders (src, backend, frontend, tests) are NOT stage-mapped
         const folderPatterns: Record<string, string[]> = {
-            '00-foundation': ['docs/00-foundation', 'docs/00-Project-Foundation', 'docs/foundation', 'docs/why', 'docs/vision', 'foundation'],
-            '01-planning': ['docs/01-planning', 'docs/01-Planning-Analysis', 'docs/planning', 'docs/requirements', 'docs/specs', 'planning', 'requirements'],
-            '02-design': ['docs/02-design', 'docs/02-Design-Architecture', 'docs/design', 'docs/architecture', 'design', 'architecture'],
-            '03-integration': ['docs/03-integration', 'docs/03-Integration-API', 'docs/api', 'docs/integration', 'api', 'openapi', 'swagger'],
-            '04-build': ['docs/04-build', 'docs/03-Development-Implementation', 'src', 'source', 'app', 'lib', 'backend', 'frontend'],
-            '05-test': ['docs/05-test', 'docs/04-Testing-Quality', 'tests', 'test', '__tests__', 'spec', 'specs'],
-            '06-deploy': ['docs/06-deploy', 'docs/05-Deployment-Release', 'infrastructure', 'infra', 'deploy', 'deployment', 'k8s', 'docker'],
-            '07-operate': ['docs/07-operate', 'docs/06-Operations-Monitoring', 'docs/operations', 'docs/runbooks', 'operations', 'monitoring'],
-            '08-collaborate': ['docs/08-collaborate', 'docs/08-Training-Knowledge', 'docs/team', 'docs/collaboration', 'docs/communication'],
-            '09-govern': ['docs/09-govern', 'docs/09-Executive-Reports', 'docs/compliance', 'docs/governance', 'compliance', 'audit'],
+            '00-discover': ['docs/00-discover', 'docs/00-foundation', 'docs/00-Project-Foundation', 'docs/foundation', 'docs/why', 'docs/vision'],
+            '01-planning': ['docs/01-planning', 'docs/01-Planning-Analysis', 'docs/planning', 'docs/requirements'],
+            '02-design': ['docs/02-design', 'docs/02-Design-Architecture', 'docs/design', 'docs/architecture'],
+            '03-integrate': ['docs/03-integrate', 'docs/03-integration', 'docs/03-Integration-API', 'docs/api'],
+            '04-build': ['docs/04-build', 'docs/03-Development-Implementation', 'docs/development'],
+            '05-deploy': ['docs/05-deploy', 'docs/05-Deployment-Release', 'docs/deployment', 'docs/release'],
+            '06-validate': ['docs/06-validate', 'docs/04-Testing-Quality', 'docs/testing', 'docs/qa'],
+            '07-operate': ['docs/07-operate', 'docs/06-Operations-Monitoring', 'docs/operations', 'docs/runbooks'],
+            '08-iterate': ['docs/08-iterate', 'docs/08-Training-Knowledge', 'docs/feedback', 'docs/collaboration'],
+            '09-govern': ['docs/09-govern', 'docs/09-Executive-Reports', 'docs/compliance', 'docs/governance'],
         };
 
         // Check existing folders
@@ -738,7 +750,7 @@ Generated by SDLC Orchestrator VS Code Extension
                     if (fs.existsSync(path.join(workspaceRoot, pattern))) {
                         suggestedMappings[pattern] = expectedFolder;
                         recommendations.push(
-                            `Consider renaming '${pattern}' to '${expectedFolder}' for SDLC 5.0.0 compliance`
+                            `Consider renaming '${pattern}' to '${expectedFolder}' for SDLC 5.1.2 compliance`
                         );
                         found = true;
                         break;
@@ -763,7 +775,7 @@ Generated by SDLC Orchestrator VS Code Extension
             const legacyPath = path.join(workspaceRoot, 'docs', legacy);
             if (fs.existsSync(legacyPath)) {
                 recommendations.push(
-                    `Found legacy SDLC 4.9.x folder 'docs/${legacy}'. Run 'sdlcctl migrate' to upgrade to 5.0.0`
+                    `Found legacy SDLC 4.9.x folder 'docs/${legacy}'. Run 'sdlcctl migrate' to upgrade to 5.1.2`
                 );
             }
         }

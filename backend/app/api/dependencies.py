@@ -40,12 +40,81 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.security import decode_token
+from app.core.security import decode_token, hash_api_key
 from app.db.session import get_db
-from app.models.user import User
+from app.models.user import User, APIKey
+from app.utils.redis import get_redis_client
+from datetime import datetime
+
+
+async def get_redis():
+    """
+    Get Redis client for dependency injection.
+
+    Usage:
+        @router.get("/data")
+        async def get_data(redis = Depends(get_redis)):
+            value = await redis.get("key")
+            return {"value": value}
+
+    Returns:
+        Redis async client instance
+    """
+    return await get_redis_client()
 
 # HTTP Bearer token scheme (Authorization: Bearer <token>)
 security = HTTPBearer()
+
+
+async def validate_api_key(api_key: str, db: AsyncSession) -> User:
+    """
+    Validate API key and return user.
+
+    Args:
+        api_key: Full API key (e.g., sdlc_live_abc123...)
+        db: Database session
+
+    Returns:
+        User: User associated with the API key
+
+    Raises:
+        HTTPException(401): If API key is invalid, expired, or revoked
+
+    Security:
+        - Hash API key with SHA-256
+        - Lookup in database by hash
+        - Check expiry and active status
+        - Update last_used_at timestamp
+    """
+    key_hash = hash_api_key(api_key)
+
+    result = await db.execute(
+        select(APIKey)
+        .options(selectinload(APIKey.user).selectinload(User.roles))
+        .where(APIKey.key_hash == key_hash, APIKey.is_active == True)
+    )
+    db_key = result.scalar_one_or_none()
+
+    if not db_key:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API key",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Check expiry
+    if db_key.expires_at and db_key.expires_at < datetime.utcnow():
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="API key expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Update last_used_at
+    db_key.last_used_at = datetime.utcnow()
+    await db.commit()
+
+    return db_key.user
 
 
 async def get_current_user(
@@ -53,17 +122,21 @@ async def get_current_user(
     db: AsyncSession = Depends(get_db),
 ) -> User:
     """
-    Get current authenticated user from JWT token.
+    Get current authenticated user from JWT token OR API key.
 
     Headers:
-        Authorization: Bearer <access_token>
+        Authorization: Bearer <access_token_or_api_key>
+
+    Supports two authentication methods:
+        1. JWT token: Standard access tokens (starts with 'ey...')
+        2. API key: Personal access tokens (starts with 'sdlc_live_')
 
     Returns:
         User: Current authenticated user
 
     Raises:
-        HTTPException(401): If token is invalid or user not found
-        HTTPException(401): If token is expired
+        HTTPException(401): If token/key is invalid or user not found
+        HTTPException(401): If token/key is expired
         HTTPException(401): If user account is deleted
 
     Usage:
@@ -73,11 +146,12 @@ async def get_current_user(
 
     Security Flow:
         1. Extract token from Authorization header
-        2. Decode and validate JWT token (signature + expiry)
-        3. Extract user_id from token payload (sub claim)
-        4. Fetch user from database
-        5. Verify user exists and is not deleted
-        6. Return User object
+        2. Check if it's an API key (starts with 'sdlc_live_')
+           - If yes: Validate API key via hash lookup
+           - If no: Decode and validate JWT token
+        3. Fetch user from database
+        4. Verify user exists and is not deleted
+        5. Return User object
     """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -85,9 +159,14 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
+    token = credentials.credentials
+
+    # Check if it's an API key (starts with 'sdlc_live_')
+    if token.startswith("sdlc_live_"):
+        return await validate_api_key(token, db)
+
+    # Otherwise, treat as JWT token
     try:
-        # Decode JWT token
-        token = credentials.credentials
         payload = decode_token(token)
 
         # Extract user ID from token

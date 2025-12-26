@@ -1,23 +1,40 @@
 /**
  * File: frontend/web/src/pages/SettingsPage.tsx
- * Version: 1.0.0
+ * Version: 1.1.0
  * Status: ACTIVE - STAGE 03 (BUILD)
- * Date: November 28, 2025
+ * Date: December 26, 2025
  * Authority: Frontend Lead + CTO Approved
- * Framework: SDLC 4.9 Complete Lifecycle
+ * Framework: SDLC 5.1.2 Complete Lifecycle
  *
  * Description:
  * Settings page for user preferences and integrations.
- * Includes GitHub connection status and account management.
+ * Includes GitHub connection status, API Keys management, and account management.
  *
- * SDLC 4.9 Compliance:
+ * Sprint 52B - API Key Management:
+ * - Generate personal access tokens for VS Code extension
+ * - List and revoke API keys
+ * - Similar to GitHub Personal Access Tokens
+ *
+ * SDLC 5.1.2 Compliance:
  * - Pillar 1: Zero Mock Policy (Real API calls)
  * - Pillar 3: Quality Governance (Type hints, validation)
  */
 
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,10 +46,37 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import apiClient from '@/api/client'
 import { useAuth } from '@/contexts/AuthContext'
 import type { GitHubConnectionStatus } from '@/types/api'
+
+// API Key types
+interface APIKey {
+  id: string
+  name: string
+  prefix: string
+  last_used_at: string | null
+  expires_at: string | null
+  is_active: boolean
+  created_at: string
+}
+
+interface APIKeyCreatedResponse {
+  id: string
+  name: string
+  api_key: string
+  prefix: string
+  expires_at: string | null
+  created_at: string
+}
 
 /**
  * Settings page component
@@ -40,12 +84,97 @@ import type { GitHubConnectionStatus } from '@/types/api'
  * Features:
  * - GitHub connection status display
  * - Connect/Disconnect GitHub account
+ * - API Keys management (generate, list, revoke)
  * - User profile information
  * - Rate limit display
  */
 export default function SettingsPage() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
+
+  // API Keys state
+  const [showGenerateDialog, setShowGenerateDialog] = useState(false)
+  const [newKeyName, setNewKeyName] = useState('VS Code Extension')
+  const [newKeyExpiry, setNewKeyExpiry] = useState('90')
+  const [createdKey, setCreatedKey] = useState<APIKeyCreatedResponse | null>(null)
+  const [copiedKey, setCopiedKey] = useState(false)
+
+  // Fetch API keys
+  const { data: apiKeys, isLoading: isLoadingApiKeys } = useQuery<APIKey[]>({
+    queryKey: ['api-keys'],
+    queryFn: async () => {
+      const response = await apiClient.get<APIKey[]>('/api-keys')
+      return response.data
+    },
+  })
+
+  // Create API key mutation
+  const createApiKeyMutation = useMutation({
+    mutationFn: async (data: { name: string; expires_in_days: number | null }) => {
+      const response = await apiClient.post<APIKeyCreatedResponse>('/api-keys', data)
+      return response.data
+    },
+    onSuccess: (data) => {
+      setCreatedKey(data)
+      queryClient.invalidateQueries({ queryKey: ['api-keys'] })
+    },
+  })
+
+  // Revoke API key mutation
+  const revokeApiKeyMutation = useMutation({
+    mutationFn: async (keyId: string) => {
+      await apiClient.delete(`/api-keys/${keyId}`)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['api-keys'] })
+    },
+  })
+
+  // Handle generate API key
+  const handleGenerateApiKey = () => {
+    const expiryDays = newKeyExpiry === 'never' ? null : parseInt(newKeyExpiry)
+    createApiKeyMutation.mutate({ name: newKeyName, expires_in_days: expiryDays })
+  }
+
+  // Handle copy API key
+  const handleCopyApiKey = async () => {
+    if (createdKey?.api_key) {
+      await navigator.clipboard.writeText(createdKey.api_key)
+      setCopiedKey(true)
+      setTimeout(() => setCopiedKey(false), 2000)
+    }
+  }
+
+  // Handle close created key dialog
+  const handleCloseCreatedKey = () => {
+    setCreatedKey(null)
+    setShowGenerateDialog(false)
+    setNewKeyName('VS Code Extension')
+    setNewKeyExpiry('90')
+  }
+
+  // Format date helper
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return 'Never'
+    return new Date(dateStr).toLocaleDateString()
+  }
+
+  // Format relative time
+  const formatRelativeTime = (dateStr: string | null) => {
+    if (!dateStr) return 'Never used'
+    const date = new Date(dateStr)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins} min ago`
+    if (diffHours < 24) return `${diffHours} hours ago`
+    if (diffDays < 30) return `${diffDays} days ago`
+    return formatDate(dateStr)
+  }
 
   // Fetch GitHub connection status
   const { data: githubStatus, isLoading: isLoadingGitHub } = useQuery<GitHubConnectionStatus>({
@@ -141,6 +270,238 @@ export default function SettingsPage() {
             ) : (
               <p className="text-muted-foreground">Loading profile...</p>
             )}
+          </CardContent>
+        </Card>
+
+        {/* API Keys Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              </svg>
+              API Keys
+            </CardTitle>
+            <CardDescription>
+              Generate personal access tokens for VS Code extension and CLI tools
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* API Keys List */}
+              {isLoadingApiKeys ? (
+                <div className="text-muted-foreground">Loading API keys...</div>
+              ) : apiKeys && apiKeys.length > 0 ? (
+                <div className="space-y-3">
+                  {apiKeys.map((key) => (
+                    <div
+                      key={key.id}
+                      className="flex items-center justify-between rounded-lg border p-4"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{key.name}</span>
+                          {!key.is_active && (
+                            <span className="rounded bg-red-100 px-2 py-0.5 text-xs text-red-700">
+                              Revoked
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <code className="rounded bg-muted px-2 py-0.5 text-xs">
+                            {key.prefix}
+                          </code>
+                          <span>•</span>
+                          <span>Last used: {formatRelativeTime(key.last_used_at)}</span>
+                          <span>•</span>
+                          <span>
+                            Expires: {key.expires_at ? formatDate(key.expires_at) : 'Never'}
+                          </span>
+                        </div>
+                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-700"
+                            disabled={!key.is_active}
+                          >
+                            Revoke
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Revoke API Key?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will immediately invalidate the API key "{key.name}".
+                              Any applications using this key will no longer be able to authenticate.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => revokeApiKeyMutation.mutate(key.id)}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Revoke Key
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-lg border border-dashed p-6 text-center">
+                  <svg
+                    className="mx-auto h-12 w-12 text-muted-foreground"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                    />
+                  </svg>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    No API keys yet. Generate one to use with VS Code extension.
+                  </p>
+                </div>
+              )}
+
+              {/* Generate API Key Dialog */}
+              <Dialog open={showGenerateDialog} onOpenChange={setShowGenerateDialog}>
+                <DialogTrigger asChild>
+                  <Button className="w-full">
+                    <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Generate New API Key
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  {createdKey ? (
+                    // Show created key
+                    <>
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-green-600">
+                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          API Key Created Successfully
+                        </DialogTitle>
+                        <DialogDescription>
+                          Make sure to copy your API key now. You won't be able to see it again!
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="rounded-lg border bg-amber-50 p-4">
+                          <div className="flex items-start gap-3">
+                            <svg className="h-5 w-5 text-amber-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <p className="text-sm text-amber-800">
+                              This is the only time you'll see this API key. Save it somewhere secure.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Your API Key</Label>
+                          <div className="flex gap-2">
+                            <code className="flex-1 rounded-lg border bg-muted p-3 text-sm font-mono break-all">
+                              {createdKey.api_key}
+                            </code>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={handleCopyApiKey}
+                              className="shrink-0"
+                            >
+                              {copiedKey ? (
+                                <svg className="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                              ) : (
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="rounded-lg border p-4 text-sm">
+                          <p className="font-medium mb-2">How to use in VS Code:</p>
+                          <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                            <li>Open VS Code Command Palette (Ctrl+Shift+P)</li>
+                            <li>Run "SDLC: Login to SDLC Orchestrator"</li>
+                            <li>Select "API Token"</li>
+                            <li>Paste your API key</li>
+                          </ol>
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button onClick={handleCloseCreatedKey}>
+                          Done, I've saved my key
+                        </Button>
+                      </DialogFooter>
+                    </>
+                  ) : (
+                    // Generate key form
+                    <>
+                      <DialogHeader>
+                        <DialogTitle>Generate New API Key</DialogTitle>
+                        <DialogDescription>
+                          Create a personal access token for VS Code extension or CLI tools.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="keyName">Name</Label>
+                          <Input
+                            id="keyName"
+                            value={newKeyName}
+                            onChange={(e) => setNewKeyName(e.target.value)}
+                            placeholder="VS Code Extension"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            A friendly name to identify this key
+                          </p>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="keyExpiry">Expiration</Label>
+                          <Select value={newKeyExpiry} onValueChange={setNewKeyExpiry}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="30">30 days</SelectItem>
+                              <SelectItem value="90">90 days (Recommended)</SelectItem>
+                              <SelectItem value="365">1 year</SelectItem>
+                              <SelectItem value="never">Never expires</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowGenerateDialog(false)}>
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleGenerateApiKey}
+                          disabled={createApiKeyMutation.isPending || !newKeyName.trim()}
+                        >
+                          {createApiKeyMutation.isPending ? 'Generating...' : 'Generate API Key'}
+                        </Button>
+                      </DialogFooter>
+                    </>
+                  )}
+                </DialogContent>
+              </Dialog>
+            </div>
           </CardContent>
         </Card>
 

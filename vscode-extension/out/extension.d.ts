@@ -5,10 +5,11 @@
  * - Gate status sidebar (G0-G5 progress monitoring)
  * - Inline AI chat (Copilot-style @gate commands)
  * - Compliance violation tracking
+ * - App Builder with code generation (Sprint 53)
  * - Integration with SDLC Orchestrator backend
  *
- * Sprint 27 Day 1 - Extension Foundation
- * @version 0.1.0
+ * Sprint 53 - App Builder + Contract Lock
+ * @version 0.2.0
  */
 import * as vscode from 'vscode';
 /**

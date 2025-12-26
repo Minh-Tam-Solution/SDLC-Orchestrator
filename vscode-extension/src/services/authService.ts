@@ -42,6 +42,14 @@ interface TokenResponse {
 }
 
 /**
+ * Login request for email/password authentication
+ */
+interface LoginRequest {
+    email: string;
+    password: string;
+}
+
+/**
  * Authentication Service for SDLC Orchestrator
  */
 export class AuthService {
@@ -153,6 +161,51 @@ export class AuthService {
         await this.secrets.delete(REFRESH_TOKEN_KEY);
         await this.secrets.delete(TOKEN_EXPIRY_KEY);
         Logger.info('User logged out, tokens cleared');
+    }
+
+    /**
+     * Login with email and password
+     *
+     * Authenticates the user with the SDLC Orchestrator backend
+     * using email and password credentials.
+     *
+     * @param email - User's email address
+     * @param password - User's password
+     */
+    async loginWithEmailPassword(email: string, password: string): Promise<void> {
+        const config = ConfigManager.getInstance();
+
+        try {
+            Logger.info('Initiating email/password login');
+            const response = await axios.post<TokenResponse>(
+                `${config.apiUrl}/api/v1/auth/login`,
+                { email, password } as LoginRequest,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            // Store tokens
+            await this.setToken(response.data.access_token, response.data.expires_in);
+
+            if (response.data.refresh_token) {
+                await this.setRefreshToken(response.data.refresh_token);
+            }
+
+            Logger.info('Email/password authentication successful');
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                const detail = (error.response?.data as { detail?: string })?.detail;
+                const message = detail ?? error.message ?? 'Authentication failed';
+                Logger.error(`Email/password login failed: ${message}`);
+                throw new Error(message);
+            }
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            Logger.error(`Email/password login failed: ${message}`);
+            throw new Error(`Login failed: ${message}`);
+        }
     }
 
     /**

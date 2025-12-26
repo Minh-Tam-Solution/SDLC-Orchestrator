@@ -23,9 +23,11 @@ export interface SDLCConfig {
 
 /**
  * Default configuration values
+ * Production: https://sdlc.nhatquangholding.com
+ * Local development: http://localhost:8300 (IT Admin: PORT_ALLOCATION_MANAGEMENT.md)
  */
 const DEFAULT_CONFIG: SDLCConfig = {
-    apiUrl: 'http://localhost:8000',
+    apiUrl: 'https://sdlc.nhatquangholding.com',
     autoRefreshInterval: 30,
     defaultProjectId: '',
     enableNotifications: true,

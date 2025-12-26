@@ -1,33 +1,16 @@
 # SDLC Orchestrator - Docker Compose
-# OSS Stack: OPA + MinIO + Grafana + PostgreSQL + Redis
+# OSS Stack: OPA + MinIO + Grafana + PostgreSQL (external) + Redis
 # Date: 2025-11-13
-
-version: '3.9'
+# Updated: 2025-12-24 - Use postgres-central (external) on port 15432
 
 services:
   # ============================================================================
-  # PostgreSQL - Primary Database
+  # PostgreSQL - Uses postgres-central (shared) on port 15432
+  # NOTE: Database must be created in postgres-central:
+  #   CREATE DATABASE sdlc_orchestrator;
+  #   CREATE USER sdlc_user WITH PASSWORD 'changeme_secure_password';
+  #   GRANT ALL PRIVILEGES ON DATABASE sdlc_orchestrator TO sdlc_user;
   # ============================================================================
-  postgres:
-    image: postgres:15.5-alpine
-    container_name: sdlc-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: sdlc_orchestrator
-      POSTGRES_USER: sdlc_user
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme_secure_password}
-      PGDATA: /var/lib/postgresql/data/pgdata
-    ports:
-      - "5450:5432"  # IT Admin: SDLC PostgreSQL (PORT_ALLOCATION_MANAGEMENT.md)
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sdlc_user -d sdlc_orchestrator"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - sdlc-network
 
   # ============================================================================
   # Redis - Caching + Sessions
@@ -233,8 +216,8 @@ services:
     restart: unless-stopped
     command: uvicorn app.main:app --host 0.0.0.0 --port 8300 --reload
     environment:
-      # Database
-      DATABASE_URL: postgresql+asyncpg://sdlc_user:${POSTGRES_PASSWORD:-changeme_secure_password}@postgres:5432/sdlc_orchestrator
+      # Database - Uses postgres-central (external container on ai-net)
+      DATABASE_URL: postgresql+asyncpg://sdlc_user:${POSTGRES_PASSWORD:-changeme_secure_password}@postgres-central:5432/sdlc_orchestrator
 
       # JWT (SECRET_KEY is the canonical config key per config.py)
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production-minimum-32-characters-long}
@@ -262,10 +245,10 @@ services:
       ALLOWED_ORIGINS: https://sdlc.nhatquangholding.com,http://localhost:8310,http://localhost:3000,http://localhost:4000,http://localhost:5173
 
       # Codegen Service (Sprint 45 - EP-06)
-      # GPU Server: Use http://host.docker.internal:11434 to access Ollama from container
-      CODEGEN_OLLAMA_URL: ${CODEGEN_OLLAMA_URL:-http://host.docker.internal:11434}
-      CODEGEN_MODEL_PRIMARY: ${CODEGEN_MODEL_PRIMARY:-qwen2.5-coder:32b-instruct-q4_K_M}
-      CODEGEN_MODEL_FAST: ${CODEGEN_MODEL_FAST:-qwen2.5:14b-instruct}
+      # GPU Server: Use http://ollama:11434 to access Ollama container via ai-net network
+      CODEGEN_OLLAMA_URL: ${CODEGEN_OLLAMA_URL:-http://ollama:11434}
+      CODEGEN_MODEL_PRIMARY: ${CODEGEN_MODEL_PRIMARY:-qwen3-coder:30b}
+      CODEGEN_MODEL_FAST: ${CODEGEN_MODEL_FAST:-qwen3:14b}
       CODEGEN_TIMEOUT: ${CODEGEN_TIMEOUT:-120}
 
       # GitHub OAuth (Sprint 15)
@@ -280,14 +263,14 @@ services:
       - ./docs:/docs:ro  # Mount docs directory as read-only for user support documentation
       - backend_cache:/app/.pytest_cache
     depends_on:
-      postgres:
-        condition: service_healthy
       minio:
         condition: service_healthy
       opa:
         condition: service_started
       redis:
         condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8300/health"]
       interval: 30s
@@ -296,13 +279,12 @@ services:
       start_period: 30s
     networks:
       - sdlc-network
+      - ai-net
 
 # ============================================================================
 # Volumes
 # ============================================================================
 volumes:
-  postgres_data:
-    driver: local
   redis_data:
     driver: local
   minio_data:
@@ -322,3 +304,5 @@ volumes:
 networks:
   sdlc-network:
     driver: bridge
+  ai-net:
+    external: true

@@ -416,14 +416,78 @@ export interface GitHubRepositoryLanguages {
   primary_language: string | null
 }
 
-export interface GitHubAnalysisResult {
-  project_type: string
-  languages: Record<string, number>
-  recommended_policy_pack: 'lite' | 'standard' | 'enterprise'
-  stage_mappings: Array<{
-    folder: string
-    stage: string
+/**
+ * Stage mapping item for SDLC 5.1.2
+ * Only /docs folders are stage-mapped
+ */
+export interface StageMappingItem {
+  folder_path: string
+  stage_code: SDLCStageCode
+  stage_name: SDLCStageName | null
+  is_auto_detected: boolean
+  confidence: number | null
+}
+
+/**
+ * Structure validation result (SDLC 5.1.2)
+ * Code folders are validated for presence, NOT stage-mapped
+ */
+export interface StructureValidationResult {
+  code_folders: Record<string, {
+    found: boolean
+    required_for: string
+    description?: string
   }>
+  required_files: Record<string, {
+    found: boolean
+    required_for: string
+    description?: string
+  }>
+  compliance_score: null  // Per CTO: null for now, use breakdown
+  breakdown: {
+    found: number
+    missing: number
+    total: number
+  }
+}
+
+/**
+ * GitHub repository analysis result (SDLC 5.1.2)
+ * Separates stage_mappings from structure_validation
+ */
+export interface GitHubAnalysisResult {
+  repository: GitHubRepository
+  languages: Record<string, number>
+  primary_language: string | null
+  project_type: string
+  team_size_estimate: number
+  recommendations: {
+    policy_pack: 'lite' | 'standard' | 'professional' | 'enterprise'
+    policy_pack_reason: string
+    initial_gates: string[]
+    tier: 'LITE' | 'STANDARD' | 'PROFESSIONAL' | 'ENTERPRISE'
+  }
+  // SDLC 5.1.2: Only /docs folders (backward compatible)
+  stage_mappings: StageMappingItem[]
+  // SDLC 5.1.2: Code folder validation (NEW)
+  structure_validation: StructureValidationResult
+}
+
+/**
+ * Request to save stage mappings
+ */
+export interface SaveStageMappingsRequest {
+  project_id: string
+  stage_mappings: StageMappingItem[]
+}
+
+/**
+ * Response after saving stage mappings
+ */
+export interface SaveStageMappingsResponse {
+  project_id: string
+  mappings_saved: number
+  mappings: StageMappingItem[]
 }
 
 // GitHub Sync Types

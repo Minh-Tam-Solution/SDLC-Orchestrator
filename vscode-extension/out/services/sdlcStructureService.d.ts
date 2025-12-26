@@ -1,18 +1,26 @@
 /**
  * SDLC Structure Generator Service
  *
- * Generates SDLC 5.0.0 compliant folder structures based on tier selection.
+ * Generates SDLC 5.1.2 compliant folder structures based on tier selection.
  * Supports offline mode with local-first approach.
  *
- * Sprint 32 - SDLC 5.0.0 Onboarding
- * @version 0.2.0
+ * IMPORTANT: Only folders under /docs are mapped to SDLC stages.
+ * Code folders (src, backend, frontend, tests) are NOT mapped to stages.
+ *
+ * Sprint 53 - SDLC 5.1.2 Compliance
+ * @version 1.0.0
  */
 /**
- * SDLC 5.0.0 Tier Classification
+ * SDLC 5.1.2 Tier Classification
  */
 export type SDLCTier = 'LITE' | 'STANDARD' | 'PROFESSIONAL' | 'ENTERPRISE';
 /**
- * SDLC 5.0.0 Stage definitions
+ * SDLC 5.1.2 Stage definitions
+ *
+ * CRITICAL: Stages only apply to /docs folders, NOT code folders.
+ * - docs/00-discover → Stage 00 (WHY)
+ * - docs/01-planning → Stage 01 (WHAT)
+ * - src/, backend/, frontend/, tests/ → NOT mapped to stages
  */
 export interface SDLCStage {
     number: string;

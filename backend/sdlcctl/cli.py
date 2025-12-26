@@ -1,7 +1,24 @@
 """
+=========================================================================
 SDLC 5.0.0 Structure Validator CLI.
+SDLC Orchestrator - Sprint 52
 
-Main entry point for the sdlcctl command-line tool.
+Version: 2.0.0
+Date: December 26, 2025
+Status: ACTIVE - Sprint 52 Magic Mode
+Authority: Backend Team + CTO Approved
+
+Purpose:
+- Main entry point for the sdlcctl command-line tool
+- Structure validation, fixing, and initialization
+- Code generation from AppBlueprint (Sprint 46)
+- Magic Mode - Natural language to code (Sprint 52)
+
+Usage:
+    sdlcctl validate ./my-project
+    sdlcctl generate blueprint.json -o ./output
+    sdlcctl magic "Nhà hàng Phở 24" -o ./pho24
+=========================================================================
 """
 
 import typer
@@ -14,6 +31,7 @@ from .commands.init import init_command
 from .commands.report import report_command
 from .commands.migrate import migrate_command
 from .commands.generate import generate_command
+from .commands.magic import magic_command
 
 console = Console()
 
@@ -77,6 +95,9 @@ app.command(name="migrate", help="Migrate from SDLC 4.9.x to 5.0.0")(
 )
 app.command(name="generate", help="Generate backend scaffold from AppBlueprint")(
     generate_command
+)
+app.command(name="magic", help="Generate app from natural language (Vietnamese/English)")(
+    magic_command
 )
 
 

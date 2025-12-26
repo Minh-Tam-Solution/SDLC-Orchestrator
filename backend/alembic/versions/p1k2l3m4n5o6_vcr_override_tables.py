@@ -127,32 +127,27 @@ def upgrade() -> None:
     op.create_index(
         'ix_override_status_created',
         'validation_overrides',
-        ['status', 'created_at'],
-        comment='Admin queue filtering (pending requests sorted by age)'
+        ['status', 'created_at']
     )
     op.create_index(
         'ix_override_project_status',
         'validation_overrides',
-        ['project_id', 'status'],
-        comment='Project-level override metrics'
+        ['project_id', 'status']
     )
     op.create_index(
         'ix_override_type_status',
         'validation_overrides',
-        ['override_type', 'status'],
-        comment='Override type analysis'
+        ['override_type', 'status']
     )
     op.create_index(
         'ix_override_expires',
         'validation_overrides',
-        ['expires_at', 'is_expired'],
-        comment='Expiry cleanup job'
+        ['expires_at', 'is_expired']
     )
     op.create_index(
         'ix_override_created_at',
         'validation_overrides',
-        ['created_at'],
-        comment='Time-based queries and retention cleanup'
+        ['created_at']
     )
 
     # ========================================================================
@@ -200,20 +195,17 @@ def upgrade() -> None:
     op.create_index(
         'ix_override_audit_logs_action_at',
         'override_audit_logs',
-        ['action_at'],
-        comment='Time-based queries and retention'
+        ['action_at']
     )
     op.create_index(
         'ix_override_audit_logs_action_by',
         'override_audit_logs',
-        ['action_by_id'],
-        comment='User action history'
+        ['action_by_id']
     )
     op.create_index(
         'ix_audit_override_action',
         'override_audit_logs',
-        ['override_id', 'action'],
-        comment='Composite index for override action history'
+        ['override_id', 'action']
     )
 
     # ========================================================================

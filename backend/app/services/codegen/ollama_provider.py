@@ -29,7 +29,8 @@ import inspect
 import re
 import time
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, AsyncGenerator
+from dataclasses import dataclass
 
 import httpx
 from tenacity import (
@@ -38,6 +39,8 @@ from tenacity import (
     wait_exponential,
     retry_if_exception_type
 )
+
+from .file_parser import FileBoundaryParser, ParserState, ParsedFile
 
 from app.core.config import settings
 from .base_provider import (
@@ -572,6 +575,161 @@ Chỉ trả về JSON, không có text khác.
             warnings=["Could not parse validation output from LLM"],
             suggestions=[]
         )
+
+    # =========================================================================
+    # Sprint 51B: Streaming Code Generation
+    # =========================================================================
+
+    async def generate_streaming(
+        self,
+        spec: CodegenSpec
+    ) -> AsyncGenerator[ParsedFile, None]:
+        """
+        Generate code using Ollama with real-time streaming.
+
+        Sprint 51B: Stream tokens from Ollama and emit files as they complete.
+
+        This method:
+        1. Sends prompt to Ollama with stream=True
+        2. Accumulates tokens in buffer
+        3. Uses FileBoundaryParser to detect file boundaries
+        4. Yields ParsedFile objects as soon as complete
+
+        Args:
+            spec: CodegenSpec with app_blueprint
+
+        Yields:
+            ParsedFile objects as they are completed
+
+        Example:
+            async for file in provider.generate_streaming(spec):
+                print(f"Generated: {file.path} ({file.lines} lines)")
+                # Process file immediately
+        """
+        prompt = self._build_generation_prompt(spec)
+        parser = FileBoundaryParser()
+        state = ParserState()
+
+        logger.info(
+            f"Starting streaming generation: model={self.model}, "
+            f"language={spec.language}, framework={spec.framework}"
+        )
+
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                async with client.stream(
+                    "POST",
+                    f"{self.base_url}/api/generate",
+                    json={
+                        "model": self.model,
+                        "prompt": prompt,
+                        "temperature": 0.3,
+                        "stream": True,
+                        "options": {
+                            "num_ctx": 8192,
+                            "num_predict": 4096,
+                        }
+                    }
+                ) as response:
+                    response.raise_for_status()
+
+                    async for line in response.aiter_lines():
+                        if not line:
+                            continue
+
+                        try:
+                            chunk = json.loads(line)
+                            token = chunk.get("response", "")
+
+                            if token:
+                                # Feed token to parser
+                                completed_files = parser.parse_chunk(token, state)
+
+                                # Yield any completed files immediately
+                                for file in completed_files:
+                                    logger.debug(
+                                        f"Streaming file complete: {file.path} "
+                                        f"({file.lines} lines)"
+                                    )
+                                    yield file
+
+                            # Check if generation is done
+                            if chunk.get("done", False):
+                                break
+
+                        except json.JSONDecodeError:
+                            logger.warning(f"Failed to parse Ollama chunk: {line[:100]}")
+                            continue
+
+            # Finalize: get any remaining file in buffer
+            final_file = parser.finalize_stream(state)
+            if final_file:
+                logger.debug(
+                    f"Streaming final file: {final_file.path} "
+                    f"({final_file.lines} lines)"
+                )
+                yield final_file
+
+            logger.info(
+                f"Streaming generation complete: {len(state.parsed_files)} files"
+            )
+
+        except httpx.ConnectError as e:
+            logger.error(f"Ollama connection failed: {e}")
+            raise
+        except httpx.TimeoutException as e:
+            logger.error(f"Ollama streaming timeout: {e}")
+            raise
+        except Exception as e:
+            logger.exception(f"Unexpected error in streaming generation: {e}")
+            raise
+
+    async def generate_streaming_with_metadata(
+        self,
+        spec: CodegenSpec
+    ) -> AsyncGenerator[Dict[str, Any], None]:
+        """
+        Generate code with streaming and emit structured events.
+
+        Like generate_streaming but yields dict events for SSE compatibility.
+
+        Yields:
+            Dict events with type: 'file_generating', 'file_generated', etc.
+        """
+        async for file in self.generate_streaming(spec):
+            # First yield generating event
+            yield {
+                "type": "file_generating",
+                "path": file.path,
+            }
+
+            # Then yield generated event with content
+            yield {
+                "type": "file_generated",
+                "path": file.path,
+                "content": file.content,
+                "lines": file.lines,
+                "language": file.language,
+                "syntax_valid": self._quick_syntax_check(file.content, file.language),
+            }
+
+    def _quick_syntax_check(self, content: str, language: str) -> bool:
+        """Quick syntax validation for common languages."""
+        if language == "python":
+            try:
+                import ast
+                ast.parse(content)
+                return True
+            except SyntaxError:
+                return False
+        elif language == "json":
+            try:
+                json.loads(content)
+                return True
+            except json.JSONDecodeError:
+                return False
+        # For other languages, assume valid
+        return True
 
     def invalidate_cache(self) -> None:
         """Force re-check of availability on next access."""

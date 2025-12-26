@@ -39,6 +39,16 @@ export declare class AuthService {
      */
     logout(): Promise<void>;
     /**
+     * Login with email and password
+     *
+     * Authenticates the user with the SDLC Orchestrator backend
+     * using email and password credentials.
+     *
+     * @param email - User's email address
+     * @param password - User's password
+     */
+    loginWithEmailPassword(email: string, password: string): Promise<void>;
+    /**
      * Initiates GitHub OAuth device flow login
      *
      * This follows the OAuth 2.0 Device Authorization Grant flow:

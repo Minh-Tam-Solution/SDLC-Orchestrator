@@ -52,6 +52,7 @@ from app.core.config import settings
 from app.core.security import create_access_token, create_refresh_token, hash_api_key
 from app.db.session import get_db
 from app.models.project import Project
+from app.models.stage_mapping import ProjectStageMapping
 from app.models.user import OAuthAccount, User, RefreshToken
 from app.schemas.github import (
     GitHubConnectionStatus,
@@ -67,6 +68,9 @@ from app.schemas.github import (
     GitHubSyncResponse,
     GitHubWebhookEvent,
     GitHubWebhookResponse,
+    SaveStageMappingsRequest,
+    SaveStageMappingsResponse,
+    StageMappingItem,
 )
 from app.services.github_service import (
     GitHubAPIError,
@@ -878,6 +882,191 @@ async def analyze_repository(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"GitHub API error: {str(e)}",
         )
+
+
+# ============================================================================
+# Stage Mapping Endpoints (Sprint 49 - SDLC 5.1.2)
+# ============================================================================
+
+
+@router.post(
+    "/stage-mappings",
+    response_model=SaveStageMappingsResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Save stage mappings for a project",
+    description="Persist folder-to-stage mappings for a project. Only /docs folders are stage-mapped per SDLC 5.1.2.",
+)
+async def save_stage_mappings(
+    request: SaveStageMappingsRequest,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> SaveStageMappingsResponse:
+    """
+    Save stage mappings for a project (SDLC 5.1.2).
+
+    Request Body:
+        {
+            "project_id": "uuid",
+            "stage_mappings": [
+                {
+                    "folder_path": "docs/00-foundation",
+                    "stage_code": "00",
+                    "stage_name": "FOUNDATION",
+                    "is_auto_detected": true,
+                    "confidence": 0.95
+                }
+            ]
+        }
+
+    Response (201 Created):
+        {
+            "project_id": "uuid",
+            "mappings_saved": 5,
+            "mappings": [...]
+        }
+
+    SDLC 5.1.2 Rules:
+        - Only /docs folders are stage-mapped (stages 00-09)
+        - Stage 10 is archive folder, NOT a numbered stage
+        - Code folders (backend, frontend) are NOT stage-mapped
+    """
+    # Verify project exists and user has access
+    project_result = await db.execute(
+        select(Project).where(Project.id == request.project_id)
+    )
+    project = project_result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Project {request.project_id} not found",
+        )
+
+    # Verify user owns or has access to project
+    if project.owner_id != current_user.id:
+        # Check if user is a member
+        from app.models.project import ProjectMember
+        member_result = await db.execute(
+            select(ProjectMember).where(
+                and_(
+                    ProjectMember.project_id == request.project_id,
+                    ProjectMember.user_id == current_user.id,
+                )
+            )
+        )
+        if not member_result.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access to this project",
+            )
+
+    # Delete existing mappings for this project
+    await db.execute(
+        select(ProjectStageMapping).where(
+            ProjectStageMapping.project_id == request.project_id
+        )
+    )
+    # Use delete statement
+    from sqlalchemy import delete
+    await db.execute(
+        delete(ProjectStageMapping).where(
+            ProjectStageMapping.project_id == request.project_id
+        )
+    )
+
+    # Create new mappings
+    saved_mappings = []
+    for mapping in request.stage_mappings:
+        # Validate: only docs folders should be mapped
+        if not mapping.folder_path.startswith("docs"):
+            logger.warning(
+                f"Skipping non-docs folder mapping: {mapping.folder_path}"
+            )
+            continue
+
+        db_mapping = ProjectStageMapping(
+            project_id=request.project_id,
+            folder_path=mapping.folder_path,
+            stage_code=mapping.stage_code,
+            stage_name=mapping.stage_name,
+            is_auto_detected=mapping.is_auto_detected,
+            confidence=mapping.confidence,
+        )
+        db.add(db_mapping)
+        saved_mappings.append(mapping)
+
+    await db.commit()
+
+    logger.info(
+        f"Saved {len(saved_mappings)} stage mappings for project {project.name}"
+    )
+
+    return SaveStageMappingsResponse(
+        project_id=request.project_id,
+        mappings_saved=len(saved_mappings),
+        mappings=saved_mappings,
+    )
+
+
+@router.get(
+    "/projects/{project_id}/stage-mappings",
+    response_model=list[StageMappingItem],
+    status_code=status.HTTP_200_OK,
+    summary="Get stage mappings for a project",
+    description="Retrieve saved folder-to-stage mappings for a project.",
+)
+async def get_stage_mappings(
+    project_id: UUID,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[StageMappingItem]:
+    """
+    Get stage mappings for a project.
+
+    Path Parameters:
+        - project_id: Project UUID
+
+    Response (200 OK):
+        [
+            {
+                "folder_path": "docs/00-foundation",
+                "stage_code": "00",
+                "stage_name": "FOUNDATION",
+                "is_auto_detected": true,
+                "confidence": 0.95
+            }
+        ]
+    """
+    # Verify project exists
+    project_result = await db.execute(
+        select(Project).where(Project.id == project_id)
+    )
+    project = project_result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Project {project_id} not found",
+        )
+
+    # Get mappings
+    mappings_result = await db.execute(
+        select(ProjectStageMapping).where(
+            ProjectStageMapping.project_id == project_id
+        ).order_by(ProjectStageMapping.stage_code)
+    )
+    mappings = mappings_result.scalars().all()
+
+    return [
+        StageMappingItem(
+            folder_path=m.folder_path,
+            stage_code=m.stage_code,
+            stage_name=m.stage_name,
+            is_auto_detected=m.is_auto_detected,
+            confidence=m.confidence,
+        )
+        for m in mappings
+    ]
 
 
 # ============================================================================

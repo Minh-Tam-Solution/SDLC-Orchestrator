@@ -45,9 +45,11 @@ exports.ConfigManager = void 0;
 const vscode = __importStar(require("vscode"));
 /**
  * Default configuration values
+ * Production: https://sdlc.nhatquangholding.com
+ * Local development: http://localhost:8300 (IT Admin: PORT_ALLOCATION_MANAGEMENT.md)
  */
 const DEFAULT_CONFIG = {
-    apiUrl: 'http://localhost:8000',
+    apiUrl: 'https://sdlc.nhatquangholding.com',
     autoRefreshInterval: 30,
     defaultProjectId: '',
     enableNotifications: true,

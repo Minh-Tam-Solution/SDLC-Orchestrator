@@ -25,6 +25,7 @@
 5. [IR Schema Reference](#5-ir-schema-reference)
 6. [Quality Gates Configuration](#6-quality-gates-configuration)
 7. [Monitoring & Observability](#7-monitoring--observability)
+8. [Session Management](#8-session-management)
 
 ---
 
@@ -453,11 +454,84 @@ groups:
 
 ---
 
+## 8. Session Management
+
+### Onboarding Session Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  ONBOARDING SESSION FLOW                                             │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  POST /onboarding/start          GET /onboarding/{id}                │
+│         │                               │                            │
+│         ▼                               ▼                            │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │           MODULE-LEVEL SESSION STORAGE (Singleton)            │   │
+│  │                                                                │   │
+│  │   _global_sessions: Dict[str, OnboardingSession]              │   │
+│  │                                                                │   │
+│  │   ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │   │
+│  │   │ Session A   │  │ Session B   │  │ Session C   │          │   │
+│  │   │ (user_1)    │  │ (user_2)    │  │ (user_3)    │          │   │
+│  │   └─────────────┘  └─────────────┘  └─────────────┘          │   │
+│  │                                                                │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+│  LIFECYCLE:                                                          │
+│  1. create_session() → Add to _global_sessions                      │
+│  2. get_session(id) → Lookup from _global_sessions                  │
+│  3. Session expires after 1 hour (cleanup job)                      │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Session Storage Strategy
+
+| Environment | Storage | TTL | Persistence |
+|-------------|---------|-----|-------------|
+| **Development** | In-memory (module-level dict) | 1 hour | Process lifetime |
+| **Production** | Redis (future) | 1 hour | Cluster-wide |
+
+### Current Implementation (v1.0.0)
+
+```python
+# backend/app/services/codegen/onboarding/service.py
+
+# Module-level session storage (singleton pattern)
+# Ensures sessions persist across OnboardingService instances
+_global_sessions: Dict[str, OnboardingSession] = {}
+
+class OnboardingService:
+    def __init__(self, locale: str = "vi"):
+        # Use global session storage
+        self._sessions = _global_sessions
+```
+
+### Limitations & Future Work
+
+| Limitation | Impact | Future Solution |
+|------------|--------|-----------------|
+| In-memory storage | Lost on restart | Redis persistence |
+| Single-process | No horizontal scaling | Redis cluster |
+| No cleanup job | Memory growth | Background task |
+
+### Troubleshooting
+
+| Error | Cause | Resolution |
+|-------|-------|------------|
+| "Session not found" | Backend restarted | User must restart onboarding |
+| "Session expired" | TTL exceeded | User must restart onboarding |
+| Session data lost | Container recreated | Restart onboarding flow |
+
+---
+
 ## Document Control
 
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0.0 | Dec 24, 2025 | Initial version - Sprint 50 |
+| 1.0.1 | Dec 24, 2025 | Added Session Management section |
 
 ---
 
