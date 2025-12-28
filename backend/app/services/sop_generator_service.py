@@ -714,7 +714,7 @@ def get_sop_generator_service() -> SOPGeneratorService:
         Configured SOPGeneratorService instance
     """
     ollama_url = getattr(settings, "OLLAMA_URL", "http://localhost:11434")
-    ollama_model = getattr(settings, "OLLAMA_MODEL", "qwen2.5:14b-instruct")
+    ollama_model = getattr(settings, "OLLAMA_MODEL", "qwen3:14b")
 
     return SOPGeneratorService(
         ollama_base_url=ollama_url,

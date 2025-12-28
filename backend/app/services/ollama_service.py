@@ -56,24 +56,61 @@ logger = logging.getLogger(__name__)
 
 
 class OllamaModel(str, Enum):
-    """Supported Ollama models for different use cases."""
+    """
+    Supported Ollama models for different use cases.
 
-    # Code-focused models
+    Model Strategy v3.0 (December 27, 2025):
+    - 10 models optimized for RTX 5090 32GB
+    - Primary: qwen3-coder:30b (256K context), qwen3:32b (Vietnamese)
+    - Reference: /home/nqh/shared/models/core/docs/admin/MODEL_STRATEGY_2025.md
+    """
+
+    # PRIMARY MODELS (Model Strategy v3.0)
+    # Code generation - 256K context, production-ready
+    QWEN3_CODER_30B = "qwen3-coder:30b"
+
+    # Vietnamese chat - excellent Vietnamese, fast
+    QWEN3_32B = "qwen3:32b"
+
+    # Deep reasoning - thinking mode, complex analysis
+    DEEPSEEK_R1_32B = "deepseek-r1:32b-qwen-distill-q4_K_M"
+
+    # SOP RAG - structured JSON output
+    MISTRAL_SMALL_24B = "mistral-small3.2:24b-instruct-2506-q4_K_M"
+
+    # Vietnamese reasoning - cultural context
+    GPT_OSS_20B = "gpt-oss:20b"
+
+    # FAST MODELS
+    # Vietnamese fast - quick responses
+    QWEN3_14B = "qwen3:14b"
+
+    # Fastest chat - real-time
+    QWEN3_8B = "qwen3:8b"
+
+    # Fast tasks - classification, simple Q&A
+    MINISTRAL_8B = "ministral-3:8b-instruct-2512-q4_K_M"
+
+    # Creative writing - marketing, storytelling
+    GEMMA3_12B = "gemma3:12b"
+
+    # EMBEDDINGS (hidden, for RAG only)
+    BGE_M3 = "bge-m3:latest"
+
+    # LEGACY MODELS (kept for backward compatibility)
     CODELLAMA_7B = "codellama:7b"
     CODELLAMA_13B = "codellama:13b"
-    CODELLAMA_34B = "codellama:34b"
-
-    # General purpose models
-    LLAMA2_7B = "llama2:7b"
     LLAMA2_13B = "llama2:13b"
-    LLAMA2_70B = "llama2:70b"
-
-    # Instruction-tuned models
     MISTRAL_7B = "mistral:7b"
-    MIXTRAL_8X7B = "mixtral:8x7b"
 
-    # Default model for compliance recommendations
-    DEFAULT = "llama2:13b"
+    # Default model for compliance recommendations (Model Strategy v3.0)
+    DEFAULT = "qwen3:32b"
+
+    # Default model for code generation
+    DEFAULT_CODE = "qwen3-coder:30b"
+
+    # Default model for Vietnamese content
+    DEFAULT_VIETNAMESE = "qwen3:32b"
 
 
 @dataclass

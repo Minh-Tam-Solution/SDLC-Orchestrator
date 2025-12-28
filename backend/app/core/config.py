@@ -153,7 +153,7 @@ class Settings(BaseSettings):
     # EP-06: Company GPU server for Mode B (Native OSS Codegen)
     # Ollama AI Service (set via OLLAMA_URL env var)
     OLLAMA_URL: str = ""  # Must be set via environment variable
-    OLLAMA_MODEL: str = "llama2:13b"
+    OLLAMA_MODEL: str = "qwen3:14b"  # Model Strategy v3.0 - Vietnamese excellent
     OLLAMA_TIMEOUT: int = 30
     
     # EP-06 Codegen Engine - OSS Model Configuration
@@ -195,6 +195,14 @@ class Settings(BaseSettings):
     REDIS_CHECKPOINT_TTL: int = 86400  # 24 hours for active sessions
     CHECKPOINT_INTERVAL: int = 3  # Save checkpoint every N files
     CHECKPOINT_COMPLETED_TTL: int = 604800  # 7 days for completed sessions
+
+    # VNPay Payment Gateway (Sprint 58)
+    # See: Plan v2.2 Section 7 - VNPay Integration
+    # Get credentials from VNPay merchant portal
+    VNPAY_TMN_CODE: Optional[str] = None  # Merchant terminal code
+    VNPAY_HASH_SECRET: Optional[str] = None  # Hash secret for signing
+    VNPAY_URL: str = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"  # Sandbox URL
+    VNPAY_RETURN_URL: str = "http://localhost:3000/checkout/success"  # Return URL after payment
 
     @property
     def allowed_origins_list(self) -> list[str]:
@@ -240,3 +248,13 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def get_settings() -> Settings:
+    """
+    Get application settings instance.
+
+    Returns:
+        Settings: Application settings singleton
+    """
+    return settings

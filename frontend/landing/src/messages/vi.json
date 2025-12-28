@@ -1,0 +1,406 @@
+{
+  "header": {
+    "features": "Tính năng",
+    "pricing": "Bảng giá",
+    "docs": "Tài liệu",
+    "signIn": "Đăng nhập",
+    "getStarted": "Bắt đầu ngay",
+    "menu": {
+      "open": "Mở menu",
+      "close": "Đóng menu"
+    }
+  },
+  "hero": {
+    "badge": "Hệ điều hành cho Phần mềm 3.0",
+    "headline": "Nền tảng quản trị phát triển phần mềm AI",
+    "subheadline": "Quản lý Cursor, Claude Code, Copilot — tất cả từ một dashboard. Quy trình 4-Gate. Lưu vết đầy đủ.",
+    "cta": {
+      "primary": "Bắt đầu miễn phí",
+      "secondary": "Xem Demo"
+    },
+    "stats": {
+      "gates": "4 Cổng chất lượng",
+      "latency": "<100ms p95",
+      "coverage": "95%+ Độ phủ"
+    }
+  },
+  "features": {
+    "title": "Tính năng chính",
+    "subtitle": "Mọi thứ bạn cần để quản trị code do AI sinh ra",
+    "items": {
+      "gateEngine": {
+        "title": "Gate Engine",
+        "description": "Quy trình 4 cổng chất lượng với OPA policies. Chặn code không tuân thủ trước khi đưa lên production."
+      },
+      "evidenceVault": {
+        "title": "Evidence Vault",
+        "description": "Lưu trữ artifact với SHA256. Vòng đời 8 trạng thái. Theo dõi đầy đủ cho compliance."
+      },
+      "aiContext": {
+        "title": "AI Context Engine",
+        "description": "Prompt thông minh theo từng giai đoạn cho Cursor, Claude Code, Copilot. Giảm lãng phí tính năng từ 60% xuống 30%."
+      },
+      "policyGuards": {
+        "title": "Policy Guards",
+        "description": "Semgrep SAST + các quy tắc bảo mật dành riêng cho AI. Tuân thủ OWASP ASVS Level 2."
+      }
+    }
+  },
+  "howItWorks": {
+    "title": "Cách hoạt động",
+    "subtitle": "3 bước đơn giản để bắt đầu",
+    "step1": {
+      "number": "1",
+      "title": "Kết nối",
+      "description": "Kết nối GitHub repository của bạn."
+    },
+    "step2": {
+      "number": "2",
+      "title": "Cấu hình",
+      "description": "Chọn policies và gates phù hợp."
+    },
+    "step3": {
+      "number": "3",
+      "title": "Triển khai",
+      "description": "AI xác thực mọi PR. Theo dõi đầy đủ."
+    }
+  },
+  "vietnamFounders": {
+    "flag": "🇻🇳",
+    "title": "Dành cho Founders Việt Nam",
+    "heading": "AI Code Generation",
+    "subtitle": "IR-based Codegen - Từ ý tưởng đến sản phẩm đầu tiên",
+    "description": "Bạn không cần Cursor hay Claude Code. AI Code Generation tích hợp sẵn trong platform, giúp bạn build sản phẩm đầu tiên trong ~30 phút* với full audit trail.",
+    "disclaimer": "*Thời gian điển hình cho ứng dụng CRUD đơn giản. Thời gian thực tế phụ thuộc vào phạm vi dự án.",
+    "features": {
+      "templates": "Mẫu dành riêng cho doanh nghiệp Việt (E-commerce, HRM, CRM)",
+      "pipeline": "Quy trình 4 cổng chất lượng",
+      "compliance": "Tuân thủ quy định VN (BHXH, VAT, Luật Lao động)",
+      "support": "Hỗ trợ tiếng Việt"
+    },
+    "cta": "Bắt đầu ngay"
+  },
+  "pricing": {
+    "title": "Bảng giá",
+    "subtitle": "Bắt đầu miễn phí. Mở rộng tự tin.",
+    "monthly": "Hàng tháng",
+    "annually": "Hàng năm",
+    "annualDiscount": "Tiết kiệm 2 tháng",
+    "free": {
+      "name": "Miễn phí",
+      "price": "0 VND",
+      "period": "/tháng",
+      "description": "Dành cho developers muốn thử nghiệm",
+      "features": [
+        "1 dự án",
+        "5 cổng kiểm tra",
+        "Hỗ trợ cộng đồng"
+      ],
+      "cta": "Thử ngay"
+    },
+    "founder": {
+      "name": "Founder",
+      "badge": "Phổ biến nhất",
+      "price": "2.5M VND",
+      "period": "/team/tháng",
+      "priceNote": "(~$99)",
+      "description": "Dành cho startup Việt Nam - Không giới hạn thành viên",
+      "features": [
+        "Không giới hạn thành viên",
+        "1 sản phẩm (nhiều repos)",
+        "AI Code Generation",
+        "10GB Evidence Vault",
+        "5 gói policy tích hợp sẵn",
+        "500 yêu cầu AI/tháng",
+        "Hỗ trợ qua Email + Discord",
+        "SLA 99.5%"
+      ],
+      "cta": "Bắt đầu ngay"
+    },
+    "enterprise": {
+      "name": "Doanh nghiệp",
+      "price": "Liên hệ",
+      "period": "",
+      "description": "Dành cho doanh nghiệp lớn",
+      "features": [
+        "Không giới hạn mọi thứ",
+        "Triển khai tại chỗ (On-premise)",
+        "SLA tùy chỉnh",
+        "Hỗ trợ riêng",
+        "Tích hợp tùy chỉnh"
+      ],
+      "cta": "Liên hệ Sales"
+    },
+    "founderNote": "Gói Founder: Dành cho startup Việt Nam xây dựng sản phẩm đầu tiên",
+    "globalNote": "Cho team quốc tế: Gói Standard $30/người/tháng",
+    "globalLink": "Xem bảng giá quốc tế"
+  },
+  "ctas": {
+    "demo": {
+      "icon": "👀",
+      "title": "Xem Demo",
+      "description": "Xem cách hoạt động trong 3 phút",
+      "cta": "Xem Sample Project"
+    },
+    "free": {
+      "icon": "🚀",
+      "title": "Bắt đầu miễn phí",
+      "description": "1 project, 5 gates. Không cần thẻ tín dụng",
+      "cta": "Tạo tài khoản"
+    },
+    "talk": {
+      "icon": "📞",
+      "title": "Liên hệ",
+      "description": "Dành cho SME và Enterprise",
+      "cta": "Đặt lịch"
+    }
+  },
+  "footer": {
+    "tagline": "Hệ điều hành cho Phần mềm 3.0",
+    "product": {
+      "title": "Sản phẩm",
+      "features": "Tính năng",
+      "pricing": "Bảng giá",
+      "demo": "Demo"
+    },
+    "resources": {
+      "title": "Tài nguyên",
+      "docs": "Tài liệu",
+      "blog": "Blog",
+      "changelog": "Changelog"
+    },
+    "company": {
+      "title": "Công ty",
+      "about": "Về chúng tôi",
+      "contact": "Liên hệ",
+      "careers": "Tuyển dụng"
+    },
+    "legal": {
+      "title": "Pháp lý",
+      "privacy": "Chính sách bảo mật",
+      "terms": "Điều khoản sử dụng",
+      "cookies": "Cookies"
+    },
+    "copyright": "© 2025 NQH Technology. All rights reserved."
+  },
+  "auth": {
+    "login": {
+      "title": "Đăng nhập",
+      "description": "Truy cập Dashboard SDLC Orchestrator",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Mật khẩu",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Đăng nhập",
+      "submitting": "Đang đăng nhập...",
+      "forgotPassword": "Quên mật khẩu?",
+      "noAccount": "Chưa có tài khoản?",
+      "signUp": "Đăng ký ngay",
+      "orContinueWith": "Hoặc tiếp tục với",
+      "github": "GitHub",
+      "google": "Google",
+      "alerts": {
+        "registeredSuccess": "Tạo tài khoản thành công! Vui lòng đăng nhập."
+      },
+      "validation": {
+        "emailRequired": "Email là bắt buộc",
+        "emailInvalid": "Vui lòng nhập email hợp lệ",
+        "passwordRequired": "Mật khẩu là bắt buộc"
+      },
+      "oauth": {
+        "connectFailed": "Không thể kết nối tới {provider}. Vui lòng thử lại."
+      },
+      "error": {
+        "invalidCredentials": "Email hoặc mật khẩu không đúng",
+        "tooManyAttempts": "Bạn đã đăng nhập quá nhiều lần. Vui lòng thử lại sau.",
+        "serverError": "Đã có lỗi xảy ra. Vui lòng thử lại."
+      }
+    },
+    "register": {
+      "title": "Đăng ký",
+      "description": "Bắt đầu dùng thử SDLC Orchestrator miễn phí",
+      "name": "Họ tên",
+      "namePlaceholder": "Nguyễn Văn A",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Mật khẩu",
+      "passwordPlaceholder": "Tối thiểu 8 ký tự",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "confirmPasswordPlaceholder": "Nhập lại mật khẩu",
+      "submit": "Tạo tài khoản",
+      "submitting": "Đang tạo tài khoản...",
+      "hasAccount": "Đã có tài khoản?",
+      "signIn": "Đăng nhập",
+      "orContinueWith": "Hoặc tiếp tục với",
+      "terms": "Bằng cách đăng ký, bạn đồng ý với",
+      "termsLink": "Điều khoản sử dụng",
+      "and": "và",
+      "privacyLink": "Chính sách bảo mật",
+      "validation": {
+        "emailRequired": "Email là bắt buộc",
+        "emailInvalid": "Vui lòng nhập email hợp lệ",
+        "passwordRequired": "Mật khẩu là bắt buộc",
+        "passwordTooLong": "Mật khẩu phải ít hơn 128 ký tự",
+        "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu",
+        "nameTooLong": "Họ tên phải ít hơn 100 ký tự"
+      },
+      "oauth": {
+        "connectFailed": "Không thể kết nối tới {provider}. Vui lòng thử lại."
+      },
+      "success": {
+        "title": "Tạo tài khoản thành công!",
+        "subtitle": "Tài khoản của bạn đã được tạo.",
+        "description": "Bây giờ bạn có thể đăng nhập bằng email và mật khẩu.",
+        "signInButton": "Đăng nhập"
+      },
+      "error": {
+        "emailExists": "Email đã được sử dụng",
+        "passwordMismatch": "Mật khẩu không khớp",
+        "weakPassword": "Mật khẩu quá yếu",
+        "serverError": "Đã có lỗi xảy ra. Vui lòng thử lại."
+      }
+    }
+    ,
+    "callback": {
+      "loadingTitle": "Đang tải...",
+      "loadingDescription": "Đang chuẩn bị xác thực..."
+    }
+  },
+  "checkout": {
+    "title": "Thanh toán",
+    "plan": "Gói dịch vụ",
+    "billing": "Chu kỳ thanh toán",
+    "monthly": "Hàng tháng",
+    "annually": "Hàng năm",
+    "annualDiscount": "-17%",
+    "summary": "Tóm tắt đơn hàng",
+    "subtotal": "Tạm tính",
+    "discount": "Giảm giá",
+    "total": "Tổng cộng",
+    "payNow": "Thanh toán ngay",
+    "payment": "Thanh toán",
+    "securePayment": "Thanh toán an toàn qua VNPay",
+    "features": "Bao gồm:",
+    "periodMonthly": "/tháng",
+    "periodAnnual": "/năm",
+    "vnpayDescription": "Thẻ ATM, Visa, MasterCard",
+    "vnpayRedirect": "Bạn sẽ được chuyển đến trang thanh toán VNPay để hoàn tất giao dịch.",
+    "payAmount": "Thanh toán {amount}",
+    "termsAgree": "Bằng việc thanh toán, bạn đồng ý với",
+    "termsLink": "Điều khoản dịch vụ",
+    "and": "và",
+    "privacyLink": "Chính sách bảo mật",
+    "backToPricing": "← Quay lại trang giá",
+    "loading": "Đang tải...",
+    "processing": {
+      "title": "Đang xử lý...",
+      "subtitle": "Vui lòng đợi trong giây lát",
+      "description": "Thanh toán của bạn đang được xử lý. Quá trình này có thể mất vài giây."
+    },
+    "verifying": {
+      "title": "Đang xác nhận thanh toán...",
+      "subtitle": "Vui lòng đợi trong giây lát",
+      "description": "Thanh toán của bạn đang được xác nhận. Quá trình này có thể mất vài giây."
+    },
+    "success": {
+      "title": "Thanh toán thành công!",
+      "subtitle": "Cảm ơn bạn đã đăng ký SDLC Orchestrator",
+      "orderId": "Mã giao dịch",
+      "plan": "Gói",
+      "amount": "Số tiền",
+      "nextSteps": "Bước tiếp theo:",
+      "step1": "Truy cập Dashboard để bắt đầu",
+      "step2": "Kết nối GitHub repository",
+      "step3": "Tạo dự án đầu tiên với AI Codegen",
+      "goToDashboard": "Vào Dashboard",
+      "viewDocs": "Xem hướng dẫn",
+      "needHelp": "Cần hỗ trợ?",
+      "contactUs": "Liên hệ chúng tôi"
+    },
+    "error": {
+      "title": "Thanh toán thất bại",
+      "subtitle": "Đã xảy ra lỗi trong quá trình thanh toán",
+      "description": "Thanh toán của bạn không thành công. Vui lòng thử lại hoặc liên hệ hỗ trợ.",
+      "createPaymentFailed": "Không thể tạo thanh toán. Vui lòng thử lại.",
+      "tryAgain": "Thử lại",
+      "choosePlan": "Chọn gói khác",
+      "contactSupport": "Liên hệ hỗ trợ",
+      "stillHavingIssues": "Vẫn gặp vấn đề?",
+      "emailSupport": "Email hỗ trợ",
+      "discord": "Discord"
+    },
+  "i18n": {
+    "toggle": {
+      "ariaLabel": "Ngôn ngữ hiện tại: {current}. Nhấn để đổi.",
+      "title": "Chuyển sang {next}"
+    },
+    "dropdown": {
+      "ariaLabel": "Chọn ngôn ngữ"
+    }
+  },
+    "failed": {
+      "title": "Thanh toán không thành công",
+      "transactionId": "Mã giao dịch",
+      "errorCode": "Mã lỗi",
+      "troubleshooting": "Có thể thử:",
+      "tip1": "Kiểm tra số dư và hạn mức thẻ",
+      "tip2": "Đảm bảo thẻ đã đăng ký Internet Banking",
+      "tip3": "Thử lại sau vài phút",
+      "tip4": "Sử dụng thẻ hoặc ngân hàng khác",
+      "errors": {
+        "07": "Trừ tiền thành công. Giao dịch bị nghi ngờ (liên quan tới lừa đảo, giao dịch bất thường).",
+        "09": "Thẻ/Tài khoản chưa đăng ký dịch vụ InternetBanking tại ngân hàng.",
+        "10": "Xác thực thông tin thẻ/tài khoản không đúng quá 3 lần",
+        "11": "Đã hết hạn chờ thanh toán. Xin quý khách vui lòng thực hiện lại giao dịch.",
+        "12": "Thẻ/Tài khoản bị khóa.",
+        "13": "Mã xác thực giao dịch (OTP) không chính xác.",
+        "24": "Khách hàng hủy giao dịch.",
+        "51": "Tài khoản không đủ số dư để thực hiện giao dịch.",
+        "65": "Tài khoản đã vượt quá hạn mức giao dịch trong ngày.",
+        "75": "Ngân hàng thanh toán đang bảo trì.",
+        "79": "Nhập sai mật khẩu thanh toán quá số lần quy định.",
+        "99": "Lỗi không xác định. Vui lòng thử lại.",
+        "default": "Giao dịch không thành công. Vui lòng thử lại."
+      }
+    },
+    "planInfo": {
+      "founderName": "Gói Founder",
+      "founderDescription": "Dành cho startup Việt Nam - Không giới hạn thành viên",
+      "features": {
+        "unlimitedMembers": "Không giới hạn thành viên (giá cố định)",
+        "oneProduct": "1 sản phẩm (nhiều repos)",
+        "aiCodegen": "AI Code Generation",
+        "qualityGates": "Quality Gates (G0-G4)",
+        "evidenceVault": "Evidence Vault (10GB)",
+        "policyGuards": "Policy Guards (5 gói tích hợp sẵn)",
+        "aiRequests": "500 yêu cầu AI/tháng",
+        "vnSupport": "Hỗ trợ tiếng Việt",
+        "sla": "SLA 99.5%"
+      }
+    }
+  },
+  "common": {
+    "learnMore": "Tìm hiểu thêm",
+    "getStarted": "Bắt đầu",
+    "contactUs": "Liên hệ",
+    "viewDocs": "Xem tài liệu",
+    "loading": "Đang tải...",
+    "error": "Đã có lỗi xảy ra",
+    "retry": "Thử lại",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "close": "Đóng",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "submit": "Gửi",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "sort": "Sắp xếp",
+    "all": "Tất cả",
+    "none": "Không có",
+    "yes": "Có",
+    "no": "Không"
+  }
+}

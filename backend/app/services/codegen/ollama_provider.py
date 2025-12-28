@@ -14,10 +14,13 @@ Design Decisions:
 - Retry with exponential backoff for resilience
 - Structured output parsing (### FILE: format)
 
-Model Updates (Dec 24, 2025):
-- qwen2.5-coder:32b → qwen3-coder:30b (1.8x faster, 256K context, 18GB)
-- qwen2.5:14b-instruct → qwen3:8b (fast draft)
-- qwen2.5:32b → mistral-small3.2:24b (enterprise assistant)
+Model Strategy v3.0 (Dec 27, 2025):
+- qwen3-coder:30b (~50 tok/s, 256K context!) - PRIMARY CODE
+- qwen3:32b (~53 tok/s, Vietnamese excellent) - PRIMARY CHAT
+- deepseek-r1:32b (~34 tok/s, thinking mode) - DEEP REASONING
+- mistral-small3.2:24b (~40 tok/s, JSON output) - SOP RAG
+- qwen3:14b/8b (~60-80 tok/s) - FAST DRAFT
+- gpt-oss:20b (Vietnamese reasoning) - VIETNAMESE SME
 
 Author: Backend Lead
 Date: December 23, 2025

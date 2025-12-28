@@ -300,23 +300,38 @@ SDLC Orchestrator Policy:
   ❌ BANNED: `// TODO: Implement`, `pass # placeholder`, `return { mock: true }`
 ```
 
-**Principle 4: Innovation - Multi-Provider AI Integration**
+**Principle 4: Innovation - Multi-Provider AI Integration (Model Strategy v3.0)**
 ```yaml
-Cost Optimization (ADR-007 + EP-06):
-  Primary: Ollama (api.nhatquangholding.com) - $50/month, <15s latency
-    Model: qwen2.5-coder:32b (code generation)
+Cost Optimization (ADR-007 + EP-06 + Model Strategy v3.0 Dec 27, 2025):
+  Primary: Ollama (api.nhatquangholding.com) - $50/month
+    Code: qwen3-coder:30b (~50 tok/s, 256K context!)
+    Chat: qwen3:32b (~53 tok/s, Vietnamese excellent)
+    Reasoning: deepseek-r1:32b (~34 tok/s, thinking mode)
+    RAG: mistral-small3.2:24b (~40 tok/s, JSON structured)
+    Fast: qwen3:14b/8b (~60-80 tok/s)
   Fallback 1: Claude (Anthropic) - $1000/month, <25s latency
     Model: claude-sonnet-4-5-20250929 (reasoning + code)
-  Fallback 2: DeepCode (Q2 2026) - TBD
-    Model: deepcode-v1 (Vietnamese-optimized)
-  Fallback 3: Rule-based - $0/month, 50ms
+  Fallback 2: Rule-based - $0/month, 50ms
     Templates: Deterministic patterns for common cases
+
+10-Model Configuration (RTX 5090 32GB):
+  - qwen3:32b (20GB) - PRIMARY CHAT (Vietnamese excellent)
+  - deepseek-r1:32b (19GB) - DEEP REASONING (thinking mode)
+  - qwen3-coder:30b (18GB) - PRIMARY CODE (256K context)
+  - mistral-small3.2:24b (15GB) - SOP RAG PRIMARY
+  - qwen3:14b (9.3GB) - VIETNAMESE FAST
+  - qwen3:8b (5.2GB) - FASTEST CHAT
+  - ministral-3:8b (6GB) - FAST TASKS
+  - gemma3:12b (8.1GB) - CREATIVE WRITING
+  - gpt-oss:20b (13GB) - VIETNAMESE REASONING
+  - bge-m3:latest (1.2GB) - EMBEDDINGS (hidden)
 
 Savings:
   - Year 1: $11,400 saved (95% cost reduction)
   - Latency: 3x faster (<100ms vs 300ms for simple tasks)
   - Privacy: No external API calls for primary provider
   - Quality: 4-Gate validation ensures consistency
+  - Context: 256K tokens for code analysis (32x improvement)
 ```
 
 **Principle 5: EP-06 IR-Based Codegen (Sprint 45-50 - NEW)**

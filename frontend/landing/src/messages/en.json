@@ -1,0 +1,406 @@
+{
+  "header": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "docs": "Docs",
+    "signIn": "Sign In",
+    "getStarted": "Get Started",
+    "menu": {
+      "open": "Open menu",
+      "close": "Close menu"
+    }
+  },
+  "hero": {
+    "badge": "Operating System for Software 3.0",
+    "headline": "Control Plane for AI-Powered Development",
+    "subheadline": "Govern Cursor, Claude Code, Copilot — all from one dashboard. 4-Gate quality pipeline. Full audit trail.",
+    "cta": {
+      "primary": "Start Free",
+      "secondary": "View Demo"
+    },
+    "stats": {
+      "gates": "4 Quality Gates",
+      "latency": "<100ms p95",
+      "coverage": "95%+ Coverage"
+    }
+  },
+  "features": {
+    "title": "Key Features",
+    "subtitle": "Everything you need to govern AI-generated code",
+    "items": {
+      "gateEngine": {
+        "title": "Gate Engine",
+        "description": "4-gate quality pipeline with OPA policies. Block non-compliant code before it ships."
+      },
+      "evidenceVault": {
+        "title": "Evidence Vault",
+        "description": "SHA256 hashed artifacts. 8-state lifecycle. Full audit trail for compliance."
+      },
+      "aiContext": {
+        "title": "AI Context Engine",
+        "description": "Stage-aware prompts for Cursor, Claude Code, Copilot. Reduce feature waste 60%→30%."
+      },
+      "policyGuards": {
+        "title": "Policy Guards",
+        "description": "Semgrep SAST + AI-specific security rules. OWASP ASVS Level 2 compliant."
+      }
+    }
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "subtitle": "3 simple steps to get started",
+    "step1": {
+      "number": "1",
+      "title": "Connect",
+      "description": "Connect your GitHub repository."
+    },
+    "step2": {
+      "number": "2",
+      "title": "Configure",
+      "description": "Choose the right policies and gates."
+    },
+    "step3": {
+      "number": "3",
+      "title": "Ship",
+      "description": "AI validates every PR. Full audit trail."
+    }
+  },
+  "vietnamFounders": {
+    "flag": "🇻🇳",
+    "title": "For Vietnam Founders",
+    "heading": "AI Code Generation",
+    "subtitle": "IR-based Codegen - From idea to first product",
+    "description": "You don't need Cursor or Claude Code. AI Code Generation is built into the platform, helping you build your first product in ~30 minutes* with full audit trail.",
+    "disclaimer": "*Typical for simple CRUD apps. Time varies by project scope.",
+    "features": {
+      "templates": "Vietnamese domain templates (E-commerce, HRM, CRM)",
+      "pipeline": "4-Gate Quality Pipeline",
+      "compliance": "VN regulatory compliance (BHXH, VAT, Labor Law)",
+      "support": "Vietnamese language support"
+    },
+    "cta": "Get Started"
+  },
+  "pricing": {
+    "title": "Pricing",
+    "subtitle": "Start free. Scale with confidence.",
+    "monthly": "Monthly",
+    "annually": "Annually",
+    "annualDiscount": "Save 2 months",
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "period": "/month",
+      "description": "For developers who want to try it out",
+      "features": [
+        "1 project",
+        "5 gates",
+        "Community support"
+      ],
+      "cta": "Try Now"
+    },
+    "founder": {
+      "name": "Founder",
+      "badge": "Most Popular",
+      "price": "$99",
+      "period": "/team/month",
+      "priceNote": "(~2.5M VND)",
+      "description": "For Vietnam startups - Unlimited team members",
+      "features": [
+        "Unlimited team members",
+        "1 product (multiple repos)",
+        "AI Code Generation",
+        "10GB Evidence Vault",
+        "5 built-in policy packs",
+        "500 AI requests/month",
+        "Email + Discord support",
+        "99.5% SLA"
+      ],
+      "cta": "Get Started"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "price": "Contact Us",
+      "period": "",
+      "description": "For large organizations",
+      "features": [
+        "Unlimited everything",
+        "On-premise deployment",
+        "Custom SLA",
+        "Dedicated support",
+        "Custom integrations"
+      ],
+      "cta": "Contact Sales"
+    },
+    "founderNote": "Founder Plan: For VN startups building their first product",
+    "globalNote": "For global teams: Standard Plan at $30/user/month",
+    "globalLink": "View Global Pricing"
+  },
+  "ctas": {
+    "demo": {
+      "icon": "👀",
+      "title": "View Demo",
+      "description": "See how it works in 3 minutes",
+      "cta": "View Sample Project"
+    },
+    "free": {
+      "icon": "🚀",
+      "title": "Start Free",
+      "description": "1 project, 5 gates. No credit card required",
+      "cta": "Create Account"
+    },
+    "talk": {
+      "icon": "📞",
+      "title": "Contact Us",
+      "description": "For SME and Enterprise",
+      "cta": "Schedule a Call"
+    }
+  },
+  "footer": {
+    "tagline": "Operating System for Software 3.0",
+    "product": {
+      "title": "Product",
+      "features": "Features",
+      "pricing": "Pricing",
+      "demo": "Demo"
+    },
+    "resources": {
+      "title": "Resources",
+      "docs": "Documentation",
+      "blog": "Blog",
+      "changelog": "Changelog"
+    },
+    "company": {
+      "title": "Company",
+      "about": "About Us",
+      "contact": "Contact",
+      "careers": "Careers"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookies"
+    },
+    "copyright": "© 2025 NQH Technology. All rights reserved."
+  },
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "description": "Access your SDLC Orchestrator dashboard",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Sign In",
+      "submitting": "Signing in...",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up now",
+      "orContinueWith": "Or continue with",
+      "github": "GitHub",
+      "google": "Google",
+      "alerts": {
+        "registeredSuccess": "Account created successfully! Please sign in."
+      },
+      "validation": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email address",
+        "passwordRequired": "Password is required"
+      },
+      "oauth": {
+        "connectFailed": "Failed to connect to {provider}. Please try again."
+      },
+      "error": {
+        "invalidCredentials": "Invalid email or password",
+        "tooManyAttempts": "Too many login attempts. Please try again later.",
+        "serverError": "An error occurred. Please try again."
+      }
+    },
+    "register": {
+      "title": "Sign Up",
+      "description": "Start your free trial of SDLC Orchestrator",
+      "name": "Full Name",
+      "namePlaceholder": "John Doe",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Re-enter password",
+      "submit": "Create Account",
+      "submitting": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign In",
+      "orContinueWith": "Or continue with",
+      "terms": "By signing up, you agree to our",
+      "termsLink": "Terms of Service",
+      "and": "and",
+      "privacyLink": "Privacy Policy",
+      "validation": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email address",
+        "passwordRequired": "Password is required",
+        "passwordTooLong": "Password must be less than 128 characters",
+        "confirmPasswordRequired": "Please confirm your password",
+        "nameTooLong": "Name must be less than 100 characters"
+      },
+      "oauth": {
+        "connectFailed": "Failed to connect to {provider}. Please try again."
+      },
+      "success": {
+        "title": "Account Created!",
+        "subtitle": "Your account has been successfully created.",
+        "description": "You can now sign in with your email and password.",
+        "signInButton": "Sign In to Your Account"
+      },
+      "error": {
+        "emailExists": "Email is already in use",
+        "passwordMismatch": "Passwords do not match",
+        "weakPassword": "Password is too weak",
+        "serverError": "An error occurred. Please try again."
+      }
+    }
+    ,
+    "callback": {
+      "loadingTitle": "Loading...",
+      "loadingDescription": "Preparing authentication..."
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "plan": "Plan",
+    "billing": "Billing Cycle",
+    "monthly": "Monthly",
+    "annually": "Annually",
+    "annualDiscount": "-17%",
+    "summary": "Order Summary",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "total": "Total",
+    "payNow": "Pay Now",
+    "payment": "Payment",
+    "securePayment": "Secure payment via VNPay",
+    "features": "Includes:",
+    "periodMonthly": "/month",
+    "periodAnnual": "/year",
+    "vnpayDescription": "ATM, Visa, MasterCard",
+    "vnpayRedirect": "You will be redirected to VNPay to complete the transaction.",
+    "payAmount": "Pay {amount}",
+    "termsAgree": "By paying, you agree to our",
+    "termsLink": "Terms of Service",
+    "and": "and",
+    "privacyLink": "Privacy Policy",
+    "backToPricing": "← Back to pricing",
+    "loading": "Loading checkout...",
+    "processing": {
+      "title": "Processing payment...",
+      "subtitle": "Please wait a moment",
+      "description": "Your payment is being processed. This may take a few seconds."
+    },
+    "verifying": {
+      "title": "Verifying payment...",
+      "subtitle": "Please wait a moment",
+      "description": "Your payment is being verified. This may take a few seconds."
+    },
+    "success": {
+      "title": "Payment Successful!",
+      "subtitle": "Thank you for subscribing to SDLC Orchestrator",
+      "orderId": "Transaction ID",
+      "plan": "Plan",
+      "amount": "Amount",
+      "nextSteps": "Next Steps:",
+      "step1": "Access Dashboard to get started",
+      "step2": "Connect your GitHub repository",
+      "step3": "Create your first project with AI Codegen",
+      "goToDashboard": "Go to Dashboard",
+      "viewDocs": "View Documentation",
+      "needHelp": "Need help?",
+      "contactUs": "Contact us"
+    },
+    "error": {
+      "title": "Payment Failed",
+      "subtitle": "An error occurred during payment",
+      "description": "Your payment was not successful. Please try again or contact support.",
+      "createPaymentFailed": "Failed to create payment. Please try again.",
+      "tryAgain": "Try Again",
+      "choosePlan": "Choose Another Plan",
+      "contactSupport": "Contact Support",
+      "stillHavingIssues": "Still having issues?",
+      "emailSupport": "Email Support",
+      "discord": "Discord"
+    },
+    "failed": {
+      "title": "Payment Unsuccessful",
+      "transactionId": "Transaction ID",
+      "errorCode": "Error Code",
+      "troubleshooting": "You can try:",
+      "tip1": "Check your balance and card limit",
+      "tip2": "Make sure your card is registered for Internet Banking",
+      "tip3": "Try again after a few minutes",
+      "tip4": "Use a different card or bank",
+      "errors": {
+        "07": "Payment deducted successfully. Transaction is suspicious (related to fraud, unusual transaction).",
+        "09": "Card/Account is not registered for InternetBanking service.",
+        "10": "Card/Account information verification failed more than 3 times",
+        "11": "Payment waiting time has expired. Please try again.",
+        "12": "Card/Account is locked.",
+        "13": "Transaction verification code (OTP) is incorrect.",
+        "24": "Customer cancelled transaction.",
+        "51": "Account has insufficient balance to complete transaction.",
+        "65": "Account has exceeded daily transaction limit.",
+        "75": "Payment bank is under maintenance.",
+        "79": "Entered wrong payment password more than allowed times.",
+        "99": "Unknown error. Please try again.",
+        "default": "Transaction was not successful. Please try again."
+      }
+    },
+    "planInfo": {
+      "founderName": "Founder Plan",
+      "founderDescription": "For Vietnam startups - Unlimited team members",
+      "features": {
+        "unlimitedMembers": "Unlimited team members (flat pricing)",
+        "oneProduct": "1 product (multiple repos)",
+        "aiCodegen": "AI Code Generation",
+        "qualityGates": "Quality Gates (G0-G4)",
+        "evidenceVault": "Evidence Vault (10GB)",
+        "policyGuards": "Policy Guards (5 built-in packs)",
+        "aiRequests": "500 AI requests/month",
+        "vnSupport": "Vietnamese support",
+        "sla": "99.5% SLA"
+      }
+    }
+  },
+  "i18n": {
+    "toggle": {
+      "ariaLabel": "Current language: {current}. Click to switch.",
+      "title": "Switch to {next}"
+    },
+    "dropdown": {
+      "ariaLabel": "Select language"
+    }
+  },
+  "common": {
+    "learnMore": "Learn More",
+    "getStarted": "Get Started",
+    "contactUs": "Contact Us",
+    "viewDocs": "View Documentation",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No"
+  }
+}
