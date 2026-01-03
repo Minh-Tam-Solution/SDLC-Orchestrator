@@ -20,27 +20,29 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Create enum types
+    # Create enum types (create_type=False to avoid auto-creation, then explicit create with checkfirst)
+    conn = op.get_bind()
+
     subscription_plan_enum = postgresql.ENUM(
         'free', 'founder', 'standard', 'enterprise',
         name='subscription_plan_enum',
-        create_type=True
+        create_type=False
     )
-    subscription_plan_enum.create(op.get_bind(), checkfirst=True)
+    subscription_plan_enum.create(conn, checkfirst=True)
 
     subscription_status_enum = postgresql.ENUM(
         'active', 'canceled', 'past_due',
         name='subscription_status_enum',
-        create_type=True
+        create_type=False
     )
-    subscription_status_enum.create(op.get_bind(), checkfirst=True)
+    subscription_status_enum.create(conn, checkfirst=True)
 
     payment_status_enum = postgresql.ENUM(
         'pending', 'completed', 'failed',
         name='payment_status_enum',
-        create_type=True
+        create_type=False
     )
-    payment_status_enum.create(op.get_bind(), checkfirst=True)
+    payment_status_enum.create(conn, checkfirst=True)
 
     # Create subscriptions table
     op.create_table(

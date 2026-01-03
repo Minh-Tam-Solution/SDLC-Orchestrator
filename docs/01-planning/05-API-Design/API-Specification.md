@@ -1,13 +1,21 @@
 # API Specification (OpenAPI 3.0)
 ## Complete REST + GraphQL Endpoints
 
-**Version**: 3.1.0
-**Date**: December 23, 2025
-**Status**: ACTIVE - EP-06 Quality Gates + Validation Loop
+**Version**: 3.2.0
+**Date**: December 30, 2025
+**Status**: ACTIVE - Password Reset + EP-06 Quality Gates
 **Authority**: Backend Lead + CTO Review (✅ APPROVED)
 **Foundation**: FRD v3.1.0, Data Model ERD v3.1.0, Roadmap v5.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 5.1.1 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 5.1.2 Complete Lifecycle (10 Stages)
+
+**Changelog v3.2.0** (Dec 30, 2025):
+- Added Password Reset endpoints (Sprint 60):
+  - POST /auth/forgot-password - Request password reset email
+  - GET /auth/verify-reset-token - Verify reset token validity
+  - POST /auth/reset-password - Reset password with token
+- Security: SHA256 token hashing, 1h expiry, one-time use
+- Total endpoints: 64 → 67 endpoints
 
 **Changelog v3.1.0** (Dec 23, 2025):
 - Added EP-06 Codegen Quality Gates endpoints (12 new endpoints)
@@ -577,6 +585,144 @@ paths:
           description: Logout successful
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Password Reset Endpoints (Sprint 60 - Dec 30, 2025)
+  /auth/forgot-password:
+    post:
+      tags:
+        - Authentication
+      summary: Request password reset
+      description: |
+        Send password reset email to user. Always returns 200 OK to prevent email enumeration.
+        Email sent via background thread (non-blocking). Token expires in 1 hour.
+      operationId: forgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User email address
+                  example: user@example.com
+      responses:
+        '200':
+          description: Request processed (email sent if user exists)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "If an account with this email exists, you will receive a password reset link."
+                  email:
+                    type: string
+                    format: email
+        '429':
+          description: Too many requests (rate limited)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/verify-reset-token:
+    get:
+      tags:
+        - Authentication
+      summary: Verify password reset token
+      description: Check if reset token is valid and not expired. Used before showing reset form.
+      operationId: verifyResetToken
+      parameters:
+        - name: token
+          in: query
+          required: true
+          description: Password reset token from email link
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Token verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                    description: Whether token is valid
+                  email:
+                    type: string
+                    format: email
+                    nullable: true
+                    description: Masked email (e.g., "u***@example.com")
+                  expires_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  error:
+                    type: string
+                    nullable: true
+                    description: Error message if invalid
+
+  /auth/reset-password:
+    post:
+      tags:
+        - Authentication
+      summary: Reset password with token
+      description: |
+        Set new password using reset token. Token is one-time use.
+        All existing sessions are revoked after successful reset.
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - new_password
+              properties:
+                token:
+                  type: string
+                  description: Password reset token from email
+                new_password:
+                  type: string
+                  format: password
+                  minLength: 12
+                  description: New password (min 12 characters)
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Password has been reset successfully."
+                  email:
+                    type: string
+                    format: email
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Password validation failed
           content:
             application/json:
               schema:

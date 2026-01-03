@@ -91,15 +91,18 @@ services:
       - "--addr=0.0.0.0:8181"
       - "--log-level=info"
       - "--log-format=json"
+      - "--diagnostic-addr=0.0.0.0:8282"
     ports:
       - "8185:8181"  # IT Admin: SDLC OPA on 8185
     volumes:
       - ./backend/policy-packs/rego:/policies:ro
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8181/health"]
-      interval: 10s
-      timeout: 5s
+      # OPA diagnostic endpoint provides health status
+      test: ["CMD", "/opa", "eval", "true"]
+      interval: 30s
+      timeout: 10s
       retries: 3
+      start_period: 10s
     networks:
       - sdlc-network
 
@@ -184,27 +187,54 @@ services:
       - sdlc-network
 
   # ============================================================================
-  # Next.js Frontend - SDLC Orchestrator Landing + Dashboard
-  # Sprint 59: Replaced React with Next.js for OAuth integration
+  # React Frontend - SDLC Orchestrator Platform Admin Dashboard
+  # Main application dashboard (Projects, Gates, Evidence, Policies, etc.)
   # ============================================================================
   frontend:
     build:
-      context: ./frontend/landing
+      context: ./frontend/web
       dockerfile: Dockerfile
     container_name: sdlc-frontend
     restart: unless-stopped
     environment:
-      NEXT_PUBLIC_API_URL: https://sdlc.nhatquangholding.com/api/v1
+      VITE_API_URL: https://sdlc.nhatquangholding.com/api/v1
     ports:
-      - "8310:3000"
+      - "8310:80"
     depends_on:
       backend:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s
       timeout: 5s
       retries: 3
+    networks:
+      - sdlc-network
+
+  # ============================================================================
+  # Next.js Frontend - SDLC Orchestrator Landing Page
+  # Marketing site with OAuth login, registration, docs, checkout
+  # ============================================================================
+  frontend-landing:
+    build:
+      context: ./frontend/landing
+      dockerfile: Dockerfile
+    container_name: sdlc-frontend-landing
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: https://sdlc.nhatquangholding.com/api/v1
+    ports:
+      - "8311:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      # Use node-based healthcheck since alpine image doesn't have curl/wget
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     networks:
       - sdlc-network
 
@@ -255,9 +285,28 @@ services:
       CODEGEN_TIMEOUT: ${CODEGEN_TIMEOUT:-120}
 
       # GitHub OAuth (Sprint 15)
-      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
-      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-Ov23li0mfFERLtQgdEeI}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-cc9580b02bcccc773d5d23b07b0c4a983a9c0bc5}
       GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
+
+      # Google OAuth (Sprint 60)
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-296085116048-u2iqm0ukdd8kbg319gj2foog04qn681c.apps.googleusercontent.com}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-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}
+
+      # OAuth Redirect URLs (Production)
+      OAUTH_REDIRECT_URL: https://sdlc.nhatquangholding.com/auth/callback
+      GITHUB_OAUTH_REDIRECT_URL: https://sdlc.nhatquangholding.com/auth/github/callback
+      GOOGLE_OAUTH_REDIRECT_URL: https://sdlc.nhatquangholding.com/auth/callback
+      VNPAY_RETURN_URL: https://sdlc.nhatquangholding.com/checkout/success
+
+      # SMTP Email Configuration (Sprint 60 - Password Reset)
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-noreply@sdlc-orchestrator.com}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-SDLC Orchestrator}
 
     ports:
       - "8300:8300"

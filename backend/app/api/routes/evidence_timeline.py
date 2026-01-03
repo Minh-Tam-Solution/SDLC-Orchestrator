@@ -41,6 +41,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.dependencies import get_current_active_user, require_role
 from app.db.session import get_db
 from app.models.analytics import AICodeEvent
+from app.models.override import ValidationOverride, OverrideStatus as DBOverrideStatus, OverrideType as DBOverrideType
 from app.models.project import Project
 from app.models.user import User
 from app.schemas.evidence_timeline import (
@@ -554,35 +555,42 @@ async def request_override(
             detail="Override can only be requested for failed or warning validations",
         )
 
-    # Create override record (would be stored in override table)
-    # For now, return a mock record as the override table doesn't exist yet
-    from uuid import uuid4
+    # Get project_id from event
+    project_id = event.project_id
 
-    override = OverrideRecord(
-        id=uuid4(),
+    # Map schema enum to database enum
+    db_override_type = DBOverrideType(request.override_type.value)
+
+    # Create and persist override record to database
+    db_override = ValidationOverride(
         event_id=event_id,
-        override_type=request.override_type,
+        project_id=project_id,
+        override_type=db_override_type,
         reason=request.reason,
         requested_by_id=current_user.id,
+        status=DBOverrideStatus.PENDING,
+        expires_at=datetime.utcnow() + timedelta(days=7),
+    )
+
+    db.add(db_override)
+    await db.commit()
+    await db.refresh(db_override)
+
+    # Return API response model
+    return OverrideRecord(
+        id=db_override.id,
+        event_id=db_override.event_id,
+        override_type=request.override_type,
+        reason=db_override.reason,
+        requested_by_id=db_override.requested_by_id,
         requested_by_name=current_user.name or current_user.email or "Unknown",
-        requested_at=datetime.utcnow(),
+        requested_at=db_override.requested_at or db_override.created_at,
         status=OverrideStatus.PENDING,
         resolved_by_id=None,
         resolved_by_name=None,
         resolved_at=None,
         resolution_comment=None,
     )
-
-    # TODO: Persist to override table when model is created
-    # db.add(Override(
-    #     event_id=event_id,
-    #     override_type=request.override_type,
-    #     reason=request.reason,
-    #     requested_by=current_user.id,
-    # ))
-    # await db.commit()
-
-    return override
 
 
 @router.post(
@@ -610,29 +618,61 @@ async def approve_override(
 ):
     """Approve a pending override request."""
 
-    # TODO: Fetch override from database when model exists
-    # For now, return a mock approved record
-    from uuid import uuid4
+    # Fetch pending override from database
+    result = await db.execute(
+        select(ValidationOverride).where(
+            and_(
+                ValidationOverride.event_id == event_id,
+                ValidationOverride.status == DBOverrideStatus.PENDING,
+            )
+        )
+    )
+    db_override = result.scalar_one_or_none()
 
-    override = OverrideRecord(
-        id=uuid4(),
-        event_id=event_id,
-        override_type=OverrideType.APPROVED_RISK,
-        reason="Override approved by admin",
-        requested_by_id=uuid4(),  # Would be actual requester
-        requested_by_name="Original Requester",
-        requested_at=datetime.utcnow() - timedelta(hours=1),
+    if not db_override:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No pending override found for event {event_id}",
+        )
+
+    # Update override status to approved
+    db_override.status = DBOverrideStatus.APPROVED
+    db_override.resolved_by_id = current_user.id
+    db_override.resolved_at = datetime.utcnow()
+    db_override.resolution_comment = approval.comment
+
+    # Update AICodeEvent validation_result to 'overridden'
+    event_result = await db.execute(
+        select(AICodeEvent).where(AICodeEvent.id == event_id)
+    )
+    event = event_result.scalar_one_or_none()
+    if event:
+        event.validation_result = "overridden"
+
+    await db.commit()
+    await db.refresh(db_override)
+
+    # Get requester info
+    requester = await db.get(User, db_override.requested_by_id) if db_override.requested_by_id else None
+    requester_name = (requester.name or requester.email) if requester else "Unknown"
+
+    # Map DB enum to schema enum
+    schema_override_type = OverrideType(db_override.override_type.value)
+
+    return OverrideRecord(
+        id=db_override.id,
+        event_id=db_override.event_id,
+        override_type=schema_override_type,
+        reason=db_override.reason,
+        requested_by_id=db_override.requested_by_id,
+        requested_by_name=requester_name,
+        requested_at=db_override.requested_at or db_override.created_at,
         status=OverrideStatus.APPROVED,
         resolved_by_id=current_user.id,
         resolved_by_name=current_user.name or current_user.email or "Admin",
-        resolved_at=datetime.utcnow(),
-        resolution_comment=approval.comment,
+        resolved_at=db_override.resolved_at,
+        resolution_comment=db_override.resolution_comment,
     )
-
-    # TODO: Update override in database
-    # TODO: Update AICodeEvent validation_result to "overridden"
-
-    return override
 
 
 @router.post(
@@ -660,25 +700,53 @@ async def reject_override(
 ):
     """Reject a pending override request."""
 
-    # TODO: Fetch override from database when model exists
-    from uuid import uuid4
+    # Fetch pending override from database
+    result = await db.execute(
+        select(ValidationOverride).where(
+            and_(
+                ValidationOverride.event_id == event_id,
+                ValidationOverride.status == DBOverrideStatus.PENDING,
+            )
+        )
+    )
+    db_override = result.scalar_one_or_none()
 
-    override = OverrideRecord(
-        id=uuid4(),
-        event_id=event_id,
-        override_type=OverrideType.APPROVED_RISK,
-        reason="Original request reason",
-        requested_by_id=uuid4(),
-        requested_by_name="Original Requester",
-        requested_at=datetime.utcnow() - timedelta(hours=1),
+    if not db_override:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No pending override found for event {event_id}",
+        )
+
+    # Update override status to rejected
+    db_override.status = DBOverrideStatus.REJECTED
+    db_override.resolved_by_id = current_user.id
+    db_override.resolved_at = datetime.utcnow()
+    db_override.resolution_comment = rejection.reason
+
+    await db.commit()
+    await db.refresh(db_override)
+
+    # Get requester info
+    requester = await db.get(User, db_override.requested_by_id) if db_override.requested_by_id else None
+    requester_name = (requester.name or requester.email) if requester else "Unknown"
+
+    # Map DB enum to schema enum
+    schema_override_type = OverrideType(db_override.override_type.value)
+
+    return OverrideRecord(
+        id=db_override.id,
+        event_id=db_override.event_id,
+        override_type=schema_override_type,
+        reason=db_override.reason,
+        requested_by_id=db_override.requested_by_id,
+        requested_by_name=requester_name,
+        requested_at=db_override.requested_at or db_override.created_at,
         status=OverrideStatus.REJECTED,
         resolved_by_id=current_user.id,
         resolved_by_name=current_user.name or current_user.email or "Admin",
-        resolved_at=datetime.utcnow(),
-        resolution_comment=rejection.reason,
+        resolved_at=db_override.resolved_at,
+        resolution_comment=db_override.resolution_comment,
     )
-
-    return override
 
 
 # =============================================================================
@@ -708,13 +776,99 @@ async def get_override_queue(
 ):
     """Get pending override requests for admin approval."""
 
-    # TODO: Fetch from override table when model exists
-    # For now return empty queue
+    # Fetch pending overrides from database
+    pending_result = await db.execute(
+        select(ValidationOverride, User, AICodeEvent, Project)
+        .join(User, ValidationOverride.requested_by_id == User.id)
+        .join(AICodeEvent, ValidationOverride.event_id == AICodeEvent.id)
+        .join(Project, ValidationOverride.project_id == Project.id)
+        .where(ValidationOverride.status == DBOverrideStatus.PENDING)
+        .order_by(ValidationOverride.created_at.desc())
+        .limit(50)
+    )
+    pending_rows = pending_result.all()
+
+    # Fetch recent decisions (approved/rejected in last 7 days)
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    recent_result = await db.execute(
+        select(ValidationOverride, User, AICodeEvent, Project)
+        .join(User, ValidationOverride.requested_by_id == User.id)
+        .join(AICodeEvent, ValidationOverride.event_id == AICodeEvent.id)
+        .join(Project, ValidationOverride.project_id == Project.id)
+        .where(
+            and_(
+                ValidationOverride.status.in_([DBOverrideStatus.APPROVED, DBOverrideStatus.REJECTED]),
+                ValidationOverride.resolved_at >= week_ago,
+            )
+        )
+        .order_by(ValidationOverride.resolved_at.desc())
+        .limit(20)
+    )
+    recent_rows = recent_result.all()
+
+    # Build pending queue items
+    pending_items = []
+    for row in pending_rows:
+        override = row.ValidationOverride
+        requester = row.User
+        event = row.AICodeEvent
+        project = row.Project
+
+        # Extract failed validators from violations
+        violations = event.violations or []
+        failed_validators = [
+            v.get("validator", "unknown")
+            for v in violations
+            if isinstance(v, dict) and v.get("blocking", True)
+        ]
+
+        pending_items.append(OverrideQueueItem(
+            id=override.id,
+            event_id=override.event_id,
+            project_id=override.project_id,
+            project_name=project.name,
+            pr_number=event.pr_id or "N/A",
+            pr_title=f"PR #{event.pr_id}" if event.pr_id else "Direct Commit",
+            override_type=OverrideType(override.override_type.value),
+            reason=override.reason,
+            requested_by_name=requester.name or requester.email or "Unknown",
+            requested_at=override.requested_at or override.created_at,
+            failed_validators=failed_validators,
+            ai_tool=_map_ai_tool(event.ai_tool_detected),
+            confidence_score=event.confidence_score or 0,
+        ))
+
+    # Build recent decisions as OverrideRecord items
+    recent_decisions = []
+    for row in recent_rows:
+        override = row.ValidationOverride
+        requester = row.User
+
+        # Get resolver info if available
+        resolver_name = None
+        if override.resolved_by_id:
+            resolver = await db.get(User, override.resolved_by_id)
+            resolver_name = (resolver.name or resolver.email) if resolver else "Unknown"
+
+        recent_decisions.append(OverrideRecord(
+            id=override.id,
+            event_id=override.event_id,
+            override_type=OverrideType(override.override_type.value),
+            reason=override.reason,
+            requested_by_id=override.requested_by_id,
+            requested_by_name=requester.name or requester.email or "Unknown",
+            requested_at=override.requested_at or override.created_at,
+            status=OverrideStatus(override.status.value),
+            resolved_by_id=override.resolved_by_id,
+            resolved_by_name=resolver_name,
+            resolved_at=override.resolved_at,
+            resolution_comment=override.resolution_comment,
+        ))
 
     return OverrideQueueResponse(
-        pending=[],
-        recent_decisions=[],
-        total_pending=0,
+        pending=pending_items,
+        recent_decisions=recent_decisions,
+        total_pending=len(pending_items),
     )
 
 

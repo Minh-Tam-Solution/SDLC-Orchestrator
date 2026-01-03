@@ -308,9 +308,17 @@ def run_sdlc_validation(
         return result.to_dict()
 
     except ImportError as e:
-        logger.warning(f"sdlcctl not available: {e}")
-        # Fallback: return mock result for development
-        return _create_fallback_result(project_root, docs_root, tier)
+        logger.error(f"sdlcctl module not available: {e}")
+        # Zero Mock Policy: Fail loudly instead of returning mock data
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "SDLC Validator Unavailable",
+                "message": "The sdlcctl validation module is not installed or not accessible.",
+                "code": "SDLC_VALIDATOR_UNAVAILABLE",
+                "suggestion": "Ensure sdlcctl is installed: pip install -e ./sdlcctl",
+            }
+        )
 
 
 def _create_fallback_result(

@@ -264,6 +264,65 @@
     "callback": {
       "loadingTitle": "Loading...",
       "loadingDescription": "Preparing authentication..."
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "description": "Enter your email address and we'll send you a link to reset your password.",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "submit": "Send Reset Link",
+      "submitting": "Sending...",
+      "backToLogin": "← Back to Sign In",
+      "validation": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email address"
+      },
+      "success": {
+        "title": "Check Your Email",
+        "description": "If an account exists with this email, you'll receive a password reset link.",
+        "checkEmail": "We've sent instructions to {email}",
+        "expiry": "The link will expire in 1 hour."
+      },
+      "error": {
+        "tooManyRequests": "Too many requests. Please try again later.",
+        "serverError": "An error occurred. Please try again."
+      }
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "description": "Enter a new password for {email}",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Re-enter new password",
+      "passwordRequirements": "Password must be at least 8 characters long.",
+      "submit": "Reset Password",
+      "submitting": "Resetting...",
+      "verifying": "Verifying reset link...",
+      "backToLogin": "← Back to Sign In",
+      "requestNewLink": "Request New Link",
+      "validation": {
+        "passwordRequired": "Password is required",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "confirmPasswordRequired": "Please confirm your password",
+        "passwordsMismatch": "Passwords do not match"
+      },
+      "invalid": {
+        "title": "Invalid Reset Link",
+        "description": "This password reset link is invalid or has expired."
+      },
+      "success": {
+        "title": "Password Reset!",
+        "description": "Your password has been successfully reset. You can now sign in with your new password.",
+        "loginNow": "Sign In Now"
+      },
+      "error": {
+        "noToken": "No reset token provided. Please request a new password reset link.",
+        "invalidToken": "This reset link is invalid or has expired.",
+        "verificationFailed": "Could not verify reset link. Please try again.",
+        "tokenExpired": "This reset link has expired. Please request a new one.",
+        "serverError": "An error occurred. Please try again."
+      }
     }
   },
   "checkout": {

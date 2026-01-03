@@ -349,3 +349,143 @@ class APIKeyInfo(BaseModel):
 
     class Config:
         from_attributes = True  # Pydantic v2: Enable ORM mode
+
+
+# =========================================================================
+# Password Reset Schemas (Sprint 60)
+# =========================================================================
+
+
+class ForgotPasswordRequest(BaseModel):
+    """
+    Forgot password request to initiate password reset.
+
+    Request Body:
+        {
+            "email": "user@example.com"
+        }
+
+    Flow:
+        1. User submits email address
+        2. System generates reset token
+        3. System sends email with reset link
+        4. Always returns 200 (email enumeration protection)
+
+    Security:
+        - Always returns success (prevents email enumeration)
+        - Rate limited: 3 requests/email/hour
+    """
+
+    email: EmailStr = Field(..., description="User email address")
+
+
+class ForgotPasswordResponse(BaseModel):
+    """
+    Response after forgot password request.
+
+    Always returns success message regardless of whether email exists.
+    This prevents email enumeration attacks.
+
+    Response Body:
+        {
+            "message": "If an account with this email exists, you will receive a password reset link.",
+            "email": "user@example.com"
+        }
+    """
+
+    message: str = Field(
+        default="If an account with this email exists, you will receive a password reset link.",
+        description="Generic success message (email enumeration protection)"
+    )
+    email: EmailStr = Field(..., description="Submitted email address")
+
+
+class VerifyResetTokenRequest(BaseModel):
+    """
+    Request to verify password reset token validity.
+
+    Query Parameters:
+        token: Reset token from email link
+
+    Usage:
+        GET /auth/verify-reset-token?token=abc123...
+    """
+
+    token: str = Field(..., min_length=32, description="Password reset token from email")
+
+
+class VerifyResetTokenResponse(BaseModel):
+    """
+    Response after verifying reset token.
+
+    Response Body (valid token):
+        {
+            "valid": true,
+            "email": "user@example.com",
+            "expires_at": "2025-12-29T15:00:00Z"
+        }
+
+    Response Body (invalid/expired token):
+        {
+            "valid": false,
+            "email": null,
+            "expires_at": null,
+            "error": "Token has expired"
+        }
+    """
+
+    valid: bool = Field(..., description="Whether token is valid and not expired")
+    email: Optional[EmailStr] = Field(None, description="Email address associated with token")
+    expires_at: Optional[datetime] = Field(None, description="Token expiry timestamp")
+    error: Optional[str] = Field(None, description="Error message if token is invalid")
+
+
+class ResetPasswordRequest(BaseModel):
+    """
+    Request to reset password using valid token.
+
+    Request Body:
+        {
+            "token": "abc123...",
+            "new_password": "NewSecurePassword123!"
+        }
+
+    Validation:
+        - Token: Must be valid and not expired
+        - Password: Minimum 8 characters (OWASP recommendation)
+
+    Security:
+        - Token marked as used after successful reset
+        - All existing sessions revoked
+        - Password hashed with bcrypt (cost=12)
+    """
+
+    token: str = Field(..., min_length=32, description="Password reset token from email")
+    new_password: str = Field(
+        ...,
+        min_length=8,
+        max_length=128,
+        description="New password (min 8 chars, recommended: 12+ with mixed case, numbers, symbols)"
+    )
+
+
+class ResetPasswordResponse(BaseModel):
+    """
+    Response after successful password reset.
+
+    Response Body:
+        {
+            "message": "Password has been reset successfully. You can now login with your new password.",
+            "email": "user@example.com"
+        }
+
+    Errors:
+        - 400 Bad Request: Invalid or expired token
+        - 422 Unprocessable Entity: Password too short
+    """
+
+    message: str = Field(
+        default="Password has been reset successfully. You can now login with your new password.",
+        description="Success message"
+    )
+    email: EmailStr = Field(..., description="Email address of the user")

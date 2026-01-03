@@ -264,6 +264,65 @@
     "callback": {
       "loadingTitle": "Đang tải...",
       "loadingDescription": "Đang chuẩn bị xác thực..."
+    },
+    "forgotPassword": {
+      "title": "Quên mật khẩu",
+      "description": "Nhập email để nhận link đặt lại mật khẩu",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "submit": "Gửi link đặt lại",
+      "submitting": "Đang gửi...",
+      "backToLogin": "Quay lại đăng nhập",
+      "validation": {
+        "emailRequired": "Email là bắt buộc",
+        "emailInvalid": "Vui lòng nhập email hợp lệ"
+      },
+      "success": {
+        "title": "Kiểm tra email!",
+        "description": "Nếu email tồn tại trong hệ thống, bạn sẽ nhận được link đặt lại mật khẩu.",
+        "checkEmail": "Đã gửi email đến {email}",
+        "expiry": "Link có hiệu lực trong 1 giờ"
+      },
+      "error": {
+        "tooManyRequests": "Quá nhiều yêu cầu. Vui lòng thử lại sau vài phút.",
+        "serverError": "Đã có lỗi xảy ra. Vui lòng thử lại."
+      }
+    },
+    "resetPassword": {
+      "title": "Đặt lại mật khẩu",
+      "description": "Nhập mật khẩu mới cho tài khoản {email}",
+      "newPassword": "Mật khẩu mới",
+      "newPasswordPlaceholder": "Tối thiểu 8 ký tự",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "confirmPasswordPlaceholder": "Nhập lại mật khẩu mới",
+      "passwordRequirements": "Mật khẩu phải có ít nhất 8 ký tự",
+      "submit": "Đặt lại mật khẩu",
+      "submitting": "Đang xử lý...",
+      "verifying": "Đang xác thực link...",
+      "requestNewLink": "Yêu cầu link mới",
+      "backToLogin": "Quay lại đăng nhập",
+      "validation": {
+        "passwordRequired": "Mật khẩu là bắt buộc",
+        "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",
+        "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu",
+        "passwordsMismatch": "Mật khẩu không khớp"
+      },
+      "invalid": {
+        "title": "Link không hợp lệ",
+        "description": "Link đặt lại mật khẩu đã hết hạn hoặc không hợp lệ."
+      },
+      "success": {
+        "title": "Đặt lại thành công!",
+        "description": "Mật khẩu của bạn đã được cập nhật. Bạn có thể đăng nhập với mật khẩu mới.",
+        "loginNow": "Đăng nhập ngay"
+      },
+      "error": {
+        "noToken": "Không có mã xác thực",
+        "invalidToken": "Link không hợp lệ hoặc đã hết hạn",
+        "verificationFailed": "Không thể xác thực link",
+        "tokenExpired": "Link đã hết hạn. Vui lòng yêu cầu link mới.",
+        "serverError": "Đã có lỗi xảy ra. Vui lòng thử lại."
+      }
     }
   },
   "checkout": {

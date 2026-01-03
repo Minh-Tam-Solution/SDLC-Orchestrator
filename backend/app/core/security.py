@@ -287,3 +287,54 @@ def generate_device_code() -> tuple[str, str]:
     user_code = f"{secrets.token_hex(2).upper()}-{secrets.token_hex(2).upper()}"
 
     return device_code, user_code
+
+
+def generate_password_reset_token() -> tuple[str, str]:
+    """
+    Generate password reset token for secure password recovery.
+
+    Sprint 60 - December 29, 2025
+    OWASP Compliant Password Reset Flow
+
+    Returns:
+        Tuple of (token, token_hash)
+        - token: 64-byte URL-safe base64 token (sent to user via email)
+        - token_hash: SHA-256 hash to store in database
+
+    Security:
+        - Random: 64 bytes (512-bit entropy)
+        - Hash: SHA-256 (store hash, never plaintext)
+        - URL-safe: Can be embedded in email links
+        - Short expiry: 1 hour (set by caller)
+
+    Example:
+        >>> token, token_hash = generate_password_reset_token()
+        >>> len(token)
+        86  # URL-safe base64 of 64 bytes
+        >>> len(token_hash)
+        64  # SHA-256 hex digest
+    """
+    # Generate cryptographically secure random 64-byte token
+    token = secrets.token_urlsafe(64)
+
+    # Hash with SHA-256 for database storage
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+
+    return token, token_hash
+
+
+def hash_reset_token(token: str) -> str:
+    """
+    Hash password reset token for database lookup.
+
+    Args:
+        token: Password reset token from email link
+
+    Returns:
+        SHA-256 hash (64-character hex string)
+
+    Example:
+        >>> hash_reset_token("abc123xyz")
+        'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+    """
+    return hashlib.sha256(token.encode()).hexdigest()

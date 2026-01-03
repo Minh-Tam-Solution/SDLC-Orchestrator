@@ -52,13 +52,17 @@ from app.core.security import (
     create_access_token,
     create_refresh_token,
     decode_token,
+    generate_password_reset_token,
     get_password_hash,
     hash_api_key,
+    hash_reset_token,
     verify_password,
 )
 from app.db.session import get_db
-from app.models.user import RefreshToken, User
+from app.models.user import PasswordResetToken, RefreshToken, User
 from app.schemas.auth import (
+    ForgotPasswordRequest,
+    ForgotPasswordResponse,
     LoginRequest,
     LogoutRequest,
     OAuthAuthorizeResponse,
@@ -66,8 +70,11 @@ from app.schemas.auth import (
     RefreshTokenRequest,
     RegisterRequest,
     RegisterResponse,
+    ResetPasswordRequest,
+    ResetPasswordResponse,
     TokenResponse,
     UserProfile,
+    VerifyResetTokenResponse,
 )
 from app.services.audit_service import AuditAction, AuditService
 
@@ -582,8 +589,11 @@ async def oauth_authorize(
             detail="Google OAuth is not configured",
         )
 
-    # Use default redirect URI if not provided
-    final_redirect_uri = redirect_uri or settings.OAUTH_REDIRECT_URL
+    # Use provider-specific redirect URI if not provided
+    if provider == "github":
+        final_redirect_uri = redirect_uri or settings.GITHUB_OAUTH_REDIRECT_URL
+    else:
+        final_redirect_uri = redirect_uri or settings.OAUTH_REDIRECT_URL
 
     # Generate base state (CSRF protection), then wrap provider metadata into an encoded state.
     # IMPORTANT: the provider redirect must receive the SAME state value we return to the frontend.
@@ -857,3 +867,543 @@ async def auth_health_check() -> dict:
         "service": "authentication",
         "version": settings.APP_VERSION,
     }
+
+
+# =============================================================================
+# Password Reset Endpoints (Sprint 60)
+# =============================================================================
+
+
+@router.post("/forgot-password", response_model=ForgotPasswordResponse, status_code=status.HTTP_200_OK)
+async def forgot_password(
+    forgot_data: ForgotPasswordRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+) -> ForgotPasswordResponse:
+    """
+    Initiate password reset by sending reset link to email.
+
+    Request Body:
+        {
+            "email": "user@example.com"
+        }
+
+    Response (200 OK - always, for email enumeration protection):
+        {
+            "message": "If an account with this email exists, you will receive a password reset link.",
+            "email": "user@example.com"
+        }
+
+    Flow:
+        1. Look up user by email
+        2. If user exists and is active:
+           a. Generate secure reset token (64-byte URL-safe)
+           b. Store SHA-256 hash in database (1-hour expiry)
+           c. Send email with reset link
+        3. Always return 200 OK (prevents email enumeration)
+
+    Security:
+        - Always returns success (prevents email enumeration attacks)
+        - Token is SHA-256 hashed before storage
+        - Token expires in 1 hour
+        - Rate limited: 3 requests/email/hour (recommended)
+    """
+    audit_service = AuditService(db)
+    email = forgot_data.email.lower().strip()
+
+    # Look up user by email
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
+
+    # Always return the same response (email enumeration protection)
+    response = ForgotPasswordResponse(
+        message="If an account with this email exists, you will receive a password reset link.",
+        email=email,
+    )
+
+    # If user doesn't exist or is inactive, log and return (don't reveal info)
+    if not user or not user.is_active:
+        await audit_service.log(
+            action=AuditAction.USER_LOGIN_FAILED,  # Reusing for audit
+            details={
+                "email": email,
+                "action": "forgot_password",
+                "failure_reason": "user_not_found_or_inactive",
+            },
+            request=request,
+        )
+        return response
+
+    # Check if user has a password (OAuth-only users can't reset password)
+    if not user.password_hash:
+        await audit_service.log(
+            action=AuditAction.USER_LOGIN_FAILED,
+            user_id=user.id,
+            details={
+                "email": email,
+                "action": "forgot_password",
+                "failure_reason": "oauth_only_user",
+            },
+            request=request,
+        )
+        return response
+
+    # Generate reset token
+    token, token_hash = generate_password_reset_token()
+
+    # Get client IP and user agent for audit
+    client_ip = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent", "")[:512]
+
+    # Invalidate any existing unused tokens for this user
+    await db.execute(
+        update(PasswordResetToken)
+        .where(
+            PasswordResetToken.user_id == user.id,
+            PasswordResetToken.used_at.is_(None),
+        )
+        .values(used_at=datetime.utcnow())  # Mark as "used" to invalidate
+    )
+
+    # Create new password reset token (1-hour expiry)
+    # PostgreSQL timezone is Asia/Ho_Chi_Minh (UTC+7), so we need to add 7 hours
+    # to offset the conversion that PostgreSQL will do when storing naive datetime
+    expires_at = datetime.utcnow() + timedelta(hours=1) + timedelta(hours=7)
+    reset_token = PasswordResetToken(
+        user_id=user.id,
+        token_hash=token_hash,
+        expires_at=expires_at,
+        ip_address=client_ip,
+        user_agent=user_agent,
+    )
+    db.add(reset_token)
+    await db.commit()
+
+    # Send password reset email in background thread (non-blocking)
+    import threading
+    import logging
+    logger = logging.getLogger(__name__)
+
+    # Capture values needed for email (avoid accessing db objects in thread)
+    user_email = user.email
+    user_name = user.name
+    frontend_url = getattr(settings, "FRONTEND_URL", "https://sdlc.nhatquangholding.com")
+    reset_url = f"{frontend_url}/reset-password?token={token}"
+
+    def send_email_sync():
+        """Sync function to send email in background thread."""
+        try:
+            import smtplib
+            from email.mime.multipart import MIMEMultipart
+            from email.mime.text import MIMEText
+
+            smtp_host = getattr(settings, "SMTP_HOST", None)
+            smtp_port = int(getattr(settings, "SMTP_PORT", 587))
+            smtp_user = getattr(settings, "SMTP_USER", None)
+            smtp_password = getattr(settings, "SMTP_PASSWORD", None)
+            smtp_use_tls = getattr(settings, "SMTP_USE_TLS", True)
+            from_email = getattr(settings, "SMTP_FROM_EMAIL", "noreply@sdlc-orchestrator.com")
+            from_name = getattr(settings, "SMTP_FROM_NAME", "SDLC Orchestrator")
+
+            if not smtp_host or not smtp_user:
+                print(f"\n{'='*60}")
+                print(f"[PASSWORD RESET] Email: {user_email}")
+                print(f"[PASSWORD RESET] Link: {reset_url}")
+                print(f"{'='*60}\n")
+                return
+
+            # Build email
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = "Reset Your Password - SDLC Orchestrator"
+            msg["From"] = f"{from_name} <{from_email}>"
+            msg["To"] = user_email
+
+            text_content = f"Hello {user_name or user_email},\n\nClick to reset: {reset_url}\n\nExpires in 1 hour."
+            html_content = f'<p>Hello {user_name or user_email},</p><p><a href="{reset_url}">Reset Password</a></p><p>Expires in 1 hour.</p>'
+
+            msg.attach(MIMEText(text_content, "plain"))
+            msg.attach(MIMEText(html_content, "html"))
+
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=30) as server:
+                if smtp_use_tls:
+                    server.starttls()
+                if smtp_user and smtp_password:
+                    server.login(smtp_user, smtp_password)
+                server.sendmail(from_email, user_email, msg.as_string())
+            logger.info(f"Password reset email sent to {user_email}")
+        except Exception as e:
+            logger.error(f"Failed to send password reset email to {user_email}: {e}")
+
+    email_thread = threading.Thread(target=send_email_sync, daemon=True)
+    email_thread.start()
+    logger.info(f"Password reset email queued for {email}")
+
+    # Audit successful password reset request
+    await audit_service.log(
+        action=AuditAction.USER_UPDATED,  # Reusing for password reset
+        user_id=user.id,
+        resource_type="user",
+        resource_id=user.id,
+        details={
+            "email": email,
+            "action": "forgot_password",
+            "token_id": str(reset_token.id),
+        },
+        request=request,
+    )
+
+    return response
+
+
+@router.get("/verify-reset-token", response_model=VerifyResetTokenResponse, status_code=status.HTTP_200_OK)
+async def verify_reset_token(
+    token: str,
+    db: AsyncSession = Depends(get_db),
+) -> VerifyResetTokenResponse:
+    """
+    Verify password reset token validity.
+
+    Query Parameters:
+        token: Password reset token from email link
+
+    Response (200 OK - valid token):
+        {
+            "valid": true,
+            "email": "user@example.com",
+            "expires_at": "2025-12-29T15:00:00Z"
+        }
+
+    Response (200 OK - invalid/expired token):
+        {
+            "valid": false,
+            "email": null,
+            "expires_at": null,
+            "error": "Token has expired"
+        }
+
+    Usage:
+        Frontend calls this when user clicks reset link to check if token is valid
+        before showing the password reset form.
+    """
+    # Hash the token to look up in database
+    token_hash = hash_reset_token(token)
+
+    # Find the reset token
+    result = await db.execute(
+        select(PasswordResetToken)
+        .where(PasswordResetToken.token_hash == token_hash)
+    )
+    reset_token = result.scalar_one_or_none()
+
+    # Token not found
+    if not reset_token:
+        return VerifyResetTokenResponse(
+            valid=False,
+            email=None,
+            expires_at=None,
+            error="Invalid or expired token",
+        )
+
+    # Token already used
+    if reset_token.is_used:
+        return VerifyResetTokenResponse(
+            valid=False,
+            email=None,
+            expires_at=None,
+            error="Token has already been used",
+        )
+
+    # Token expired - debug logging
+    from datetime import timezone as tz
+    now_utc = datetime.now(tz.utc)
+    expires = reset_token.expires_at
+    if expires.tzinfo is None:
+        expires_aware = expires.replace(tzinfo=tz.utc)
+    else:
+        expires_aware = expires
+    print(f"[DEBUG] Token expires_at: {reset_token.expires_at} (raw)")
+    print(f"[DEBUG] Token expires_aware: {expires_aware}")
+    print(f"[DEBUG] Now UTC: {now_utc}")
+    print(f"[DEBUG] is_expired result: {reset_token.is_expired}")
+    print(f"[DEBUG] expires_aware <= now_utc: {expires_aware <= now_utc}")
+
+    if reset_token.is_expired:
+        return VerifyResetTokenResponse(
+            valid=False,
+            email=None,
+            expires_at=None,
+            error="Token has expired",
+        )
+
+    # Get user email
+    result = await db.execute(select(User).where(User.id == reset_token.user_id))
+    user = result.scalar_one_or_none()
+
+    if not user or not user.is_active:
+        return VerifyResetTokenResponse(
+            valid=False,
+            email=None,
+            expires_at=None,
+            error="User account not found or inactive",
+        )
+
+    return VerifyResetTokenResponse(
+        valid=True,
+        email=user.email,
+        expires_at=reset_token.expires_at,
+        error=None,
+    )
+
+
+@router.post("/reset-password", response_model=ResetPasswordResponse, status_code=status.HTTP_200_OK)
+async def reset_password(
+    reset_data: ResetPasswordRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+) -> ResetPasswordResponse:
+    """
+    Reset password using valid token.
+
+    Request Body:
+        {
+            "token": "abc123...",
+            "new_password": "NewSecurePassword123!"
+        }
+
+    Response (200 OK):
+        {
+            "message": "Password has been reset successfully. You can now login with your new password.",
+            "email": "user@example.com"
+        }
+
+    Errors:
+        - 400 Bad Request: Invalid, expired, or already used token
+        - 422 Unprocessable Entity: Password too short
+
+    Flow:
+        1. Validate reset token
+        2. Check token is not expired or used
+        3. Update user password (bcrypt hash)
+        4. Mark token as used
+        5. Revoke all existing sessions (refresh tokens)
+        6. Return success message
+
+    Security:
+        - Token marked as used immediately after password reset
+        - All existing sessions revoked (security best practice)
+        - Password hashed with bcrypt (cost=12)
+    """
+    audit_service = AuditService(db)
+
+    # Hash the token to look up in database
+    token_hash = hash_reset_token(reset_data.token)
+
+    # Find the reset token
+    result = await db.execute(
+        select(PasswordResetToken)
+        .where(PasswordResetToken.token_hash == token_hash)
+    )
+    reset_token = result.scalar_one_or_none()
+
+    # Token not found
+    if not reset_token:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired password reset token",
+        )
+
+    # Token already used
+    if reset_token.is_used:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password reset token has already been used",
+        )
+
+    # Token expired
+    if reset_token.is_expired:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password reset token has expired",
+        )
+
+    # Get user
+    result = await db.execute(select(User).where(User.id == reset_token.user_id))
+    user = result.scalar_one_or_none()
+
+    if not user or not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User account not found or inactive",
+        )
+
+    # Hash new password
+    new_password_hash = get_password_hash(reset_data.new_password)
+
+    # Update user password
+    user.password_hash = new_password_hash
+    user.updated_at = datetime.utcnow()
+
+    # Mark token as used
+    reset_token.used_at = datetime.utcnow()
+
+    # Revoke all existing refresh tokens (security: logout all sessions)
+    await db.execute(
+        update(RefreshToken)
+        .where(
+            RefreshToken.user_id == user.id,
+            RefreshToken.is_revoked == False,
+        )
+        .values(is_revoked=True)
+    )
+
+    await db.commit()
+
+    # Audit successful password reset
+    await audit_service.log(
+        action=AuditAction.USER_UPDATED,
+        user_id=user.id,
+        resource_type="user",
+        resource_id=user.id,
+        details={
+            "email": user.email,
+            "action": "password_reset",
+            "token_id": str(reset_token.id),
+            "sessions_revoked": True,
+        },
+        request=request,
+    )
+
+    return ResetPasswordResponse(
+        message="Password has been reset successfully. You can now login with your new password.",
+        email=user.email,
+    )
+
+
+async def _send_password_reset_email(user: User, token: str, request: Request) -> None:
+    """
+    Send password reset email to user.
+
+    Args:
+        user: User object
+        token: Plain text reset token (not hashed)
+        request: HTTP request for building reset URL
+
+    Note:
+        Uses SMTP if configured, otherwise logs the reset link.
+    """
+    import logging
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+
+    logger = logging.getLogger(__name__)
+
+    # Build reset URL
+    # Use frontend URL from settings or construct from request
+    frontend_url = getattr(settings, "FRONTEND_URL", "https://sdlc.nhatquangholding.com")
+    reset_url = f"{frontend_url}/reset-password?token={token}"
+
+    # Check if SMTP is configured
+    smtp_host = getattr(settings, "SMTP_HOST", None)
+    smtp_port = getattr(settings, "SMTP_PORT", 587)
+    smtp_user = getattr(settings, "SMTP_USER", None)
+    smtp_password = getattr(settings, "SMTP_PASSWORD", None)
+    smtp_use_tls = getattr(settings, "SMTP_USE_TLS", True)
+    from_email = getattr(settings, "SMTP_FROM_EMAIL", "noreply@sdlc-orchestrator.com")
+    from_name = getattr(settings, "SMTP_FROM_NAME", "SDLC Orchestrator")
+
+    if not smtp_host or not smtp_user:
+        # SMTP not configured - print the reset link for testing (visible in docker logs)
+        print(f"\n{'='*60}")
+        print(f"[PASSWORD RESET] Email: {user.email}")
+        print(f"[PASSWORD RESET] Link: {reset_url}")
+        print(f"{'='*60}\n")
+        logger.warning(f"[SMTP not configured] Password reset link for {user.email}: {reset_url}")
+        return
+
+    # Build email
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = "Reset Your Password - SDLC Orchestrator"
+    msg["From"] = f"{from_name} <{from_email}>"
+    msg["To"] = user.email
+
+    # Plain text version
+    text_content = f"""
+Hello {user.name or user.email},
+
+You requested to reset your password for SDLC Orchestrator.
+
+Click the link below to reset your password (valid for 1 hour):
+
+{reset_url}
+
+If you did not request this password reset, please ignore this email.
+Your password will remain unchanged.
+
+---
+SDLC Orchestrator
+https://sdlc.nhatquangholding.com
+"""
+
+    # HTML version
+    html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background: #3b82f6; color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center; }}
+        .content {{ background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none; }}
+        .button {{ display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }}
+        .button:hover {{ background: #2563eb; }}
+        .footer {{ background: #f3f4f6; padding: 15px; font-size: 12px; color: #6b7280; border-radius: 0 0 8px 8px; text-align: center; }}
+        .warning {{ color: #9ca3af; font-size: 13px; margin-top: 20px; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="margin: 0; font-size: 24px;">Reset Your Password</h1>
+        </div>
+        <div class="content">
+            <p>Hello {user.name or user.email},</p>
+            <p>You requested to reset your password for SDLC Orchestrator.</p>
+            <p>Click the button below to reset your password:</p>
+            <p style="text-align: center;">
+                <a href="{reset_url}" class="button">Reset Password</a>
+            </p>
+            <p>Or copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; background: #e5e7eb; padding: 10px; border-radius: 4px; font-size: 12px;">
+                {reset_url}
+            </p>
+            <p class="warning">
+                This link will expire in 1 hour.<br>
+                If you did not request this password reset, please ignore this email.
+            </p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 SDLC Orchestrator. All rights reserved.</p>
+            <p><a href="https://sdlc.nhatquangholding.com">https://sdlc.nhatquangholding.com</a></p>
+        </div>
+    </div>
+</body>
+</html>
+"""
+
+    msg.attach(MIMEText(text_content, "plain"))
+    msg.attach(MIMEText(html_content, "html"))
+
+    # Send email
+    try:
+        with smtplib.SMTP(smtp_host, smtp_port) as server:
+            if smtp_use_tls:
+                server.starttls()
+            if smtp_user and smtp_password:
+                server.login(smtp_user, smtp_password)
+            server.sendmail(from_email, user.email, msg.as_string())
+        logger.info(f"Password reset email sent to {user.email}")
+    except Exception as e:
+        logger.error(f"Failed to send password reset email to {user.email}: {e}")
+        raise

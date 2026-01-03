@@ -31,6 +31,7 @@ from typing import Optional
 from uuid import uuid4
 
 from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, String, Table
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -426,3 +427,92 @@ class RefreshToken(Base):
 
     def __repr__(self) -> str:
         return f"<RefreshToken(user_id={self.user_id}, expires_at={self.expires_at}, is_revoked={self.is_revoked})>"
+
+
+class PasswordResetToken(Base):
+    """
+    Password Reset Token model for secure password recovery.
+
+    Sprint 60 - December 29, 2025
+    OWASP Compliant Password Reset Flow
+
+    Fields:
+        - id: UUID primary key
+        - user_id: Foreign key to User
+        - token_hash: SHA-256 hash of reset token (never store plaintext)
+        - expires_at: Token expiry timestamp (1 hour from issue)
+        - used_at: Timestamp when token was used (NULL if unused)
+        - created_at: Token creation timestamp
+        - ip_address: IP address that requested the token (for audit)
+        - user_agent: Browser user agent (for audit)
+
+    Relationships:
+        - user: Many-to-One with User model
+
+    Indexes:
+        - user_id (B-tree) - Fast user lookup
+        - token_hash (unique, B-tree) - Fast token validation
+        - expires_at (B-tree) - Expired token cleanup
+
+    Security:
+        - Token: 64-byte URL-safe base64 (cryptographically random)
+        - Hash: SHA-256 (store hash, not plaintext)
+        - Single-use: Marked as used after password reset
+        - Short expiry: 1 hour (prevents replay attacks)
+        - Rate limited: 3 requests/email/hour, 10 requests/IP/hour
+    """
+
+    __tablename__ = "password_reset_tokens"
+
+    # Primary Key
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4, index=True)
+
+    # User Relationship
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+
+    # Reset Token
+    token_hash = Column(String(128), unique=True, index=True, nullable=False)  # SHA-256 hash (64 hex chars)
+    expires_at = Column(DateTime, nullable=False, index=True)
+
+    # Usage Tracking
+    used_at = Column(DateTime, nullable=True)  # NULL = unused, timestamp = used
+
+    # Audit Information
+    ip_address = Column(postgresql.INET(), nullable=True)  # PostgreSQL INET type
+    user_agent = Column(String(512), nullable=True)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relationships
+    user = relationship("User", backref="password_reset_tokens")
+
+    def __repr__(self) -> str:
+        return f"<PasswordResetToken(user_id={self.user_id}, expires_at={self.expires_at}, used={self.used_at is not None})>"
+
+    @property
+    def is_valid(self) -> bool:
+        """Check if token is valid (not expired and not used)."""
+        from datetime import timezone
+        now = datetime.now(timezone.utc)
+        # Handle both offset-naive and offset-aware datetimes
+        expires = self.expires_at
+        if expires.tzinfo is None:
+            expires = expires.replace(tzinfo=timezone.utc)
+        return self.used_at is None and expires > now
+
+    @property
+    def is_expired(self) -> bool:
+        """Check if token has expired."""
+        from datetime import timezone
+        now = datetime.now(timezone.utc)
+        # Handle both offset-naive and offset-aware datetimes
+        expires = self.expires_at
+        if expires.tzinfo is None:
+            expires = expires.replace(tzinfo=timezone.utc)
+        return expires <= now
+
+    @property
+    def is_used(self) -> bool:
+        """Check if token has been used."""
+        return self.used_at is not None

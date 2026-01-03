@@ -51,3 +51,6 @@ pytest-asyncio>=0.23.0
 httpx>=0.26.0
 mixpanel==4.10.1
 tenacity>=8.2.0
+
+# Template Engine (for IR-based codegen)
+jinja2>=3.1.0

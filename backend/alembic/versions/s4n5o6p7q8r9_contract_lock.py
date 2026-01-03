@@ -29,6 +29,21 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    # Check if onboarding_sessions table exists before adding columns
+    # This table may not exist if Sprint 53 onboarding feature is not deployed
+    conn = op.get_bind()
+    result = conn.execute(
+        sa.text(
+            "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'onboarding_sessions')"
+        )
+    )
+    table_exists = result.scalar()
+
+    if not table_exists:
+        print("INFO: onboarding_sessions table does not exist, skipping contract lock migration")
+        print("INFO: Run Sprint 53 onboarding migration first if needed")
+        return
+
     # Add lock columns to onboarding_sessions
     op.add_column(
         "onboarding_sessions",

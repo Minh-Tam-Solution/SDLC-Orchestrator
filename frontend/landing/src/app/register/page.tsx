@@ -124,6 +124,9 @@ export default function RegisterPage() {
   };
 
   // Handle OAuth signup
+  // NOTE: Using localStorage instead of sessionStorage for OAuth state
+  // because sessionStorage can be lost in Incognito mode when redirecting
+  // to external OAuth providers (GitHub, Google) and back
   const handleOAuthSignup = async (provider: "github" | "google") => {
     setOauthLoading(provider);
     setApiError(null);
@@ -133,10 +136,12 @@ export default function RegisterPage() {
 
       const response = await getOAuthAuthorizeUrl(provider);
 
-      sessionStorage.setItem("oauth_state", response.state);
-      sessionStorage.setItem("oauth_redirect", "/");
-      sessionStorage.setItem("oauth_flow", "signup");
-      sessionStorage.setItem("oauth_provider", provider);
+      // Store OAuth state in localStorage (survives redirect in Incognito)
+      localStorage.setItem("oauth_state", response.state);
+      // Redirect to Dashboard root after successful registration
+      localStorage.setItem("oauth_redirect", "/");
+      localStorage.setItem("oauth_flow", "signup");
+      localStorage.setItem("oauth_provider", provider);
 
       window.location.href = response.authorization_url;
     } catch (error) {

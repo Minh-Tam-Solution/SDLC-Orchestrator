@@ -28,6 +28,8 @@ interface FormErrors {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  // After login, redirect to Dashboard root
+  // Dashboard is served at / for authenticated users (role-based routing)
   const redirectTo = searchParams.get("redirect") || "/";
   const t = useTranslations("auth.login");
 
@@ -100,6 +102,9 @@ function LoginForm() {
   };
 
   // Handle OAuth login
+  // NOTE: Using localStorage instead of sessionStorage for OAuth state
+  // because sessionStorage can be lost in Incognito mode when redirecting
+  // to external OAuth providers (GitHub, Google) and back
   const handleOAuthLogin = async (provider: "github" | "google") => {
     setOauthLoading(provider);
     setApiError(null);
@@ -107,10 +112,11 @@ function LoginForm() {
     try {
       const response = await getOAuthAuthorizeUrl(provider);
 
-      sessionStorage.setItem("oauth_state", response.state);
-      sessionStorage.setItem("oauth_redirect", redirectTo);
-      sessionStorage.setItem("oauth_flow", "login");
-      sessionStorage.setItem("oauth_provider", provider);
+      // Store OAuth state in localStorage (survives redirect in Incognito)
+      localStorage.setItem("oauth_state", response.state);
+      localStorage.setItem("oauth_redirect", redirectTo);
+      localStorage.setItem("oauth_flow", "login");
+      localStorage.setItem("oauth_provider", provider);
 
       window.location.href = response.authorization_url;
     } catch (error) {

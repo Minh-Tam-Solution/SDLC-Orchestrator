@@ -1,9 +1,77 @@
 # Current Sprint
 
-## 🌐 Sprint 60: i18n Localization (VN/EN) - NEW
+## 🔐 Sprint 60: i18n Localization + Password Reset - COMPLETE
 
-**Status**: IN PROGRESS - G2 APPROVED (Dec 27, 2025)
-**Duration**: 3 days (Dec 28-30, 2025)
+**Status**: ✅ COMPLETE (Dec 30, 2025)
+**Duration**: 4 days (Dec 27-30, 2025)
+**Goal**: Implement VN/EN language toggle + Password Reset feature
+
+See: [SPRINT-60-COMPLETION-REPORT.md](./SPRINT-60-COMPLETION-REPORT.md)
+
+### Sprint 60 Final Results
+
+| Feature | Target | Actual | Status |
+|---------|--------|--------|--------|
+| Translation keys | 250+ | 316 per locale | ✅ EXCEEDED |
+| Pages migrated | 13 | 15 (+forgot-password, +reset-password) | ✅ EXCEEDED |
+| Components migrated | 12 | 14 | ✅ EXCEEDED |
+| Password Reset API | 3 endpoints | 3 endpoints | ✅ |
+| Email sending | Async | Background thread | ✅ |
+| Build status | Pass | 15/15 pages static | ✅ |
+
+### Password Reset Feature ✅ COMPLETE
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| Backend API | ✅ | 3 endpoints (forgot, verify, reset) |
+| Database Migration | ✅ | `password_reset_tokens` table |
+| Email Template | ✅ | HTML with CTA button |
+| Frontend Pages | ✅ | `/forgot-password`, `/reset-password` |
+| i18n Support | ✅ | EN + VI translations |
+| Security | ✅ | SHA256 token hash, 1h expiry |
+
+**Technical Spec**: [Password-Reset-Specification.md](../../02-design/14-Technical-Specs/Password-Reset-Specification.md)
+
+**Production URLs**:
+- Forgot Password: https://sdlc.nhatquangholding.com/forgot-password
+- Reset Password: https://sdlc.nhatquangholding.com/reset-password?token=xxx
+
+**Completion**: December 30, 2025
+**Server**: http://localhost:8310
+**Production**: https://sdlc.nhatquangholding.com (nginx updated)
+
+---
+
+## 🚀 Next Sprint: Sprint 61-64 AI Council Enhancement
+
+**Status**: 📋 PLANNED - ADR APPROVED (Dec 28, 2025)
+**Duration**: 8 weeks (Q1 2026)
+**Goal**: Extract and implement AgentScope patterns into AICouncilService
+
+See: 
+- [ADR-023: AgentScope Pattern Extraction](../../02-design/01-ADRs/ADR-023-AgentScope-Pattern-Extraction.md)
+- [SPRINT-61-64-AI-COUNCIL-ENHANCEMENT.md](./SPRINT-61-64-AI-COUNCIL-ENHANCEMENT.md)
+
+### Roadmap Summary
+
+| Sprint | Focus | Deliverables |
+|--------|-------|--------------|
+| Sprint 61 | Research | AgentScope pattern extraction, memory schema design |
+| Sprint 62 | ReAct Loop | Reasoning-action cycle implementation |
+| Sprint 63 | Memory | Long-term memory with pgvector |
+| Sprint 64 | Tools | Parallel tool orchestration |
+
+**Decision**: 🔴 DO NOT integrate AgentScope runtime  
+**Strategy**: ✅ Extract patterns only ("Inspired Evolution")  
+**Cost**: ~$20/mo (OpenAI embeddings)  
+**Risk**: LOW (incremental enhancement)
+
+---
+
+## 🌐 Sprint 60: i18n Localization (VN/EN) - COMPLETED
+
+**Status**: ✅ COMPLETE - PENDING QA SIGN-OFF (Dec 28, 2025)
+**Duration**: 3 days (Dec 27-30, 2025)
 **Goal**: Implement VN/EN language toggle for landing page
 
 See: [SPRINT-60-I18N-LOCALIZATION.md](./SPRINT-60-I18N-LOCALIZATION.md)
@@ -15,18 +83,22 @@ See: [SPRINT-60-I18N-LOCALIZATION.md](./SPRINT-60-I18N-LOCALIZATION.md)
 | Day 1 | Infrastructure | next-intl setup, translation files, LanguageProvider |
 | Day 2 | Translation | Migrate 12 components to i18n |
 | Day 3 | Polish | Language toggle UI, persistence, QA |
+| Day 4 | Docs & Handoff | Developer guide, completion report, README update |
 
-### Files to Create (per Design Spec Section 9.1)
-- `frontend/landing/src/lib/i18n.ts` - i18n configuration (~30 lines)
-- `frontend/landing/src/messages/vi.json` - Vietnamese translations (~500 lines)
-- `frontend/landing/src/messages/en.json` - English translations (~500 lines)
-- `frontend/landing/src/app/providers/LanguageProvider.tsx` - Language context provider (~80 lines)
-- `frontend/landing/src/components/ui/LanguageToggle.tsx` - VN/EN toggle component (~40 lines)
+### Files Created
+- ✅ `frontend/landing/src/lib/i18n.ts` - i18n configuration (29 lines)
+- ✅ `frontend/landing/src/messages/vi.json` - Vietnamese translations (286 keys)
+- ✅ `frontend/landing/src/messages/en.json` - English translations (286 keys)
+- ✅ `frontend/landing/src/app/providers/LanguageProvider.tsx` - Language context provider (101 lines)
+- ✅ `frontend/landing/src/components/ui/LanguageToggle.tsx` - VN/EN toggle component (73 lines)
+- ✅ `frontend/landing/docs/I18N-DEVELOPER-GUIDE.md` - Developer documentation (170 lines)
+- ✅ `frontend/landing/QA-CHECKLIST-SPRINT-60.md` - QA checklist (141 lines)
 
-### Components to Migrate
-- Header, Hero, Features, HowItWorks
-- VietnamFounders, Pricing, CTASection, Footer
-- Login, Register, Checkout, Checkout Success
+### Components Migrated (14 total)
+- ✅ Header, Hero, Features, HowItWorks
+- ✅ VietnamFounders, Pricing, CTASection, Footer
+- ✅ Login, Register, Auth Callback
+- ✅ Checkout, Checkout Success, Checkout Failed
 
 ---
 

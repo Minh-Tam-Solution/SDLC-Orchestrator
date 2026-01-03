@@ -23,6 +23,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from '@/contexts/AuthContext'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import ErrorBoundary from '@/components/ErrorBoundary'
 import { Toaster } from '@/components/ui/toaster'
 
 // Lazy-loaded pages (route-based code splitting)
@@ -100,9 +101,10 @@ function PageLoader() {
  */
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Suspense fallback={<PageLoader />}>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -381,10 +383,11 @@ function App() {
             {/* Catch-all route - Redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </Suspense>
-        <Toaster />
-      </AuthProvider>
-    </BrowserRouter>
+          </Suspense>
+          <Toaster />
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }
 

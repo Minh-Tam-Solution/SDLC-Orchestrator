@@ -1,27 +1,26 @@
 /**
- * OAuth Callback Page - SDLC Orchestrator Landing
+ * GitHub OAuth Callback Page - SDLC Orchestrator Landing
  *
- * @module frontend/landing/src/app/auth/callback/page
- * @description Handles OAuth callback from GitHub/Google providers
+ * @module frontend/landing/src/app/auth/github/callback/page
+ * @description Handles OAuth callback from GitHub provider
  * @sdlc SDLC 5.1.2 Universal Framework
- * @status Sprint 59 - OAuth Integration
+ * @status Sprint 60 - OAuth Integration
  */
 
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Header, Footer } from "@/components/landing";
 import { exchangeOAuthCode, APIError } from "@/lib/api";
-import { trackRegistrationComplete, trackEvent, ANALYTICS_EVENTS } from "@/lib/analytics";
+import { trackEvent, ANALYTICS_EVENTS } from "@/lib/analytics";
 import Link from "next/link";
 
 type CallbackStatus = "processing" | "success" | "error";
 
-function OAuthCallbackHandler() {
+function GitHubCallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -42,7 +41,7 @@ function OAuthCallbackHandler() {
         setErrorMessage(errorDescription || `OAuth error: ${error}`);
         trackEvent(ANALYTICS_EVENTS.REGISTRATION_ERROR, {
           error_type: error,
-          method: "oauth",
+          method: "github",
         });
         return;
       }
@@ -63,21 +62,17 @@ function OAuthCallbackHandler() {
         setErrorMessage("Invalid state parameter. Please try again.");
         trackEvent(ANALYTICS_EVENTS.REGISTRATION_ERROR, {
           error_type: "state_mismatch",
-          method: "oauth",
+          method: "github",
         });
         return;
       }
-
-      // Provider is selected by the user at login/register time.
-      // Avoid decoding `state` in the browser (it's urlsafe base64 and backend-defined).
-      const provider = (localStorage.getItem("oauth_provider") as "github" | "google" | null) || "github";
 
       // Capture redirect BEFORE cleanup - default to Dashboard root
       const redirectTo = localStorage.getItem("oauth_redirect") || "/";
 
       try {
         // Exchange code for tokens
-        const response = await exchangeOAuthCode(provider, {
+        const response = await exchangeOAuthCode("github", {
           code,
           state,
         });
@@ -91,11 +86,11 @@ function OAuthCallbackHandler() {
         }
 
         // Track successful authentication
-        const oauthFlow = sessionStorage.getItem("oauth_flow");
+        const oauthFlow = localStorage.getItem("oauth_flow");
         if (oauthFlow === "signup") {
-          trackRegistrationComplete(provider, 0);
+          trackEvent(ANALYTICS_EVENTS.REGISTRATION_COMPLETE, { method: "github" });
         } else {
-          trackEvent(ANALYTICS_EVENTS.LOGIN_SUCCESS, { method: provider });
+          trackEvent(ANALYTICS_EVENTS.LOGIN_SUCCESS, { method: "github" });
         }
 
         // Clean up localStorage (OAuth state data)
@@ -118,7 +113,7 @@ function OAuthCallbackHandler() {
 
         trackEvent(ANALYTICS_EVENTS.REGISTRATION_ERROR, {
           error_type: apiErr.detail || "token_exchange_failed",
-          method: provider,
+          method: "github",
         });
 
         // Clean up localStorage on error too
@@ -161,9 +156,9 @@ function OAuthCallbackHandler() {
                   />
                 </svg>
               </div>
-              <CardTitle className="text-heading-2">Completing Sign In</CardTitle>
+              <CardTitle className="text-heading-2">Completing GitHub Sign In</CardTitle>
               <CardDescription>
-                Please wait while we verify your account...
+                Please wait while we verify your GitHub account...
               </CardDescription>
             </CardHeader>
           </Card>
@@ -198,7 +193,7 @@ function OAuthCallbackHandler() {
               </div>
               <CardTitle className="text-heading-2">Welcome!</CardTitle>
               <CardDescription>
-                You have been successfully signed in.
+                You have been successfully signed in with GitHub.
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
@@ -235,9 +230,9 @@ function OAuthCallbackHandler() {
                 />
               </svg>
             </div>
-            <CardTitle className="text-heading-2">Authentication Failed</CardTitle>
+            <CardTitle className="text-heading-2">GitHub Authentication Failed</CardTitle>
             <CardDescription>
-              We couldn&apos;t complete the sign in process.
+              We couldn&apos;t complete the GitHub sign in process.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -264,7 +259,6 @@ function OAuthCallbackHandler() {
 
 // Loading fallback for Suspense
 function CallbackFallback() {
-  const t = useTranslations("auth.callback");
   return (
     <>
       <Header />
@@ -292,9 +286,9 @@ function CallbackFallback() {
                 />
               </svg>
             </div>
-            <CardTitle className="text-heading-2">{t("loadingTitle")}</CardTitle>
+            <CardTitle className="text-heading-2">Loading...</CardTitle>
             <CardDescription>
-              {t("loadingDescription")}
+              Please wait...
             </CardDescription>
           </CardHeader>
         </Card>
@@ -305,10 +299,10 @@ function CallbackFallback() {
 }
 
 // Wrap with Suspense for useSearchParams
-export default function OAuthCallbackPage() {
+export default function GitHubCallbackPage() {
   return (
     <Suspense fallback={<CallbackFallback />}>
-      <OAuthCallbackHandler />
+      <GitHubCallbackHandler />
     </Suspense>
   );
 }
