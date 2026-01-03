@@ -21,6 +21,17 @@ We will **not** do a big-bang rewrite. Instead, we use a **strangler migration**
 
 ---
 
+## Design Documentation (Complete)
+
+**Status**: ✅ COMPLETE (Jan 03, 2026)
+
+These documents are the design source-of-truth for Sprint 61-64 execution:
+- [Frontend-Migration-Route-Map.md](../../02-design/14-Technical-Specs/Frontend-Migration-Route-Map.md) (8 route groups + complexity ratings)
+- [Dashboard-Migration-Technical-Spec.md](../../02-design/14-Technical-Specs/Dashboard-Migration-Technical-Spec.md) (architecture, auth guards, SSE streaming, testing)
+- [Frontend-Performance-Budget.md](../../02-design/14-Technical-Specs/Frontend-Performance-Budget.md) (CWV targets, bundle limits, monitoring)
+
+---
+
 ## Success Criteria (Non-Negotiable)
 
 1. **Feature Parity** for migrated route groups (happy paths + key edge cases)

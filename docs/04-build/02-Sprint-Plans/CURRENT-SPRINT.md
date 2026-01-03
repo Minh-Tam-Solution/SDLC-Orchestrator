@@ -89,6 +89,29 @@ See:
 - [ADR-025: Frontend Platform Consolidation - Next.js Monolith](../../02-design/01-ADRs/ADR-025-Frontend-Platform-Consolidation-Nextjs-Monolith.md)
 - [SPRINT-61-64-FRONTEND-PLATFORM-CONSOLIDATION.md](./SPRINT-61-64-FRONTEND-PLATFORM-CONSOLIDATION.md)
 
+### Technical Specifications (Jan 03, 2026)
+
+| Document | Lines | Purpose |
+|----------|-------|---------|
+| [Frontend-Migration-Route-Map.md](../../02-design/14-Technical-Specs/Frontend-Migration-Route-Map.md) | ~650 | 8 route groups, complexity ratings, target structure |
+| [Dashboard-Migration-Technical-Spec.md](../../02-design/14-Technical-Specs/Dashboard-Migration-Technical-Spec.md) | ~900 | Architecture, auth, SSE, testing strategy |
+| [Frontend-Performance-Budget.md](../../02-design/14-Technical-Specs/Frontend-Performance-Budget.md) | ~500 | Core Web Vitals, bundle budgets, monitoring |
+
+### Analysis Summary
+
+**React Dashboard (Current)**:
+- 34 routes (26 protected, 3 public, 5 admin)
+- 105 components (61,824 LOC)
+- 13 custom hooks
+- TanStack Query v5, React Hook Form, shadcn/ui
+
+**Next.js Landing (Target Base)**:
+- 13 route segments
+- 5 shared UI components (shadcn/ui)
+- next-intl for i18n (Vi/En)
+
+**Legacy Code Destination**: `frontend/99-legacy/`
+
 ### Roadmap Summary
 
 | Sprint | Focus | Deliverables |

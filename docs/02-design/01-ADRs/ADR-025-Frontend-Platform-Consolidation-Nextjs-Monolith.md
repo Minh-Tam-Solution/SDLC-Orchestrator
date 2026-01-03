@@ -87,6 +87,18 @@ ADR-024 was a valid technical decision at the time, given risk/ROI assumptions. 
 
 ---
 
+## Design Artifacts (Sprint 61-64)
+
+**Sprint Plan**:
+- [SPRINT-61-64-FRONTEND-PLATFORM-CONSOLIDATION.md](../../04-build/02-Sprint-Plans/SPRINT-61-64-FRONTEND-PLATFORM-CONSOLIDATION.md)
+
+**Technical Specs**:
+- [Frontend-Migration-Route-Map.md](../14-Technical-Specs/Frontend-Migration-Route-Map.md)
+- [Dashboard-Migration-Technical-Spec.md](../14-Technical-Specs/Dashboard-Migration-Technical-Spec.md)
+- [Frontend-Performance-Budget.md](../14-Technical-Specs/Frontend-Performance-Budget.md)
+
+---
+
 ## Consequences
 
 ### Benefits
