@@ -26,6 +26,8 @@ import type {
   SystemSetting,
   SystemSettingUpdate,
   SystemHealthResponse,
+  OverrideQueueResponse,
+  OverrideStatsResponse,
 } from "@/lib/types/admin";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -73,6 +75,10 @@ export const adminQueryKeys = {
   settings: () => [...adminQueryKeys.all, "settings"] as const,
   setting: (key: string) => [...adminQueryKeys.settings(), key] as const,
   health: () => [...adminQueryKeys.all, "health"] as const,
+  overrides: () => [...adminQueryKeys.all, "overrides"] as const,
+  overrideQueue: () => [...adminQueryKeys.overrides(), "queue"] as const,
+  overrideStats: (days?: number) =>
+    [...adminQueryKeys.overrides(), "stats", days] as const,
 };
 
 // =========================================================================
@@ -371,6 +377,75 @@ export function useSystemHealth() {
 }
 
 // =========================================================================
+// Override Queue (VCR - Version Controlled Resolution)
+// =========================================================================
+
+/**
+ * Fetch override queue (pending + recent decisions)
+ * Auto-refreshes every 30 seconds
+ */
+export function useOverrideQueue() {
+  return useQuery({
+    queryKey: adminQueryKeys.overrideQueue(),
+    queryFn: () => fetchWithAuth<OverrideQueueResponse>("/admin/overrides/queue"),
+    refetchInterval: 30 * 1000, // Auto-refresh for real-time queue updates
+    staleTime: 15 * 1000,
+  });
+}
+
+/**
+ * Fetch override statistics
+ */
+export function useOverrideStats(days: number = 30) {
+  return useQuery({
+    queryKey: adminQueryKeys.overrideStats(days),
+    queryFn: () =>
+      fetchWithAuth<OverrideStatsResponse>(`/admin/overrides/stats?days=${days}`),
+    staleTime: 60 * 1000, // Stats don't change as frequently
+  });
+}
+
+/**
+ * Approve an override request
+ * Requires comment for audit trail
+ */
+export function useApproveOverride() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ overrideId, comment }: { overrideId: string; comment: string }) =>
+      fetchWithAuth<{ success: boolean }>(`/admin/overrides/${overrideId}/approve`, {
+        method: "POST",
+        body: JSON.stringify({ comment }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.overrides() });
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.auditLogs() });
+    },
+  });
+}
+
+/**
+ * Reject an override request
+ * Requires reason (minimum 10 characters) for audit trail
+ */
+export function useRejectOverride() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ overrideId, reason }: { overrideId: string; reason: string }) =>
+      fetchWithAuth<{ success: boolean }>(`/admin/overrides/${overrideId}/reject`, {
+        method: "POST",
+        body: JSON.stringify({ reason }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.overrides() });
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.auditLogs() });
+    },
+  });
+}
+
+// =========================================================================
 // Exports
 // =========================================================================
 
@@ -393,4 +468,6 @@ export type {
   SystemSetting,
   SystemSettingUpdate,
   SystemHealthResponse,
+  OverrideQueueResponse,
+  OverrideStatsResponse,
 };
