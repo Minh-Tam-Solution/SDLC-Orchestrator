@@ -107,13 +107,17 @@ Layer 1: SDLC-Enterprise-Framework (Methodology) ← Our foundation
 | Quarter | Theme | Primary Epics | Investment |
 |---------|-------|---------------|------------|
 | **Q1 2026** | **EP-06 Codegen P0** | Sprint 45-50 (IR Codegen + Pilot) | ~$50,000 |
+| **Q1 2026** | **Track 1 SASE** | SDLC 5.1.0 Framework Enhancement | $0 (internal) |
 | **Q1-Q2 2026** | AI Safety | EP-01, EP-02, EP-03 | $60,000 |
 | **Q2 2026** | Structure Enforcement | EP-04 (Sprint 41-46) | $16,500 |
+| **Q2 2026** | **Vibecode CLI** | IR-based codegen enhancements | $30,000 (reallocated) |
 | **Q3 2026** | Multi-VCS + Marketplace | EP-07, EP-08 | $80,000 |
 | **Q4 2026** | Enterprise Governance | EP-09, EP-10 | $100,000 |
 | **2027** | Scale to 150-300 teams | EP-11+ | TBD |
 
-**Note**: EP-05 (Enterprise Migration) deprioritized until EP-06 success validated.
+**Note**:
+- EP-05 (Enterprise Migration) deprioritized until EP-06 success validated.
+- OpenCode evaluation ABORTED (Jan 12, 2026) - $90K budget reallocated to Vibecode CLI.
 
 ---
 
@@ -188,6 +192,39 @@ Layer 1: SDLC-Enterprise-Framework (Methodology) ← Our foundation
 - ≥6 partners active within 60 days
 - ≥10 actionable improvements captured
 - ≥2 case studies with metrics
+
+---
+
+## ❌ OpenCode Integration Evaluation - ABORTED (Jan 12, 2026)
+
+### Abort Decision
+
+**Date**: January 12, 2026, 10:15pm (4 hours after start)
+**Status**: ❌ ABORTED - Strategic refocus on Track 1 SASE
+**Reason**: Strategic misalignment + resource prioritization
+**Budget Saved**: $90K (Levels 1-3) → Reallocated to Vibecode CLI + SASE
+
+**Why Aborted**:
+- OpenCode is CLI/TUI tool (competitor to Claude Code, Cursor), NOT API server
+- No HTTP API for integration (ADR-026 assumption invalid)
+- Integration would require $50K-$80K fork + custom API layer
+- Better strategy: Govern ALL AI coders via 4-Gate pipeline (no specific integration)
+- Track 1 SASE is Q1 2026 P0 (requires full team focus)
+
+**What We Learned** (4 hours):
+- ✅ OpenCode = TypeScript/Bun CLI application (Interactive TUI)
+- ❌ No REST API endpoints exist
+- ❌ Cannot integrate via adapter pattern
+- ✅ Better positioning: Governance layer ABOVE all AI coders
+
+**Budget Reallocation**:
+- Level 1 ($30K) → Vibecode CLI enhancements (Q2 2026)
+- Level 2 ($20K) → SASE artifact development
+- Level 3 ($40K) → Vibecode CLI optimization (H2 2026)
+
+**Archived Documents**: `docs/99-archive/OpenCode-Evaluation-Aborted-Jan12-2026/`
+
+See: [README-ABORT-DECISION.md](../../99-archive/OpenCode-Evaluation-Aborted-Jan12-2026/README-ABORT-DECISION.md)
 
 ---
 
