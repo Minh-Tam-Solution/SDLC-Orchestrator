@@ -16,7 +16,7 @@
 | Day | Attendees | Shipped (PR/commit) | Planned Today | Blockers | TC-001 Result | Notes |
 |-----|-----------|---------------------|---------------|----------|--------------|-------|
 | Mon Jan 20 | All (Kickoff) | `390cc89` Sprint Plan + Ollama fix | Boot env + run TC-001 | Ollama API network (team to verify) | ⏳ Team to run | Code ready, API files verified |
-| Tue Jan 21 | All | Ollama URL → localhost:11434 | Validate + stabilize, tune prompt | None | ✅ PASS 13.6s (3/5 sections) | Prompt needs tuning for roles/quality |
+| Tue Jan 21 | All | Prompt tuning (BE-W6-002) | Validate + stabilize, tune prompt | None | ✅ FULL PASS 16.9s (5/5) | Prompt tuned, all sections now generated |
 | Wed Jan 22 |  |  | Smoke endpoints + tune prompt |  |  |  |
 | Thu Jan 23 |  |  | Dry-run demo + timing capture |  |  |  |
 | Fri Jan 24 |  |  | Demo + checkpoint prep |  |  |  |
@@ -59,4 +59,5 @@ curl http://localhost:11434/api/tags
 
 | Run | Date | Time (ms) | Sections | Status | Notes |
 |-----|------|-----------|----------|--------|-------|
-| 1 | Tue Jan 21 | 13,595 | 3/5 | ✅ PASS | Missing roles, quality sections |
+| 1 | Tue Jan 21 | 13,595 | 3/5 | ⚠️ PARTIAL | Missing roles, quality sections |
+| 2 | Tue Jan 21 | 16,864 | 5/5 | ✅ FULL PASS | Prompt tuned, all sections present |
