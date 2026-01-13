@@ -16,7 +16,7 @@
 | Day | Attendees | Shipped (PR/commit) | Planned Today | Blockers | TC-001 Result | Notes |
 |-----|-----------|---------------------|---------------|----------|--------------|-------|
 | Mon Jan 20 | All (Kickoff) | `390cc89` Sprint Plan + Ollama fix | Boot env + run TC-001 | Ollama API network (team to verify) | ⏳ Team to run | Code ready, API files verified |
-| Tue Jan 21 |  |  | Validate + stabilize |  |  |  |
+| Tue Jan 21 | All | Ollama URL → localhost:11434 | Validate + stabilize, tune prompt | None | ✅ PASS 13.6s (3/5 sections) | Prompt needs tuning for roles/quality |
 | Wed Jan 22 |  |  | Smoke endpoints + tune prompt |  |  |  |
 | Thu Jan 23 |  |  | Dry-run demo + timing capture |  |  |  |
 | Fri Jan 24 |  |  | Demo + checkpoint prep |  |  |  |
@@ -49,8 +49,14 @@ curl -X POST http://localhost:8000/api/sop/generate \
 ## Ollama Connectivity Check
 
 ```bash
-# Verify Ollama API reachable from dev machine
-curl http://api.nhatquangholding.com/api/tags
+# Verify Ollama API reachable (localhost - same server)
+curl http://localhost:11434/api/tags
 
-# If unreachable, check VPN/network and contact DevOps
+# Available models: qwen3:14b, qwen3:32b, qwen3-coder:30b, deepseek-r1:32b, etc.
 ```
+
+## TC-001 Results Log
+
+| Run | Date | Time (ms) | Sections | Status | Notes |
+|-----|------|-----------|----------|--------|-------|
+| 1 | Tue Jan 21 | 13,595 | 3/5 | ✅ PASS | Missing roles, quality sections |
