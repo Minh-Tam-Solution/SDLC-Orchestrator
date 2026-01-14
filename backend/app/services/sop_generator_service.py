@@ -678,9 +678,17 @@ IMPORTANT RULES:
             sha256_hash=sha256_hash,
         )
 
+        # BE-W6-003: Structured latency logging with full context
         logger.info(
-            f"SOP generated: id={sop_id}, completeness={completeness_score:.1f}%, "
-            f"time={metrics['generation_time_ms']:.0f}ms"
+            f"SOP_GENERATED | "
+            f"sop_id={sop_id} | "
+            f"mrp_id={mrp_id} | "
+            f"sop_type={request.sop_type.value} | "
+            f"generation_time_ms={metrics['generation_time_ms']:.0f} | "
+            f"model={metrics.get('model', self.ollama_model)} | "
+            f"provider=ollama | "
+            f"sections={sections_present}/5 | "
+            f"completeness={completeness_score:.1f}%"
         )
 
         return sop, mrp
@@ -718,13 +726,14 @@ def get_sop_generator_service() -> SOPGeneratorService:
         Configured SOPGeneratorService instance
     """
     # NOTE:
-    # - Ollama service runs on same host, accessible from Docker via gateway IP
-    # - Docker network gateway: 172.22.0.1 (sdlc-orchestrator_sdlc-network)
+    # - Ollama container is in 'ai-net' Docker network
+    # - Container name 'ollama' resolves to the Ollama service within ai-net
+    # - sdlc-backend is also connected to ai-net, so it can reach ollama:11434
     # - requests requires a fully-qualified URL with scheme.
-    # - Default to Docker gateway for pilot, but allow overriding via env (e.g., for production AI-Platform).
+    # - Default to container name, but allow overriding via env (e.g., for production AI-Platform).
     ollama_url = (getattr(settings, "OLLAMA_URL", "") or "").strip()
     if not ollama_url:
-        ollama_url = "http://172.22.0.1:11434"
+        ollama_url = "http://ollama:11434"
     elif not (ollama_url.startswith("http://") or ollama_url.startswith("https://")):
         ollama_url = f"http://{ollama_url}"
 
@@ -733,5 +742,5 @@ def get_sop_generator_service() -> SOPGeneratorService:
     return SOPGeneratorService(
         ollama_base_url=ollama_url,
         ollama_model=ollama_model,
-        timeout=30,  # NFR1: <30s
+        timeout=60,  # NFR1: <30s target, but allow 60s for complex SOPs
     )

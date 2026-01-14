@@ -5,10 +5,11 @@
 # Date: January 2026
 # =============================================================================
 
-set -e
+# Note: Don't use set -e as we want to continue on failures
+# set -e
 
-BASE_URL="${BASE_URL:-http://localhost:8000}"
-API_PREFIX="/api/sop"
+BASE_URL="${BASE_URL:-http://localhost:8300}"
+API_PREFIX="/api/v1/sop"
 
 echo "============================================================"
 echo "BE-W6-005: SOP Generator Smoke Test"

@@ -210,6 +210,50 @@ _vcr_store: dict[str, dict[str, Any]] = {}
 # ============================================================================
 
 
+# NOTE: Health endpoint MUST be defined before /{sop_id} to avoid route conflict
+@router.get(
+    "/health",
+    summary="SOP Generator health check",
+    description="Check if SOP Generator service is healthy",
+)
+async def health_check(
+    service: SOPGeneratorService = Depends(get_sop_generator_service),
+) -> dict[str, Any]:
+    """
+    Health check for SOP Generator.
+
+    Returns:
+        Health status including Ollama connectivity
+    """
+    try:
+        import requests
+
+        # Check Ollama connectivity
+        response = requests.get(
+            f"{service.ollama_base_url}/api/tags",
+            timeout=5,
+        )
+        ollama_status = "healthy" if response.status_code == 200 else "unhealthy"
+        ollama_models = response.json().get("models", []) if response.ok else []
+    except Exception as e:
+        ollama_status = f"error: {str(e)}"
+        ollama_models = []
+
+    return {
+        "status": "healthy",
+        "service": "sop_generator",
+        "version": "1.0.0",
+        "ollama": {
+            "status": ollama_status,
+            "url": service.ollama_base_url,
+            "model": service.ollama_model,
+            "available_models": [m.get("name") for m in ollama_models],
+        },
+        "sase_level": "Level 1 (BRS + MRP + VCR)",
+        "brs_reference": "BRS-PILOT-001",
+    }
+
+
 @router.get(
     "/types",
     response_model=list[SOPTypeResponse],
@@ -649,49 +693,4 @@ async def get_sop_vcr(sop_id: str) -> VCRResponse:
     return VCRResponse(**vcr)
 
 
-# ============================================================================
-# Health Check Endpoint
-# ============================================================================
-
-
-@router.get(
-    "/health",
-    summary="SOP Generator health check",
-    description="Check if SOP Generator service is healthy",
-)
-async def health_check(
-    service: SOPGeneratorService = Depends(get_sop_generator_service),
-) -> dict[str, Any]:
-    """
-    Health check for SOP Generator.
-
-    Returns:
-        Health status including Ollama connectivity
-    """
-    try:
-        import requests
-
-        # Check Ollama connectivity
-        response = requests.get(
-            f"{service.ollama_base_url}/api/tags",
-            timeout=5,
-        )
-        ollama_status = "healthy" if response.status_code == 200 else "unhealthy"
-        ollama_models = response.json().get("models", []) if response.ok else []
-    except Exception as e:
-        ollama_status = f"error: {str(e)}"
-        ollama_models = []
-
-    return {
-        "status": "healthy",
-        "service": "sop_generator",
-        "version": "1.0.0",
-        "ollama": {
-            "status": ollama_status,
-            "url": service.ollama_base_url,
-            "model": service.ollama_model,
-            "available_models": [m.get("name") for m in ollama_models],
-        },
-        "sase_level": "Level 1 (BRS + MRP + VCR)",
-        "brs_reference": "BRS-PILOT-001",
-    }
+# Health endpoint moved to top of file to avoid route conflict with /{sop_id}

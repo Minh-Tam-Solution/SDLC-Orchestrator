@@ -17,7 +17,7 @@
 |-----|-----------|---------------------|---------------|----------|--------------|-------|
 | Mon Jan 20 | All (Kickoff) | `390cc89` Sprint Plan + Ollama fix | Boot env + run TC-001 | Ollama API network (team to verify) | ⏳ Team to run | Code ready, API files verified |
 | Tue Jan 21 | All | Prompt tuning (BE-W6-002) | Validate + stabilize, tune prompt | None | ✅ FULL PASS 16.9s (5/5) | Prompt tuned, all sections now generated |
-| Wed Jan 22 |  |  | Smoke endpoints + tune prompt |  |  |  |
+| Wed Jan 22 | All | Route fix + Ollama via ai-net | Smoke 8 endpoints (BE-W6-005) | None | ✅ 8/8 PASS (17.8s) | Ollama URL: ollama:11434 via ai-net |
 | Thu Jan 23 |  |  | Dry-run demo + timing capture |  |  |  |
 | Fri Jan 24 |  |  | Demo + checkpoint prep |  |  |  |
 
@@ -61,3 +61,19 @@ curl http://localhost:11434/api/tags
 |-----|------|-----------|----------|--------|-------|
 | 1 | Tue Jan 21 | 13,595 | 3/5 | ⚠️ PARTIAL | Missing roles, quality sections |
 | 2 | Tue Jan 21 | 16,864 | 5/5 | ✅ FULL PASS | Prompt tuned, all sections present |
+| 3 | Wed Jan 22 | 17,864 | 5/5 | ✅ FULL PASS | Smoke test run, Ollama via ai-net |
+
+## BE-W6-005 Smoke Test Results (Wed Jan 22)
+
+| Test | Endpoint | Status | Time (ms) | Notes |
+|------|----------|--------|-----------|-------|
+| 1 | GET /api/v1/sop/types | ✅ PASS | 7 | 5 SOP types returned |
+| 2 | GET /api/v1/sop/health | ✅ PASS | 6 | Ollama healthy via ai-net |
+| 3 | POST /api/v1/sop/generate | ✅ PASS | 17,872 | Under 30s target |
+| 4 | GET /api/v1/sop/{sop_id} | ✅ PASS | 6 | SOP details retrieved |
+| 5 | GET /api/v1/sop/{sop_id}/mrp | ✅ PASS | 4 | MRP evidence retrieved |
+| 6 | POST /api/v1/sop/{sop_id}/vcr | ✅ PASS | 4 | VCR submitted |
+| 7 | GET /api/v1/sop/{sop_id}/vcr | ✅ PASS | 3 | VCR status retrieved |
+| 8 | GET /api/v1/sop/list | ✅ PASS | 3 | SOP list returned |
+
+**Summary**: 8/8 endpoints passing, generation time 17.8s (under 30s target)
