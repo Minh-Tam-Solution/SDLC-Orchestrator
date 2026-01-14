@@ -62,6 +62,20 @@ curl http://localhost:11434/api/tags
 | 1 | Tue Jan 21 | 13,595 | 3/5 | ⚠️ PARTIAL | Missing roles, quality sections |
 | 2 | Tue Jan 21 | 16,864 | 5/5 | ✅ FULL PASS | Prompt tuned, all sections present |
 | 3 | Wed Jan 22 | 17,864 | 5/5 | ✅ FULL PASS | Smoke test run, Ollama via ai-net |
+| 4 | Thu Jan 23 | 13,285 | 5/5 | ✅ FULL PASS | Timing run 1/3 |
+| 5 | Thu Jan 23 | 11,704 | 5/5 | ✅ FULL PASS | Timing run 2/3 (fastest!) |
+| 6 | Thu Jan 23 | 15,186 | 5/5 | ✅ FULL PASS | Timing run 3/3 |
+
+## Timing Evidence Summary (Thu Jan 23)
+
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Average | 13.39s | <30s | ✅ 55% margin |
+| p95 | 15.18s | <30s | ✅ 49% margin |
+| Fastest | 11.70s | <30s | ✅ 61% margin |
+| Sections | 5/5 all runs | 5/5 | ✅ 100% |
+
+**Evidence Location**: `/tmp/sase-week6-timing-evidence/`
 
 ## BE-W6-005 Smoke Test Results (Wed Jan 22)
 
