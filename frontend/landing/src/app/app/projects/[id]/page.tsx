@@ -336,12 +336,12 @@ function ProjectContent({ projectId }: { projectId: string }) {
 // =============================================================================
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string } | Promise<{ id: string }>;
 }
 
 export default function ProjectDetailPage({ params }: PageProps) {
-  // Safely unwrap params using React.use()
-  const resolvedParams = use(params);
+  // Handle both sync and async params (Next.js 14 compatibility)
+  const resolvedParams = params instanceof Promise ? use(params) : params;
   const projectId = resolvedParams.id;
 
   const { isAuthenticated, isLoading: authLoading } = useAuth();

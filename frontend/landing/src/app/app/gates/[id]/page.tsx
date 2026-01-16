@@ -75,11 +75,13 @@ function getStatusStyle(status: string): string {
 }
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string } | Promise<{ id: string }>;
 }
 
 export default function GateDetailPage({ params }: PageProps) {
-  const { id } = use(params);
+  // Handle both sync and async params (Next.js 14 compatibility)
+  const resolvedParams = params instanceof Promise ? use(params) : params;
+  const { id } = resolvedParams;
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user } = useAuth();

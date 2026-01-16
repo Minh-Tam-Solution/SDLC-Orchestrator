@@ -62,11 +62,13 @@ function TabLoading() {
 }
 
 interface SOPDetailPageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string } | Promise<{ id: string }>;
 }
 
 export default function SOPDetailPage({ params }: SOPDetailPageProps) {
-  const { id: sopId } = use(params);
+  // Handle both sync and async params (Next.js 14 compatibility)
+  const resolvedParams = params instanceof Promise ? use(params) : params;
+  const { id: sopId } = resolvedParams;
   const router = useRouter();
 
   // Queries and mutations

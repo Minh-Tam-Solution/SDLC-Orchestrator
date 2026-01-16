@@ -64,11 +64,13 @@ function SeverityIcon({ severity }: { severity: string }) {
 }
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string } | Promise<{ id: string }>;
 }
 
 export default function PolicyDetailPage({ params }: PageProps) {
-  const { id } = use(params);
+  // Handle both sync and async params (Next.js 14 compatibility)
+  const resolvedParams = params instanceof Promise ? use(params) : params;
+  const { id } = resolvedParams;
   const { data: policy, isLoading, error } = usePolicy(id);
 
   if (isLoading) {
