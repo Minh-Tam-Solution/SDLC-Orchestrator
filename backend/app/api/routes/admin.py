@@ -968,6 +968,7 @@ async def get_all_settings(
         "features": [],
         "notifications": [],
         "general": [],
+        "ai": [],
     }
 
     for row in rows:

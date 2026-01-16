@@ -390,7 +390,9 @@ class SystemSettingsListResponse(BaseModel):
             "security": [...],
             "limits": [...],
             "features": [...],
-            "notifications": [...]
+            "notifications": [...],
+            "general": [...],
+            "ai": [...]
         }
     """
 
@@ -399,6 +401,7 @@ class SystemSettingsListResponse(BaseModel):
     features: List[SystemSettingItem] = Field(default_factory=list, description="Feature flags")
     notifications: List[SystemSettingItem] = Field(default_factory=list, description="Notification settings")
     general: List[SystemSettingItem] = Field(default_factory=list, description="General settings")
+    ai: List[SystemSettingItem] = Field(default_factory=list, description="AI provider settings")
 
 
 # =========================================================================

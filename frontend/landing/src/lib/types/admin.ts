@@ -229,7 +229,8 @@ export type SettingCategory =
   | "limits"
   | "features"
   | "notifications"
-  | "general";
+  | "general"
+  | "ai";
 
 export interface SystemSetting {
   key: string;
@@ -247,6 +248,7 @@ export interface SystemSettingsResponse {
   features: SystemSetting[];
   notifications: SystemSetting[];
   general: SystemSetting[];
+  ai: SystemSetting[];
 }
 
 export interface SystemSettingUpdate {
@@ -282,6 +284,11 @@ export const SETTING_CATEGORY_META: Record<
     label: "General",
     color: "bg-gray-100 text-gray-800",
     description: "General system configuration",
+  },
+  ai: {
+    label: "AI Providers",
+    color: "bg-indigo-100 text-indigo-800",
+    description: "AI Council, Ollama, Claude, and OpenAI configuration",
   },
 };
 

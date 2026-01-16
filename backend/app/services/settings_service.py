@@ -398,8 +398,187 @@ class SettingsService:
         return self._to_bool(value)
 
     # =========================================================================
-    # AI Provider Configuration (for Admin Panel)
+    # AI Provider Configuration (ADR-007 + ADR-027)
     # =========================================================================
+
+    async def get_ai_ollama_url(self) -> str:
+        """
+        Get Ollama server URL.
+
+        Returns:
+            Ollama URL (default: from env var or empty string)
+
+        Note:
+            Priority: Database setting > Environment variable > Empty
+        """
+        db_value = await self.get("ai_ollama_url", default="")
+        if db_value:
+            return str(db_value)
+        return app_settings.OLLAMA_URL or ""
+
+    async def get_ai_ollama_model(self) -> str:
+        """
+        Get default Ollama model.
+
+        Returns:
+            Model name (default: qwen3:14b)
+        """
+        db_value = await self.get("ai_ollama_model", default="")
+        if db_value:
+            return str(db_value)
+        return app_settings.OLLAMA_MODEL
+
+    async def get_ai_ollama_timeout(self) -> int:
+        """
+        Get Ollama request timeout.
+
+        Returns:
+            Timeout in seconds (default: 30)
+        """
+        value = await self.get("ai_ollama_timeout", default=30)
+        try:
+            return int(value)
+        except (ValueError, TypeError):
+            return 30
+
+    async def get_ai_anthropic_api_key(self) -> str:
+        """
+        Get Anthropic API key for Claude.
+
+        Returns:
+            API key or empty string if not configured
+
+        Note:
+            Priority: Database setting > Environment variable
+        """
+        db_value = await self.get("ai_anthropic_api_key", default="")
+        if db_value:
+            return str(db_value)
+        return app_settings.ANTHROPIC_API_KEY or ""
+
+    async def get_ai_anthropic_model(self) -> str:
+        """
+        Get Claude model name.
+
+        Returns:
+            Model name (default: claude-sonnet-4-5-20250929)
+        """
+        value = await self.get("ai_anthropic_model", default="claude-sonnet-4-5-20250929")
+        return str(value)
+
+    async def get_ai_openai_api_key(self) -> str:
+        """
+        Get OpenAI API key.
+
+        Returns:
+            API key or empty string if not configured
+
+        Note:
+            Priority: Database setting > Environment variable
+        """
+        db_value = await self.get("ai_openai_api_key", default="")
+        if db_value:
+            return str(db_value)
+        return app_settings.OPENAI_API_KEY or ""
+
+    async def get_ai_openai_model(self) -> str:
+        """
+        Get OpenAI model name.
+
+        Returns:
+            Model name (default: gpt-4o)
+        """
+        value = await self.get("ai_openai_model", default="gpt-4o")
+        return str(value)
+
+    async def get_ai_default_provider(self) -> str:
+        """
+        Get default AI provider.
+
+        Returns:
+            Provider name: ollama, claude, or openai
+        """
+        value = await self.get("ai_default_provider", default="ollama")
+        return str(value)
+
+    async def is_ai_fallback_enabled(self) -> bool:
+        """
+        Check if AI provider fallback is enabled.
+
+        Returns:
+            True if fallback chain is enabled
+        """
+        value = await self.get("ai_fallback_enabled", default=True)
+        return self._to_bool(value)
+
+    async def get_ai_fallback_chain(self) -> list[str]:
+        """
+        Get AI provider fallback chain order.
+
+        Returns:
+            List of provider names in fallback order
+        """
+        value = await self.get("ai_fallback_chain", default=["ollama", "claude", "openai"])
+        if isinstance(value, list):
+            return value
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+                if isinstance(parsed, list):
+                    return parsed
+            except json.JSONDecodeError:
+                pass
+        return ["ollama", "claude", "openai"]
+
+    async def get_codegen_ollama_url(self) -> str:
+        """
+        Get Ollama URL for code generation.
+
+        Returns:
+            Codegen Ollama URL or main Ollama URL if not set
+        """
+        db_value = await self.get("codegen_ollama_url", default="")
+        if db_value:
+            return str(db_value)
+        # Fallback to main Ollama URL or env var
+        return await self.get_ai_ollama_url() or app_settings.CODEGEN_OLLAMA_URL or ""
+
+    async def get_codegen_model_primary(self) -> str:
+        """
+        Get primary model for code generation.
+
+        Returns:
+            Model name (default: qwen3-coder:30b)
+        """
+        db_value = await self.get("codegen_model_primary", default="")
+        if db_value:
+            return str(db_value)
+        return app_settings.CODEGEN_MODEL_PRIMARY
+
+    async def get_codegen_model_fast(self) -> str:
+        """
+        Get fast model for quick drafts.
+
+        Returns:
+            Model name (default: qwen3:8b)
+        """
+        db_value = await self.get("codegen_model_fast", default="")
+        if db_value:
+            return str(db_value)
+        return app_settings.CODEGEN_MODEL_FAST
+
+    async def get_codegen_timeout(self) -> int:
+        """
+        Get codegen request timeout.
+
+        Returns:
+            Timeout in seconds (default: 120)
+        """
+        value = await self.get("codegen_timeout", default=120)
+        try:
+            return int(value)
+        except (ValueError, TypeError):
+            return 120
 
     async def get_ai_provider_config(self) -> dict[str, Any]:
         """
@@ -410,31 +589,49 @@ class SettingsService:
 
         Note:
             This is used by Admin Panel to show AI provider status.
-            API keys are NOT returned - only availability flags.
+            API keys are masked - only availability flags shown.
 
         Example:
             {
                 "ollama": {"available": True, "url": "http://...", "model": "qwen3:14b"},
                 "claude": {"available": True, "configured": True},
                 "openai": {"available": False, "configured": False},
-                "ai_council_enabled": True
+                "ai_council_enabled": True,
+                "default_provider": "ollama",
+                "fallback_enabled": True
             }
         """
+        ollama_url = await self.get_ai_ollama_url()
+        anthropic_key = await self.get_ai_anthropic_api_key()
+        openai_key = await self.get_ai_openai_api_key()
+
         return {
             "ollama": {
-                "available": bool(app_settings.OLLAMA_URL),
-                "url": app_settings.OLLAMA_URL or "Not configured",
-                "model": app_settings.OLLAMA_MODEL,
+                "available": bool(ollama_url),
+                "url": ollama_url or "Not configured",
+                "model": await self.get_ai_ollama_model(),
+                "timeout": await self.get_ai_ollama_timeout(),
             },
             "claude": {
-                "available": bool(app_settings.ANTHROPIC_API_KEY),
-                "configured": bool(app_settings.ANTHROPIC_API_KEY),
+                "available": bool(anthropic_key),
+                "configured": bool(anthropic_key),
+                "model": await self.get_ai_anthropic_model(),
             },
             "openai": {
-                "available": bool(app_settings.OPENAI_API_KEY),
-                "configured": bool(app_settings.OPENAI_API_KEY),
+                "available": bool(openai_key),
+                "configured": bool(openai_key),
+                "model": await self.get_ai_openai_model(),
+            },
+            "codegen": {
+                "url": await self.get_codegen_ollama_url() or "Uses main Ollama",
+                "model_primary": await self.get_codegen_model_primary(),
+                "model_fast": await self.get_codegen_model_fast(),
+                "timeout": await self.get_codegen_timeout(),
             },
             "ai_council_enabled": await self.is_ai_council_enabled(),
+            "default_provider": await self.get_ai_default_provider(),
+            "fallback_enabled": await self.is_ai_fallback_enabled(),
+            "fallback_chain": await self.get_ai_fallback_chain(),
         }
 
     # =========================================================================

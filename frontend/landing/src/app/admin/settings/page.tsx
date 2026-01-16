@@ -49,6 +49,7 @@ import {
   ToggleLeft,
   Bell,
   Sliders,
+  Bot,
 } from "lucide-react";
 
 const CATEGORY_ICONS: Record<SettingCategory, React.ReactNode> = {
@@ -57,6 +58,7 @@ const CATEGORY_ICONS: Record<SettingCategory, React.ReactNode> = {
   features: <ToggleLeft className="h-5 w-5" />,
   notifications: <Bell className="h-5 w-5" />,
   general: <Sliders className="h-5 w-5" />,
+  ai: <Bot className="h-5 w-5" />,
 };
 
 interface SettingRowProps {
@@ -300,6 +302,7 @@ export default function SystemSettingsPage() {
   };
 
   const categories: SettingCategory[] = [
+    "ai",
     "security",
     "limits",
     "features",
