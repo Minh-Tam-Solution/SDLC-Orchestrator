@@ -32,8 +32,16 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import apiClient from '@/api/client'
 import { GitHubRepository, GitHubRepositoryListResponse } from '@/types/api'
+import { useTeams } from '@/hooks/useTeams'
 
 type CreationStep = 'choice' | 'new-form' | 'local-info' | 'github-select' | 'github-analyze' | 'github-tier'
 type PolicyPack = 'lite' | 'standard' | 'professional' | 'enterprise'
@@ -47,6 +55,7 @@ interface ProjectCreateData {
   name: string
   description: string
   policy_pack?: PolicyPack
+  team_id?: string
   github_repo_id?: number
   github_repo_full_name?: string
 }
@@ -123,12 +132,16 @@ export default function CreateProjectDialog({
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [selectedTier, setSelectedTier] = useState<PolicyPack>('standard')
+  const [selectedTeam, setSelectedTeam] = useState<string>('')
   const [recommendedTier, setRecommendedTier] = useState<PolicyPack | null>(null)
   const [selectedRepo, setSelectedRepo] = useState<GitHubRepository | null>(null)
   const [repoSearch, setRepoSearch] = useState('')
   const [error, setError] = useState<string | null>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+
+  // Fetch teams for selection (Sprint 73)
+  const { data: teams = [] } = useTeams()
 
   // Check if GitHub is connected
   const { data: githubStatus } = useQuery({
@@ -203,6 +216,7 @@ export default function CreateProjectDialog({
     setName('')
     setDescription('')
     setSelectedTier('standard')
+    setSelectedTeam('')
     setRecommendedTier(null)
     setSelectedRepo(null)
     setRepoSearch('')
@@ -222,6 +236,7 @@ export default function CreateProjectDialog({
       name: name.trim(),
       description: description.trim(),
       policy_pack: selectedTier,
+      team_id: selectedTeam || undefined,
     })
   }
 
@@ -250,6 +265,7 @@ export default function CreateProjectDialog({
       name: name.trim() || selectedRepo.name,
       description: description.trim() || selectedRepo.description || '',
       policy_pack: selectedTier,
+      team_id: selectedTeam || undefined,
       github_repo_id: selectedRepo.id,
       github_repo_full_name: selectedRepo.full_name,
     })
@@ -430,6 +446,35 @@ export default function CreateProjectDialog({
                     disabled={createMutation.isPending}
                     rows={2}
                   />
+                </div>
+                {/* Team Selection - Sprint 73 */}
+                <div className="grid gap-2">
+                  <Label htmlFor="new-team">Team (optional)</Label>
+                  <Select
+                    value={selectedTeam}
+                    onValueChange={setSelectedTeam}
+                    disabled={createMutation.isPending}
+                  >
+                    <SelectTrigger id="new-team">
+                      <SelectValue placeholder="Select a team..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams.length === 0 ? (
+                        <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                          No teams available
+                        </div>
+                      ) : (
+                        teams.map((team) => (
+                          <SelectItem key={team.id} value={team.id}>
+                            {team.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Assign this project to a team for better organization
+                  </p>
                 </div>
               </div>
 
@@ -629,6 +674,32 @@ export default function CreateProjectDialog({
                     onChange={(e) => setDescription(e.target.value)}
                     rows={2}
                   />
+                </div>
+                {/* Team Selection - Sprint 73 */}
+                <div className="grid gap-2">
+                  <Label htmlFor="github-team">Team (optional)</Label>
+                  <Select
+                    value={selectedTeam}
+                    onValueChange={setSelectedTeam}
+                    disabled={createMutation.isPending}
+                  >
+                    <SelectTrigger id="github-team">
+                      <SelectValue placeholder="Select a team..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams.length === 0 ? (
+                        <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                          No teams available
+                        </div>
+                      ) : (
+                        teams.map((team) => (
+                          <SelectItem key={team.id} value={team.id}>
+                            {team.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
