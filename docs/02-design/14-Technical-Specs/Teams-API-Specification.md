@@ -430,7 +430,8 @@ GET /teams/{team_id}/members
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `role` | string | - | Filter by role (owner/admin/member) |
+| `role` | string | - | Filter by role (owner/admin/member/ai_agent) |
+| `member_type` | string | - | Filter by member type (human/ai_agent) |
 | `skip` | int | 0 | Pagination offset |
 | `limit` | int | 50 | Pagination limit (max 100) |
 
@@ -444,6 +445,9 @@ GET /teams/{team_id}/members
       "team_id": "550e8400-e29b-41d4-a716-446655440001",
       "user_id": "user-uuid-1",
       "role": "owner",
+      "member_type": "human",
+      "is_coach": true,
+      "is_ai_agent": false,
       "joined_at": "2026-01-17T10:30:00Z",
       "user": {
         "id": "user-uuid-1",
@@ -457,6 +461,9 @@ GET /teams/{team_id}/members
       "team_id": "550e8400-e29b-41d4-a716-446655440001",
       "user_id": "user-uuid-2",
       "role": "member",
+      "member_type": "human",
+      "is_coach": false,
+      "is_ai_agent": false,
       "joined_at": "2026-01-18T14:00:00Z",
       "user": {
         "id": "user-uuid-2",
@@ -464,9 +471,24 @@ GET /teams/{team_id}/members
         "full_name": "Jane Smith",
         "avatar_url": "https://..."
       }
+    },
+    {
+      "id": "mem-uuid-3",
+      "team_id": "550e8400-e29b-41d4-a716-446655440001",
+      "user_id": "agent-uuid-1",
+      "role": "ai_agent",
+      "member_type": "ai_agent",
+      "is_coach": false,
+      "is_ai_agent": true,
+      "joined_at": "2026-01-19T09:00:00Z",
+      "user": {
+        "id": "agent-uuid-1",
+        "email": "claude-agent@sdlc.ai",
+        "full_name": "Claude Code Agent"
+      }
     }
   ],
-  "total": 2,
+  "total": 3,
   "skip": 0,
   "limit": 50
 }
@@ -478,18 +500,29 @@ GET /teams/{team_id}/members
 
 ### 4.2 Add Team Member
 
-Adds a user to a team.
+Adds a user (human or AI agent) to a team.
 
 ```http
 POST /teams/{team_id}/members
 ```
 
-**Request Body:**
+**Request Body (Human):**
 
 ```json
 {
   "user_id": "user-uuid-3",
-  "role": "member"
+  "role": "member",
+  "member_type": "human"
+}
+```
+
+**Request Body (AI Agent - CTO R1/R2):**
+
+```json
+{
+  "user_id": "agent-uuid-1",
+  "role": "ai_agent",
+  "member_type": "ai_agent"
 }
 ```
 
@@ -501,6 +534,9 @@ POST /teams/{team_id}/members
   "team_id": "550e8400-e29b-41d4-a716-446655440001",
   "user_id": "user-uuid-3",
   "role": "member",
+  "member_type": "human",
+  "is_coach": false,
+  "is_ai_agent": false,
   "joined_at": "2026-01-19T10:00:00Z",
   "user": {
     "id": "user-uuid-3",
@@ -514,7 +550,9 @@ POST /teams/{team_id}/members
 
 | Status | Condition | Body |
 |--------|-----------|------|
-| 400 | Invalid role | `{"detail": "Role must be owner, admin, or member"}` |
+| 400 | Invalid role | `{"detail": "Role must be owner, admin, member, or ai_agent"}` |
+| 400 | Invalid member_type | `{"detail": "Member type must be human or ai_agent"}` |
+| 400 | AI agent as owner/admin | `{"detail": "AI agents cannot have owner or admin roles per SASE principles"}` |
 | 403 | Not admin+ | `{"detail": "Admin or owner required to add members"}` |
 | 404 | User not found | `{"detail": "User not found"}` |
 | 409 | Already member | `{"detail": "User is already a member of this team"}` |
@@ -522,7 +560,9 @@ POST /teams/{team_id}/members
 
 **Authorization:** Team admin or owner.
 
-**Validation:** User must belong to the same organization as the team.
+**Validation:**
+- User must belong to the same organization as the team
+- **SASE Compliance**: AI agents (member_type=ai_agent) cannot be assigned owner or admin roles
 
 ---
 
@@ -550,6 +590,9 @@ PATCH /teams/{team_id}/members/{user_id}
   "team_id": "550e8400-e29b-41d4-a716-446655440001",
   "user_id": "user-uuid-2",
   "role": "admin",
+  "member_type": "human",
+  "is_coach": true,
+  "is_ai_agent": false,
   "joined_at": "2026-01-18T14:00:00Z"
 }
 ```
@@ -558,7 +601,8 @@ PATCH /teams/{team_id}/members/{user_id}
 
 | Status | Condition | Body |
 |--------|-----------|------|
-| 400 | Invalid role | `{"detail": "Role must be owner, admin, or member"}` |
+| 400 | Invalid role | `{"detail": "Role must be owner, admin, member, or ai_agent"}` |
+| 400 | AI agent to owner/admin | `{"detail": "AI agents cannot have owner or admin roles per SASE principles"}` |
 | 403 | Not owner | `{"detail": "Only team owner can change roles"}` |
 | 404 | Not found | `{"detail": "Member not found"}` |
 | 422 | Self-demote | `{"detail": "Cannot demote yourself. Transfer ownership first."}` |
@@ -568,6 +612,7 @@ PATCH /teams/{team_id}/members/{user_id}
 **Special Rules:**
 - Owner cannot demote themselves (must transfer ownership first)
 - Promoting to owner transfers ownership (previous owner becomes admin)
+- **SASE Compliance**: AI agents cannot be promoted to owner or admin roles
 
 ---
 
@@ -1539,6 +1584,17 @@ async def get_team_statistics(
 | `test_update_role_owner_only` | Only owner can change roles |
 | `test_delete_team_with_projects` | Reject if team has projects |
 
+### AI Agent Tests (CTO R1/R2)
+
+| Test Case | Description |
+|-----------|-------------|
+| `test_add_ai_agent_success` | Add AI agent with ai_agent role |
+| `test_add_ai_agent_as_owner_fails` | Reject AI agent with owner role |
+| `test_add_ai_agent_as_admin_fails` | Reject AI agent with admin role |
+| `test_promote_ai_agent_to_admin_fails` | Cannot promote AI agent to admin |
+| `test_filter_members_by_member_type` | Filter human/ai_agent members |
+| `test_ai_agent_member_type_response` | Response includes is_ai_agent, is_coach flags |
+
 ### Integration Tests
 
 | Test Case | Description |
@@ -1547,6 +1603,7 @@ async def get_team_statistics(
 | `test_team_project_integration` | Create team → Create project in team |
 | `test_authorization_matrix` | Verify all role permissions |
 | `test_pagination` | Verify pagination works correctly |
+| `test_ai_agent_sase_workflow` | AI agent can read BRS, create MRP/CRP |
 
 ---
 
@@ -1559,6 +1616,9 @@ async def get_team_statistics(
 - [ ] 30+ unit tests passing
 - [ ] Integration tests passing
 - [ ] OpenAPI spec generated correctly
+- [ ] **CTO R1**: `ai_agent` role supported in add/update member
+- [ ] **CTO R2**: `member_type` field (human/ai_agent) in responses
+- [ ] **SASE Compliance**: AI agents blocked from owner/admin roles
 
 ---
 

@@ -155,7 +155,7 @@ CREATE INDEX idx_teams_created_at ON teams(created_at DESC);
 
 ### 2.3 team_members
 
-Junction table for User-Team many-to-many relationship with role.
+Junction table for User-Team many-to-many relationship with role and member type.
 
 ```sql
 CREATE TABLE team_members (
@@ -166,8 +166,9 @@ CREATE TABLE team_members (
     team_id UUID NOT NULL,
     user_id UUID NOT NULL,
 
-    -- Role
+    -- Role and Member Type (SE4H/SE4A support per CTO R1/R2)
     role VARCHAR(50) NOT NULL DEFAULT 'member',
+    member_type VARCHAR(20) NOT NULL DEFAULT 'human',
 
     -- Timestamps
     joined_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -184,13 +185,18 @@ CREATE TABLE team_members (
     CONSTRAINT team_members_unique
         UNIQUE (team_id, user_id),
     CONSTRAINT team_members_role_check
-        CHECK (role IN ('owner', 'admin', 'member'))
+        CHECK (role IN ('owner', 'admin', 'member', 'ai_agent')),
+    CONSTRAINT team_members_member_type_check
+        CHECK (member_type IN ('human', 'ai_agent')),
+    CONSTRAINT team_members_ai_agent_role_check
+        CHECK (NOT (member_type = 'ai_agent' AND role IN ('owner', 'admin')))
 );
 
 -- Indexes
 CREATE INDEX idx_team_members_team_id ON team_members(team_id);
 CREATE INDEX idx_team_members_user_id ON team_members(user_id);
 CREATE INDEX idx_team_members_role ON team_members(role);
+CREATE INDEX idx_team_members_member_type ON team_members(member_type);
 ```
 
 #### Field Definitions
@@ -201,15 +207,24 @@ CREATE INDEX idx_team_members_role ON team_members(role);
 | `team_id` | UUID | NO | - | Team reference |
 | `user_id` | UUID | NO | - | User reference |
 | `role` | VARCHAR(50) | NO | 'member' | Member role in team |
+| `member_type` | VARCHAR(20) | NO | 'human' | SE4H (human) or SE4A (ai_agent) |
 | `joined_at` | TIMESTAMPTZ | NO | NOW() | When user joined team |
 
-#### Role Definitions
+#### Role Definitions (SASE Aligned - CTO R1)
 
-| Role | Description | Permissions |
-|------|-------------|-------------|
-| `owner` | Team creator or transferred owner | All permissions + delete team + transfer ownership |
-| `admin` | Team administrator | Manage members, settings, create projects |
-| `member` | Regular team member | View team, contribute to projects |
+| Role | SASE Role | Member Type | Description | Permissions |
+|------|-----------|-------------|-------------|-------------|
+| `owner` | SE4H (Agent Coach) | human | Team creator, VCR authority | Full control, delete team, transfer ownership, approve MRP |
+| `admin` | SE4H (Agent Coach) | human | Team administrator | Manage members, settings, MentorScript maintenance |
+| `member` | SE4H/SE4A | human | Regular team member | View team, contribute to projects, create MRP |
+| `ai_agent` | SE4A (Agent Executor) | ai_agent | AI agent executor | Read-only BRS, create MRP/CRP, execute tasks |
+
+#### Member Type Definitions (CTO R2)
+
+| Member Type | Description | Allowed Roles | Constraints |
+|-------------|-------------|---------------|-------------|
+| `human` | Human team member | owner, admin, member | Full role access |
+| `ai_agent` | AI agent (SE4A) | member, ai_agent | Cannot be owner/admin per SASE principles |
 
 ---
 
@@ -476,8 +491,17 @@ class TeamMember(Base):
     """
     TeamMember model - junction table for User-Team relationship.
 
-    Represents a user's membership in a team with a specific role.
-    Roles: owner (full control), admin (manage members), member (contribute).
+    Represents a user's membership in a team with a specific role and member type.
+
+    Roles (per SASE alignment):
+      - owner: SE4H Coach with full VCR authority
+      - admin: SE4H Coach for member/settings management
+      - member: SE4H/SE4A for implementation work
+      - ai_agent: SE4A Executor for autonomous tasks
+
+    Member Types:
+      - human: Human team member (can be any role)
+      - ai_agent: AI agent (restricted to member/ai_agent roles per SASE)
     """
     __tablename__ = "team_members"
 
@@ -502,13 +526,20 @@ class TeamMember(Base):
         doc="User reference"
     )
 
-    # Role
+    # Role and Member Type (CTO R1/R2 - SASE Alignment)
     role: Mapped[str] = mapped_column(
         String(50),
         nullable=False,
         default="member",
         index=True,
-        doc="Member role: owner, admin, member"
+        doc="Member role: owner, admin, member, ai_agent"
+    )
+    member_type: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="human",
+        index=True,
+        doc="Member type: human (SE4H) or ai_agent (SE4A)"
     )
 
     # Timestamps
@@ -530,20 +561,39 @@ class TeamMember(Base):
         doc="Member user"
     )
 
-    # Table constraints
+    # Table constraints (SASE compliant)
     __table_args__ = (
         UniqueConstraint(
             "team_id", "user_id",
             name="team_members_unique"
         ),
         CheckConstraint(
-            "role IN ('owner', 'admin', 'member')",
+            "role IN ('owner', 'admin', 'member', 'ai_agent')",
             name="team_members_role_check"
+        ),
+        CheckConstraint(
+            "member_type IN ('human', 'ai_agent')",
+            name="team_members_member_type_check"
+        ),
+        # SASE Principle: AI agents cannot be owners/admins (per SDLC 5.1.2)
+        CheckConstraint(
+            "NOT (member_type = 'ai_agent' AND role IN ('owner', 'admin'))",
+            name="team_members_ai_agent_role_check"
         ),
     )
 
+    @property
+    def is_ai_agent(self) -> bool:
+        """Check if this member is an AI agent (SE4A)."""
+        return self.member_type == "ai_agent"
+
+    @property
+    def is_coach(self) -> bool:
+        """Check if this member has SE4H (Coach) authority."""
+        return self.role in ("owner", "admin") and self.member_type == "human"
+
     def __repr__(self) -> str:
-        return f"<TeamMember(team={self.team_id}, user={self.user_id}, role={self.role})>"
+        return f"<TeamMember(team={self.team_id}, user={self.user_id}, role={self.role}, type={self.member_type})>"
 ```
 
 ---
@@ -611,23 +661,27 @@ def upgrade() -> None:
     op.create_index('idx_teams_slug', 'teams', ['slug'])
     op.create_index('idx_teams_created_at', 'teams', ['created_at'])
 
-    # 3. Create team_members table
+    # 3. Create team_members table (with CTO R1/R2 - AI Agent Support)
     op.create_table(
         'team_members',
         sa.Column('id', sa.UUID(), nullable=False, server_default=sa.text('gen_random_uuid()')),
         sa.Column('team_id', sa.UUID(), nullable=False),
         sa.Column('user_id', sa.UUID(), nullable=False),
         sa.Column('role', sa.String(50), nullable=False, server_default='member'),
+        sa.Column('member_type', sa.String(20), nullable=False, server_default='human'),
         sa.Column('joined_at', sa.TIMESTAMP(timezone=True), nullable=False, server_default=sa.text('NOW()')),
         sa.PrimaryKeyConstraint('id'),
         sa.ForeignKeyConstraint(['team_id'], ['teams.id'], ondelete='CASCADE', name='team_members_team_fk'),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE', name='team_members_user_fk'),
         sa.UniqueConstraint('team_id', 'user_id', name='team_members_unique'),
-        sa.CheckConstraint("role IN ('owner', 'admin', 'member')", name='team_members_role_check')
+        sa.CheckConstraint("role IN ('owner', 'admin', 'member', 'ai_agent')", name='team_members_role_check'),
+        sa.CheckConstraint("member_type IN ('human', 'ai_agent')", name='team_members_member_type_check'),
+        sa.CheckConstraint("NOT (member_type = 'ai_agent' AND role IN ('owner', 'admin'))", name='team_members_ai_agent_role_check')
     )
     op.create_index('idx_team_members_team_id', 'team_members', ['team_id'])
     op.create_index('idx_team_members_user_id', 'team_members', ['user_id'])
     op.create_index('idx_team_members_role', 'team_members', ['role'])
+    op.create_index('idx_team_members_member_type', 'team_members', ['member_type'])
 
     # 4. Add organization_id to users (nullable for migration)
     op.add_column('users', sa.Column('organization_id', sa.UUID(), nullable=True))
@@ -808,16 +862,24 @@ class TeamDetailResponse(TeamResponse):
     projects_count: int
     members: list["TeamMemberResponse"] | None = None
 
-# ============== TeamMember Schemas ==============
+# ============== TeamMember Schemas (CTO R1/R2 - AI Agent Support) ==============
 
 class TeamMemberBase(BaseModel):
-    role: str = Field(default="member", pattern=r'^(owner|admin|member)$')
+    role: str = Field(default="member", pattern=r'^(owner|admin|member|ai_agent)$')
+    member_type: str = Field(default="human", pattern=r'^(human|ai_agent)$')
 
 class TeamMemberAdd(TeamMemberBase):
     user_id: UUID
 
+    @model_validator(mode='after')
+    def validate_ai_agent_role(self) -> 'TeamMemberAdd':
+        """SASE Principle: AI agents cannot be owners/admins."""
+        if self.member_type == 'ai_agent' and self.role in ('owner', 'admin'):
+            raise ValueError('AI agents cannot have owner or admin roles per SASE principles')
+        return self
+
 class TeamMemberRoleUpdate(BaseModel):
-    role: str = Field(..., pattern=r'^(owner|admin|member)$')
+    role: str = Field(..., pattern=r'^(owner|admin|member|ai_agent)$')
 
 class TeamMemberResponse(TeamMemberBase):
     id: UUID
@@ -825,6 +887,8 @@ class TeamMemberResponse(TeamMemberBase):
     user_id: UUID
     joined_at: datetime
     user: "UserBasicResponse | None" = None
+    is_ai_agent: bool = False  # Computed from member_type
+    is_coach: bool = False     # SE4H authority (human owner/admin)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -866,14 +930,16 @@ TeamMemberResponse.model_rebuild()
 | `slug` | unique per organization | "Team slug already exists in this organization" |
 | `organization_id` | must exist | "Organization not found" |
 
-### TeamMember Validation
+### TeamMember Validation (Updated for CTO R1/R2)
 
 | Field | Rule | Error Message |
 |-------|------|---------------|
 | `team_id` | must exist | "Team not found" |
 | `user_id` | must exist | "User not found" |
 | `user_id` | same organization | "User must belong to the same organization" |
-| `role` | in ('owner', 'admin', 'member') | "Invalid role" |
+| `role` | in ('owner', 'admin', 'member', 'ai_agent') | "Invalid role" |
+| `member_type` | in ('human', 'ai_agent') | "Invalid member type" |
+| `ai_agent` + `role` | AI agents cannot be owner/admin | "AI agents cannot have owner or admin roles per SASE principles" |
 | unique | one membership per user per team | "User is already a member of this team" |
 
 ---
@@ -888,6 +954,9 @@ TeamMemberResponse.model_rebuild()
 - [ ] `team_id` NOT NULL on projects
 - [ ] SQLAlchemy models pass type checking (mypy)
 - [ ] Unit tests for model relationships pass
+- [ ] **CTO R1**: `ai_agent` role constraint works correctly
+- [ ] **CTO R2**: `member_type` column with human/ai_agent values
+- [ ] **SASE Compliance**: AI agents cannot be assigned owner/admin roles
 
 ---
 

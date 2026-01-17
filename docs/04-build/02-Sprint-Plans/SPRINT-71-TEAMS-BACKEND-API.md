@@ -54,7 +54,7 @@ Team.settings:
 | Start Date | January 27, 2026 (Monday) |
 | End Date | January 31, 2026 (Friday) |
 | Working Days | 5 |
-| Story Points | 26 |
+| Story Points | 29 (+3 for SE4A AI Agent Support) |
 | Team Capacity | Backend Dev (5d), Tech Lead (1d) |
 
 ---
@@ -163,24 +163,65 @@ Team.settings:
 
 ---
 
-#### Story 5: Integration Tests (3 SP)
-**As a** developer  
-**I want** integration tests for Teams API  
+#### Story 5: AI Agent Support - SE4A Integration (3 SP) ⭐ CTO R1
+**As a** team orchestrator
+**I want** to add AI agents as team members
+**So that** SE4A agents can participate in SASE workflows
+
+| Task ID | Task | Owner | Est | Status |
+|---------|------|-------|-----|--------|
+| S71-T30 | Add `ai_agent` to role constraint | Backend Dev | 1h | ⏳ |
+| S71-T31 | Add `member_type` column (human/ai_agent) | Backend Dev | 1h | ⏳ |
+| S71-T32 | Update TeamMember model with member_type | Backend Dev | 1h | ⏳ |
+| S71-T33 | Create Alembic migration for new fields | Backend Dev | 1h | ⏳ |
+| S71-T34 | Update schemas for AI agent support | Backend Dev | 1h | ⏳ |
+| S71-T35 | Add AI agent validation rules | Backend Dev | 2h | ⏳ |
+
+**Acceptance Criteria:**
+- [ ] `ai_agent` role can be assigned to team members
+- [ ] `member_type` distinguishes human from AI agent
+- [ ] AI agents have read-only BRS, can create MRP/CRP
+- [ ] AI agents cannot be team owners
+- [ ] API validates member_type on add_member
+
+**SASE Compliance:**
+```yaml
+# AI Agent constraints per SDLC 5.1.2
+ai_agent_rules:
+  allowed_roles: [ai_agent, member]  # NOT owner/admin
+  capabilities:
+    - read_briefing_script
+    - create_mrp
+    - create_crp
+    - execute_tasks
+  prohibited:
+    - approve_mrp (VCR)
+    - change_roles
+    - delete_team
+```
+
+---
+
+#### Story 6: Integration Tests (3 SP)
+**As a** developer
+**I want** integration tests for Teams API
 **So that** I can verify API behavior
 
 | Task ID | Task | Owner | Est | Status |
 |---------|------|-------|-----|--------|
-| S71-T30 | Test team CRUD endpoints | Backend Dev | 2h | ⏳ |
-| S71-T31 | Test member management | Backend Dev | 2h | ⏳ |
-| S71-T32 | Test permission scenarios | Backend Dev | 2h | ⏳ |
-| S71-T33 | Test organization endpoints | Backend Dev | 1h | ⏳ |
-| S71-T34 | Test error cases (404, 403, 409) | Backend Dev | 1h | ⏳ |
+| S71-T36 | Test team CRUD endpoints | Backend Dev | 2h | ⏳ |
+| S71-T37 | Test member management | Backend Dev | 2h | ⏳ |
+| S71-T38 | Test permission scenarios | Backend Dev | 2h | ⏳ |
+| S71-T39 | Test organization endpoints | Backend Dev | 1h | ⏳ |
+| S71-T40 | Test error cases (404, 403, 409) | Backend Dev | 1h | ⏳ |
+| S71-T41 | Test AI agent member type | Backend Dev | 1h | ⏳ |
 
 **Acceptance Criteria:**
-- [ ] 30+ integration tests passing
+- [ ] 35+ integration tests passing
 - [ ] All happy paths covered
 - [ ] All error scenarios covered
 - [ ] Permission matrix fully tested
+- [ ] AI agent constraints verified
 
 ---
 
