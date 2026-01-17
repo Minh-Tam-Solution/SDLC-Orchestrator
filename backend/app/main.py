@@ -179,7 +179,7 @@ async def lifespan(app: FastAPI):
 # ============================================================================
 
 # Import API routers (after lifespan is defined)
-from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, analytics_v2, council, sdlc_structure, sop, admin, docs, ai_detection, policy_packs, sast, evidence_timeline, override, codegen, pilot, preview, contract_lock, api_keys, payments, ai_providers  # Sprint 42-70: AI Safety + Codegen + Pilot + Preview + Contract Lock + API Keys + Payments + AI Providers
+from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, analytics_v2, council, sdlc_structure, sop, admin, docs, ai_detection, policy_packs, sast, evidence_timeline, override, codegen, pilot, preview, contract_lock, api_keys, payments, ai_providers, teams, organizations  # Sprint 42-71: AI Safety + Codegen + Pilot + Preview + Contract Lock + API Keys + Payments + AI Providers + Teams
 
 # Create FastAPI app with lifespan
 app = FastAPI(
@@ -290,6 +290,8 @@ app.include_router(contract_lock.router, prefix="/api/v1", tags=["Contract Lock"
 app.include_router(api_keys.router, prefix="/api/v1", tags=["API Keys"])  # Sprint 52B - VS Code Extension Auth
 app.include_router(payments.router, prefix="/api/v1", tags=["Payments"])  # Sprint 58 - VNPay + Subscriptions
 app.include_router(ai_providers.router, prefix="/api/v1", tags=["AI Providers"])  # Sprint 70 - AI Provider Admin UI
+app.include_router(teams.router, prefix="/api/v1", tags=["Teams"])  # Sprint 71 - Teams Foundation
+app.include_router(organizations.router, prefix="/api/v1", tags=["Organizations"])  # Sprint 71 - Organizations
 
 # ============================================================================
 # Health Check Endpoints
