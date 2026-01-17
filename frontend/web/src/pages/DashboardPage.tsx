@@ -1,28 +1,37 @@
 /**
  * File: frontend/web/src/pages/DashboardPage.tsx
- * Version: 1.1.0
- * Status: ACTIVE - STAGE 03 (BUILD)
- * Date: 2025-12-16
+ * Version: 1.2.0
+ * Status: ACTIVE - Sprint 73 (Teams Integration)
+ * Date: 2026-02-10
  * Authority: Frontend Lead + CTO Approved
- * Foundation: SDLC 5.1.1 Complete Lifecycle, Zero Mock Policy
+ * Foundation: SDLC 5.1.2 Complete Lifecycle, Zero Mock Policy
  *
  * Description:
  * Dashboard page showing overview statistics and recent activity.
- * Displays gate pass rates, active projects, and pending approvals.
+ * Displays gate pass rates, active projects, pending approvals, and team statistics.
  *
  * Design References:
  * - Data Model: docs/01-planning/03-Data-Model/Database-Schema.md
  * - Gate Model: backend/app/models/gate.py (source of truth for status values)
+ * - Teams Model: backend/app/models/team.py
  * - Dashboard API: backend/app/api/routes/dashboard.py
  * - Gates Page: frontend/web/src/pages/GatesPage.tsx (navigation target)
+ * - Teams Page: frontend/web/src/pages/TeamsPage.tsx (navigation target)
  *
  * Navigation:
+ * - Total Projects → /projects
+ * - Total Teams → /teams
  * - Active Gates → /gates?status=ACTIVE
  * - Pending Approvals → /gates?status=PENDING_APPROVAL
- * - Total Projects → /projects
  * - Pass Rate → /compliance
  *
+ * Sprint 73 Integration (S73-T09~T13):
+ * - Added team statistics to dashboard
+ * - Display total teams count
+ * - Team stat card navigates to Teams page
+ *
  * Changelog:
+ * - v1.2.0 (2026-02-10): Add team statistics (Sprint 73 - S73-T09~T13)
  * - v1.1.0 (2025-12-16): Add clickable stat cards with navigation
  * - v1.0.0 (2025-11-27): Initial implementation
  */
@@ -32,6 +41,7 @@ import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import apiClient from '@/api/client'
+import { useTeams } from '@/hooks/useTeams'
 
 interface DashboardStats {
   total_projects: number
@@ -124,6 +134,9 @@ export default function DashboardPage() {
     },
   })
 
+  // Fetch teams for team statistics
+  const { data: teams = [], isLoading: teamsLoading } = useTeams()
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -136,7 +149,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats grid - Click to navigate to detail pages */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <StatCard
             title="Total Projects"
             value={statsLoading ? '...' : stats?.total_projects ?? 0}
@@ -145,6 +158,17 @@ export default function DashboardPage() {
             icon={
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+              </svg>
+            }
+          />
+          <StatCard
+            title="Total Teams"
+            value={teamsLoading ? '...' : teams.length}
+            description="Click to view all teams"
+            onClick={() => navigate('/teams')}
+            icon={
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             }
           />
