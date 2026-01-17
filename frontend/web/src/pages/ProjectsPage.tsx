@@ -1,16 +1,17 @@
 /**
  * File: frontend/web/src/pages/ProjectsPage.tsx
- * Version: 1.0.0
+ * Version: 1.1.0
  * Status: ACTIVE - STAGE 03 (BUILD)
- * Date: 2025-11-27
+ * Date: 2026-01-17
  * Authority: Frontend Lead + CTO Approved
  * Foundation: SDLC 4.9 Complete Lifecycle, Zero Mock Policy
  *
  * Description:
  * Projects list page showing all SDLC projects with their gate status.
+ * Sprint 73: Added team filter functionality (S73-T06~T08)
  */
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -22,10 +23,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import CreateProjectDialog from '@/components/projects/CreateProjectDialog'
 import EditProjectDialog from '@/components/projects/EditProjectDialog'
 import DeleteProjectDialog from '@/components/projects/DeleteProjectDialog'
+import { useTeams, type Team } from '@/hooks/useTeams'
 import apiClient from '@/api/client'
 import type { Project as ApiProject } from '@/types/api'
 
@@ -36,22 +47,45 @@ interface Project {
   current_stage: string
   gate_status: 'passed' | 'failed' | 'pending' | 'not_started'
   progress: number
+  team_id?: string
+  team?: {
+    id: string
+    name: string
+    slug: string
+  }
   created_at: string
   updated_at: string
+}
+
+/** Filter state for projects */
+interface ProjectFilters {
+  search: string
+  teamId: string | null
+  status: string | null
 }
 
 /**
  * Projects page component
  *
- * @returns Projects list with gate status
+ * @returns Projects list with gate status and team filtering
  */
 export default function ProjectsPage() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [editProject, setEditProject] = useState<Project | null>(null)
   const [deleteProject, setDeleteProject] = useState<Project | null>(null)
+  
+  // Filter state - Sprint 73 Team Filter
+  const [filters, setFilters] = useState<ProjectFilters>({
+    search: '',
+    teamId: null,
+    status: null,
+  })
+
+  // Fetch teams for filter dropdown
+  const { data: teams = [], isLoading: teamsLoading } = useTeams()
 
   // Fetch projects
-  const { data: projects, isLoading } = useQuery<Project[]>({
+  const { data: projects, isLoading: projectsLoading } = useQuery<Project[]>({
     queryKey: ['projects'],
     queryFn: async () => {
       try {
@@ -63,6 +97,48 @@ export default function ProjectsPage() {
       }
     },
   })
+
+  // Filter projects based on current filters
+  const filteredProjects = useMemo(() => {
+    if (!projects) return []
+    
+    return projects.filter((project) => {
+      // Search filter - name or description
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase()
+        const matchesSearch =
+          project.name.toLowerCase().includes(searchLower) ||
+          project.description?.toLowerCase().includes(searchLower)
+        if (!matchesSearch) return false
+      }
+      
+      // Team filter
+      if (filters.teamId) {
+        // "no-team" special value for projects without team
+        if (filters.teamId === 'no-team') {
+          if (project.team_id) return false
+        } else {
+          if (project.team_id !== filters.teamId) return false
+        }
+      }
+      
+      // Status filter
+      if (filters.status && project.gate_status !== filters.status) {
+        return false
+      }
+      
+      return true
+    })
+  }, [projects, filters])
+
+  // Get team name for display
+  const getTeamName = (teamId: string | undefined) => {
+    if (!teamId) return null
+    const team = teams.find((t: Team) => t.id === teamId)
+    return team?.name || null
+  }
+
+  const isLoading = projectsLoading || teamsLoading
 
   const getStatusColor = (status: Project['gate_status']) => {
     switch (status) {
@@ -112,6 +188,118 @@ export default function ProjectsPage() {
           </Button>
         </div>
 
+        {/* Filters Section - Sprint 73 S73-T06~T08 */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          {/* Search Input */}
+          <div className="relative flex-1 max-w-sm">
+            <svg
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            <Input
+              placeholder="Search projects..."
+              className="pl-9"
+              value={filters.search}
+              onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
+            />
+          </div>
+
+          {/* Team Filter */}
+          <Select
+            value={filters.teamId || 'all'}
+            onValueChange={(value) =>
+              setFilters((prev) => ({ ...prev, teamId: value === 'all' ? null : value }))
+            }
+          >
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <div className="flex items-center gap-2">
+                <svg className="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <SelectValue placeholder="All Teams" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Teams</SelectItem>
+              <SelectItem value="no-team">No Team</SelectItem>
+              {teams.map((team: Team) => (
+                <SelectItem key={team.id} value={team.id}>
+                  {team.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Status Filter */}
+          <Select
+            value={filters.status || 'all'}
+            onValueChange={(value) =>
+              setFilters((prev) => ({ ...prev, status: value === 'all' ? null : value }))
+            }
+          >
+            <SelectTrigger className="w-full sm:w-[160px]">
+              <div className="flex items-center gap-2">
+                <svg className="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <SelectValue placeholder="All Status" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="passed">Passed</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
+              <SelectItem value="not_started">Not Started</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Clear Filters */}
+          {(filters.search || filters.teamId || filters.status) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setFilters({ search: '', teamId: null, status: null })}
+              className="h-10"
+            >
+              <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Clear
+            </Button>
+          )}
+        </div>
+
+        {/* Filter Summary */}
+        {(filters.teamId || filters.status) && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>Showing</span>
+            <span className="font-medium text-foreground">{filteredProjects.length}</span>
+            <span>of</span>
+            <span className="font-medium text-foreground">{projects?.length || 0}</span>
+            <span>projects</span>
+            {filters.teamId && (
+              <Badge variant="secondary" className="ml-2">
+                Team: {filters.teamId === 'no-team' ? 'None' : getTeamName(filters.teamId) || 'Unknown'}
+              </Badge>
+            )}
+            {filters.status && (
+              <Badge variant="secondary" className="ml-1 capitalize">
+                {filters.status.replace('_', ' ')}
+              </Badge>
+            )}
+          </div>
+        )}
+
         {/* Create Project Dialog */}
         <CreateProjectDialog
           open={createDialogOpen}
@@ -142,9 +330,9 @@ export default function ProjectsPage() {
         {/* Projects grid */}
         {isLoading ? (
           <div className="text-center text-muted-foreground py-12">Loading projects...</div>
-        ) : projects && projects.length > 0 ? (
+        ) : filteredProjects.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project) => (
+            {filteredProjects.map((project) => (
               <Card key={project.id} className="h-full hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -203,6 +391,17 @@ export default function ProjectsPage() {
                       </DropdownMenu>
                     </div>
                   </div>
+                  {/* Team Badge - Sprint 73 S73-T06~T08 */}
+                  {project.team_id && (
+                    <div className="mt-2">
+                      <Badge variant="outline" className="text-xs">
+                        <svg className="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        {project.team?.name || getTeamName(project.team_id) || 'Team'}
+                      </Badge>
+                    </div>
+                  )}
                 </CardHeader>
                 <Link to={`/projects/${project.id}`}>
                   <CardContent className="cursor-pointer">
@@ -237,7 +436,41 @@ export default function ProjectsPage() {
               </Card>
             ))}
           </div>
+        ) : projects && projects.length > 0 ? (
+          /* No results matching current filters */
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <svg
+                className="h-12 w-12 text-muted-foreground mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              <h3 className="text-lg font-medium">No projects match your filters</h3>
+              <p className="text-muted-foreground text-center mt-1">
+                Try adjusting your search or filter criteria
+              </p>
+              <Button
+                className="mt-4"
+                variant="outline"
+                onClick={() => setFilters({ search: '', teamId: null, status: null })}
+              >
+                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Clear Filters
+              </Button>
+            </CardContent>
+          </Card>
         ) : (
+          /* No projects exist yet */
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <svg
