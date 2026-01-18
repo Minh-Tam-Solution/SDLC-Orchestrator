@@ -117,12 +117,10 @@ start_services() {
     # Start services
     docker compose up -d redis opa prometheus grafana backend
 
-    # Wait for services to be ready
-    log "Waiting for services to start (30s)..."
-    sleep 30
-
-    # Check backend health
-    local retries=10
+    # Check backend health immediately (no fixed wait)
+    log "Waiting for backend to be ready..."
+    local retries=20
+    local wait_time=3
     while [ $retries -gt 0 ]; do
         if curl -sf http://localhost:8300/health > /dev/null 2>&1; then
             log_success "Backend is healthy"
@@ -130,12 +128,11 @@ start_services() {
         fi
         ((retries--))
         if [ $retries -eq 0 ]; then
-            log_error "Backend failed to start"
+            log_error "Backend failed to start after 60s"
             docker compose logs backend | tail -50
             exit 1
         fi
-        log "Waiting for backend... ($retries retries left)"
-        sleep 5
+        sleep $wait_time
     done
 }
 
@@ -179,46 +176,24 @@ migration_dry_run() {
     # Generate SQL preview
     docker exec ${BACKEND_CONTAINER} bash -c "cd /app && alembic upgrade head --sql" > /tmp/s73_migration_preview.sql
 
-    # Show preview
-    log_info "=== SQL Preview (first 50 lines) ==="
-    head -50 /tmp/s73_migration_preview.sql
+    # Show preview (first 30 lines only for speed)
+    log_info "=== SQL Preview (first 30 lines) ==="
+    head -30 /tmp/s73_migration_preview.sql
 
     echo ""
     log_info "Full SQL preview saved to: /tmp/s73_migration_preview.sql"
 
-    # Check for expected operations
+    # Quick validation (check all patterns at once)
     log "Validating SQL preview..."
+    local checks=0
 
-    if grep -q "INSERT.*organizations" /tmp/s73_migration_preview.sql; then
-        log_success "✓ Organization creation found"
-    else
-        log_warn "Organization creation not found in SQL"
-    fi
+    grep -q "INSERT.*organizations" /tmp/s73_migration_preview.sql && { log_success "✓ Organization creation"; ((checks++)); }
+    grep -q "INSERT.*teams" /tmp/s73_migration_preview.sql && { log_success "✓ Team creation"; ((checks++)); }
+    grep -q "UPDATE.*users.*organization_id" /tmp/s73_migration_preview.sql && { log_success "✓ User migration"; ((checks++)); }
+    grep -q "UPDATE.*projects.*team_id" /tmp/s73_migration_preview.sql && { log_success "✓ Project migration"; ((checks++)); }
+    grep -q "INSERT.*gates" /tmp/s73_migration_preview.sql && { log_success "✓ Gate backfill"; ((checks++)); }
 
-    if grep -q "INSERT.*teams" /tmp/s73_migration_preview.sql; then
-        log_success "✓ Team creation found"
-    else
-        log_warn "Team creation not found in SQL"
-    fi
-
-    if grep -q "UPDATE.*users.*organization_id" /tmp/s73_migration_preview.sql; then
-        log_success "✓ User migration found"
-    else
-        log_warn "User migration not found in SQL"
-    fi
-
-    if grep -q "UPDATE.*projects.*team_id" /tmp/s73_migration_preview.sql; then
-        log_success "✓ Project migration found"
-    else
-        log_warn "Project migration not found in SQL"
-    fi
-
-    if grep -q "INSERT.*gates" /tmp/s73_migration_preview.sql; then
-        log_success "✓ Gate backfill found"
-    else
-        log_warn "Gate backfill not found in SQL"
-    fi
-
+    log_info "Dry run validation: $checks/5 checks passed"
     echo ""
 }
 
