@@ -1,11 +1,13 @@
 """
 Unit Tests for Team Models
 SDLC Orchestrator - Sprint 70 (Teams Foundation)
+Updated: Sprint 75 (Team Role Authorization)
 
 SDLC Stage: 04 - BUILD
-Sprint: 70 - Teams Foundation
-Framework: SDLC 5.1.2
+Sprint: 70 - Teams Foundation, 75 - Team Role Authorization
+Framework: SDLC 5.1.3 (Sprint Planning Governance)
 Reference: ADR-028-Teams-Feature-Architecture
+Reference: SDLC-Sprint-Planning-Governance.md
 
 Purpose:
 Test Organization, Team, and TeamMember models including:
@@ -13,6 +15,11 @@ Test Organization, Team, and TeamMember models including:
 - Relationships and cascades
 - SASE constraint validation (ai_agent role restrictions)
 - Property methods
+- Sprint Gate Authorization (Sprint 75):
+  - can_approve_sprint_gate (SE4H Coach only)
+  - can_create_sprint (humans only)
+  - can_manage_backlog (all active members)
+  - can_perform_action for G-Sprint/G-Sprint-Close
 
 Test Coverage Target: 90%+
 """
@@ -755,3 +762,283 @@ class TestTeamSchemaValidation:
         for threshold in [-0.1, 1.1, 2.0]:
             with pytest.raises(ValueError):
                 TeamSettings(crp_threshold=threshold)
+
+
+# =============================================================================
+# Sprint Gate Authorization Tests (Sprint 75)
+# =============================================================================
+
+
+class TestSprintGateAuthorization:
+    """
+    Test Sprint Gate Authorization - Sprint 75 Integration.
+
+    SDLC 5.1.3 Sprint Planning Governance:
+    - Only SE4H Coach (team owner/admin) can approve sprint gates
+    - AI agents (SE4A) cannot approve governance gates
+    - Human oversight enforcement for G-Sprint/G-Sprint-Close
+    """
+
+    def test_can_approve_sprint_gate_owner(self):
+        """Test that team owner can approve sprint gates."""
+        owner = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="owner",
+            member_type="human"
+        )
+
+        assert owner.can_approve_sprint_gate is True
+
+    def test_can_approve_sprint_gate_admin(self):
+        """Test that team admin can approve sprint gates."""
+        admin = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="admin",
+            member_type="human"
+        )
+
+        assert admin.can_approve_sprint_gate is True
+
+    def test_can_approve_sprint_gate_member_rejected(self):
+        """Test that regular member cannot approve sprint gates."""
+        member = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="member",
+            member_type="human"
+        )
+
+        assert member.can_approve_sprint_gate is False
+
+    def test_can_approve_sprint_gate_ai_agent_rejected(self):
+        """Test that AI agent cannot approve sprint gates (SASE constraint)."""
+        ai_agent = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="ai_agent",
+            member_type="ai_agent"
+        )
+
+        assert ai_agent.can_approve_sprint_gate is False
+        assert ai_agent.is_ai_agent is True
+
+    def test_can_create_sprint_human_member(self):
+        """Test that human member can create sprints."""
+        human_member = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="member",
+            member_type="human"
+        )
+
+        assert human_member.can_create_sprint is True
+
+    def test_can_create_sprint_human_owner(self):
+        """Test that human owner can create sprints."""
+        human_owner = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="owner",
+            member_type="human"
+        )
+
+        assert human_owner.can_create_sprint is True
+
+    def test_can_create_sprint_ai_agent_rejected(self):
+        """Test that AI agent cannot create sprints."""
+        ai_agent = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="ai_agent",
+            member_type="ai_agent"
+        )
+
+        assert ai_agent.can_create_sprint is False
+
+    def test_can_manage_backlog_all_active_members(self):
+        """Test that all active members can manage backlog."""
+        human_member = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="member",
+            member_type="human"
+        )
+        ai_agent = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="ai_agent",
+            member_type="ai_agent"
+        )
+
+        assert human_member.can_manage_backlog is True
+        assert ai_agent.can_manage_backlog is True
+
+    def test_can_manage_backlog_deleted_member_rejected(self):
+        """Test that deleted members cannot manage backlog."""
+        deleted_member = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="member",
+            member_type="human"
+        )
+        deleted_member.deleted_at = datetime.utcnow()
+
+        assert deleted_member.can_manage_backlog is False
+
+    def test_can_perform_action_g_sprint_approval(self):
+        """Test can_perform_action for G-Sprint approval."""
+        owner = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="owner",
+            member_type="human"
+        )
+        admin = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="admin",
+            member_type="human"
+        )
+        member = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="member",
+            member_type="human"
+        )
+        ai_agent = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="ai_agent",
+            member_type="ai_agent"
+        )
+
+        # Only SE4H Coach (owner/admin) can approve
+        assert owner.can_perform_action("approve_g_sprint") is True
+        assert admin.can_perform_action("approve_g_sprint") is True
+        assert member.can_perform_action("approve_g_sprint") is False
+        assert ai_agent.can_perform_action("approve_g_sprint") is False
+
+    def test_can_perform_action_g_sprint_close_approval(self):
+        """Test can_perform_action for G-Sprint-Close approval."""
+        owner = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="owner",
+            member_type="human"
+        )
+        admin = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="admin",
+            member_type="human"
+        )
+        member = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="member",
+            member_type="human"
+        )
+        ai_agent = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="ai_agent",
+            member_type="ai_agent"
+        )
+
+        # Only SE4H Coach (owner/admin) can approve
+        assert owner.can_perform_action("approve_g_sprint_close") is True
+        assert admin.can_perform_action("approve_g_sprint_close") is True
+        assert member.can_perform_action("approve_g_sprint_close") is False
+        assert ai_agent.can_perform_action("approve_g_sprint_close") is False
+
+    def test_can_perform_action_create_sprint(self):
+        """Test can_perform_action for sprint creation."""
+        owner = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="owner",
+            member_type="human"
+        )
+        member = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="member",
+            member_type="human"
+        )
+        ai_agent = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="ai_agent",
+            member_type="ai_agent"
+        )
+
+        # Any active member can create sprints
+        assert owner.can_perform_action("create_sprint") is True
+        assert member.can_perform_action("create_sprint") is True
+        assert ai_agent.can_perform_action("create_sprint") is True
+
+    def test_can_perform_action_manage_backlog(self):
+        """Test can_perform_action for backlog management."""
+        owner = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="owner",
+            member_type="human"
+        )
+        member = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="member",
+            member_type="human"
+        )
+        ai_agent = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="ai_agent",
+            member_type="ai_agent"
+        )
+
+        # Any active member can manage backlog
+        assert owner.can_perform_action("manage_backlog") is True
+        assert member.can_perform_action("manage_backlog") is True
+        assert ai_agent.can_perform_action("manage_backlog") is True
+
+    def test_sprint_gate_approval_sase_alignment(self):
+        """
+        Test SASE framework alignment for sprint gate authorization.
+
+        SE4H Coach (human owner/admin):
+        - Can approve G-Sprint
+        - Can approve G-Sprint-Close
+        - Has VCR authority
+
+        SE4A Executor (AI agent):
+        - Cannot approve gates
+        - Cannot hold VCR authority
+        """
+        coach = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="owner",
+            member_type="human"
+        )
+        executor = TeamMember(
+            team_id=uuid4(),
+            user_id=uuid4(),
+            role="ai_agent",
+            member_type="ai_agent"
+        )
+
+        # SASE role verification
+        assert coach.get_sase_role() == "SE4H_Coach"
+        assert executor.get_sase_role() == "SE4A_Executor"
+
+        # Sprint gate authorization
+        assert coach.can_approve_sprint_gate is True
+        assert executor.can_approve_sprint_gate is False
+
+        # VCR authority (same as sprint gate for coaches)
+        assert coach.can_approve_vcr is True
+        assert executor.can_approve_vcr is False

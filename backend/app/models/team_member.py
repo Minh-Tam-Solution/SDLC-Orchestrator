@@ -228,6 +228,39 @@ class TeamMember(Base):
         """Check if member can modify team settings."""
         return self.is_admin_or_owner and self.is_human
 
+    @property
+    def can_approve_sprint_gate(self) -> bool:
+        """
+        Check if member can approve Sprint Gates (G-Sprint/G-Sprint-Close).
+
+        SDLC 5.1.3 Sprint Planning Governance:
+        - Only human owners/admins (SE4H Coach) can approve sprint gates
+        - AI agents cannot approve governance gates
+        - This enforces human oversight for sprint governance
+
+        Returns:
+            True if member can approve sprint gates, False otherwise
+        """
+        return self.is_coach
+
+    @property
+    def can_create_sprint(self) -> bool:
+        """
+        Check if member can create new sprints.
+
+        Any human member can create sprints, but only coaches can approve.
+        """
+        return self.is_human and self.deleted_at is None
+
+    @property
+    def can_manage_backlog(self) -> bool:
+        """
+        Check if member can manage backlog items (create, assign, prioritize).
+
+        Any active team member (human or AI) can manage backlog.
+        """
+        return self.deleted_at is None
+
     # ==================== SASE Helper Methods ====================
 
     def can_perform_action(self, action: str) -> bool:
@@ -242,8 +275,14 @@ class TeamMember(Base):
         """
         # Define action permissions
         owner_only = {"delete_team", "transfer_ownership"}
-        admin_actions = {"add_member", "remove_member", "modify_settings", "approve_vcr"}
-        member_actions = {"submit_evidence", "view_projects", "comment"}
+        admin_actions = {
+            "add_member", "remove_member", "modify_settings", "approve_vcr",
+            "approve_g_sprint", "approve_g_sprint_close",  # Sprint 75: Sprint Gates
+        }
+        member_actions = {
+            "submit_evidence", "view_projects", "comment",
+            "create_sprint", "manage_backlog",  # Sprint 75: Planning
+        }
         ai_agent_actions = {"execute_task", "generate_code", "run_tests"}
 
         if action in owner_only:

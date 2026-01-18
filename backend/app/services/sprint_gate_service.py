@@ -1,11 +1,11 @@
 """
 =========================================================================
 Sprint Gate Service - G-Sprint/G-Sprint-Close Gate Evaluation
-SDLC Orchestrator - Sprint 74 (Planning Hierarchy)
+SDLC Orchestrator - Sprint 74/75 (Planning Hierarchy + Team Authorization)
 
-Version: 1.0.0
+Version: 1.1.0
 Date: January 18, 2026
-Status: ACTIVE - Sprint 74 Implementation
+Status: ACTIVE - Sprint 75 Enhancement
 Authority: Backend Lead + CTO Approved
 Reference: ADR-013-Planning-Hierarchy
 Reference: SDLC-Sprint-Planning-Governance.md (SDLC 5.1.3)
@@ -15,6 +15,7 @@ Purpose:
 - G-Sprint-Close Gate evaluation logic (Sprint Completion)
 - 24-hour documentation deadline enforcement (Rule #2)
 - Checklist-based validation per SDLC 5.1.3
+- Team role authorization (Sprint 75 - GAP 1 Resolution)
 
 SDLC 5.1.3 Compliance:
 - Rule #1: Sprint numbers are immutable
@@ -22,6 +23,11 @@ SDLC 5.1.3 Compliance:
 - Rule #3: Sprint planning requires approval
 - Rule #7: Sprint goal must align with roadmap phase
 - Rule #8: Strategic priorities explicit (P0/P1/P2)
+
+Team Authorization (Sprint 75):
+- Only team owner/admin (SE4H Coach) can approve sprint gates
+- Project without team: fallback to project owner authorization
+- Enforces human oversight for sprint governance
 
 Zero Mock Policy: Production-ready service implementation
 =========================================================================
@@ -37,6 +43,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.backlog_item import BacklogItem
 from app.models.phase import Phase
+from app.models.project import Project
 from app.models.roadmap import Roadmap
 from app.models.sprint import Sprint
 from app.models.sprint_gate_evaluation import (
@@ -44,6 +51,8 @@ from app.models.sprint_gate_evaluation import (
     G_SPRINT_CHECKLIST_TEMPLATE,
     G_SPRINT_CLOSE_CHECKLIST_TEMPLATE,
 )
+from app.models.team import Team
+from app.models.team_member import TeamMember
 
 
 class SprintGateService:
@@ -63,6 +72,82 @@ class SprintGateService:
     def __init__(self, db: AsyncSession):
         """Initialize service with database session."""
         self.db = db
+
+    async def check_gate_approval_authorization(
+        self,
+        sprint: Sprint,
+        user_id: UUID,
+    ) -> dict:
+        """
+        Check if user is authorized to approve sprint gates.
+
+        SDLC 5.1.3 Authorization Rules:
+        1. If project has team: user must be team owner/admin (SE4H Coach)
+        2. If project has no team: user must be project owner
+        3. AI agents (SE4A) cannot approve gates
+
+        Args:
+            sprint: Sprint object with project relation
+            user_id: User attempting to approve
+
+        Returns:
+            dict with 'authorized' (bool) and 'reason' (str)
+        """
+        # Get project with team relation
+        project_result = await self.db.execute(
+            select(Project)
+            .options(selectinload(Project.team).selectinload(Team.members))
+            .where(Project.id == sprint.project_id)
+        )
+        project = project_result.scalar_one_or_none()
+
+        if not project:
+            return {
+                "authorized": False,
+                "reason": "Project not found",
+            }
+
+        # If project has team, check team role
+        if project.team:
+            # Find user's membership in team
+            team_member = None
+            for member in project.team.members:
+                if member.user_id == user_id and member.deleted_at is None:
+                    team_member = member
+                    break
+
+            if not team_member:
+                return {
+                    "authorized": False,
+                    "reason": "User is not a member of the project team",
+                }
+
+            if not team_member.can_approve_sprint_gate:
+                return {
+                    "authorized": False,
+                    "reason": f"User role '{team_member.role}' cannot approve sprint gates. "
+                              f"Only team owner/admin (SE4H Coach) can approve.",
+                }
+
+            return {
+                "authorized": True,
+                "reason": f"Authorized as team {team_member.role}",
+                "team_id": str(project.team.id),
+                "team_name": project.team.name,
+                "member_role": team_member.role,
+            }
+
+        # Fallback: project without team - check project owner
+        if project.owner_id == user_id:
+            return {
+                "authorized": True,
+                "reason": "Authorized as project owner (no team assigned)",
+            }
+
+        return {
+            "authorized": False,
+            "reason": "Only project owner can approve gates for projects without team",
+        }
 
     async def get_sprint(self, sprint_id: UUID) -> Optional[Sprint]:
         """Get sprint by ID with phase/roadmap relations."""
@@ -349,17 +434,20 @@ class SprintGateService:
         gate_type: str,
         user_id: UUID,
         notes: Optional[str] = None,
+        skip_authorization: bool = False,
     ) -> dict:
         """
         Submit gate evaluation for final approval.
 
         This finalizes the evaluation and updates the sprint gate status.
+        Requires team owner/admin (SE4H Coach) authorization per SDLC 5.1.3.
 
         Args:
             sprint_id: Sprint UUID
             gate_type: 'g_sprint' or 'g_sprint_close'
             user_id: Approver user UUID
             notes: Optional approval notes
+            skip_authorization: Skip auth check (for system/admin use only)
 
         Returns:
             dict with evaluation result and sprint status
@@ -367,6 +455,16 @@ class SprintGateService:
         sprint = await self.get_sprint(sprint_id)
         if not sprint:
             return {"error": "Sprint not found", "success": False}
+
+        # Sprint 75: Team Role Authorization (GAP 1)
+        if not skip_authorization:
+            auth_result = await self.check_gate_approval_authorization(sprint, user_id)
+            if not auth_result["authorized"]:
+                return {
+                    "error": auth_result["reason"],
+                    "success": False,
+                    "authorization_failed": True,
+                }
 
         evaluation = await self.get_or_create_evaluation(sprint_id, gate_type)
 

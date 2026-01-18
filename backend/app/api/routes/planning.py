@@ -2,10 +2,11 @@
 =========================================================================
 Planning Hierarchy API Routes - SDLC Orchestrator
 Sprint 74: Planning Hierarchy Implementation
+Sprint 75: Team Role Authorization for Gate Approval
 
-Version: 1.0.0
+Version: 1.1.0
 Date: January 18, 2026
-Status: ACTIVE - Sprint 74 Implementation
+Status: ACTIVE - Sprint 75 Enhancement
 Authority: Backend Lead + CTO Approved
 Reference: ADR-013-Planning-Hierarchy
 Reference: SDLC-Sprint-Planning-Governance.md (SDLC 5.1.3)
@@ -21,6 +22,13 @@ SDLC 5.1.3 Compliance:
 - G-Sprint-Close Gate validation with 24h documentation deadline
 - Immutable sprint numbering (Rule #1)
 - Traceability chain enforcement
+- Team role authorization for gate approval (SE4H Coach only)
+
+Sprint 75 Enhancement:
+- check_sprint_gate_authorization() - Team-based gate approval validation
+- Only SE4H Coach (team owner/admin) can approve sprint gates
+- AI agents (SE4A) cannot approve governance gates
+- Human oversight enforcement for SDLC 5.1.3
 
 Zero Mock Policy: Production-ready FastAPI routes
 =========================================================================
@@ -48,6 +56,8 @@ from app.models.sprint_gate_evaluation import (
     G_SPRINT_CHECKLIST_TEMPLATE,
     G_SPRINT_CLOSE_CHECKLIST_TEMPLATE,
 )
+from app.models.team import Team
+from app.models.team_member import TeamMember
 from app.models.user import User
 from app.schemas.planning import (
     # Roadmap
@@ -140,6 +150,88 @@ async def check_project_access(
             )
 
     return project
+
+
+async def check_sprint_gate_authorization(
+    db: AsyncSession,
+    sprint: Sprint,
+    user: User,
+) -> None:
+    """
+    Check if user can approve sprint gates (G-Sprint/G-Sprint-Close).
+
+    SDLC 5.1.3 Sprint Planning Governance (Sprint 75):
+    - If project has team: user must be team owner/admin (SE4H Coach)
+    - If project has no team: user must be project owner
+    - AI agents (SE4A) cannot approve gates
+
+    Args:
+        db: Database session
+        sprint: Sprint to check authorization for
+        user: Current user
+
+    Raises:
+        HTTPException: 403 if user is not authorized
+    """
+    # Get project with team relation
+    project_result = await db.execute(
+        select(Project)
+        .options(selectinload(Project.team).selectinload(Team.members))
+        .where(Project.id == sprint.project_id)
+    )
+    project = project_result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    # Superuser bypass
+    if user.is_superuser:
+        return
+
+    # If project has team, check team role authorization
+    if project.team:
+        team_member = None
+        for member in project.team.members:
+            if member.user_id == user.id and member.deleted_at is None:
+                team_member = member
+                break
+
+        if not team_member:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not a member of the project team",
+            )
+
+        if not team_member.can_approve_sprint_gate:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Role '{team_member.role}' cannot approve sprint gates. "
+                       f"Only team owner/admin (SE4H Coach) can approve.",
+            )
+        return
+
+    # Fallback: project without team - check project owner
+    if project.owner_id == user.id:
+        return
+
+    # Check if user is project admin
+    member_result = await db.execute(
+        select(ProjectMember).where(
+            ProjectMember.project_id == project.id,
+            ProjectMember.user_id == user.id,
+            ProjectMember.role.in_(["owner", "admin"]),
+        )
+    )
+    member = member_result.scalar_one_or_none()
+
+    if not member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only project owner/admin can approve gates for projects without team",
+        )
 
 
 def serialize_roadmap(roadmap: Roadmap, phases_count: int = 0) -> dict:
@@ -1069,6 +1161,11 @@ async def submit_gate_evaluation(
     """
     Submit gate evaluation for approval.
 
+    SDLC 5.1.3 Sprint Planning Governance (Sprint 75):
+    - Only team owner/admin (SE4H Coach) can approve sprint gates
+    - AI agents (SE4A) cannot approve gates
+    - This enforces human oversight for sprint governance
+
     The gate passes only if all checklist items are checked.
     This also updates the sprint's gate status.
     """
@@ -1083,7 +1180,9 @@ async def submit_gate_evaluation(
             detail="Sprint not found",
         )
 
-    await check_project_access(db, sprint.project_id, current_user, require_write=True)
+    # Sprint 75: Team role authorization for gate approval
+    # Only SE4H Coach (team owner/admin) can approve sprint gates
+    await check_sprint_gate_authorization(db, sprint, current_user)
 
     eval_result = await db.execute(
         select(SprintGateEvaluation).where(
