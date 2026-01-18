@@ -63,6 +63,10 @@ from app.services.backlog_service import (
     BacklogService,
     AssigneeNotTeamMemberError,
 )
+from app.services.sprint_assistant import (
+    SprintAssistantService,
+    get_sprint_assistant_service,
+)
 from app.schemas.planning import (
     # Roadmap
     RoadmapCreate,
@@ -101,6 +105,12 @@ from app.schemas.planning import (
     RoadmapHierarchy,
     PhaseSummary,
     SprintSummary,
+    # Analytics (Sprint 76)
+    VelocityMetricsResponse,
+    SprintHealthResponse,
+    PrioritySuggestionResponse,
+    SprintSuggestionsResponse,
+    SprintAnalyticsResponse,
 )
 
 
@@ -1866,4 +1876,278 @@ async def get_planning_dashboard(
             "p1_count": p1_count,
             "p2_count": p2_count,
         },
+    )
+
+
+# =========================================================================
+# Sprint Analytics Endpoints (Sprint 76 Day 5)
+# =========================================================================
+
+@router.get(
+    "/projects/{project_id}/velocity",
+    response_model=VelocityMetricsResponse,
+    summary="Get project velocity metrics",
+    tags=["Planning", "Analytics"],
+)
+async def get_project_velocity(
+    project_id: UUID,
+    sprint_count: int = Query(default=5, ge=1, le=20, description="Number of sprints to analyze"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> VelocityMetricsResponse:
+    """
+    Get velocity metrics for a project from historical sprint data.
+
+    **Sprint 76: AI Sprint Assistant - Velocity Calculation**
+
+    Calculates:
+    - Average velocity (story points per sprint)
+    - Velocity trend (increasing/decreasing/stable)
+    - Confidence score based on data availability
+    - History of recent sprint velocities
+
+    Args:
+        project_id: Project UUID
+        sprint_count: Number of completed sprints to analyze (default: 5)
+
+    Returns:
+        VelocityMetricsResponse with velocity metrics
+
+    Raises:
+        404: Project not found or no access
+    """
+    # Verify project access
+    await check_project_access(db, project_id, current_user)
+
+    # Calculate velocity
+    assistant = get_sprint_assistant_service(db)
+    velocity = await assistant.calculate_velocity(project_id, sprint_count)
+
+    return VelocityMetricsResponse(
+        average=velocity.average,
+        trend=velocity.trend,
+        confidence=velocity.confidence,
+        history=velocity.history,
+        sprint_count=velocity.sprint_count,
+        project_id=project_id,
+    )
+
+
+@router.get(
+    "/sprints/{sprint_id}/health",
+    response_model=SprintHealthResponse,
+    summary="Get sprint health indicators",
+    tags=["Planning", "Analytics"],
+)
+async def get_sprint_health(
+    sprint_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> SprintHealthResponse:
+    """
+    Get health indicators for a sprint.
+
+    **Sprint 76: AI Sprint Assistant - Health Assessment**
+
+    Calculates:
+    - Completion rate (story points done / total)
+    - Blocked item count
+    - Risk level (low/medium/high based on progress vs time)
+    - Days remaining in sprint
+    - Expected completion based on time elapsed
+
+    Args:
+        sprint_id: Sprint UUID
+
+    Returns:
+        SprintHealthResponse with health indicators
+
+    Raises:
+        404: Sprint not found
+    """
+    # Verify sprint exists and user has access
+    result = await db.execute(
+        select(Sprint)
+        .options(selectinload(Sprint.project))
+        .where(Sprint.id == sprint_id)
+    )
+    sprint = result.scalar_one_or_none()
+
+    if not sprint:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Sprint {sprint_id} not found",
+        )
+
+    # Check project access
+    await check_project_access(db, sprint.project_id, current_user)
+
+    # Calculate health
+    assistant = get_sprint_assistant_service(db)
+    health = await assistant.get_sprint_health(sprint_id)
+
+    return SprintHealthResponse(
+        sprint_id=sprint_id,
+        completion_rate=health.completion_rate,
+        completed_points=health.completed_points,
+        total_points=health.total_points,
+        blocked_count=health.blocked_count,
+        risk_level=health.risk_level,
+        days_remaining=health.days_remaining,
+        days_elapsed=health.days_elapsed,
+        expected_completion=health.expected_completion,
+    )
+
+
+@router.get(
+    "/sprints/{sprint_id}/suggestions",
+    response_model=SprintSuggestionsResponse,
+    summary="Get AI prioritization suggestions",
+    tags=["Planning", "Analytics", "AI"],
+)
+async def get_sprint_suggestions(
+    sprint_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> SprintSuggestionsResponse:
+    """
+    Get AI-powered prioritization suggestions for a sprint.
+
+    **Sprint 76: AI Sprint Assistant - Recommendations**
+
+    Analyzes sprint backlog and generates suggestions:
+    - start_p0: P0 items not yet started (critical)
+    - unassigned_priority: Unassigned P0/P1 items
+    - overloaded: Sprint capacity exceeds velocity
+    - blocked: Items requiring unblocking
+    - p2_at_risk: Low-priority items at risk
+    - underloaded: Capacity opportunity
+
+    Args:
+        sprint_id: Sprint UUID
+
+    Returns:
+        SprintSuggestionsResponse with AI suggestions
+
+    Raises:
+        404: Sprint not found
+    """
+    # Verify sprint exists
+    result = await db.execute(
+        select(Sprint)
+        .options(selectinload(Sprint.project))
+        .where(Sprint.id == sprint_id)
+    )
+    sprint = result.scalar_one_or_none()
+
+    if not sprint:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Sprint {sprint_id} not found",
+        )
+
+    await check_project_access(db, sprint.project_id, current_user)
+
+    # Generate suggestions
+    assistant = get_sprint_assistant_service(db)
+    suggestions = await assistant.suggest_priorities(sprint_id)
+
+    return SprintSuggestionsResponse(
+        sprint_id=sprint_id,
+        suggestions=[
+            PrioritySuggestionResponse(
+                type=s.type,
+                message=s.message,
+                severity=s.severity,
+                items=s.items,
+                action=s.action,
+            )
+            for s in suggestions
+        ],
+        suggestion_count=len(suggestions),
+    )
+
+
+@router.get(
+    "/sprints/{sprint_id}/analytics",
+    response_model=SprintAnalyticsResponse,
+    summary="Get comprehensive sprint analytics",
+    tags=["Planning", "Analytics", "AI"],
+)
+async def get_sprint_analytics(
+    sprint_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> SprintAnalyticsResponse:
+    """
+    Get comprehensive analytics for a sprint.
+
+    **Sprint 76: AI Sprint Assistant - Full Analytics**
+
+    Combines velocity, health, and suggestions into a single response
+    with an AI-generated summary of sprint status.
+
+    Args:
+        sprint_id: Sprint UUID
+
+    Returns:
+        SprintAnalyticsResponse with full analytics
+
+    Raises:
+        404: Sprint not found
+    """
+    # Verify sprint exists
+    result = await db.execute(
+        select(Sprint)
+        .options(selectinload(Sprint.project))
+        .where(Sprint.id == sprint_id)
+    )
+    sprint = result.scalar_one_or_none()
+
+    if not sprint:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Sprint {sprint_id} not found",
+        )
+
+    await check_project_access(db, sprint.project_id, current_user)
+
+    # Get comprehensive analytics
+    assistant = get_sprint_assistant_service(db)
+    analytics = await assistant.get_sprint_analytics(sprint_id)
+
+    return SprintAnalyticsResponse(
+        sprint_id=analytics.sprint_id,
+        sprint_number=analytics.sprint_number,
+        sprint_name=analytics.sprint_name,
+        health=SprintHealthResponse(
+            sprint_id=sprint_id,
+            completion_rate=analytics.health.completion_rate,
+            completed_points=analytics.health.completed_points,
+            total_points=analytics.health.total_points,
+            blocked_count=analytics.health.blocked_count,
+            risk_level=analytics.health.risk_level,
+            days_remaining=analytics.health.days_remaining,
+            days_elapsed=analytics.health.days_elapsed,
+            expected_completion=analytics.health.expected_completion,
+        ),
+        velocity=VelocityMetricsResponse(
+            average=analytics.velocity.average,
+            trend=analytics.velocity.trend,
+            confidence=analytics.velocity.confidence,
+            history=analytics.velocity.history,
+            sprint_count=analytics.velocity.sprint_count,
+            project_id=sprint.project_id,
+        ),
+        suggestions=[
+            PrioritySuggestionResponse(
+                type=s.type,
+                message=s.message,
+                severity=s.severity,
+                items=s.items,
+                action=s.action,
+            )
+            for s in analytics.suggestions
+        ],
+        summary=analytics.summary,
     )

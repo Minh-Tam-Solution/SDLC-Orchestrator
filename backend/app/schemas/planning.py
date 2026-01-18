@@ -855,3 +855,132 @@ class BulkOperationResult(BaseModel):
     )
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# =========================================================================
+# Sprint Analytics Schemas (Sprint 76 Day 5)
+# =========================================================================
+
+class VelocityMetricsResponse(BaseModel):
+    """
+    Velocity metrics from historical sprint data.
+
+    Sprint 76: AI Sprint Assistant - Velocity calculation
+    """
+    average: float = Field(
+        default=0.0,
+        description="Average velocity in story points"
+    )
+    trend: str = Field(
+        default="unknown",
+        description="Trend: increasing, decreasing, stable, unknown"
+    )
+    confidence: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Confidence score (0-1) based on data availability"
+    )
+    history: list[int] = Field(
+        default_factory=list,
+        description="Velocity history from recent sprints"
+    )
+    sprint_count: int = Field(
+        default=0,
+        description="Number of sprints analyzed"
+    )
+    project_id: UUID = Field(description="Project UUID")
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SprintHealthResponse(BaseModel):
+    """
+    Sprint health indicators.
+
+    Sprint 76: AI Sprint Assistant - Health assessment
+    """
+    sprint_id: UUID = Field(description="Sprint UUID")
+    completion_rate: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=100.0,
+        description="Completion percentage (0-100)"
+    )
+    completed_points: int = Field(default=0, description="Story points completed")
+    total_points: int = Field(default=0, description="Total story points")
+    blocked_count: int = Field(default=0, description="Number of blocked items")
+    risk_level: str = Field(
+        default="low",
+        description="Risk level: low, medium, high"
+    )
+    days_remaining: int = Field(default=0, description="Days until sprint end")
+    days_elapsed: int = Field(default=0, description="Days since sprint start")
+    expected_completion: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=100.0,
+        description="Expected completion based on time elapsed"
+    )
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PrioritySuggestionResponse(BaseModel):
+    """
+    AI-powered prioritization suggestion.
+
+    Sprint 76: AI Sprint Assistant - Backlog recommendations
+    """
+    type: str = Field(description="Suggestion type identifier")
+    message: str = Field(description="Human-readable suggestion message")
+    severity: str = Field(
+        default="info",
+        description="Severity: info, warning, error"
+    )
+    items: list[UUID] = Field(
+        default_factory=list,
+        description="Related backlog item UUIDs"
+    )
+    action: Optional[str] = Field(
+        default=None,
+        description="Recommended action"
+    )
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SprintSuggestionsResponse(BaseModel):
+    """
+    Sprint prioritization suggestions response.
+
+    Sprint 76: AI Sprint Assistant - Recommendations
+    """
+    sprint_id: UUID = Field(description="Sprint UUID")
+    suggestions: list[PrioritySuggestionResponse] = Field(
+        default_factory=list,
+        description="List of AI-generated suggestions"
+    )
+    suggestion_count: int = Field(
+        default=0,
+        description="Total number of suggestions"
+    )
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SprintAnalyticsResponse(BaseModel):
+    """
+    Comprehensive sprint analytics.
+
+    Sprint 76: AI Sprint Assistant - Full analytics
+    """
+    sprint_id: UUID
+    sprint_number: int
+    sprint_name: str
+    health: SprintHealthResponse
+    velocity: VelocityMetricsResponse
+    suggestions: list[PrioritySuggestionResponse]
+    summary: str = Field(description="AI-generated status summary")
+
+    model_config = ConfigDict(from_attributes=True)
