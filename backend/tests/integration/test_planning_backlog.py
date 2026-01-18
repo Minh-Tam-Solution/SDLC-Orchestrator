@@ -785,3 +785,515 @@ class TestBacklogAssignment:
         data = response.json()
         # Should have items assigned to test_user
         assert len(data["items"]) >= 2
+
+
+# =============================================================================
+# GAP 2 Resolution Tests - Team Membership Validation (Sprint 76)
+# =============================================================================
+
+
+class TestAssigneeTeamMembershipValidation:
+    """
+    Test GAP 2 Resolution: Backlog assignee team membership validation.
+
+    SDLC 5.1.3 Compliance:
+    - GAP 2: Backlog assignee must be project team member
+    - Projects without teams allow any assignee (backward compatibility)
+
+    Sprint 76 Implementation:
+    - validate_assignee_membership() in BacklogService
+    - 403 error when assigning to non-team member
+    - GET /backlog/assignees/{project_id} endpoint
+    """
+
+    @pytest.fixture
+    async def project_with_team(self, db_session, test_user):
+        """Create a project with team (for GAP 2 tests)."""
+        from app.models.organization import Organization
+
+        # Create organization first
+        org = Organization(
+            name="GAP2 Test Org",
+            slug=f"gap2-org-{uuid4().hex[:8]}",
+            owner_id=test_user.id,
+        )
+        db_session.add(org)
+        await db_session.flush()
+
+        # Create team
+        team = Team(
+            organization_id=org.id,
+            name="GAP2 Test Team",
+            slug=f"gap2-team-{uuid4().hex[:8]}",
+        )
+        db_session.add(team)
+        await db_session.flush()
+
+        # Add owner to team
+        member = TeamMember(
+            team_id=team.id,
+            user_id=test_user.id,
+            role="owner",
+            member_type="human",
+        )
+        db_session.add(member)
+        await db_session.flush()
+
+        # Create project with team
+        project = Project(
+            name="GAP2 Test Project",
+            slug=f"gap2-project-{uuid4().hex[:8]}",
+            description="Project with team for GAP 2 testing",
+            owner_id=test_user.id,
+            team_id=team.id,
+        )
+        db_session.add(project)
+        await db_session.commit()
+        await db_session.refresh(project)
+
+        return project
+
+    @pytest.fixture
+    async def team_member_user(self, db_session, project_with_team):
+        """Create a second user who is a team member."""
+        user = User(
+            username=f"teammember-{uuid4().hex[:8]}",
+            email=f"teammember-{uuid4().hex[:8]}@test.com",
+            full_name="Team Member User",
+            hashed_password="test_hash",
+        )
+        db_session.add(user)
+        await db_session.flush()
+
+        # Add to team
+        member = TeamMember(
+            team_id=project_with_team.team_id,
+            user_id=user.id,
+            role="member",
+            member_type="human",
+        )
+        db_session.add(member)
+        await db_session.commit()
+        await db_session.refresh(user)
+
+        return user
+
+    @pytest.fixture
+    async def non_team_user(self, db_session):
+        """Create a user who is NOT a team member."""
+        user = User(
+            username=f"nonmember-{uuid4().hex[:8]}",
+            email=f"nonmember-{uuid4().hex[:8]}@test.com",
+            full_name="Non Member User",
+            hashed_password="test_hash",
+        )
+        db_session.add(user)
+        await db_session.commit()
+        await db_session.refresh(user)
+        return user
+
+    # =========================================================================
+    # GAP 2 Test: Create backlog item with team member assignee (Success)
+    # =========================================================================
+
+    @pytest.mark.asyncio
+    async def test_create_item_with_team_member_assignee_success(
+        self, client: AsyncClient, auth_headers, project_with_team, team_member_user
+    ):
+        """
+        GAP 2 Test 1: Creating item with team member assignee succeeds.
+
+        SDLC 5.1.3 Compliance:
+        - Assignee is a valid team member
+        - Should return 201 Created
+        """
+        response = await client.post(
+            "/api/v1/planning/backlog",
+            json={
+                "project_id": str(project_with_team.id),
+                "type": "task",
+                "title": "Task assigned to team member",
+                "priority": "P1",
+                "assignee_id": str(team_member_user.id),
+            },
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["assignee_id"] == str(team_member_user.id)
+
+    # =========================================================================
+    # GAP 2 Test: Create backlog item with non-team member assignee (Failure)
+    # =========================================================================
+
+    @pytest.mark.asyncio
+    async def test_create_item_with_non_team_member_assignee_fails(
+        self, client: AsyncClient, auth_headers, project_with_team, non_team_user
+    ):
+        """
+        GAP 2 Test 2: Creating item with non-team member assignee fails.
+
+        SDLC 5.1.3 Compliance:
+        - Assignee is NOT a team member
+        - Should return 403 Forbidden
+        """
+        response = await client.post(
+            "/api/v1/planning/backlog",
+            json={
+                "project_id": str(project_with_team.id),
+                "type": "task",
+                "title": "Task with invalid assignee",
+                "priority": "P1",
+                "assignee_id": str(non_team_user.id),
+            },
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 403
+        data = response.json()
+        assert "not a member" in data["detail"].lower()
+
+    # =========================================================================
+    # GAP 2 Test: Update backlog item assignee to non-team member (Failure)
+    # =========================================================================
+
+    @pytest.mark.asyncio
+    async def test_update_item_assignee_to_non_team_member_fails(
+        self, client: AsyncClient, auth_headers, db_session,
+        project_with_team, team_member_user, non_team_user, test_user
+    ):
+        """
+        GAP 2 Test 3: Updating assignee to non-team member fails.
+
+        SDLC 5.1.3 Compliance:
+        - Item exists with valid assignee
+        - Attempting to change to non-team member
+        - Should return 403 Forbidden
+        """
+        # Create item with valid assignee
+        item = BacklogItem(
+            project_id=project_with_team.id,
+            type="task",
+            title="Task with valid assignee",
+            priority="P1",
+            assignee_id=team_member_user.id,
+            created_by=test_user.id,
+        )
+        db_session.add(item)
+        await db_session.commit()
+        await db_session.refresh(item)
+
+        # Try to update to non-team member
+        response = await client.put(
+            f"/api/v1/planning/backlog/{item.id}",
+            json={"assignee_id": str(non_team_user.id)},
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 403
+        data = response.json()
+        assert "not a member" in data["detail"].lower()
+
+    # =========================================================================
+    # GAP 2 Test: Update backlog item assignee to team member (Success)
+    # =========================================================================
+
+    @pytest.mark.asyncio
+    async def test_update_item_assignee_to_team_member_success(
+        self, client: AsyncClient, auth_headers, db_session,
+        project_with_team, team_member_user, test_user
+    ):
+        """
+        GAP 2 Test 4: Updating assignee to team member succeeds.
+
+        SDLC 5.1.3 Compliance:
+        - Changing assignee to a valid team member
+        - Should return 200 OK
+        """
+        # Create unassigned item
+        item = BacklogItem(
+            project_id=project_with_team.id,
+            type="task",
+            title="Unassigned task",
+            priority="P1",
+            created_by=test_user.id,
+        )
+        db_session.add(item)
+        await db_session.commit()
+        await db_session.refresh(item)
+
+        # Assign to team member
+        response = await client.put(
+            f"/api/v1/planning/backlog/{item.id}",
+            json={"assignee_id": str(team_member_user.id)},
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["assignee_id"] == str(team_member_user.id)
+
+    # =========================================================================
+    # GAP 2 Test: Project without team allows any assignee (Backward compat)
+    # =========================================================================
+
+    @pytest.mark.asyncio
+    async def test_project_without_team_allows_any_assignee(
+        self, client: AsyncClient, auth_headers, test_project, non_team_user
+    ):
+        """
+        GAP 2 Test 5: Projects without teams allow any assignee.
+
+        SDLC 5.1.3 Compliance:
+        - Backward compatibility for projects without teams
+        - Should return 201 Created
+        """
+        response = await client.post(
+            "/api/v1/planning/backlog",
+            json={
+                "project_id": str(test_project.id),
+                "type": "task",
+                "title": "Task with any assignee",
+                "priority": "P1",
+                "assignee_id": str(non_team_user.id),
+            },
+            headers=auth_headers,
+        )
+
+        # Should succeed - no team = no restriction
+        assert response.status_code == 201
+        data = response.json()
+        assert data["assignee_id"] == str(non_team_user.id)
+
+    # =========================================================================
+    # GAP 2 Test: Get valid assignees endpoint
+    # =========================================================================
+
+    @pytest.mark.asyncio
+    async def test_get_valid_assignees_with_team(
+        self, client: AsyncClient, auth_headers, project_with_team
+    ):
+        """
+        GAP 2 Test 6: Get valid assignees returns team members.
+
+        SDLC 5.1.3 Compliance:
+        - Frontend needs list of valid assignees
+        - Returns only team members
+        """
+        response = await client.get(
+            f"/api/v1/planning/backlog/assignees/{project_with_team.id}",
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        # Should have at least the owner
+        assert len(data) >= 1
+
+    @pytest.mark.asyncio
+    async def test_get_valid_assignees_without_team(
+        self, client: AsyncClient, auth_headers, test_project
+    ):
+        """
+        GAP 2 Test 7: Get valid assignees returns empty for projects without team.
+
+        SDLC 5.1.3 Compliance:
+        - Projects without teams return empty list
+        - Frontend should allow any assignee selection
+        """
+        response = await client.get(
+            f"/api/v1/planning/backlog/assignees/{test_project.id}",
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data == []
+
+    # =========================================================================
+    # GAP 2 Test: Create item without assignee (No validation needed)
+    # =========================================================================
+
+    @pytest.mark.asyncio
+    async def test_create_item_without_assignee_success(
+        self, client: AsyncClient, auth_headers, project_with_team
+    ):
+        """
+        GAP 2 Test 8: Creating item without assignee succeeds.
+
+        SDLC 5.1.3 Compliance:
+        - No assignee = no validation needed
+        - Should return 201 Created
+        """
+        response = await client.post(
+            "/api/v1/planning/backlog",
+            json={
+                "project_id": str(project_with_team.id),
+                "type": "task",
+                "title": "Unassigned task",
+                "priority": "P1",
+            },
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["assignee_id"] is None
+
+    # =========================================================================
+    # GAP 2 Test: AI agent can be assigned (SE4A)
+    # =========================================================================
+
+    @pytest.mark.asyncio
+    async def test_ai_agent_can_be_assigned(
+        self, client: AsyncClient, auth_headers, db_session, project_with_team, test_user
+    ):
+        """
+        GAP 2 Test 9: AI agents (SE4A) can be assigned to tasks.
+
+        SDLC 5.1.3 Compliance:
+        - AI agents are valid team members for task assignment
+        - Only gate approval is restricted (SE4H Coach only)
+        """
+        # Create AI agent user
+        ai_user = User(
+            username=f"ai-agent-{uuid4().hex[:8]}",
+            email=f"ai-agent-{uuid4().hex[:8]}@test.com",
+            full_name="AI Agent",
+            hashed_password="test_hash",
+        )
+        db_session.add(ai_user)
+        await db_session.flush()
+
+        # Add AI agent to team as ai_agent role
+        ai_member = TeamMember(
+            team_id=project_with_team.team_id,
+            user_id=ai_user.id,
+            role="member",
+            member_type="ai_agent",
+        )
+        db_session.add(ai_member)
+        await db_session.commit()
+
+        # Create task assigned to AI agent
+        response = await client.post(
+            "/api/v1/planning/backlog",
+            json={
+                "project_id": str(project_with_team.id),
+                "type": "task",
+                "title": "AI Agent task",
+                "priority": "P2",
+                "assignee_id": str(ai_user.id),
+            },
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["assignee_id"] == str(ai_user.id)
+
+    # =========================================================================
+    # GAP 2 Test: Self-assignment (owner assigns to self)
+    # =========================================================================
+
+    @pytest.mark.asyncio
+    async def test_owner_can_assign_to_self(
+        self, client: AsyncClient, auth_headers, project_with_team, test_user
+    ):
+        """
+        GAP 2 Test 10: Project owner can assign to self.
+
+        SDLC 5.1.3 Compliance:
+        - Owner is automatically a team member
+        - Should return 201 Created
+        """
+        response = await client.post(
+            "/api/v1/planning/backlog",
+            json={
+                "project_id": str(project_with_team.id),
+                "type": "task",
+                "title": "Self-assigned task",
+                "priority": "P0",
+                "assignee_id": str(test_user.id),
+            },
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["assignee_id"] == str(test_user.id)
+
+    # =========================================================================
+    # GAP 2 Test: Reassign between team members
+    # =========================================================================
+
+    @pytest.mark.asyncio
+    async def test_reassign_between_team_members(
+        self, client: AsyncClient, auth_headers, db_session,
+        project_with_team, team_member_user, test_user
+    ):
+        """
+        GAP 2 Test 11: Reassigning between team members succeeds.
+
+        SDLC 5.1.3 Compliance:
+        - Both old and new assignee are team members
+        - Should return 200 OK
+        """
+        # Create item assigned to test_user
+        item = BacklogItem(
+            project_id=project_with_team.id,
+            type="task",
+            title="Reassign task",
+            priority="P1",
+            assignee_id=test_user.id,
+            created_by=test_user.id,
+        )
+        db_session.add(item)
+        await db_session.commit()
+        await db_session.refresh(item)
+
+        # Reassign to team_member_user
+        response = await client.put(
+            f"/api/v1/planning/backlog/{item.id}",
+            json={"assignee_id": str(team_member_user.id)},
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["assignee_id"] == str(team_member_user.id)
+
+    # =========================================================================
+    # GAP 2 Test: Error message contains helpful info
+    # =========================================================================
+
+    @pytest.mark.asyncio
+    async def test_error_message_is_helpful(
+        self, client: AsyncClient, auth_headers, project_with_team, non_team_user
+    ):
+        """
+        GAP 2 Test 12: Error message provides helpful information.
+
+        SDLC 5.1.3 Compliance:
+        - Error message should explain the issue
+        - Should mention GAP 2 resolution
+        """
+        response = await client.post(
+            "/api/v1/planning/backlog",
+            json={
+                "project_id": str(project_with_team.id),
+                "type": "task",
+                "title": "Invalid assignee task",
+                "priority": "P1",
+                "assignee_id": str(non_team_user.id),
+            },
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 403
+        data = response.json()
+        detail = data["detail"].lower()
+        # Should mention team member requirement
+        assert "team" in detail or "member" in detail

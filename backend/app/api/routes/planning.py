@@ -59,6 +59,10 @@ from app.models.sprint_gate_evaluation import (
 from app.models.team import Team
 from app.models.team_member import TeamMember
 from app.models.user import User
+from app.services.backlog_service import (
+    BacklogService,
+    AssigneeNotTeamMemberError,
+)
 from app.schemas.planning import (
     # Roadmap
     RoadmapCreate,
@@ -1262,7 +1266,13 @@ async def create_backlog_item(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> BacklogItemResponse:
-    """Create a new backlog item (story, task, bug, spike)."""
+    """
+    Create a new backlog item (story, task, bug, spike).
+
+    SDLC 5.1.3 GAP 2 Resolution (Sprint 76):
+    - If assignee_id is provided, validates that assignee is a team member
+    - Projects without teams allow any assignee (backward compatibility)
+    """
     await check_project_access(db, data.project_id, current_user, require_write=True)
 
     # Validate sprint belongs to project if provided
@@ -1289,6 +1299,21 @@ async def create_backlog_item(
                 detail="Parent item does not belong to this project",
             )
 
+    # GAP 2 Resolution: Validate assignee is team member
+    if data.assignee_id:
+        backlog_service = BacklogService(db)
+        try:
+            await backlog_service.validate_assignee_membership(
+                sprint_id=data.sprint_id,
+                project_id=data.project_id,
+                assignee_id=data.assignee_id,
+            )
+        except AssigneeNotTeamMemberError as e:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=str(e),
+            )
+
     item = BacklogItem(
         project_id=data.project_id,
         sprint_id=data.sprint_id,
@@ -1309,6 +1334,70 @@ async def create_backlog_item(
     await db.refresh(item)
 
     return serialize_backlog_item(item)
+
+
+@router.get("/backlog/assignees/{project_id}")
+async def get_valid_assignees(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[dict]:
+    """
+    Get list of valid assignees for backlog items in a project.
+
+    SDLC 5.1.3 GAP 2 Resolution (Sprint 76):
+    - Returns only team members who can be assigned to backlog items
+    - Used by frontend to populate assignee dropdown
+    - If project has no team, returns empty list (allow any assignee)
+
+    Returns:
+        List of dicts with user info:
+        [
+            {
+                "user_id": UUID,
+                "full_name": str,
+                "email": str,
+                "role": str,
+                "member_type": str
+            }
+        ]
+    """
+    await check_project_access(db, project_id, current_user)
+
+    # Get project with team
+    project_result = await db.execute(
+        select(Project).where(
+            Project.id == project_id,
+            Project.deleted_at.is_(None),
+        )
+    )
+    project = project_result.scalar_one_or_none()
+
+    if not project or not project.team_id:
+        return []
+
+    # Get team members with user info
+    members_result = await db.execute(
+        select(TeamMember, User)
+        .join(User, TeamMember.user_id == User.id)
+        .where(
+            TeamMember.team_id == project.team_id,
+            TeamMember.deleted_at.is_(None),
+        )
+        .order_by(User.full_name)
+    )
+    members = members_result.all()
+
+    return [
+        {
+            "user_id": member.user_id,
+            "full_name": user.full_name or user.username,
+            "email": user.email,
+            "role": member.role,
+            "member_type": member.member_type,
+        }
+        for member, user in members
+    ]
 
 
 @router.get("/backlog")
@@ -1440,7 +1529,13 @@ async def update_backlog_item(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> BacklogItemResponse:
-    """Update a backlog item."""
+    """
+    Update a backlog item.
+
+    SDLC 5.1.3 GAP 2 Resolution (Sprint 76):
+    - If assignee_id is being updated, validates that new assignee is a team member
+    - Projects without teams allow any assignee (backward compatibility)
+    """
     result = await db.execute(
         select(BacklogItem).where(BacklogItem.id == item_id)
     )
@@ -1453,6 +1548,21 @@ async def update_backlog_item(
         )
 
     await check_project_access(db, item.project_id, current_user, require_write=True)
+
+    # GAP 2 Resolution: Validate new assignee is team member
+    if data.assignee_id is not None and data.assignee_id != item.assignee_id:
+        backlog_service = BacklogService(db)
+        try:
+            await backlog_service.validate_assignee_membership(
+                sprint_id=data.sprint_id if data.sprint_id is not None else item.sprint_id,
+                project_id=item.project_id,
+                assignee_id=data.assignee_id,
+            )
+        except AssigneeNotTeamMemberError as e:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=str(e),
+            )
 
     if data.sprint_id is not None:
         item.sprint_id = data.sprint_id
