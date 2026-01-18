@@ -6,7 +6,7 @@
 **Status**: ✅ PLANNED - Ready for Execution  
 **Authority**: CTO + CPO Approved  
 **Foundation**: Sprint 23 Complete  
-**Framework**: SDLC 4.9.1 Complete Lifecycle  
+**Framework**: SDLC 5.1.3.1 Complete Lifecycle  
 
 **Sprint Duration**: 5 days (Dec 23-27, 2025)  
 **Sprint Goal**: Prepare for internal beta pilot with 5-8 teams and Gate G3 final approval.  

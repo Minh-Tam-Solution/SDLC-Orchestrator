@@ -11,7 +11,7 @@
 
 ## Context and Problem Statement
 
-**Real-World Pain Point**: Yesterday we manually restructured `docs/02-design/` (78 files, 45 minutes). Bflow Platform migrated 3,800+ Python files from SDLC 4.9 → 5.1 (projected 4 weeks manual → 2 hours automated with custom tooling).
+**Real-World Pain Point**: Yesterday we manually restructured `docs/02-design/` (78 files, 45 minutes). Bflow Platform migrated 3,800+ Python files from SDLC 5.1.3 → 5.1 (projected 4 weeks manual → 2 hours automated with custom tooling).
 
 **Problem**: When customers upgrade large codebases (5K-50K files) from SDLC 4.x/5.0 → 5.1+, they face:
 
@@ -1102,7 +1102,7 @@ migration:docs:generate - Generate compliance docs (PM, Tech Lead, Owner)
 
 1. **Bflow Platform Migration** (`/home/nqh/shared/Bflow-Platform/`)
    - Source: `/tools/sdlc51-compliance/` (~10,500 LOC)
-   - Tested on: 3,800+ Python files (SDLC 4.9 → 5.1)
+   - Tested on: 3,800+ Python files (SDLC 5.1.3 → 5.1)
    - Performance: 4 weeks manual → 2 hours automated (120x speedup)
    - Compliance docs: `/docs/08-Team-Management/03-SDLC-Compliance/` (27,789 lines)
 

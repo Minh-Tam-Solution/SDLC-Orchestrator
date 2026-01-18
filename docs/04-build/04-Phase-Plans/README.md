@@ -2,7 +2,7 @@
 ## AI Governance Implementation Roadmap
 
 **Stage**: 03 - Development & Implementation (BUILD)
-**Framework**: SDLC 5.0.0 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 **Status**: ✅ **ALL 4 PHASES COMPLETE** - AI Governance v2.0.0 Complete
 
 ---
@@ -49,7 +49,7 @@ This folder contains detailed implementation plans for the **AI Governance Exten
 - [View Plan](./PHASE-03-WEB-DASHBOARD-AI.md)
 
 **PHASE-04: SDLC Structure Validator** (Sprint 29-30 - Dec 2-6, 2025) ✅
-- SDLC 5.0.0 Validator CLI (`sdlcctl`)
+- SDLC 5.1.3 Validator CLI (`sdlcctl`)
 - 4-Tier Classification (LITE/STANDARD/PROFESSIONAL/ENTERPRISE)
 - P0 Artifacts Checker (15 artifacts)
 - Pre-commit Hook
@@ -163,7 +163,7 @@ January 2026
 
 - [Current Sprint](../02-Sprint-Plans/CURRENT-SPRINT.md)
 - [Product Roadmap](../../00-Project-Foundation/04-Roadmap/Product-Roadmap.md)
-- [SDLC 5.0.0 Framework](../../../SDLC-Enterprise-Framework/)
+- [SDLC 5.1.3 Framework](../../../SDLC-Enterprise-Framework/)
 
 ---
 

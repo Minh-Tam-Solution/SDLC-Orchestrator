@@ -226,4 +226,4 @@ For detailed instructions, see:
 **Document**: Quick Reference Card
 **Version**: 1.0.0
 **Date**: November 25, 2025
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle

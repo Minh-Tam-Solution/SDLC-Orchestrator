@@ -52,7 +52,7 @@
 |---------|----------------------|
 | **Q4 2025** | Jira/Linear experimenting with AI+Policy (internal prototypes) |
 | **Q1 2026** | **SDLC Orchestrator launches** (February 10, 2026) - First-mover advantage |
-| **Q1 2026** | First competitive AI features may launch (basic, not SDLC 4.9-aware) |
+| **Q1 2026** | First competitive AI features may launch (basic, not SDLC 5.1.3-aware) |
 | **Q2 2026** | If we don't launch, competitors close gap |
 
 **First-Mover Advantage Window**: November 2025 - July 2026 (8 months)

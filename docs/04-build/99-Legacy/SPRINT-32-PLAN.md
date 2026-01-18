@@ -1,9 +1,9 @@
-# Sprint 32: SDLC 5.0.0 Restructure & User API Key Management
+# Sprint 32: SDLC 5.1.3 Restructure & User API Key Management
 
 **Sprint**: 32  
 **Duration**: TBD (Post-Gate G3)  
 **Status**: PLANNED  
-**Framework**: SDLC 5.0.0  
+**Framework**: SDLC 5.1.3  
 **Authority**: CTO + CPO Approved
 
 ---
@@ -11,14 +11,14 @@
 ## Executive Summary
 
 Sprint 32 implements two major features:
-1. **SDLC 5.0.0 Stage Restructuring** - Move INTEGRATE from Stage 07 → Stage 03
+1. **SDLC 5.1.3 Stage Restructuring** - Move INTEGRATE from Stage 07 → Stage 03
 2. **User API Key Management (BYOK)** - Allow users to manage third-party AI provider keys
 
 Both features approved by CTO/CPO with conditions. Implementation timeline: Post-Gate G3 (Sprint 32).
 
 ---
 
-## Part 1: SDLC 5.0.0 Stage Restructuring
+## Part 1: SDLC 5.1.3 Stage Restructuring
 
 ### Phase 0: Framework Documentation Update (2-3 hours)
 

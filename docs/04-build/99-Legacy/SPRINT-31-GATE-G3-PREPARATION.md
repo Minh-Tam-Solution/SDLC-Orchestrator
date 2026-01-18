@@ -4,7 +4,7 @@
 **Name**: Gate G3 Preparation
 **Duration**: December 9-13, 2025 (5 days)
 **Status**: PLANNED
-**Framework**: SDLC 5.0.0
+**Framework**: SDLC 5.1.3
 **Gate Target**: G3 - Ship Ready (January 31, 2026)
 
 ---
@@ -167,7 +167,7 @@ Prepare SDLC Orchestrator platform for Gate G3 (Ship Ready) approval through com
 **Documentation Checklist**:
 
 **User Documentation**:
-- [ ] User Guide (SDLC 5.0 Validation)
+- [ ] User Guide (SDLC 5.1.3 Validation)
 - [ ] API Reference (OpenAPI 3.0)
 - [ ] CLI Guide (sdlcctl)
 - [ ] VS Code Extension Guide
@@ -186,7 +186,7 @@ Prepare SDLC Orchestrator platform for Gate G3 (Ship Ready) approval through com
 - [ ] Data Model ERD
 
 **Compliance Documentation**:
-- [ ] SDLC 5.0.0 compliance report
+- [ ] SDLC 5.1.3 compliance report
 - [ ] AGPL containment evidence
 - [ ] License audit report
 - [ ] SBOM (Software Bill of Materials)
@@ -379,5 +379,5 @@ Prepare SDLC Orchestrator platform for Gate G3 (Ship Ready) approval through com
 
 **Created**: December 6, 2025
 **Owner**: PJM + CTO
-**Framework**: SDLC 5.0.0
+**Framework**: SDLC 5.1.3
 **Status**: PLANNED

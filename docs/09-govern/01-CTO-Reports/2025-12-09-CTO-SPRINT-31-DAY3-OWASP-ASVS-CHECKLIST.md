@@ -4,7 +4,7 @@
 **Sprint**: 31 - Gate G3 Preparation
 **Standard**: OWASP Application Security Verification Standard 4.0.3
 **Level**: 2 (Standard)
-**Framework**: SDLC 5.0.0
+**Framework**: SDLC 5.1.3
 
 ---
 
@@ -38,7 +38,7 @@
 
 | ID | Requirement | Status | Evidence |
 |----|-------------|--------|----------|
-| 1.1.1 | SDLC with security activities | ✅ | SDLC 5.0.0 Framework |
+| 1.1.1 | SDLC with security activities | ✅ | SDLC 5.1.3 Framework |
 | 1.1.2 | Threat modeling for design changes | ✅ | ADR-006 Security Architecture |
 | 1.1.3 | Security stories and features | ✅ | Sprint planning includes security |
 | 1.1.4 | All data assets defined | ✅ | Data Model ERD documented |
@@ -483,6 +483,6 @@
 ---
 
 **Report Generated**: December 9, 2025
-**Framework**: SDLC 5.0.0
+**Framework**: SDLC 5.1.3
 **Sprint**: 31 (Day 3 of 5)
 **Gate**: G3 Preparation

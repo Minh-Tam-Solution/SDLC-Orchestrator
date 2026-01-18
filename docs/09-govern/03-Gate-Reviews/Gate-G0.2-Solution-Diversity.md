@@ -5,7 +5,7 @@
 **Status**: ✅ PASSED - GATE G0.2
 **Authority**: CEO + CTO + CPO Joint Approval
 **Foundation**: Stage 00 (WHY - Project Foundation)
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 
@@ -115,7 +115,7 @@
 
 **Strategic Fit**: ✅ High
 - Balances speed (90 days) with legal safety (AGPL contained)
-- Leverages proven OSS (OPA, MinIO, Grafana) + proprietary value (SDLC 4.9 policies)
+- Leverages proven OSS (OPA, MinIO, Grafana) + proprietary value (SDLC 5.1.3 policies)
 - Enables SaaS revenue Year 1 (validates PMF quickly)
 
 ---

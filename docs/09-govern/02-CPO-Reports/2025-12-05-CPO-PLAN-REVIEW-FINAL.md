@@ -17,7 +17,7 @@
 - ✅ **Framework First**: SDLC-Enterprise-Framework as source of truth - **STRATEGIC ALIGNMENT**
 - ✅ **Tiered Framework**: 4-tier classification (LITE/STANDARD/PROFESSIONAL/ENTERPRISE) - **PRODUCT DIFFERENTIATOR**
 - ⚠️ **Security Boundaries**: Scanner security requirements - **CRITICAL FOR ENTERPRISE**
-- ✅ **Framework Version Pin**: SDLC 4.9.1 versioning - **COMPLIANCE REQUIREMENT**
+- ✅ **Framework Version Pin**: SDLC 5.1.3.1 versioning - **COMPLIANCE REQUIREMENT**
 
 **CPO Decision**:
 - ✅ **PHẦN 2 (Docs)**: **APPROVED** - Immediate execution (3 hours)
@@ -32,7 +32,7 @@
 
 ### 1. Product Positioning Impact
 
-**Current Positioning**: "First Governance-First Platform on SDLC 4.9.1"
+**Current Positioning**: "First Governance-First Platform on SDLC 5.1.3.1"
 
 **Plan Contribution**:
 - ✅ **Tiered Framework**: Enables "right-size governance" messaging (LITE → ENTERPRISE)
@@ -92,7 +92,7 @@
 **Competitive Moat Analysis**:
 
 **12-Month Moat** (Hard to replicate):
-- ✅ SDLC 4.9.1 framework integration (competitors don't understand)
+- ✅ SDLC 5.1.3.1 framework integration (competitors don't understand)
 - ✅ Tiered governance model (unique approach)
 - ✅ Framework-as-source-of-truth architecture
 
@@ -121,14 +121,14 @@
 
 **Strategic Rationale**:
 - **Source of Truth**: Orchestrator features depend on Framework specs
-- **Product Positioning**: "First platform on SDLC 4.9.1" requires Framework to be complete
+- **Product Positioning**: "First platform on SDLC 5.1.3.1" requires Framework to be complete
 - **Sales Enablement**: Framework completeness = credibility in enterprise sales
 
 **Revised Scope** (with CTO adjustments):
 1. ✅ `SDLC-Tiered-Framework.md` (unified spec)
 2. ✅ `SDLC-Deployment-Scenarios-Unified.md` (matrix + scenarios)
 3. ✅ Templates with tier annotations (`Applies to tier: LITE/STANDARD/PROFESSIONAL/ENTERPRISE`)
-4. ✅ Framework version pin (`SDLC 4.9.1 (Nov 29, 2025)`)
+4. ✅ Framework version pin (`SDLC 5.1.3.1 (Nov 29, 2025)`)
 5. ✅ Stage naming consistency (08=COLLABORATE, 09=GOVERN)
 
 **Timeline Revision**:

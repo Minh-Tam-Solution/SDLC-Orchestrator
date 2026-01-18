@@ -250,7 +250,7 @@ components:
           pattern: ^[A-Z0-9-]+$
         description:
           type: string
-          example: Project governance tool that enforces SDLC 4.9
+          example: Project governance tool that enforces SDLC 5.1.3
         current_stage:
           type: string
           enum: [stage-00, stage-01, stage-02, stage-03, stage-04, stage-05, stage-06, stage-07, stage-08, stage-09]

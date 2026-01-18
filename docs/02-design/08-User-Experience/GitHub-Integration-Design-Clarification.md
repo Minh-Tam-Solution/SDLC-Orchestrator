@@ -4,7 +4,7 @@
 **Date**: November 29, 2025
 **Status**: ACTIVE - CLARIFICATION DOCUMENT
 **Authority**: CPO + CTO Approved
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 **Related**: User-Onboarding-Flow-Architecture.md, ADR-002-Authentication-Model.md
 
 ---
@@ -428,11 +428,11 @@ Example:
     → Jane can: View, create gates, manage members
 ```
 
-### 8.9 SDLC 4.9.1 Workflow Integration
+### 8.9 SDLC 5.1.3.1 Workflow Integration
 
-SDLC Orchestrator enforces **SDLC 4.9.1 Complete Lifecycle** - workflow này dẫn dắt và force các members phối hợp từ đầu đến cuối dự án.
+SDLC Orchestrator enforces **SDLC 5.1.3.1 Complete Lifecycle** - workflow này dẫn dắt và force các members phối hợp từ đầu đến cuối dự án.
 
-#### 8.9.1 SDLC 4.9.1 10-Stage Lifecycle
+#### 8.9.1 SDLC 5.1.3.1 10-Stage Lifecycle
 
 ```yaml
 ┌─────────────────────────────────────────────────────────────────┐
@@ -454,7 +454,7 @@ SDLC Orchestrator enforces **SDLC 4.9.1 Complete Lifecycle** - workflow này d�
 #### 8.9.2 Gate Approval Authority by Project Role
 
 ```yaml
-Gate Approvals (SDLC 4.9.1 Enforced):
+Gate Approvals (SDLC 5.1.3.1 Enforced):
 
   G0.1 (Problem Definition):
     Required: Owner OR CPO
@@ -501,10 +501,10 @@ Gate Approvals (SDLC 4.9.1 Enforced):
     Evidence: Executive Summary, Compliance Report, Final Sign-off
 ```
 
-#### 8.9.3 Project Role Mapping to SDLC 4.9.1 Roles
+#### 8.9.3 Project Role Mapping to SDLC 5.1.3.1 Roles
 
 ```yaml
-Project Role → SDLC 4.9.1 Role Authority:
+Project Role → SDLC 5.1.3.1 Role Authority:
 
   Owner:
     - Acts as: CEO/CPO (can delegate)
@@ -571,7 +571,7 @@ Example Flow (NQH-Bot Platform):
 
 ---
 
-## 9. User Roles & Permissions (SDLC 4.9 Framework)
+## 9. User Roles & Permissions (SDLC 5.1.3 Framework)
 
 ### 9.1 Role Definitions (from API-Authentication.md)
 
@@ -667,7 +667,7 @@ Auto-Role Detection (Future Enhancement):
 
 ---
 
-## 10. SDLC 4.9 Stage Mapping
+## 10. SDLC 5.1.3 Stage Mapping
 
 ### 10.1 GitHub Integration in SDLC Lifecycle
 

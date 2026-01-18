@@ -4,7 +4,7 @@
 **Date**: December 3, 2025
 **Decision Makers**: CTO, CPO (joint review)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 4.9.1
+**Framework**: SDLC 5.1.3.1
 
 ---
 
@@ -12,7 +12,7 @@
 
 Per CEO directive và PM/PJM Bflow handover (Dec 3, 2025), cần:
 
-1. **Enforce SDLC 4.9.1 folder structure** across all projects
+1. **Enforce SDLC 5.1.3.1 folder structure** across all projects
 2. **Level-based compliance** based on project size
 3. **Automated validation** to prevent non-compliant commits
 4. **Templates** for new project scaffolding
@@ -176,7 +176,7 @@ class ValidationResult:
     passed: bool
 
 class SDLCStructureValidator:
-    """Validate project structure against SDLC 4.9.1 standards"""
+    """Validate project structure against SDLC 5.1.3.1 standards"""
 
     def __init__(self, project_root: Path, config: Optional[Dict] = None):
         self.project_root = Path(project_root)
@@ -282,7 +282,7 @@ class SDLCStructureValidator:
         return None
 
     def _validate_stage_naming(self):
-        """Validate stage folders use exact SDLC 4.9.1 naming"""
+        """Validate stage folders use exact SDLC 5.1.3.1 naming"""
         docs_root = self.project_root / self.config.get("structure", {}).get("docs_root", "docs")
 
         if not docs_root.exists():
@@ -436,7 +436,7 @@ import sys
 from pathlib import Path
 
 def main():
-    parser = argparse.ArgumentParser(description="SDLC 4.9.1 Structure Validator")
+    parser = argparse.ArgumentParser(description="SDLC 5.1.3.1 Structure Validator")
     parser.add_argument("project_path", nargs="?", default=".", help="Project root path")
     parser.add_argument("--strict", action="store_true", help="Exit with error on any issues")
     parser.add_argument("--fix", action="store_true", help="Auto-fix issues (interactive)")
@@ -646,5 +646,5 @@ jobs:
 ## References
 
 - [PM-PJM-SDLC-FRAMEWORK-HANDOVER-DEC3-2025.md](../../09-Executive-Reports/PM-PJM-SDLC-FRAMEWORK-HANDOVER-DEC3-2025.md)
-- [SDLC 4.9.1 Stage Naming Standard](#4-sdlc-stage-naming-standard-exact)
+- [SDLC 5.1.3.1 Stage Naming Standard](#4-sdlc-stage-naming-standard-exact)
 - [Bflow Platform](https://github.com/Minh-Tam-Solution/Bflow-Platform) - Reference implementation

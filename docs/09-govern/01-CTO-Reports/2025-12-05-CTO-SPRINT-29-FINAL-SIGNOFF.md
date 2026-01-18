@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-Sprint 29 delivers the `sdlcctl` CLI tool for SDLC 5.0.0 folder structure validation. All deliverables are complete with 95%+ test coverage and performance targets met.
+Sprint 29 delivers the `sdlcctl` CLI tool for SDLC 5.1.3 folder structure validation. All deliverables are complete with 95%+ test coverage and performance targets met.
 
 ---
 
@@ -105,7 +105,7 @@ Status: PASS
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 11-Stage SDLC 5.0.0 Lifecycle
+### 11-Stage SDLC 5.1.3 Lifecycle
 
 | Stage | Name | Purpose |
 |-------|------|---------|

@@ -572,7 +572,7 @@ Week 9 Day 1 successfully delivered **production-grade Kubernetes deployment inf
 
 ---
 
-**Framework**: SDLC 4.9 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
 **Authority**: CPO + CTO + DevOps Lead
 **Quality**: Zero Mock Policy enforced, production-ready manifests
 

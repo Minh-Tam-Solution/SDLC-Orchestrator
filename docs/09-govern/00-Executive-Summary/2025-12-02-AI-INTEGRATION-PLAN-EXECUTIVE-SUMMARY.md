@@ -140,11 +140,11 @@
 ### Key Differentiators ✅
 1. **First AI Council for SDLC Compliance**: No competitor has multi-LLM deliberation
 2. **Evidence-Based Governance**: SHA256 audit trail (Jira/Linear don't have this)
-3. **Stage-Aware AI**: SDLC 4.9.1 context injection (GitHub Copilot is code-only)
+3. **Stage-Aware AI**: SDLC 5.1.3.1 context injection (GitHub Copilot is code-only)
 4. **Tiered Compliance**: Lite/Standard/Enterprise (supports pricing strategy)
 
 ### Competitive Moat ✅
-- **SDLC 4.9.1 Integration**: 6-12 months for competitors to understand
+- **SDLC 5.1.3.1 Integration**: 6-12 months for competitors to understand
 - **Evidence Vault**: 3+ years trust moat (SHA256 audit trail)
 - **Policy Pack Library**: 100+ pre-built policies (1-2 years to replicate)
 - **AI Council Pattern**: 18-30 months competitive advantage

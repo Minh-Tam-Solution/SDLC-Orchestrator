@@ -1,9 +1,9 @@
-# ADR-016: SDLC 5.0.0 Stage Restructuring - INTEGRATE Stage Repositioning
+# ADR-016: SDLC 5.1.3 Stage Restructuring - INTEGRATE Stage Repositioning
 
 **Status**: ✅ **APPROVED**  
 **Date**: December 13, 2025  
 **Deciders**: CTO + CPO + Backend Lead  
-**Framework**: SDLC 5.0.0 (Internal Restructure - No Version Change)  
+**Framework**: SDLC 5.1.3 (Internal Restructure - No Version Change)  
 **Impact**: High - Affects all documentation, onboarding flows, and project structure
 
 ---
@@ -12,14 +12,14 @@
 
 ### Problem Statement
 
-SDLC 5.0.0 places **Stage 03 (INTEGRATE)** after **Stage 07 (OPERATE)**, which is logically incorrect:
+SDLC 5.1.3 places **Stage 03 (INTEGRATE)** after **Stage 07 (OPERATE)**, which is logically incorrect:
 
 1. **Temporal Impossibility**: If a project is already in OPERATE (production), it cannot "go back" to define API contracts
 2. **Design Phase Logic**: Integration/API Design belongs in the Design phase, not post-production
 3. **Industry Standard Violation**: Contradicts ISO/IEC 12207:2017 and DevOps best practices
 4. **Contract-First Principle**: OpenAPI specs must exist before coding begins, not after deployment
 
-### Current State (SDLC 5.0.0 - Before Restructure)
+### Current State (SDLC 5.1.3 - Before Restructure)
 
 ```
 00-WHY:        Foundation & Problem Definition
@@ -47,7 +47,7 @@ SDLC 5.0.0 places **Stage 03 (INTEGRATE)** after **Stage 07 (OPERATE)**, which i
 - Hiện chỉ áp dụng với SDLC Orchestrator project
 - Thay đổi này là restructure nội bộ, không thêm features mới
 
-### New State (SDLC 5.0.0 - After Restructure)
+### New State (SDLC 5.1.3 - After Restructure)
 
 **Linear Stages (Sequential - One-time per release)**:
 ```
@@ -93,7 +93,7 @@ SDLC 5.0.0 places **Stage 03 (INTEGRATE)** after **Stage 07 (OPERATE)**, which i
 - **Technical Processes**: Analysis, Design, **Integration**, Testing
 - **Operations Processes**: Deployment, Operations, Maintenance
 
-**SDLC 5.0.0 Alignment**: ✅ INTEGRATE (03) is now in Technical processes group (00-03)
+**SDLC 5.1.3 Alignment**: ✅ INTEGRATE (03) is now in Technical processes group (00-03)
 
 ---
 
@@ -109,7 +109,7 @@ SDLC 5.0.0 places **Stage 03 (INTEGRATE)** after **Stage 07 (OPERATE)**, which i
 6. Continuous Monitoring
 7. Continuous Feedback
 
-**SDLC 5.0.0 Alignment**: ✅ INTEGRATE (03) happens before BUILD (04), enabling CI during development
+**SDLC 5.1.3 Alignment**: ✅ INTEGRATE (03) happens before BUILD (04), enabling CI during development
 
 ---
 
@@ -117,8 +117,8 @@ SDLC 5.0.0 places **Stage 03 (INTEGRATE)** after **Stage 07 (OPERATE)**, which i
 
 **Contract-First Principle**: API contracts (OpenAPI specs) must exist **before** coding begins:
 
-- ✅ **SDLC 5.0.0 (Restructured)**: INTEGRATE (03) → API Design → BUILD (04) → Implementation
-- ❌ **SDLC 5.0.0 (Current)**: BUILD (03) → Implementation → INTEGRATE (07) → API Design (too late)
+- ✅ **SDLC 5.1.3 (Restructured)**: INTEGRATE (03) → API Design → BUILD (04) → Implementation
+- ❌ **SDLC 5.1.3 (Current)**: BUILD (03) → Implementation → INTEGRATE (07) → API Design (too late)
 
 **Impact**: Enables contract-first development, reducing integration failures by 60-70%
 
@@ -132,7 +132,7 @@ SDLC 5.0.0 places **Stage 03 (INTEGRATE)** after **Stage 07 (OPERATE)**, which i
 - API changes require versioning and migration
 - Integration testing must happen before deployment
 
-**SDLC 5.0.0 (Restructured)**: ✅ INTEGRATE (03) → BUILD (04) → TEST (05) → DEPLOY (06) → OPERATE (07)
+**SDLC 5.1.3 (Restructured)**: ✅ INTEGRATE (03) → BUILD (04) → TEST (05) → DEPLOY (06) → OPERATE (07)
 
 ---
 
@@ -164,7 +164,7 @@ SDLC 5.0.0 places **Stage 03 (INTEGRATE)** after **Stage 07 (OPERATE)**, which i
 
 ## Impact on 4-Tier Classification
 
-### Updated Tier Requirements (SDLC 5.0.0 Restructured)
+### Updated Tier Requirements (SDLC 5.1.3 Restructured)
 
 | Tier | Required Stages | Optional |
 |------|----------------|----------|
@@ -247,7 +247,7 @@ SDLC 5.0.0 places **Stage 03 (INTEGRATE)** after **Stage 07 (OPERATE)**, which i
 
 ### Industry Standards Compliance
 
-| Standard | Requirement | SDLC 5.0.0 (Restructured) Compliance |
+| Standard | Requirement | SDLC 5.1.3 (Restructured) Compliance |
 |----------|-------------|--------------------------------------|
 | **ISO/IEC 12207** | Integration in Technical processes | ✅ Stage 03 (Technical) |
 | **DevOps 7 C's** | CI during Build phase | ✅ INTEGRATE (03) → BUILD (04) |
@@ -265,7 +265,7 @@ SDLC 5.0.0 places **Stage 03 (INTEGRATE)** after **Stage 07 (OPERATE)**, which i
 **Backend Lead**: ✅ **APPROVED** - Enables contract-first development
 
 **Date**: December 13, 2025  
-**Version**: SDLC 5.0.0 (Internal Restructure)  
+**Version**: SDLC 5.1.3 (Internal Restructure)  
 **Status**: ✅ **APPROVED FOR IMPLEMENTATION**
 
 **Conditions**:

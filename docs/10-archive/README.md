@@ -4,7 +4,7 @@
 **Stage**: 10 - Archive
 **Question Answered**: What is the historical record?
 **Status**: REFERENCE ONLY
-**Framework**: SDLC 5.0.0 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 
@@ -121,9 +121,9 @@ Historical sprint reports before standardization. Current reports are in:
 
 ---
 
-## SDLC 5.0.0 Compliance
+## SDLC 5.1.3 Compliance
 
-This stage maps to **Stage 10: Archive** in SDLC 5.0.0.
+This stage maps to **Stage 10: Archive** in SDLC 5.1.3.
 
 ### Tier Requirements
 
@@ -165,7 +165,7 @@ DO:
 ---
 
 **Document Status**: P0 Entry Point (AI-NEVER-READ Directive)
-**Compliance**: SDLC 5.0.0 Stage 10
+**Compliance**: SDLC 5.1.3 Stage 10
 **Last Updated**: December 5, 2025
 **Owner**: PM + CTO
 

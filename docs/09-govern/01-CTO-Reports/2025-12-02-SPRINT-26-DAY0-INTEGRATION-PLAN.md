@@ -24,7 +24,7 @@ This document details the integration points identified during Sprint 26 Day 0 p
 **File**: `backend/app/services/compliance_scanner.py` (869 lines)
 
 **Current State**:
-- Scans projects for SDLC 4.9.1 compliance violations
+- Scans projects for SDLC 5.1.3.1 compliance violations
 - 5 check methods: documentation, stage sequence, evidence, OPA policies, doc-code drift
 - Violations have severity: `critical`, `high`, `medium`, `low`, `info`
 - Recommendations are currently static strings

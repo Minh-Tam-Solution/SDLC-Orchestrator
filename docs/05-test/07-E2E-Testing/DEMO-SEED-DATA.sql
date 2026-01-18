@@ -5,7 +5,7 @@
 -- Date: November 29, 2025
 -- Status: ACTIVE - STAGE 03 (BUILD)
 -- Authority: QA Lead + Backend Lead Approved
--- Framework: SDLC 4.9.1 Complete Lifecycle
+-- Framework: SDLC 5.1.3.1 Complete Lifecycle
 --
 -- Purpose:
 -- Comprehensive seed data for E2E testing using REAL NQH-Bot Platform project.
@@ -21,7 +21,7 @@
 --   FR2: Evidence Vault (Auto-Collection + Storage)
 --   FR3: AI Context Engine (Stage-Aware AI)
 --   FR4: Real-Time Dashboard (Overview + Metrics)
---   FR5: Policy Pack Library (100+ SDLC 4.9.1 Policies)
+--   FR5: Policy Pack Library (100+ SDLC 5.1.3.1 Policies)
 --
 -- Synchronized with: backend/alembic/versions/a502ce0d23a7_seed_data_realistic_mtc_nqh_examples.py
 --
@@ -138,7 +138,7 @@ ON CONFLICT (id) DO NOTHING;
 -- =========================================================================
 -- SECTION 4: NQH-BOT PLATFORM PROJECTS
 -- =========================================================================
--- Projects reflecting REAL NQH-Bot Platform development using SDLC 4.9.1
+-- Projects reflecting REAL NQH-Bot Platform development using SDLC 5.1.3.1
 
 -- Project 1: NQH-Bot Platform - Main project (BUILD stage)
 INSERT INTO projects (id, name, slug, description, owner_id, is_active, created_at, updated_at)
@@ -328,7 +328,7 @@ ON CONFLICT (id) DO NOTHING;
 -- =========================================================================
 -- SECTION 6: GATES (FR1: Quality Gate Management)
 -- =========================================================================
--- Gates for NQH-Bot Platform - covering all SDLC 4.9.1 stages
+-- Gates for NQH-Bot Platform - covering all SDLC 5.1.3.1 stages
 
 -- NQH-Bot Platform Main (WHY → WHAT → HOW complete, BUILD in progress)
 INSERT INTO gates (id, project_id, gate_name, gate_type, stage, status, description, exit_criteria, created_by, created_at, updated_at, approved_at)
@@ -958,7 +958,7 @@ SELECT
 -- =========================================================================
 --
 -- VERSION: 3.0.0 - NQH-Bot Platform (Nov 29, 2025)
--- FRAMEWORK: SDLC 4.9.1 Complete Lifecycle
+-- FRAMEWORK: SDLC 5.1.3.1 Complete Lifecycle
 -- PROJECT: NQH-Bot Platform - Vietnamese Enterprise Chatbot
 --
 -- This seed data supports the following E2E test scenarios using

@@ -244,7 +244,7 @@ def validate_sdlc_structure(project_path: Path) -> ValidationResult:
 
 **Why Violates Framework-First:**
 - SDLC 5.1.0 structure change NOT documented in Framework first
-- Framework still shows SDLC 5.0.0 (10 stages: 00-09, no `10-SASE-Artifacts`)
+- Framework still shows SDLC 5.1.3 (10 stages: 00-09, no `10-SASE-Artifacts`)
 - Other projects cannot discover this new requirement
 - Validation logic diverges from Framework methodology
 
@@ -290,7 +290,7 @@ SASE-Artifacts/
 ```
 
 **Backward Compatibility:**
-- SDLC 5.0.0 projects (no SASE) remain valid (no `SASE-Artifacts/` required)
+- SDLC 5.1.3 projects (no SASE) remain valid (no `SASE-Artifacts/` required)
 - SDLC 5.1.0 projects using SASE MUST include `SASE-Artifacts/` with 3 MANDATORY files
 
 EOF
@@ -298,7 +298,7 @@ EOF
 git add .
 git commit -m "docs(SDLC 5.1.0): Add SASE-Artifacts/ folder to structure guide
 
-Backward compatible with SDLC 5.0.0.
+Backward compatible with SDLC 5.1.3.
 SASE folder optional unless project uses SE 3.0 workflows.
 
 Related: SE 3.0 Track 1 - Framework Enhancement"

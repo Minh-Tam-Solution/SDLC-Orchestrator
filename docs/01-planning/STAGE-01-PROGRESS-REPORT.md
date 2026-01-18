@@ -61,9 +61,9 @@
   - NFR11-12: Availability (99.9% uptime, RTO <1hr, RPO <5min)
   - NFR13-14: Usability (Time to value <1hr, SUS >70)
   - NFR15-17: Compliance (SOC 2, GDPR, 7-year retention)
-- **CRITICAL UPDATE**: NFR8 updated with SDLC 4.9 Gate Approval Matrix (G0-G9)
+- **CRITICAL UPDATE**: NFR8 updated with SDLC 5.1.3 Gate Approval Matrix (G0-G9)
 - **C-Suite RBAC**: CEO, CTO, CPO, CIO, CFO roles + approval matrix
-- **Status**: ✅ COMPLETE (updated SDLC 4.9)
+- **Status**: ✅ COMPLETE (updated SDLC 5.1.3)
 
 **3. Requirements-Traceability-Matrix.md** ✅
 - **Size**: ~5,000 lines
@@ -130,20 +130,20 @@
   - Table 3: organizations
   - Table 4: projects
   - Table 5: gates
-  - **Table 5a: gate_approvals** (NEW - multi-approval workflow for SDLC 4.9 G0-G9)
+  - **Table 5a: gate_approvals** (NEW - multi-approval workflow for SDLC 5.1.3 G0-G9)
   - Table 6: policies
   - Table 7: evidence
   - Table 8: audit_logs
   - Table 9: integrations
   - Table 10-16: ai_contexts, features, gate_evaluations, policy_versions, policy_results, project_users, gate_policies
-- **CRITICAL UPDATE**: Added gate_approvals table for SDLC 4.9 Gate Approval Matrix
-- **Status**: ✅ COMPLETE (updated SDLC 4.9)
+- **CRITICAL UPDATE**: Added gate_approvals table for SDLC 5.1.3 Gate Approval Matrix
+- **Status**: ✅ COMPLETE (updated SDLC 5.1.3)
 
 **8. Database-Schema.md** ✅
 - **Size**: ~1,500 lines
 - **Content**: SQL migration scripts (Alembic/Flyway format)
   - Migration 001: Create core tables (users, teams, organizations) + C-Suite roles
-  - Migration 002: Create project & gate tables + gate_approvals (SDLC 4.9)
+  - Migration 002: Create project & gate tables + gate_approvals (SDLC 5.1.3)
   - Migration 003: Create evidence & policy tables + pre-built policy packs (Stage 00)
   - Migration 004: Create audit_logs (partitioned by month)
   - Migration 005: Create integration tables
@@ -155,7 +155,7 @@
 - **Size**: ~1,200 lines
 - **Content**: Complete field definitions (16 tables)
   - Field name, data type, required, constraints, description, examples
-  - Business rules (gate_approvals: SDLC 4.9 Gate Matrix G0-G9)
+  - Business rules (gate_approvals: SDLC 5.1.3 Gate Matrix G0-G9)
   - Data sizing summary (Year 3 projections)
 - **Status**: ✅ COMPLETE
 
@@ -171,8 +171,8 @@
   - Timeline: Week 2 (2 weeks), Days 1-3 Legal Review (CRITICAL)
   - Gate G1 criteria
   - Progress tracker (10/15 complete)
-  - **CRITICAL UPDATE**: Version 1.1.0, Framework SDLC 4.9, Next Stages Preview (04-09)
-- **Status**: ✅ COMPLETE (updated SDLC 4.9)
+  - **CRITICAL UPDATE**: Version 1.1.0, Framework SDLC 5.1.3, Next Stages Preview (04-09)
+- **Status**: ✅ COMPLETE (updated SDLC 5.1.3)
 
 ---
 
@@ -257,7 +257,7 @@
 **Updates Made**:
 - ✅ NFR8: C-Suite RBAC table (CEO/CTO/CPO/CIO/CFO permissions)
 - ✅ Data Model ERD: users table updated (13 roles)
-- ✅ gate_approvals table: Multi-approval workflow (SDLC 4.9 Gate Matrix)
+- ✅ gate_approvals table: Multi-approval workflow (SDLC 5.1.3 Gate Matrix)
 
 **Business Impact**:
 - Enterprise-ready: C-Suite approval workflows (G0.2, G1, G2, G5, G9 require 2+ approvals)
@@ -266,18 +266,18 @@
 
 ---
 
-### 2. SDLC 4.9 Upgrade ✅
+### 2. SDLC 5.1.3 Upgrade ✅
 
-**Achievement**: Updated Stage 01 documentation to SDLC 4.9 (10 stages, G0-G9 gates).
+**Achievement**: Updated Stage 01 documentation to SDLC 5.1.3 (10 stages, G0-G9 gates).
 
 **Updates Made**:
-- ✅ README.md: Version 1.1.0, Framework SDLC 4.9, Next Stages Preview (04-09)
+- ✅ README.md: Version 1.1.0, Framework SDLC 5.1.3, Next Stages Preview (04-09)
 - ✅ NFR8: Gate Approval Matrix G0-G9 (10 stages)
-- ✅ Data Model ERD: gate_approvals Business Rules (SDLC 4.9)
+- ✅ Data Model ERD: gate_approvals Business Rules (SDLC 5.1.3)
 
 **Strategic Impact**:
 - **Perfect /docs alignment**: 10 SDLC stages → 10 /docs folders (00-09)
-- **First-mover advantage**: SDLC Orchestrator is FIRST platform built on SDLC 4.9
+- **First-mover advantage**: SDLC Orchestrator is FIRST platform built on SDLC 5.1.3
 - **Competitive edge**: "ONLY platform with complete 10-stage lifecycle (WHY → GOVERN)"
 
 ---
@@ -304,7 +304,7 @@
 ### Today (Jan 13, 4:00 PM) - Completed
 
 - ✅ 10 documents completed (67%)
-- ✅ SDLC 4.9 updates integrated
+- ✅ SDLC 5.1.3 updates integrated
 - ✅ C-Suite RBAC integrated
 
 ### Tomorrow (Jan 14) - API Specs

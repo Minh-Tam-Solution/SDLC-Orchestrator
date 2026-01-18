@@ -1,27 +1,27 @@
-# Onboarding Flow Specification - SDLC 5.0.0
+# Onboarding Flow Specification - SDLC 5.1.3
 
 **Version**: 1.0.0
 **Date**: December 13, 2025
 **Status**: ACTIVE - Sprint 32 Phase 2
 **Authority**: CTO + CPO Approved
-**Framework**: SDLC 5.0.0 Complete Lifecycle (Contract-First, 4-Tier Classification)
+**Framework**: SDLC 5.1.3 Complete Lifecycle (Contract-First, 4-Tier Classification)
 
 ---
 
 ## 1. Overview
 
-This document specifies the complete onboarding flows for SDLC Orchestrator, covering both Web Dashboard and VS Code Extension user journeys. All flows are aligned with SDLC 5.0.0 Contract-First stage structure and 4-Tier Classification system.
+This document specifies the complete onboarding flows for SDLC Orchestrator, covering both Web Dashboard and VS Code Extension user journeys. All flows are aligned with SDLC 5.1.3 Contract-First stage structure and 4-Tier Classification system.
 
-### 1.1 Key Changes from SDLC 4.9.x
+### 1.1 Key Changes from SDLC 5.1.3.x
 
-| Aspect | SDLC 4.9.x | SDLC 5.0.0 |
+| Aspect | SDLC 5.1.3.x | SDLC 5.1.3 |
 |--------|------------|------------|
 | **Stage Order** | INTEGRATE at Stage 03 (INTEGRATE) at Stage 03 (Contract-First) |
 | **Stage Names** | CamelCase (00-Project-Foundation) | lowercase (00-foundation) |
 | **Classification** | 3-pack system | 4-Tier (LITE/STANDARD/PROFESSIONAL/ENTERPRISE) |
 | **Onboarding** | Policy Pack selection | Tier selection with stage requirements |
 
-### 1.2 SDLC 5.0.0 Stage Structure (Contract-First Order)
+### 1.2 SDLC 5.1.3 Stage Structure (Contract-First Order)
 
 ```yaml
 # LINEAR STAGES (Sequential per release):
@@ -54,7 +54,7 @@ Stage 10 - archive:      Historical Archive                → docs/10-archive/
 ```
                     ┌─────────────────────────────────────────────────────────────┐
                     │              4-TIER CLASSIFICATION PYRAMID                   │
-                    │                    SDLC 5.0.0                                │
+                    │                    SDLC 5.1.3                                │
                     └─────────────────────────────────────────────────────────────┘
 
                                           ▲
@@ -99,7 +99,7 @@ Stage 10 - archive:      Historical Archive                → docs/10-archive/
 
 ```
                     ┌─────────────────────────────────────────────────────────────┐
-                    │           SDLC 5.0.0 CONTRACT-FIRST STAGE FLOW              │
+                    │           SDLC 5.1.3 CONTRACT-FIRST STAGE FLOW              │
                     │           API Design BEFORE Code Implementation              │
                     └─────────────────────────────────────────────────────────────┘
 
@@ -220,7 +220,7 @@ Step 3: AI Analysis (Optional)
 └─────────────────────────────────────────────────────────────────────────────┘
                                    │
                                    ▼
-Step 4: Tier Selection (SDLC 5.0.0)
+Step 4: Tier Selection (SDLC 5.1.3)
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                                                                             │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
@@ -243,7 +243,7 @@ Step 4: Tier Selection (SDLC 5.0.0)
 Step 5: Stage Mapping (OPTIONAL - can do later)
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                                                                             │
-│  Map existing folders to SDLC 5.0.0 stages:                                 │
+│  Map existing folders to SDLC 5.1.3 stages:                                 │
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────┐        │
 │  │ Stage              │ Current Folder       │ Status              │        │
@@ -268,7 +268,7 @@ Step 6: First Gate Evaluation (G0.1 - MANDATORY)
 │  ┌─────────────────────────────────────────────────────────────────┐        │
 │  │                    Gate G0.1 - Problem Definition               │        │
 │  │                                                                  │        │
-│  │  Exit Criteria (SDLC 5.0.0):                                    │        │
+│  │  Exit Criteria (SDLC 5.1.3):                                    │        │
 │  │  ✓ Problem statement documented                                  │        │
 │  │  ✓ User personas defined (10+)                                   │        │
 │  │  ✓ Market research completed (TAM/SAM/SOM)                       │        │
@@ -400,7 +400,7 @@ POST /api/v1/projects/{id}/upload-repo
 
 **Duration**: ~30 seconds (optional, can skip)
 
-**RBAC Roles (SDLC 5.0.0)**:
+**RBAC Roles (SDLC 5.1.3)**:
 | Role | Permissions |
 |------|-------------|
 | **Owner** | Full access, delete project, transfer ownership |
@@ -465,7 +465,7 @@ GET /api/v1/projects/{id}/manual-setup-form
     }
 ```
 
-#### Step 4: Tier Selection (SDLC 5.0.0)
+#### Step 4: Tier Selection (SDLC 5.1.3)
 
 **Duration**: ~30 seconds
 
@@ -592,7 +592,7 @@ POST /api/v1/projects/{id}/detect-stages
 
 **Duration**: ~5 minutes (depends on evidence availability)
 
-**G0.1 Exit Criteria (SDLC 5.0.0)**:
+**G0.1 Exit Criteria (SDLC 5.1.3)**:
 ```yaml
 gate_name: "G0.1"
 gate_type: "PROBLEM_DEFINITION"
@@ -707,7 +707,7 @@ Step 1: Install Extension (~30 sec)
 │  │  by MT Solution                                                  │        │
 │  │  ⭐⭐⭐⭐⭐ (4.8) | 10K+ installs                                  │        │
 │  │                                                                  │        │
-│  │  Governance-first development with SDLC 5.0.0                    │        │
+│  │  Governance-first development with SDLC 5.1.3                    │        │
 │  │  • Quality Gates & Evidence Management                           │        │
 │  │  • AI-Assisted Development                                       │        │
 │  │  • Contract-First Stage Compliance                               │        │
@@ -812,12 +812,12 @@ Step 2: Prompt to Initialize (~5 sec)
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────┐        │
-│  │  🏛️ Create SDLC 5.0.0 Project?                                  │        │
+│  │  🏛️ Create SDLC 5.1.3 Project?                                  │        │
 │  │                                                                  │        │
 │  │  This folder appears to be empty or doesn't have an             │        │
 │  │  SDLC configuration.                                             │        │
 │  │                                                                  │        │
-│  │  Would you like to initialize an SDLC 5.0.0 compliant           │        │
+│  │  Would you like to initialize an SDLC 5.1.3 compliant           │        │
 │  │  project structure?                                              │        │
 │  │                                                                  │        │
 │  │  [Initialize SDLC Project]    [Not Now]                          │        │
@@ -853,7 +853,7 @@ Step 3: Select Tier (~15 sec)
 Step 4: Generate Folder Structure (~10 sec)
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                                                                             │
-│  Generating SDLC 5.0.0 STANDARD structure...                                │
+│  Generating SDLC 5.1.3 STANDARD structure...                                │
 │                                                                             │
 │  ✓ Created .sdlc-config.json                                               │
 │  ✓ Created docs/00-foundation/                                              │
@@ -906,11 +906,11 @@ Step 6: Open Getting Started Guide (Auto)
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────┐        │
-│  │  🎉 SDLC 5.0.0 Project Created!                                 │        │
+│  │  🎉 SDLC 5.1.3 Project Created!                                 │        │
 │  │                                                                  │        │
 │  │  Project: my-new-project                                         │        │
 │  │  Tier: STANDARD                                                  │        │
-│  │  Framework: SDLC 5.0.0 (Contract-First)                          │        │
+│  │  Framework: SDLC 5.1.3 (Contract-First)                          │        │
 │  │                                                                  │        │
 │  │  Getting Started:                                                │        │
 │  │                                                                  │        │
@@ -1026,7 +1026,7 @@ project/
 | Command | Shortcut | Description |
 |---------|----------|-------------|
 | `SDLC: Initialize Project` | Cmd+Shift+I | Create/update .sdlc-config.json |
-| `SDLC: Validate Structure` | Cmd+Shift+V | Validate SDLC 5.0.0 compliance |
+| `SDLC: Validate Structure` | Cmd+Shift+V | Validate SDLC 5.1.3 compliance |
 | `SDLC: Submit Evidence` | Cmd+Shift+E | Submit file as gate evidence |
 | `SDLC: View Gates` | Cmd+Shift+G | Open gate status sidebar |
 | `SDLC: AI Assistant` | Cmd+Shift+A | Open AI chat panel |
@@ -1056,7 +1056,7 @@ Expected Duration: <2 minutes
 Scenario: Initialize SDLC project in empty folder
   Given user opens empty folder in VS Code
   And SDLC extension is installed
-  Then extension prompts "Create SDLC 5.0.0 Project?"
+  Then extension prompts "Create SDLC 5.1.3 Project?"
   When user selects STANDARD tier
   Then folder structure is generated
   And .sdlc-config.json is created
@@ -1092,7 +1092,7 @@ Scenario: Detect missing SDLC stages
 
 ---
 
-## 4. `.sdlc-config.json` Specification (SDLC 5.0.0)
+## 4. `.sdlc-config.json` Specification (SDLC 5.1.3)
 
 ### 4.1 Full Schema
 
@@ -1289,11 +1289,11 @@ Scenario: Detect missing SDLC stages
 
 ---
 
-## 6. Migration from SDLC 4.9.x
+## 6. Migration from SDLC 5.1.3.x
 
 ### 6.1 Stage Mapping Changes
 
-| SDLC 4.9.x | SDLC 5.0.0 | Change |
+| SDLC 5.1.3.x | SDLC 5.1.3 | Change |
 |------------|------------|--------|
 | 00-Project-Foundation | 00-foundation | Rename |
 | 01-Planning-Analysis | 01-planning | Rename |
@@ -1322,7 +1322,7 @@ sdlcctl migrate --from 4.9.x --to 5.0.0 --path /path/to/project
 
 ### 6.3 Onboarding Migration Path
 
-For existing SDLC 4.9.x users:
+For existing SDLC 5.1.3.x users:
 
 1. **Web Dashboard**: Show migration banner on dashboard
 2. **VS Code Extension**: Detect 4.9.x config, offer migration
@@ -1666,7 +1666,7 @@ For existing SDLC 4.9.x users:
 
 ```
                     ┌─────────────────────────────────────────────────────────────┐
-                    │           SDLC 5.0.0 FOLDER STRUCTURE BY TIER               │
+                    │           SDLC 5.1.3 FOLDER STRUCTURE BY TIER               │
                     └─────────────────────────────────────────────────────────────┘
 
 
@@ -1724,11 +1724,11 @@ For existing SDLC 4.9.x users:
 
 ```
                     ┌─────────────────────────────────────────────────────────────┐
-                    │              SDLC 4.9.x → 5.0.0 MIGRATION PATH               │
+                    │              SDLC 5.1.3.x → 5.0.0 MIGRATION PATH               │
                     └─────────────────────────────────────────────────────────────┘
 
 
-    SDLC 4.9.x Structure                    SDLC 5.0.0 Structure
+    SDLC 5.1.3.x Structure                    SDLC 5.1.3 Structure
     (BEFORE)                                (AFTER)
     ═══════════════════                     ═══════════════════
 
@@ -1756,14 +1756,14 @@ For existing SDLC 4.9.x users:
 
     WHY?
     ─────────────────────────────────────────────────────
-    │ SDLC 4.9.x: API Design at Stage 07               │
+    │ SDLC 5.1.3.x: API Design at Stage 07               │
     │ Problem: API contracts defined AFTER production  │
     │ Result: Integration issues discovered too late   │
     ─────────────────────────────────────────────────────
                           │
                           ▼
     ─────────────────────────────────────────────────────
-    │ SDLC 5.0.0: API Design at Stage 03               │
+    │ SDLC 5.1.3: API Design at Stage 03               │
     │ Solution: Contract-First development             │
     │ Result: API contracts BEFORE coding begins       │
     ─────────────────────────────────────────────────────
@@ -1777,7 +1777,7 @@ For existing SDLC 4.9.x users:
     │  $ sdlcctl migrate /path/to/project --from 4.9.x --to 5.0.0           │
     │                                                                        │
     │  Planning migration...                                                 │
-    │  ✓ Detected SDLC 4.9.x structure                                      │
+    │  ✓ Detected SDLC 5.1.3.x structure                                      │
     │  ✓ 11 folders to rename                                                │
     │  ✓ 1 folder to move (07 → 03)                                         │
     │                                                                        │
@@ -1792,7 +1792,7 @@ For existing SDLC 4.9.x users:
 ---
 
 **Document Status**: ✅ COMPLETE - Ready for Implementation
-**Framework**: SDLC 5.0.0 Contract-First (ISO/IEC 12207:2017 Aligned)
+**Framework**: SDLC 5.1.3 Contract-First (ISO/IEC 12207:2017 Aligned)
 **Sprint**: 32 - Phase 2 (Onboarding Documentation)
 **Next Steps**: Phase 3 - Onboarding Flow Updates (Frontend Implementation)
 **Owner**: CTO + CPO

@@ -1,11 +1,11 @@
-# SDLC 4.9 DOCUMENT NAMING STANDARDS
+# SDLC 5.1.3 DOCUMENT NAMING STANDARDS
 ## SDLC Orchestrator Platform Documentation Guidelines
 
-**SDLC Version**: 4.9 - Complete 10-Stage Lifecycle
+**SDLC Version**: 5.1.3 - 7-Pillar Architecture
 **Stage**: Stage 09 (GOVERN - Governance & Compliance)
 **Purpose**: Enforce permanent, feature-based naming standards across all documentation
-**Authority**: SDLC 4.9 Document Governance Framework (DGF) - **MANDATORY ENFORCEMENT**
-**Last Updated**: November 27, 2025
+**Authority**: SDLC 5.1.3 Document Governance Framework (DGF) - **MANDATORY ENFORCEMENT**
+**Last Updated**: January 18, 2026
 **Status**: ✅ ACTIVE - All teams must comply
 
 ---
@@ -14,29 +14,29 @@
 
 ### What is SDLC Orchestrator?
 
-**SDLC Orchestrator is NOT just another project** - it is the **tool that implements SDLC 4.9 Framework automatically** for software development projects. Think of it as:
+**SDLC Orchestrator is NOT just another project** - it is the **tool that implements SDLC 5.1.3 Framework automatically** for software development projects. Think of it as:
 
 ```yaml
-SDLC 4.9 Framework = The Methodology (Rules, Stages, Gates)
+SDLC 5.1.3 Framework = The Methodology (Rules, Stages, Gates)
 SDLC Orchestrator = The Tool (Automation, Enforcement, Tracking)
 
 Analogy:
   - Scrum = Methodology
   - Jira = Tool that implements Scrum
 
-  - SDLC 4.9 = Methodology
-  - SDLC Orchestrator = Tool that implements SDLC 4.9
+  - SDLC 5.1.3 = Methodology
+  - SDLC Orchestrator = Tool that implements SDLC 5.1.3
 ```
 
 ### Platform Purpose
 
 | Aspect | Description |
 |--------|-------------|
-| **What it does** | Automates SDLC 4.9 compliance for software teams |
+| **What it does** | Automates SDLC 5.1.3 compliance for software teams |
 | **Core Features** | Gate management, Evidence vault, Policy enforcement |
 | **Target Users** | Development teams, Project managers, CTOs |
 | **Problem Solved** | 60-70% feature waste → <30% through governance |
-| **Unique Value** | First tool to implement SDLC 4.9 natively |
+| **Unique Value** | First tool to implement SDLC 5.1.3 natively |
 
 ### Naming Problem Statement
 
@@ -46,7 +46,7 @@ Analogy:
 - 100% obsolete references within 6-12 months
 - Technical debt accumulation in documentation
 
-**Solution**: SDLC 4.9 **Permanent Naming Standards**:
+**Solution**: SDLC 5.1.3 **Permanent Naming Standards**:
 - Feature-based, descriptive names (WHAT, not WHEN)
 - Temporal context INSIDE document header (Sprint, Date, Version)
 - AI-parseable, systematic structure
@@ -335,7 +335,7 @@ Q1: Permanent design doc? YES
 - [ ] Filename is descriptive and will make sense in 1-5 years
 - [ ] Filename follows Module-Component-Type pattern
 - [ ] Filename uses kebab-case (lowercase with hyphens)
-- [ ] Document header includes SDLC 4.9 mandatory fields
+- [ ] Document header includes SDLC 5.1.3 mandatory fields
 - [ ] Sprint/Date info is INSIDE document, not in filename
 - [ ] Document is in correct `/docs/[Stage]/` folder
 
@@ -394,13 +394,13 @@ Escalate to CTO Office for clarifications
 
 **Document**: SDLC-DOCUMENT-NAMING-STANDARDS.md
 **Status**: ACTIVE - MANDATORY ENFORCEMENT
-**Authority**: SDLC 4.9 Document Governance Framework (DGF)
+**Authority**: SDLC 5.1.3 Document Governance Framework (DGF)
 **Last Updated**: November 27, 2025
 **Next Review**: Gate G3 (Jan 31, 2026)
 
 ---
 
-**SDLC 4.9 Compliance**: ✅ Complete 10-Stage Lifecycle Framework
+**SDLC 5.1.3 Compliance**: ✅ Complete 10-Stage Lifecycle Framework
 **Enforcement**: GitHub hooks + CI/CD validation + Code review
 **Benefits**: 70% refactoring reduction, 85% discoverability improvement
 

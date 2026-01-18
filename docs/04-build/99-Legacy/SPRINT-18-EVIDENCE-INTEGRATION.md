@@ -5,7 +5,7 @@
 **Status**: PLANNED
 **Authority**: Frontend Lead + Backend Lead + CPO
 **Foundation**: Frontend-Backend Gap Analysis Report
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 
@@ -263,6 +263,6 @@ test.describe('Evidence Page', () => {
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 4.9. Zero Mock Policy enforced.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced.*
 
 **Sprint 18 Focus**: "Evidence Integration - Complete API coverage for Evidence Vault"

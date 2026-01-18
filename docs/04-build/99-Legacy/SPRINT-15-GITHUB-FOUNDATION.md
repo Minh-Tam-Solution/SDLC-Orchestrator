@@ -5,7 +5,7 @@
 **Status**: IN PROGRESS  
 **Authority**: Backend Lead + CPO Approved  
 **Foundation**: Sprint 14 Complete ✅, User-Onboarding-Flow-Architecture.md  
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 

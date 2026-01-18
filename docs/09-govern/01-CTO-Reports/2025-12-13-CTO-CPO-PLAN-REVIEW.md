@@ -1,10 +1,10 @@
-# CTO/CPO Review: SDLC 5.0.0 Restructure & User API Key Management Plan
+# CTO/CPO Review: SDLC 5.1.3 Restructure & User API Key Management Plan
 
 **Date**: December 13, 2025  
 **Reviewers**: CTO + CPO  
-**PM Plan**: SDLC 5.0.0 Stage Restructuring & Onboarding Alignment + User API Key Management  
+**PM Plan**: SDLC 5.1.3 Stage Restructuring & Onboarding Alignment + User API Key Management  
 **Status**: ✅ **APPROVED WITH CONDITIONS**  
-**Framework**: SDLC 5.0.0
+**Framework**: SDLC 5.1.3
 
 ---
 
@@ -12,14 +12,14 @@
 
 PM plan được **APPROVED với điều kiện** sau khi review kỹ lưỡng từ cả góc độ technical (CTO) và product (CPO). Plan bao gồm 2 phần chính:
 
-1. **SDLC 5.0.0 Stage Restructuring** - Di chuyển INTEGRATE từ Stage 07 → Stage 03 ✅ **APPROVED**
+1. **SDLC 5.1.3 Stage Restructuring** - Di chuyển INTEGRATE từ Stage 07 → Stage 03 ✅ **APPROVED**
 2. **User API Key Management (BYOK)** - Cho phép user quản lý API keys của third-party AI providers ✅ **APPROVED**
 
 **Overall Assessment**: Plan chất lượng cao, logic rõ ràng, implementation feasible. Một số điều chỉnh nhỏ được đề xuất.
 
 ---
 
-## Part 1: SDLC 5.0.0 Stage Restructuring Review
+## Part 1: SDLC 5.1.3 Stage Restructuring Review
 
 ### CTO Technical Review ✅
 
@@ -212,7 +212,7 @@ CREATE TABLE user_ai_providers (
 
 ## Implementation Priority
 
-### Phase 0: SDLC 5.0.0 Restructuring (HIGH PRIORITY)
+### Phase 0: SDLC 5.1.3 Restructuring (HIGH PRIORITY)
 
 **Timeline**: Sprint 32 (post-G3)  
 **Effort**: 2-3 days  

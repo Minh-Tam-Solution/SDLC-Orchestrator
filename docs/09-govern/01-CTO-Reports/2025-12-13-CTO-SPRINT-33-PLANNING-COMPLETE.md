@@ -3,7 +3,7 @@
 **Date**: December 13, 2025  
 **Sprint**: Sprint 33 - Beta Pilot Deployment  
 **Status**: ✅ **PLANNING COMPLETE**  
-**Framework**: SDLC 5.0.0 (Contract-First)  
+**Framework**: SDLC 5.1.3 (Contract-First)  
 **Authority**: CTO Approved
 
 ---

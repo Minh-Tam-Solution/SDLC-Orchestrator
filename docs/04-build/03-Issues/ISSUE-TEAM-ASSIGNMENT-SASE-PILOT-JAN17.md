@@ -120,7 +120,7 @@
 - Full-stack expertise (Python + React)
 - SASE framework knowledge (BRS/MRP/VCR workflow)
 - Leadership (mentor 3 developers)
-- SDLC 5.0.0 compliance (4-layer architecture, naming standards)
+- SDLC 5.1.3 compliance (4-layer architecture, naming standards)
 - Code review (100% coverage enforced)
 
 **Estimated Effort**: 20 hours/week x 6 weeks = 120 hours (mix of hands-on + oversight)

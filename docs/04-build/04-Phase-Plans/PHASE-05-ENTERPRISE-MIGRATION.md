@@ -22,7 +22,7 @@
 ### Business Context
 
 **Battle-Tested Foundation**: Bflow Platform CTO built custom migration tooling (Dec 2025) that:
-- Migrated 3,800+ Python files from SDLC 4.9 → 5.1
+- Migrated 3,800+ Python files from SDLC 5.1.3 → 5.1
 - Reduced migration time: 4 weeks → 2 hours (120x speedup)
 - Created ~10,500 LOC of proven algorithms
 - Generated 700KB self-contained compliance documentation
@@ -482,7 +482,7 @@ CREATE TABLE project_sdlc_configs (
 
 **Project Details**:
 - Size: 3,800+ Python files, 1,200+ Markdown docs
-- Migration: SDLC 4.9 → 5.1
+- Migration: SDLC 5.1.3 → 5.1
 - Team: 11 members (6 Remote + 5 Local)
 - CTO built custom tooling: ~10,500 LOC
 

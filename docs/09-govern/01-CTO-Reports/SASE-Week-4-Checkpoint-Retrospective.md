@@ -41,7 +41,7 @@
 
 **Action if triggered**: PAUSE Phase 2, conduct root cause analysis, decide:
 - **Option A**: Adjust scope (reduce to 3 artifacts: BRS, MRP, VCR only)
-- **Option B**: Abort SASE integration (revert to SDLC 5.0.0)
+- **Option B**: Abort SASE integration (revert to SDLC 5.1.3)
 - **Option C**: Continue with mitigation plan
 
 ---

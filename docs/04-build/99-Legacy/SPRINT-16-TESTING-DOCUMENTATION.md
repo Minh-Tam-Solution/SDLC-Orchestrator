@@ -6,7 +6,7 @@
 **Status**: 🔄 **IN PROGRESS**
 **Authority**: Backend Lead + QA Lead + Frontend Lead
 **Foundation**: Sprint 15 Complete (GitHub Foundation + G6 UX)
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 
@@ -333,8 +333,8 @@ Sprint 16 is complete when:
 
 **Created By**: PM + Backend Lead + QA Lead
 **Date**: December 3, 2025
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 4.9. Zero Mock Policy enforced.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced.*

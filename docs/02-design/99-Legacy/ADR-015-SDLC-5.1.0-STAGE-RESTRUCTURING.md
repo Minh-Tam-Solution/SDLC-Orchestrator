@@ -3,7 +3,7 @@
 **Status**: ✅ **APPROVED**  
 **Date**: December 13, 2025  
 **Deciders**: CTO + CPO + Backend Lead  
-**Framework**: SDLC 5.0.0 → SDLC 5.1.0  
+**Framework**: SDLC 5.1.3 → SDLC 5.1.0  
 **Impact**: High - Affects all documentation, onboarding flows, and project structure
 
 ---
@@ -12,14 +12,14 @@
 
 ### Problem Statement
 
-SDLC 5.0.0 places **Stage 03 (INTEGRATE)** after **Stage 07 (OPERATE)**, which is logically incorrect:
+SDLC 5.1.3 places **Stage 03 (INTEGRATE)** after **Stage 07 (OPERATE)**, which is logically incorrect:
 
 1. **Temporal Impossibility**: If a project is already in OPERATE (production), it cannot "go back" to define API contracts
 2. **Design Phase Logic**: Integration/API Design belongs in the Design phase, not post-production
 3. **Industry Standard Violation**: Contradicts ISO/IEC 12207:2017 and DevOps best practices
 4. **Contract-First Principle**: OpenAPI specs must exist before coding begins, not after deployment
 
-### Current State (SDLC 5.0.0)
+### Current State (SDLC 5.1.3)
 
 ```
 00-WHY:        Foundation & Problem Definition
@@ -113,7 +113,7 @@ SDLC 5.0.0 places **Stage 03 (INTEGRATE)** after **Stage 07 (OPERATE)**, which i
 **Contract-First Principle**: API contracts (OpenAPI specs) must exist **before** coding begins:
 
 - ✅ **SDLC 5.1.0**: INTEGRATE (03) → API Design → BUILD (04) → Implementation
-- ❌ **SDLC 5.0.0**: BUILD (03) → Implementation → INTEGRATE (07) → API Design (too late)
+- ❌ **SDLC 5.1.3**: BUILD (03) → Implementation → INTEGRATE (07) → API Design (too late)
 
 **Impact**: Enables contract-first development, reducing integration failures by 60-70%
 

@@ -106,7 +106,7 @@ We envision a world where:
 ### Governance-First Positioning (NOT Project Management)
 
 **What We Are**:
-- **Governance Layer**: Enforces SDLC 4.9 quality gates across your existing tools
+- **Governance Layer**: Enforces SDLC 5.1.3 quality gates across your existing tools
 - **Policy Engine**: Automated validation using Policy-as-Code (OPA)
 - **Evidence Vault**: Permanent audit trail for compliance (SOC 2, ISO 27001)
 - **Gate Orchestrator**: Multi-approval workflow (CEO, CTO, CPO, CIO, CFO)
@@ -162,7 +162,7 @@ We envision a world where:
 ```
 
 **Competitive Moat**: Competitors can copy OSS in 1 week, but need:
-- **6-12 months** to understand SDLC 4.9 nuances (experience moat - 10-stage lifecycle)
+- **6-12 months** to understand SDLC 5.1.3 nuances (experience moat - 10-stage lifecycle)
 - **1-2 years** to build equivalent policy packs (knowledge moat - 100+ pre-built policies)
 - **3+ years** to validate with real teams (trust moat - evidence-based)
 
@@ -257,7 +257,7 @@ We envision a world where:
 - **CEO Knowledge Encoding**: 3-5 years of NQH CEO AI usage patterns captured
 - **Context-Aware Classification**: Hundreds of rules based on real project experience
 - **4-Level Planning Hierarchy**: Proven across Bflow, NQH-Bot, MTEP, AI-Platform
-- **SDLC 4.9.1 Deep Integration**: 10-stage lifecycle with AI assistance at every stage
+- **SDLC 5.1.3.1 Deep Integration**: 10-stage lifecycle with AI assistance at every stage
 
 **Business Impact**:
 - PM productivity: 10x improvement (CEO-level outputs without CEO involvement)

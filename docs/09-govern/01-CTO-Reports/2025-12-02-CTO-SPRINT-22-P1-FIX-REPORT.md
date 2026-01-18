@@ -255,4 +255,4 @@ Page load: 30s (cold start)
 
 ---
 
-*SDLC 4.9.1 Compliance: Zero Mock Policy, E2E Test Coverage*
+*SDLC 5.1.3.1 Compliance: Zero Mock Policy, E2E Test Coverage*

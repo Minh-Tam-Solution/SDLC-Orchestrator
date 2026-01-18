@@ -6,7 +6,7 @@
 **Status**: ✅ WEEK 10 OF 13 - Gate G3 Target: Dec 13, 2025
 **Authority**: CTO + Backend Lead + Tech Lead
 **Foundation**: Stage 02 (Design & Architecture) - 24 documents ✅ COMPLETE
-**Framework**: SDLC 4.9.1 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 5.1.3.1 Complete Lifecycle (10 Stages)
 **Previous Stage**: Stage 02 (HOW - Design & Architecture) ✅ COMPLETE (Gate G2 PASSED)
 
 ---
@@ -26,7 +26,7 @@ This stage transforms architecture (Stage 02 - HOW) into working code with:
 
 ---
 
-## Folder Structure (SDLC 4.9.1 Compliant)
+## Folder Structure (SDLC 5.1.3.1 Compliant)
 
 ```
 03-Development-Implementation/
@@ -183,7 +183,7 @@ async def create_project(
         POST /api/v1/projects
         {
             "name": "SDLC Orchestrator",
-            "description": "First governance platform on SDLC 4.9"
+            "description": "First governance platform on SDLC 5.1.3"
         }
     """
     # Validate project name uniqueness
@@ -495,7 +495,7 @@ Focus: Automated SDLC compliance enforcement + Ollama AI
 
 Deliverables:
   - ComplianceScanner service (detect violations automatically)
-  - 15+ SDLC 4.9.1 policy rules (Rego)
+  - 15+ SDLC 5.1.3.1 policy rules (Rego)
   - Scheduled daily scans
   - Ollama AI integration (recommendations)
   - Compliance Dashboard UI
@@ -602,7 +602,7 @@ Documentation:
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [React Documentation](https://react.dev/)
 - [OWASP ASVS Level 2](https://owasp.org/www-project-application-security-verification-standard/)
-- [SDLC 4.9 Framework](/Users/dttai/Documents/Python/01.NQH/Bflow-Platform/Sub-Repo/SDLC-Enterprise-Framework)
+- [SDLC 5.1.3 Framework](/Users/dttai/Documents/Python/01.NQH/Bflow-Platform/Sub-Repo/SDLC-Enterprise-Framework)
 
 ---
 

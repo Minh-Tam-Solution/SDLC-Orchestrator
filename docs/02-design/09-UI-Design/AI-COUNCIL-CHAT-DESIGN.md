@@ -1,12 +1,12 @@
 # AI COUNCIL CHAT UI DESIGN SPECIFICATION
 ## Sprint 28 - Web Dashboard AI Assistant
 
-**Document Type**: SDLC 4.9 Stage 02 (WHAT - Design/Architecture) - UI Component Design
+**Document Type**: SDLC 5.1.3 Stage 02 (WHAT - Design/Architecture) - UI Component Design
 **Version**: 1.0.0
 **Date**: December 4, 2025
 **Status**: ACTIVE - STAGE 02 (DESIGN)
 **Authority**: Frontend Lead + UX Lead + CTO Approved
-**Framework**: SDLC 4.9 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
 **Sprint**: 28 - Web Dashboard AI Assistant
 
 ---

@@ -3,7 +3,7 @@
 **Stage**: 05 - DEPLOY
 **Question**: How do we ship it safely?
 **Status**: Planned
-**Framework**: SDLC 5.0.0 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 
@@ -96,7 +96,7 @@ This stage manages the deployment, release, and distribution of SDLC Orchestrato
 
 **Last Updated**: December 5, 2025
 **Owner**: DevOps Lead + CTO
-**Framework**: SDLC 5.0.0 Stage 05
+**Framework**: SDLC 5.1.3 Stage 05
 
 ---
 

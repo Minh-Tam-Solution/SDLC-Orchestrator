@@ -4,7 +4,7 @@
 **Sprint**: Sprint 32  
 **Phase**: Phase 2 - Onboarding Documentation  
 **Status**: ✅ **COMPLETE**  
-**Framework**: SDLC 5.0.0 (Contract-First Restructure)  
+**Framework**: SDLC 5.1.3 (Contract-First Restructure)  
 **Authority**: CTO Approved
 
 ---
@@ -72,7 +72,7 @@ Phase 2 successfully completed all onboarding documentation deliverables. Compre
 
 **Updates**:
 - ✅ `/init` command specification
-- ✅ SDLC 5.0.0 structure generation
+- ✅ SDLC 5.1.3 structure generation
 - ✅ Empty folder detection
 - ✅ Tier-based structure creation
 

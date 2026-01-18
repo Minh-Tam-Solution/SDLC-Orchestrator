@@ -109,7 +109,7 @@ INFO  [alembic.runtime.migration] Running upgrade e0f1a2b3c4d5 -> f1a2b3c4d5e6, 
 INFO  [alembic.runtime.migration] Running upgrade f1a2b3c4d5e6 -> g2b3c4d5e6f7, Add MTEP Platform and pilot team accounts
 INFO  [alembic.runtime.migration] Running upgrade g2b3c4d5e6f7 -> h3c4d5e6f7g8, Add pilot feedback tables
 INFO  [alembic.runtime.migration] Running upgrade h3c4d5e6f7g8 -> i4d5e6f7g8h9, Add usage tracking tables
-INFO  [alembic.runtime.migration] Running upgrade i4d5e6f7g8h9 -> j5e6f7g8h9i0, Add SDLC 5.0.0 validation tables
+INFO  [alembic.runtime.migration] Running upgrade i4d5e6f7g8h9 -> j5e6f7g8h9i0, Add SDLC 5.1.3 validation tables
 INFO  [alembic.runtime.migration] Running upgrade j5e6f7g8h9i0 -> k6f7g8h9i0j1, Add Gate G3 performance indexes
 ```
 

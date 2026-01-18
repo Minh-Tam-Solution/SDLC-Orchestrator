@@ -3,7 +3,7 @@
 **Date**: December 13, 2025  
 **Sprint**: Sprint 33 - Beta Pilot Deployment  
 **Status**: ✅ **PLANNING APPROVED**  
-**Framework**: SDLC 5.0.0 (Contract-First)  
+**Framework**: SDLC 5.1.3 (Contract-First)  
 **Authority**: CPO Approved
 
 ---
@@ -235,7 +235,7 @@ Sprint 33 planning successfully completed and approved. Comprehensive Beta Pilot
 
 ### User Experience ✅
 
-- ✅ Onboarding flow updated (SDLC 5.0.0)
+- ✅ Onboarding flow updated (SDLC 5.1.3)
 - ✅ VS Code Extension /init command working
 - ✅ Web Dashboard ready
 - ✅ Documentation complete

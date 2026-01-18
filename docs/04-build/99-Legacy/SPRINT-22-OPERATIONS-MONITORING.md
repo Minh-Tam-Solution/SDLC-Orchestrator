@@ -6,7 +6,7 @@
 **Status**: ✅ PLANNED - Ready for Execution  
 **Authority**: CTO + CPO Approved  
 **Foundation**: Sprint 21 Complete, Gate G3 Readiness 96%  
-**Framework**: SDLC 4.9.1 Complete Lifecycle  
+**Framework**: SDLC 5.1.3.1 Complete Lifecycle  
 
 **Sprint Duration**: 5 days (Dec 9-13, 2025)  
 **Sprint Goal**: Implement notifications, monitoring, and compliance operations enhancements for production readiness.  
@@ -638,8 +638,8 @@ class PolicyTemplateService:
 # templates/policy-packs/sdlc-491-standard.yaml
 
 id: sdlc-491-standard
-name: SDLC 4.9.1 Standard
-description: Complete SDLC 4.9.1 lifecycle with all 10 stages
+name: SDLC 5.1.3.1 Standard
+description: Complete SDLC 5.1.3.1 lifecycle with all 10 stages
 version: 1.0.0
 author: SDLC Orchestrator Team
 

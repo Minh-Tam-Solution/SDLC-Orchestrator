@@ -6,7 +6,7 @@
 **Status**: PLANNED - Sprint 27
 **Duration**: 5 days (Dec 16-20, 2025)
 **Owner**: Frontend Lead + Extension Team
-**Framework**: SDLC 4.9.1 Complete Lifecycle
+**Framework**: SDLC 5.1.3.1 Complete Lifecycle
 **Prerequisite**: PHASE-01 Complete
 
 ---

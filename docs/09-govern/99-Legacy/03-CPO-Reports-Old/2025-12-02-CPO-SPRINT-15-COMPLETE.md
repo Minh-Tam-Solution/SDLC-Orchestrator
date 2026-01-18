@@ -5,7 +5,7 @@
 **Status**: ✅ **COMPLETE** (All 5 Days Done)  
 **Authority**: Backend Lead + CPO + Frontend Lead  
 **Foundation**: Sprint 15 Plan, User-Onboarding-Flow-Architecture.md  
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 
@@ -77,7 +77,7 @@
 - ✅ Repository analysis (languages, structure, contributors)
 - ✅ Project type detection (FastAPI, React, Node, Go, etc.)
 - ✅ Policy pack recommendation (Lite/Standard/Enterprise)
-- ✅ Stage mapping (folders → SDLC 4.9 stages)
+- ✅ Stage mapping (folders → SDLC 5.1.3 stages)
 - ✅ Initial gate creation (G0.1, G0.2)
 - ✅ GATE_DEFINITIONS for all 8 gates (G0.1 → G6)
 
@@ -352,7 +352,7 @@ SKIP_WEB_SERVER=1 npx playwright test e2e/onboarding.spec.ts
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 4.9. Zero Mock Policy enforced. Battle-tested patterns applied.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced. Battle-tested patterns applied.*
 
 **"Sprint 15: GitHub Foundation + G6 UX. Complete. 3,858 lines. 11 endpoints. 9 components. 35 E2E tests. 6-step wizard. 10 min TTFGE. Zero Mock. AGPL-Safe. Production-ready."** ⚔️ - Backend Lead + Frontend Lead + QA Lead
 

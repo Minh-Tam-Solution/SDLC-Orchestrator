@@ -3,7 +3,7 @@
 **Date**: December 6, 2025  
 **Sprint**: 31 - Gate G3 Preparation  
 **Status**: ✅ **PLAN APPROVED**  
-**Framework**: SDLC 5.0.0
+**Framework**: SDLC 5.1.3
 
 ---
 
@@ -232,7 +232,7 @@ Prepare SDLC Orchestrator platform for Gate G3 (Ship Ready) approval through:
 ### Gate G3 Level
 
 - [ ] All core features working
-- [ ] SDLC 5.0.0 compliance (100% portfolio)
+- [ ] SDLC 5.1.3 compliance (100% portfolio)
 - [ ] Performance budget met (<100ms p95)
 - [ ] Security baseline validated
 - [ ] Documentation complete
@@ -344,7 +344,7 @@ Day 5 (Dec 13): Gate G3 Checklist & Sign-off
 ---
 
 **Report Generated**: December 6, 2025  
-**Framework**: SDLC 5.0.0  
+**Framework**: SDLC 5.1.3  
 **Sprint**: 31 (PLANNED)  
 **Gate**: G3 (Ship Ready - Jan 31, 2026)
 

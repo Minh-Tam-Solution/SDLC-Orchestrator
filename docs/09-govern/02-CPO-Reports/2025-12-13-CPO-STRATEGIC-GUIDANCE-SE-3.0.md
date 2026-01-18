@@ -45,7 +45,7 @@
 - ✅ Industry adoption: Early 2025 (Devin, Claude Code, Cursor emerging)
 
 **Competitive Moat:**
-- SDLC 5.0.0 Framework: 6-12 months to replicate
+- SDLC 5.1.3 Framework: 6-12 months to replicate
 - SASE Integration: 12-18 months to replicate
 - Governance-First Positioning: 18-24 months to replicate
 - Evidence Vault: 6-9 months to replicate
@@ -126,7 +126,7 @@
 **What This Means for Team:**
 - Add SASE artifacts to Framework submodule **first** (NOT Orchestrator)
 - Make templates tools-agnostic (work with any AI tool)
-- Ensure backward compatibility (SDLC 5.0.0 teams can adopt incrementally)
+- Ensure backward compatibility (SDLC 5.1.3 teams can adopt incrementally)
 
 ---
 
@@ -299,7 +299,7 @@
 3. **Framework-First Principle:** ✅ MANDATORY
    - All SASE artifacts added to Framework submodule first
    - Tools-agnostic templates (work with any AI tool)
-   - Backward compatible (SDLC 5.0.0 teams can adopt incrementally)
+   - Backward compatible (SDLC 5.1.3 teams can adopt incrementally)
 
 4. **Minimum Viable SASE:** ✅ APPROVED
    - 3 artifacts (BRS, MRP, VCR) default

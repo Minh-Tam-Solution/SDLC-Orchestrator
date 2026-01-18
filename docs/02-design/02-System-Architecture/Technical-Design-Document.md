@@ -4,7 +4,7 @@
 **Date**: December 3, 2025
 **Owner**: Tech Lead, System Architect
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 4.9.1
+**Framework**: SDLC 5.1.3.1
 **Status**: ✅ APPROVED
 
 **Changelog v2.0** (Dec 3, 2025):

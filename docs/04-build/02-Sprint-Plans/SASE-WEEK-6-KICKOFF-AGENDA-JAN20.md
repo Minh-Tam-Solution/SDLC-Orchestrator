@@ -194,7 +194,7 @@
 **Code Review**:
 - **Policy**: 100% coverage (all code reviewed by Tech Lead before merge)
 - **SLA**: <24 hours (PR open → approval)
-- **Standards**: SDLC 5.0.0 (4-layer architecture, naming conventions, AGPL containment)
+- **Standards**: SDLC 5.1.3 (4-layer architecture, naming conventions, AGPL containment)
 
 **Slack Channel**: #sase-pilot-sop-generator (created Jan 17)
 - Use for: questions, blockers, updates (async communication)

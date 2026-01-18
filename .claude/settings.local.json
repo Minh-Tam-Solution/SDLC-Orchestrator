@@ -316,7 +316,9 @@
       "Bash(./scripts/test-sprint73-local.sh:*)",
       "Bash(tee:*)",
       "Bash(./scripts/quick-test-sprint73.sh:*)",
-      "Bash(alembic merge:*)"
+      "Bash(alembic merge:*)",
+      "Bash(source .venv/bin/activate)",
+      "Bash(alembic current:*)"
     ],
     "deny": [],
     "ask": []

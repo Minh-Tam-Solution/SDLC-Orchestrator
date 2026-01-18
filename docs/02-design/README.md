@@ -17,7 +17,7 @@
 - **Sprint 43 OPA Integration**: Policy Guards Design complete
 - **Sprint 44 Scanner Engine**: CrossReferenceValidator, SDLC Structure Scanner
 - **14-Technical-Specs folder**: 15 specifications total
-- Updated framework reference: SDLC 4.9.1 → SDLC 5.1.1
+- Updated framework reference: SDLC 5.1.3.1 → SDLC 5.1.1
 
 **Changelog v2.0.0** (Nov 29, 2025):
 - Added AI Governance Layer (Section 11)
@@ -558,7 +558,7 @@ Once Stage 02 is complete → **[Stage 04 (BUILD)](../03-Development-Implementat
 ## References
 
 - [Stage 01: Planning & Analysis (WHAT)](../01-Planning-Analysis/README.md) - Requirements foundation
-- [SDLC 4.9 Core Methodology](../../SDLC-Enterprise-Framework/README.md) - 10-Stage lifecycle
+- [SDLC 5.1.3 Core Methodology](../../SDLC-Enterprise-Framework/README.md) - 10-Stage lifecycle
 - [API Specification v1.0](../01-Planning-Analysis/04-API-Design/API-Specification.md) - REST + GraphQL
 - [Data Model ERD v1.0](../01-Planning-Analysis/03-Data-Model/Data-Model-ERD.md) - Database schema
 - [Security Architecture Best Practices](https://owasp.org/www-project-secure-coding-practices/) - OWASP guide

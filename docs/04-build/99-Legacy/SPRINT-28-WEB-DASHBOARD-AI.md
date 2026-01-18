@@ -5,7 +5,7 @@
 **Status**: APPROVED - Awaiting Implementation
 **Authority**: CTO + CPO (9.2/10 Rating)
 **Foundation**: Expert Analysis (Policy Pack v0.9, Market & OSS Landscape)
-**Framework**: SDLC 4.9.1 Complete Lifecycle
+**Framework**: SDLC 5.1.3.1 Complete Lifecycle
 **Week**: 13 of 13 (Final Sprint)
 
 ---
@@ -365,7 +365,7 @@ type GateStatus = 'passed' | 'current' | 'pending' | 'blocked'
 /**
  * Gate Progress Bar - G0 → G5 Horizontal Visualization
  *
- * Shows progression through SDLC 4.9.1 gates.
+ * Shows progression through SDLC 5.1.3.1 gates.
  * Color-coded by tier (Lite=green, Standard=blue, Enterprise=gold).
  *
  * Visual:

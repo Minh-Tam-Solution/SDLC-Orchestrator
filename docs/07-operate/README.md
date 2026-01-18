@@ -3,7 +3,7 @@
 **Stage**: 06 - OPERATE
 **Question**: How do we keep it running?
 **Status**: Planned
-**Framework**: SDLC 5.0.0 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 
@@ -101,7 +101,7 @@ Escalation: CTO for P1 incidents
 
 **Last Updated**: December 5, 2025
 **Owner**: DevOps Lead + CTO
-**Framework**: SDLC 5.0.0 Stage 06
+**Framework**: SDLC 5.1.3 Stage 06
 
 ---
 

@@ -4,7 +4,7 @@
 **Date**: November 13, 2025
 **Deciders**: CTO, Tech Lead, Backend Lead
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 4.9
+**Framework**: SDLC 5.1.3
 
 ---
 

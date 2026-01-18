@@ -56,7 +56,7 @@ This document defines **WHAT each database field means** with data types, constr
 
 ---
 
-## Table 3: gate_approvals (SDLC 4.9 - 10 Stages)
+## Table 3: gate_approvals (SDLC 5.1.3 - 10 Stages)
 
 | Field | Type | Required | Constraints | Description | Example |
 |-------|------|----------|-------------|-------------|---------|
@@ -69,7 +69,7 @@ This document defines **WHAT each database field means** with data types, constr
 | approved_at | TIMESTAMP | No | - | Timestamp of approval/rejection decision | `2025-01-13 15:30:00` |
 | created_at | TIMESTAMP | Yes | NOT NULL, DEFAULT NOW() | Approval request created | `2025-01-13 14:00:00` |
 
-**Business Rules (SDLC 4.9 Gate Matrix)**:
+**Business Rules (SDLC 5.1.3 Gate Matrix)**:
 - G0.1 (Problem Foundation): CPO + EM (2 approvals)
 - G0.2 (Business Case): CEO + CPO (2 approvals)
 - G1 (Requirements & Planning): CTO + CPO (2 approvals)
@@ -136,7 +136,7 @@ This document defines **WHAT each database field means** with data types, constr
 |-------|------|----------|-------------|-------------|---------|
 | policy_code | VARCHAR(100) | Yes | UNIQUE, NOT NULL | Unique policy identifier (kebab-case) | `policy-pack-user-interviews` |
 | rego_code | TEXT | Yes | NOT NULL | Rego policy logic (OPA syntax) | `package policy_pack_user_interviews\ndefault allow = false\n...` |
-| stage | VARCHAR(20) | Yes | NOT NULL | SDLC 4.9 stage (stage-00 to stage-09) | `stage-00`, `stage-01` |
+| stage | VARCHAR(20) | Yes | NOT NULL | SDLC 5.1.3 stage (stage-00 to stage-09) | `stage-00`, `stage-01` |
 | category | VARCHAR(50) | No | - | Policy category (validation, security, performance, etc.) | `validation`, `security` |
 | is_pre_built | BOOLEAN | Yes | NOT NULL, DEFAULT FALSE | Pre-built vs custom policy (pre-built cannot be deleted) | `true` (100+ pre-built), `false` (custom) |
 | current_version | VARCHAR(20) | Yes | NOT NULL, DEFAULT 1.0.0 | Semantic versioning (1.0.0, 1.1.0, 2.0.0) | `1.0.0` |

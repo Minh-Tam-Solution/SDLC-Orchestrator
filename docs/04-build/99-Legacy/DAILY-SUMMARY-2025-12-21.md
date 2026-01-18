@@ -17,7 +17,7 @@
 **User Request** (Vietnamese):
 > "Còn một use case khác phức tạp hơn và cũng rất thực tế là cách mà CTO của Bflow triển khai việc nâng cấp tuân thủ SDLC từ 4.9 lên 5.1 cho toàn bộ dự án Bflow 2 (rất lớn) tại /home/nqh/shared/Bflow-Platform tạo ra 1 thư mục specific cho team Bflow tham khảo tuân thủ tại docs/08-Team-Management/03-SDLC-Compliance và một bộ Python scripts để scan và nâng cấp từng tài liệu và code file tại /home/nqh/shared/Bflow-Platform/tools/sdlc51-compliance. Hãy nghiên cứu use case này để biến thành một tính năng quan trọng của SDLC Orchestrator khi gặp các dự án lớn (Pro hoặc Ent tier)"
 
-**Translation**: Research how Bflow CTO deployed SDLC 4.9 → 5.1 migration for the entire large Bflow 2 project, creating a team-specific compliance folder and Python scripts for scanning/upgrading all docs and code files. Turn this into a critical SDLC Orchestrator feature for large projects (Pro/Enterprise tier).
+**Translation**: Research how Bflow CTO deployed SDLC 5.1.3 → 5.1 migration for the entire large Bflow 2 project, creating a team-specific compliance folder and Python scripts for scanning/upgrading all docs and code files. Turn this into a critical SDLC Orchestrator feature for large projects (Pro/Enterprise tier).
 
 ### Outcome Achieved
 
@@ -67,7 +67,7 @@
 **Project Context**:
 ```yaml
 Project: Bflow Platform (200K users, 5+ years production)
-Migration: SDLC 4.9 → 5.1
+Migration: SDLC 5.1.3 → 5.1
 Team Size: 11 members (6 Remote + 5 Local)
 Codebase: 5,000+ files (3,800 Python, 1,200 Markdown)
 Timeline: 2 weeks (CTO + 1 Senior Dev)

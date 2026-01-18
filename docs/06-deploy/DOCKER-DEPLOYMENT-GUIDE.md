@@ -5,7 +5,7 @@
 **Date**: December 3, 2025
 **Status**: ACTIVE - Week 4 Day 1 Architecture Documentation
 **Authority**: Backend Lead + DevOps Lead + CTO Approved
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 

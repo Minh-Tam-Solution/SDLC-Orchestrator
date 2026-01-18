@@ -5,7 +5,7 @@
 **Author**: PM + DevOps Lead
 **IT Team Contact**: dvhiep@nqh.com.vn (0938559119)
 **Status**: ✅ APPROVED (Nov 29, 2025)
-**Framework**: SDLC 5.0.0
+**Framework**: SDLC 5.1.3
 
 ---
 
@@ -529,7 +529,7 @@ curl https://sdlc-api.nhatquangholding.com/health
 **IT Team Approval**: ✅ APPROVED (Nov 29, 2025)
 **Port Allocation**: ✅ CONFIRMED (7 ports)
 **Cloudflare Routes**: 🆕 PENDING CONFIGURATION (2 routes)
-**Framework**: SDLC 5.0.0
+**Framework**: SDLC 5.1.3
 
 ---
 

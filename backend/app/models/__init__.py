@@ -99,6 +99,13 @@ from app.models.organization import Organization
 from app.models.team import Team
 from app.models.team_member import TeamMember
 
+# Planning Hierarchy (Sprint 74) - 5 models
+from app.models.roadmap import Roadmap
+from app.models.phase import Phase
+from app.models.sprint import Sprint
+from app.models.sprint_gate_evaluation import SprintGateEvaluation, G_SPRINT_CHECKLIST_TEMPLATE, G_SPRINT_CLOSE_CHECKLIST_TEMPLATE
+from app.models.backlog_item import BacklogItem
+
 __all__ = [
     # Base
     "Base",
@@ -180,4 +187,12 @@ __all__ = [
     "Organization",
     "Team",
     "TeamMember",
+    # Planning Hierarchy - Sprint 74 (5 models + 2 templates)
+    "Roadmap",
+    "Phase",
+    "Sprint",
+    "SprintGateEvaluation",
+    "G_SPRINT_CHECKLIST_TEMPLATE",
+    "G_SPRINT_CLOSE_CHECKLIST_TEMPLATE",
+    "BacklogItem",
 ]

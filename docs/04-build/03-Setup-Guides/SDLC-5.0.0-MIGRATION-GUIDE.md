@@ -1,12 +1,12 @@
-# SDLC 5.0.0 MIGRATION GUIDE
-## Migrating from SDLC 4.9.x to Contract-First Structure
+# SDLC 5.1.3 MIGRATION GUIDE
+## Migrating from SDLC 5.1.3.x to Contract-First Structure
 
 **Version**: 1.0.0
 **Last Updated**: December 7, 2025
 **Target Audience**: Project Managers, Tech Leads, DevOps Engineers
 **Estimated Migration Time**: 15-30 minutes per project
 
-**Framework**: SDLC 5.0.0 Complete Lifecycle (11 Stages + 4-Tier Classification)
+**Framework**: SDLC 5.1.3 Complete Lifecycle (11 Stages + 4-Tier Classification)
 **Current Stage**: Stage 04 (BUILD - Development & Implementation)
 
 ---
@@ -14,7 +14,7 @@
 ## TABLE OF CONTENTS
 
 1. [Overview](#overview)
-2. [Key Changes in SDLC 5.0.0](#key-changes-in-sdlc-500)
+2. [Key Changes in SDLC 5.1.3](#key-changes-in-sdlc-500)
 3. [Pre-Migration Checklist](#pre-migration-checklist)
 4. [Migration Methods](#migration-methods)
 5. [Stage Mapping Reference](#stage-mapping-reference)
@@ -28,11 +28,11 @@
 
 ## OVERVIEW
 
-SDLC 5.0.0 introduces **Contract-First Development** by restructuring stage order. The most significant change is moving **INTEGRATE** from Stage 07 to Stage 03, ensuring API contracts are defined **BEFORE** coding begins.
+SDLC 5.1.3 introduces **Contract-First Development** by restructuring stage order. The most significant change is moving **INTEGRATE** from Stage 07 to Stage 03, ensuring API contracts are defined **BEFORE** coding begins.
 
 ### Why This Change?
 
-| Problem (SDLC 4.9.x) | Solution (SDLC 5.0.0) |
+| Problem (SDLC 5.1.3.x) | Solution (SDLC 5.1.3) |
 |----------------------|----------------------|
 | API design after coding | API design BEFORE coding (Contract-First) |
 | Integration at Stage 07 (post-operation) | Integration at Stage 03 (pre-build) |
@@ -41,7 +41,7 @@ SDLC 5.0.0 introduces **Contract-First Development** by restructuring stage orde
 
 ### Industry Standards Alignment
 
-| Standard | SDLC 5.0.0 Alignment |
+| Standard | SDLC 5.1.3 Alignment |
 |----------|---------------------|
 | **ISO/IEC 12207:2017** | Integration in Technical processes (pre-operation) |
 | **DevOps 7 C's** | CI/CD within Build/Test phases |
@@ -50,12 +50,12 @@ SDLC 5.0.0 introduces **Contract-First Development** by restructuring stage orde
 
 ---
 
-## KEY CHANGES IN SDLC 5.0.0
+## KEY CHANGES IN SDLC 5.1.3
 
 ### 1. Stage Restructuring (Contract-First)
 
 ```
-SDLC 4.9.x Order          →    SDLC 5.0.0 Order (Contract-First)
+SDLC 5.1.3.x Order          →    SDLC 5.1.3 Order (Contract-First)
 ─────────────────────           ─────────────────────────────────
 00-Project-Foundation     →    00-foundation       (WHY)
 01-Planning-Analysis      →    01-planning         (WHAT)
@@ -74,7 +74,7 @@ SDLC 4.9.x Order          →    SDLC 5.0.0 Order (Contract-First)
 
 ### 2. Simplified Folder Names
 
-| SDLC 4.9.x (Long) | SDLC 5.0.0 (Short) |
+| SDLC 5.1.3.x (Long) | SDLC 5.1.3 (Short) |
 |-------------------|-------------------|
 | `00-Project-Foundation` | `00-foundation` |
 | `01-Planning-Analysis` | `01-planning` |
@@ -143,7 +143,7 @@ Before migrating, ensure the following:
 
 ### Project Requirements
 
-- [ ] Valid SDLC 4.9.x folder structure exists
+- [ ] Valid SDLC 5.1.3.x folder structure exists
 - [ ] All team members notified of migration
 - [ ] CI/CD pipelines paused (optional but recommended)
 - [ ] Backup strategy confirmed
@@ -160,7 +160,7 @@ pip install -e .
 
 # Verify installation
 sdlcctl --version
-# Expected output: sdlcctl v1.0.0 (Framework: SDLC 5.0.0)
+# Expected output: sdlcctl v1.0.0 (Framework: SDLC 5.1.3)
 ```
 
 ---
@@ -202,7 +202,7 @@ sdlcctl validate /path/to/project
 
 ```
 ┌──────────────────────────────────────────┐
-│ SDLC 5.0.0 Migration Tool                │
+│ SDLC 5.1.3 Migration Tool                │
 │ Contract-First Stage Restructuring       │
 └──────────────────────────────────────────┘
 
@@ -341,7 +341,7 @@ find docs -name "*.md" -exec sed -i '' \
   -e 's/07-Integration-APIs/03-integration/g' \
   -e 's/08-Team-Management/08-collaborate/g' \
   -e 's/09-Executive-Reports/09-govern/g' \
-  -e 's/SDLC 4\.9\.[0-9]/SDLC 5.0.0/g' \
+  -e 's/SDLC 4\.9\.[0-9]/SDLC 5.1.3/g' \
   {} \;
 ```
 
@@ -358,7 +358,7 @@ For new projects or projects without existing SDLC structure:
 1. Open empty folder or existing project in VS Code
 2. Press `Cmd+Shift+I` (macOS) or `Ctrl+Shift+I` (Windows/Linux)
 3. Select tier (LITE / STANDARD / PROFESSIONAL / ENTERPRISE)
-4. Extension generates SDLC 5.0.0 compliant structure
+4. Extension generates SDLC 5.1.3 compliant structure
 5. Review gap analysis if existing files detected
 
 ---
@@ -367,7 +367,7 @@ For new projects or projects without existing SDLC structure:
 
 ### Complete Stage Mapping Table
 
-| Stage ID | SDLC 4.9.x Name | SDLC 5.0.0 Name | Question | Type | Change |
+| Stage ID | SDLC 5.1.3.x Name | SDLC 5.1.3 Name | Question | Type | Change |
 |----------|-----------------|-----------------|----------|------|--------|
 | 00 | 00-Project-Foundation | 00-foundation | WHY | Linear | Rename only |
 | 01 | 01-Planning-Analysis | 01-planning | WHAT | Linear | Rename only |
@@ -384,7 +384,7 @@ For new projects or projects without existing SDLC structure:
 ### Why Stage 03 for Integration?
 
 ```
-                    SDLC 5.0.0 Contract-First Flow
+                    SDLC 5.1.3 Contract-First Flow
                     ═══════════════════════════════
 
     ┌─────────────────────────────────────────────────────────────┐
@@ -551,7 +551,7 @@ project/
 sdlcctl validate /path/to/project --tier STANDARD
 
 # Expected output:
-# ✅ SDLC 5.0.0 Structure Valid
+# ✅ SDLC 5.1.3 Structure Valid
 #
 # Summary:
 #   Framework Version: 5.0.0
@@ -583,7 +583,7 @@ ls -la docs/
 # Search for any remaining old stage names
 grep -r "03-Development-Implementation" docs/
 grep -r "07-Integration-APIs" docs/
-grep -r "SDLC 4.9" docs/
+grep -r "SDLC 5.1.3" docs/
 
 # Should return no matches after successful migration
 ```
@@ -616,7 +616,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install sdlcctl
         run: pip install sdlcctl
-      - name: Validate SDLC 5.0.0 structure
+      - name: Validate SDLC 5.1.3 structure
         run: sdlcctl validate . --tier STANDARD
 ```
 
@@ -671,7 +671,7 @@ git rebase origin/main
 
 # Option B: Use git mv for better tracking
 git mv docs/03-Development-Implementation docs/04-build
-git commit -m "Migrate to SDLC 5.0.0: Rename stages"
+git commit -m "Migrate to SDLC 5.1.3: Rename stages"
 ```
 
 ### Issue 5: "CI/CD pipeline failures"
@@ -692,7 +692,7 @@ grep -r "03-Development-Implementation" scripts/ | xargs -I {} sed -i 's/03-Deve
 
 ### Transition Period (3 months)
 
-To support teams migrating at different times, SDLC 5.0.0 tools support a 3-month backward compatibility period:
+To support teams migrating at different times, SDLC 5.1.3 tools support a 3-month backward compatibility period:
 
 | Feature | 4.9.x Support | 5.0.0 Native |
 |---------|---------------|--------------|
@@ -708,7 +708,7 @@ To support teams migrating at different times, SDLC 5.0.0 tools support a 3-mont
 sdlcctl validate /path/to/project
 
 # Output for 4.9.x project:
-# ⚠️ Detected SDLC 4.9.x structure
+# ⚠️ Detected SDLC 5.1.3.x structure
 # 💡 Run 'sdlcctl migrate' to upgrade to 5.0.0
 #
 # Continuing validation with 4.9.x rules...
@@ -808,7 +808,7 @@ sdlcctl p0
 
 ## ADDITIONAL RESOURCES
 
-- [SDLC 5.0.0 Framework Overview](../../../docs/00-foundation/README.md)
+- [SDLC 5.1.3 Framework Overview](../../../docs/00-foundation/README.md)
 - [ONBOARDING-FLOW-SPEC.md](../../05-test/07-E2E-Testing/ONBOARDING-FLOW-SPEC.md)
 - [VS Code Extension Setup](./DEV-ENVIRONMENT-SETUP.md)
 - [sdlcctl CLI Reference](../../../backend/sdlcctl/README.md)
@@ -826,7 +826,7 @@ If you encounter issues during migration:
 ---
 
 **Document Status**: ✅ COMPLETE
-**Framework**: SDLC 5.0.0 Contract-First Lifecycle
+**Framework**: SDLC 5.1.3 Contract-First Lifecycle
 **Last Updated**: December 7, 2025
 
-*Migration guide for SDLC 4.9.x → 5.0.0. Contract-First development. Industry-standard alignment.*
+*Migration guide for SDLC 5.1.3.x → 5.0.0. Contract-First development. Industry-standard alignment.*

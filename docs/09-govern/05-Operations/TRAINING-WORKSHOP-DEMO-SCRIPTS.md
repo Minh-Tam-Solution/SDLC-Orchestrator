@@ -140,7 +140,7 @@ cd SDLC-Orchestrator-CORRECT
 ls -la SDLC-Enterprise-Framework/
 
 # Expected output: Directories like 00-Why, 01-What, 02-How, etc.
-# Instructor counts: "See? We have all 11 SDLC 5.0.0 folders!"
+# Instructor counts: "See? We have all 11 SDLC 5.1.3 folders!"
 
 # "Let's confirm with git submodule status"
 git submodule status

@@ -183,7 +183,7 @@ grep -r -n -i --include="*.md" --include="*.py" --include="*.ts" --include="*.ts
 **Analysis:**
 ```yaml
 Context: Framework is DOCUMENTATION repository (methodology, templates, guides)
-         Contains 10 SDLC 5.0.0 stages with templates
+         Contains 10 SDLC 5.1.3 stages with templates
 
 Common Patterns:
   - "TODO: Fill in project details" (in template examples)

@@ -4,14 +4,14 @@
 **Date**: November 27, 2025
 **Status**: ACTIVE - Week 13 Production Launch
 **Authority**: PM + CPO
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 **Target Audience**: Internal MTS/NQH Beta Teams (5-8 teams)
 
 ---
 
 ## Welcome to SDLC Orchestrator Beta!
 
-Congratulations on being selected as a **beta team** for SDLC Orchestrator - the first governance-first platform built on SDLC 4.9 methodology.
+Congratulations on being selected as a **beta team** for SDLC Orchestrator - the first governance-first platform built on SDLC 5.1.3 methodology.
 
 Your feedback will help us refine the product before public release.
 
@@ -45,7 +45,7 @@ Your feedback will help us refine the product before public release.
    - Analyze your repository structure
    - Detect project type (FastAPI, React, Node, etc.)
    - Recommend a policy pack (Lite/Standard/Enterprise)
-   - Map folders to SDLC 4.9 stages
+   - Map folders to SDLC 5.1.3 stages
    - Create your first project
 
 **Alternative**: You can also create a project manually without GitHub connection.
@@ -125,7 +125,7 @@ Automated policy evaluation:
 
 ---
 
-## SDLC 4.9 Gate Overview
+## SDLC 5.1.3 Gate Overview
 
 | Gate | Stage | Purpose | Evidence Required |
 |------|-------|---------|-------------------|
@@ -315,11 +315,11 @@ A: Not yet. The web app is responsive and works on mobile browsers.
 
 Thank you for participating in the SDLC Orchestrator beta program!
 
-Your feedback is invaluable in building the first governance-first platform on SDLC 4.9.
+Your feedback is invaluable in building the first governance-first platform on SDLC 5.1.3.
 
 ---
 
-*This document is part of the SDLC 4.9 Complete Lifecycle documentation.*
+*This document is part of the SDLC 5.1.3 Complete Lifecycle documentation.*
 
 **Generated**: November 27, 2025
 **Version**: 1.0.0

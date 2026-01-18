@@ -697,7 +697,7 @@ Commit → Task → Sprint → Phase → Roadmap → Vision
 
 #### 11.2.4 SDLC Structure Validator (ADR-014)
 
-**Purpose**: Enforce SDLC 4.9.1 folder structure across all projects.
+**Purpose**: Enforce SDLC 5.1.3.1 folder structure across all projects.
 
 ```yaml
 Level-Based Validation:

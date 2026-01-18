@@ -395,7 +395,7 @@ CREATE INDEX idx_gate_approvals_status ON gate_approvals(approval_status);
 - N:1 with gates (many approvals belong to one gate)
 - N:1 with users (many approvals by one user)
 
-**Business Rules** (SDLC 4.9 Complete Lifecycle - 10 Stages):
+**Business Rules** (SDLC 5.1.3 Complete Lifecycle - 10 Stages):
 - **G0.1** (Problem Foundation): CPO + EM (2 approvals required)
 - **G0.2** (Business Case): CEO + CPO (2 approvals required)
 - **G1** (Requirements & Planning): CTO + CPO (2 approvals required)

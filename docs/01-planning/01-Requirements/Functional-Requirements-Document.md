@@ -45,7 +45,7 @@
 2. **FR2: Evidence Vault** - Permanent audit trail with SHA256 integrity
 3. **FR3: AI Context Engine** - Multi-provider stage-aware assistance
 4. **FR4: Real-Time Dashboard** - Live gate status visualization
-5. **FR5: Policy Pack Library** - Pre-built SDLC 4.9 policies
+5. **FR5: Policy Pack Library** - Pre-built SDLC 5.1.3 policies
 6. **FR6: Context-Aware Stage Requirements** - Dynamic MANDATORY/RECOMMENDED/OPTIONAL *(v2.0)*
 7. **FR7: AI Task Decomposition** - User story → Tasks with CEO-level quality *(v2.0)*
 8. **FR8: 4-Level Planning Hierarchy** - Roadmap → Phase → Sprint → Backlog *(v2.0)*
@@ -69,7 +69,7 @@
 
 ### Overview
 
-**Capability**: Automated enforcement of SDLC 4.9 quality gates using Policy-as-Code (OPA).
+**Capability**: Automated enforcement of SDLC 5.1.3 quality gates using Policy-as-Code (OPA).
 
 **Business Value**: Prevent 70% feature waste by validating BEFORE building (Design Thinking gates).
 
@@ -105,7 +105,7 @@
 **Acceptance Criteria**:
 - AC1: User can create gate in <5 seconds
 - AC2: System validates required fields (name, stage, approvers)
-- AC3: System auto-populates exit criteria from SDLC 4.9 policy pack
+- AC3: System auto-populates exit criteria from SDLC 5.1.3 policy pack
 - AC4: System supports all 10 SDLC stages (WHY → GOVERN)
 - AC5: System supports role-based approver selection (CEO, CTO, CPO, CIO, CFO)
 
@@ -979,7 +979,7 @@ Response (200 OK):
 5. User clicks "Generate Tests"
 6. System prepares AI prompt (stage-aware template):
    ```
-   You are an expert software engineer following SDLC 4.9 Complete Lifecycle.
+   You are an expert software engineer following SDLC 5.1.3 Complete Lifecycle.
 
    CURRENT STAGE: WHAT (Design & Planning)
    GATE: G1 Design Ready
@@ -1498,7 +1498,7 @@ Response (200 OK):
 
 ### Overview
 
-**Capability**: Pre-built SDLC 4.9 policies for all 10 stages (100+ policies out-of-the-box).
+**Capability**: Pre-built SDLC 5.1.3 policies for all 10 stages (100+ policies out-of-the-box).
 
 **Business Value**: Zero policy authoring for 90% of teams (instant governance).
 
@@ -1549,7 +1549,7 @@ Response (200 OK):
      }
      ```
    - Test cases: 5 test scenarios (pass/fail examples)
-   - Documentation: Link to SDLC 4.9 rationale
+   - Documentation: Link to SDLC 5.1.3 rationale
 
 **Postcondition**: User understands available policies.
 
@@ -2093,7 +2093,7 @@ Response (400 Bad Request - Regression Tests Failed):
 
 ### Overview
 
-**Capability**: Automated enforcement of SDLC 4.9.1 folder structure.
+**Capability**: Automated enforcement of SDLC 5.1.3.1 folder structure.
 
 **Business Value**: Consistent project structure across all repositories.
 

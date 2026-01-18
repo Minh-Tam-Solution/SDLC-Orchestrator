@@ -79,7 +79,7 @@
 - Evidence Vault (immutable audit trail)
 
 **Key Differentiators:**
-- SDLC 5.0.0 Framework integration
+- SDLC 5.1.3 Framework integration
 - Policy-as-Code (OPA)
 - Quality gates enforcement
 - Evidence-based validation
@@ -323,7 +323,7 @@
 ### Current Competitive Moat (18-24 months)
 
 **SDLC Orchestrator Differentiators:**
-1. SDLC 5.0.0 Framework (6-12 months to replicate)
+1. SDLC 5.1.3 Framework (6-12 months to replicate)
 2. SASE Integration (12-18 months to replicate)
 3. Governance-First Positioning (18-24 months to replicate)
 4. Evidence Vault (6-9 months to replicate)

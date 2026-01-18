@@ -358,7 +358,7 @@ frontend/landing/src/
 ### Sprint Numbering Note (to avoid confusion)
 
 This repo contains multiple sprint numbering streams across time:
-- **Legacy (SDLC 4.9)**: older "Sprint 1–17" status in `PROJECT-STATUS.md` (not kept current)
+- **Legacy (SDLC 5.1.3)**: older "Sprint 1–17" status in `PROJECT-STATUS.md` (not kept current)
 - **Core roadmap (SDLC 5.1.x)**: Sprint **41–56** in Q1–Q2 2026 roadmap documents
 - **Landing/Auth track**: Sprint **57–60** (completed)
 - **Frontend Platform Consolidation**: Sprint **61–69** (completed)
@@ -2242,11 +2242,11 @@ CIRCUIT_BREAKER_ENABLED=true
 
 ## Previous Sprint: Sprint 32
 
-**Sprint 32**: SDLC 5.0.0 Restructure & User API Key Management
+**Sprint 32**: SDLC 5.1.3 Restructure & User API Key Management
 **Status**: ✅ **COMPLETE** (9.58/10)
 **Duration**: December 13, 2025
 **Phase**: Post-Gate G3 (SDLC Restructuring + BYOK)
-**Framework**: SDLC 5.0.0 (Contract-First Restructure)
+**Framework**: SDLC 5.1.3 (Contract-First Restructure)
 
 ---
 
@@ -2348,7 +2348,7 @@ CIRCUIT_BREAKER_ENABLED=true
 | 41 | AI Safety Foundation | ✅ Complete | 9.4/10 | [Summary](./SPRINT-41-COMPLETE-SUMMARY.md) |
 | 40 | Sprint Planning Q1 2026 | ✅ Complete | N/A | Planning Sprint |
 | 39 | Beta Pilot Stabilization | ✅ Complete | 9.2/10 | [Summary](./SPRINT-39-COMPLETE-SUMMARY.md) |
-| 32 | SDLC 5.0.0 Restructure | ✅ Complete | 9.58/10 | [Summary](./SPRINT-32-COMPLETE-SUMMARY.md) |
+| 32 | SDLC 5.1.3 Restructure | ✅ Complete | 9.58/10 | [Summary](./SPRINT-32-COMPLETE-SUMMARY.md) |
 | 31 | Gate G3 Preparation | ✅ Complete | 9.56/10 | [Summary](./SPRINT-31-COMPLETE-SUMMARY.md) |
 | 30 | CI/CD & Web Integration | ✅ Complete | 9.7/10 | [Link](./SPRINT-30-COMPLETE-SUMMARY.md) |
 | 29 | SDLC Validator CLI | ✅ Complete | 9.7/10 | [Link](./SPRINT-29-COMPLETE-SUMMARY.md) |

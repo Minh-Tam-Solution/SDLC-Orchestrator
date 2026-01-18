@@ -62,7 +62,7 @@ Layer 1: SDLC-Enterprise-Framework (Methodology) ← Our foundation
 
 ### CEO Vision
 
-> **Không cạnh tranh trực diện với các AI codex mạnh như Claude Code / Cursor, mà dùng SDLC 5.0 + governance + IR decomposition để biến model open-source tầm trung thành một "codex đủ xài nhưng an toàn và được kiểm soát".**
+> **Không cạnh tranh trực diện với các AI codex mạnh như Claude Code / Cursor, mà dùng SDLC 5.1.3 + governance + IR decomposition để biến model open-source tầm trung thành một "codex đủ xài nhưng an toàn và được kiểm soát".**
 
 ### IR-Based Codegen Strategy (Dec 2025 - Software 3.0 Pivot)
 
@@ -620,7 +620,7 @@ All generated code must:
 | Aspect | Lovable | Claude Code | SDLC Orchestrator |
 |--------|---------|-------------|-------------------|
 | Target | Non-tech | Pro devs | Both (Dual Mode) |
-| Governance | None | None | Full SDLC 5.0 |
+| Governance | None | None | Full SDLC 5.1.3 |
 | Traceability | None | Git only | Artifacts + Evidence |
 | Model | Proprietary | Claude | BYO or OSS |
 | Cost | $20-50/mo | $100-200/mo | $0-50/mo (OSS) |

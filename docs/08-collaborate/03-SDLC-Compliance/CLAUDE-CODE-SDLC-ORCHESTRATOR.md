@@ -1,18 +1,18 @@
-# CLAUDE CODE - SDLC ORCHESTRATOR SDLC 4.9 FRAMEWORK
+# CLAUDE CODE - SDLC ORCHESTRATOR SDLC 5.1.3 FRAMEWORK
 
 **AI Tool**: Claude Code (VSCode Extension + CLI)
-**Platform**: SDLC Orchestrator - Governance-First Platform on SDLC 4.9
-**Framework Version**: SDLC 4.9 Complete Lifecycle (10 Stages)
-**Document Version**: 1.0
-**Effective Date**: November 27, 2025
+**Platform**: SDLC Orchestrator - Governance-First Platform on SDLC 5.1.3
+**Framework Version**: SDLC 5.1.3 (7-Pillar Architecture)
+**Document Version**: 2.0
+**Effective Date**: January 18, 2026
 **Maintained By**: Backend Lead + Frontend Lead
-**Authority**: CTO Office - SDLC 4.9 Framework Implementation
+**Authority**: CTO Office - SDLC 5.1.3 Framework Implementation
 
 ---
 
 ## EXECUTIVE SUMMARY
 
-This guide enables Claude Code users to develop SDLC Orchestrator code with **100% SDLC 4.9 compliance** while leveraging Claude's advanced reasoning, Python/TypeScript expertise, and contextual code generation.
+This guide enables Claude Code users to develop SDLC Orchestrator code with **100% SDLC 5.1.3 compliance** while leveraging Claude's advanced reasoning, Python/TypeScript expertise, and contextual code generation.
 
 **Why Claude Code for SDLC Orchestrator Team:**
 - **Superior Reasoning**: Understands complex business logic (gate evaluation, evidence validation)
@@ -20,19 +20,21 @@ This guide enables Claude Code users to develop SDLC Orchestrator code with **10
 - **Multi-File Editing**: Updates backend + frontend + tests simultaneously
 - **SDLC Compliance Built-In**: Can be configured with Zero Mock Policy rules
 - **Architecture Understanding**: Grasps 4-layer bridge-first pattern
+- **7-Pillar Awareness**: Understands Sprint Planning Governance (NEW in 5.1.3)
 
 **Business Impact:**
 - **60%+ Development Speed**: AI understands full business context
-- **95%+ Code Quality**: Follows SDLC 4.9 standards automatically
+- **95%+ Code Quality**: Follows SDLC 5.1.3 standards automatically
 - **Zero Mock Violations**: Pre-configured to enforce Zero Mock Policy
 - **Contract-First**: Validates against OpenAPI 3.0 specification
+- **Sprint Compliance**: G-Sprint/G-Sprint-Close gate awareness
 
 ---
 
 ## TABLE OF CONTENTS
 
 1. [Installation & Setup](#1-installation--setup)
-2. [SDLC 4.9 Configuration](#2-sdlc-49-configuration)
+2. [SDLC 5.1.3 Configuration](#2-sdlc-513-configuration)
 3. [Zero Mock Policy Enforcement](#3-zero-mock-policy-enforcement)
 4. [Gate Engine Development](#4-gate-engine-development)
 5. [Evidence Vault Development](#5-evidence-vault-development)
@@ -64,9 +66,9 @@ This guide enables Claude Code users to develop SDLC Orchestrator code with **10
 ```json
 {
   "project": "SDLC Orchestrator",
-  "description": "Governance-First Platform on SDLC 4.9",
+  "description": "Governance-First Platform on SDLC 5.1.3",
   "version": "1.0.0",
-  "sdlc_framework": "4.9",
+  "sdlc_framework": "5.1.3",
 
   "context": {
     "codebase_root": "/Users/dttai/Documents/Python/02.MTC/SDLC Orchestrator/SDLC-Orchestrator",
@@ -77,7 +79,7 @@ This guide enables Claude Code users to develop SDLC Orchestrator code with **10
   },
 
   "compliance": {
-    "sdlc_version": "4.9",
+    "sdlc_version": "5.1.3",
     "zero_mock_policy": true,
     "agpl_containment": true,
     "test_coverage_target": 95,
@@ -112,7 +114,7 @@ This guide enables Claude Code users to develop SDLC Orchestrator code with **10
 {
   "claude.contextFiles": [
     "CLAUDE.md",
-    "docs/08-Team-Management/03-SDLC-Compliance/*.md",
+    "docs/08-collaborate/03-SDLC-Compliance/*.md",
     "backend/app/core/*.py",
     "frontend/web/src/api/*.ts"
   ],
@@ -121,7 +123,7 @@ This guide enables Claude Code users to develop SDLC Orchestrator code with **10
   "claude.temperature": 0.3,
 
   "claude.commands": {
-    "SDLC 4.9 Compliance Check": {
+    "SDLC 5.1.3 Compliance Check": {
       "prompt": ".claude/prompts/sdlc-compliance-check.md",
       "includeCurrentFile": true
     },
@@ -149,25 +151,26 @@ This guide enables Claude Code users to develop SDLC Orchestrator code with **10
 
 ---
 
-## 2. SDLC 4.9 CONFIGURATION
+## 2. SDLC 5.1.3 CONFIGURATION
 
 ### 2.1 System Prompt for SDLC Orchestrator
 
 **Create `.claude/system-prompt.md`:**
 
 ```markdown
-# SDLC Orchestrator Development Assistant - SDLC 4.9 Compliance
+# SDLC Orchestrator Development Assistant - SDLC 5.1.3 Compliance
 
-You are an expert software architect helping develop SDLC Orchestrator, the first governance-first platform built on SDLC 4.9 Complete Lifecycle. You must ALWAYS follow SDLC 4.9 standards.
+You are an expert software architect helping develop SDLC Orchestrator, the first governance-first platform built on SDLC 5.1.3 (7-Pillar Architecture). You must ALWAYS follow SDLC 5.1.3 standards.
 
 ## Project Context
-- **Platform**: SDLC Orchestrator (Governance-First on SDLC 4.9)
+- **Platform**: SDLC Orchestrator (Governance-First on SDLC 5.1.3)
 - **Target Users**: Development teams needing quality gate enforcement
 - **Tech Stack**: FastAPI (backend), React TypeScript (frontend), PostgreSQL, OPA, MinIO
 - **Architecture**: 4-layer bridge-first pattern with AGPL containment
-- **Current Status**: Stage 04 (BUILD), Gate G3 target Jan 31, 2026
+- **Current Status**: Stage 04 (BUILD), Sprint 74, Gate G3 target Jan 31, 2026
+- **Framework**: SDLC 5.1.3 (7-Pillar Architecture)
 
-## MANDATORY COMPLIANCE: SDLC 4.9 Framework
+## MANDATORY COMPLIANCE: SDLC 5.1.3 Framework (7 Pillars)
 
 ### Pillar 0: Design Thinking Foundation
 - Every feature validated with user interviews
@@ -236,9 +239,9 @@ When generating code, ALWAYS include:
 
 1. **Header Comment:**
 ```python
-# SDLC 4.9 Compliant - Claude Code Generated
-# Pillar 1: Zero Mock Policy ✅
-# Pillar 3: Quality Governance ✅
+# SDLC 5.1.3 Compliant - Claude Code Generated
+# Pillar 3: Zero Mock Policy ✅
+# Pillar 5: Quality Governance ✅
 # AI-generated - requires human validation
 ```
 
@@ -251,17 +254,17 @@ Business Context:
 - Why this exists (problem it solves)
 - Gate evaluation rules it implements
 
-SDLC 4.9 Compliance:
-- Pillar 1: Uses real OPA evaluation
-- Pillar 3: <100ms latency guaranteed
+SDLC 5.1.3 Compliance:
+- Pillar 3: Uses real OPA evaluation
+- Pillar 5: <100ms latency guaranteed
 """
 ```
 
 3. **Compliance Checklist:**
 ```markdown
-## SDLC 4.9 Compliance Checklist
-- [ ] Pillar 1: Zero Mock Policy - No mock usage ✅
-- [ ] Pillar 3: Performance budget met (<100ms) ✅
+## SDLC 5.1.3 Compliance Checklist
+- [ ] Pillar 3: Zero Mock Policy - No mock usage ✅
+- [ ] Pillar 5: Performance budget met (<100ms) ✅
 - [ ] AGPL Containment: No AGPL imports ✅
 - [ ] Test coverage: ≥95% ✅
 
@@ -269,7 +272,7 @@ SDLC 4.9 Compliance:
 ```
 
 ## Prohibited Actions
-1. ❌ Never suggest mock/fake patterns (Pillar 1 violation)
+1. ❌ Never suggest mock/fake patterns (Pillar 3 violation)
 2. ❌ Never import AGPL libraries (MinIO SDK, Grafana SDK)
 3. ❌ Never skip type hints or docstrings
 4. ❌ Never exceed performance budget
@@ -328,7 +331,7 @@ async def test_gate_evaluation_real_opa(
     """
     Test gate evaluation with REAL OPA policy engine.
 
-    SDLC 4.9 Compliance:
+    SDLC 5.1.3 Compliance:
     - Pillar 1: Real OPA evaluation (no mocks)
     - Uses Docker container for isolated testing
     """
@@ -415,7 +418,7 @@ Requirements:
 - Cache evaluation results in Redis (<100ms latency)
 - Multi-tenant isolation (project_id scoping)
 - Evidence validation (check evidence exists before evaluation)
-- SDLC 4.9 compliant (Zero Mock, type hints, docstrings)
+- SDLC 5.1.3 compliant (Zero Mock, type hints, docstrings)
 
 Generate:
 1. GateEvaluationService class
@@ -428,7 +431,7 @@ Generate:
 
 ```python
 # backend/app/services/gate_evaluation_service.py
-# SDLC 4.9 Compliant - Claude Code Generated
+# SDLC 5.1.3 Compliant - Claude Code Generated
 # Pillar 1: Zero Mock Policy ✅ (Real OPA HTTP calls)
 # Pillar 3: Quality Governance ✅ (<100ms latency)
 # AI-generated - requires human validation for business rules
@@ -451,11 +454,11 @@ class GateEvaluationService:
     Service for evaluating quality gates against OPA policies.
 
     Business Context:
-    - Gates are quality checkpoints in SDLC 4.9 lifecycle
+    - Gates are quality checkpoints in SDLC 5.1.3 lifecycle
     - Each gate requires evidence and policy compliance
     - Evaluation results are immutable (audit trail)
 
-    SDLC 4.9 Compliance:
+    SDLC 5.1.3 Compliance:
     - Pillar 1: Real OPA evaluation via HTTP (no mocks)
     - Pillar 3: <100ms p95 latency (Redis cache)
     - Pillar 4: Full audit trail for compliance
@@ -486,7 +489,7 @@ class GateEvaluationService:
         Raises:
             GateEvaluationError: If evaluation fails
 
-        SDLC 4.9 Compliance:
+        SDLC 5.1.3 Compliance:
         - Real OPA policy evaluation (no mocks)
         - Evidence validation before evaluation
         - Immutable evaluation record
@@ -538,7 +541,7 @@ class GateEvaluationService:
         """
         Evaluate policy against OPA via HTTP API.
 
-        SDLC 4.9 Pillar 1: Real OPA evaluation (no mocks)
+        SDLC 5.1.3 Pillar 1: Real OPA evaluation (no mocks)
         - Uses httpx for async HTTP calls
         - No OPA SDK (would require Apache-2.0 import)
         - Network-only access (AGPL containment pattern)
@@ -620,7 +623,7 @@ Requirements:
 - Support evidence types: DESIGN_DOCUMENT, TEST_RESULTS, CODE_REVIEW, etc.
 - Multi-tenant isolation (project_id scoping)
 - File size limit: 100MB
-- SDLC 4.9 compliant (Zero Mock, AGPL containment)
+- SDLC 5.1.3 compliant (Zero Mock, AGPL containment)
 
 Generate:
 1. EvidenceUploadService class
@@ -633,7 +636,7 @@ Generate:
 
 ```python
 # backend/app/services/evidence_upload_service.py
-# SDLC 4.9 Compliant - Claude Code Generated
+# SDLC 5.1.3 Compliant - Claude Code Generated
 # Pillar 1: Zero Mock Policy ✅ (Real MinIO S3 API)
 # AGPL Containment ✅ (HTTP-only, no minio SDK)
 # AI-generated - requires human validation
@@ -660,7 +663,7 @@ class EvidenceUploadService:
     - Files are immutable once uploaded (audit trail)
     - SHA256 hash ensures integrity
 
-    SDLC 4.9 Compliance:
+    SDLC 5.1.3 Compliance:
     - Pillar 1: Real MinIO uploads (no mocks)
     - AGPL Containment: HTTP-only access (no minio SDK)
     - Security: SHA256 integrity verification
@@ -696,7 +699,7 @@ class EvidenceUploadService:
         Returns:
             Evidence record with SHA256 hash
 
-        SDLC 4.9 Compliance:
+        SDLC 5.1.3 Compliance:
         - Real MinIO upload via S3 HTTP API
         - SHA256 integrity hash calculated
         - Immutable record created
@@ -788,7 +791,7 @@ Requirements:
 - Cost optimization (Ollama is $50/month vs $1000/month for others)
 - Fallback chain with circuit breaker
 - Response caching (Redis)
-- SDLC 4.9 compliant (no mocks, real providers in tests)
+- SDLC 5.1.3 compliant (no mocks, real providers in tests)
 
 Based on ADR-007: AI Context Engine with Ollama Integration.
 
@@ -816,7 +819,7 @@ Requirements:
 - shadcn/ui components
 - TypeScript strict mode
 - Loading states, error handling
-- SDLC 4.9 compliant
+- SDLC 5.1.3 compliant
 
 Generate:
 1. ProjectsPage.tsx
@@ -829,7 +832,7 @@ Generate:
 
 ```typescript
 // frontend/web/src/pages/ProjectsPage.tsx
-// SDLC 4.9 Compliant - Claude Code Generated
+// SDLC 5.1.3 Compliant - Claude Code Generated
 // Pillar 1: Zero Mock Policy ✅ (Real API calls via TanStack Query)
 // AI-generated - requires human validation for UX
 
@@ -852,7 +855,7 @@ interface Project {
 /**
  * Projects listing page with gate status overview.
  *
- * SDLC 4.9 Compliance:
+ * SDLC 5.1.3 Compliance:
  * - Pillar 1: Real API calls (no mock data)
  * - Pillar 3: Loading states for UX
  * - Uses TanStack Query for caching
@@ -1009,7 +1012,7 @@ Test Environment:
 
 ```python
 # tests/integration/test_gate_evaluation.py
-# SDLC 4.9 Compliant - Real Integration Test
+# SDLC 5.1.3 Compliant - Real Integration Test
 
 import pytest
 from httpx import AsyncClient
@@ -1024,7 +1027,7 @@ async def test_gate_evaluation_full_flow(
     """
     Full integration test: Create project → Create gate → Upload evidence → Evaluate.
 
-    SDLC 4.9 Compliance:
+    SDLC 5.1.3 Compliance:
     - Pillar 1: All real services (no mocks)
     - Pillar 3: Tests <2s execution time
     """
@@ -1081,7 +1084,7 @@ async def test_gate_evaluation_full_flow(
 ### 10.1 Review Checklist
 
 ```markdown
-## SDLC 4.9 Code Review Checklist
+## SDLC 5.1.3 Code Review Checklist
 
 ### Pillar 1: Zero Mock Policy
 - [ ] No mock.Mock(), MagicMock(), @patch() usage
@@ -1140,7 +1143,7 @@ make coverage    # pytest-cov + vitest coverage
 | Test Coverage | 95%+ | pytest-cov |
 | API Latency (p95) | <100ms | Performance tests |
 | Code Review Time | <30 min | PR metrics |
-| SDLC 4.9 Compliance | 100% | Audit checklist |
+| SDLC 5.1.3 Compliance | 100% | Audit checklist |
 
 ---
 
@@ -1154,7 +1157,7 @@ make coverage    # pytest-cov + vitest coverage
 
 ---
 
-**SDLC 4.9 Compliance**: ✅ Complete 10-Stage Lifecycle Framework
+**SDLC 5.1.3 Compliance**: ✅ Complete 10-Stage Lifecycle Framework
 **Zero Mock Policy**: ✅ Absolute enforcement
 **AGPL Containment**: ✅ Network-only access validated
 

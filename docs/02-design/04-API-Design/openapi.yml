@@ -75,7 +75,7 @@ tags:
   - name: AI Council
     description: AI Council Service - Multi-LLM deliberation for compliance recommendations
   - name: SDLC Structure Validation
-    description: SDLC 5.0.0 folder structure validation - 11 stages, 4-tier classification
+    description: SDLC 5.1.3.0 folder structure validation - 11 stages, 4-tier classification
   - name: Codegen
     description: EP-06 IR-Based Code Generation - Multi-provider architecture (Ollama, Claude, DeepCode)
 
@@ -870,15 +870,15 @@ paths:
           description: Project deleted
 
   # ============================================================
-  # SDLC 5.0.0 STRUCTURE VALIDATION
+  # SDLC 5.1.3.0 STRUCTURE VALIDATION
   # ============================================================
 
   /projects/{project_id}/validate-structure:
     post:
       tags: [SDLC Structure Validation]
-      summary: Validate SDLC 5.0.0 folder structure
+      summary: Validate SDLC 5.1.3.0 folder structure
       description: |
-        Validate project documentation folder structure against SDLC 5.0.0 framework.
+        Validate project documentation folder structure against SDLC 5.1.3.0 framework.
 
         **4-Tier Classification**:
         - **Lite** (🌱): 5 required stages - minimal for small projects
@@ -4407,14 +4407,14 @@ components:
               confidence: 0.8
 
     # ============================================================
-    # SDLC 5.0.0 STRUCTURE VALIDATION (Sprint 30)
+    # SDLC 5.1.3.0 STRUCTURE VALIDATION (Sprint 30)
     # ============================================================
 
     SDLCTier:
       type: string
       enum: [lite, standard, professional, enterprise]
       description: |
-        SDLC 5.0.0 tier classification:
+        SDLC 5.1.3.0 tier classification:
         - lite: 5 required stages (small projects)
         - standard: 8 required stages (mid-size projects)
         - professional: 10 required stages (enterprise projects)

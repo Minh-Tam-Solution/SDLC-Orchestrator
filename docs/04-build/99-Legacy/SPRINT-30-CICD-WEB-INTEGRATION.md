@@ -5,7 +5,7 @@
 **Duration**: 5 days (January 13-17, 2026)
 **Status**: PLANNED
 **Team**: 2 Backend, 1 DevOps, 1 Frontend
-**Framework**: SDLC 5.0.0 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 **Phase**: PHASE-04 (SDLC Structure Validator)
 **Prerequisites**: Sprint 29 Complete
 
@@ -13,7 +13,7 @@
 
 ## Sprint Goal
 
-Add CI/CD pipeline gate (GitHub Actions) and web dashboard integration for SDLC 5.0.0 structure validation, enabling automated compliance enforcement and visual compliance reporting across all NQH portfolio projects.
+Add CI/CD pipeline gate (GitHub Actions) and web dashboard integration for SDLC 5.1.3 structure validation, enabling automated compliance enforcement and visual compliance reporting across all NQH portfolio projects.
 
 ---
 
@@ -47,7 +47,7 @@ AC-1.4: Action runs in <30s
 
 ```yaml
 # .github/workflows/sdlc-validate.yml
-name: SDLC 5.0.0 Structure Validation
+name: SDLC 5.1.3 Structure Validation
 
 on:
   push:
@@ -104,7 +104,7 @@ jobs:
             const tier = report.tier.toUpperCase();
             const score = report.score;
 
-            let body = `## SDLC 5.0.0 Structure Validation: ${status}\n\n`;
+            let body = `## SDLC 5.1.3 Structure Validation: ${status}\n\n`;
             body += `| Metric | Value |\n|--------|-------|\n`;
             body += `| Tier | ${tier} |\n`;
             body += `| Score | ${score}/100 |\n`;
@@ -130,9 +130,9 @@ jobs:
         run: |
           # Generate badge JSON for shields.io
           if [ "${{ steps.validate.outputs.result }}" == "true" ]; then
-            echo '{"schemaVersion":1,"label":"SDLC 5.0.0","message":"PASSED","color":"green"}' > .github/badges/sdlc-status.json
+            echo '{"schemaVersion":1,"label":"SDLC 5.1.3","message":"PASSED","color":"green"}' > .github/badges/sdlc-status.json
           else
-            echo '{"schemaVersion":1,"label":"SDLC 5.0.0","message":"FAILED","color":"red"}' > .github/badges/sdlc-status.json
+            echo '{"schemaVersion":1,"label":"SDLC 5.1.3","message":"FAILED","color":"red"}' > .github/badges/sdlc-status.json
           fi
 
       - name: Fail on Violations
@@ -224,7 +224,7 @@ AC-3.4: Rate limit: 10 validations/minute per project
 paths:
   /projects/{project_id}/validate-structure:
     post:
-      summary: Validate SDLC 5.0.0 structure
+      summary: Validate SDLC 5.1.3 structure
       tags:
         - Compliance
       parameters:
@@ -384,7 +384,7 @@ async def validate_structure(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Validate SDLC 5.0.0 structure for a project.
+    Validate SDLC 5.1.3 structure for a project.
 
     For large projects (>1000 files), validation runs async
     and returns a 202 with poll URL.
@@ -516,7 +516,7 @@ export function ComplianceDashboard() {
       {/* Overview Card */}
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">SDLC 5.0.0 Compliance</h2>
+          <h2 className="text-xl font-semibold">SDLC 5.1.3 Compliance</h2>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
@@ -822,7 +822,7 @@ class RateLimiter:
 
 - [PHASE-04: SDLC Structure Validator](../04-Phase-Plans/PHASE-04-SDLC-VALIDATOR.md)
 - [Sprint 29: SDLC Validator CLI](./SPRINT-29-SDLC-VALIDATOR-CLI.md)
-- [SDLC 5.0.0 Framework](../../../SDLC-Enterprise-Framework/)
+- [SDLC 5.1.3 Framework](../../../SDLC-Enterprise-Framework/)
 - [ADR-014: SDLC Structure Validator](../../02-design/01-ADRs/ADR-014-SDLC-Validator.md)
 
 ---

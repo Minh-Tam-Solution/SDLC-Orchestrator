@@ -5,7 +5,7 @@
 **Status**: ACTIVE - MANDATORY ENFORCEMENT
 **Authority**: CTO + Backend Lead + Tech Lead
 **Foundation**: NQH-Bot Crisis (679 mocks → 78% failure), Stage 02 Architecture
-**Framework**: SDLC 4.9 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
 
 ---
 

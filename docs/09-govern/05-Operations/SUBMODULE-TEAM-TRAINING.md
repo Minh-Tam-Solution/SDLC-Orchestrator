@@ -46,7 +46,7 @@ SDLC-Orchestrator (Main Repo)
     ├── 00-Why/
     ├── 01-What/
     ├── 02-How/
-    └── ... (10 SDLC 5.0.0 stages)
+    └── ... (10 SDLC 5.1.3 stages)
 ```
 
 **Key Metadata Files:**

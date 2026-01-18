@@ -55,7 +55,7 @@ CTO Mandated - 100% Attendance Required
 │         ├── 00-Why/                             │
 │         ├── 01-What/                            │
 │         ├── 02-How/                             │
-│         └── ... (10 SDLC 5.0.0 stages)         │
+│         └── ... (10 SDLC 5.1.3 stages)         │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -90,7 +90,7 @@ ls -la SDLC-Enterprise-Framework/.git
 ┌───────────────────────────────────────────────┐
 │ LAYER 1: Framework (Methodology)             │
 │ - Tools-agnostic templates                   │
-│ - SDLC 5.0.0 methodology                     │
+│ - SDLC 5.1.3 methodology                     │
 │ - Works with ANY tool (Claude, GPT-4, etc)   │
 │ - Survives even if Orchestrator replaced     │
 └───────────────────────────────────────────────┘

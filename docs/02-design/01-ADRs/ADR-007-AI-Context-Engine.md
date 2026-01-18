@@ -4,7 +4,7 @@
 **Date**: November 13, 2025
 **Decision Makers**: CTO, CPO (joint review)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 4.9
+**Framework**: SDLC 5.1.3
 
 ---
 
@@ -111,7 +111,7 @@ class OllamaProvider(AIProvider):
 
         User Request: {prompt}
 
-        Provide specific, actionable guidance following SDLC 4.9 framework.
+        Provide specific, actionable guidance following SDLC 5.1.3 framework.
         """
 
 class ClaudeProvider(AIProvider):
@@ -330,7 +330,7 @@ class GateRecommendationService:
         """Recommend which gates to enforce"""
 
         prompt = f"""
-        Based on the following project context, recommend which SDLC 4.9 gates to enforce:
+        Based on the following project context, recommend which SDLC 5.1.3 gates to enforce:
 
         Team Size: {team_size} engineers
         Project Type: {project_type}

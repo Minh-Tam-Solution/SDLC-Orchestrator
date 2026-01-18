@@ -24,7 +24,7 @@ Tôi, với vai trò CTO, **PHÊ DUYỆT** strategic pivot từ DeepCode integra
 **Evidence of Strategic Drift:**
 ```yaml
 Original Vision (SDLC Orchestrator):
-  - Control plane for SDLC 5.0 governance
+  - Control plane for SDLC 5.1.3 governance
   - Evidence Vault + Gates + Policy-as-Code
   - AI Safety Layer (detect/control AI-generated code)
   - Bridge to Claude/Cursor/DeepCode (not replace)
@@ -260,7 +260,7 @@ YES: The Operating System for Software 3.0
 ```
 
 **Core Value:**
-1. SDLC 5.0 Framework (10 stages, 4-tier classification)
+1. SDLC 5.1.3 Framework (10 stages, 4-tier classification)
 2. Governance Layer (gates, evidence, policy-as-code)
 3. AI Safety Layer (detect + control AI-generated code)
 4. IR-based Architecture (AppBlueprint, ModuleSpec, PageSpec)

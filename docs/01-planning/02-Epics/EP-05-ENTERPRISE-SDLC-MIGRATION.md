@@ -16,7 +16,7 @@
 
 ### The Problem
 
-**Real-World Scenario**: Bflow Platform (200K users, 5+ years production) needed to upgrade from SDLC 4.9 → 5.1:
+**Real-World Scenario**: Bflow Platform (200K users, 5+ years production) needed to upgrade from SDLC 5.1.3 → 5.1:
 
 - **3,800+ Python files** to migrate
 - **1,200+ Markdown docs** to update
@@ -685,7 +685,7 @@ POST /api/v1/projects/:id/folders/rename
 **Upsell Scenario**:
 
 ```
-Customer: "We have 8,000 Python files to migrate from SDLC 4.9 to 5.1"
+Customer: "We have 8,000 Python files to migrate from SDLC 5.1.3 to 5.1"
 SDLC Orchestrator: "You need PROFESSIONAL tier for automated migration"
 
 Manual Migration (STANDARD tier):
@@ -732,7 +732,7 @@ Upsell Value:
 ### Battle-Tested Implementation
 
 1. **Bflow Platform Migration** (`/home/nqh/shared/Bflow-Platform/`)
-   - 3,800+ Python files migrated (SDLC 4.9 → 5.1)
+   - 3,800+ Python files migrated (SDLC 5.1.3 → 5.1)
    - Tools: `/tools/sdlc51-compliance/` (~10,500 LOC)
    - Docs: `/docs/08-Team-Management/03-SDLC-Compliance/` (27,789 lines)
    - Timeline: 4 weeks manual → 2 hours automated (120x speedup)

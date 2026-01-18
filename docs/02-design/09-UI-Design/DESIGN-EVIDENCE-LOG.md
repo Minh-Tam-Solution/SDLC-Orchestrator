@@ -5,7 +5,7 @@
 **Status**: ACTIVE - STAGE 02 (DESIGN) / STAGE 03 (BUILD)
 **Date**: December 17, 2025
 **Authority**: Frontend Lead + UX Lead + CPO Approved
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 
@@ -102,13 +102,13 @@ This document tracks all design decisions for the SDLC Orchestrator frontend, pr
 
 ---
 
-### DES-006: SDLC 4.9 Stage Visualization
+### DES-006: SDLC 5.1.3 Stage Visualization
 
 | Field | Value |
 |-------|-------|
 | **Decision ID** | DES-006 |
 | **Date** | 2025-12-17 |
-| **Decision** | Display SDLC 4.9 stages as horizontal timeline with color-coded status |
+| **Decision** | Display SDLC 5.1.3 stages as horizontal timeline with color-coded status |
 | **Context** | Need to visualize project progress through 10 SDLC stages (WHY through EVOLVE) |
 | **Alternatives Considered** | 1. Vertical stepper (too long for 10 stages)<br>2. Horizontal timeline (compact, scannable)<br>3. Progress bar (loses stage identity)<br>4. Kanban board (overkill for linear process) |
 | **Decision Rationale** | - 10 stages fit horizontally with scrolling<br>- Color coding shows status at a glance:<br>  - Gray: no gates<br>  - Blue: has gates<br>  - Yellow: pending approval<br>  - Green: all approved<br>  - Red: rejected<br>- Stage codes (00-09) provide quick reference |

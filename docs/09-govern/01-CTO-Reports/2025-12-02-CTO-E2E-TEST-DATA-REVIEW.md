@@ -5,7 +5,7 @@
 **Status**: ✅ **APPROVED**  
 **Authority**: CTO + QA Lead + Backend Lead  
 **Foundation**: Gate G3 Ship Ready, E2E Testing Requirements  
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 
@@ -249,7 +249,7 @@ api-tests/
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 4.9. Zero Mock Policy enforced. Battle-tested patterns applied.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced. Battle-tested patterns applied.*
 
 **"E2E test data: Comprehensive preparation. Gate G3 validation ready. Approved."** ⚔️ - CTO
 

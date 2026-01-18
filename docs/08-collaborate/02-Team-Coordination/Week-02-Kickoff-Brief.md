@@ -5,7 +5,7 @@
 **Week**: Week 2 (November 21-25, 2025)
 **Status**: 🚨 CRITICAL WEEK - Go/No-Go Decision on AGPL Strategy
 **Authority**: CEO + CTO + CPO
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 
@@ -90,7 +90,7 @@
 2. **FR2: Evidence Vault** (MinIO S3-compatible storage, SHA256 integrity)
 3. **FR3: AI Context Engine** (Claude + GPT-4o + Gemini, stage-aware prompts)
 4. **FR4: Real-Time Dashboard** (React + FastAPI, gate status visualization)
-5. **FR5: Policy Pack Library** (100+ SDLC 4.9 pre-built policies)
+5. **FR5: Policy Pack Library** (100+ SDLC 5.1.3 pre-built policies)
 
 **Format**:
 - Each FR: Use case, acceptance criteria, API contracts, UI mockups (Figma)

@@ -139,7 +139,7 @@ executive_summary:
   key_stakeholders:
     - name: "CTO (NQH)"
       role: "Executive Sponsor"
-      interest: "Prove SDLC 5.0.0 scales to organizational-wide (50+ teams)"
+      interest: "Prove SDLC 5.1.3.0 scales to organizational-wide (50+ teams)"
       success_criteria: "VCR 5/5 rating + 4 new LPS proofs validated"
 
     - name: "CEO"

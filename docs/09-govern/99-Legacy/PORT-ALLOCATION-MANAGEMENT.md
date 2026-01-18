@@ -5,7 +5,7 @@
 **Date**: November 29, 2025
 **Status**: ACTIVE - Staging Environment
 **Authority**: DevOps Lead + Backend Lead
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 

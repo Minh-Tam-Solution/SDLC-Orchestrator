@@ -232,7 +232,7 @@ And decryption only with valid user authentication
 | **Admin** |
 | Admin | All | ✅ | ✅ | ✅ | ✅ | ✅ (All Gates) |
 
-**Gate Approval Matrix (SDLC 4.9 Complete Lifecycle - 10 Stages)**:
+**Gate Approval Matrix (SDLC 5.1.3 Complete Lifecycle - 10 Stages)**:
 | Gate | Stage | Approver(s) Required | Rationale |
 |------|-------|---------------------|-----------|
 | G0.1 | Stage 00 (WHY - Problem Foundation) | CPO + EM | Problem validated (5+ users) |

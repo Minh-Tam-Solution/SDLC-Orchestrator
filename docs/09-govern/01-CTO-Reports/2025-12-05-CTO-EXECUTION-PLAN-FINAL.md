@@ -289,7 +289,7 @@
 ### Risk 1: Framework Version Drift
 
 **Mitigation**:
-- ✅ Version pin in all templates (SDLC 4.9.1)
+- ✅ Version pin in all templates (SDLC 5.1.3.1)
 - ✅ Changelog in `10-Version-History/`
 - ✅ Version check in Orchestrator validator
 

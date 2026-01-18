@@ -5,7 +5,7 @@
 **Status**: ✅ **APPROVED**  
 **Authority**: CTO + CPO + Backend Lead  
 **Foundation**: ADR-007 Approved, Sprint 21 Plan Complete  
-**Framework**: SDLC 4.9.1 Complete Lifecycle
+**Framework**: SDLC 5.1.3.1 Complete Lifecycle
 
 ---
 
@@ -60,7 +60,7 @@
 
 **Technical Requirements**:
 - OPA integration for policy evaluation
-- Rego rules for SDLC 4.9.1 compliance
+- Rego rules for SDLC 5.1.3.1 compliance
 - Database schema for scan results
 - API endpoint for manual scans
 
@@ -195,7 +195,7 @@
 
 | Criterion | Status | Evidence |
 |-----------|--------|----------|
-| **SDLC 4.9.1 Compliance** | ✅ PASS | Core feature |
+| **SDLC 5.1.3.1 Compliance** | ✅ PASS | Core feature |
 | **Cost Optimization** | ✅ PASS | 95% savings |
 | **Zero Mock Policy** | ✅ PASS | Real AI integration |
 | **Gate G3 Readiness** | ✅ PASS | Compliance critical |
@@ -209,7 +209,7 @@
 ### Sprint 21 Value Proposition
 
 **Compliance Scanner**:
-- ✅ Automated SDLC 4.9.1 compliance checking
+- ✅ Automated SDLC 5.1.3.1 compliance checking
 - ✅ Real-time violation detection
 - ✅ Scheduled scans (daily at 2:00 AM)
 - ✅ Email/Slack notifications
@@ -284,7 +284,7 @@
 ### Why This Matters
 
 **Compliance Scanner**:
-- Automated SDLC 4.9.1 compliance checking
+- Automated SDLC 5.1.3.1 compliance checking
 - Real-time violation detection
 - Critical for Gate G3 validation
 - Evidence collection for audits
@@ -312,7 +312,7 @@
 **Next Actions**:
 1. Execute Sprint 21 Day 1 (Compliance Scanner Core)
 2. Implement OPA integration
-3. Create Rego rules for SDLC 4.9.1
+3. Create Rego rules for SDLC 5.1.3.1
 4. Set up database schema
 
 **Timeline**: Dec 2-6, 2025 (5 days)
@@ -321,7 +321,7 @@
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 4.9.1. Zero Mock Policy enforced. Battle-tested patterns applied.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3.1. Zero Mock Policy enforced. Battle-tested patterns applied.*
 
 **"Sprint 21: Design complete. ADR-007 approved. Cost savings: $11,400/year. Implementation approved."** ⚔️ - CTO
 

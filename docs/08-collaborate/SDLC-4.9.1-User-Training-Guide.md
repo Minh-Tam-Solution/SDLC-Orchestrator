@@ -1,5 +1,5 @@
 # SDLC Orchestrator - User Training Guide
-## Apply SDLC 4.9.1 Framework Through the Platform
+## Apply SDLC 5.1.3.1 Framework Through the Platform
 
 **Version**: 1.0.0
 **Date**: November 29, 2025
@@ -11,7 +11,7 @@
 
 ## Mục Tiêu Tài Liệu
 
-Tài liệu này hướng dẫn bạn **sử dụng SDLC Orchestrator** để **áp dụng SDLC 4.9.1 Framework** vào dự án phần mềm của bạn.
+Tài liệu này hướng dẫn bạn **sử dụng SDLC Orchestrator** để **áp dụng SDLC 5.1.3.1 Framework** vào dự án phần mềm của bạn.
 
 **Sau khi hoàn thành, bạn sẽ:**
 - Hiểu cách SDLC Orchestrator enforce 10-stage lifecycle
@@ -25,7 +25,7 @@ Tài liệu này hướng dẫn bạn **sử dụng SDLC Orchestrator** để **
 
 ### 1.1 Vấn Đề Với Manual SDLC Enforcement
 
-Khi áp dụng SDLC 4.9.1 **manual** (không có tool), team cần:
+Khi áp dụng SDLC 5.1.3.1 **manual** (không có tool), team cần:
 
 ```yaml
 Manual Oversight Required:
@@ -74,11 +74,11 @@ Platform Solves:
 
 ---
 
-## 2. SDLC Orchestrator Enforce SDLC 4.9.1 Như Thế Nào?
+## 2. SDLC Orchestrator Enforce SDLC 5.1.3.1 Như Thế Nào?
 
 ### 1.1 Platform Không Cho Phép Bỏ Qua
 
-SDLC Orchestrator được thiết kế để **enforce** - không chỉ **suggest** - SDLC 4.9.1:
+SDLC Orchestrator được thiết kế để **enforce** - không chỉ **suggest** - SDLC 5.1.3.1:
 
 ```yaml
 Enforcement Rules:
@@ -154,7 +154,7 @@ Dashboard → Click "New Project"
 Form:
   - Project Name: "NQH-Bot Platform v3.0"
   - Description: "Workforce management platform for NQH"
-  - Template: "SDLC 4.9.1 Standard" (default)
+  - Template: "SDLC 5.1.3.1 Standard" (default)
 
 Click "Create"
 
@@ -192,7 +192,7 @@ Result:
 
 ### 3.1 Mục Tiêu Stage
 
-SDLC 4.9.1 yêu cầu bắt đầu với **WHY** - tại sao làm dự án này?
+SDLC 5.1.3.1 yêu cầu bắt đầu với **WHY** - tại sao làm dự án này?
 
 Platform enforce:
 - Phải có Problem Statement
@@ -550,7 +550,7 @@ Platform keeps history: Tất cả versions được lưu
 Platform policy: KHÔNG cho phép skip stages
 
 Lý do:
-  - SDLC 4.9.1 requires sequential completion
+  - SDLC 5.1.3.1 requires sequential completion
   - Each stage builds on previous
   - Skip = Technical debt
 
@@ -567,7 +567,7 @@ Exception: Owner có thể "Force Pass" với documented reason
 Documentation:
   - In-app help: Click (?) icon
   - User Guide: /docs trong platform
-  - SDLC 4.9.1 Framework: /docs/10-Archive/SDLC-Enterprise-Framework/
+  - SDLC 5.1.3.1 Framework: /docs/10-Archive/SDLC-Enterprise-Framework/
 
 Contact:
   - Platform Support: support@sdlc-orchestrator.io
@@ -577,10 +577,10 @@ Contact:
 
 ---
 
-## Summary: SDLC Orchestrator + SDLC 4.9.1
+## Summary: SDLC Orchestrator + SDLC 5.1.3.1
 
 ```yaml
-SDLC 4.9.1 Framework định nghĩa:
+SDLC 5.1.3.1 Framework định nghĩa:
   - 10 Stages (WHY → GOVERN)
   - Quality Gates (G0-G9)
   - Role-based Approvals
@@ -593,7 +593,7 @@ SDLC Orchestrator enforce:
   - Full audit trail (accountability)
 
 Kết quả:
-  - Team follow SDLC 4.9.1 đúng cách
+  - Team follow SDLC 5.1.3.1 đúng cách
   - Quality được đảm bảo ở mỗi stage
   - Collaboration được enforce
   - Full traceability cho audit
@@ -607,4 +607,4 @@ Kết quả:
 
 ---
 
-*Tài liệu này hướng dẫn sử dụng SDLC Orchestrator để áp dụng SDLC 4.9.1 Framework. Platform enforce workflow, bạn focus vào quality.*
+*Tài liệu này hướng dẫn sử dụng SDLC Orchestrator để áp dụng SDLC 5.1.3.1 Framework. Platform enforce workflow, bạn focus vào quality.*

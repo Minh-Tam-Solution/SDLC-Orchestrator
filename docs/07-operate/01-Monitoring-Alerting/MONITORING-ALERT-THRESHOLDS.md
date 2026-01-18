@@ -6,7 +6,7 @@
 **Owner**: DevOps Lead
 **Reviewer**: CTO
 **Environment**: Production (Beta Pilot)
-**Framework**: SDLC 5.0.0
+**Framework**: SDLC 5.1.3
 **CTO Mandate**: p95<100ms, error rate<1%, resource<70% warning
 
 ---
@@ -687,7 +687,7 @@ docker restart bflow-staging-grafana
 **Document Status**: FINAL - Ready for Deployment
 **Owner**: DevOps Lead
 **Reviewer**: CTO
-**Framework**: SDLC 5.0.0
+**Framework**: SDLC 5.1.3
 **Version**: 1.0.0
 
 ---

@@ -6,7 +6,7 @@
 **Status**: ACTIVE - Week 4 Day 1 (Architecture Documentation)
 **Authority**: Backend Lead + DevOps Lead + SRE Lead + CTO Approved
 **Foundation**: Week 3 Infrastructure (Prometheus, Grafana, docker-compose.yml)
-**Framework**: SDLC 4.9 Complete Lifecycle
+**Framework**: SDLC 5.1.3 Complete Lifecycle
 
 ---
 

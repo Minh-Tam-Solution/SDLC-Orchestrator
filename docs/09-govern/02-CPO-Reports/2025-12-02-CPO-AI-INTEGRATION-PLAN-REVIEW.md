@@ -40,7 +40,7 @@
 
 ### 1.1 Governance-First Positioning ✅
 
-**SDLC Orchestrator Vision**: "First governance-first platform on SDLC 4.9.1"
+**SDLC Orchestrator Vision**: "First governance-first platform on SDLC 5.1.3.1"
 
 **AI Council Contribution**:
 - ✅ **Enforces Gates**: AI recommendations tied to G0-G5 gate requirements
@@ -53,7 +53,7 @@
 **Competitive Moat**:
 - **Jira/Linear**: No AI Council, no multi-LLM deliberation
 - **GitHub Copilot**: Code-focused, not compliance/governance-focused
-- **SDLC Orchestrator**: First platform with AI Council for SDLC 4.9.1 compliance
+- **SDLC Orchestrator**: First platform with AI Council for SDLC 5.1.3.1 compliance
 
 ### 1.2 Target Persona Alignment ✅
 
@@ -68,7 +68,7 @@
 - ✅ **Automated Recommendations**: AI suggests fixes for violations (saves 2-3 hours/week)
 - ✅ **Multi-LLM Quality**: 95% accuracy vs 85% single-provider (reduces false positives)
 - ✅ **Evidence Generation**: AI drafts evidence artifacts (BRD, ADR, Runbook)
-- ✅ **Gate Guidance**: Stage-aware prompts help teams understand SDLC 4.9.1
+- ✅ **Gate Guidance**: Stage-aware prompts help teams understand SDLC 5.1.3.1
 
 **CPO Assessment**: ✅ **STRONG** - Addresses core pain points of target persona.
 
@@ -217,13 +217,13 @@
 **Key Differentiators**:
 1. **First AI Council for SDLC Compliance**: No competitor has multi-LLM deliberation
 2. **Evidence-Based Governance**: SHA256 audit trail (Jira/Linear don't have this)
-3. **Stage-Aware AI**: SDLC 4.9.1 context injection (GitHub Copilot is code-only)
+3. **Stage-Aware AI**: SDLC 5.1.3.1 context injection (GitHub Copilot is code-only)
 4. **Tiered Compliance**: Lite/Standard/Enterprise (supports pricing strategy)
 
 **CPO Assessment**: ✅ **STRONG** - Clear differentiation from competitors.
 
 **Messaging Framework**:
-- **Headline**: "AI Council: The First Multi-LLM Compliance Assistant for SDLC 4.9.1"
+- **Headline**: "AI Council: The First Multi-LLM Compliance Assistant for SDLC 5.1.3.1"
 - **Value Prop**: "95% accurate recommendations, 2-3 hours saved per week, evidence-based governance"
 - **Target**: "Engineering Managers who want to reduce 60-70% feature waste"
 
@@ -268,7 +268,7 @@
 **CPO Assessment**: ✅ **GOOD** - Developer-first approach aligns with target persona.
 
 **Enhancement Opportunity**:
-- Add "SDLC 4.9.1 Quick Reference" command in VS Code
+- Add "SDLC 5.1.3.1 Quick Reference" command in VS Code
 - Add "Gate Requirements Checklist" for each gate (G0-G5)
 
 ---
@@ -336,7 +336,7 @@
 **Risk**: Competitors (Jira, Linear) may copy AI Council concept
 
 **Competitive Moat**:
-- ✅ **SDLC 4.9.1 Integration**: 6-12 months for competitors to understand
+- ✅ **SDLC 5.1.3.1 Integration**: 6-12 months for competitors to understand
 - ✅ **Evidence Vault**: 3+ years trust moat (SHA256 audit trail)
 - ✅ **Policy Pack Library**: 100+ pre-built policies (1-2 years to replicate)
 
@@ -381,7 +381,7 @@
    - Gamification (badges for first Council question, first evidence generation)
 
 2. **Sprint 30**: User Education
-   - "SDLC 4.9.1 Quick Reference" command
+   - "SDLC 5.1.3.1 Quick Reference" command
    - "Gate Requirements Checklist" for each gate
    - Video tutorials (YouTube, in-app)
 

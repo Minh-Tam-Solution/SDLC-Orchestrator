@@ -6,7 +6,7 @@
 **Day**: Day 1 of 5
 **Status**: ⏳ **IN PROGRESS**
 **Authority**: Backend Lead + QA Lead + CTO
-**Framework**: SDLC 4.9 Complete Lifecycle (Stage 04 (BUILD)
+**Framework**: SDLC 5.1.3 Complete Lifecycle (Stage 04 (BUILD)
 
 ---
 
@@ -1438,7 +1438,7 @@ cat pytest.ini | grep cov
 ---
 
 **Document Status**: ✅ **READY**
-**Framework**: ✅ **SDLC 4.9 COMPLETE LIFECYCLE**
+**Framework**: ✅ **SDLC 5.1.3 COMPLETE LIFECYCLE**
 **Authorization**: ✅ **BACKEND LEAD + QA LEAD + CTO APPROVED**
 
 ---

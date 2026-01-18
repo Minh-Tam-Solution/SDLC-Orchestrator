@@ -25,7 +25,7 @@
 **Changelog v2.0.0** (Dec 3, 2025):
 - Added Root Cause 6: AI Productivity Gap
 - Added AI Governance problem validation
-- Updated to SDLC 4.9.1 framework reference
+- Updated to SDLC 5.1.3.1 framework reference
 
 ---
 
