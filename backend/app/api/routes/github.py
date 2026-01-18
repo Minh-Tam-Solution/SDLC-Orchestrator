@@ -267,8 +267,8 @@ async def handle_oauth_callback(
         user.last_login = datetime.utcnow()
         if not user.avatar_url and github_avatar:
             user.avatar_url = github_avatar
-        if not user.name and github_name:
-            user.name = github_name
+        if not user.full_name and github_name:
+            user.full_name = github_name
 
         # 5. Generate JWT tokens for app authentication (ADR-027: session_timeout from DB)
         access_token = await create_access_token(
@@ -296,7 +296,7 @@ async def handle_oauth_callback(
             github_connected=True,
             user_id=user.id,
             email=user.email,
-            name=user.name,
+            name=user.full_name,
             avatar_url=user.avatar_url,
         )
 

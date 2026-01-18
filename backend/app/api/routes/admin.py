@@ -229,7 +229,7 @@ async def list_users(
         AdminUserListItem(
             id=user.id,
             email=user.email,
-            name=user.name,
+            name=user.full_name,
             is_active=user.is_active,
             is_superuser=user.is_superuser,
             created_at=user.created_at,
@@ -295,7 +295,7 @@ async def get_user_detail(
     return AdminUserDetail(
         id=user.id,
         email=user.email,
-        name=user.name,
+        name=user.full_name,
         avatar_url=user.avatar_url,
         is_active=user.is_active,
         is_superuser=user.is_superuser,
@@ -403,10 +403,10 @@ async def update_user(
         changes['password'] = 'reset'
 
     # Update name
-    if update_data.name is not None and update_data.name != user.name:
-        old_name = user.name
-        user.name = update_data.name
-        changes['name'] = {'old': old_name, 'new': user.name}
+    if update_data.name is not None and update_data.name != user.full_name:
+        old_name = user.full_name
+        user.full_name = update_data.name
+        changes['name'] = {'old': old_name, 'new': user.full_name}
 
     # Update is_active
     if update_data.is_active is not None and update_data.is_active != user.is_active:
@@ -476,7 +476,7 @@ async def update_user(
     return AdminUserDetail(
         id=user.id,
         email=user.email,
-        name=user.name,
+        name=user.full_name,
         avatar_url=user.avatar_url,
         is_active=user.is_active,
         is_superuser=user.is_superuser,
@@ -562,7 +562,7 @@ async def create_user(
         target_name=new_user.email,
         details={
             "email": new_user.email,
-            "name": new_user.name,
+            "name": new_user.full_name,
             "is_active": new_user.is_active,
             "is_superuser": new_user.is_superuser,
         },
@@ -578,7 +578,7 @@ async def create_user(
     return AdminUserDetail(
         id=new_user.id,
         email=new_user.email,
-        name=new_user.name,
+        name=new_user.full_name,
         avatar_url=new_user.avatar_url,
         is_active=new_user.is_active,
         is_superuser=new_user.is_superuser,
@@ -694,7 +694,7 @@ async def bulk_delete_users(
             target_name=user.email,
             details={
                 "email": user.email,
-                "name": user.name,
+                "name": user.full_name,
                 "was_superuser": user.is_superuser,
                 "deleted_at": user.deleted_at.isoformat(),
                 "bulk_delete": True,
@@ -802,7 +802,7 @@ async def delete_user(
         target_name=user.email,
         details={
             "email": user.email,
-            "name": user.name,
+            "name": user.full_name,
             "was_superuser": user.is_superuser,
             "deleted_at": user.deleted_at.isoformat(),
         },

@@ -346,7 +346,7 @@ async def get_current_user_optional(
         @router.get("/public-or-private")
         async def mixed_route(user: Optional[User] = Depends(get_current_user_optional)):
             if user:
-                return {"message": f"Hello {user.name}"}
+                return {"message": f"Hello {user.full_name}"}
             else:
                 return {"message": "Hello Guest"}
 

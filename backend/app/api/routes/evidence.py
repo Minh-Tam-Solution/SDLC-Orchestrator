@@ -227,7 +227,7 @@ async def upload_evidence(
         sha256_hash=evidence.sha256_hash,
         description=evidence.description,
         uploaded_by=evidence.uploaded_by,
-        uploaded_by_name=current_user.name,
+        uploaded_by_name=current_user.full_name,
         uploaded_at=evidence.uploaded_at,
         s3_url=evidence.s3_url,
         download_url=f"/api/v1/evidence/{evidence.id}/download",

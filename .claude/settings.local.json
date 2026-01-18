@@ -311,7 +311,12 @@
       "Bash(docker-compose:*)",
       "Bash(__NEW_LINE_03795e89efeb506a__ echo \"\")",
       "Bash(__NEW_LINE_9ff64ba5661d9b9e__ echo \"\")",
-      "Bash(__NEW_LINE_2447af53688e22fb__ echo \"\")"
+      "Bash(__NEW_LINE_2447af53688e22fb__ echo \"\")",
+      "Bash(docker --version:*)",
+      "Bash(./scripts/test-sprint73-local.sh:*)",
+      "Bash(tee:*)",
+      "Bash(./scripts/quick-test-sprint73.sh:*)",
+      "Bash(alembic merge:*)"
     ],
     "deny": [],
     "ask": []

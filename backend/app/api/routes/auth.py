@@ -195,7 +195,7 @@ async def register(
     return RegisterResponse(
         id=new_user.id,
         email=new_user.email,
-        name=new_user.name,
+        name=new_user.full_name,
         is_active=new_user.is_active,
         created_at=new_user.created_at,
         message="Registration successful. You can now login.",
@@ -651,7 +651,7 @@ async def get_current_user_profile(
     return UserProfile(
         id=current_user.id,
         email=current_user.email,
-        name=current_user.name,
+        name=current_user.full_name,
         is_active=current_user.is_active,
         is_superuser=current_user.is_superuser,
         roles=role_names,
@@ -1127,7 +1127,7 @@ async def forgot_password(
 
     # Capture values needed for email (avoid accessing db objects in thread)
     user_email = user.email
-    user_name = user.name
+    user_name = user.full_name
     frontend_url = getattr(settings, "FRONTEND_URL", "https://sdlc.nhatquangholding.com")
     reset_url = f"{frontend_url}/reset-password?token={token}"
 
@@ -1470,7 +1470,7 @@ async def _send_password_reset_email(user: User, token: str, request: Request) -
 
     # Plain text version
     text_content = f"""
-Hello {user.name or user.email},
+Hello {user.full_name or user.email},
 
 You requested to reset your password for SDLC Orchestrator.
 
@@ -1509,7 +1509,7 @@ https://sdlc.nhatquangholding.com
             <h1 style="margin: 0; font-size: 24px;">Reset Your Password</h1>
         </div>
         <div class="content">
-            <p>Hello {user.name or user.email},</p>
+            <p>Hello {user.full_name or user.email},</p>
             <p>You requested to reset your password for SDLC Orchestrator.</p>
             <p>Click the button below to reset your password:</p>
             <p style="text-align: center;">

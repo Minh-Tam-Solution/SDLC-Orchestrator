@@ -10,9 +10,7 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {
-      "actualWorkers": 1
-    },
+    "metadata": {},
     "preserveOutput": "always",
     "reporter": [
       [
@@ -38,9 +36,7 @@
         "outputDir": "/home/nqh/shared/SDLC-Orchestrator/frontend/web/test-results",
         "repeatEach": 1,
         "retries": 1,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "chromium",
         "name": "chromium",
         "testDir": "/home/nqh/shared/SDLC-Orchestrator/frontend/web/e2e",
@@ -54,9 +50,7 @@
         "outputDir": "/home/nqh/shared/SDLC-Orchestrator/frontend/web/test-results",
         "repeatEach": 1,
         "retries": 1,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "firefox",
         "name": "firefox",
         "testDir": "/home/nqh/shared/SDLC-Orchestrator/frontend/web/e2e",
@@ -70,9 +64,7 @@
         "outputDir": "/home/nqh/shared/SDLC-Orchestrator/frontend/web/test-results",
         "repeatEach": 1,
         "retries": 1,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "webkit",
         "name": "webkit",
         "testDir": "/home/nqh/shared/SDLC-Orchestrator/frontend/web/e2e",
@@ -86,9 +78,7 @@
         "outputDir": "/home/nqh/shared/SDLC-Orchestrator/frontend/web/test-results",
         "repeatEach": 1,
         "retries": 1,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "Mobile Chrome",
         "name": "Mobile Chrome",
         "testDir": "/home/nqh/shared/SDLC-Orchestrator/frontend/web/e2e",
@@ -102,9 +92,7 @@
         "outputDir": "/home/nqh/shared/SDLC-Orchestrator/frontend/web/test-results",
         "repeatEach": 1,
         "retries": 1,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "Mobile Safari",
         "name": "Mobile Safari",
         "testDir": "/home/nqh/shared/SDLC-Orchestrator/frontend/web/e2e",
@@ -121,75 +109,24 @@
     "updateSourceMethod": "patch",
     "version": "1.57.0",
     "workers": 2,
-    "webServer": null
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:5173",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
   },
-  "suites": [
+  "suites": [],
+  "errors": [
     {
-      "title": "admin-users-bulk-delete.spec.ts",
-      "file": "admin-users-bulk-delete.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Admin User Bulk Delete",
-          "file": "admin-users-bulk-delete.spec.ts",
-          "line": 30,
-          "column": 6,
-          "specs": [],
-          "suites": [
-            {
-              "title": "Successful Bulk Delete",
-              "file": "admin-users-bulk-delete.spec.ts",
-              "line": 207,
-              "column": 8,
-              "specs": [
-                {
-                  "title": "should delete users and show success toast",
-                  "ok": true,
-                  "tags": [],
-                  "tests": [
-                    {
-                      "timeout": 30000,
-                      "annotations": [],
-                      "expectedStatus": "passed",
-                      "projectId": "chromium",
-                      "projectName": "chromium",
-                      "results": [
-                        {
-                          "workerIndex": 0,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 12343,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2025-12-20T12:32:45.294Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
-                    }
-                  ],
-                  "id": "6ebc713c12d8465248f4-5639b914b4da1bfbd97b",
-                  "file": "admin-users-bulk-delete.spec.ts",
-                  "line": 208,
-                  "column": 5
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      "message": "Error: Process from config.webServer exited early.",
+      "stack": "Error: Process from config.webServer exited early."
     }
   ],
-  "errors": [],
   "stats": {
-    "startTime": "2025-12-20T12:32:45.036Z",
-    "duration": 12663.213000000002,
-    "expected": 1,
+    "startTime": "2026-01-18T01:22:26.241Z",
+    "duration": 40512.712,
+    "expected": 0,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0
