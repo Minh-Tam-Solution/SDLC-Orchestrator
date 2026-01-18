@@ -1,9 +1,9 @@
 /**
  * =========================================================================
  * SprintDetailPage - Sprint Detail and Management
- * SDLC Orchestrator - Sprint 75 Day 4
+ * SDLC Orchestrator - Sprint 75 Day 5
  *
- * Version: 1.0.0
+ * Version: 1.1.0
  * Date: January 18, 2026
  * Status: ACTIVE - Sprint 75 Sprint Dashboard UI
  * Authority: Frontend Lead + CTO Approved
@@ -11,7 +11,7 @@
  *
  * Purpose:
  * - Display sprint details and progress
- * - Show backlog items with status
+ * - Show backlog items with status (List + Kanban views)
  * - G-Sprint/G-Sprint-Close gate management
  * - Sprint status transitions
  *
@@ -23,7 +23,7 @@
  * =========================================================================
  */
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -38,6 +38,8 @@ import {
   BarChart3,
   ListTodo,
   Shield,
+  LayoutGrid,
+  List,
 } from "lucide-react";
 import {
   useSprint,
@@ -59,6 +61,11 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SprintGatePanel from "@/components/sprints/SprintGatePanel";
 import SprintBacklogList from "@/components/sprints/SprintBacklogList";
+import BacklogKanbanBoard from "@/components/sprints/BacklogKanbanBoard";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+
+/** Backlog view type */
+type BacklogViewType = "list" | "kanban";
 
 /**
  * Sprint Detail Page
@@ -66,6 +73,8 @@ import SprintBacklogList from "@/components/sprints/SprintBacklogList";
  */
 export default function SprintDetailPage() {
   const { sprintId } = useParams<{ sprintId: string }>();
+  const [backlogView, setBacklogView] = useState<BacklogViewType>("list");
+
   const { data: sprint, isLoading: isLoadingSprint } = useSprint(
     sprintId || null
   );
@@ -339,13 +348,42 @@ export default function SprintDetailPage() {
         </TabsContent>
 
         {/* Backlog Tab */}
-        <TabsContent value="backlog">
-          <SprintBacklogList
-            sprintId={sprintId!}
-            projectId={sprint.project_id}
-            items={backlogData?.items || []}
-            isLoading={!backlogData}
-          />
+        <TabsContent value="backlog" className="space-y-4">
+          {/* View Toggle */}
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              {backlogData?.total || 0} items in backlog
+            </div>
+            <ToggleGroup
+              type="single"
+              value={backlogView}
+              onValueChange={(v) => v && setBacklogView(v as BacklogViewType)}
+            >
+              <ToggleGroupItem value="list" aria-label="List view">
+                <List className="w-4 h-4 mr-2" />
+                List
+              </ToggleGroupItem>
+              <ToggleGroupItem value="kanban" aria-label="Kanban view">
+                <LayoutGrid className="w-4 h-4 mr-2" />
+                Kanban
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+
+          {/* Backlog View */}
+          {backlogView === "list" ? (
+            <SprintBacklogList
+              sprintId={sprintId!}
+              projectId={sprint.project_id}
+              items={backlogData?.items || []}
+              isLoading={!backlogData}
+            />
+          ) : (
+            <BacklogKanbanBoard
+              items={backlogData?.items || []}
+              isLoading={!backlogData}
+            />
+          )}
         </TabsContent>
 
         {/* Details Tab */}

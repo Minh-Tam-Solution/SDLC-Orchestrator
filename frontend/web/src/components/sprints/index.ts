@@ -1,9 +1,9 @@
 /**
  * =========================================================================
  * Sprint Components Index
- * SDLC Orchestrator - Sprint 75 Day 4
+ * SDLC Orchestrator - Sprint 75 Day 5
  *
- * Version: 1.0.0
+ * Version: 1.1.0
  * Date: January 18, 2026
  * Status: ACTIVE - Sprint 75 Sprint Dashboard UI
  * Authority: Frontend Lead + CTO Approved
@@ -17,3 +17,4 @@
 export { default as CreateSprintDialog } from './CreateSprintDialog';
 export { default as SprintGatePanel } from './SprintGatePanel';
 export { default as SprintBacklogList } from './SprintBacklogList';
+export { default as BacklogKanbanBoard } from './BacklogKanbanBoard';
