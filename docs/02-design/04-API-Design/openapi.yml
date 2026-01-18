@@ -78,6 +78,20 @@ tags:
     description: SDLC 5.1.3.0 folder structure validation - 11 stages, 4-tier classification
   - name: Codegen
     description: EP-06 IR-Based Code Generation - Multi-provider architecture (Ollama, Claude, DeepCode)
+  - name: Planning
+    description: |
+      Sprint 74/75 - Planning Hierarchy Implementation
+      SDLC 5.1.3 Sprint Planning Governance:
+      - Roadmaps: Strategic planning (12-month vision)
+      - Phases: 4-8 week themes
+      - Sprints: 5-10 day commitments with G-Sprint/G-Sprint-Close gates
+      - Backlog: Stories, tasks, bugs with P0/P1/P2 priorities (Rule #8)
+  - name: Sprint Gates
+    description: |
+      G-Sprint and G-Sprint-Close gate evaluations per SDLC 5.1.3:
+      - G-Sprint: Sprint planning approval gate (requires SE4H Coach)
+      - G-Sprint-Close: Sprint completion gate with 24h documentation deadline
+      - Team role authorization: Only owner/admin can approve gates
 
 security:
   - BearerAuth: []
@@ -3740,6 +3754,634 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+  # ============================================================
+  # PLANNING HIERARCHY (Sprint 74/75)
+  # ============================================================
+
+  /planning/roadmaps:
+    post:
+      tags: [Planning]
+      summary: Create roadmap
+      description: |
+        Create a new roadmap for strategic planning.
+        **Authorization**: Project owner or admin
+      operationId: createRoadmap
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoadmapCreate'
+      responses:
+        '201':
+          description: Roadmap created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoadmapResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /planning/projects/{project_id}/roadmaps:
+    get:
+      tags: [Planning]
+      summary: List project roadmaps
+      description: List all roadmaps for a project
+      operationId: listProjectRoadmaps
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of roadmaps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoadmapListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /planning/roadmaps/{roadmap_id}:
+    get:
+      tags: [Planning]
+      summary: Get roadmap by ID
+      operationId: getRoadmap
+      parameters:
+        - name: roadmap_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Roadmap details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoadmapResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Planning]
+      summary: Update roadmap
+      operationId: updateRoadmap
+      parameters:
+        - name: roadmap_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoadmapUpdate'
+      responses:
+        '200':
+          description: Roadmap updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoadmapResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Planning]
+      summary: Delete roadmap
+      operationId: deleteRoadmap
+      parameters:
+        - name: roadmap_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Roadmap deleted
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /planning/phases:
+    post:
+      tags: [Planning]
+      summary: Create phase
+      description: Create a new phase within a roadmap
+      operationId: createPhase
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhaseCreate'
+      responses:
+        '201':
+          description: Phase created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhaseResponse'
+        '400':
+          description: Duplicate phase number in roadmap
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /planning/roadmaps/{roadmap_id}/phases:
+    get:
+      tags: [Planning]
+      summary: List roadmap phases
+      operationId: listRoadmapPhases
+      parameters:
+        - name: roadmap_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of phases
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhaseListResponse'
+
+  /planning/phases/{phase_id}:
+    get:
+      tags: [Planning]
+      summary: Get phase by ID
+      operationId: getPhase
+      parameters:
+        - name: phase_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Phase details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhaseResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Planning]
+      summary: Update phase
+      operationId: updatePhase
+      parameters:
+        - name: phase_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhaseUpdate'
+      responses:
+        '200':
+          description: Phase updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhaseResponse'
+    delete:
+      tags: [Planning]
+      summary: Delete phase
+      operationId: deletePhase
+      parameters:
+        - name: phase_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Phase deleted
+
+  /planning/sprints:
+    post:
+      tags: [Planning]
+      summary: Create sprint
+      description: |
+        Create a new sprint. Sprint numbers are immutable per SDLC 5.1.3 Rule #1.
+        Auto-increments if number not provided.
+      operationId: createSprint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SprintCreate'
+      responses:
+        '201':
+          description: Sprint created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SprintResponse'
+        '400':
+          description: Duplicate sprint number in project (Rule #1 violation)
+
+  /planning/projects/{project_id}/sprints:
+    get:
+      tags: [Planning]
+      summary: List project sprints
+      operationId: listProjectSprints
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [planning, in_progress, completed, closed]
+      responses:
+        '200':
+          description: List of sprints
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SprintListResponse'
+
+  /planning/sprints/{sprint_id}:
+    get:
+      tags: [Planning]
+      summary: Get sprint by ID
+      operationId: getSprint
+      parameters:
+        - name: sprint_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Sprint details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SprintResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Planning]
+      summary: Update sprint
+      description: |
+        Update sprint details. Sprint number cannot be changed (Rule #1).
+      operationId: updateSprint
+      parameters:
+        - name: sprint_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SprintUpdate'
+      responses:
+        '200':
+          description: Sprint updated (number unchanged per Rule #1)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SprintResponse'
+    delete:
+      tags: [Planning]
+      summary: Delete sprint
+      operationId: deleteSprint
+      parameters:
+        - name: sprint_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Sprint deleted
+
+  # ============================================================
+  # SPRINT GATES (G-Sprint / G-Sprint-Close)
+  # ============================================================
+
+  /planning/sprints/{sprint_id}/gates/{gate_type}/evaluate:
+    post:
+      tags: [Sprint Gates, Planning]
+      summary: Create gate evaluation
+      description: |
+        Create a G-Sprint or G-Sprint-Close gate evaluation.
+
+        **Gate Types**:
+        - `g-sprint`: Sprint planning approval gate
+        - `g-sprint-close`: Sprint completion gate (24h documentation deadline)
+
+        **Authorization**: Project member
+      operationId: createGateEvaluation
+      parameters:
+        - name: sprint_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: gate_type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [g-sprint, g-sprint-close]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GateEvaluationCreate'
+      responses:
+        '201':
+          description: Gate evaluation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateEvaluationResponse'
+        '400':
+          description: Gate evaluation already exists for this sprint
+
+  /planning/sprints/{sprint_id}/gates/{gate_type}/submit:
+    post:
+      tags: [Sprint Gates, Planning]
+      summary: Submit gate evaluation for approval
+      description: |
+        Submit gate evaluation for final approval.
+
+        **SDLC 5.1.3 Sprint Planning Governance (Sprint 75)**:
+        - Only team owner/admin (SE4H Coach) can approve sprint gates
+        - AI agents (SE4A) cannot approve gates
+        - Enforces human oversight for sprint governance
+
+        **Authorization**: Team owner or admin only
+      operationId: submitGateEvaluation
+      parameters:
+        - name: sprint_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: gate_type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [g-sprint, g-sprint-close]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GateEvaluationSubmit'
+      responses:
+        '200':
+          description: Gate evaluation submitted and processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateEvaluationResponse'
+        '403':
+          description: |
+            Only team owner/admin (SE4H Coach) can approve sprint gates.
+            Role 'member' or 'ai_agent' cannot approve.
+
+  /planning/sprints/{sprint_id}/gates:
+    get:
+      tags: [Sprint Gates, Planning]
+      summary: List sprint gate evaluations
+      operationId: listSprintGates
+      parameters:
+        - name: sprint_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of gate evaluations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateEvaluationListResponse'
+
+  /planning/gates/{gate_id}:
+    get:
+      tags: [Sprint Gates, Planning]
+      summary: Get gate evaluation by ID
+      operationId: getGateEvaluation
+      parameters:
+        - name: gate_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Gate evaluation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateEvaluationResponse'
+
+  # ============================================================
+  # BACKLOG ITEMS
+  # ============================================================
+
+  /planning/backlog:
+    post:
+      tags: [Planning]
+      summary: Create backlog item
+      description: |
+        Create a new backlog item (story, task, bug, spike).
+
+        **Priority (SDLC 5.1.3 Rule #8)**:
+        - P0: Must Have (cannot defer without CEO approval)
+        - P1: Should Have (can defer with CTO approval)
+        - P2: Could Have (can defer freely)
+      operationId: createBacklogItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BacklogItemCreate'
+      responses:
+        '201':
+          description: Backlog item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BacklogItemResponse'
+
+  /planning/projects/{project_id}/backlog:
+    get:
+      tags: [Planning]
+      summary: List project backlog
+      description: List all backlog items for a project (product backlog + sprint items)
+      operationId: listProjectBacklog
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [P0, P1, P2]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [todo, in_progress, review, done, blocked]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [story, task, bug, spike]
+        - name: assignee_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: sprint_id
+          in: query
+          description: Filter by sprint (null for product backlog)
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of backlog items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BacklogItemListResponse'
+
+  /planning/sprints/{sprint_id}/backlog:
+    get:
+      tags: [Planning]
+      summary: List sprint backlog
+      description: List all backlog items assigned to a sprint
+      operationId: listSprintBacklog
+      parameters:
+        - name: sprint_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of sprint backlog items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BacklogItemListResponse'
+
+  /planning/backlog/{item_id}:
+    get:
+      tags: [Planning]
+      summary: Get backlog item by ID
+      operationId: getBacklogItem
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Backlog item details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BacklogItemResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Planning]
+      summary: Update backlog item
+      operationId: updateBacklogItem
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BacklogItemUpdate'
+      responses:
+        '200':
+          description: Backlog item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BacklogItemResponse'
+    delete:
+      tags: [Planning]
+      summary: Delete backlog item
+      operationId: deleteBacklogItem
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Backlog item deleted
+
 # ============================================================
 # COMPONENTS
 # ============================================================
@@ -5652,6 +6294,456 @@ components:
         pages:
           type: integer
           example: 8
+
+    # ============================================================
+    # PLANNING HIERARCHY (Sprint 74/75)
+    # ============================================================
+
+    RoadmapCreate:
+      type: object
+      required: [project_id, name]
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 255
+          example: "2026 Product Roadmap"
+        description:
+          type: string
+        vision:
+          type: string
+          example: "Build the best governance platform"
+        review_cadence:
+          type: string
+          enum: [weekly, monthly, quarterly]
+          default: quarterly
+
+    RoadmapUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        vision:
+          type: string
+        status:
+          type: string
+          enum: [draft, active, archived]
+        review_cadence:
+          type: string
+          enum: [weekly, monthly, quarterly]
+
+    RoadmapResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        vision:
+          type: string
+        review_cadence:
+          type: string
+        status:
+          type: string
+        phases_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    RoadmapListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoadmapResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    PhaseCreate:
+      type: object
+      required: [roadmap_id, name]
+      properties:
+        roadmap_id:
+          type: string
+          format: uuid
+        number:
+          type: integer
+          description: Auto-increments if not provided
+        name:
+          type: string
+          example: "Phase 1: Foundation"
+        theme:
+          type: string
+          example: "Core Infrastructure"
+        objective:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+
+    PhaseUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        theme:
+          type: string
+        objective:
+          type: string
+        status:
+          type: string
+          enum: [planned, in_progress, completed]
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+
+    PhaseResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        roadmap_id:
+          type: string
+          format: uuid
+        number:
+          type: integer
+        name:
+          type: string
+        theme:
+          type: string
+        objective:
+          type: string
+        status:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        sprints_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    PhaseListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhaseResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    SprintCreate:
+      type: object
+      required: [project_id, name]
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        phase_id:
+          type: string
+          format: uuid
+          description: Optional, direct project sprint if not provided
+        number:
+          type: integer
+          description: Auto-increments if not provided. Immutable after creation (Rule #1)
+        name:
+          type: string
+          example: "Sprint 75"
+        goal:
+          type: string
+          example: "Complete Planning API Validation"
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        capacity_points:
+          type: integer
+        team_size:
+          type: integer
+
+    SprintUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        goal:
+          type: string
+        status:
+          type: string
+          enum: [planning, in_progress, completed, closed]
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        capacity_points:
+          type: integer
+        team_size:
+          type: integer
+      description: Note - sprint number cannot be changed (SDLC 5.1.3 Rule #1)
+
+    SprintResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        phase_id:
+          type: string
+          format: uuid
+        number:
+          type: integer
+          description: Immutable (Rule #1)
+        name:
+          type: string
+        goal:
+          type: string
+        status:
+          type: string
+          enum: [planning, in_progress, completed, closed]
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        capacity_points:
+          type: integer
+        team_size:
+          type: integer
+        g_sprint_status:
+          type: string
+          enum: [pending, approved, rejected]
+        g_sprint_close_status:
+          type: string
+          enum: [pending, approved, rejected]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SprintListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SprintResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    GateEvaluationCreate:
+      type: object
+      properties:
+        checklist:
+          type: object
+          description: Checklist items for the gate evaluation
+          additionalProperties:
+            type: boolean
+        notes:
+          type: string
+
+    GateEvaluationSubmit:
+      type: object
+      properties:
+        notes:
+          type: string
+          description: Approval notes
+
+    GateEvaluationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        sprint_id:
+          type: string
+          format: uuid
+        gate_type:
+          type: string
+          enum: [g_sprint, g_sprint_close]
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        checklist:
+          type: object
+          additionalProperties:
+            type: boolean
+        notes:
+          type: string
+        evaluated_by:
+          type: string
+          format: uuid
+        evaluated_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+
+    GateEvaluationListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/GateEvaluationResponse'
+
+    BacklogItemCreate:
+      type: object
+      required: [project_id, type, title]
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        sprint_id:
+          type: string
+          format: uuid
+          description: Null for product backlog
+        parent_id:
+          type: string
+          format: uuid
+          description: Parent item for subtasks
+        type:
+          type: string
+          enum: [story, task, bug, spike]
+        title:
+          type: string
+          maxLength: 500
+        description:
+          type: string
+        acceptance_criteria:
+          type: string
+        priority:
+          type: string
+          enum: [P0, P1, P2]
+          default: P2
+          description: "SDLC 5.1.3 Rule #8: P0=Must, P1=Should, P2=Could"
+        story_points:
+          type: integer
+
+    BacklogItemUpdate:
+      type: object
+      properties:
+        sprint_id:
+          type: string
+          format: uuid
+          nullable: true
+        title:
+          type: string
+        description:
+          type: string
+        acceptance_criteria:
+          type: string
+        priority:
+          type: string
+          enum: [P0, P1, P2]
+        story_points:
+          type: integer
+        status:
+          type: string
+          enum: [todo, in_progress, review, done, blocked]
+        assignee_id:
+          type: string
+          format: uuid
+          nullable: true
+        labels:
+          type: array
+          items:
+            type: string
+
+    BacklogItemResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        sprint_id:
+          type: string
+          format: uuid
+        parent_id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [story, task, bug, spike]
+        title:
+          type: string
+        description:
+          type: string
+        acceptance_criteria:
+          type: string
+        priority:
+          type: string
+          enum: [P0, P1, P2]
+        story_points:
+          type: integer
+        status:
+          type: string
+          enum: [todo, in_progress, review, done, blocked]
+        assignee_id:
+          type: string
+          format: uuid
+        labels:
+          type: array
+          items:
+            type: string
+        children_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    BacklogItemListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BacklogItemResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
 
     # ============================================================
     # ERROR
