@@ -73,6 +73,13 @@
     "views": {
       "sdlc-explorer": [
         {
+          "id": "sdlc-context",
+          "name": "Context Overlay",
+          "icon": "$(dashboard)",
+          "contextualTitle": "SDLC Context",
+          "visibility": "visible"
+        },
+        {
           "id": "sdlc-gate-status",
           "name": "Gate Status",
           "icon": "$(checklist)",
@@ -242,10 +249,38 @@
         "title": "Show Generation Panel",
         "category": "SDLC",
         "icon": "$(pulse)"
+      },
+      {
+        "command": "sdlc.refreshContext",
+        "title": "Refresh Context Overlay",
+        "category": "SDLC",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "sdlc.showContextDetails",
+        "title": "Show Context Details",
+        "category": "SDLC",
+        "icon": "$(info)"
+      },
+      {
+        "command": "sdlc.copyContextAsPRComment",
+        "title": "Copy Context as PR Comment",
+        "category": "SDLC",
+        "icon": "$(clippy)"
       }
     ],
     "menus": {
       "view/title": [
+        {
+          "command": "sdlc.refreshContext",
+          "when": "view == sdlc-context",
+          "group": "navigation"
+        },
+        {
+          "command": "sdlc.copyContextAsPRComment",
+          "when": "view == sdlc-context",
+          "group": "navigation"
+        },
         {
           "command": "sdlc.refreshGates",
           "when": "view == sdlc-gate-status",

@@ -21,6 +21,7 @@ import { GateStatusProvider } from './views/gateStatusView';
 import { ViolationsProvider } from './views/violationsView';
 import { ProjectsProvider } from './views/projectsView';
 import { ComplianceChatParticipant } from './views/complianceChat';
+import { ContextPanelProvider, ContextStatusBarItem, registerContextCommands } from './views/contextPanel';
 import { Logger } from './utils/logger';
 import { ConfigManager } from './utils/config';
 import { handleError } from './utils/errors';
@@ -47,6 +48,8 @@ interface ExtensionState {
     violationsProvider: ViolationsProvider | undefined;
     projectsProvider: ProjectsProvider | undefined;
     blueprintProvider: BlueprintProvider | undefined;
+    contextPanelProvider: ContextPanelProvider | undefined;
+    contextStatusBar: ContextStatusBarItem | undefined;
     chatParticipant: ComplianceChatParticipant | undefined;
     refreshInterval: ReturnType<typeof setInterval> | undefined;
 }
@@ -60,6 +63,8 @@ const state: ExtensionState = {
     violationsProvider: undefined,
     projectsProvider: undefined,
     blueprintProvider: undefined,
+    contextPanelProvider: undefined,
+    contextStatusBar: undefined,
     chatParticipant: undefined,
     refreshInterval: undefined,
 };
@@ -110,8 +115,19 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         // Initialize Blueprint Provider (Sprint 53 Day 2)
         state.blueprintProvider = new BlueprintProvider();
 
+        // Initialize Context Panel Provider (Sprint 81)
+        state.contextPanelProvider = new ContextPanelProvider(
+            state.apiClient,
+            state.cacheService
+        );
+        state.contextStatusBar = new ContextStatusBarItem();
+
         // Register tree data providers
         context.subscriptions.push(
+            vscode.window.registerTreeDataProvider(
+                'sdlc-context',
+                state.contextPanelProvider
+            ),
             vscode.window.registerTreeDataProvider(
                 'sdlc-gate-status',
                 state.gateStatusProvider
@@ -129,6 +145,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                 state.blueprintProvider
             )
         );
+
+        // Register Context Panel commands (Sprint 81)
+        registerContextCommands(context, state.contextPanelProvider, state.contextStatusBar);
 
         // Register chat participant for Copilot-style @gate commands
         state.chatParticipant = new ComplianceChatParticipant(state.apiClient);
@@ -236,6 +255,16 @@ export function deactivate(): void {
     state.violationsProvider = undefined;
     state.projectsProvider = undefined;
     state.chatParticipant = undefined;
+
+    // Cleanup Context Panel (Sprint 81)
+    if (state.contextPanelProvider) {
+        state.contextPanelProvider.dispose();
+        state.contextPanelProvider = undefined;
+    }
+    if (state.contextStatusBar) {
+        state.contextStatusBar.dispose();
+        state.contextStatusBar = undefined;
+    }
 
     Logger.info('SDLC Orchestrator extension deactivated');
 }
@@ -354,6 +383,10 @@ async function refreshAllViews(): Promise<void> {
     try {
         const promises: Promise<void>[] = [];
 
+        // Refresh Context Panel first (Sprint 81)
+        if (state.contextPanelProvider) {
+            promises.push(state.contextPanelProvider.refresh());
+        }
         if (state.gateStatusProvider) {
             promises.push(state.gateStatusProvider.refresh());
         }
@@ -365,6 +398,19 @@ async function refreshAllViews(): Promise<void> {
         }
 
         await Promise.all(promises);
+
+        // Update status bar after refresh (Sprint 81)
+        if (state.contextStatusBar && state.apiClient) {
+            const projectId = state.apiClient.getCurrentProjectId();
+            if (projectId) {
+                try {
+                    const overlay = await state.apiClient.getContextOverlay(projectId);
+                    state.contextStatusBar.update(overlay);
+                } catch {
+                    // Status bar will show error state via contextPanelProvider
+                }
+            }
+        }
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         Logger.error(`Failed to refresh views: ${errorMessage}`);
