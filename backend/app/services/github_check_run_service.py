@@ -1,13 +1,13 @@
 """
 =========================================================================
-GitHub Check Run Service - SDLC Gate Evaluation (Sprint 81)
+GitHub Check Run Service - SDLC Gate Evaluation (Sprint 82)
 SDLC Orchestrator - Stage 04 (BUILD)
 
-Version: 1.0.0
+Version: 2.0.0
 Date: January 19, 2026
-Status: ACTIVE - Sprint 81 (AGENTS.md Integration)
+Status: ACTIVE - Sprint 82 (Pre-Launch Hardening)
 Authority: Backend Lead + CTO Approved
-Foundation: Sprint 81 Plan, ADR-029, SPRINT-81-DESIGN-REVIEW.md
+Foundation: Sprint 82 Plan, ADR-029, SPRINT-82-HARDENING-EVIDENCE.md
 Framework: SDLC 5.1.3 (7-Pillar Architecture)
 
 Purpose:
@@ -15,10 +15,16 @@ Purpose:
 - Post SDLC context overlay as Check Run annotations
 - Update Check Run status based on gate evaluation
 - Format overlay for GitHub Check Run output
+- Support configurable enforcement modes (ADVISORY/BLOCKING/STRICT)
+
+Enforcement Modes (Sprint 82 Enhancement):
+- ADVISORY: Posts Check Run but never blocks (neutral/success)
+- BLOCKING: Blocks merge if gates fail (failure)
+- STRICT: Blocks merge + requires approval for bypass (action_required)
 
 CTO Decision (Jan 19, 2026):
-- Advisory mode for Sprint 81 (conclusion: neutral/success)
-- Blocking enforcement in Sprint 82 (conclusion: failure/action_required)
+- Sprint 81: Advisory mode default
+- Sprint 82: Per-project enforcement mode configuration
 
 Architecture:
 - Uses GitHubAppService for Installation Tokens
@@ -35,6 +41,7 @@ Zero Mock Policy: 100% real implementation
 
 import logging
 from datetime import datetime, timezone
+from enum import Enum
 from typing import Any, Optional
 from uuid import UUID
 
@@ -47,6 +54,47 @@ from app.services.github_app_service import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+# ============================================================================
+# Enforcement Mode (Sprint 82 Enhancement)
+# ============================================================================
+
+
+class CheckRunMode(str, Enum):
+    """
+    Check Run enforcement modes (Sprint 82).
+
+    Modes:
+    - ADVISORY: Posts Check Run but doesn't block merge (conclusion: neutral/success)
+    - BLOCKING: Blocks merge if gates fail (conclusion: failure)
+    - STRICT: Blocks merge + requires approval for bypass (conclusion: action_required)
+
+    Configuration:
+    - Per-project setting in project.check_run_mode column
+    - Default: ADVISORY (for backward compatibility)
+
+    CTO Decision (Sprint 82):
+    - New projects default to BLOCKING after Feb 28, 2026 launch
+    - Existing projects remain ADVISORY until explicitly changed
+    """
+
+    ADVISORY = "advisory"
+    BLOCKING = "blocking"
+    STRICT = "strict"
+
+    @classmethod
+    def from_string(cls, value: str) -> "CheckRunMode":
+        """Parse mode from string (case-insensitive)."""
+        try:
+            return cls(value.lower())
+        except ValueError:
+            logger.warning(f"Unknown CheckRunMode '{value}', defaulting to ADVISORY")
+            return cls.ADVISORY
+
+
+# Bypass label name - PRs with this label skip enforcement
+BYPASS_LABEL = "sdlc-bypass"
 
 # ============================================================================
 # Constants
@@ -193,6 +241,8 @@ class GitHubCheckRunService:
         repo_name: str,
         head_sha: str,
         installation_id: Optional[int] = None,
+        mode: CheckRunMode = CheckRunMode.ADVISORY,
+        pr_number: Optional[int] = None,
     ) -> CheckRunResult:
         """
         Create a GitHub Check Run for PR.
@@ -202,12 +252,14 @@ class GitHubCheckRunService:
         2. Update to "in_progress"
         3. Get context overlay from Sprint 80 service
         4. Evaluate gates (if gate_service available)
-        5. Build Check Run output
-        6. Complete with conclusion
+        5. Check for bypass label (Sprint 82)
+        6. Build Check Run output
+        7. Complete with conclusion based on mode
 
-        CTO Decision: Advisory mode (Sprint 81) - uses "neutral" or "success"
-        conclusion. Blocking mode (Sprint 82) will use "failure" or
-        "action_required" for gate failures.
+        Enforcement Modes (Sprint 82):
+        - ADVISORY: "neutral" or "success" (never blocks)
+        - BLOCKING: "failure" if gates fail (blocks merge)
+        - STRICT: "action_required" if gates fail (requires approval)
 
         Args:
             project_id: SDLC Orchestrator project ID
@@ -215,6 +267,8 @@ class GitHubCheckRunService:
             repo_name: Repository name
             head_sha: Git commit SHA for the PR head
             installation_id: GitHub App installation ID (auto-detected if None)
+            mode: Enforcement mode (ADVISORY/BLOCKING/STRICT)
+            pr_number: PR number for bypass label check
 
         Returns:
             CheckRunResult with Check Run details
@@ -224,11 +278,22 @@ class GitHubCheckRunService:
             GitHubAppError: If GitHub App authentication fails
 
         Example:
+            # Advisory mode (default - doesn't block)
             result = await check_run_service.create_check_run(
                 project_id=uuid,
                 repo_owner="org",
                 repo_name="repo",
                 head_sha="abc123",
+            )
+
+            # Blocking mode (blocks merge on failure)
+            result = await check_run_service.create_check_run(
+                project_id=uuid,
+                repo_owner="org",
+                repo_name="repo",
+                head_sha="abc123",
+                mode=CheckRunMode.BLOCKING,
+                pr_number=42,
             )
         """
         import requests
@@ -279,15 +344,37 @@ class GitHubCheckRunService:
         # Step 4: Evaluate gates (optional)
         gate_result = await self._evaluate_gates(project_id, head_sha)
 
-        # Step 5: Build Check Run output
-        output = self._build_output(overlay, gate_result)
+        # Step 5: Check for bypass label (Sprint 82)
+        # PRs with 'sdlc-bypass' label use advisory mode regardless of project setting
+        effective_mode = mode
+        bypassed = False
+        if pr_number is not None and mode != CheckRunMode.ADVISORY:
+            has_bypass = await self._has_bypass_label(
+                token=token,
+                repo_owner=repo_owner,
+                repo_name=repo_name,
+                pr_number=pr_number,
+            )
+            if has_bypass:
+                effective_mode = CheckRunMode.ADVISORY
+                bypassed = True
+                logger.info(
+                    f"Bypass label detected on PR #{pr_number} - "
+                    f"downgrading from {mode.value} to advisory mode"
+                )
 
-        # Step 6: Determine conclusion
-        # CTO Decision (Sprint 81): Advisory mode - use "neutral" or "success"
-        # Sprint 82 will implement blocking with "failure" / "action_required"
-        conclusion = self._determine_conclusion(overlay, gate_result, advisory_mode=True)
+        # Step 6: Build Check Run output (with mode info for Sprint 82)
+        output = self._build_output(
+            overlay=overlay,
+            gate_result=gate_result,
+            mode=mode,  # Show original mode in output
+            bypassed=bypassed,
+        )
 
-        # Step 7: Complete Check Run
+        # Step 7: Determine conclusion based on effective mode (Sprint 82)
+        conclusion = self._determine_conclusion(overlay, gate_result, mode=effective_mode)
+
+        # Step 8: Complete Check Run
         result = await self._update_check_run_api(
             token=token,
             repo_owner=repo_owner,
@@ -460,6 +547,63 @@ class GitHubCheckRunService:
     # Private Methods - Business Logic
     # ============================================================================
 
+    async def _has_bypass_label(
+        self,
+        token: str,
+        repo_owner: str,
+        repo_name: str,
+        pr_number: int,
+    ) -> bool:
+        """
+        Check if PR has bypass label (Sprint 82).
+
+        PRs with the 'sdlc-bypass' label skip enforcement and use advisory mode.
+        This allows emergency hotfixes to bypass gate enforcement temporarily.
+
+        Args:
+            token: GitHub installation token
+            repo_owner: Repository owner
+            repo_name: Repository name
+            pr_number: Pull request number
+
+        Returns:
+            True if PR has bypass label, False otherwise
+        """
+        import requests
+
+        try:
+            response = requests.get(
+                f"{GITHUB_API_BASE_URL}/repos/{repo_owner}/{repo_name}/issues/{pr_number}/labels",
+                headers={
+                    "Authorization": f"token {token}",
+                    "Accept": "application/vnd.github+json",
+                    "X-GitHub-Api-Version": "2022-11-28",
+                },
+                timeout=self.timeout,
+            )
+
+            if response.status_code != 200:
+                logger.warning(
+                    f"Failed to get PR labels: {response.status_code} - {response.text}"
+                )
+                return False
+
+            labels = response.json()
+            label_names = [label.get("name", "").lower() for label in labels]
+            has_bypass = BYPASS_LABEL.lower() in label_names
+
+            if has_bypass:
+                logger.warning(
+                    f"PR #{pr_number} has bypass label '{BYPASS_LABEL}' - "
+                    "enforcement mode will be downgraded to advisory"
+                )
+
+            return has_bypass
+
+        except Exception as e:
+            logger.error(f"Error checking bypass label: {e}")
+            return False
+
     async def _get_overlay(self, project_id: UUID) -> Optional[dict]:
         """Get context overlay from Sprint 80 service."""
         if self.overlay_service is None:
@@ -493,15 +637,24 @@ class GitHubCheckRunService:
         self,
         overlay: Optional[dict],
         gate_result: Optional[dict],
+        mode: CheckRunMode = CheckRunMode.ADVISORY,
+        bypassed: bool = False,
     ) -> CheckRunOutput:
         """
-        Build Check Run output from overlay and gate result.
+        Build Check Run output from overlay and gate result (Sprint 82).
 
         Creates a formatted markdown summary with:
         - Current SDLC stage and gate status
+        - Enforcement mode indicator (Sprint 82)
         - Sprint information
         - Active constraints
         - Gate evaluation results (if available)
+
+        Args:
+            overlay: Context overlay data
+            gate_result: Gate evaluation result
+            mode: Enforcement mode (for display)
+            bypassed: Whether bypass label was detected
         """
         # Default values if overlay not available
         stage_name = "Unknown"
@@ -517,10 +670,19 @@ class GitHubCheckRunService:
             constraints = overlay.get("constraints", [])
             sprint_info = overlay.get("sprint")
 
-        # Build title
-        title = f"Stage: {stage_name} | Gate: {gate_status}"
-        if strict_mode:
+        # Build title with enforcement mode (Sprint 82)
+        mode_icons = {
+            CheckRunMode.ADVISORY: "ℹ️",
+            CheckRunMode.BLOCKING: "🛡️",
+            CheckRunMode.STRICT: "🔒",
+        }
+        mode_icon = mode_icons.get(mode, "ℹ️")
+
+        title = f"{mode_icon} Stage: {stage_name} | Gate: {gate_status}"
+        if strict_mode and mode != CheckRunMode.STRICT:
             title = "🔒 STRICT MODE | " + title
+        if bypassed:
+            title = "⚠️ BYPASS | " + title
 
         # Build summary
         summary_lines = [
@@ -528,6 +690,7 @@ class GitHubCheckRunService:
             "",
             f"**Stage**: {stage_name}",
             f"**Gate Status**: {gate_status}",
+            f"**Enforcement Mode**: {mode.value.upper()}{' (bypassed)' if bypassed else ''}",
         ]
 
         if sprint_info:
@@ -537,12 +700,32 @@ class GitHubCheckRunService:
                 f"**Days Remaining**: {sprint_info.get('days_remaining', 'N/A')}",
             ])
 
+        # Bypass notice (Sprint 82)
+        if bypassed:
+            summary_lines.extend([
+                "",
+                f"> ⚠️ **ENFORCEMENT BYPASSED**",
+                f"> PR has `{BYPASS_LABEL}` label - gates will not block merge.",
+                "> Remove the label to re-enable enforcement.",
+            ])
+
         if strict_mode:
             summary_lines.extend([
                 "",
                 "> ⚠️ **STRICT MODE ACTIVE**",
                 "> Only bug fixes are allowed in this stage.",
             ])
+
+        # Enforcement mode explanation (Sprint 82)
+        mode_explanations = {
+            CheckRunMode.ADVISORY: "Advisory mode: Check results are informational only and do not block merge.",
+            CheckRunMode.BLOCKING: "Blocking mode: Merge will be blocked if gates fail (configure via branch protection).",
+            CheckRunMode.STRICT: "Strict mode: Merge blocked + manual approval required to bypass failing gates.",
+        }
+        summary_lines.extend([
+            "",
+            f"> {mode_explanations[mode]}",
+        ])
 
         # Constraints section
         if constraints:
@@ -577,7 +760,7 @@ class GitHubCheckRunService:
         summary_lines.extend([
             "",
             "---",
-            "*Generated by SDLC Orchestrator - ADR-029 Dynamic Context Overlay*",
+            "*Generated by SDLC Orchestrator - ADR-029 Dynamic Context Overlay (Sprint 82)*",
         ])
 
         summary = "\n".join(summary_lines)
@@ -605,49 +788,61 @@ class GitHubCheckRunService:
         self,
         overlay: Optional[dict],
         gate_result: Optional[dict],
-        advisory_mode: bool = True,
+        mode: CheckRunMode = CheckRunMode.ADVISORY,
     ) -> str:
         """
-        Determine Check Run conclusion.
+        Determine Check Run conclusion based on enforcement mode (Sprint 82).
 
-        CTO Decision (Sprint 81):
-        - Advisory mode: "neutral" or "success" (never blocks)
-        - Sprint 82 will implement blocking mode
+        Modes:
+        - ADVISORY: "neutral" or "success" (never blocks merge)
+        - BLOCKING: "failure" if gates fail (blocks merge via required status check)
+        - STRICT: "action_required" if gates fail (blocks + requires approval)
 
         Args:
             overlay: Context overlay data
             gate_result: Gate evaluation result
-            advisory_mode: If True, use neutral/success (Sprint 81)
+            mode: Enforcement mode (ADVISORY/BLOCKING/STRICT)
 
         Returns:
-            Conclusion string for GitHub API
+            Conclusion string for GitHub API:
+            - "success": Gates passed (all modes)
+            - "neutral": Gates failed but advisory mode (doesn't block)
+            - "failure": Gates failed + blocking mode (blocks merge)
+            - "action_required": Gates failed + strict mode (blocks + requires approval)
+
+        GitHub Conclusion Behaviors:
+        - "success": ✅ Green checkmark, doesn't block
+        - "neutral": ⚪ Gray circle, doesn't block
+        - "failure": ❌ Red X, blocks if required status check
+        - "action_required": 🟡 Yellow, blocks + requires manual approval
         """
         # Check if gates passed
         gates_passed = True
         if gate_result:
             gates_passed = gate_result.get("passed", True)
 
-        # Check strict mode
-        strict_mode = False
+        # Check strict mode from overlay (stage-based strict mode)
+        overlay_strict = False
         if overlay:
-            strict_mode = overlay.get("strict_mode", False)
+            overlay_strict = overlay.get("strict_mode", False)
 
-        # Sprint 81: Advisory mode (CTO Decision)
-        if advisory_mode:
-            if gates_passed:
-                return "success"
-            else:
-                # Advisory mode: use "neutral" instead of "failure"
-                return "neutral"
+        # Gates passed → always success
+        if gates_passed:
+            return "success"
 
-        # Sprint 82: Blocking mode (future)
-        if not gates_passed:
-            if strict_mode:
-                return "action_required"
-            else:
-                return "failure"
+        # Gates failed → conclusion depends on mode
+        if mode == CheckRunMode.ADVISORY:
+            # Advisory mode: use "neutral" (doesn't block)
+            return "neutral"
 
-        return "success"
+        elif mode == CheckRunMode.STRICT or overlay_strict:
+            # Strict mode OR stage requires strict: use "action_required"
+            # This requires manual approval to bypass
+            return "action_required"
+
+        else:  # mode == CheckRunMode.BLOCKING
+            # Blocking mode: use "failure" (blocks if required status check)
+            return "failure"
 
     def _severity_to_level(self, severity: str) -> str:
         """Convert severity to GitHub annotation level."""
