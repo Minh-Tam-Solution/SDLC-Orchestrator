@@ -1,11 +1,11 @@
 """
 =========================================================================
 SDLC 5.1.3 AGENTS.md Commands
-SDLC Orchestrator - Sprint 80
+SDLC Orchestrator - Sprint 80/81
 
-Version: 1.0.0
+Version: 1.1.0
 Date: January 19, 2026
-Status: ACTIVE - Sprint 80 Implementation
+Status: ACTIVE - Sprint 81 Implementation
 Authority: Backend Lead + CTO Approved
 Reference: ADR-029-AGENTS-MD-Integration-Strategy
 
@@ -13,11 +13,13 @@ Purpose:
 - Generate AGENTS.md from project analysis
 - Validate AGENTS.md content
 - Lint and auto-fix AGENTS.md
+- Fetch dynamic context overlay (Sprint 81)
 
 Commands:
     sdlcctl agents init     - Generate AGENTS.md
     sdlcctl agents validate - Validate existing AGENTS.md
     sdlcctl agents lint     - Lint and auto-fix
+    sdlcctl agents context  - Fetch current SDLC context overlay (Sprint 81)
 =========================================================================
 """
 
@@ -716,3 +718,213 @@ def agents_lint_command(
                 console.print(f"  {issue['message']}")
         else:
             console.print("[bold green]✓ File is now valid[/bold green]")
+
+
+# ============================================================================
+# Sprint 81: Context Command
+# ============================================================================
+
+
+def agents_context_command(
+    project_id: Optional[str] = typer.Option(
+        None,
+        "--project",
+        "-p",
+        help="Project ID (auto-detect from .sdlc/config.json if not provided)",
+    ),
+    format: str = typer.Option(
+        "cli",
+        "--format",
+        "-f",
+        help="Output format: cli, json, pr_comment",
+    ),
+    api_url: Optional[str] = typer.Option(
+        None,
+        "--api-url",
+        help="SDLC Orchestrator API URL (default: from config or http://localhost:8000)",
+    ),
+) -> None:
+    """
+    Fetch and display current SDLC context overlay.
+
+    The context overlay includes:
+    - Current SDLC stage and gate status
+    - Active sprint information
+    - Constraints and warnings
+    - Strict mode status (post-G3)
+
+    This command fetches the dynamic context from SDLC Orchestrator
+    that would be posted as a GitHub Check Run annotation.
+
+    Examples:
+
+        sdlcctl agents context
+
+        sdlcctl agents context --format json
+
+        sdlcctl agents context --project abc123 --format pr_comment
+
+        sdlcctl agents context --api-url https://api.sdlc.example.com
+    """
+    console.print()
+
+    # Auto-detect project if not provided
+    if not project_id:
+        config_path = Path.cwd() / ".sdlc" / "config.json"
+        if config_path.exists():
+            try:
+                config = json.loads(config_path.read_text())
+                project_id = config.get("project_id")
+                if project_id:
+                    console.print(f"[dim]Auto-detected project: {project_id}[/dim]")
+            except Exception as e:
+                console.print(f"[yellow]Warning: Could not read .sdlc/config.json: {e}[/yellow]")
+
+    if not project_id:
+        console.print("[bold red]Error:[/bold red] No project ID found.")
+        console.print()
+        console.print("Either:")
+        console.print("  1. Use --project <id> to specify project ID")
+        console.print("  2. Create .sdlc/config.json with project_id")
+        console.print()
+        console.print("[bold]Example .sdlc/config.json:[/bold]")
+        console.print('  {"project_id": "your-project-uuid"}')
+        console.print()
+        raise typer.Exit(code=1)
+
+    # Determine API URL
+    if not api_url:
+        # Try to read from config
+        config_path = Path.cwd() / ".sdlc" / "config.json"
+        if config_path.exists():
+            try:
+                config = json.loads(config_path.read_text())
+                api_url = config.get("api_url")
+            except:
+                pass
+
+        if not api_url:
+            api_url = os.getenv("SDLC_API_URL", "http://localhost:8000")
+
+    # Fetch overlay
+    console.print(f"[dim]Fetching context from {api_url}...[/dim]")
+    console.print()
+
+    try:
+        import httpx
+
+        response = httpx.get(
+            f"{api_url}/api/v1/agents-md/context/{project_id}",
+            timeout=30.0,
+        )
+
+        if response.status_code == 401:
+            console.print("[bold red]Error:[/bold red] Authentication required.")
+            console.print("Set SDLC_API_TOKEN environment variable or configure auth in .sdlc/config.json")
+            raise typer.Exit(code=1)
+
+        if response.status_code == 404:
+            console.print(f"[bold red]Error:[/bold red] Project not found: {project_id}")
+            raise typer.Exit(code=1)
+
+        if response.status_code != 200:
+            console.print(f"[bold red]Error:[/bold red] API returned {response.status_code}")
+            console.print(response.text)
+            raise typer.Exit(code=1)
+
+        overlay = response.json()
+
+    except httpx.ConnectError:
+        console.print(f"[bold red]Error:[/bold red] Could not connect to {api_url}")
+        console.print("Make sure SDLC Orchestrator is running.")
+        raise typer.Exit(code=1)
+
+    except Exception as e:
+        console.print(f"[bold red]Error fetching context:[/bold red] {e}")
+        raise typer.Exit(code=1)
+
+    # Format output
+    if format == "json":
+        console.print_json(json.dumps(overlay, indent=2, default=str))
+
+    elif format == "pr_comment":
+        formatted = overlay.get("formatted", {})
+        pr_comment = formatted.get("pr_comment", "")
+        if pr_comment:
+            console.print(pr_comment)
+        else:
+            console.print("[yellow]Warning: PR comment format not available[/yellow]")
+            console.print_json(json.dumps(overlay, indent=2, default=str))
+
+    else:
+        # CLI format (default)
+        stage_name = overlay.get("stage_name", "Unknown")
+        gate_status = overlay.get("gate_status", "N/A")
+        strict_mode = overlay.get("strict_mode", False)
+        sprint = overlay.get("sprint")
+        constraints = overlay.get("constraints", [])
+
+        # Header panel
+        header_lines = [
+            f"[bold]Stage:[/bold] {stage_name}",
+            f"[bold]Gate:[/bold] {gate_status}",
+            f"[bold]Strict Mode:[/bold] {'🔒 YES' if strict_mode else 'No'}",
+        ]
+
+        if sprint:
+            header_lines.extend([
+                "",
+                f"[bold]Sprint {sprint.get('number', 'N/A')}:[/bold] {sprint.get('goal', 'N/A')}",
+                f"[dim]Days remaining: {sprint.get('days_remaining', 'N/A')}[/dim]",
+            ])
+
+        console.print(
+            Panel(
+                "\n".join(header_lines),
+                title="[bold blue]SDLC Context Overlay[/bold blue]",
+                border_style="blue",
+            )
+        )
+
+        # Strict mode warning
+        if strict_mode:
+            console.print()
+            console.print(
+                Panel(
+                    "[bold]⚠️ STRICT MODE ACTIVE[/bold]\n\n"
+                    "Only bug fixes are allowed in this stage.\n"
+                    "New features will be blocked by gate evaluation.",
+                    title="[bold red]Warning[/bold red]",
+                    border_style="red",
+                )
+            )
+
+        # Constraints table
+        if constraints:
+            console.print()
+            table = Table(title="Active Constraints", show_header=True)
+            table.add_column("Type", style="cyan")
+            table.add_column("Severity")
+            table.add_column("Message")
+
+            for c in constraints:
+                severity = c.get("severity", "info")
+                severity_icon = {
+                    "info": "[blue]ℹ️ info[/blue]",
+                    "warning": "[yellow]⚠️ warning[/yellow]",
+                    "error": "[red]🔴 error[/red]",
+                }.get(severity, severity)
+
+                table.add_row(
+                    c.get("type", "unknown").replace("_", " ").title(),
+                    severity_icon,
+                    c.get("message", ""),
+                )
+
+            console.print(table)
+
+        console.print()
+        console.print(f"[dim]Generated at: {overlay.get('generated_at', 'N/A')}[/dim]")
+        console.print(f"[dim]Project ID: {project_id}[/dim]")
+
+    console.print()

@@ -36,6 +36,7 @@ from .commands.agents import (
     agents_init_command,
     agents_validate_command,
     agents_lint_command,
+    agents_context_command,
 )
 
 console = Console()
@@ -105,7 +106,7 @@ app.command(name="magic", help="Generate app from natural language (Vietnamese/E
     magic_command
 )
 
-# Create agents sub-app for AGENTS.md commands (Sprint 80)
+# Create agents sub-app for AGENTS.md commands (Sprint 80/81)
 agents_app = typer.Typer(
     name="agents",
     help="AGENTS.md management commands (ADR-029)",
@@ -120,6 +121,9 @@ agents_app.command(name="validate", help="Validate AGENTS.md structure and conte
 )
 agents_app.command(name="lint", help="Lint and auto-fix AGENTS.md")(
     agents_lint_command
+)
+agents_app.command(name="context", help="Fetch current SDLC context overlay (Sprint 81)")(
+    agents_context_command
 )
 
 # Register agents sub-app

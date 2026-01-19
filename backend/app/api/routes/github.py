@@ -1260,6 +1260,10 @@ async def handle_webhook(
     Security:
         - HMAC-SHA256 signature validation
         - Only processes events from configured repositories
+
+    Sprint 81 Enhancement:
+        - pull_request.opened/synchronize -> Create Check Run
+        - pull_request.labeled (sdlc-recheck) -> Re-evaluate gates
     """
     # Read raw body for signature validation
     body = await request.body()
@@ -1285,28 +1289,62 @@ async def handle_webhook(
     event = github_service.parse_webhook_event(x_github_event, payload)
     repo_full_name = event["repository"].get("full_name", "unknown")
 
-    # TODO (Day 4): Implement webhook event processing
-    # - Update project sync status
-    # - Trigger gate re-evaluation on push
-    # - Update PR status checks
-
     logger.info(f"Received GitHub webhook: {x_github_event} for {repo_full_name}")
 
     # Build response message
-    if x_github_event == "push":
+    message = f"Webhook event {x_github_event} received"
+    check_run_created = False
+
+    # Sprint 81: Handle pull_request events -> Create Check Run
+    if x_github_event == "pull_request":
+        action = payload.get("action", "")
+        pr = payload.get("pull_request", {})
+        repo = payload.get("repository", {})
+
+        # Find project by repo full name
+        project = await _find_project_by_repo(db, repo_full_name)
+
+        if project:
+            # Trigger Check Run for opened/synchronize actions
+            if action in ("opened", "synchronize"):
+                check_run_created = await _trigger_check_run(
+                    project_id=project.id,
+                    repo_owner=repo.get("owner", {}).get("login"),
+                    repo_name=repo.get("name"),
+                    head_sha=pr.get("head", {}).get("sha"),
+                )
+                if check_run_created:
+                    message = f"Pull request #{pr.get('number')} {action} - Check Run created"
+                else:
+                    message = f"Pull request #{pr.get('number')} {action} - Check Run skipped (GitHub App not configured)"
+
+            # Re-evaluate on sdlc-recheck label
+            elif action == "labeled":
+                label = payload.get("label", {}).get("name", "")
+                if label == "sdlc-recheck":
+                    check_run_created = await _trigger_check_run(
+                        project_id=project.id,
+                        repo_owner=repo.get("owner", {}).get("login"),
+                        repo_name=repo.get("name"),
+                        head_sha=pr.get("head", {}).get("sha"),
+                    )
+                    message = f"Pull request #{pr.get('number')} recheck triggered"
+                else:
+                    message = f"Pull request #{pr.get('number')} labeled: {label}"
+            else:
+                message = f"Pull request #{pr.get('number')} {action}"
+        else:
+            message = f"Pull request #{pr.get('number')} {action} - repository not registered"
+
+    elif x_github_event == "push":
         commits = event["data"].get("commits", 0)
         ref = event["data"].get("ref", "").replace("refs/heads/", "")
         message = f"Push event processed: {commits} commits to {ref}"
-    elif x_github_event == "pull_request":
-        action = event.get("action", "unknown")
-        pr_number = event["data"].get("number", 0)
-        message = f"Pull request #{pr_number} {action}"
+
     elif x_github_event == "issues":
         action = event.get("action", "unknown")
         issue_number = event["data"].get("number", 0)
         message = f"Issue #{issue_number} {action}"
-    else:
-        message = f"Webhook event {x_github_event} received"
 
     return GitHubWebhookResponse(
         received=True,
@@ -1314,3 +1352,85 @@ async def handle_webhook(
         repository=repo_full_name,
         message=message,
     )
+
+
+# ============================================================================
+# Sprint 81: Check Run Helper Functions
+# ============================================================================
+
+
+async def _find_project_by_repo(
+    db: AsyncSession,
+    repo_full_name: str,
+) -> Optional[Project]:
+    """
+    Find project by GitHub repository full name.
+
+    Args:
+        db: Database session
+        repo_full_name: GitHub repository full name (e.g., "owner/repo")
+
+    Returns:
+        Project if found, None otherwise
+    """
+    result = await db.execute(
+        select(Project).where(
+            Project.github_repo_full_name == repo_full_name
+        )
+    )
+    return result.scalar_one_or_none()
+
+
+async def _trigger_check_run(
+    project_id: UUID,
+    repo_owner: str,
+    repo_name: str,
+    head_sha: str,
+) -> bool:
+    """
+    Trigger GitHub Check Run for a PR.
+
+    Sprint 81: Advisory mode - Check Run provides feedback but doesn't block.
+
+    Args:
+        project_id: SDLC Orchestrator project ID
+        repo_owner: Repository owner
+        repo_name: Repository name
+        head_sha: Git commit SHA
+
+    Returns:
+        True if Check Run was created, False if skipped (e.g., App not configured)
+    """
+    try:
+        from app.services.github_app_service import get_github_app_service
+        from app.services.github_check_run_service import get_check_run_service
+
+        app_service = get_github_app_service()
+
+        # Check if GitHub App is configured
+        if not app_service.is_configured:
+            logger.info(
+                f"GitHub App not configured - skipping Check Run for {repo_owner}/{repo_name}"
+            )
+            return False
+
+        # Get Check Run service (without gate_service for now - Advisory mode)
+        check_run_service = get_check_run_service()
+
+        # Create Check Run
+        result = await check_run_service.create_check_run(
+            project_id=project_id,
+            repo_owner=repo_owner,
+            repo_name=repo_name,
+            head_sha=head_sha,
+        )
+
+        logger.info(
+            f"Check Run created for {repo_owner}/{repo_name} "
+            f"(id={result.check_run_id}, conclusion={result.conclusion})"
+        )
+        return True
+
+    except Exception as e:
+        logger.error(f"Failed to create Check Run: {e}")
+        return False

@@ -121,6 +121,14 @@ class Settings(BaseSettings):
     GITHUB_CLIENT_ID: Optional[str] = None
     GITHUB_CLIENT_SECRET: Optional[str] = None
     GITHUB_WEBHOOK_SECRET: Optional[str] = None  # For webhook signature validation
+
+    # GitHub App (Sprint 81 - Check Runs API)
+    # Required for creating Check Runs - OAuth tokens cannot create Check Runs
+    # See: ADR-029, SPRINT-81-DESIGN-REVIEW.md
+    GITHUB_APP_ID: Optional[str] = None  # GitHub App ID (numeric string)
+    GITHUB_APP_PRIVATE_KEY: Optional[str] = None  # PEM private key (base64 encoded or raw)
+    GITHUB_APP_WEBHOOK_SECRET: Optional[str] = None  # Webhook secret for App events
+
     GOOGLE_CLIENT_ID: Optional[str] = None
     GOOGLE_CLIENT_SECRET: Optional[str] = None
     MICROSOFT_CLIENT_ID: Optional[str] = None
