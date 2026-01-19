@@ -32,6 +32,11 @@ from .commands.report import report_command
 from .commands.migrate import migrate_command
 from .commands.generate import generate_command
 from .commands.magic import magic_command
+from .commands.agents import (
+    agents_init_command,
+    agents_validate_command,
+    agents_lint_command,
+)
 
 console = Console()
 
@@ -99,6 +104,26 @@ app.command(name="generate", help="Generate backend scaffold from AppBlueprint")
 app.command(name="magic", help="Generate app from natural language (Vietnamese/English)")(
     magic_command
 )
+
+# Create agents sub-app for AGENTS.md commands (Sprint 80)
+agents_app = typer.Typer(
+    name="agents",
+    help="AGENTS.md management commands (ADR-029)",
+    no_args_is_help=True,
+)
+
+agents_app.command(name="init", help="Generate AGENTS.md from project analysis")(
+    agents_init_command
+)
+agents_app.command(name="validate", help="Validate AGENTS.md structure and content")(
+    agents_validate_command
+)
+agents_app.command(name="lint", help="Lint and auto-fix AGENTS.md")(
+    agents_lint_command
+)
+
+# Register agents sub-app
+app.add_typer(agents_app, name="agents")
 
 
 @app.command(name="tiers")

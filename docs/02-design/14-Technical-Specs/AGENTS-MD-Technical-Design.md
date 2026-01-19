@@ -1595,235 +1595,338 @@ class ContextOverlayService:
 
 ## 6. CLI Implementation
 
-### 6.1 CLI Commands
+### 6.1 Implementation Overview
+
+**Location**: `backend/sdlcctl/commands/agents.py`
+**Framework**: Typer + Rich (consistent with existing sdlcctl commands)
+**Status**: ✅ IMPLEMENTED (Jan 19, 2026)
+
+The CLI integrates into the existing `sdlcctl` command-line tool, maintaining consistency with other commands like `validate`, `init`, `magic`.
+
+### 6.2 CLI Commands
 
 ```python
-# backend/app/cli/agents_md_commands.py
+# backend/sdlcctl/commands/agents.py (IMPLEMENTED - 600+ lines)
 
-import click
-import asyncio
+import typer
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 from pathlib import Path
-from uuid import UUID
+from typing import Optional
 
-from app.services.agents_md_service import AgentsMdService, AgentsMdConfig
-from app.services.agents_md_validator import AgentsMdValidator
-from app.services.context_overlay_service import ContextOverlayService
+console = Console()
 
+# ============================================================================
+# Command: sdlcctl agents init
+# ============================================================================
 
-@click.group(name="agents")
-def agents_group():
-    """AGENTS.md management commands."""
-    pass
+def agents_init_command(
+    path: Path = typer.Option(
+        Path.cwd(),
+        "--path", "-p",
+        help="Project root path",
+    ),
+    output: Optional[Path] = typer.Option(
+        None,
+        "--output", "-o",
+        help="Output file path (default: AGENTS.md in project root)",
+    ),
+    max_lines: int = typer.Option(
+        150,
+        "--max-lines", "-m",
+        help="Maximum lines (50-200)",
+        min=50, max=200,
+    ),
+    force: bool = typer.Option(
+        False,
+        "--force", "-f",
+        help="Overwrite existing AGENTS.md",
+    ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Print content without writing file",
+    ),
+) -> None:
+    """
+    Generate AGENTS.md from project analysis.
 
+    Analyzes project structure (docker-compose, package.json, etc.)
+    and generates a compliant AGENTS.md file.
+    """
+    # 1. Analyze project structure
+    analysis = analyze_project(path)
 
-@agents_group.command(name="init")
-@click.option("--project-id", "-p", required=True, help="Project UUID")
-@click.option("--output", "-o", default="AGENTS.md", help="Output file path")
-@click.option("--max-lines", default=150, help="Maximum lines (default: 150)")
-@click.option("--no-quick-start", is_flag=True, help="Skip Quick Start section")
-@click.option("--no-architecture", is_flag=True, help="Skip Architecture section")
-@click.option("--no-security", is_flag=True, help="Skip Security section")
-@click.option("--dry-run", is_flag=True, help="Print to stdout instead of file")
-def init_command(
-    project_id: str,
-    output: str,
-    max_lines: int,
-    no_quick_start: bool,
-    no_architecture: bool,
-    no_security: bool,
-    dry_run: bool,
-):
-    """Generate AGENTS.md from project configuration."""
+    # 2. Display analysis summary (Rich Table)
+    table = Table(title="Project Analysis")
+    table.add_row("Backend", analysis["backend_type"] or "Not detected")
+    table.add_row("Frontend", analysis["frontend_type"] or "Not detected")
+    table.add_row("AGPL Deps", "⚠️ Yes" if analysis["has_minio"] else "No")
+    console.print(table)
 
-    async def _run():
-        service = await _get_agents_md_service()
+    # 3. Generate AGENTS.md content
+    content = generate_agents_md(analysis, max_lines)
 
-        config = AgentsMdConfig(
-            include_quick_start=not no_quick_start,
-            include_architecture=not no_architecture,
-            include_security=not no_security,
-            max_lines=max_lines,
-        )
+    # 4. Validate for secrets
+    secrets = detect_secrets(content)
+    if secrets:
+        console.print("[red]ERROR: Secrets detected![/red]")
+        raise typer.Exit(code=1)
 
-        try:
-            result = await service.generate(UUID(project_id), config)
-
-            if dry_run:
-                click.echo(result.content)
-            else:
-                path = Path(output)
-                path.write_text(result.content)
-
-                click.echo(f"✅ Generated {output} ({result.line_count} lines)")
-                click.echo(f"   Sections: {', '.join(result.sections)}")
-
-                if result.validation_warnings:
-                    click.echo("")
-                    for w in result.validation_warnings:
-                        click.echo(f"   ⚠️  {w['message']}")
-
-                if result.validation_errors:
-                    click.echo("")
-                    for e in result.validation_errors:
-                        click.echo(f"   ❌ {e['message']}")
-
-        except Exception as e:
-            click.echo(f"❌ Error: {str(e)}", err=True)
-            raise click.Abort()
-
-    asyncio.run(_run())
-
-
-@agents_group.command(name="validate")
-@click.option("--file", "-f", default="AGENTS.md", help="File to validate")
-def validate_command(file: str):
-    """Validate AGENTS.md structure and content."""
-
-    path = Path(file)
-    if not path.exists():
-        click.echo(f"❌ File not found: {file}", err=True)
-        raise click.Abort()
-
-    content = path.read_text()
-    validator = AgentsMdValidator()
-    result = validator.validate(content)
-
-    if result.valid:
-        click.echo(f"✅ {file} is valid")
+    # 5. Write or display
+    if dry_run:
+        console.print(Syntax(content, "markdown"))
     else:
-        click.echo(f"❌ {file} has errors")
-
-    click.echo(f"   📊 Lines: {result.line_count}/150")
-    click.echo(f"   📋 Sections: {len(result.sections_found)} found")
-
-    if result.sections_found:
-        click.echo(f"      {', '.join(result.sections_found)}")
-
-    if result.errors:
-        click.echo("")
-        click.echo("   Errors:")
-        for e in result.errors:
-            line_info = f" (line {e.line_number})" if e.line_number else ""
-            click.echo(f"   ❌ {e.message}{line_info}")
-
-    if result.warnings:
-        click.echo("")
-        click.echo("   Warnings:")
-        for w in result.warnings:
-            line_info = f" (line {w.line_number})" if w.line_number else ""
-            click.echo(f"   ⚠️  {w.message}{line_info}")
-
-    if not result.valid:
-        raise click.Abort()
+        output_path.write_text(content)
+        console.print(f"[green]✓ Generated AGENTS.md[/green]")
 
 
-@agents_group.command(name="lint")
-@click.option("--file", "-f", default="AGENTS.md", help="File to lint")
-@click.option("--fix", is_flag=True, help="Auto-fix issues")
-def lint_command(file: str, fix: bool):
-    """Lint AGENTS.md and optionally auto-fix."""
+# ============================================================================
+# Command: sdlcctl agents validate
+# ============================================================================
 
-    path = Path(file)
-    if not path.exists():
-        click.echo(f"❌ File not found: {file}", err=True)
-        raise click.Abort()
+def agents_validate_command(
+    path: Path = typer.Argument(..., help="Path to AGENTS.md file"),
+    strict: bool = typer.Option(False, "--strict", "-s", help="Treat warnings as errors"),
+) -> None:
+    """
+    Validate AGENTS.md content.
 
+    Checks for:
+    - Secrets (API keys, tokens, passwords)
+    - Line limits (150 recommended, 200 max)
+    - Required sections
+    - Markdown structure
+    """
     content = path.read_text()
-    validator = AgentsMdValidator()
 
-    fixed_content, fixes = validator.lint(content)
+    # Run validations
+    secrets = detect_secrets(content)
+    structure = validate_structure(content)
 
-    if not fixes:
-        click.echo(f"✅ {file} is clean - no fixes needed")
+    errors = [i for i in secrets + structure if i["type"] == "error"]
+    warnings = [i for i in secrets + structure if i["type"] == "warning"]
+
+    # Display results
+    console.print(f"[bold]Summary:[/bold]")
+    console.print(f"  📊 Lines: {count_lines(content)}/150")
+    console.print(f"  ❌ Errors: {len(errors)}")
+    console.print(f"  ⚠️  Warnings: {len(warnings)}")
+
+    if errors or (strict and warnings):
+        raise typer.Exit(code=1)
+
+
+# ============================================================================
+# Command: sdlcctl agents lint
+# ============================================================================
+
+def agents_lint_command(
+    path: Path = typer.Argument(..., help="Path to AGENTS.md file"),
+    fix: bool = typer.Option(False, "--fix", "-f", help="Apply fixes to file"),
+) -> None:
+    """
+    Lint and auto-fix AGENTS.md.
+
+    Fixes:
+    - Trailing whitespace
+    - Multiple blank lines
+    - Missing newline at end
+    """
+    content = path.read_text()
+    fixed_content, changes = lint_content(content)
+
+    if not changes:
+        console.print("[green]✓ No issues found[/green]")
         return
+
+    console.print(f"[bold]Found {len(changes)} issue(s):[/bold]")
+    for change in changes:
+        console.print(f"  🔧 {change}")
 
     if fix:
         path.write_text(fixed_content)
-        click.echo(f"🔧 Fixed {len(fixes)} issues:")
-        for f in fixes:
-            click.echo(f"   - {f}")
-    else:
-        click.echo(f"🔍 Found {len(fixes)} issues:")
-        for f in fixes:
-            click.echo(f"   - {f}")
-        click.echo("")
-        click.echo("Run with --fix to auto-fix these issues")
+        console.print(f"[green]✓ Fixed {len(changes)} issue(s)[/green]")
 
 
-@agents_group.command(name="context")
-@click.option("--project-id", "-p", required=True, help="Project UUID")
-@click.option("--format", "-f", type=click.Choice(["text", "json", "markdown"]), default="text")
-def context_command(project_id: str, format: str):
-    """Show current SDLC context overlay."""
+# ============================================================================
+# Secret Detection Patterns
+# ============================================================================
 
-    async def _run():
-        service = await _get_context_overlay_service()
-
-        try:
-            overlay = await service.get_overlay(UUID(project_id), trigger_type="cli")
-
-            if format == "json":
-                import json
-                click.echo(json.dumps(service.format_json(overlay), indent=2, default=str))
-            elif format == "markdown":
-                click.echo(service.format_pr_comment(overlay))
-            else:
-                click.echo(service.format_cli_output(overlay))
-
-        except Exception as e:
-            click.echo(f"❌ Error: {str(e)}", err=True)
-            raise click.Abort()
-
-    asyncio.run(_run())
-
-
-async def _get_agents_md_service() -> AgentsMdService:
-    """Get configured AgentsMdService instance."""
-    # DI container setup here
-    from app.core.container import Container
-    container = Container()
-    return container.agents_md_service()
-
-
-async def _get_context_overlay_service() -> ContextOverlayService:
-    """Get configured ContextOverlayService instance."""
-    from app.core.container import Container
-    container = Container()
-    return container.context_overlay_service()
+SECRET_PATTERNS = [
+    (r'sk-[a-zA-Z0-9]{20,}', "OpenAI API key"),
+    (r'ghp_[a-zA-Z0-9]{36}', "GitHub PAT"),
+    (r'AKIA[0-9A-Z]{16}', "AWS Access Key"),
+    (r'sk_live_[a-zA-Z0-9]{24,}', "Stripe Live Key"),
+    (r'xox[baprs]-[0-9a-zA-Z-]{10,}', "Slack Token"),
+    (r'sk-ant-api[a-zA-Z0-9-]{20,}', "Anthropic API Key"),
+    (r'://[^:]+:[^@]+@', "URL with credentials"),
+    (r'eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.', "JWT Token"),
+]
 ```
 
-### 6.2 CLI Help Output
+### 6.3 CLI Registration in sdlcctl
+
+```python
+# backend/sdlcctl/cli.py (UPDATED)
+
+from .commands.agents import (
+    agents_init_command,
+    agents_validate_command,
+    agents_lint_command,
+)
+
+# Create agents sub-app
+agents_app = typer.Typer(name="agents", help="AGENTS.md management commands")
+
+agents_app.command(name="init")(agents_init_command)
+agents_app.command(name="validate")(agents_validate_command)
+agents_app.command(name="lint")(agents_lint_command)
+
+# Register agents sub-app
+app.add_typer(agents_app, name="agents")
+```
+
+### 6.4 CLI Help Output
 
 ```
-$ sdlc agents --help
-Usage: sdlc agents [OPTIONS] COMMAND [ARGS]...
+$ sdlcctl agents --help
 
-  AGENTS.md management commands.
+ Usage: sdlcctl agents [OPTIONS] COMMAND [ARGS]...
 
-Options:
-  --help  Show this message and exit.
+ AGENTS.md management commands.
 
-Commands:
-  context   Show current SDLC context overlay.
-  init      Generate AGENTS.md from project configuration.
-  lint      Lint AGENTS.md and optionally auto-fix.
-  validate  Validate AGENTS.md structure and content.
+╭─ Commands ──────────────────────────────────────────────────────╮
+│ init      Generate AGENTS.md from project analysis              │
+│ validate  Validate AGENTS.md content                            │
+│ lint      Lint and auto-fix AGENTS.md                           │
+╰─────────────────────────────────────────────────────────────────╯
 
 
-$ sdlc agents init --help
-Usage: sdlc agents init [OPTIONS]
+$ sdlcctl agents init --help
 
-  Generate AGENTS.md from project configuration.
+ Usage: sdlcctl agents init [OPTIONS]
 
-Options:
-  -p, --project-id TEXT  Project UUID  [required]
-  -o, --output TEXT      Output file path  [default: AGENTS.md]
-  --max-lines INTEGER    Maximum lines (default: 150)
-  --no-quick-start       Skip Quick Start section
-  --no-architecture      Skip Architecture section
-  --no-security          Skip Security section
-  --dry-run              Print to stdout instead of file
-  --help                 Show this message and exit.
+ Generate AGENTS.md from project analysis.
+
+╭─ Options ───────────────────────────────────────────────────────╮
+│ --path        -p  PATH     Project root path [default: .]       │
+│ --output      -o  PATH     Output file path                     │
+│ --max-lines   -m  INTEGER  Maximum lines (50-200) [default:150] │
+│ --force       -f           Overwrite existing AGENTS.md         │
+│ --dry-run                  Print content without writing file   │
+│ --help                     Show this message and exit.          │
+╰─────────────────────────────────────────────────────────────────╯
+
+
+$ sdlcctl agents validate --help
+
+ Usage: sdlcctl agents validate [OPTIONS] PATH
+
+ Validate AGENTS.md content.
+
+╭─ Arguments ─────────────────────────────────────────────────────╮
+│ *  PATH  Path to AGENTS.md file [required]                      │
+╰─────────────────────────────────────────────────────────────────╯
+╭─ Options ───────────────────────────────────────────────────────╮
+│ --strict  -s  Treat warnings as errors                          │
+│ --help        Show this message and exit.                       │
+╰─────────────────────────────────────────────────────────────────╯
+
+
+$ sdlcctl agents lint --help
+
+ Usage: sdlcctl agents lint [OPTIONS] PATH
+
+ Lint and auto-fix AGENTS.md.
+
+╭─ Arguments ─────────────────────────────────────────────────────╮
+│ *  PATH  Path to AGENTS.md file [required]                      │
+╰─────────────────────────────────────────────────────────────────╯
+╭─ Options ───────────────────────────────────────────────────────╮
+│ --fix   -f  Apply fixes to file                                 │
+│ --help      Show this message and exit.                         │
+╰─────────────────────────────────────────────────────────────────╯
+```
+
+### 6.5 CLI Example Workflows
+
+```bash
+# 1. Generate AGENTS.md for current project
+$ sdlcctl agents init
+┌─────────────────────────────────────────────┐
+│         AGENTS.md Generator                 │
+│                                             │
+│ Generates AGENTS.md from project analysis.  │
+│ Follows ADR-029 two-layer architecture.     │
+└─────────────────────────────────────────────┘
+
+        Project Analysis
+┏━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓
+┃ Property    ┃ Value           ┃
+┡━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━┩
+│ Project     │ my-project      │
+│ Backend     │ Python          │
+│ Frontend    │ React           │
+│ Database    │ PostgreSQL      │
+│ Docker      │ ✅              │
+│ AGPL Deps   │ ⚠️ Yes (MinIO)   │
+└─────────────┴─────────────────┘
+
+✓ Generated AGENTS.md
+  Path: /path/to/AGENTS.md
+  Lines: 142/150
+
+Next steps:
+  1. Review and customize the generated content
+  2. Run 'sdlcctl agents validate' to check compliance
+  3. Commit AGENTS.md to your repository
+
+
+# 2. Validate existing AGENTS.md
+$ sdlcctl agents validate AGENTS.md
+Validating: AGENTS.md
+
+Summary:
+  📊 Lines: 142/150 (max 200)
+  ❌ Errors: 0
+  ⚠️  Warnings: 1
+
+Warnings:
+  Line 1: Recommended section 'Git Workflow' not found
+
+✓ Validation PASSED with warnings
+
+
+# 3. Validate with secrets (FAIL)
+$ sdlcctl agents validate AGENTS.md
+Validating: AGENTS.md
+
+Errors:
+  Line 15: OpenAI API key detected
+
+Summary:
+  📊 Lines: 145/150
+  ❌ Errors: 1
+  ⚠️  Warnings: 0
+
+✗ Validation FAILED
+
+
+# 4. Lint and fix
+$ sdlcctl agents lint AGENTS.md --fix
+Linting: AGENTS.md
+
+Found 2 issue(s):
+  🔧 Line 45: Removed trailing whitespace
+  🔧 Added newline at end of file
+
+✓ Fixed 2 issue(s)
+
+Running validation...
+✓ File is now valid
 ```
 
 ---
