@@ -1,14 +1,29 @@
 # Stage 02: Design & Architecture (HOW?)
 ## System Architecture + Technical Design
 
-**Version**: 3.0.0
-**Date**: December 23, 2025
+**Version**: 3.1.0
+**Date**: January 19, 2026
 **Status**: ✅ COMPLETED - Gate G2 PASSED (CTO 9.4/10, CPO 9.2/10)
 **Authority**: CTO + Tech Lead + Backend Lead Approved
-**Foundation**: SDLC 5.1.1 Complete Lifecycle (10 Stages)
+**Foundation**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
 **Previous Stage**: Stage 01 (Planning & Analysis - WHAT) ✅ COMPLETE
-**Next Stage**: Stage 04 (BUILD) - Sprint 44-50 IN PROGRESS
+**Next Stage**: Stage 04 (BUILD) - Sprint 78 COMPLETE, Sprint 79 IN PROGRESS
 **Positioning**: Operating System for Software 3.0
+
+**Changelog v3.1.0** (Jan 19, 2026):
+- **Sprint 78 Design Artifacts**: 4 new data models + 38 API endpoints documented
+  - Sprint Analytics Foundation: RetroActionItem, SprintDependency models
+  - Resource Optimization: ResourceAllocation, SprintTemplate models
+  - Frontend Components: 4 React components (SprintDependencyGraph with D3.js, ResourceAllocationHeatmap, SprintTemplateSelector, SprintRetroComparison)
+- **Personal Teams Design**: Comprehensive design document (1,247 lines)
+  - Dual ownership model: User-owned + Organization-owned teams
+  - Database schema: owner_id column + XOR constraint
+  - API specification: organization_id optional, new response fields
+  - Status: Awaiting CTO approval
+- **ADR-025 Re-enforced**: Unified frontend architecture restored after 13 sprints drift
+  - Governance incident documented: [GOVERNANCE-FAILURE-FRONTEND-DUPLICATION.md](../07-operate/03-Lessons-Learned/GOVERNANCE-FAILURE-FRONTEND-DUPLICATION.md)
+  - Corrective actions: Mandatory ADR review in G-Sprint-Open, automated compliance checks
+- **Architecture Stabilized**: Single Next.js frontend (port 8310), FastAPI backend (port 8300)
 
 **Changelog v3.0.0** (Dec 23, 2025):
 - **SOFTWARE 3.0 PIVOT**: Control Plane for AI Coders positioning
@@ -17,7 +32,7 @@
 - **Sprint 43 OPA Integration**: Policy Guards Design complete
 - **Sprint 44 Scanner Engine**: CrossReferenceValidator, SDLC Structure Scanner
 - **14-Technical-Specs folder**: 15 specifications total
-- Updated framework reference: SDLC 5.1.3.1 → SDLC 5.1.1
+- Updated framework reference: SDLC 5.1.3.1 → SDLC 5.1.3
 
 **Changelog v2.0.0** (Nov 29, 2025):
 - Added AI Governance Layer (Section 11)
@@ -35,7 +50,7 @@ This stage transforms requirements (Stage 01 - WHAT) into technical architecture
 
 ---
 
-## Folder Structure (SDLC 5.1.1 Compliant)
+## Folder Structure (SDLC 5.1.3 Compliant)
 
 ```
 02-design/
@@ -153,15 +168,26 @@ This stage transforms requirements (Stage 01 - WHAT) into technical architecture
 
 ## Progress Tracker
 
-### 01-ADRs (100% complete)
-- ✅ ADR-001 to ADR-022 (22 Architecture Decision Records)
+### Latest Updates (Sprint 78 - Jan 2026)
+
+**New Design Artifacts:**
+- ✅ **Personal-Teams-Design.md** (1,247 lines) - Dual ownership model design
+- ✅ **Sprint 78 Data Models**: 4 new tables (retro_action_items, sprint_dependencies, resource_allocations, sprint_templates)
+- ✅ **Sprint 78 API Endpoints**: 38 new endpoints across 4 categories
+- ✅ **Sprint 78 Frontend Components**: 4 React components (SprintDependencyGraph with D3.js, ResourceAllocationHeatmap, SprintTemplateSelector, SprintRetroComparison)
+- ✅ **ADR-025 Re-enforced**: Unified frontend architecture + governance lessons documented
+
+### 01-ADRs (100% complete - 25 ADRs)
+- ✅ ADR-001 to ADR-028 (25 Architecture Decision Records)
 - ✅ All decisions consolidated in single folder
 - ✅ ADR-020: EP-04 SDLC Structure Enforcement
 - ✅ ADR-021: EP-05 Enterprise SDLC Migration
 - ✅ ADR-022: EP-06 Multi-Provider Codegen Architecture
+- ✅ ADR-025: Frontend Platform Consolidation (Re-enforced Jan 2026)
+- ✅ ADR-028: Teams Feature Architecture (Personal + Organization Teams)
 
 ### 02-System-Architecture (100% complete)
-- ✅ System-Architecture-Document.md (v3.0.0 - 5-layer architecture with EP-06 Codegen Layer)
+- ✅ System-Architecture-Document.md (v3.1.0 - 5-layer architecture with Sprint 78 extensions)
 - ✅ Component-Architecture.md (bridge-first pattern)
 - ✅ Technical-Design-Document.md (v2.0.0)
 - ✅ Integration-Architecture.md
@@ -169,11 +195,11 @@ This stage transforms requirements (Stage 01 - WHAT) into technical architecture
 - ✅ C4-ARCHITECTURE-DIAGRAMS.md
 
 ### 03-Database-Design (100% complete)
-- ✅ Database-Architecture.md (30 tables, 7-layer design including EP-06 Codegen Layer)
+- ✅ Database-Architecture.md (32 tables: 28 core + 4 Sprint 78, 7-layer design including EP-06 Codegen Layer)
 
 ### 04-API-Design (100% complete)
-- ✅ API-DEVELOPER-GUIDE.md
-- ✅ API-CHANGELOG.md
+- ✅ API-DEVELOPER-GUIDE.md (90+ endpoints: 52 core + 38 Sprint 78)
+- ✅ API-CHANGELOG.md (Sprint 78 additions documented)
 - ✅ API-Frontend-Validation-Checklist.md
 - ✅ CURL-EXAMPLES.md
 - ✅ OPENAPI-ENHANCEMENT-SUMMARY.md
@@ -579,7 +605,7 @@ Once Stage 02 is complete → **[Stage 04 (BUILD)](../03-Development-Implementat
 **Quality Gates**: G2 (Technical Feasibility) ✅ PASSED (Dec 9, 2025)
 **Next Stage**: Stage 04 (BUILD) - Sprint 44-50 IN PROGRESS
 **Current Stage**: ✅ Stage 02 COMPLETED
-**Framework**: SDLC 5.1.1
+**Framework**: SDLC 5.1.3
 
 ---
 
