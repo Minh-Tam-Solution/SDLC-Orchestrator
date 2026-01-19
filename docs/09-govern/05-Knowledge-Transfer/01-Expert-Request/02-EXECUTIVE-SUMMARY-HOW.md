@@ -394,9 +394,11 @@ We implement **OWASP Application Security Verification Standard (ASVS) Level 2**
 
 | Threat | Mitigation |
 |--------|------------|
-| Denied gate approval | HMAC-SHA256 signed audit log |
+| Denied gate approval | Ed25519 signed audit log (v1.1 - Q1 2026) |
 | Deleted evidence | 7-year retention, backup to S3 Glacier |
 | Admin action denial | Comprehensive logging (who, what, when, where) |
+
+> **Note (v1.0)**: Currently using SHA256 hash per evidence file. Ed25519 asymmetric signing for hash chain will be added in v1.1 (Sprint 79-80) per CTO mandate for non-repudiation.
 
 #### Information Disclosure
 
@@ -524,7 +526,7 @@ We implement **OWASP Application Security Verification Standard (ASVS) Level 2**
 | **Evidence Upload (10MB)** | <2s | 1.5s ✅ | E2E tests |
 | **Database Query (simple)** | <10ms | 5ms ✅ | pg_stat_statements |
 | **Database Query (join)** | <50ms | 30ms ✅ | pg_stat_statements |
-| **Concurrent Users** | 100K | Validated ✅ | Locust (10K actual) |
+| **Concurrent Users** | 10K tested, 100K designed | 10K ✅ | Locust load testing |
 
 ### 5.2 Scalability Design
 
@@ -699,6 +701,42 @@ We implement **OWASP Application Security Verification Standard (ASVS) Level 2**
 | **Manual database migrations** | Low | Alembic requires human trigger | Automated in CI/CD |
 | **Limited observability** | Low | Basic Prometheus, no tracing | Add OpenTelemetry |
 | **No WebSocket** | Low | Polling for real-time updates | Add WebSocket in Phase 2 |
+| **PR Comment Only (v1.0)** | Medium | No merge blocking, advisory only | Add GitHub Checks API v1.1 |
+
+---
+
+## 7.3 Gate Enforcement Mechanism (Honest Assessment)
+
+**Current State (v1.0 - Advisory Only)**:
+
+| Component | Status | Enforcement Level |
+|-----------|--------|-------------------|
+| Policy evaluation (OPA) | ✅ Implemented | Hard (in our system) |
+| Evidence collection | ✅ Implemented | Hard (in our system) |
+| GitHub webhook receiver | ✅ Implemented | Detection only |
+| **PR comment posting** | ✅ Implemented | **Advisory only** |
+| **GitHub Checks API** | ❌ Not implemented | N/A |
+| **Branch Protection** | ❌ Not our control | Requires user setup |
+
+**How It Works Today**:
+```
+PR Created → Webhook → SDLC Orchestrator → Policy Eval → PR Comment
+                                                          ↓
+                                              "⚠️ Gate G3 FAILED"
+                                              (but merge NOT blocked)
+```
+
+**Planned State (v1.1 - Q2 2026 - Hard Enforcement)**:
+```
+PR Created → Webhook → SDLC Orchestrator → GitHub Checks API
+                                                    ↓
+                                          Check Run: "SDLC Gate"
+                                          conclusion: "failure"
+                                                    ↓
+                                          MERGE BUTTON DISABLED
+```
+
+**Why Honest**: Per CTO mandate (Jan 19, 2026), we must not over-claim "enforcement" when current implementation is advisory. GitHub Checks API integration is P0 blocker for Sprint 79.
 
 ---
 
@@ -768,7 +806,7 @@ We implement **OWASP Application Security Verification Standard (ASVS) Level 2**
 | Goal | Implementation |
 |------|----------------|
 | **Security** | OWASP ASVS Level 2 (98.4%), STRIDE threat model |
-| **Performance** | <100ms p95 API latency, 100K concurrent users |
+| **Performance** | <100ms p95 API latency, 10K tested (100K designed) |
 | **Scalability** | Horizontal scaling, connection pooling, read replicas |
 | **Maintainability** | Zero Mock Policy, contract-first, 90%+ test coverage |
 | **Compliance** | AGPL containment, 7-year audit retention |

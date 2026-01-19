@@ -485,7 +485,7 @@ Request → Ollama (try) → Claude (try) → GPT-4 (try) → Rule-based (guaran
 | **Dashboard Load** | <1s | <1s ✅ | Lighthouse |
 | **Gate Evaluation** | <50ms | <50ms ✅ | OPA benchmarks |
 | **Evidence Upload (10MB)** | <2s | <2s ✅ | E2E tests |
-| **Concurrent Users** | 100K | Tested ✅ | Load testing |
+| **Concurrent Users** | 10K tested, 100K designed | 10K ✅ | Load testing (Locust) |
 
 ### 4.2 Scalability Requirements
 
@@ -516,7 +516,7 @@ Request → Ollama (try) → Claude (try) → GPT-4 (try) → Rule-based (guaran
 | **Error Handling** | No stack traces in production, structured logging | ✅ 100% |
 | **API Security** | Rate limiting, OpenAPI validation, CORS policy | ✅ 100% |
 
-**Compliance**: 264/264 OWASP ASVS Level 2 requirements (98.4%)
+**Compliance**: 260/264 OWASP ASVS Level 2 requirements (98.4%)
 
 ### 4.5 Compliance Requirements
 

@@ -7,7 +7,7 @@
 **Confidentiality**: For Review Only - Not for Distribution
 **Framework**: SDLC 5.1.3 Complete Lifecycle
 **Company**: Nhat Quang Holding (Vietnam-based software company)
-**New Positioning**: Operating System for Software 3.0
+**New Positioning**: AI Code Governance Platform (Governance Layer for AGENTS.md)
 
 ---
 
@@ -26,9 +26,9 @@ This is a **self-contained executive summary** designed for external experts to 
 │  Software 2.0: Human writes ML models                               │
 │  Software 3.0: Human specifies intent, AI generates code           │
 │                                                                     │
-│  SDLC Orchestrator = Operating System for Software 3.0              │
-│  → Control plane that governs ALL AI coders                         │
-│  → They generate, we validate                                       │
+│  SDLC Orchestrator = AI Code Governance Platform                    │
+│  → Governance layer for AGENTS.md ecosystem (60K+ projects)         │
+│  → Static rules + Dynamic context + Hard enforcement                │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -38,15 +38,15 @@ This is a **self-contained executive summary** designed for external experts to 
 | Layer | Component | Description |
 |-------|-----------|-------------|
 | **Layer 3** | AI Coders (Cursor, Copilot, Claude) | Code generation tools. They produce code. |
-| **Layer 2** | SDLC Orchestrator | **Control plane** that governs Layer 3. Proprietary. |
+| **Layer 2** | SDLC Orchestrator | **Governance layer** for AI coders. Proprietary. |
 | **Layer 1** | SDLC-Enterprise-Framework | Methodology foundation. 10 stages. Open source. |
 
-**This document focuses on**: Why we're building SDLC Orchestrator as the control plane for Software 3.0.
+**This document focuses on**: Why we're building SDLC Orchestrator as the governance layer for AGENTS.md ecosystem.
 
 **Review Focus Areas**:
 - Problem validation methodology
 - Market sizing and ICP definition (including Vietnam SME wedge)
-- Competitive positioning (control plane, not competitor)
+- Competitive positioning (governance layer, not competitor)
 - Business model viability (Founder Plan + Global tiers)
 - Strategic risks
 
@@ -276,7 +276,7 @@ This problem manifests as:
 | Pain level | 9/10 |
 | Budget authority | $10K-$100K/year |
 | Decision timeline | 30-60 days |
-| Primary use case | Control plane for AI coders (Cursor, Copilot, Claude) |
+| Primary use case | Governance layer for AI coders (Cursor, Copilot, Claude) |
 | Success metrics | Feature adoption 32%→70%, AI code validated before merge |
 | **Pricing** | **Standard/Professional: $30-60/user/month** |
 
@@ -514,10 +514,10 @@ This problem manifests as:
 
 ## 10. Summary
 
-**SDLC Orchestrator** is the **Operating System for Software 3.0** — the control plane that orchestrates ALL AI coders under governance, evidence, and policy-as-code.
+**SDLC Orchestrator** is the **AI Code Governance Platform** — the governance layer for AGENTS.md ecosystem with static rules, dynamic context, and hard enforcement.
 
 **Key Differentiators**:
-1. **Control Plane Positioning**: We sit above AI coders (Cursor, Copilot, Claude), not alongside them
+1. **Governance Layer Positioning**: We provide enforcement for AGENTS.md (60K+ projects), not compete with AI coders
 2. **Dual Wedge Strategy**: Vietnam SME (EP-06 codegen) + Global EM (AI governance)
 3. **Founder Plan**: $99/team flat pricing for Vietnam SME (unlimited seats)
 4. **3-5 year moat** from SDLC 5.1.3 + 100+ policy packs + EP-06 IR-based codegen
@@ -525,7 +525,7 @@ This problem manifests as:
 6. **Planning Hierarchy**: Roadmap → Phase → Sprint → Backlog management
 
 **Investment Ask**: Expert feedback on:
-- Software 3.0 positioning (control plane narrative)
+- AGENTS.md positioning (governance layer narrative)
 - Dual wedge strategy (Vietnam SME + Global EM)
 - Realistic projections (30-50 teams Year 1)
 
@@ -543,4 +543,4 @@ This problem manifests as:
 
 ---
 
-*"Operating System for Software 3.0 - We orchestrate, not compete."*
+*"Static rules. Dynamic context. Hard enforcement."*

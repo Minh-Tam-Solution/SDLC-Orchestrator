@@ -10,7 +10,12 @@
 
 ## The One-Liner
 
-> **"Operating System for Software 3.0: Control plane that orchestrates ALL AI coders under governance, evidence, and policy-as-code."**
+> **"AI Code Governance Platform: Static rules. Dynamic context. Hard enforcement."**
+
+**Honest Positioning** (v1.0 - Post CTO Review Jan 19, 2026):
+- Static AGENTS.md for AI coder guidance
+- Dynamic overlays for context-aware constraints
+- GitHub Checks API for hard enforcement (v1.1 Q2 2026)
 
 ---
 
@@ -28,7 +33,7 @@
 ├─────────────────────────────────────────────────────────────────────┤
 │  LAYER 2: SDLC ORCHESTRATOR (Our Product - We Govern)               │
 │  ────────────────────────────────────────────────────               │
-│  ★ Control Plane: Unified governance for ALL AI coders             │
+│  ★ Governance Layer: Policy enforcement for AI coders              │
 │  ★ Evidence Vault: Audit trail for compliance                      │
 │  ★ Policy Guards: OPA-based validation before merge                │
 │  ★ EP-06 Codegen: IR-based generation for Vietnam SME              │
@@ -127,7 +132,7 @@
                     Low Governance
 ```
 
-**Our Position**: Only platform at intersection of High Governance + High AI
+**Our Position**: Governance layer for the AGENTS.md ecosystem (60K+ projects)
 
 ---
 
@@ -145,4 +150,4 @@ For investors and advisors:
 
 ---
 
-*"We sit above AI coders, not alongside them. They generate, we govern."*
+*"Static rules. Dynamic context. Hard enforcement."*
