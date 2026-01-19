@@ -179,7 +179,7 @@ async def lifespan(app: FastAPI):
 # ============================================================================
 
 # Import API routers (after lifespan is defined)
-from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, analytics_v2, council, sdlc_structure, sop, admin, docs, ai_detection, policy_packs, sast, evidence_timeline, override, codegen, pilot, preview, contract_lock, api_keys, payments, ai_providers, teams, organizations, planning  # Sprint 42-74: AI Safety + Codegen + Pilot + Preview + Contract Lock + API Keys + Payments + AI Providers + Teams + Planning
+from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, analytics_v2, council, sdlc_structure, sop, admin, docs, ai_detection, policy_packs, sast, evidence_timeline, override, codegen, pilot, preview, contract_lock, api_keys, payments, ai_providers, teams, organizations, planning, agents  # Sprint 42-80: AI Safety + Codegen + Pilot + Preview + Contract Lock + API Keys + Payments + AI Providers + Teams + Planning + AGENTS.md
 
 # Create FastAPI app with lifespan
 app = FastAPI(
@@ -293,6 +293,7 @@ app.include_router(ai_providers.router, prefix="/api/v1", tags=["AI Providers"])
 app.include_router(teams.router, prefix="/api/v1", tags=["Teams"])  # Sprint 71 - Teams Foundation
 app.include_router(organizations.router, prefix="/api/v1", tags=["Organizations"])  # Sprint 71 - Organizations
 app.include_router(planning.router, prefix="/api/v1", tags=["Planning Hierarchy"])  # Sprint 74 - Planning Hierarchy (ADR-013)
+app.include_router(agents.router, prefix="/api/v1", tags=["AGENTS.md"])  # Sprint 80 - AGENTS.md Integration (ADR-029)
 
 # ============================================================================
 # Health Check Endpoints

@@ -766,30 +766,36 @@ GET /api/v1/projects/{project_id}/context-overlay/pr-comment:
 
 ### Code Complete
 
-- [ ] `AgentsMdService` with all generators
-- [ ] `AgentsMdValidator` with forbidden content detection
-- [ ] CLI commands: `sdlc agents init|validate|lint`
-- [ ] `ContextOverlayService` with PR comment formatter
+- [x] `AgentsMdService` with all generators ✅ (Jan 19, 2026 - 546 lines)
+- [x] `AgentsMdValidator` with forbidden content detection ✅ (Jan 19, 2026 - 380 lines)
+- [ ] CLI commands: `sdlc agents init|validate|lint` (Pending Sprint Start)
+- [x] `ContextOverlayService` with PR comment formatter ✅ (Jan 19, 2026 - 562 lines)
+- [x] `FileAnalyzer` for project structure analysis ✅ (Jan 19, 2026 - 491 lines)
+- [x] API Routes: `/api/v1/agents-md/*` endpoints ✅ (Jan 19, 2026 - 430 lines)
+- [x] Database Models: `AgentsMdFile`, `ContextOverlay` ✅ (Jan 19, 2026)
+- [x] Alembic Migration: `s80_agents_md_tables.py` ✅ (Jan 19, 2026)
 - [ ] Framework README updated (MTS/BRS/LPS deprecated)
 
 ### Tests
 
-- [ ] Unit tests: 34+ new tests
-- [ ] Integration tests: 6 tests (CLI, API)
+- [x] Unit tests: `test_agents_md_validator.py` ✅ (Jan 19, 2026 - 28 tests)
+- [x] Unit tests: `test_file_analyzer.py` ✅ (Jan 19, 2026 - 24 tests)
+- [x] Integration tests: `test_agents_md_api.py` ✅ (Jan 19, 2026 - 18 tests)
 - [ ] E2E tests: 4 tests (generate → validate → commit flow)
-- [ ] Total coverage: 90%+
+- [ ] Total coverage: 90%+ (Pending verification)
 
 ### Documentation
 
-- [ ] ADR-029 CTO approved
-- [ ] API documentation (OpenAPI)
-- [ ] CLI help text
+- [x] ADR-029 CTO approved ✅
+- [x] TDS-080-001 Technical Design ✅ (Jan 19, 2026 - 2,412 lines)
+- [x] API documentation (OpenAPI auto-generated) ✅
+- [ ] CLI help text (Pending CLI implementation)
 - [ ] Migration guide (MTS/BRS/LPS → AGENTS.md)
 
 ### Review
 
 - [ ] Code review by Tech Lead
-- [ ] CTO approval on ADR-029
+- [x] CTO approval on ADR-029 ✅
 - [ ] PR merged to main
 - [ ] Staging deployment verified
 
