@@ -118,6 +118,9 @@ from app.models.resource_allocation import ResourceAllocation
 # Sprint Templates (Sprint 78) - 1 model
 from app.models.sprint_template import SprintTemplate
 
+# AGENTS.md Integration (Sprint 80) - 2 models
+from app.models.agents_md import AgentsMdFile, ContextOverlay
+
 __all__ = [
     # Base
     "Base",
@@ -215,4 +218,7 @@ __all__ = [
     "ResourceAllocation",
     # Sprint Templates - Sprint 78 (1 model)
     "SprintTemplate",
+    # AGENTS.md Integration - Sprint 80 (2 models)
+    "AgentsMdFile",
+    "ContextOverlay",
 ]
