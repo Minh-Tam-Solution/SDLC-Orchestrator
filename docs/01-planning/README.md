@@ -3,12 +3,25 @@
 
 **Stage**: 01 - PLANNING
 **Question**: What are we building?
-**Version**: 4.0.0
-**Date**: December 23, 2025
+**Version**: 4.1.0
+**Date**: January 19, 2026
 **Status**: ✅ COMPLETED - Gate G1 PASSED
 **Authority**: PM + CTO + CPO Approved
-**Framework**: SDLC 5.1.1 + SASE Level 2
+**Framework**: SDLC 5.1.3 + SASE Level 2
 **Positioning**: Operating System for Software 3.0
+
+**Changelog v4.1.0** (Jan 19, 2026):
+- **Sprint 78 Complete**: Sprint Analytics + Cross-Project Coordination (36/36 SP, 100%)
+  - 4 new database models: RetroActionItem, SprintDependency, ResourceAllocation, SprintTemplate
+  - 38 API endpoints (retrospectives, dependencies, resource allocation, templates)
+  - Data model extended to 32 tables (28 core + 4 Sprint 78)
+  - API specification: 52 → 90+ endpoints
+- **Personal Teams Feature**: Design complete (awaiting CTO approval)
+  - Dual ownership model: User-owned + Organization-owned teams
+  - Schema changes: owner_id column, XOR constraint
+  - API changes: organization_id optional, new response fields
+- **Architecture Documentation**: ADR-025 re-enforced (unified frontend)
+- **Governance Enhancements**: Mandatory ADR review in G-Sprint-Open gate
 
 **Changelog v4.0.0** (Dec 23, 2025):
 - **SOFTWARE 3.0 PIVOT**: Control Plane for AI Coders positioning
