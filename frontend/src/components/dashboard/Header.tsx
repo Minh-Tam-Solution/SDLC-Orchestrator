@@ -63,7 +63,7 @@ function ChevronRightSmallIcon({ className }: { className?: string }) {
   );
 }
 
-// Route name mappings for breadcrumbs
+// Route name mappings for breadcrumbs (Sprint 85 - added AGENTS.md)
 const routeNameMap: Record<string, string> = {
   app: "Dashboard",
   projects: "Projects",
@@ -72,6 +72,8 @@ const routeNameMap: Record<string, string> = {
   gates: "Gates",
   evidence: "Evidence",
   policies: "Policies",
+  "agents-md": "AGENTS.md",
+  analytics: "Analytics",
   codegen: "App Builder",
   "sop-generator": "SOP Generator",
   settings: "Settings",

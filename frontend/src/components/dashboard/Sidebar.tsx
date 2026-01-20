@@ -15,7 +15,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 
-// Navigation items configuration - Updated for /app/* routes (Sprint 84)
+// Navigation items configuration - Updated for /app/* routes (Sprint 85)
 const navigationItems = [
   {
     name: "Dashboard",
@@ -51,6 +51,12 @@ const navigationItems = [
     name: "Policies",
     href: "/app/policies",
     icon: DocumentTextIcon,
+  },
+  // Sprint 85: AGENTS.md (TRUE MOAT)
+  {
+    name: "AGENTS.md",
+    href: "/app/agents-md",
+    icon: BotIcon,
   },
   {
     name: "App Builder",
@@ -138,6 +144,15 @@ function BuildingOfficeIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+    </svg>
+  );
+}
+
+// Sprint 85: AGENTS.md icon (robot/bot)
+function BotIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m3.75-1.5v1.5m-7.5 15V21m7.5-1.5V21M6 6.75h12a2.25 2.25 0 0 1 2.25 2.25v6.75a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V9a2.25 2.25 0 0 1 2.25-2.25Zm3 6a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm6 0a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" />
     </svg>
   );
 }
