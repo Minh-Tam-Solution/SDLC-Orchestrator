@@ -1,13 +1,13 @@
-# Sprint 87: Sprint Governance UI (SDLC 5.1.3 Pillar 2)
+# Sprint 87: Sprint Governance UI + P0 Blockers (SDLC 5.1.3 Pillar 2)
 
 **Sprint ID:** S87
 **Status:** ✅ **CTO APPROVED** (January 20, 2026) - **CRITICAL PRIORITY**
 **Duration:** 10 days (February 23 - March 5, 2026)
-**Goal:** Implement Sprint Planning Governance UI - SDLC 5.1.3 Pillar 2 core feature
-**Story Points:** 42 SP
+**Goal:** Implement Sprint Planning Governance UI + P0 Blockers (GitHub Check Run, Evidence Hash Chain)
+**Story Points:** 58 SP (42 SP Governance + 16 SP P0 Blockers)
 **Framework Reference:** SDLC 5.1.3 P2 (Sprint Planning Governance)
 **Prerequisite:** Sprint 86 ✅ System Settings Implementation
-**Target:** Full Sprint Governance visibility and control
+**Target:** Full Sprint Governance visibility and control + P0 Blocker Resolution
 
 ---
 
@@ -17,12 +17,73 @@
 
 SDLC 5.1.3's defining feature is **Sprint Planning Governance** (Pillar 2). As the Orchestrator platform that **enforces** this framework, we MUST implement this feature excellently. This is "eating our own dog food."
 
+Additionally, this sprint addresses **P0 Blockers** from the Expert Feedback Response plan that are critical for launch.
+
 | Component | Description | Priority |
 |-----------|-------------|----------|
+| **GitHub Check Run UI** | Check Run management dashboard | **P0** ✅ DONE |
+| **Evidence Hash Chain v1 UI** | Tamper-evident audit trail | **P0** ✅ DONE |
 | **G-Sprint Gate** | Sprint start quality gate | **P0** |
 | **G-Sprint-Close Gate** | Sprint close quality gate | **P0** |
 | **Planning Hierarchy** | Roadmap → Phase → Sprint → Backlog | **P0** |
 | **24h Documentation Rule** | Sprint close docs within 24 hours | **P1** |
+
+---
+
+## ✅ P0 Blockers (CTO-Mandated Pre-Launch)
+
+### GitHub Check Run UI - ✅ COMPLETED (January 20, 2026)
+
+**Reference:** Expert Feedback Response Plan - BLOCKER-03
+
+| Task | Status | Files Created |
+|------|--------|---------------|
+| TypeScript interfaces & helpers | ✅ DONE | `frontend/src/lib/types/github-checks.ts` |
+| TanStack Query hooks | ✅ DONE | `frontend/src/hooks/useGitHubChecks.ts` |
+| API functions | ✅ DONE | `frontend/src/lib/api.ts` (7 functions added) |
+| Check Runs dashboard page | ✅ DONE | `frontend/src/app/app/check-runs/page.tsx` |
+| Check Run detail page | ✅ DONE | `frontend/src/app/app/check-runs/[id]/page.tsx` |
+| Loading skeleton | ✅ DONE | `frontend/src/app/app/check-runs/loading.tsx` |
+| Navigation integration | ✅ DONE | `Sidebar.tsx`, `Header.tsx` updated |
+| Build verification | ✅ DONE | No ESLint errors |
+
+**Features Implemented:**
+- Check Run list with filtering (by conclusion, mode)
+- Stats dashboard (total runs, pass rate, failed, avg duration)
+- Enforcement mode visualization (Advisory/Blocking/Strict)
+- Re-run functionality
+- Gate evaluation results display
+- Check Run output with annotations
+- Context overlay information
+
+### Evidence Hash Chain v1 UI - ✅ COMPLETED (January 20, 2026)
+
+**Reference:** Expert Feedback Response Plan - BLOCKER-04
+**Original Deadline:** February 10, 2026 | **Completed:** January 20, 2026 (**21 DAYS AHEAD!**)
+
+| Task | Status | Files Created |
+|------|--------|---------------|
+| TypeScript interfaces & helpers | ✅ DONE | `frontend/src/lib/types/evidence-manifest.ts` (327 LOC) |
+| TanStack Query hooks | ✅ DONE | `frontend/src/hooks/useEvidenceManifest.ts` (203 LOC) |
+| API functions | ✅ DONE | `frontend/src/lib/api.ts` (6 functions added) |
+| Evidence Manifests dashboard | ✅ DONE | `frontend/src/app/app/evidence-manifests/page.tsx` (552 LOC) |
+| Manifest detail page | ✅ DONE | `frontend/src/app/app/evidence-manifests/[id]/page.tsx` (431 LOC) |
+| Loading skeleton | ✅ DONE | `frontend/src/app/app/evidence-manifests/loading.tsx` (91 LOC) |
+| Navigation integration | ✅ DONE | `Sidebar.tsx`, `Header.tsx` updated |
+| Build verification | ✅ DONE | No ESLint errors |
+
+**Features Implemented:**
+- Chain integrity status display (verified/unverified/broken/pending)
+- One-click chain verification with real-time status
+- Hash chain visualization with sequence numbers
+- Manifest detail with artifacts and Ed25519 signatures
+- Verification history timeline
+- Project selector for multi-project support
+
+**Backend (Sprint 82 - Already Complete):**
+- Hash chain with Ed25519 asymmetric signing
+- MinIO Object Lock for immutability
+- Evidence manifest API endpoints
 
 ### SDLC 5.1.3 Pillar 2 Requirements
 
