@@ -2007,3 +2007,124 @@ export async function updateCliDevice(
     body: JSON.stringify(data),
   });
 }
+
+// =============================================================================
+// GitHub Check Run API (Sprint 86 - P0 Blocker)
+// =============================================================================
+
+import type {
+  CheckRunDetail,
+  CheckRunListParams,
+  CheckRunsResponse,
+  CreateCheckRunRequest,
+  CreateCheckRunResponse,
+  RerunCheckRunRequest,
+  CheckRunStats,
+  ProjectCheckRunConfig,
+  UpdateCheckRunConfigRequest,
+} from "./types/github-checks";
+
+/**
+ * Get list of Check Runs
+ * Sprint 86: GET /check-runs
+ */
+export async function getCheckRuns(
+  params?: CheckRunListParams
+): Promise<CheckRunsResponse> {
+  const searchParams = new URLSearchParams();
+  if (params?.page) searchParams.set("page", params.page.toString());
+  if (params?.page_size) searchParams.set("page_size", params.page_size.toString());
+  if (params?.project_id) searchParams.set("project_id", params.project_id);
+  if (params?.repository) searchParams.set("repository", params.repository);
+  if (params?.status) searchParams.set("status", params.status);
+  if (params?.conclusion) searchParams.set("conclusion", params.conclusion);
+  if (params?.mode) searchParams.set("mode", params.mode);
+  if (params?.from_date) searchParams.set("from_date", params.from_date);
+  if (params?.to_date) searchParams.set("to_date", params.to_date);
+
+  const query = searchParams.toString();
+  return apiRequest<CheckRunsResponse>(`/check-runs${query ? `?${query}` : ""}`);
+}
+
+/**
+ * Get single Check Run detail
+ * Sprint 86: GET /check-runs/{check_run_id}
+ */
+export async function getCheckRun(checkRunId: string): Promise<CheckRunDetail> {
+  return apiRequest<CheckRunDetail>(`/check-runs/${checkRunId}`);
+}
+
+/**
+ * Create a new Check Run
+ * Sprint 86: POST /check-runs
+ */
+export async function createCheckRun(
+  data: CreateCheckRunRequest
+): Promise<CreateCheckRunResponse> {
+  return apiRequest<CreateCheckRunResponse>("/check-runs", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Re-run a Check Run
+ * Sprint 86: POST /check-runs/{check_run_id}/rerun
+ */
+export async function rerunCheckRun(
+  data: RerunCheckRunRequest
+): Promise<CreateCheckRunResponse> {
+  return apiRequest<CreateCheckRunResponse>(
+    `/check-runs/${data.check_run_id}/rerun`,
+    {
+      method: "POST",
+      body: JSON.stringify({ force: data.force }),
+    }
+  );
+}
+
+/**
+ * Get Check Run statistics
+ * Sprint 86: GET /check-runs/stats
+ */
+export async function getCheckRunStats(options?: {
+  project_id?: string;
+  period_days?: number;
+}): Promise<CheckRunStats> {
+  const searchParams = new URLSearchParams();
+  if (options?.project_id) searchParams.set("project_id", options.project_id);
+  if (options?.period_days)
+    searchParams.set("period_days", options.period_days.toString());
+
+  const query = searchParams.toString();
+  return apiRequest<CheckRunStats>(`/check-runs/stats${query ? `?${query}` : ""}`);
+}
+
+/**
+ * Get project Check Run configuration
+ * Sprint 86: GET /projects/{project_id}/check-runs/config
+ */
+export async function getProjectCheckRunConfig(
+  projectId: string
+): Promise<ProjectCheckRunConfig> {
+  return apiRequest<ProjectCheckRunConfig>(
+    `/projects/${projectId}/check-runs/config`
+  );
+}
+
+/**
+ * Update project Check Run configuration
+ * Sprint 86: PATCH /projects/{project_id}/check-runs/config
+ */
+export async function updateProjectCheckRunConfig(
+  projectId: string,
+  data: UpdateCheckRunConfigRequest
+): Promise<ProjectCheckRunConfig> {
+  return apiRequest<ProjectCheckRunConfig>(
+    `/projects/${projectId}/check-runs/config`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }
+  );
+}

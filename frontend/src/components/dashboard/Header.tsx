@@ -63,7 +63,7 @@ function ChevronRightSmallIcon({ className }: { className?: string }) {
   );
 }
 
-// Route name mappings for breadcrumbs (Sprint 85 - added AGENTS.md & CLI Tokens)
+// Route name mappings for breadcrumbs (Sprint 86 - added Check Runs)
 const routeNameMap: Record<string, string> = {
   app: "Dashboard",
   projects: "Projects",
@@ -74,6 +74,7 @@ const routeNameMap: Record<string, string> = {
   policies: "Policies",
   "agents-md": "AGENTS.md",
   "cli-tokens": "CLI Tokens",
+  "check-runs": "Check Runs",
   analytics: "Analytics",
   codegen: "App Builder",
   "sop-generator": "SOP Generator",
