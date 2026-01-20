@@ -2128,3 +2128,102 @@ export async function updateProjectCheckRunConfig(
     }
   );
 }
+
+// =============================================================================
+// Evidence Manifest API (Sprint 87 - P0 Blocker - Hash Chain v1)
+// =============================================================================
+
+import type {
+  EvidenceManifest,
+  ManifestListResponse,
+  ManifestListParams,
+  CreateManifestRequest,
+  VerifyChainRequest,
+  VerifyChainResponse,
+  ChainStatusResponse,
+  VerificationHistoryResponse,
+} from "./types/evidence-manifest";
+
+/**
+ * Get list of Evidence Manifests for a project
+ * Sprint 87: GET /evidence-manifests
+ */
+export async function getEvidenceManifests(
+  params: ManifestListParams
+): Promise<ManifestListResponse> {
+  const searchParams = new URLSearchParams();
+  searchParams.set("project_id", params.project_id);
+  if (params.limit) searchParams.set("limit", params.limit.toString());
+  if (params.offset) searchParams.set("offset", params.offset.toString());
+
+  return apiRequest<ManifestListResponse>(
+    `/evidence-manifests?${searchParams.toString()}`
+  );
+}
+
+/**
+ * Get single Evidence Manifest by ID
+ * Sprint 87: GET /evidence-manifests/{manifest_id}
+ */
+export async function getEvidenceManifest(
+  manifestId: string
+): Promise<EvidenceManifest> {
+  return apiRequest<EvidenceManifest>(`/evidence-manifests/${manifestId}`);
+}
+
+/**
+ * Create a new Evidence Manifest
+ * Sprint 87: POST /evidence-manifests
+ */
+export async function createEvidenceManifest(
+  data: CreateManifestRequest
+): Promise<EvidenceManifest> {
+  return apiRequest<EvidenceManifest>("/evidence-manifests", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Verify Evidence Chain integrity
+ * Sprint 87: POST /evidence-manifests/verify
+ */
+export async function verifyEvidenceChain(
+  data: VerifyChainRequest
+): Promise<VerifyChainResponse> {
+  return apiRequest<VerifyChainResponse>("/evidence-manifests/verify", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Get chain status for a project
+ * Sprint 87: GET /evidence-manifests/chain-status/{project_id}
+ */
+export async function getChainStatus(
+  projectId: string
+): Promise<ChainStatusResponse> {
+  return apiRequest<ChainStatusResponse>(
+    `/evidence-manifests/chain-status/${projectId}`
+  );
+}
+
+/**
+ * Get verification history for a project
+ * Sprint 87: GET /evidence-manifests/verification-history/{project_id}
+ */
+export async function getVerificationHistory(
+  projectId: string,
+  limit?: number,
+  offset?: number
+): Promise<VerificationHistoryResponse> {
+  const searchParams = new URLSearchParams();
+  if (limit) searchParams.set("limit", limit.toString());
+  if (offset) searchParams.set("offset", offset.toString());
+
+  const query = searchParams.toString();
+  return apiRequest<VerificationHistoryResponse>(
+    `/evidence-manifests/verification-history/${projectId}${query ? `?${query}` : ""}`
+  );
+}

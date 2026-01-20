@@ -63,7 +63,7 @@ function ChevronRightSmallIcon({ className }: { className?: string }) {
   );
 }
 
-// Route name mappings for breadcrumbs (Sprint 86 - added Check Runs)
+// Route name mappings for breadcrumbs (Sprint 87 - added Evidence Manifests)
 const routeNameMap: Record<string, string> = {
   app: "Dashboard",
   projects: "Projects",
@@ -71,6 +71,7 @@ const routeNameMap: Record<string, string> = {
   organizations: "Organizations",
   gates: "Gates",
   evidence: "Evidence",
+  "evidence-manifests": "Hash Chain",
   policies: "Policies",
   "agents-md": "AGENTS.md",
   "cli-tokens": "CLI Tokens",
