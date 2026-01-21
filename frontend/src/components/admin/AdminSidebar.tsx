@@ -178,18 +178,6 @@ export function AdminSidebar({ collapsed = false, onToggle }: AdminSidebarProps)
         </button>
       </div>
 
-      {/* Back to App link */}
-      <div className="border-b border-gray-700 px-2 py-2">
-        <Link
-          href="/app"
-          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-400 transition-colors hover:bg-gray-800 hover:text-white"
-          title={isCollapsed ? "Back to App" : undefined}
-        >
-          <ArrowLeftIcon className="h-5 w-5 flex-shrink-0" />
-          {!isCollapsed && <span>Back to App</span>}
-        </Link>
-      </div>
-
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-2 py-4">
         {adminNavigationItems.map((item) => {
