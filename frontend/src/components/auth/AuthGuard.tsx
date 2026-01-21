@@ -158,6 +158,69 @@ export function AdminGuard({
 }
 
 /**
+ * Customer User Guard - BLOCKS platform admins from customer UI
+ * Sprint 88: Platform Admin Privacy Fix (ADR-030)
+ * 
+ * Used for /app/* routes (customer UI only - no platform admins)
+ * Platform admins (is_superuser=true) should stay in /admin/* exclusively
+ */
+interface CustomerUserGuardProps {
+  children: React.ReactNode;
+  fallbackPath?: string;
+}
+
+export function CustomerUserGuard({
+  children,
+  fallbackPath = "/admin",
+}: CustomerUserGuardProps) {
+  const { user, isLoading, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      // BLOCK platform admins from customer UI
+      if (user.is_superuser) {
+        console.warn('[CustomerUserGuard] Platform admin blocked from /app - redirecting to /admin');
+        router.push(fallbackPath);
+      }
+    }
+  }, [isLoading, isAuthenticated, user, router, fallbackPath]);
+
+  if (isLoading) {
+    return <AuthLoadingSkeleton />;
+  }
+
+  if (!isAuthenticated || !user) {
+    return null;
+  }
+
+  // BLOCK platform admins
+  if (user.is_superuser) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900">Access Denied</h1>
+          <p className="mt-2 text-gray-600">
+            Platform administrators cannot access customer UI.
+          </p>
+          <p className="mt-1 text-sm text-gray-500">
+            Use the Admin Panel to manage system settings.
+          </p>
+          <button
+            onClick={() => router.push(fallbackPath)}
+            className="mt-4 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          >
+            Go to Admin Panel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
+/**
  * @deprecated PlatformAdminGuard is no longer needed
  * After Sprint 69 route restructure:
  * - /app/* is accessible to ALL authenticated users
