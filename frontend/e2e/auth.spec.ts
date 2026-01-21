@@ -94,13 +94,14 @@ test.describe("Authentication Flow", () => {
 
   test("should display register page correctly", async ({ page }) => {
     await page.goto("/register");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
 
     // Page should load
     await expect(page.locator("body")).toBeVisible();
     expect(page.url()).toContain("register");
 
-    // Check for form elements
+    // Check for form elements - wait a bit for hydration
+    await page.waitForTimeout(1000);
     const hasEmailInput = await page.locator('input[type="email"], input[id*="email"]').isVisible().catch(() => false);
     const hasPasswordInput = await page.locator('input[type="password"]').first().isVisible().catch(() => false);
     console.log(`Register form: email=${hasEmailInput}, password=${hasPasswordInput}`);
@@ -108,13 +109,14 @@ test.describe("Authentication Flow", () => {
 
   test("should display forgot password page correctly", async ({ page }) => {
     await page.goto("/forgot-password");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
 
     // Page should load
     await expect(page.locator("body")).toBeVisible();
     expect(page.url()).toContain("forgot");
 
-    // Check for email input
+    // Check for email input - wait a bit for hydration
+    await page.waitForTimeout(1000);
     const hasEmailInput = await page.locator('input[type="email"], input[id*="email"]').isVisible().catch(() => false);
     console.log(`Forgot password form: email=${hasEmailInput}`);
   });
