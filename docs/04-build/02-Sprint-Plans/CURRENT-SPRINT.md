@@ -1,16 +1,16 @@
 # Current Sprint
 
-## 📍 Where We Are Now (Jan 20, 2026)
+## 📍 Where We Are Now (Jan 21, 2026)
 
 - **Latest completed milestone**: **Sprint 86** (System Settings - ADR-027 Complete) ✅
-- **Sprint 85**: **COMPLETE** (AGENTS.md + CLI Auth - TRUE MOAT) ✅
 - **Sprint 87 P0 Blockers**: **ALL COMPLETE** ✅ (GitHub Check Run + Evidence Hash Chain)
+- **Sprint 87 Core**: **IN PROGRESS** 🔄 Days 3-5 Complete (Sprint Governance Dashboard)
 - **SDLC Framework**: **SDLC 5.1.3** (7-Pillar Architecture)
-- **Current focus**: Sprint 87 Core (Sprint Governance UI - Feb 23 - Mar 5)
+- **Current focus**: Sprint 87 Days 6-7 (Planning Hierarchy Visualization)
 - **Soft Launch Target**: **March 15, 2026**
 - **Public Launch Target**: **March 15, 2026**
 
-### ✅ Recent Sprint Completions (Jan 19-20, 2026)
+### ✅ Recent Sprint Completions (Jan 19-21, 2026)
 
 **Sprint 79-83: Pre-Launch Development Complete**
 
@@ -37,6 +37,14 @@
 | GitHub Check Run UI | ~2,043 | ✅ | Jan 20 |
 | Evidence Hash Chain v1 UI | ~1,604 | ✅ | Jan 20 |
 
+**Sprint 87: Core Feature In Progress** 🔄
+
+| Phase | Component | LOC | Status | Date |
+|-------|-----------|-----|--------|------|
+| Days 1-2 | Types & Backend Integration | TBD | ✅ | Jan 21 |
+| Days 3-5 | Sprint Governance Dashboard | ~2,304 | ✅ | Jan 21 |
+| Days 6-7 | Planning Hierarchy Viz | TBD | ⏳ | Pending |
+
 **Sprint 86: System Settings Complete (ADR-027)**
 
 | Phase | Component | LOC | Tests | Status |
@@ -45,7 +53,7 @@
 | Phase 2 | Admin UI | ~1,427 | - | ✅ |
 | **Total** | **Full Stack** | **~2,192** | **40+** | ✅ |
 
-**Total Implementation:** ~34,600+ LOC in 2 days
+**Total Implementation:** ~36,900+ LOC in 3 days
 
 - Sprint 79-83: ~21,300 LOC
 - Sprint 84: ~3,300 LOC
@@ -54,6 +62,12 @@
 - Sprint 87 P0 Blockers: ~3,647 LOC
   - GitHub Check Run UI: ~2,043 LOC
   - Evidence Hash Chain v1 UI: ~1,604 LOC
+- Sprint 87 Core (Days 3-5): ~2,304 LOC
+  - Sprint Governance Dashboard: ~522 LOC
+  - Sprint Detail Page: ~511 LOC
+  - G-Sprint Gate: ~539 LOC
+  - G-Sprint-Close Gate: ~630 LOC
+  - Loading skeleton: ~102 LOC
 
 See: 
 - [SPRINT-83-IMPLEMENTATION-SUMMARY.md](SPRINT-83-IMPLEMENTATION-SUMMARY.md)
@@ -125,16 +139,40 @@ See: [SPRINT-86-ADR-027-SYSTEM-SETTINGS.md](SPRINT-86-ADR-027-SYSTEM-SETTINGS.md
 ### Sprint 87: Sprint Governance UI + P0 Blockers (Feb 23 - Mar 5)
 
 **CTO APPROVED:** ✅ January 20, 2026  
-**PRIORITY:** ⭐ CRITICAL - Core SDLC 5.1.3 Feature + P0 Launch Blockers
+**PRIORITY:** ⭐ CRITICAL - Core SDLC 5.1.3 Feature + P0 Launch Blockers  
+**STATUS:** 🔄 IN PROGRESS (Days 3-5 Complete)
 
 **Scope (58 SP = 42 SP Governance + 16 SP P0 Blockers):**
 
-**Sprint Governance UI (42 SP):**
-- Sprint Creation Wizard
-- Gate Stage Transitions UI
-- Milestone Tracking
-- Timeline Visualization
-- Sprint Dashboard
+**Sprint Governance UI (42 SP):** 🔄 ~60% Complete
+
+**✅ Completed (Days 1-5):**
+- ✅ Types & Backend Integration (Days 1-2)
+- ✅ Sprint Governance Dashboard (Day 3-5, ~2,304 LOC)
+  - Active sprint card with progress & gates
+  - Upcoming sprints grid with start gate
+  - Recent sprints with completion rates
+  - Team metrics (velocity, gates passed)
+- ✅ Sprint Detail Page (~511 LOC)
+  - Gate status cards (G-Sprint & G-Sprint-Close)
+  - Progress tracking with items breakdown
+  - Story points planned/completed/remaining
+- ✅ G-Sprint Gate Page (~539 LOC)
+  - 6 checklist categories
+  - Pass/Fail/Waive controls
+  - Mandatory items validation
+  - Approval panel
+- ✅ G-Sprint-Close Gate Page (~630 LOC)
+  - 24h Documentation Deadline Timer with real-time countdown
+  - 5 checklist categories
+  - Urgency levels (safe → critical → expired)
+  - Gate blocked if deadline expired
+
+**⏳ Remaining (Days 6-7):**
+- ⏳ Planning Hierarchy Visualization
+  - Roadmap → Phase → Sprint tree view
+  - Drag-and-drop sprint reordering
+  - Timeline Gantt chart
 
 **P0 Blockers (16 SP):** ✅ ALL COMPLETE
 
