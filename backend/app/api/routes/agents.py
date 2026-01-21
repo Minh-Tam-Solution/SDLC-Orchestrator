@@ -162,6 +162,131 @@ class ContextOverlayResponse(BaseModel):
 # ============================================================================
 
 
+class AgentsMdRepoItem(BaseModel):
+    """Single repository in AGENTS.md list."""
+
+    id: str = Field(..., description="Project UUID")
+    project_name: str = Field(..., description="Project name")
+    github_repo_full_name: Optional[str] = Field(None, description="GitHub repo (owner/name)")
+    has_agents_md: bool = Field(..., description="Whether AGENTS.md exists")
+    is_outdated: bool = Field(False, description="Whether AGENTS.md is outdated")
+    validation_status: str = Field("unknown", description="Validation status (valid/invalid/unknown)")
+    last_generated_at: Optional[str] = Field(None, description="Last generation timestamp ISO")
+    line_count: Optional[int] = Field(None, description="Number of lines")
+    generator_version: Optional[str] = Field(None, description="Generator version")
+
+
+class AgentsMdReposResponse(BaseModel):
+    """Response for /repos endpoint."""
+
+    total: int = Field(..., description="Total number of repositories")
+    repos: List[AgentsMdRepoItem] = Field(..., description="List of repositories")
+
+
+@router.get(
+    "/repos",
+    response_model=AgentsMdReposResponse,
+    summary="List all repositories with AGENTS.md status",
+    description="Get list of all accessible projects with their AGENTS.md status.",
+)
+async def list_agents_md_repos(
+    page: int = Query(1, ge=1, description="Page number (1-indexed)"),
+    page_size: int = Query(20, ge=1, le=100, description="Items per page"),
+    status: Optional[str] = Query(None, description="Filter by status: valid/invalid/missing"),
+    project_id: Optional[UUID] = Query(None, description="Filter by specific project"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> AgentsMdReposResponse:
+    """
+    List all repositories with AGENTS.md status.
+
+    Returns paginated list of projects with:
+    - AGENTS.md existence status
+    - Validation status
+    - Last generation timestamp
+    - Line count
+
+    Args:
+        page: Page number (1-indexed)
+        page_size: Items per page (1-100)
+        status: Filter by status
+        project_id: Filter by specific project
+        current_user: Authenticated user
+
+    Returns:
+        AgentsMdReposResponse with list of repos
+    """
+    from sqlalchemy import select, func
+    from sqlalchemy.orm import selectinload
+    from app.models.project import Project
+    from app.models.agents_md import AgentsMdFile
+
+    # Build query for projects user has access to
+    query = select(Project).where(Project.deleted_at.is_(None))
+
+    # Filter by user's organization if not superuser
+    if not current_user.is_superuser:
+        query = query.where(Project.organization_id == current_user.organization_id)
+
+    # Filter by specific project if provided
+    if project_id:
+        query = query.where(Project.id == project_id)
+
+    # Execute query to get projects
+    result = await db.execute(query.offset((page - 1) * page_size).limit(page_size))
+    projects = result.scalars().all()
+
+    # Get total count
+    count_query = select(func.count()).select_from(Project).where(Project.deleted_at.is_(None))
+    if not current_user.is_superuser:
+        count_query = count_query.where(Project.organization_id == current_user.organization_id)
+    if project_id:
+        count_query = count_query.where(Project.id == project_id)
+    total_result = await db.execute(count_query)
+    total = total_result.scalar() or 0
+
+    # For each project, get latest AGENTS.md record
+    repos = []
+    for project in projects:
+        # Get latest AGENTS.md record for this project
+        record_query = (
+            select(AgentsMdFile)
+            .where(AgentsMdFile.project_id == project.id)
+            .order_by(AgentsMdFile.generated_at.desc())
+            .limit(1)
+        )
+        record_result = await db.execute(record_query)
+        record = record_result.scalar_one_or_none()
+
+        # Build repo item
+        has_agents_md = record is not None
+        validation_status = record.validation_status if record else "unknown"
+
+        # Apply status filter
+        if status == "valid" and validation_status != "valid":
+            continue
+        elif status == "invalid" and validation_status != "invalid":
+            continue
+        elif status == "missing" and has_agents_md:
+            continue
+
+        repos.append(
+            AgentsMdRepoItem(
+                id=str(project.id),
+                project_name=project.name,
+                github_repo_full_name=project.github_repo_full_name,
+                has_agents_md=has_agents_md,
+                is_outdated=False,  # TODO: Implement outdated detection logic
+                validation_status=validation_status,
+                last_generated_at=record.generated_at.isoformat() if record else None,
+                line_count=record.line_count if record else None,
+                generator_version=record.generator_version if record else None,
+            )
+        )
+
+    return AgentsMdReposResponse(total=total, repos=repos)
+
+
 @router.post(
     "/generate",
     response_model=GenerateResponse,

@@ -38,7 +38,7 @@ Zero Mock Policy: Production-ready authentication implementation
 =========================================================================
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -256,7 +256,7 @@ async def login(
     # ADR-027: Check if account is locked (max_login_attempts)
     if user and user.locked_until:
         # Check if lockout period has expired (30 minutes auto-unlock)
-        if datetime.utcnow() < user.locked_until:
+        if datetime.now(timezone.utc) < user.locked_until:
             # Still locked - reject login
             await audit_service.log(
                 action=AuditAction.USER_LOGIN_FAILED,
@@ -292,7 +292,7 @@ async def login(
             # Check if max attempts reached
             if user.failed_login_count >= max_attempts:
                 # Lock account for 30 minutes
-                user.locked_until = datetime.utcnow() + timedelta(minutes=30)
+                user.locked_until = datetime.now(timezone.utc) + timedelta(minutes=30)
                 await db.commit()
 
                 # Audit account lockout
@@ -1104,13 +1104,12 @@ async def forgot_password(
             PasswordResetToken.user_id == user.id,
             PasswordResetToken.used_at.is_(None),
         )
-        .values(used_at=datetime.utcnow())  # Mark as "used" to invalidate
+        .values(used_at=datetime.now(timezone.utc))  # Mark as "used" to invalidate
     )
 
     # Create new password reset token (1-hour expiry)
-    # PostgreSQL timezone is Asia/Ho_Chi_Minh (UTC+7), so we need to add 7 hours
-    # to offset the conversion that PostgreSQL will do when storing naive datetime
-    expires_at = datetime.utcnow() + timedelta(hours=1) + timedelta(hours=7)
+    # Using timezone-aware datetime - PostgreSQL will store correctly in UTC
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
     reset_token = PasswordResetToken(
         user_id=user.id,
         token_hash=token_hash,
@@ -1386,7 +1385,7 @@ async def reset_password(
     user.updated_at = datetime.utcnow()
 
     # Mark token as used
-    reset_token.used_at = datetime.utcnow()
+    reset_token.used_at = datetime.now(timezone.utc)
 
     # Revoke all existing refresh tokens (security: logout all sessions)
     await db.execute(

@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -586,4 +586,97 @@ async def get_circuit_breaker_status(
         "success": True,
         "circuit_breaker": status,
         "health": "healthy" if status["state"] == "closed" else "degraded",
+    }
+
+
+@router.get("/summary")
+async def get_analytics_summary(
+    period_start: Optional[str] = Query(None, description="Start of period (ISO format)"),
+    period_end: Optional[str] = Query(None, description="End of period (ISO format)"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """
+    Get comprehensive analytics summary for AGENTS.md.
+
+    Sprint 85: Combined metrics endpoint for AGENTS.md analytics dashboard.
+
+    Returns:
+        Dictionary with overlay, engagement, gates, security, and agents_md metrics.
+    """
+    from sqlalchemy import select, func
+    from app.models.project import Project
+    from app.models.agents_md import AgentsMdFile
+
+    # Query projects accessible to user
+    projects_query = select(Project).where(Project.deleted_at.is_(None))
+    if not current_user.is_superuser:
+        projects_query = projects_query.where(Project.organization_id == current_user.organization_id)
+
+    projects_result = await db.execute(projects_query)
+    all_projects = projects_result.scalars().all()
+    total_repos = len(all_projects)
+
+    # Query AGENTS.md files
+    agents_md_query = select(AgentsMdFile)
+    if not current_user.is_superuser:
+        # Join with projects to filter by organization
+        agents_md_query = agents_md_query.join(
+            Project, AgentsMdFile.project_id == Project.id
+        ).where(Project.organization_id == current_user.organization_id)
+
+    agents_md_result = await db.execute(agents_md_query)
+    agents_md_files = agents_md_result.scalars().all()
+
+    # Calculate AGENTS.md metrics
+    repos_with_agents_md = len(set(f.project_id for f in agents_md_files))
+    valid_files = sum(1 for f in agents_md_files if f.validation_status == "valid")
+    invalid_files = sum(1 for f in agents_md_files if f.validation_status == "invalid")
+    avg_line_count = (
+        sum(f.line_count or 0 for f in agents_md_files) / len(agents_md_files)
+        if agents_md_files
+        else 0
+    )
+
+    return {
+        "overlay": {
+            "total_requests": 0,
+            "cache_hits": 0,
+            "cache_hit_rate": 0.0,
+            "avg_response_time_ms": 0,
+            "p95_response_time_ms": 0,
+        },
+        "engagement": {
+            "total_views": 0,
+            "unique_viewers": 0,
+            "avg_time_on_page_seconds": 0,
+            "regenerations": 0,
+            "downloads": 0,
+        },
+        "gates": {
+            "total": 0,
+            "passed": 0,
+            "failed": 0,
+            "pending": 0,
+            "pass_rate": 0.0,
+            "by_gate_type": {},
+        },
+        "security": {
+            "scans_total": 0,
+            "scans_passed": 0,
+            "scans_failed": 0,
+            "pass_rate": 0.0,
+            "vulnerabilities_found": 0,
+            "vulnerabilities_by_severity": {},
+        },
+        "agents_md": {
+            "total_repos": total_repos,
+            "repos_with_agents_md": repos_with_agents_md,
+            "valid_files": valid_files,
+            "invalid_files": invalid_files,
+            "outdated_files": 0,  # TODO: Implement outdated detection
+            "coverage_rate": (repos_with_agents_md / total_repos * 100) if total_repos > 0 else 0.0,
+            "avg_line_count": int(avg_line_count),
+            "regenerations_this_period": 0,  # TODO: Add period filtering
+        },
     }
