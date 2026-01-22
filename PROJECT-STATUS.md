@@ -104,16 +104,19 @@ DELETE /api/v1/planning/phases/{id}         - Delete phase
 GET    /api/v1/planning/roadmaps/{id}/timeline - Timeline data
 ```
 
-### Sprint 92 Success Metrics (Target):
+### Sprint 92 Success Metrics:
 
 - ✅ RoadmapModal: Create + Edit working
 - ✅ PhaseModal: Create + Edit working
-- 📋 Edit/Delete actions in tree
-- 📋 PhaseModal integrated with tree
-- 📋 E2E tests: 5 scenarios
+- ✅ Edit/Delete actions in tree (action menu ⋮)
+- ✅ Delete confirmation dialog
+- ✅ PhaseModal integrated with tree
+- 🚧 E2E tests: 5 scenarios (4 hours remaining)
 - ✅ Build status: PASSING
 
-**Current Progress**: ~60% (5/8 tasks complete)
+**Current Progress**: ~80% (7/8 tasks complete)  
+**Remaining**: E2E tests only (4 hours)  
+**Target**: Complete by EOD Jan 23
 
 ---
 
