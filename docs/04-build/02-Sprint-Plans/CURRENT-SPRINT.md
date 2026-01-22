@@ -1,19 +1,52 @@
 # Current Sprint
 
-## 📍 Where We Are Now (Jan 22, 2026)
+## 📍 Where We Are Now (Jan 23, 2026)
 
-- **Latest completed milestone**: **Sprint 88** (Platform Admin Privacy Fix - P0 Security) ✅
-- **Sprint 87**: **COMPLETE** (Sprint Governance UI - SDLC 5.1.3 Pillar 2) ✅
-- **Sprint 86**: **COMPLETE** (System Settings - ADR-027) ✅
-- **Sprint 88**: **COMPLETE** ✅ Platform Admin Privacy Fix (13 days ahead of schedule!)
-- **E2E Test Status**: **100% PASS** (114/114 tests) ✅
-- **Bug Fixes**: **All Critical Issues Resolved** ✅ (Organization counts, Auth, Models)
+- **Latest completed milestone**: **Sprint 90** (Project Creation Enhancement) ✅
+- **Sprint 89**: **COMPLETE** ✅ MinIO Object Lock + PostgreSQL RLS + Evidence Hash Chain
+- **Sprint 90**: **COMPLETE** ✅ Team & GitHub selectors (1.5 days - AHEAD OF SCHEDULE!)
+- **E2E Test Status**: **100% PASS** (124/124 tests) ✅
+- **Pre-Launch Readiness**: **100%** (P0/P1/P2 all complete) ✅
 - **SDLC Framework**: **SDLC 5.1.3** (7-Pillar Architecture)
-- **Current focus**: Pre-Launch Polish + Expert Feedback Implementation
+- **Current focus**: Ready for next sprint planning
 - **Soft Launch Target**: **March 15, 2026**
 - **Public Launch Target**: **March 15, 2026**
 
-### ✅ Recent Sprint Completions (Jan 19-22, 2026)
+---
+
+## ✅ Sprint 90: Project Creation Enhancement - COMPLETED (Jan 22-23, 2026)
+
+**Objective:** Add Team selector and GitHub repository linking to project creation modal
+
+### Final Status
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Update CreateProjectRequest interface | ✅ | Added team_id, github_repo_id |
+| Add Team selector dropdown | ✅ | Using existing useTeams hook |
+| Add GitHub toggle + repo selector | ✅ | Using existing useGitHub hook |
+| Repository analysis display | ✅ | Language, visibility, branch, last update |
+| API field mapping fix | ✅ | policy_pack_tier → policy_pack |
+| E2E tests | ✅ | 10/10 new tests passing |
+
+### APIs Unlocked (7/7) ✅
+
+| API | Method | Status | Sprint |
+|-----|--------|--------|--------|
+| GET /teams | Ready | ✅ Unlocked | 84 |
+| GET /github/status | Ready | ✅ Unlocked | 59 |
+| GET /github/repositories | Ready | ✅ Unlocked | 59 |
+| POST /github/sync | Ready | ✅ Unlocked | 59 |
+| GET /github/repositories/{owner}/{repo}/analyze | Ready | ✅ Unlocked | 59 |
+| POST /projects (with team_id, github_repo_id) | Ready | ✅ Unlocked | 69 |
+| GET /teams/{id}/projects | Ready | ✅ Unlocked | 84 |
+
+**CTO Approval:** ✅ Quick Win approved (Jan 22, 2026)
+**Completion:** ✅ 1.5 days (0.5 days ahead of schedule)
+
+---
+
+### ✅ Recent Sprint Completions (Jan 19-23, 2026)
 
 **Sprint 79-83: Pre-Launch Development Complete**
 

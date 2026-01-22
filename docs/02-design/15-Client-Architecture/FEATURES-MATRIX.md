@@ -1,10 +1,56 @@
 # SDLC Orchestrator - Client Features Matrix
 
-**Version:** 1.0.0
-**Date:** January 20, 2026
+**Version:** 1.1.0
+**Date:** January 22, 2026
 **Status:** CTO Approved Design Document
 **Owner:** Architecture Team
 **Framework:** SDLC 5.1.3 (7-Pillar Architecture)
+
+---
+
+## Sprint Progress Tracking
+
+### Sprint 89 ✅ COMPLETED (Jan 21-22, 2026)
+**Focus:** Pre-Launch Hardening - Security & Compliance
+
+| Task | Status | Notes |
+|------|--------|-------|
+| MinIO Object Lock Configuration | ✅ | WORM compliance, 7-year retention |
+| PostgreSQL Row-Level Security | ✅ | Multi-tenant isolation complete |
+| Dynamic Context Engine | ✅ | AGENTS.md generation ready |
+| Evidence Hash Chain | ✅ | SHA256 integrity verification |
+| GitHub Check Run Integration | ✅ | CI/CD quality gates |
+
+**Deliverables:**
+- `backend/app/services/minio_service.py` - Object Lock WORM
+- `backend/alembic/versions/*_rls_policies.py` - RLS for 30+ tables
+- Pre-launch security checklist 100% complete
+
+### Sprint 90 ✅ COMPLETED (Jan 22-23, 2026)
+**Focus:** Project Creation Enhancement - Quick Win
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Team Selector in CreateProjectModal | ✅ | Using existing useTeams hook |
+| GitHub Repo Selector | ✅ | Using existing useGitHub hook |
+| Repository Analysis Display | ✅ | Language, visibility, branch, last update |
+| CreateProjectRequest API Update | ✅ | Added team_id, github_repo_id |
+| API Field Mapping Fix | ✅ | policy_pack_tier → policy_pack |
+| E2E Tests | ✅ | 10/10 tests passing |
+
+**Unlocked 7 Backend APIs:**
+- ✅ GET /teams (Sprint 84)
+- ✅ GET /github/status
+- ✅ GET /github/repositories
+- ✅ POST /github/sync
+- ✅ GET /github/repositories/{owner}/{repo}/analyze
+- ✅ POST /projects (with team_id, github_repo_id)
+- ✅ GET /teams/{id}/projects
+
+**Files Modified:**
+- `frontend/src/lib/api.ts` - CreateProjectRequest interface + API mapping
+- `frontend/src/app/app/projects/page.tsx` - CreateProjectModal enhanced
+- `frontend/e2e/sprint90-project-creation.spec.ts` - E2E tests (NEW)
 
 ---
 

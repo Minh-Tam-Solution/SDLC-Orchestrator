@@ -12,12 +12,18 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useOrganization, useOrganizationStats } from "@/hooks/useOrganizations";
+import {
+  useOrganization,
+  useOrganizationStats,
+  useUpdateOrganization,
+  type OrganizationUpdate,
+} from "@/hooks/useOrganizations";
 import { useTeams, useCreateTeam } from "@/hooks/useTeams";
 import { useAuth } from "@/hooks/useAuth";
 import {
   ORGANIZATION_PLAN_META,
   type OrganizationPlan,
+  type OrganizationSettings,
 } from "@/lib/types/organization";
 import {
   AGENTIC_MATURITY_META,
@@ -389,6 +395,166 @@ function CreateTeamModal({
   );
 }
 
+/**
+ * Edit Organization Modal
+ * Sprint 91: Added edit functionality for organization name/settings
+ */
+function EditOrganizationModal({
+  isOpen,
+  onClose,
+  organization,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  organization: { id: string; name: string; plan: OrganizationPlan; settings: OrganizationSettings };
+}) {
+  const updateOrg = useUpdateOrganization(organization.id);
+  const [name, setName] = useState(organization.name);
+  const [requireMfa, setRequireMfa] = useState(organization.settings?.require_mfa || false);
+  const [allowedDomains, setAllowedDomains] = useState(
+    (organization.settings?.allowed_domains || []).join(", ")
+  );
+  const [error, setError] = useState<string | null>(null);
+
+  // Reset form when modal opens with new organization data
+  useState(() => {
+    setName(organization.name);
+    setRequireMfa(organization.settings?.require_mfa || false);
+    setAllowedDomains((organization.settings?.allowed_domains || []).join(", "));
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!name.trim()) {
+      setError("Organization name is required");
+      return;
+    }
+
+    try {
+      const domains = allowedDomains
+        .split(",")
+        .map((d) => d.trim())
+        .filter((d) => d.length > 0);
+
+      const updateData: OrganizationUpdate = {
+        name: name.trim(),
+        settings: {
+          ...organization.settings,
+          require_mfa: requireMfa,
+          allowed_domains: domains.length > 0 ? domains : undefined,
+        },
+      };
+      await updateOrg.mutateAsync(updateData);
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update organization");
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+
+      <div className="relative z-10 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Edit Organization</h2>
+          <button
+            onClick={onClose}
+            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          >
+            <XMarkIcon className="h-5 w-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="rounded-lg bg-red-50 border border-red-200 p-3">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+
+          <div>
+            <label htmlFor="orgName" className="block text-sm font-medium text-gray-700 mb-1">
+              Organization Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="orgName"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter organization name"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Current Plan
+            </label>
+            <div className="flex items-center gap-2">
+              <PlanBadge plan={organization.plan} />
+              <span className="text-sm text-gray-500">
+                (Contact support to change plan)
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="requireMfa"
+              checked={requireMfa}
+              onChange={(e) => setRequireMfa(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label htmlFor="requireMfa" className="text-sm font-medium text-gray-700">
+              Require MFA for all members
+            </label>
+          </div>
+
+          <div>
+            <label htmlFor="allowedDomains" className="block text-sm font-medium text-gray-700 mb-1">
+              Allowed Email Domains
+            </label>
+            <input
+              type="text"
+              id="allowedDomains"
+              value={allowedDomains}
+              onChange={(e) => setAllowedDomains(e.target.value)}
+              placeholder="example.com, company.org"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Comma-separated list of domains. Leave empty to allow any domain.
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={updateOrg.isPending}
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {updateOrg.isPending ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function LoadingSpinner() {
   return (
     <div className="flex items-center justify-center py-12">
@@ -406,6 +572,7 @@ export default function OrganizationDetailPage() {
   const orgId = params.id as string;
 
   const [isCreateTeamOpen, setIsCreateTeamOpen] = useState(false);
+  const [isEditOrgOpen, setIsEditOrgOpen] = useState(false);
 
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { data: org, isLoading: orgLoading, error: orgError } = useOrganization(orgId);
@@ -477,7 +644,10 @@ export default function OrganizationDetailPage() {
           </div>
         </div>
 
-        <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <button
+          onClick={() => setIsEditOrgOpen(true)}
+          className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
           <PencilIcon className="h-4 w-4" />
           Edit
         </button>
@@ -562,6 +732,15 @@ export default function OrganizationDetailPage() {
         onClose={() => setIsCreateTeamOpen(false)}
         organizationId={orgId}
       />
+
+      {/* Edit Organization Modal - Sprint 91 */}
+      {org && (
+        <EditOrganizationModal
+          isOpen={isEditOrgOpen}
+          onClose={() => setIsEditOrgOpen(false)}
+          organization={org}
+        />
+      )}
     </div>
   );
 }

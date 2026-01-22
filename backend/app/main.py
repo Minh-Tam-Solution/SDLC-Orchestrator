@@ -179,7 +179,7 @@ async def lifespan(app: FastAPI):
 # ============================================================================
 
 # Import API routers (after lifespan is defined)
-from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, analytics_v2, council, sdlc_structure, sop, admin, docs, ai_detection, policy_packs, sast, evidence_timeline, override, codegen, pilot, preview, contract_lock, api_keys, payments, ai_providers, teams, organizations, planning, agents, evidence_manifest  # Sprint 42-82: AI Safety + Codegen + Pilot + Preview + Contract Lock + API Keys + Payments + AI Providers + Teams + Planning + AGENTS.md + Evidence Manifest
+from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, analytics_v2, council, sdlc_structure, sop, admin, docs, ai_detection, policy_packs, sast, evidence_timeline, override, codegen, pilot, preview, contract_lock, api_keys, payments, ai_providers, teams, organizations, planning, agents, evidence_manifest, check_runs  # Sprint 42-86: AI Safety + Codegen + Pilot + Preview + Contract Lock + API Keys + Payments + AI Providers + Teams + Planning + AGENTS.md + Evidence Manifest + Check Runs
 
 # Create FastAPI app with lifespan
 app = FastAPI(
@@ -295,6 +295,7 @@ app.include_router(organizations.router, prefix="/api/v1", tags=["Organizations"
 app.include_router(planning.router, prefix="/api/v1", tags=["Planning Hierarchy"])  # Sprint 74 - Planning Hierarchy (ADR-013)
 app.include_router(agents.router, prefix="/api/v1", tags=["AGENTS.md"])  # Sprint 80 - AGENTS.md Integration (ADR-029)
 app.include_router(evidence_manifest.router, prefix="/api/v1", tags=["Evidence Manifest"])  # Sprint 82 - Tamper-Evident Hash Chain
+app.include_router(check_runs.router, prefix="/api/v1", tags=["Check Runs"])  # Sprint 86 - GitHub Check Run UI (P0 Blocker)
 
 # ============================================================================
 # Health Check Endpoints

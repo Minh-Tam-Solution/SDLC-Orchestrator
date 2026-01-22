@@ -391,11 +391,15 @@ export async function getProject(projectId: string): Promise<ProjectDetail> {
 
 /**
  * Create new project request
+ * Sprint 90: Added team_id, github_repo_id, github_repo_full_name for project linking
  */
 export interface CreateProjectRequest {
   name: string;
   description?: string;
   policy_pack_tier?: "LITE" | "STANDARD" | "PROFESSIONAL" | "ENTERPRISE";
+  team_id?: string;
+  github_repo_id?: number;
+  github_repo_full_name?: string;
 }
 
 /**
@@ -413,13 +417,24 @@ export interface CreateProjectResponse {
 /**
  * Create a new project (authenticated via httpOnly cookie)
  * Sprint 69: Removed accessToken param - uses credentials: "include" for cookie auth
+ * Sprint 90: Map policy_pack_tier to policy_pack for backend compatibility
  */
 export async function createProject(
   data: CreateProjectRequest
 ): Promise<CreateProjectResponse> {
+  // Map frontend field names to backend field names
+  const backendData = {
+    name: data.name,
+    description: data.description,
+    policy_pack: data.policy_pack_tier?.toLowerCase(), // Backend uses policy_pack, not policy_pack_tier
+    team_id: data.team_id,
+    github_repo_id: data.github_repo_id,
+    github_repo_full_name: data.github_repo_full_name,
+  };
+
   return apiRequest<CreateProjectResponse>(`/projects`, {
     method: "POST",
-    body: JSON.stringify(data),
+    body: JSON.stringify(backendData),
   });
 }
 

@@ -3,9 +3,9 @@
  *
  * @module frontend/src/app/app/planning/page
  * @description Full Planning Hierarchy visualization (Roadmap → Phase → Sprint)
- * @sdlc SDLC 5.1.3 Framework - Sprint 87 (Days 6-7: Planning Hierarchy Visualization)
+ * @sdlc SDLC 5.1.3 Framework - Sprint 92 (Planning Hierarchy CRUD)
  * @reference SDLC 5.1.3 Pillar 2: Sprint Planning Governance
- * @status Sprint 87 - Core Feature Implementation
+ * @status Sprint 92 - Roadmap & Phase CRUD Implementation
  */
 
 "use client";
@@ -15,6 +15,8 @@ import Link from "next/link";
 import { useProjects } from "@/hooks/useProjects";
 import { usePlanningHierarchy, useSprints } from "@/hooks/usePlanningHierarchy";
 import { PlanningHierarchyTree, SprintTimeline } from "@/app/app/sprints/components";
+import { RoadmapModal, PhaseModal } from "./components";
+import type { Roadmap, Phase } from "@/lib/types/planning";
 
 // =============================================================================
 // ICONS
@@ -166,6 +168,14 @@ function LoadingSkeleton() {
 export default function PlanningPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
 
+  // Modal states
+  const [roadmapModalOpen, setRoadmapModalOpen] = useState(false);
+  const [phaseModalOpen, setPhaseModalOpen] = useState(false);
+  const [editingRoadmap, setEditingRoadmap] = useState<Roadmap | null>(null);
+  const [editingPhase, setEditingPhase] = useState<Phase | null>(null);
+  const [selectedRoadmapId, setSelectedRoadmapId] = useState<string | null>(null);
+  const [selectedRoadmapName, setSelectedRoadmapName] = useState<string>("");
+
   // Get first project
   const { data: projects, isLoading: isLoadingProjects } = useProjects();
   const firstProject = projects?.[0];
@@ -265,7 +275,13 @@ export default function PlanningPage() {
         </div>
         <div className="flex items-center gap-3">
           <ViewToggle activeView={viewMode} onViewChange={setViewMode} />
-          <button className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+          <button
+            onClick={() => {
+              setEditingRoadmap(null);
+              setRoadmapModalOpen(true);
+            }}
+            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
             <PlusIcon className="h-4 w-4" />
             New Roadmap
           </button>
@@ -310,6 +326,33 @@ export default function PlanningPage() {
           This hierarchy ensures strategic alignment from vision to execution.
         </p>
       </div>
+
+      {/* Roadmap Modal */}
+      <RoadmapModal
+        open={roadmapModalOpen}
+        onOpenChange={(open) => {
+          setRoadmapModalOpen(open);
+          if (!open) setEditingRoadmap(null);
+        }}
+        projectId={firstProject?.id || ""}
+        roadmap={editingRoadmap}
+      />
+
+      {/* Phase Modal */}
+      <PhaseModal
+        open={phaseModalOpen}
+        onOpenChange={(open) => {
+          setPhaseModalOpen(open);
+          if (!open) {
+            setEditingPhase(null);
+            setSelectedRoadmapId(null);
+            setSelectedRoadmapName("");
+          }
+        }}
+        roadmapId={selectedRoadmapId || ""}
+        roadmapName={selectedRoadmapName}
+        phase={editingPhase}
+      />
     </div>
   );
 }

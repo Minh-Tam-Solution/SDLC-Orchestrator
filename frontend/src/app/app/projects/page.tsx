@@ -14,6 +14,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useProjects, useCreateProject, type Project } from "@/hooks/useProjects";
 import { useAuth } from "@/hooks/useAuth";
+import { useTeams } from "@/hooks/useTeams";
+import { useGitHubStatus, useGitHubRepositories, type GitHubRepository } from "@/hooks/useGitHub";
 
 // Icons
 function PlusIcon({ className }: { className?: string }) {
@@ -60,6 +62,30 @@ function XMarkIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+    </svg>
+  );
+}
+
+function UserGroupIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+    </svg>
+  );
+}
+
+function GitHubIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.026 2.747-1.026.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
+    </svg>
+  );
+}
+
+function LinkIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
     </svg>
   );
 }
@@ -177,7 +203,7 @@ function ProjectCardSkeleton() {
   );
 }
 
-// Create Project Modal
+// Create Project Modal - Sprint 90: Enhanced with Team & GitHub selectors
 function CreateProjectModal({
   isOpen,
   onClose,
@@ -187,10 +213,22 @@ function CreateProjectModal({
 }) {
   const router = useRouter();
   const createProject = useCreateProject();
+
+  // Existing state
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [tier, setTier] = useState<"LITE" | "STANDARD" | "PROFESSIONAL" | "ENTERPRISE">("LITE");
   const [error, setError] = useState<string | null>(null);
+
+  // Sprint 90: New state for Team & GitHub
+  const [selectedTeamId, setSelectedTeamId] = useState<string>("");
+  const [linkGitHub, setLinkGitHub] = useState<boolean>(false);
+  const [selectedRepo, setSelectedRepo] = useState<GitHubRepository | null>(null);
+
+  // Sprint 90: Fetch teams and GitHub data using existing hooks
+  const { data: teamsResponse, isLoading: teamsLoading } = useTeams();
+  const { data: githubStatus } = useGitHubStatus();
+  const { data: githubRepos, isLoading: reposLoading } = useGitHubRepositories();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -206,6 +244,10 @@ function CreateProjectModal({
         name: name.trim(),
         description: description.trim() || undefined,
         policy_pack_tier: tier,
+        // Sprint 90: Include team and GitHub data
+        team_id: selectedTeamId || undefined,
+        github_repo_id: selectedRepo?.id,
+        github_repo_full_name: selectedRepo?.full_name,
       });
 
       // Close modal and navigate to new project
@@ -220,8 +262,29 @@ function CreateProjectModal({
     setName("");
     setDescription("");
     setTier("LITE");
+    setSelectedTeamId("");
+    setLinkGitHub(false);
+    setSelectedRepo(null);
     setError(null);
     onClose();
+  };
+
+  const handleRepoSelect = (repoId: string) => {
+    if (!repoId) {
+      setSelectedRepo(null);
+      return;
+    }
+    const repo = githubRepos?.find((r) => r.id === parseInt(repoId));
+    setSelectedRepo(repo || null);
+  };
+
+  // Format date helper
+  const formatRepoDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("vi-VN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   if (!isOpen) return null;
@@ -234,8 +297,8 @@ function CreateProjectModal({
         onClick={handleClose}
       />
 
-      {/* Modal */}
-      <div className="relative z-10 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+      {/* Modal - Sprint 90: Increased width for new fields */}
+      <div className="relative z-10 w-full max-w-lg rounded-lg bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900">Create New Project</h2>
           <button
@@ -280,9 +343,154 @@ function CreateProjectModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter project description (optional)"
-              rows={3}
+              rows={2}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
+          </div>
+
+          {/* Sprint 90: Team Selector */}
+          <div>
+            <label htmlFor="team" className="block text-sm font-medium text-gray-700 mb-1">
+              <span className="flex items-center gap-2">
+                <UserGroupIcon className="h-4 w-4 text-gray-500" />
+                Team <span className="text-gray-400 font-normal">(optional)</span>
+              </span>
+            </label>
+            {teamsLoading ? (
+              <div className="flex items-center gap-2 text-sm text-gray-500 py-2">
+                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Loading teams...
+              </div>
+            ) : (
+              <select
+                id="team"
+                value={selectedTeamId}
+                onChange={(e) => setSelectedTeamId(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="">No team (Personal project)</option>
+                {teamsResponse?.items?.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {/* Sprint 90: GitHub Repository Selector */}
+          <div className="border-t border-gray-200 pt-4">
+            <div className="flex items-center justify-between mb-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <GitHubIcon className="h-4 w-4" />
+                Link to GitHub Repository
+              </label>
+              {githubStatus?.connected ? (
+                <span className="text-xs text-green-600 flex items-center gap-1">
+                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                  Connected
+                </span>
+              ) : (
+                <Link
+                  href="/app/settings/integrations"
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  Connect GitHub
+                </Link>
+              )}
+            </div>
+
+            {githubStatus?.connected && (
+              <>
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="checkbox"
+                    id="linkGitHub"
+                    checked={linkGitHub}
+                    onChange={(e) => {
+                      setLinkGitHub(e.target.checked);
+                      if (!e.target.checked) setSelectedRepo(null);
+                    }}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label htmlFor="linkGitHub" className="text-sm text-gray-600">
+                    Link this project to a repository
+                  </label>
+                </div>
+
+                {linkGitHub && (
+                  <div className="space-y-2">
+                    {reposLoading ? (
+                      <div className="flex items-center gap-2 text-sm text-gray-500 py-2">
+                        <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Loading repositories...
+                      </div>
+                    ) : (
+                      <select
+                        value={selectedRepo?.id?.toString() || ""}
+                        onChange={(e) => handleRepoSelect(e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      >
+                        <option value="">Select a repository...</option>
+                        {githubRepos?.map((repo) => (
+                          <option key={repo.id} value={repo.id}>
+                            {repo.full_name} {repo.language ? `(${repo.language})` : ""}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+
+                    {/* Repository info card */}
+                    {selectedRepo && (
+                      <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="flex items-center gap-2">
+                          <LinkIcon className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm font-medium text-gray-900">
+                            {selectedRepo.full_name}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 text-xs rounded-full ${
+                              selectedRepo.private
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-green-100 text-green-700"
+                            }`}
+                          >
+                            {selectedRepo.private ? "Private" : "Public"}
+                          </span>
+                        </div>
+                        <div className="mt-1 text-xs text-gray-500 flex flex-wrap gap-2">
+                          {selectedRepo.language && (
+                            <span className="flex items-center gap-1">
+                              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                              {selectedRepo.language}
+                            </span>
+                          )}
+                          <span>Branch: {selectedRepo.default_branch}</span>
+                          <span>Updated: {formatRepoDate(selectedRepo.updated_at)}</span>
+                        </div>
+                        {selectedRepo.description && (
+                          <p className="mt-2 text-xs text-gray-600 line-clamp-2">
+                            {selectedRepo.description}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+
+            {!githubStatus?.connected && (
+              <p className="text-xs text-gray-500 mt-1">
+                Connect your GitHub account to link repositories to projects.
+              </p>
+            )}
           </div>
 
           {/* Policy Pack Tier */}
@@ -304,7 +512,7 @@ function CreateProjectModal({
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={handleClose}

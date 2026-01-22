@@ -17,10 +17,12 @@ import {
   useTeamStats,
   useTeamMembers,
   useDeleteTeam,
+  useUpdateTeam,
   useAddTeamMember,
   useRemoveTeamMember,
   useUpdateMemberRole,
   type TeamMember,
+  type TeamUpdate,
 } from "@/hooks/useTeams";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -28,6 +30,7 @@ import {
   AGENTIC_MATURITY_META,
   type TeamRole,
   type AgenticMaturity,
+  type TeamSettings,
 } from "@/lib/types/team";
 
 // =============================================================================
@@ -401,6 +404,154 @@ function AddMemberModal({
   );
 }
 
+/**
+ * Edit Team Modal
+ * Sprint 91: Added edit functionality for team name/description/settings
+ */
+function EditTeamModal({
+  isOpen,
+  onClose,
+  team,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  team: { id: string; name: string; description: string | null; settings: TeamSettings };
+}) {
+  const updateTeam = useUpdateTeam(team.id);
+  const [name, setName] = useState(team.name);
+  const [description, setDescription] = useState(team.description || "");
+  const [agenticMaturity, setAgenticMaturity] = useState<AgenticMaturity>(
+    (team.settings?.agentic_maturity || "L0") as AgenticMaturity
+  );
+  const [error, setError] = useState<string | null>(null);
+
+  // Reset form when modal opens with new team data
+  useState(() => {
+    setName(team.name);
+    setDescription(team.description || "");
+    setAgenticMaturity((team.settings?.agentic_maturity || "L0") as AgenticMaturity);
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!name.trim()) {
+      setError("Team name is required");
+      return;
+    }
+
+    try {
+      const updateData: TeamUpdate = {
+        name: name.trim(),
+        description: description.trim() || null,
+        settings: {
+          ...team.settings,
+          agentic_maturity: agenticMaturity,
+        },
+      };
+      await updateTeam.mutateAsync(updateData);
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update team");
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+
+      <div className="relative z-10 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Edit Team</h2>
+          <button
+            onClick={onClose}
+            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          >
+            <XMarkIcon className="h-5 w-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="rounded-lg bg-red-50 border border-red-200 p-3">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+
+          <div>
+            <label htmlFor="teamName" className="block text-sm font-medium text-gray-700 mb-1">
+              Team Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="teamName"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter team name"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="teamDescription" className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            <textarea
+              id="teamDescription"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Team description (optional)"
+              rows={3}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="agenticMaturity" className="block text-sm font-medium text-gray-700 mb-1">
+              Agentic Maturity Level
+            </label>
+            <select
+              id="agenticMaturity"
+              value={agenticMaturity}
+              onChange={(e) => setAgenticMaturity(e.target.value as AgenticMaturity)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              {(["L0", "L1", "L2", "L3"] as AgenticMaturity[]).map((level) => (
+                <option key={level} value={level}>
+                  {AGENTIC_MATURITY_META[level].label}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-gray-500">
+              {AGENTIC_MATURITY_META[agenticMaturity].description}
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={updateTeam.isPending}
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {updateTeam.isPending ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function LoadingSpinner() {
   return (
     <div className="flex items-center justify-center py-12">
@@ -419,18 +570,20 @@ export default function TeamDetailPage() {
   const teamId = params.id as string;
 
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
+  const [isEditTeamOpen, setIsEditTeamOpen] = useState(false);
 
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { data: team, isLoading: teamLoading, error: teamError } = useTeam(teamId);
   const { data: stats } = useTeamStats(teamId);
   const { data: membersData } = useTeamMembers(teamId);
   const deleteTeam = useDeleteTeam();
-
   const members = membersData?.items || [];
   const maturity = (team?.settings?.agentic_maturity || "L0") as AgenticMaturity;
 
-  // Check if current user can manage team (placeholder - should check actual user role)
-  const canManage = true; // TODO: Check if user is owner/admin
+  // Check if current user can manage team based on their role in this team
+  // Sprint 91: Fixed P0 Security - was hardcoded to true
+  const currentUserMembership = members.find((m) => m.user_id === user?.id);
+  const canManage = currentUserMembership?.role === "owner" || currentUserMembership?.role === "admin";
 
   const handleDeleteTeam = async () => {
     if (confirm(`Are you sure you want to delete team "${team?.name}"? This action cannot be undone.`)) {
@@ -499,7 +652,10 @@ export default function TeamDetailPage() {
 
         {canManage && (
           <div className="flex items-center gap-2">
-            <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <button
+              onClick={() => setIsEditTeamOpen(true)}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
               <PencilIcon className="h-4 w-4" />
               Edit
             </button>
@@ -598,6 +754,15 @@ export default function TeamDetailPage() {
         onClose={() => setIsAddMemberOpen(false)}
         teamId={teamId}
       />
+
+      {/* Edit Team Modal - Sprint 91 */}
+      {team && (
+        <EditTeamModal
+          isOpen={isEditTeamOpen}
+          onClose={() => setIsEditTeamOpen(false)}
+          team={team}
+        />
+      )}
     </div>
   );
 }

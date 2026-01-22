@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { QueryProvider } from "@/app/providers/QueryProvider";
+import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Header } from "@/components/dashboard/Header";
 
@@ -79,7 +80,9 @@ export default function AppLayout({
     <QueryProvider>
       <AuthProvider>
         <AuthGuard>
-          <AppLayoutInner>{children}</AppLayoutInner>
+          <WorkspaceProvider>
+            <AppLayoutInner>{children}</AppLayoutInner>
+          </WorkspaceProvider>
         </AuthGuard>
       </AuthProvider>
     </QueryProvider>

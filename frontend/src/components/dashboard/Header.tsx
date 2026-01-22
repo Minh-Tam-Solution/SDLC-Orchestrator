@@ -13,6 +13,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useWorkspace } from "@/contexts/WorkspaceContext";
 
 function BellIcon({ className }: { className?: string }) {
   return (
@@ -60,6 +61,187 @@ function ChevronRightSmallIcon({ className }: { className?: string }) {
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
     </svg>
+  );
+}
+
+function BuildingOfficeIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+    </svg>
+  );
+}
+
+function UsersIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+    </svg>
+  );
+}
+
+function CheckIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+    </svg>
+  );
+}
+
+/**
+ * Workspace Switcher Component
+ * Sprint 91: Organization and Team selector in navbar
+ */
+function WorkspaceSwitcher() {
+  const [isOpen, setIsOpen] = useState(false);
+  const {
+    selectedOrganization,
+    selectedTeam,
+    organizations,
+    teams,
+    isLoadingOrganizations,
+    isLoadingTeams,
+    selectOrganization,
+    selectTeam,
+    hasOrganizations,
+  } = useWorkspace();
+
+  // Don't render if no organizations
+  if (!hasOrganizations && !isLoadingOrganizations) {
+    return null;
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm hover:bg-gray-50"
+      >
+        {isLoadingOrganizations ? (
+          <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
+        ) : (
+          <>
+            <BuildingOfficeIcon className="h-4 w-4 text-gray-500" />
+            <span className="max-w-[120px] truncate font-medium text-gray-700">
+              {selectedOrganization?.name || "Select Org"}
+            </span>
+            {selectedTeam && (
+              <>
+                <ChevronRightSmallIcon className="h-3 w-3 text-gray-400" />
+                <UsersIcon className="h-4 w-4 text-gray-500" />
+                <span className="max-w-[100px] truncate text-gray-600">
+                  {selectedTeam.name}
+                </span>
+              </>
+            )}
+            <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+          </>
+        )}
+      </button>
+
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute left-0 z-20 mt-2 w-72 origin-top-left rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+            {/* Organizations Section */}
+            <div className="border-b border-gray-100 p-2">
+              <p className="px-2 py-1 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                Organizations
+              </p>
+              <div className="max-h-48 overflow-y-auto">
+                {organizations.map((org) => (
+                  <button
+                    key={org.id}
+                    onClick={() => {
+                      selectOrganization(org.id);
+                    }}
+                    className={`flex w-full items-center justify-between rounded-md px-2 py-2 text-sm hover:bg-gray-50 ${
+                      selectedOrganization?.id === org.id
+                        ? "bg-blue-50 text-blue-700"
+                        : "text-gray-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <BuildingOfficeIcon className="h-4 w-4" />
+                      <span className="truncate">{org.name}</span>
+                    </div>
+                    {selectedOrganization?.id === org.id && (
+                      <CheckIcon className="h-4 w-4 text-blue-600" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Teams Section */}
+            {selectedOrganization && (
+              <div className="p-2">
+                <p className="px-2 py-1 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  Teams in {selectedOrganization.name}
+                </p>
+                <div className="max-h-48 overflow-y-auto">
+                  {isLoadingTeams ? (
+                    <div className="flex items-center justify-center py-4">
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+                    </div>
+                  ) : teams.length === 0 ? (
+                    <p className="px-2 py-2 text-sm text-gray-500">
+                      No teams in this organization
+                    </p>
+                  ) : (
+                    teams.map((team) => (
+                      <button
+                        key={team.id}
+                        onClick={() => {
+                          selectTeam(team.id);
+                          setIsOpen(false);
+                        }}
+                        className={`flex w-full items-center justify-between rounded-md px-2 py-2 text-sm hover:bg-gray-50 ${
+                          selectedTeam?.id === team.id
+                            ? "bg-blue-50 text-blue-700"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <UsersIcon className="h-4 w-4" />
+                          <span className="truncate">{team.name}</span>
+                        </div>
+                        {selectedTeam?.id === team.id && (
+                          <CheckIcon className="h-4 w-4 text-blue-600" />
+                        )}
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Quick Links */}
+            <div className="border-t border-gray-100 p-2">
+              <Link
+                href="/app/organizations"
+                onClick={() => setIsOpen(false)}
+                className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm text-gray-600 hover:bg-gray-50"
+              >
+                <BuildingOfficeIcon className="h-4 w-4" />
+                Manage Organizations
+              </Link>
+              <Link
+                href="/app/teams"
+                onClick={() => setIsOpen(false)}
+                className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm text-gray-600 hover:bg-gray-50"
+              >
+                <UsersIcon className="h-4 w-4" />
+                Manage Teams
+              </Link>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -179,6 +361,9 @@ export function Header() {
 
       {/* Right side - Actions */}
       <div className="flex items-center gap-4">
+        {/* Workspace Switcher - Sprint 91 */}
+        <WorkspaceSwitcher />
+
         {/* Notifications */}
         <button className="relative rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
           <BellIcon className="h-5 w-5" />
