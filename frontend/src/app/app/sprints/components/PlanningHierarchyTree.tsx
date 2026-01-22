@@ -3,19 +3,21 @@
  *
  * @module frontend/src/app/app/sprints/components/PlanningHierarchyTree
  * @description Interactive tree visualization of Roadmap → Phase → Sprint hierarchy
- * @sdlc SDLC 5.1.3 Framework - Sprint 87 (Days 6-7: Planning Hierarchy Visualization)
+ * @sdlc SDLC 5.1.3 Framework - Sprint 92 (Planning Hierarchy CRUD)
  * @reference SDLC 5.1.3 Pillar 2: Sprint Planning Governance
- * @status Sprint 87 - Core Feature Implementation
+ * @status Sprint 92 - Edit/Delete Actions Implementation
  */
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import type {
   PlanningHierarchyNode,
   SprintStatus,
   GateStatus,
+  Roadmap,
+  Phase,
 } from "@/lib/types/planning";
 import {
   getSprintStatusColor,
@@ -75,9 +77,50 @@ function CalendarDaysIcon({ className }: { className?: string }) {
   );
 }
 
+function EllipsisVerticalIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+    </svg>
+  );
+}
+
+function PencilIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+    </svg>
+  );
+}
+
+function TrashIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+    </svg>
+  );
+}
+
+function PlusIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    </svg>
+  );
+}
+
 // =============================================================================
 // TYPES
 // =============================================================================
+
+interface TreeNodeActions {
+  onEditRoadmap?: (roadmap: Roadmap) => void;
+  onDeleteRoadmap?: (roadmapId: string, roadmapName: string) => void;
+  onAddPhase?: (roadmapId: string, roadmapName: string) => void;
+  onEditPhase?: (phase: Phase) => void;
+  onDeletePhase?: (phaseId: string, phaseName: string, roadmapId?: string) => void;
+  onAddSprint?: (phaseId: string, phaseName: string) => void;
+}
 
 interface TreeNodeProps {
   node: PlanningHierarchyNode;
@@ -85,6 +128,68 @@ interface TreeNodeProps {
   expandedNodes: Set<string>;
   toggleNode: (nodeId: string) => void;
   activeSprintId?: string | null;
+  actions?: TreeNodeActions;
+}
+
+// =============================================================================
+// ACTION MENU COMPONENT
+// =============================================================================
+
+interface ActionMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}
+
+function ActionMenu({ isOpen, onClose, children }: ActionMenuProps) {
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      ref={menuRef}
+      className="absolute right-0 top-full z-50 mt-1 min-w-[140px] rounded-md border border-gray-200 bg-white py-1 shadow-lg"
+    >
+      {children}
+    </div>
+  );
+}
+
+interface ActionMenuItemProps {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  variant?: "default" | "danger";
+}
+
+function ActionMenuItem({ icon, label, onClick, variant = "default" }: ActionMenuItemProps) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex w-full items-center gap-2 px-3 py-1.5 text-sm transition-colors ${
+        variant === "danger"
+          ? "text-red-600 hover:bg-red-50"
+          : "text-gray-700 hover:bg-gray-100"
+      }`}
+    >
+      {icon}
+      {label}
+    </button>
+  );
 }
 
 // =============================================================================
@@ -153,11 +258,13 @@ function formatDateRange(startDate?: string, endDate?: string): string {
 // TREE NODE COMPONENT
 // =============================================================================
 
-function TreeNode({ node, level, expandedNodes, toggleNode, activeSprintId }: TreeNodeProps) {
+function TreeNode({ node, level, expandedNodes, toggleNode, activeSprintId, actions }: TreeNodeProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
   const isExpanded = expandedNodes.has(node.id);
   const hasChildren = node.children && node.children.length > 0;
   const isActive = node.id === activeSprintId;
   const metadata = node.metadata as Record<string, unknown> | undefined;
+  const hasActions = actions && (node.type === "roadmap" || node.type === "phase");
 
   // Extract status safely
   const status = node.status || (metadata?.status as string);
@@ -298,6 +405,124 @@ function TreeNode({ node, level, expandedNodes, toggleNode, activeSprintId }: Tr
             )}
           </div>
         )}
+
+        {/* Action Menu for Roadmap/Phase */}
+        {hasActions && (
+          <div className="relative">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen(!menuOpen);
+              }}
+              className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+              title="Actions"
+            >
+              <EllipsisVerticalIcon className="h-4 w-4 text-gray-500" />
+            </button>
+            <ActionMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)}>
+              {node.type === "roadmap" && (
+                <>
+                  {actions?.onAddPhase && (
+                    <ActionMenuItem
+                      icon={<PlusIcon className="h-4 w-4" />}
+                      label="Add Phase"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        actions.onAddPhase?.(node.id, node.name);
+                      }}
+                    />
+                  )}
+                  {actions?.onEditRoadmap && (
+                    <ActionMenuItem
+                      icon={<PencilIcon className="h-4 w-4" />}
+                      label="Edit Roadmap"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        const roadmap: Roadmap = {
+                          id: node.id,
+                          name: node.name,
+                          description: (metadata?.description as string) || null,
+                          project_id: (metadata?.project_id as string) || "",
+                          start_date: node.start_date || "",
+                          end_date: node.end_date || "",
+                          phases_count: (metadata?.phases_count as number) || 0,
+                          total_sprints: (metadata?.total_sprints as number) || 0,
+                          completed_sprints: (metadata?.completed_sprints as number) || 0,
+                          is_active: (metadata?.is_active as boolean) || false,
+                          created_at: (metadata?.created_at as string) || "",
+                          updated_at: (metadata?.updated_at as string) || "",
+                        };
+                        actions.onEditRoadmap?.(roadmap);
+                      }}
+                    />
+                  )}
+                  {actions?.onDeleteRoadmap && (
+                    <ActionMenuItem
+                      icon={<TrashIcon className="h-4 w-4" />}
+                      label="Delete"
+                      variant="danger"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        actions.onDeleteRoadmap?.(node.id, node.name);
+                      }}
+                    />
+                  )}
+                </>
+              )}
+              {node.type === "phase" && (
+                <>
+                  {actions?.onAddSprint && (
+                    <ActionMenuItem
+                      icon={<PlusIcon className="h-4 w-4" />}
+                      label="Add Sprint"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        actions.onAddSprint?.(node.id, node.name);
+                      }}
+                    />
+                  )}
+                  {actions?.onEditPhase && (
+                    <ActionMenuItem
+                      icon={<PencilIcon className="h-4 w-4" />}
+                      label="Edit Phase"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        const phase: Phase = {
+                          id: node.id,
+                          name: node.name,
+                          description: (metadata?.description as string) || null,
+                          roadmap_id: (metadata?.roadmap_id as string) || "",
+                          start_date: node.start_date || "",
+                          end_date: node.end_date || "",
+                          status: (status as Phase["status"]) || "planned",
+                          theme: (metadata?.theme as string) || null,
+                          sprints_count: (metadata?.sprints_count as number) || 0,
+                          sprints_completed: (metadata?.sprints_completed as number) || 0,
+                          order: (metadata?.order as number) || 0,
+                          created_at: (metadata?.created_at as string) || "",
+                          updated_at: (metadata?.updated_at as string) || "",
+                        };
+                        actions.onEditPhase?.(phase);
+                      }}
+                    />
+                  )}
+                  {actions?.onDeletePhase && (
+                    <ActionMenuItem
+                      icon={<TrashIcon className="h-4 w-4" />}
+                      label="Delete"
+                      variant="danger"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        const roadmapId = (metadata?.roadmap_id as string) || "";
+                        actions.onDeletePhase?.(node.id, node.name, roadmapId);
+                      }}
+                    />
+                  )}
+                </>
+              )}
+            </ActionMenu>
+          </div>
+        )}
       </div>
 
       {/* Children */}
@@ -311,6 +536,7 @@ function TreeNode({ node, level, expandedNodes, toggleNode, activeSprintId }: Tr
               expandedNodes={expandedNodes}
               toggleNode={toggleNode}
               activeSprintId={activeSprintId}
+              actions={actions}
             />
           ))}
         </div>
@@ -329,6 +555,18 @@ interface PlanningHierarchyTreeProps {
   projectName?: string;
   className?: string;
   defaultExpanded?: boolean;
+  /** Callback when user wants to edit a roadmap */
+  onEditRoadmap?: (roadmap: Roadmap) => void;
+  /** Callback when user wants to delete a roadmap */
+  onDeleteRoadmap?: (roadmapId: string, roadmapName: string) => void;
+  /** Callback when user wants to add a phase to a roadmap */
+  onAddPhase?: (roadmapId: string, roadmapName: string) => void;
+  /** Callback when user wants to edit a phase */
+  onEditPhase?: (phase: Phase) => void;
+  /** Callback when user wants to delete a phase */
+  onDeletePhase?: (phaseId: string, phaseName: string, roadmapId?: string) => void;
+  /** Callback when user wants to add a sprint to a phase */
+  onAddSprint?: (phaseId: string, phaseName: string) => void;
 }
 
 export function PlanningHierarchyTree({
@@ -337,7 +575,22 @@ export function PlanningHierarchyTree({
   projectName,
   className = "",
   defaultExpanded = true,
+  onEditRoadmap,
+  onDeleteRoadmap,
+  onAddPhase,
+  onEditPhase,
+  onDeletePhase,
+  onAddSprint,
 }: PlanningHierarchyTreeProps) {
+  // Combine actions for passing to TreeNode
+  const actions: TreeNodeActions = {
+    onEditRoadmap,
+    onDeleteRoadmap,
+    onAddPhase,
+    onEditPhase,
+    onDeletePhase,
+    onAddSprint,
+  };
   // Initialize expanded nodes - expand all by default if defaultExpanded is true
   const initialExpanded = useMemo(() => {
     if (!defaultExpanded) return new Set<string>();
@@ -476,6 +729,7 @@ export function PlanningHierarchyTree({
               expandedNodes={expandedNodes}
               toggleNode={toggleNode}
               activeSprintId={activeSprintId}
+              actions={actions}
             />
           ))}
         </div>

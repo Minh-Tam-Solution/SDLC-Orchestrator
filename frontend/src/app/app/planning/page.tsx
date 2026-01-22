@@ -13,9 +13,23 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useProjects } from "@/hooks/useProjects";
-import { usePlanningHierarchy, useSprints } from "@/hooks/usePlanningHierarchy";
+import {
+  usePlanningHierarchy,
+  useSprints,
+  useDeleteRoadmap,
+  useDeletePhase,
+} from "@/hooks/usePlanningHierarchy";
 import { PlanningHierarchyTree, SprintTimeline } from "@/app/app/sprints/components";
 import { RoadmapModal, PhaseModal } from "./components";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import type { Roadmap, Phase } from "@/lib/types/planning";
 
 // =============================================================================
@@ -143,6 +157,71 @@ function StatsCards({
 }
 
 // =============================================================================
+// DELETE CONFIRMATION DIALOG
+// =============================================================================
+
+interface DeleteConfirmDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description: string;
+  itemName: string;
+  onConfirm: () => void;
+  isDeleting: boolean;
+}
+
+function DeleteConfirmDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  itemName,
+  onConfirm,
+  isDeleting,
+}: DeleteConfirmDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-red-600">
+            <ExclamationTriangleIcon className="h-5 w-5" />
+            {title}
+          </DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <div className="py-4">
+          <p className="text-sm text-gray-700">
+            You are about to delete:{" "}
+            <span className="font-semibold">&quot;{itemName}&quot;</span>
+          </p>
+          <p className="mt-2 text-sm text-red-600">
+            This action cannot be undone. All child items will also be deleted.
+          </p>
+        </div>
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isDeleting}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={onConfirm}
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// =============================================================================
 // LOADING SKELETON
 // =============================================================================
 
@@ -176,9 +255,26 @@ export default function PlanningPage() {
   const [selectedRoadmapId, setSelectedRoadmapId] = useState<string | null>(null);
   const [selectedRoadmapName, setSelectedRoadmapName] = useState<string>("");
 
+  // Delete confirmation states
+  const [deleteRoadmapDialog, setDeleteRoadmapDialog] = useState<{
+    open: boolean;
+    id: string;
+    name: string;
+  }>({ open: false, id: "", name: "" });
+  const [deletePhaseDialog, setDeletePhaseDialog] = useState<{
+    open: boolean;
+    id: string;
+    name: string;
+    roadmapId: string;
+  }>({ open: false, id: "", name: "", roadmapId: "" });
+
   // Get first project
   const { data: projects, isLoading: isLoadingProjects } = useProjects();
   const firstProject = projects?.[0];
+
+  // Delete mutations
+  const deleteRoadmapMutation = useDeleteRoadmap();
+  const deletePhaseMutation = useDeletePhase();
 
   // Get planning hierarchy
   const {
@@ -254,6 +350,73 @@ export default function PlanningPage() {
     )?.children?.find((phase) => phase.children?.find((s) => s.id === sprint.id))?.name,
   }));
 
+  // ===========================================================================
+  // ACTION HANDLERS
+  // ===========================================================================
+
+  const handleEditRoadmap = (roadmap: Roadmap) => {
+    setEditingRoadmap(roadmap);
+    setRoadmapModalOpen(true);
+  };
+
+  const handleDeleteRoadmap = (roadmapId: string, roadmapName: string) => {
+    setDeleteRoadmapDialog({ open: true, id: roadmapId, name: roadmapName });
+  };
+
+  const handleConfirmDeleteRoadmap = async () => {
+    if (!firstProject?.id) return;
+    try {
+      await deleteRoadmapMutation.mutateAsync({
+        id: deleteRoadmapDialog.id,
+        projectId: firstProject.id,
+      });
+      setDeleteRoadmapDialog({ open: false, id: "", name: "" });
+    } catch (error) {
+      console.error("Failed to delete roadmap:", error);
+    }
+  };
+
+  const handleAddPhase = (roadmapId: string, roadmapName: string) => {
+    setSelectedRoadmapId(roadmapId);
+    setSelectedRoadmapName(roadmapName);
+    setEditingPhase(null);
+    setPhaseModalOpen(true);
+  };
+
+  const handleEditPhase = (phase: Phase) => {
+    setEditingPhase(phase);
+    setSelectedRoadmapId(phase.roadmap_id);
+    setSelectedRoadmapName(""); // Will be looked up in modal if needed
+    setPhaseModalOpen(true);
+  };
+
+  const handleDeletePhase = (phaseId: string, phaseName: string, roadmapId?: string) => {
+    setDeletePhaseDialog({
+      open: true,
+      id: phaseId,
+      name: phaseName,
+      roadmapId: roadmapId || "",
+    });
+  };
+
+  const handleConfirmDeletePhase = async () => {
+    try {
+      await deletePhaseMutation.mutateAsync({
+        id: deletePhaseDialog.id,
+        roadmapId: deletePhaseDialog.roadmapId,
+      });
+      setDeletePhaseDialog({ open: false, id: "", name: "", roadmapId: "" });
+    } catch (error) {
+      console.error("Failed to delete phase:", error);
+    }
+  };
+
+  const handleAddSprint = (phaseId: string, phaseName: string) => {
+    // Navigate to sprint creation page or open sprint modal
+    // For now, navigate to sprints page with phase context
+    window.location.href = `/app/sprints?phaseId=${phaseId}&phaseName=${encodeURIComponent(phaseName)}`;
+  };
+
   return (
     <div className="p-6">
       {/* Header */}
@@ -309,6 +472,12 @@ export default function PlanningPage() {
           activeSprintId={hierarchy?.active_sprint_id}
           projectName={firstProject.name}
           defaultExpanded={true}
+          onEditRoadmap={handleEditRoadmap}
+          onDeleteRoadmap={handleDeleteRoadmap}
+          onAddPhase={handleAddPhase}
+          onEditPhase={handleEditPhase}
+          onDeletePhase={handleDeletePhase}
+          onAddSprint={handleAddSprint}
         />
       ) : (
         <SprintTimeline
@@ -352,6 +521,32 @@ export default function PlanningPage() {
         roadmapId={selectedRoadmapId || ""}
         roadmapName={selectedRoadmapName}
         phase={editingPhase}
+      />
+
+      {/* Delete Roadmap Confirmation */}
+      <DeleteConfirmDialog
+        open={deleteRoadmapDialog.open}
+        onOpenChange={(open) =>
+          setDeleteRoadmapDialog((prev) => ({ ...prev, open }))
+        }
+        title="Delete Roadmap"
+        description="This will permanently delete the roadmap and all its phases and sprints."
+        itemName={deleteRoadmapDialog.name}
+        onConfirm={handleConfirmDeleteRoadmap}
+        isDeleting={deleteRoadmapMutation.isPending}
+      />
+
+      {/* Delete Phase Confirmation */}
+      <DeleteConfirmDialog
+        open={deletePhaseDialog.open}
+        onOpenChange={(open) =>
+          setDeletePhaseDialog((prev) => ({ ...prev, open }))
+        }
+        title="Delete Phase"
+        description="This will permanently delete the phase and all its sprints."
+        itemName={deletePhaseDialog.name}
+        onConfirm={handleConfirmDeletePhase}
+        isDeleting={deletePhaseMutation.isPending}
       />
     </div>
   );
