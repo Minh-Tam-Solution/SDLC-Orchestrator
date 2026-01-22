@@ -173,9 +173,9 @@ See:
 |----------|------|-------|----------|--------|
 | **P1** | MinIO Object Lock config | DevOps | Jan 25 | ✅ **COMPLETE** (3 days ahead!) |
 | **P1** | GDPR vs Retention policy | Legal + PM | Feb 1 | ✅ **COMPLETE** (documentation ready) |
-| **P2** | Dynamic Context Injector | Backend | Feb 20 | ⏳ Sprint 83 partial |
-| **P2** | OpenCode wrapper design | CTO | Mar 1 | ⏳ Pending |
-| **P2** | PostgreSQL RLS | Backend | Feb 20 | ⏳ Pending |
+| **P2** | Dynamic Context Injector | Backend | Feb 20 | ✅ **COMPLETE** (Sprint 83 - ~2,760 LOC) |
+| **P2** | PostgreSQL RLS | Backend | Feb 20 | ✅ **COMPLETE** (Sprint 89 - ~1,128 LOC) |
+| **P2** | OpenCode wrapper design | CTO | Mar 1 | ⏳ Pending (CTO ownership) |
 
 **MinIO Object Lock Details (Jan 22, 2026):**
 - ✅ Created `evidence-vault-v2` with Object Lock enabled
@@ -184,6 +184,21 @@ See:
 - ✅ Backend configuration updated (`config.py`, `docker-compose.yml`)
 - ✅ Backend restarted and using new bucket
 - See: [MINIO-OBJECT-LOCK-EXECUTION-CHECKLIST.md](../../03-integrate/02-third-party/MINIO-OBJECT-LOCK-EXECUTION-CHECKLIST.md)
+
+**PostgreSQL RLS Details (Jan 22, 2026):**
+- ✅ Migration: `s89_001_rls_policies.py` (6 tables with RLS)
+- ✅ Tables: teams, projects, gates, gate_evidence, evidence_manifests, team_members
+- ✅ Middleware: `rls_context.py` with FastAPI integration
+- ✅ Tests: 10 integration tests for isolation verification
+- ✅ Security: Organization/team/project-based access control
+- ✅ Platform admin bypass for admin operations
+
+**Dynamic Context Injector Details (Sprint 83):**
+- ✅ EventBus: Type-safe pub/sub system (~230 LOC)
+- ✅ DynamicContextService: Gate-triggered AGENTS.md updates (~816 LOC)
+- ✅ ContextOverlayService: Multi-format delivery (~562 LOC)
+- ✅ 43 unit tests passing
+- See: [SPRINT-83-IMPLEMENTATION-SUMMARY.md](SPRINT-83-IMPLEMENTATION-SUMMARY.md)
 
 ---
 
