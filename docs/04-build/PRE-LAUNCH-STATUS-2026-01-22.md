@@ -229,34 +229,47 @@ c397961 feat(sprint-88): Days 4-8 Backend - Platform Admin Privacy (ADR-030) ✅
 
 ## 🎯 Next Steps (Priority Order)
 
+### Sprint Roadmap (Jan 22 - Feb 28)
+
+**Goal:** Achieve 95% Web coverage by Go/No-Go review
+
+| Sprint | Dates | Focus | SP | Coverage Gain |
+|--------|-------|-------|----|--------------| 
+| **90** | **Jan 22-24** | **Project Creation (Quick Win)** | **16** | **+2%** ✅ IN PROGRESS |
+| **91** | **Jan 25-30** | **Teams & Organizations UI** | **34** | **+15%** 📋 P0 |
+| **92** | **Jan 31-Feb 5** | **Planning Part 1 (Roadmap)** | **26** | **+10%** 📋 P1 |
+| **93** | **Feb 6-11** | **Planning Part 2 (Sprint)** | **29** | **+10%** 📋 P1 |
+| **94** | **Feb 12-17** | **AGENTS.md Web UI** | **21** | **+8%** 📋 P1 |
+| **95** | **Feb 18-23** | **Evidence Manifest UI** | **18** | **+7%** 📋 P1 |
+| **96** | **Feb 24-28** | **Advanced Analytics** | **13** | **+3%** 📋 P2 |
+
+**Total:** 6 sprints, 157 story points, +55% coverage  
+**Outcome:** Web coverage 53% → 95%
+
 ### Immediate (Today - Jan 22)
 
-- ⏳ **Optional:** Manual smoke testing of Sprint 88 in staging
-- ⏳ **Optional:** Execute MinIO Object Lock configuration (P1 task, 3 days ahead of deadline)
+- ⏳ Sprint 90 Day 2: GitHub repo selector + analysis display
+- ⏳ Create Sprint 91 tickets (Teams & Organizations UI)
+- ⏳ Customer outreach begins (CEO)
 
 ### This Week (Jan 23-28)
 
+- ✅ Sprint 90 Complete (Jan 24)
+- 🔄 **Sprint 91 Execute** (Jan 25-30): Teams CRUD + Member Management
 - ⏳ Fix 3 flaky E2E tests (Sprint 88 timing issues)
-- ⏳ Execute MinIO Object Lock configuration (Deadline: Jan 25)
-- ⏳ Execute integration tests when test DB infrastructure fixed
 
-### Next Week (Jan 29 - Feb 5)
+### Next 4 Weeks (Jan 29 - Feb 28)
 
-- ⏳ GDPR vs Retention policy documentation (Deadline: Feb 1)
+- 🔄 **Sprint 92-96 Execute:** Planning Hierarchy + AGENTS.md + Evidence Manifest + Analytics
 - ⏳ Customer outreach (first 2 LOI signatures for Go/No-Go)
-
-### February (Pre-Launch Polish)
-
-- ⏳ Dynamic Context Injector (P2, Deadline: Feb 20)
-- ⏳ PostgreSQL RLS policies (P2, Deadline: Feb 20)
-- ⏳ Full regression testing
-- ⏳ Security audit review
+- ⏳ Full regression testing across all new features
+- ⏳ Performance optimization (page load <2s)
 
 ### March (Launch Prep)
 
-- ⏳ OpenCode wrapper design (P2, Deadline: Mar 1)
 - ⏳ Soft launch (March 1, 2026)
 - ⏳ Public launch (March 15, 2026)
+- ⏳ Post-launch: CLI/VSCode enhancements (Sprint 97-102)
 
 ---
 
