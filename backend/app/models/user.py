@@ -60,7 +60,8 @@ class User(Base):
         - avatar_url: Profile picture URL (optional, from OAuth)
         - role: User role (ceo, cto, pm, dev, qa, etc.) [BUG #8 Fix]
         - is_active: Account status (True by default, False = suspended)
-        - is_superuser: Admin flag (CTO, CEO only)
+        - is_superuser: Admin flag (CTO, CEO only) [DEPRECATED - use is_platform_admin]
+        - is_platform_admin: Platform admin flag - manages system, CANNOT access customer data (Sprint 88)
         - mfa_enabled: MFA enrollment status
         - mfa_secret: TOTP secret (encrypted, 32-byte base32)
         - backup_codes: One-time recovery codes (10 codes, hashed)
@@ -124,6 +125,14 @@ class User(Base):
     # Account Status
     is_active = Column(Boolean, default=True, nullable=False, index=True)
     is_superuser = Column(Boolean, default=False, nullable=False)
+    is_platform_admin = Column(
+        Boolean,
+        default=False,
+        nullable=False,
+        server_default='false',
+        index=True,
+        comment='Platform admin - manages system operations, CANNOT access customer data (Sprint 88)'
+    )
 
     # Multi-Factor Authentication (MFA)
     mfa_enabled = Column(Boolean, default=False, nullable=False)

@@ -155,9 +155,10 @@ async def list_organizations(
     - **limit**: Max results per page (1-100, default 20)
     """
     service = OrganizationsService(db)
-    
-    # Non-superusers only see their organization
-    user_filter = None if current_user.is_superuser else current_user.id
+
+    # Sprint 88: Platform admins CANNOT access customer data
+    # Only regular admins (non-platform admins) can see all organizations
+    user_filter = None if (current_user.is_superuser and not current_user.is_platform_admin) else current_user.id
     
     orgs = await service.list_organizations(
         user_id=user_filter,
@@ -203,8 +204,10 @@ async def get_organization(
             detail=f"Organization {org_id} not found"
         )
     
-    # Check access: user must belong to org or be superuser
-    if not current_user.is_superuser and current_user.organization_id != org_id:
+    # Sprint 88: Platform admins CANNOT access customer data
+    # Check access: user must belong to org or be regular admin (not platform admin)
+    is_regular_admin = current_user.is_superuser and not current_user.is_platform_admin
+    if not is_regular_admin and current_user.organization_id != org_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have access to this organization"
@@ -284,9 +287,11 @@ async def get_organization_statistics(
     - **allowed_domains**: Email domain restrictions
     """
     service = OrganizationsService(db)
-    
-    # Check access
-    if not current_user.is_superuser and current_user.organization_id != org_id:
+
+    # Sprint 88: Platform admins CANNOT access customer data
+    # Check access: user must belong to org or be regular admin (not platform admin)
+    is_regular_admin = current_user.is_superuser and not current_user.is_platform_admin
+    if not is_regular_admin and current_user.organization_id != org_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have access to this organization"

@@ -627,11 +627,16 @@ async def get_current_user_profile(
             "name": "Nguyễn Văn Anh",
             "is_active": true,
             "is_superuser": false,
+            "is_platform_admin": false,
             "roles": ["Engineering Manager", "CTO"],
             "oauth_providers": ["github", "google"],
             "created_at": "2025-10-01T08:00:00Z",
             "last_login_at": "2025-11-28T10:30:00Z"
         }
+
+    Sprint 88: Platform Admin Privacy Fix
+        - is_platform_admin: Platform admins manage system operations but CANNOT access customer data
+        - is_superuser: DEPRECATED - legacy field, use is_platform_admin for privacy checks
 
     Errors:
         - 401 Unauthorized: Invalid or expired access token
@@ -655,6 +660,7 @@ async def get_current_user_profile(
         name=current_user.full_name,
         is_active=current_user.is_active,
         is_superuser=current_user.is_superuser,
+        is_platform_admin=current_user.is_platform_admin,
         roles=role_names,
         oauth_providers=oauth_providers,
         created_at=current_user.created_at,

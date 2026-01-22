@@ -527,3 +527,104 @@ def analytics_rate_limit():
         window_seconds=60,
         key_prefix="analytics",
     )
+
+
+# =========================================================================
+# Sprint 88: Platform Admin Access Control
+# =========================================================================
+
+
+def require_customer_user(
+    current_user: User = Depends(get_current_active_user),
+) -> User:
+    """
+    Dependency that ensures user is NOT a platform admin.
+
+    **Sprint 88: Platform Admin Privacy Fix**
+
+    Platform admins manage system operations but CANNOT access customer data.
+    This dependency blocks platform admins from customer data endpoints.
+
+    Args:
+        current_user: Authenticated user from get_current_active_user
+
+    Returns:
+        User: User object if not platform admin
+
+    Raises:
+        HTTPException(403): If user is platform admin
+
+    Usage:
+        @router.get("/projects")
+        async def list_projects(
+            user: User = Depends(require_customer_user),
+            db: AsyncSession = Depends(get_db)
+        ):
+            # user is guaranteed to NOT be platform admin
+            projects = await get_user_projects(user.id, db)
+            return projects
+
+    Security:
+        - Platform admins (is_platform_admin=True) get 403 Forbidden
+        - Regular users and regular admins can access
+        - Frontend already blocks UI, this is backend enforcement
+
+    Reference:
+        - Sprint 88 Day 4-5: Backend Migration
+        - Migration: s88_001_add_is_platform_admin
+        - ADR-030: Platform Admin Role Redesign
+    """
+    if current_user.is_platform_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Platform administrators cannot access customer data. "
+                   "This is a privacy protection measure implemented in Sprint 88.",
+        )
+    return current_user
+
+
+def get_user_organization_filter(
+    current_user: User = Depends(get_current_active_user),
+) -> Optional[UUID]:
+    """
+    Get organization filter based on user role.
+
+    **Sprint 88: Platform Admin Privacy Fix**
+
+    Determines which organizations a user can access based on their role.
+
+    Args:
+        current_user: Authenticated user
+
+    Returns:
+        None: If user is regular admin (can see all organizations)
+        UUID: organization_id if user is regular user or platform admin
+
+    Usage:
+        @router.get("/projects")
+        async def list_projects(
+            org_filter: Optional[UUID] = Depends(get_user_organization_filter),
+            db: AsyncSession = Depends(get_db)
+        ):
+            query = select(Project)
+            if org_filter:
+                query = query.where(Project.organization_id == org_filter)
+            projects = await db.execute(query)
+            return projects.scalars().all()
+
+    Logic:
+        - Regular admin (is_superuser=True, is_platform_admin=False): None (all orgs)
+        - Platform admin (is_platform_admin=True): user.organization_id (own org only)
+        - Regular user: user.organization_id (own org only)
+
+    Security:
+        - Platform admins isolated to their own organization
+        - Regular admins can manage all organizations
+        - Regular users only see their own organization
+    """
+    # Regular admin (non-platform): can see all organizations
+    if current_user.is_superuser and not current_user.is_platform_admin:
+        return None
+
+    # Platform admin or regular user: only their organization
+    return current_user.organization_id

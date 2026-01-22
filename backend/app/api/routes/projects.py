@@ -295,8 +295,9 @@ async def list_projects(
         .subquery()
     )
 
-    # Main query with LEFT JOIN to gate stats
-    result = await db.execute(
+    # Sprint 88: Platform admins CANNOT access customer data
+    # Build organization filter query
+    query = (
         select(
             Project,
             func.coalesce(gate_stats_subq.c.total_gates, 0).label("total_gates"),
@@ -306,7 +307,20 @@ async def list_projects(
         )
         .outerjoin(gate_stats_subq, Project.id == gate_stats_subq.c.project_id)
         .where(Project.deleted_at.is_(None))
-        .order_by(Project.updated_at.desc())
+    )
+
+    # Regular admin (non-platform): can see all projects
+    is_regular_admin = current_user.is_superuser and not current_user.is_platform_admin
+    if not is_regular_admin:
+        # Platform admin or regular user: only projects from their organization
+        # Filter through owner's organization_id
+        query = query.join(User, Project.owner_id == User.id).where(
+            User.organization_id == current_user.organization_id
+        )
+
+    # Execute query with ordering and pagination
+    result = await db.execute(
+        query.order_by(Project.updated_at.desc())
         .offset(skip)
         .limit(limit)
     )
@@ -443,7 +457,9 @@ async def update_project(
     )
     member = member_result.scalar_one_or_none()
 
-    if not member and not current_user.is_superuser:
+    # Sprint 88: Platform admins CANNOT access customer data
+    is_regular_admin = current_user.is_superuser and not current_user.is_platform_admin
+    if not member and not is_regular_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have permission to update this project",
@@ -498,8 +514,10 @@ async def delete_project(
             detail="Project not found",
         )
 
-    # Check if user is owner or superuser
-    if project.owner_id != current_user.id and not current_user.is_superuser:
+    # Sprint 88: Platform admins CANNOT access customer data
+    # Check if user is owner or regular admin (not platform admin)
+    is_regular_admin = current_user.is_superuser and not current_user.is_platform_admin
+    if project.owner_id != current_user.id and not is_regular_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only project owners can delete projects",
@@ -853,7 +871,9 @@ async def migrate_stages(
     )
     member = member_result.scalar_one_or_none()
 
-    if not member and not current_user.is_superuser:
+    # Sprint 88: Platform admins CANNOT access customer data
+    is_regular_admin = current_user.is_superuser and not current_user.is_platform_admin
+    if not member and not is_regular_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only project owners/admins can migrate stages",

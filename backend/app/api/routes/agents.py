@@ -221,11 +221,14 @@ async def list_agents_md_repos(
     from app.models.project import Project
     from app.models.agents_md import AgentsMdFile
 
+    # Sprint 88: Platform admins CANNOT access customer data
     # Build query for projects user has access to
     query = select(Project).where(Project.deleted_at.is_(None))
 
-    # Filter by user's organization if not superuser
-    if not current_user.is_superuser:
+    # Filter by user's organization (platform admins only see their org)
+    # Regular admins see all, platform admins + regular users see only their org
+    is_regular_admin = current_user.is_superuser and not current_user.is_platform_admin
+    if not is_regular_admin:
         query = query.where(Project.organization_id == current_user.organization_id)
 
     # Filter by specific project if provided
@@ -238,7 +241,7 @@ async def list_agents_md_repos(
 
     # Get total count
     count_query = select(func.count()).select_from(Project).where(Project.deleted_at.is_(None))
-    if not current_user.is_superuser:
+    if not is_regular_admin:
         count_query = count_query.where(Project.organization_id == current_user.organization_id)
     if project_id:
         count_query = count_query.where(Project.id == project_id)

@@ -239,7 +239,9 @@ async def check_project_access(
         )
         member = member_result.scalar_one_or_none()
 
-        if not member and not user.is_superuser:
+        # Sprint 88: Platform admins CANNOT access customer data
+        is_regular_admin = user.is_superuser and not user.is_platform_admin
+        if not member and not is_regular_admin:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You don't have permission to modify this project",
@@ -283,8 +285,9 @@ async def check_sprint_gate_authorization(
             detail="Project not found",
         )
 
-    # Superuser bypass
-    if user.is_superuser:
+    # Sprint 88: Regular admins bypass (platform admins do not)
+    is_regular_admin = user.is_superuser and not user.is_platform_admin
+    if is_regular_admin:
         return
 
     # If project has team, check team role authorization

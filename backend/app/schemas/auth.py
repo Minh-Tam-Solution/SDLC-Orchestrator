@@ -306,18 +306,24 @@ class UserProfile(BaseModel):
             "name": "Nguyễn Văn Anh",
             "is_active": true,
             "is_superuser": false,
+            "is_platform_admin": false,
             "roles": ["Engineering Manager", "CTO"],
             "oauth_providers": ["github", "google"],
             "created_at": "2025-10-01T08:00:00Z",
             "last_login_at": "2025-11-28T10:30:00Z"
         }
+
+    Sprint 88: Platform Admin Privacy Fix
+        - is_platform_admin: Platform admins manage system operations but CANNOT access customer data
+        - is_superuser: DEPRECATED - legacy field, use is_platform_admin for privacy checks
     """
 
     id: UUID = Field(..., description="User UUID")
     email: EmailStr = Field(..., description="User email address")
     name: str = Field(..., description="User full name")
     is_active: bool = Field(..., description="User active status")
-    is_superuser: bool = Field(default=False, description="Superuser flag")
+    is_superuser: bool = Field(default=False, description="Superuser flag (DEPRECATED - use is_platform_admin)")
+    is_platform_admin: bool = Field(default=False, description="Platform admin flag - manages system operations, CANNOT access customer data (Sprint 88)")
     roles: List[str] = Field(default_factory=list, description="List of role names")
     oauth_providers: List[str] = Field(
         default_factory=list, description="List of linked OAuth providers"

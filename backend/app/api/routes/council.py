@@ -701,8 +701,10 @@ async def request_council_decision(
 
     # Verify requester is current user or has admin access
     if request.requester_id != current_user.id:
-        # Check if user has admin rights
-        if not current_user.is_superuser:
+        # Sprint 88: Platform admins CANNOT access customer data
+        # Check if user has regular admin rights (not platform admin)
+        is_regular_admin = current_user.is_superuser and not current_user.is_platform_admin
+        if not is_regular_admin:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Cannot request decisions for other users",

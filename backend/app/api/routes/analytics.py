@@ -608,9 +608,11 @@ async def get_analytics_summary(
     from app.models.project import Project
     from app.models.agents_md import AgentsMdFile
 
+    # Sprint 88: Platform admins CANNOT access customer data
     # Query projects accessible to user
     projects_query = select(Project).where(Project.deleted_at.is_(None))
-    if not current_user.is_superuser:
+    is_regular_admin = current_user.is_superuser and not current_user.is_platform_admin
+    if not is_regular_admin:
         projects_query = projects_query.where(Project.organization_id == current_user.organization_id)
 
     projects_result = await db.execute(projects_query)
@@ -619,7 +621,7 @@ async def get_analytics_summary(
 
     # Query AGENTS.md files
     agents_md_query = select(AgentsMdFile)
-    if not current_user.is_superuser:
+    if not is_regular_admin:
         # Join with projects to filter by organization
         agents_md_query = agents_md_query.join(
             Project, AgentsMdFile.project_id == Project.id
