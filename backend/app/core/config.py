@@ -110,8 +110,15 @@ class Settings(BaseSettings):
     MINIO_PUBLIC_URL: str = "http://localhost:9010"  # Browser-accessible URL (mapped port)
     MINIO_ACCESS_KEY: str = "minioadmin"
     MINIO_SECRET_KEY: str = "minioadmin_changeme"
-    MINIO_BUCKET: str = "evidence-vault"
+    MINIO_BUCKET: str = "evidence-vault-v2"  # Sprint 82: Object Lock enabled (GOVERNANCE, 7 years)
     MINIO_SECURE: bool = False  # Use HTTPS (False for local dev)
+
+    # MinIO Object Lock Configuration (Sprint 82 - Pre-Launch Hardening)
+    # Configured: January 22, 2026 - P1 Task (Deadline: Jan 25, 2026)
+    # WORM Compliance: SEC 17a-4, FINRA 4511, GDPR Article 5(1)(e)
+    MINIO_OBJECT_LOCK_ENABLED: bool = True  # Object Lock (WORM) enabled
+    MINIO_RETENTION_DAYS: int = 2555  # 7 years retention (2555 days)
+    MINIO_RETENTION_MODE: str = "GOVERNANCE"  # GOVERNANCE allows privileged delete, COMPLIANCE never deletable
 
     # OPA (Open Policy Agent)
     # Port configurable via OPA_URL env var (default: 8181)

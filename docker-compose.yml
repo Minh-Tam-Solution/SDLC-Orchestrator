@@ -204,13 +204,19 @@ services:
 
       # MinIO S3 - AI-Platform Shared Service (Jan 8, 2026)
       # Container: ai-platform-minio on ai-net network
+      # Sprint 82 (Jan 22, 2026): Object Lock enabled on evidence-vault-v2
       MINIO_ENDPOINT: ai-platform-minio:9000
       # Public URL for browser-accessible presigned URLs (port 9020 exposed externally)
       MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://sdlc.nhatquangholding.com:9020}
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin_secure_2026}
-      MINIO_BUCKET: evidence-vault
+      MINIO_BUCKET: evidence-vault-v2
       MINIO_SECURE: "false"
+
+      # MinIO Object Lock Configuration (Sprint 82 - WORM Compliance)
+      MINIO_OBJECT_LOCK_ENABLED: "true"
+      MINIO_RETENTION_DAYS: "2555"
+      MINIO_RETENTION_MODE: "GOVERNANCE"
 
       # OPA
       OPA_URL: http://opa:8181
