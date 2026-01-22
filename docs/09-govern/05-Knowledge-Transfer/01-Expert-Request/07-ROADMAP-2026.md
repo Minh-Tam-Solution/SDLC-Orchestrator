@@ -145,7 +145,7 @@
 
 | Deliverable | Description |
 |-------------|-------------|
-| Performance Optimization | 100K concurrent users |
+| Performance Optimization | 100K concurrent users (designed for, 10K tested) |
 | High Availability | Multi-region deployment |
 | Disaster Recovery | RTO 4h, RPO 1h |
 | Documentation v2 | Complete user guides |

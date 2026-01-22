@@ -12,7 +12,7 @@
 | Tier | Price | Target Segment | Team Size | Included |
 |------|-------|----------------|-----------|----------|
 | **Free** | $0 | Solo/Learners | 1-2 users | 1 project, basic gates, community support |
-| **Founder** | $99/team/month | Vietnam SME | Unlimited | 1 product, IR-based codegen, email support |
+| **Founder** | $99/team/month | Vietnam SME | ≤5 users | 1 product, IR-based codegen, email support |
 | **Standard** | $30/user/month | Small Teams | 3-10 users | Unlimited projects, Evidence Vault, email support |
 | **Professional** | $60/user/month | Growth Teams | 10-50 users | SSO, advanced policies, priority support |
 | **Enterprise** | Custom | Large Orgs | 50+ users | Dedicated support, custom integrations, SLA |
@@ -23,7 +23,7 @@
 |-----------|-------|
 | **Price** | $99/team/month (~2.5M VND) |
 | **Target** | Vietnam SME, Non-tech founders, Startups <10 people |
-| **Seats** | Unlimited (flat team pricing) |
+| **Seats** | ≤5 users (flat team pricing, prevents arbitrage) |
 | **Projects** | 1 product (multiple repos for same product) |
 | **Included Features** | EP-06 IR-based codegen, Evidence Vault (10GB), Policy Guards |
 | **AI Codegen** | Native OSS (qwen2.5-coder) + BYO option |
@@ -32,6 +32,8 @@
 
 **Why Founder Plan?**: Expert feedback indicated per-seat pricing doesn't work for SME/non-tech founders. Flat team pricing removes adoption friction for Vietnam wedge strategy.
 
+**Arbitrage Prevention (Sprint 88 Fix)**: Limited to ≤5 users to prevent arbitrage with Standard plan. For 6+ users, Standard plan ($30/user) is more appropriate. This ensures: Founder ($99/5 users = $19.80/user) remains attractive for tiny teams, while Standard ($30/user) is better value for growing teams.
+
 ---
 
 ## 2. Feature Matrix by Tier
@@ -39,7 +41,7 @@
 | Feature | Free | Founder | Standard | Professional | Enterprise |
 |---------|------|---------|----------|--------------|------------|
 | **Projects** | 1 | 1 product | Unlimited | Unlimited | Unlimited |
-| **Users** | 2 | Unlimited | 10 | 50 | Unlimited |
+| **Users** | 2 | ≤5 users | 10 | 50 | Unlimited |
 | **Gates (G0.1-G4)** | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **Evidence Vault** | 1GB | 10GB | 10GB | 100GB | Unlimited |
 | **Policy Packs** | 3 built-in | 5 built-in | 10 built-in | All + custom | All + custom |

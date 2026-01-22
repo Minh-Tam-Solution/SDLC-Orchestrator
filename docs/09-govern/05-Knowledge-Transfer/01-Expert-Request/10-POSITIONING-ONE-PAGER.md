@@ -120,7 +120,7 @@
                          ↑
                          │
     Azure DevOps ●       │       ★ SDLC Orchestrator
-    GitLab ●             │         (Control Plane)
+    GitLab ●             │         (Governance Layer)
                          │
     ─────────────────────┼─────────────────────→
     Low AI               │              High AI

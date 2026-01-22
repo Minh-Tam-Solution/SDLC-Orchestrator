@@ -237,6 +237,70 @@ Request → Ollama (try, <100ms)
          Rule-based (guaranteed, 50ms)
 ```
 
+### 2.3 Gate Enforcement Mechanism - How We Block Merge
+
+**Question**: "GitHub App? Check Runs? Branch Protection? How do you actually BLOCK a merge?"
+
+**Current State (v1.0 - Advisory Mode)**:
+1. ✅ Webhook receives PR event (GitHub → SDLC Orchestrator)
+2. ✅ Orchestrator evaluates policies (OPA + Gate Engine)
+3. ✅ Posts GitHub Check Run with PASS/FAIL status + SDLC context overlay
+4. ⚠️ **DOES NOT block merge** - advisory only (neutral/success status)
+5. ✅ Manual decision: Developers see gate status, decide whether to merge
+
+**Enforcement Modes (Sprint 82 - Configurable)**:
+- **ADVISORY** (default): Posts Check Run but never blocks (neutral/success) ← **Current**
+- **BLOCKING**: Blocks merge if gates fail (failure status)
+- **STRICT**: Blocks merge + requires approval for bypass (action_required status)
+
+**Planned State (v1.1 - Q2 2026 - Blocking Mode)**:
+1. ✅ GitHub App with Checks API integration (Sprint 81 complete)
+2. 🔄 Per-project enforcement mode configuration (Sprint 82 in progress)
+3. ⏳ Required status check: "SDLC Gate Evaluation" (customer opt-in)
+4. ⏳ Branch protection rule enforces check (GitHub setting)
+5. ⏳ Auto-comment with detailed findings + remediation suggestions
+
+**Technical Implementation**:
+```
+GitHubCheckRunService (backend/app/services/github_check_run_service.py):
+  ├── create_check_run() → POST /repos/{owner}/{repo}/check-runs
+  │   ├── conclusion: "success" | "failure" | "action_required"
+  │   ├── output.title: "SDLC Gate Evaluation: PASS/FAIL"
+  │   └── output.annotations: SDLC context overlay (file-level findings)
+  │
+  ├── update_check_run() → PATCH /repos/{owner}/{repo}/check-runs/{id}
+  │   └── Updates status after gate re-evaluation
+  │
+  └── Enforcement logic:
+      - ADVISORY: conclusion = "success" or "neutral" (never blocks)
+      - BLOCKING: conclusion = "failure" (blocks merge if branch protection enabled)
+      - STRICT: conclusion = "action_required" (requires approval to bypass)
+```
+
+**Why Advisory First?**
+- **Gradual adoption**: Teams can see gate status without disruption (Sprint 81)
+- **Per-project control**: Projects opt-in when ready (Sprint 82)
+- **Zero risk**: No surprise merge blocks during initial rollout
+- **Proven value**: Teams see benefits before enforcement
+
+**Customer Requirement for Blocking Mode**:
+1. Enable GitHub App installation (OAuth flow)
+2. Configure enforcement mode in project settings (ADVISORY → BLOCKING)
+3. Add "SDLC Gate Evaluation" as required status check in GitHub branch protection
+4. ✅ Merge blocked until gates pass
+
+**Honest Assessment (Jan 2026)**:
+- ✅ GitHub Checks API: **Working** (Sprint 81 complete)
+- ✅ SDLC context overlay: **Working** (Sprint 80 complete)
+- ✅ Advisory mode: **Production ready** (100% of projects)
+- ⏳ Blocking mode: **In progress** (Sprint 82, per-project config)
+- ⏳ Branch Protection enforcement: **Customer opt-in** (requires GitHub repo admin)
+
+**Reference**:
+- [AI-Safety-Layer-v1.md](../../02-design/14-Technical-Specs/AI-Safety-Layer-v1.md) - Section 6: Gate Enforcement
+- [github_check_run_service.py](../../../backend/app/services/github_check_run_service.py) - Implementation
+- [SPRINT-82-HARDENING-EVIDENCE.md](../../04-build/02-Sprint-Plans/SPRINT-82-HARDENING-EVIDENCE.md) - Sprint 82 details
+
 ---
 
 ## 3. Technology Stack

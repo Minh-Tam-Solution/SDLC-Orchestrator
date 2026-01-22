@@ -489,12 +489,12 @@ Request → Ollama (try) → Claude (try) → GPT-4 (try) → Rule-based (guaran
 
 ### 4.2 Scalability Requirements
 
-| Dimension | Target | Approach |
-|-----------|--------|----------|
-| **Users** | 100K concurrent | Horizontal scaling, connection pooling |
-| **Projects** | 10K per tenant | Row-level security, indexed queries |
-| **Evidence** | 1TB per tenant | Object storage (MinIO), lazy loading |
-| **Policies** | 1000 per tenant | Policy caching, incremental evaluation |
+| Dimension | Target | Approach | Tested |
+|-----------|--------|----------|--------|
+| **Users** | 100K concurrent (designed for) | Horizontal scaling, connection pooling | 10K actual |
+| **Projects** | 10K per tenant | Row-level security, indexed queries | 1K actual |
+| **Evidence** | 1TB per tenant | Object storage (MinIO), lazy loading | 100GB actual |
+| **Policies** | 1000 per tenant | Policy caching, incremental evaluation | 110 actual |
 
 ### 4.3 Availability Requirements
 
@@ -516,7 +516,7 @@ Request → Ollama (try) → Claude (try) → GPT-4 (try) → Rule-based (guaran
 | **Error Handling** | No stack traces in production, structured logging | ✅ 100% |
 | **API Security** | Rate limiting, OpenAPI validation, CORS policy | ✅ 100% |
 
-**Compliance**: 260/264 OWASP ASVS Level 2 requirements (98.4%)
+**Compliance**: 260/264 OWASP ASVS Level 2 requirements (98.48%)
 
 ### 4.5 Compliance Requirements
 
