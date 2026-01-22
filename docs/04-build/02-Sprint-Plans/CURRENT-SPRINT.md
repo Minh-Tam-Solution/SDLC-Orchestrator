@@ -167,6 +167,24 @@ See:
 | Platform Admin Privacy | Role separation, no customer data access | ✅ Sprint 88 Complete (13 days ahead!) |
 | First customers | ≥2 committed (signed LOI) | ⏳ Business track |
 
+### Pre-Launch P1 Task Status (CTO Priority Order - Jan 22, 2026)
+
+| Priority | Task | Owner | Deadline | Status |
+|----------|------|-------|----------|--------|
+| **P1** | MinIO Object Lock config | DevOps | Jan 25 | ✅ **COMPLETE** (3 days ahead!) |
+| **P1** | GDPR vs Retention policy | Legal + PM | Feb 1 | ✅ **COMPLETE** (documentation ready) |
+| **P2** | Dynamic Context Injector | Backend | Feb 20 | ⏳ Sprint 83 partial |
+| **P2** | OpenCode wrapper design | CTO | Mar 1 | ⏳ Pending |
+| **P2** | PostgreSQL RLS | Backend | Feb 20 | ⏳ Pending |
+
+**MinIO Object Lock Details (Jan 22, 2026):**
+- ✅ Created `evidence-vault-v2` with Object Lock enabled
+- ✅ Configured GOVERNANCE mode, 7-year retention (2555 days)
+- ✅ WORM protection verified (test file protected until 2033-01-20)
+- ✅ Backend configuration updated (`config.py`, `docker-compose.yml`)
+- ✅ Backend restarted and using new bucket
+- See: [MINIO-OBJECT-LOCK-EXECUTION-CHECKLIST.md](../../03-integrate/02-third-party/MINIO-OBJECT-LOCK-EXECUTION-CHECKLIST.md)
+
 ---
 
 ## 📋 Upcoming Sprint Details
