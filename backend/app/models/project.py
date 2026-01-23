@@ -190,6 +190,10 @@ class Project(Base):
     framework_versions = relationship(
         "FrameworkVersion", back_populates="project", cascade="all, delete-orphan"
     )
+    # Maturity Assessments (Sprint 104)
+    maturity_assessments = relationship(
+        "AgenticMaturityAssessment", back_populates="project", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Project(id={self.id}, name={self.name}, slug={self.slug})>"
