@@ -270,9 +270,9 @@ Key Activities:
 | Sprint | Design Document | Lines | Status | Notes |
 |--------|----------------|-------|--------|-------|
 | **Sprint 97** | ADR-034 (Framework) | 307 | ✅ APPROVED | Methodology in Framework |
-| **Sprint 98** | SPRINT-98-PLANNING-SUBAGENT-DESIGN.md | 572 | ✅ COMPLETE | Retrospective doc |
-| **Sprint 99** | SPRINT-99-DESIGN.md | 553 | ✅ COMPLETE | Current sprint |
-| **Sprint 100** | SPRINT-100-FEEDBACK-LOOP-DESIGN.md | 1,009 | ✅ COMPLETE | Final sprint |
+| **Sprint 98** | Planning-Orchestrator-Service-Design.md | 572 | ✅ COMPLETE | Retrospective doc |
+| **Sprint 99** | Conformance-Check-Service-Design.md | 553 | ✅ COMPLETE | Current sprint |
+| **Sprint 100** | Feedback-Learning-Service-Design.md | 1,009 | ✅ COMPLETE | Final sprint |
 | **Total** | **4 documents** | **2,441** | **✅ 100%** | **All designs ready** |
 
 #### ADR-034 Updates (Framework):
@@ -751,7 +751,7 @@ results = await asyncio.gather(
 
 **🎯 Goal**: Complete Planning Sub-agent Implementation Part 2 with conformance checking, plan approval UI, and GitHub CI integration.
 
-**Design Document**: [SPRINT-99-DESIGN.md](docs/04-build/02-Sprint-Plans/SPRINT-99-DESIGN.md) (553 lines)
+**Design Document**: [Conformance-Check-Service-Design.md](docs/02-design/14-Technical-Specs/Conformance-Check-Service-Design.md) (553 lines)
 
 #### Sprint 99 Scope (24 SP total):
 

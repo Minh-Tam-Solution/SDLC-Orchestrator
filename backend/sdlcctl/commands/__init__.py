@@ -6,6 +6,7 @@ from .init import init_command
 from .report import report_command
 from .migrate import migrate_command
 from .generate import generate_command
+from .plan import plan_command
 
 __all__ = [
     "validate_command",
@@ -14,4 +15,5 @@ __all__ = [
     "report_command",
     "migrate_command",
     "generate_command",
+    "plan_command",
 ]

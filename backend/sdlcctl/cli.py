@@ -1,11 +1,11 @@
 """
 =========================================================================
-SDLC 5.0.0 Structure Validator CLI.
-SDLC Orchestrator - Sprint 52
+SDLC 5.2.0 Structure Validator CLI.
+SDLC Orchestrator - Sprint 98
 
-Version: 2.0.0
-Date: December 26, 2025
-Status: ACTIVE - Sprint 52 Magic Mode
+Version: 3.0.0
+Date: January 22, 2026
+Status: ACTIVE - Sprint 98 Planning Sub-agent
 Authority: Backend Team + CTO Approved
 
 Purpose:
@@ -13,11 +13,13 @@ Purpose:
 - Structure validation, fixing, and initialization
 - Code generation from AppBlueprint (Sprint 46)
 - Magic Mode - Natural language to code (Sprint 52)
+- Planning Mode - Sub-agent orchestration (Sprint 98)
 
 Usage:
     sdlcctl validate ./my-project
     sdlcctl generate blueprint.json -o ./output
     sdlcctl magic "Nhà hàng Phở 24" -o ./pho24
+    sdlcctl plan "Add OAuth2 authentication"
 =========================================================================
 """
 
@@ -32,6 +34,7 @@ from .commands.report import report_command
 from .commands.migrate import migrate_command
 from .commands.generate import generate_command
 from .commands.magic import magic_command
+from .commands.plan import plan_command
 from .commands.agents import (
     agents_init_command,
     agents_validate_command,
@@ -104,6 +107,9 @@ app.command(name="generate", help="Generate backend scaffold from AppBlueprint")
 )
 app.command(name="magic", help="Generate app from natural language (Vietnamese/English)")(
     magic_command
+)
+app.command(name="plan", help="Execute planning mode with sub-agent orchestration (Sprint 98)")(
+    plan_command
 )
 
 # Create agents sub-app for AGENTS.md commands (Sprint 80/81)
