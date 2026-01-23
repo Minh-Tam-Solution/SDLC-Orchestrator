@@ -341,7 +341,9 @@
       "Bash(__NEW_LINE_f9ad5cec510185e2__ curl -v http://localhost:8300/api/v1/auth/me -H \"Authorization: Bearer $TOKEN\")",
       "Bash(./test_sprint88_fix.sh)",
       "Bash(head:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(xargs sed -i 's|07-Continuous-Improvement|09-Continuous-Improvement|g' echo \"Path references updated \\(excluding 99-Legacy\\)\")",
+      "Bash(# Verify the path updates worked grep -l \"\"03-Templates-Tools\"\" *.md)"
     ],
     "deny": [],
     "ask": []

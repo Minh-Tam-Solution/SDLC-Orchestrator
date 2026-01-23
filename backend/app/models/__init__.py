@@ -124,6 +124,11 @@ from app.models.agents_md import AgentsMdFile, ContextOverlay
 # Evidence Manifest Hash Chain (Sprint 82) - 2 models
 from app.models.evidence_manifest import EvidenceManifest, EvidenceManifestVerification
 
+# Feedback Learning (Sprint 100 - EP-11) - 4 models
+from app.models.pr_learning import PRLearning
+from app.models.decomposition_hint import DecompositionHint, HintUsageLog
+from app.models.learning_aggregation import LearningAggregation
+
 __all__ = [
     # Base
     "Base",
@@ -227,4 +232,9 @@ __all__ = [
     # Evidence Manifest Hash Chain - Sprint 82 (2 models)
     "EvidenceManifest",
     "EvidenceManifestVerification",
+    # Feedback Learning - Sprint 100 EP-11 (4 models)
+    "PRLearning",
+    "DecompositionHint",
+    "HintUsageLog",
+    "LearningAggregation",
 ]

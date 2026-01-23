@@ -1336,6 +1336,61 @@ async def handle_webhook(
         else:
             message = f"Pull request #{pr.get('number')} {action} - repository not registered"
 
+    # Sprint 100 (EP-11): Handle pull_request_review_comment events -> Extract learnings
+    elif x_github_event == "pull_request_review_comment":
+        action = payload.get("action", "")
+        comment = payload.get("comment", {})
+        pr = payload.get("pull_request", {})
+        repo = payload.get("repository", {})
+
+        # Find project by repo full name
+        project = await _find_project_by_repo(db, repo_full_name)
+
+        if project and action == "created":
+            # Extract learning from review comment
+            learning_created = await _extract_learning_from_comment(
+                db=db,
+                project_id=project.id,
+                pr_number=pr.get("number"),
+                pr_title=pr.get("title"),
+                pr_url=pr.get("html_url"),
+                comment_body=comment.get("body"),
+                comment_path=comment.get("path"),
+                comment_line=comment.get("line") or comment.get("original_line"),
+                comment_diff_hunk=comment.get("diff_hunk"),
+                reviewer_login=comment.get("user", {}).get("login"),
+            )
+            if learning_created:
+                message = f"PR #{pr.get('number')} comment extracted as learning"
+            else:
+                message = f"PR #{pr.get('number')} comment processed (no learning extracted)"
+        else:
+            message = f"PR review comment {action}" if project else "PR review comment - repository not registered"
+
+    # Sprint 100 (EP-11): Handle merged PRs -> Auto-extract all review comments
+    elif x_github_event == "pull_request" and payload.get("action") == "closed":
+        pr = payload.get("pull_request", {})
+        repo = payload.get("repository", {})
+
+        if pr.get("merged"):
+            project = await _find_project_by_repo(db, repo_full_name)
+            if project:
+                learnings_extracted = await _extract_learnings_from_merged_pr(
+                    db=db,
+                    project_id=project.id,
+                    pr_number=pr.get("number"),
+                    pr_title=pr.get("title"),
+                    pr_url=pr.get("html_url"),
+                    pr_merged_at=pr.get("merged_at"),
+                    repo_owner=repo.get("owner", {}).get("login"),
+                    repo_name=repo.get("name"),
+                )
+                message = f"PR #{pr.get('number')} merged - {learnings_extracted} learnings extracted"
+            else:
+                message = f"PR #{pr.get('number')} merged - repository not registered"
+        else:
+            message = f"PR #{pr.get('number')} closed without merge"
+
     elif x_github_event == "push":
         commits = event["data"].get("commits", 0)
         ref = event["data"].get("ref", "").replace("refs/heads/", "")
@@ -1434,3 +1489,187 @@ async def _trigger_check_run(
     except Exception as e:
         logger.error(f"Failed to create Check Run: {e}")
         return False
+
+
+# ============================================================================
+# Sprint 100 (EP-11): Learning Extraction Helper Functions
+# ============================================================================
+
+
+async def _extract_learning_from_comment(
+    db: AsyncSession,
+    project_id: UUID,
+    pr_number: int,
+    pr_title: Optional[str],
+    pr_url: Optional[str],
+    comment_body: str,
+    comment_path: Optional[str],
+    comment_line: Optional[int],
+    comment_diff_hunk: Optional[str],
+    reviewer_login: Optional[str],
+) -> bool:
+    """
+    Extract a learning from a PR review comment.
+
+    Sprint 100 EP-11: Automatically extract learnings from code review comments.
+    Uses AI-powered extraction to categorize feedback and extract patterns.
+
+    Args:
+        db: Database session
+        project_id: SDLC Orchestrator project ID
+        pr_number: GitHub PR number
+        pr_title: PR title for context
+        pr_url: Full URL to the PR
+        comment_body: Review comment text
+        comment_path: File path where comment was made
+        comment_line: Line number of comment
+        comment_diff_hunk: Code context (diff hunk)
+        reviewer_login: GitHub username of reviewer
+
+    Returns:
+        True if learning was extracted, False otherwise
+    """
+    # Skip trivial comments (too short, just approval, etc.)
+    if not comment_body or len(comment_body.strip()) < 20:
+        logger.debug(f"Skipping trivial comment: too short")
+        return False
+
+    # Skip approval-only comments
+    approval_patterns = [
+        "lgtm", "looks good to me", "ship it", "approved", "nice!", "great work",
+        ":+1:", ":shipit:", ":rocket:", "👍", "🚀"
+    ]
+    comment_lower = comment_body.lower().strip()
+    if any(pattern in comment_lower for pattern in approval_patterns) and len(comment_lower) < 50:
+        logger.debug(f"Skipping approval comment")
+        return False
+
+    try:
+        from app.services.feedback_learning_service import get_feedback_learning_service
+
+        service = get_feedback_learning_service(db)
+
+        # Extract learning using AI
+        learning = await service.extract_learning_from_comment(
+            project_id=project_id,
+            pr_number=pr_number,
+            pr_title=pr_title,
+            pr_url=pr_url,
+            review_comment=comment_body,
+            file_path=comment_path,
+            line_number=comment_line,
+            code_context=comment_diff_hunk,
+            reviewer_github_login=reviewer_login,
+        )
+
+        if learning:
+            logger.info(
+                f"Extracted learning from PR #{pr_number} comment: "
+                f"type={learning.feedback_type}, severity={learning.severity}"
+            )
+            return True
+        else:
+            logger.debug(f"No learning extracted from PR #{pr_number} comment")
+            return False
+
+    except Exception as e:
+        logger.error(f"Failed to extract learning from comment: {e}")
+        return False
+
+
+async def _extract_learnings_from_merged_pr(
+    db: AsyncSession,
+    project_id: UUID,
+    pr_number: int,
+    pr_title: Optional[str],
+    pr_url: Optional[str],
+    pr_merged_at: Optional[str],
+    repo_owner: str,
+    repo_name: str,
+) -> int:
+    """
+    Extract all learnings from a merged PR's review comments.
+
+    Sprint 100 EP-11: When a PR is merged, fetch all review comments
+    and extract learnings from each significant comment.
+
+    Args:
+        db: Database session
+        project_id: SDLC Orchestrator project ID
+        pr_number: GitHub PR number
+        pr_title: PR title for context
+        pr_url: Full URL to the PR
+        pr_merged_at: ISO timestamp when PR was merged
+        repo_owner: Repository owner
+        repo_name: Repository name
+
+    Returns:
+        Number of learnings extracted
+    """
+    try:
+        # Get GitHub access token for API calls
+        # First, find a user with access to this project's repo
+        from app.models.user import OAuthAccount
+
+        result = await db.execute(
+            select(OAuthAccount).where(
+                OAuthAccount.provider == "github"
+            ).limit(1)  # Get first available GitHub connection
+        )
+        oauth_account = result.scalar_one_or_none()
+
+        if not oauth_account:
+            logger.warning(f"No GitHub connection available for fetching PR comments")
+            return 0
+
+        # Fetch all review comments for this PR
+        comments = github_service.get_pull_request_comments(
+            access_token=oauth_account.access_token,
+            owner=repo_owner,
+            repo=repo_name,
+            pr_number=pr_number,
+        )
+
+        learnings_count = 0
+        for comment in comments:
+            success = await _extract_learning_from_comment(
+                db=db,
+                project_id=project_id,
+                pr_number=pr_number,
+                pr_title=pr_title,
+                pr_url=pr_url,
+                comment_body=comment.get("body", ""),
+                comment_path=comment.get("path"),
+                comment_line=comment.get("line") or comment.get("original_line"),
+                comment_diff_hunk=comment.get("diff_hunk"),
+                reviewer_login=comment.get("user", {}).get("login"),
+            )
+            if success:
+                learnings_count += 1
+
+        # Update PR merged timestamp in learnings
+        if learnings_count > 0 and pr_merged_at:
+            from datetime import datetime
+            from app.models.pr_learning import PRLearning
+
+            merged_datetime = datetime.fromisoformat(pr_merged_at.replace("Z", "+00:00"))
+            await db.execute(
+                update(PRLearning)
+                .where(
+                    and_(
+                        PRLearning.project_id == project_id,
+                        PRLearning.pr_number == pr_number,
+                    )
+                )
+                .values(pr_merged_at=merged_datetime)
+            )
+            await db.commit()
+
+        logger.info(
+            f"Extracted {learnings_count} learnings from merged PR #{pr_number}"
+        )
+        return learnings_count
+
+    except Exception as e:
+        logger.error(f"Failed to extract learnings from merged PR: {e}")
+        return 0

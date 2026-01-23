@@ -2911,3 +2911,689 @@ export async function getPlanningSubagentHealth(): Promise<{
     "/planning/subagent/health"
   );
 }
+
+// =============================================================================
+// Sprint 100 (EP-11): Feedback Learning API
+// =============================================================================
+
+/**
+ * Feedback Types for PR review learnings
+ */
+export type FeedbackType =
+  | "pattern_violation"
+  | "missing_requirement"
+  | "edge_case"
+  | "performance"
+  | "security_issue"
+  | "test_coverage"
+  | "documentation"
+  | "refactoring"
+  | "other";
+
+/**
+ * Severity levels for learnings
+ */
+export type Severity = "low" | "medium" | "high" | "critical";
+
+/**
+ * Learning status values
+ */
+export type LearningStatus = "extracted" | "reviewed" | "applied" | "archived";
+
+/**
+ * Hint types for decomposition
+ */
+export type HintType =
+  | "pattern"
+  | "antipattern"
+  | "convention"
+  | "checklist"
+  | "dependency";
+
+/**
+ * Hint status values
+ */
+export type HintStatus = "active" | "deprecated" | "merged" | "archived";
+
+/**
+ * Aggregation period types
+ */
+export type AggregationPeriod = "weekly" | "monthly" | "quarterly";
+
+/**
+ * PR Learning entity
+ */
+export interface PRLearning {
+  id: string;
+  project_id: string;
+  pr_number: number;
+  pr_title: string | null;
+  pr_url: string | null;
+  pr_merged_at: string | null;
+  feedback_type: FeedbackType;
+  severity: Severity;
+  original_code: string | null;
+  original_spec_section: string | null;
+  review_comment: string;
+  corrected_approach: string | null;
+  pattern_extracted: string | null;
+  file_path: string | null;
+  line_start: number | null;
+  line_end: number | null;
+  related_adr: string | null;
+  reviewer_id: string | null;
+  reviewer_github_login: string | null;
+  status: LearningStatus;
+  applied_to_claude_md: boolean;
+  applied_to_decomposition: boolean;
+  applied_at: string | null;
+  ai_extracted: boolean;
+  ai_confidence: number | null;
+  ai_model: string | null;
+  tags: string[];
+  related_learnings: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Decomposition Hint entity
+ */
+export interface DecompositionHint {
+  id: string;
+  project_id: string;
+  hint_type: HintType;
+  category: string;
+  subcategory: string | null;
+  title: string;
+  description: string;
+  example_good: string | null;
+  example_bad: string | null;
+  rationale: string | null;
+  applies_to: string[];
+  languages: string[];
+  frameworks: string[];
+  source_learning_id: string | null;
+  aggregation_id: string | null;
+  confidence: number;
+  usage_count: number;
+  effectiveness_score: number | null;
+  prevented_errors: number;
+  last_used_at: string | null;
+  status: HintStatus;
+  deprecated_reason: string | null;
+  merged_into_id: string | null;
+  ai_generated: boolean;
+  ai_model: string | null;
+  human_verified: boolean;
+  verified_by: string | null;
+  verified_at: string | null;
+  tags: string[];
+  related_adrs: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Learning Aggregation entity
+ */
+export interface LearningAggregation {
+  id: string;
+  project_id: string;
+  period_type: AggregationPeriod;
+  period_start: string;
+  period_end: string;
+  total_learnings: number;
+  by_feedback_type: Record<string, number>;
+  by_severity: Record<string, number>;
+  top_patterns: Array<{
+    pattern: string;
+    count: number;
+    severity: string;
+  }>;
+  top_files: Array<{
+    file_path: string;
+    count: number;
+  }>;
+  claude_md_suggestions: Array<{
+    section: string;
+    content: string;
+    rationale: string;
+  }> | null;
+  decomposition_hints: Array<{
+    hint_type: string;
+    title: string;
+    description: string;
+  }> | null;
+  adr_recommendations: Array<{
+    title: string;
+    description: string;
+    priority: string;
+  }> | null;
+  status: string;
+  processed_at: string | null;
+  applied_at: string | null;
+  rejection_reason: string | null;
+  processed_by: string | null;
+  ai_model: string | null;
+  ai_processing_time_ms: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Learning list response with pagination
+ */
+export interface LearningListResponse {
+  items: PRLearning[];
+  total: number;
+  page: number;
+  per_page: number;
+  has_next: boolean;
+}
+
+/**
+ * Hints list response with pagination
+ */
+export interface HintListResponse {
+  items: DecompositionHint[];
+  total: number;
+  page: number;
+  per_page: number;
+  has_next: boolean;
+}
+
+/**
+ * Aggregation list response with pagination
+ */
+export interface AggregationListResponse {
+  items: LearningAggregation[];
+  total: number;
+  page: number;
+  per_page: number;
+  has_next: boolean;
+}
+
+/**
+ * Learning filter parameters
+ */
+export interface LearningFilterParams {
+  feedback_type?: FeedbackType;
+  severity?: Severity;
+  status?: LearningStatus;
+  pr_number?: number;
+  applied?: boolean;
+  ai_extracted?: boolean;
+  date_from?: string;
+  date_to?: string;
+  page?: number;
+  per_page?: number;
+}
+
+/**
+ * Hint filter parameters
+ */
+export interface HintFilterParams {
+  hint_type?: HintType;
+  category?: string;
+  status?: HintStatus;
+  verified_only?: boolean;
+  effective_only?: boolean;
+  page?: number;
+  per_page?: number;
+}
+
+/**
+ * Learning statistics
+ */
+export interface LearningStats {
+  total_learnings: number;
+  by_feedback_type: Record<string, number>;
+  by_severity: Record<string, number>;
+  by_status: Record<string, number>;
+  ai_extracted_count: number;
+  applied_to_claude_md: number;
+  applied_to_decomposition: number;
+  average_confidence: number | null;
+  top_patterns: Array<{ pattern: string; count: number }>;
+  top_files: Array<{ file: string; count: number }>;
+  recent_activity: Array<{
+    date: string;
+    count: number;
+  }>;
+}
+
+/**
+ * Manual learning creation request
+ */
+export interface CreateLearningRequest {
+  pr_number: number;
+  pr_title?: string;
+  pr_url?: string;
+  feedback_type: FeedbackType;
+  severity?: Severity;
+  review_comment: string;
+  original_code?: string;
+  original_spec_section?: string;
+  corrected_approach?: string;
+  pattern_extracted?: string;
+  file_path?: string;
+  line_start?: number;
+  line_end?: number;
+  related_adr?: string;
+  reviewer_github_login?: string;
+  tags?: string[];
+}
+
+/**
+ * Learning update request
+ */
+export interface UpdateLearningRequest {
+  feedback_type?: FeedbackType;
+  severity?: Severity;
+  corrected_approach?: string;
+  pattern_extracted?: string;
+  related_adr?: string;
+  status?: LearningStatus;
+  tags?: string[];
+}
+
+/**
+ * Hint creation request
+ */
+export interface CreateHintRequest {
+  hint_type: HintType;
+  category: string;
+  subcategory?: string;
+  title: string;
+  description: string;
+  example_good?: string;
+  example_bad?: string;
+  rationale?: string;
+  applies_to?: string[];
+  languages?: string[];
+  frameworks?: string[];
+  source_learning_id?: string;
+  confidence?: number;
+  tags?: string[];
+  related_adrs?: string[];
+}
+
+/**
+ * Hint update request
+ */
+export interface UpdateHintRequest {
+  title?: string;
+  description?: string;
+  example_good?: string;
+  example_bad?: string;
+  rationale?: string;
+  applies_to?: string[];
+  languages?: string[];
+  frameworks?: string[];
+  confidence?: number;
+  status?: HintStatus;
+  deprecated_reason?: string;
+  tags?: string[];
+  related_adrs?: string[];
+}
+
+/**
+ * Aggregation creation request
+ */
+export interface CreateAggregationRequest {
+  period_type: AggregationPeriod;
+  period_start: string;
+  period_end?: string;
+}
+
+// =============================================================================
+// Sprint 100 (EP-11): Learnings API Functions
+// =============================================================================
+
+/**
+ * Get learnings for a project
+ * Sprint 100: GET /projects/{project_id}/learnings
+ */
+export async function getLearnings(
+  projectId: string,
+  params?: LearningFilterParams
+): Promise<LearningListResponse> {
+  const searchParams = new URLSearchParams();
+  if (params?.feedback_type) searchParams.set("feedback_type", params.feedback_type);
+  if (params?.severity) searchParams.set("severity", params.severity);
+  if (params?.status) searchParams.set("status", params.status);
+  if (params?.pr_number) searchParams.set("pr_number", params.pr_number.toString());
+  if (params?.applied !== undefined) searchParams.set("applied", params.applied.toString());
+  if (params?.ai_extracted !== undefined)
+    searchParams.set("ai_extracted", params.ai_extracted.toString());
+  if (params?.date_from) searchParams.set("date_from", params.date_from);
+  if (params?.date_to) searchParams.set("date_to", params.date_to);
+  if (params?.page) searchParams.set("page", params.page.toString());
+  if (params?.per_page) searchParams.set("per_page", params.per_page.toString());
+
+  const queryString = searchParams.toString();
+  const endpoint = queryString
+    ? `/projects/${projectId}/learnings?${queryString}`
+    : `/projects/${projectId}/learnings`;
+
+  return apiRequest<LearningListResponse>(endpoint);
+}
+
+/**
+ * Get a single learning by ID
+ * Sprint 100: GET /projects/{project_id}/learnings/{learning_id}
+ */
+export async function getLearning(
+  projectId: string,
+  learningId: string
+): Promise<PRLearning> {
+  return apiRequest<PRLearning>(`/projects/${projectId}/learnings/${learningId}`);
+}
+
+/**
+ * Create a manual learning
+ * Sprint 100: POST /projects/{project_id}/learnings
+ */
+export async function createLearning(
+  projectId: string,
+  data: CreateLearningRequest
+): Promise<PRLearning> {
+  return apiRequest<PRLearning>(`/projects/${projectId}/learnings`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Update a learning
+ * Sprint 100: PATCH /projects/{project_id}/learnings/{learning_id}
+ */
+export async function updateLearning(
+  projectId: string,
+  learningId: string,
+  data: UpdateLearningRequest
+): Promise<PRLearning> {
+  return apiRequest<PRLearning>(`/projects/${projectId}/learnings/${learningId}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Delete a learning
+ * Sprint 100: DELETE /projects/{project_id}/learnings/{learning_id}
+ */
+export async function deleteLearning(
+  projectId: string,
+  learningId: string
+): Promise<void> {
+  return apiRequest<void>(`/projects/${projectId}/learnings/${learningId}`, {
+    method: "DELETE",
+  });
+}
+
+/**
+ * Get learning statistics for a project
+ * Sprint 100: GET /projects/{project_id}/learnings/stats
+ */
+export async function getLearningStats(projectId: string): Promise<LearningStats> {
+  return apiRequest<LearningStats>(`/projects/${projectId}/learnings/stats`);
+}
+
+/**
+ * Mark a learning as applied
+ * Sprint 100: POST /projects/{project_id}/learnings/{learning_id}/apply
+ */
+export async function applyLearning(
+  projectId: string,
+  learningId: string,
+  target: "claude_md" | "decomposition" | "both"
+): Promise<PRLearning> {
+  return apiRequest<PRLearning>(
+    `/projects/${projectId}/learnings/${learningId}/apply`,
+    {
+      method: "POST",
+      body: JSON.stringify({ target }),
+    }
+  );
+}
+
+// =============================================================================
+// Sprint 100 (EP-11): Hints API Functions
+// =============================================================================
+
+/**
+ * Get decomposition hints for a project
+ * Sprint 100: GET /projects/{project_id}/hints
+ */
+export async function getHints(
+  projectId: string,
+  params?: HintFilterParams
+): Promise<HintListResponse> {
+  const searchParams = new URLSearchParams();
+  if (params?.hint_type) searchParams.set("hint_type", params.hint_type);
+  if (params?.category) searchParams.set("category", params.category);
+  if (params?.status) searchParams.set("status", params.status);
+  if (params?.verified_only) searchParams.set("verified_only", "true");
+  if (params?.effective_only) searchParams.set("effective_only", "true");
+  if (params?.page) searchParams.set("page", params.page.toString());
+  if (params?.per_page) searchParams.set("per_page", params.per_page.toString());
+
+  const queryString = searchParams.toString();
+  const endpoint = queryString
+    ? `/projects/${projectId}/hints?${queryString}`
+    : `/projects/${projectId}/hints`;
+
+  return apiRequest<HintListResponse>(endpoint);
+}
+
+/**
+ * Get a single hint by ID
+ * Sprint 100: GET /projects/{project_id}/hints/{hint_id}
+ */
+export async function getHint(projectId: string, hintId: string): Promise<DecompositionHint> {
+  return apiRequest<DecompositionHint>(`/projects/${projectId}/hints/${hintId}`);
+}
+
+/**
+ * Create a new hint
+ * Sprint 100: POST /projects/{project_id}/hints
+ */
+export async function createHint(
+  projectId: string,
+  data: CreateHintRequest
+): Promise<DecompositionHint> {
+  return apiRequest<DecompositionHint>(`/projects/${projectId}/hints`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Update a hint
+ * Sprint 100: PATCH /projects/{project_id}/hints/{hint_id}
+ */
+export async function updateHint(
+  projectId: string,
+  hintId: string,
+  data: UpdateHintRequest
+): Promise<DecompositionHint> {
+  return apiRequest<DecompositionHint>(`/projects/${projectId}/hints/${hintId}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Verify a hint (human review)
+ * Sprint 100: POST /projects/{project_id}/hints/{hint_id}/verify
+ */
+export async function verifyHint(projectId: string, hintId: string): Promise<DecompositionHint> {
+  return apiRequest<DecompositionHint>(`/projects/${projectId}/hints/${hintId}/verify`, {
+    method: "POST",
+  });
+}
+
+/**
+ * Record hint usage during decomposition
+ * Sprint 100: POST /projects/{project_id}/hints/{hint_id}/usage
+ */
+export async function recordHintUsage(
+  projectId: string,
+  hintId: string,
+  data: {
+    decomposition_session_id?: string;
+    task_description?: string;
+    plan_generated?: string;
+  }
+): Promise<{ usage_id: string; hint_id: string }> {
+  return apiRequest<{ usage_id: string; hint_id: string }>(
+    `/projects/${projectId}/hints/${hintId}/usage`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    }
+  );
+}
+
+/**
+ * Provide feedback on hint usage
+ * Sprint 100: POST /projects/{project_id}/hints/{hint_id}/feedback
+ */
+export async function provideHintFeedback(
+  projectId: string,
+  hintId: string,
+  data: {
+    usage_id: string;
+    outcome: "prevented_error" | "no_effect" | "false_positive";
+    feedback?: string;
+    pr_id?: number;
+  }
+): Promise<DecompositionHint> {
+  return apiRequest<DecompositionHint>(
+    `/projects/${projectId}/hints/${hintId}/feedback`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    }
+  );
+}
+
+/**
+ * Get active hints for decomposition
+ * Sprint 100: GET /projects/{project_id}/hints/active
+ */
+export async function getActiveHints(
+  projectId: string,
+  context?: {
+    applies_to?: string[];
+    languages?: string[];
+    frameworks?: string[];
+    min_confidence?: number;
+  }
+): Promise<DecompositionHint[]> {
+  const searchParams = new URLSearchParams();
+  if (context?.applies_to) searchParams.set("applies_to", context.applies_to.join(","));
+  if (context?.languages) searchParams.set("languages", context.languages.join(","));
+  if (context?.frameworks) searchParams.set("frameworks", context.frameworks.join(","));
+  if (context?.min_confidence)
+    searchParams.set("min_confidence", context.min_confidence.toString());
+
+  const queryString = searchParams.toString();
+  const endpoint = queryString
+    ? `/projects/${projectId}/hints/active?${queryString}`
+    : `/projects/${projectId}/hints/active`;
+
+  return apiRequest<DecompositionHint[]>(endpoint);
+}
+
+// =============================================================================
+// Sprint 100 (EP-11): Aggregations API Functions
+// =============================================================================
+
+/**
+ * Get learning aggregations for a project
+ * Sprint 100: GET /projects/{project_id}/aggregations
+ */
+export async function getAggregations(
+  projectId: string,
+  params?: {
+    period_type?: AggregationPeriod;
+    status?: string;
+    page?: number;
+    per_page?: number;
+  }
+): Promise<AggregationListResponse> {
+  const searchParams = new URLSearchParams();
+  if (params?.period_type) searchParams.set("period_type", params.period_type);
+  if (params?.status) searchParams.set("status", params.status);
+  if (params?.page) searchParams.set("page", params.page.toString());
+  if (params?.per_page) searchParams.set("per_page", params.per_page.toString());
+
+  const queryString = searchParams.toString();
+  const endpoint = queryString
+    ? `/projects/${projectId}/aggregations?${queryString}`
+    : `/projects/${projectId}/aggregations`;
+
+  return apiRequest<AggregationListResponse>(endpoint);
+}
+
+/**
+ * Get a single aggregation by ID
+ * Sprint 100: GET /projects/{project_id}/aggregations/{aggregation_id}
+ */
+export async function getAggregation(
+  projectId: string,
+  aggregationId: string
+): Promise<LearningAggregation> {
+  return apiRequest<LearningAggregation>(
+    `/projects/${projectId}/aggregations/${aggregationId}`
+  );
+}
+
+/**
+ * Create a new aggregation
+ * Sprint 100: POST /projects/{project_id}/aggregations
+ */
+export async function createAggregation(
+  projectId: string,
+  data: CreateAggregationRequest
+): Promise<LearningAggregation> {
+  return apiRequest<LearningAggregation>(`/projects/${projectId}/aggregations`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Apply an aggregation (implement suggestions)
+ * Sprint 100: POST /projects/{project_id}/aggregations/{aggregation_id}/apply
+ */
+export async function applyAggregation(
+  projectId: string,
+  aggregationId: string
+): Promise<LearningAggregation> {
+  return apiRequest<LearningAggregation>(
+    `/projects/${projectId}/aggregations/${aggregationId}/apply`,
+    { method: "POST" }
+  );
+}
+
+/**
+ * Reject an aggregation
+ * Sprint 100: POST /projects/{project_id}/aggregations/{aggregation_id}/reject
+ */
+export async function rejectAggregation(
+  projectId: string,
+  aggregationId: string,
+  reason: string
+): Promise<LearningAggregation> {
+  return apiRequest<LearningAggregation>(
+    `/projects/${projectId}/aggregations/${aggregationId}/reject`,
+    {
+      method: "POST",
+      body: JSON.stringify({ reason }),
+    }
+  );
+}

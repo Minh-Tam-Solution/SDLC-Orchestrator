@@ -588,6 +588,94 @@ class GitHubService:
     # Rate Limiting
     # ============================================================================
 
+    # ============================================================================
+    # Sprint 100 (EP-11): Pull Request Comments
+    # ============================================================================
+
+    def get_pull_request_comments(
+        self,
+        access_token: str,
+        owner: str,
+        repo: str,
+        pr_number: int,
+    ) -> list[dict[str, Any]]:
+        """
+        Get all review comments on a pull request.
+
+        Sprint 100 EP-11: Fetch review comments for learning extraction.
+
+        Args:
+            access_token: GitHub OAuth access token
+            owner: Repository owner
+            repo: Repository name
+            pr_number: Pull request number
+
+        Returns:
+            List of review comment objects:
+            [
+                {
+                    "id": 12345,
+                    "body": "This should use async/await...",
+                    "path": "backend/app/services/example.py",
+                    "line": 42,
+                    "original_line": 40,
+                    "diff_hunk": "@@ -39,7 +39,7 @@...",
+                    "user": {"id": 123, "login": "reviewer"},
+                    "created_at": "2025-01-01T00:00:00Z"
+                }
+            ]
+
+        Example:
+            comments = github.get_pull_request_comments(
+                access_token="gho_...",
+                owner="org",
+                repo="project",
+                pr_number=123
+            )
+        """
+        return self._make_request(
+            method="GET",
+            endpoint=f"/repos/{owner}/{repo}/pulls/{pr_number}/comments",
+            access_token=access_token,
+        )
+
+    def get_pull_request(
+        self,
+        access_token: str,
+        owner: str,
+        repo: str,
+        pr_number: int,
+    ) -> dict[str, Any]:
+        """
+        Get pull request details.
+
+        Args:
+            access_token: GitHub OAuth access token
+            owner: Repository owner
+            repo: Repository name
+            pr_number: Pull request number
+
+        Returns:
+            Pull request object with full details
+
+        Example:
+            pr = github.get_pull_request(
+                access_token="gho_...",
+                owner="org",
+                repo="project",
+                pr_number=123
+            )
+        """
+        return self._make_request(
+            method="GET",
+            endpoint=f"/repos/{owner}/{repo}/pulls/{pr_number}",
+            access_token=access_token,
+        )
+
+    # ============================================================================
+    # Rate Limiting
+    # ============================================================================
+
     def get_rate_limit(self, access_token: str) -> dict[str, Any]:
         """
         Get current rate limit status.
