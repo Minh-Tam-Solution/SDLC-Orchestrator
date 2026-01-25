@@ -1011,94 +1011,99 @@ async def permanent_delete_user(
         request=request,
     )
 
-    # Permanently delete user using raw SQL to bypass ORM cascade loading
-    # Sprint 105: Use raw engine connection with autocommit to handle FK constraints
+    # Permanently delete user using raw SQL
+    # Sprint 105 Fix: Query database metadata to find ALL FK constraints dynamically
     from sqlalchemy import text
     from app.core.database import engine
+    import logging
 
+    logger = logging.getLogger(__name__)
     user_id_str = str(user_id)
 
-    # Use raw connection with autocommit for each statement
-    # This ensures FK updates are visible before DELETE
-    async with engine.connect() as conn:
-        # ===================================================================
-        # Step 1: SET NULL for tables with ondelete="SET NULL"
-        # ===================================================================
-        
-        # Set audit_logs.user_id to NULL to preserve audit history (SOC 2 compliance)
-        await conn.execute(
-            text("UPDATE audit_logs SET user_id = NULL WHERE user_id = :user_id"),
-            {"user_id": user_id_str}
-        )
-        await conn.commit()
-
-        # Handle projects FK constraint
-        await conn.execute(
-            text("UPDATE projects SET owner_id = NULL WHERE owner_id = :user_id"),
-            {"user_id": user_id_str}
-        )
-        await conn.commit()
-
-        # Handle all other tables with SET NULL constraint
-        tables_set_null = [
-            "agents_md", "ai_engines", "backlog_items", "codegen_usage",
-            "compliance_scans", "consultation_requests", "consultation_comments",
-            "council_sessions", "decomposition_hints", "framework_versions",
-            "gate_approvals", "learning_aggregations", "sast_scans",
-            "sast_scan_approvals", "sprints", "sprint_dependencies",
-            "support_tickets", "support_messages", "support_attachments",
-            "support_escalations"
-        ]
-        
-        for table in tables_set_null:
-            try:
-                # Some tables may have created_by, updated_by, assigned_to, etc.
-                # We'll try common column names
-                for col in ["created_by", "updated_by", "assigned_to", "user_id", 
-                           "requester_id", "reviewer_id", "approver_id", "owner_id",
-                           "resolved_by", "escalated_by", "applied_by", "triggered_by"]:
+    try:
+        async with engine.connect() as conn:
+            # ===================================================================
+            # Step 1: Query database for ALL tables/columns that reference users.id
+            # ===================================================================
+            fk_query = text("""
+                SELECT 
+                    tc.table_name,
+                    kcu.column_name,
+                    rc.update_rule,
+                    rc.delete_rule
+                FROM information_schema.table_constraints tc
+                JOIN information_schema.key_column_usage kcu 
+                    ON tc.constraint_name = kcu.constraint_name
+                    AND tc.table_schema = kcu.table_schema
+                JOIN information_schema.referential_constraints rc 
+                    ON tc.constraint_name = rc.constraint_name
+                    AND tc.table_schema = rc.constraint_schema
+                WHERE tc.constraint_type = 'FOREIGN KEY'
+                    AND kcu.referenced_table_name = 'users'
+                    AND kcu.referenced_column_name = 'id'
+                    AND tc.table_schema = DATABASE()
+            """)
+            
+            result = await conn.execute(fk_query)
+            fk_constraints = result.fetchall()
+            
+            logger.info(f"Found {len(fk_constraints)} FK constraints to users.id")
+            
+            # ===================================================================
+            # Step 2: Handle SET NULL constraints
+            # ===================================================================
+            for table_name, column_name, update_rule, delete_rule in fk_constraints:
+                if delete_rule == 'SET NULL':
                     try:
                         await conn.execute(
-                            text(f"UPDATE {table} SET {col} = NULL WHERE {col} = :user_id"),
+                            text(f"UPDATE {table_name} SET {column_name} = NULL WHERE {column_name} = :user_id"),
                             {"user_id": user_id_str}
                         )
-                    except Exception:
-                        # Column doesn't exist or other error, continue
-                        pass
-                await conn.commit()
-            except Exception:
-                # Table doesn't exist or other error, continue
-                pass
-
-        # ===================================================================
-        # Step 2: DELETE from tables with ondelete="CASCADE"
-        # ===================================================================
-        
-        tables_cascade = [
-            "oauth_accounts", "refresh_tokens", "resource_allocations",
-            "support_ticket_watchers", "usage_tracking", "user_sessions",
-            "page_views", "pilot_participants", "analytics_events"
-        ]
-        
-        for table in tables_cascade:
-            try:
-                await conn.execute(
-                    text(f"DELETE FROM {table} WHERE user_id = :user_id"),
-                    {"user_id": user_id_str}
-                )
-                await conn.commit()
-            except Exception:
-                # Table doesn't exist or other error, continue
-                pass
-
-        # ===================================================================
-        # Step 3: Delete the user - FK constraints should be satisfied
-        # ===================================================================
-        await conn.execute(
-            text("DELETE FROM users WHERE id = :user_id"),
-            {"user_id": user_id_str}
+                        await conn.commit()
+                        logger.info(f"SET NULL: {table_name}.{column_name}")
+                    except Exception as e:
+                        logger.warning(f"Failed to SET NULL on {table_name}.{column_name}: {e}")
+                        # Continue with other tables
+            
+            # Always set audit_logs.user_id to NULL (SOC 2 compliance)
+            await conn.execute(
+                text("UPDATE audit_logs SET user_id = NULL WHERE user_id = :user_id"),
+                {"user_id": user_id_str}
+            )
+            await conn.commit()
+            
+            # ===================================================================
+            # Step 3: Handle CASCADE deletes
+            # ===================================================================
+            for table_name, column_name, update_rule, delete_rule in fk_constraints:
+                if delete_rule == 'CASCADE':
+                    try:
+                        await conn.execute(
+                            text(f"DELETE FROM {table_name} WHERE {column_name} = :user_id"),
+                            {"user_id": user_id_str}
+                        )
+                        await conn.commit()
+                        logger.info(f"DELETE CASCADE: {table_name}.{column_name}")
+                    except Exception as e:
+                        logger.warning(f"Failed to CASCADE delete on {table_name}.{column_name}: {e}")
+                        # Continue with other tables
+            
+            # ===================================================================
+            # Step 4: Delete the user - FK constraints should be satisfied
+            # ===================================================================
+            await conn.execute(
+                text("DELETE FROM users WHERE id = :user_id"),
+                {"user_id": user_id_str}
+            )
+            await conn.commit()
+            logger.info(f"Successfully deleted user {user_id_str}")
+            
+    except Exception as e:
+        logger.error(f"Failed to permanently delete user {user_id_str}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to permanently delete user: {str(e)}"
         )
-        await conn.commit()
 
 
 # =========================================================================
