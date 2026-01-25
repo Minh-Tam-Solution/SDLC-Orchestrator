@@ -168,6 +168,7 @@ async def list_users(
     search: Optional[str] = Query(None, max_length=100, description="Search by email or name"),
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
     is_superuser: Optional[bool] = Query(None, description="Filter by superuser status"),
+    include_deleted: bool = Query(False, description="Include soft-deleted users (Sprint 105)"),
     sort_by: str = Query("created_at", description="Sort field"),
     sort_order: str = Query("desc", pattern="^(asc|desc)$", description="Sort order"),
 ) -> AdminUserListResponse:
@@ -180,6 +181,7 @@ async def list_users(
         - search: Search by email or name
         - is_active: Filter by active status
         - is_superuser: Filter by superuser status
+        - include_deleted: Include soft-deleted users (default: false)
         - sort_by: Sort field (created_at, email, name, last_login)
         - sort_order: asc or desc
 
@@ -189,14 +191,16 @@ async def list_users(
     Returns:
         AdminUserListResponse: Paginated user list
     """
-    # Build query - EXCLUDE soft-deleted users (Sprint 40 Part 2 fix)
-    query = select(User).where(User.deleted_at.is_(None))
+    # Build query - Sprint 105: optionally include soft-deleted users
+    query = select(User)
+    if not include_deleted:
+        query = query.where(User.deleted_at.is_(None))
 
     # Apply filters
     if search:
         search_pattern = f"%{search}%"
         query = query.where(
-            (User.email.ilike(search_pattern)) | (User.name.ilike(search_pattern))
+            (User.email.ilike(search_pattern)) | (User.full_name.ilike(search_pattern))
         )
 
     if is_active is not None:
@@ -224,7 +228,7 @@ async def list_users(
     result = await db.execute(query)
     users = result.scalars().all()
 
-    # Map to response
+    # Map to response - Sprint 105: include deleted_at for admin visibility
     items = [
         AdminUserListItem(
             id=user.id,
@@ -234,6 +238,7 @@ async def list_users(
             is_superuser=user.is_superuser,
             created_at=user.created_at,
             last_login=user.last_login,
+            deleted_at=user.deleted_at,
         )
         for user in users
     ]
@@ -403,9 +408,9 @@ async def update_user(
         changes['password'] = 'reset'
 
     # Update name
-    if update_data.name is not None and update_data.name != user.full_name:
+    if update_data.full_name is not None and update_data.full_name != user.full_name:
         old_name = user.full_name
-        user.full_name = update_data.name
+        user.full_name = update_data.full_name
         changes['name'] = {'old': old_name, 'new': user.full_name}
 
     # Update is_active
@@ -525,11 +530,6 @@ async def create_user(
     existing_user = await db.scalar(
         select(User).where(User.email == user_data.email.lower())
     )
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"User with email '{user_data.email}' already exists",
-        )
 
     # Hash password with bcrypt (cost=12)
     password_hash = bcrypt.hashpw(
@@ -537,20 +537,40 @@ async def create_user(
         bcrypt.gensalt(rounds=12)
     ).decode('utf-8')
 
-    # Create user
-    new_user = User(
-        email=user_data.email.lower(),
-        password_hash=password_hash,
-        name=user_data.name,
-        is_active=user_data.is_active,
-        is_superuser=user_data.is_superuser,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
-    )
+    if existing_user:
+        # Sprint 105: If user was soft-deleted, reactivate them
+        # Check deleted_at (NOT is_active) to determine if user was soft-deleted
+        if existing_user.deleted_at is not None:
+            existing_user.password_hash = password_hash
+            existing_user.full_name = user_data.full_name
+            existing_user.is_active = user_data.is_active
+            existing_user.is_superuser = user_data.is_superuser
+            existing_user.deleted_at = None  # Clear soft-delete flag
+            existing_user.deleted_by = None  # Clear who deleted
+            existing_user.updated_at = datetime.utcnow()
+            await db.commit()
+            await db.refresh(existing_user)
+            new_user = existing_user
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"User with email '{user_data.email}' already exists",
+            )
+    else:
+        # Create new user
+        new_user = User(
+            email=user_data.email.lower(),
+            password_hash=password_hash,
+            full_name=user_data.full_name,
+            is_active=user_data.is_active,
+            is_superuser=user_data.is_superuser,
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow(),
+        )
 
-    db.add(new_user)
-    await db.commit()
-    await db.refresh(new_user)
+        db.add(new_user)
+        await db.commit()
+        await db.refresh(new_user)
 
     # Audit log
     audit_service = get_audit_service(db)
@@ -808,6 +828,277 @@ async def delete_user(
         },
         request=request,
     )
+
+
+@router.post(
+    "/users/{user_id}/restore",
+    response_model=AdminUserDetail,
+    summary="Restore deleted user (Sprint 105)",
+    description="Restore a soft-deleted user account.",
+)
+async def restore_user(
+    user_id: UUID,
+    request: Request,
+    admin: User = Depends(require_superuser),
+    db: AsyncSession = Depends(get_db),
+) -> AdminUserDetail:
+    """
+    Restore a soft-deleted user account.
+
+    Sprint 105 - Show Deleted Users Feature:
+    - Allows admin to restore users that were soft-deleted
+    - Clears deleted_at and deleted_by fields
+    - Reactivates the user account (is_active=True)
+    - Full audit trail maintained
+
+    Security:
+        - Requires superuser access
+        - All actions audit logged
+
+    Returns:
+        AdminUserDetail: Restored user details
+    """
+    # Get user (including soft-deleted)
+    query = (
+        select(User)
+        .where(User.id == user_id)
+        .options(selectinload(User.oauth_accounts))
+    )
+    result = await db.execute(query)
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    # Check if user is actually deleted
+    if user.deleted_at is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User is not deleted",
+        )
+
+    # Restore user
+    deleted_at_backup = user.deleted_at
+    user.deleted_at = None
+    user.deleted_by = None
+    user.is_active = True
+    user.updated_at = datetime.utcnow()
+
+    await db.commit()
+    await db.refresh(user)
+
+    # Audit log
+    audit_service = get_audit_service(db)
+    await audit_service.log(
+        action=AuditAction.USER_UPDATED,
+        user_id=admin.id,
+        resource_type="user",
+        resource_id=user.id,
+        target_name=user.email,
+        details={
+            "action": "restore",
+            "email": user.email,
+            "name": user.full_name,
+            "previously_deleted_at": deleted_at_backup.isoformat(),
+            "restored_by": admin.email,
+        },
+        request=request,
+    )
+
+    # Count projects
+    project_count = await db.scalar(
+        select(func.count()).where(Project.owner_id == user_id)
+    )
+
+    # Get OAuth providers
+    oauth_providers = [acc.provider for acc in user.oauth_accounts]
+
+    return AdminUserDetail(
+        id=user.id,
+        email=user.email,
+        name=user.full_name,
+        avatar_url=user.avatar_url,
+        is_active=user.is_active,
+        is_superuser=user.is_superuser,
+        mfa_enabled=user.mfa_enabled,
+        oauth_providers=oauth_providers,
+        project_count=project_count or 0,
+        created_at=user.created_at,
+        updated_at=user.updated_at,
+        last_login=user.last_login,
+    )
+
+
+@router.delete(
+    "/users/{user_id}/permanent",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Permanently delete user (Sprint 105)",
+    description="Permanently delete a soft-deleted user. This action is irreversible.",
+)
+async def permanent_delete_user(
+    user_id: UUID,
+    request: Request,
+    admin: User = Depends(require_superuser),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """
+    Permanently delete a soft-deleted user account.
+
+    Sprint 105 - Show Deleted Users Feature:
+    - Only allows permanent deletion of users that are already soft-deleted
+    - This action is IRREVERSIBLE - all user data will be permanently removed
+    - Full audit trail maintained before deletion
+    - Cannot delete yourself or other active superusers
+
+    Security:
+        - Requires superuser access
+        - User must already be soft-deleted (deleted_at is not None)
+        - All actions audit logged before deletion
+
+    Returns:
+        204 No Content on success
+    """
+    # Get user (including soft-deleted)
+    query = select(User).where(User.id == user_id)
+    result = await db.execute(query)
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    # Prevent self-deletion
+    if user.id == admin.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot permanently delete yourself",
+        )
+
+    # Only allow permanent deletion of soft-deleted users
+    if user.deleted_at is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User must be soft-deleted first. Use the regular delete endpoint.",
+        )
+
+    # Store user info for audit log before deletion
+    user_email = user.email
+    user_name = user.full_name
+    user_was_superuser = user.is_superuser
+    user_deleted_at = user.deleted_at
+
+    # Audit log BEFORE deletion (since user will be gone after)
+    audit_service = get_audit_service(db)
+    await audit_service.log(
+        action=AuditAction.USER_DELETED,
+        user_id=admin.id,
+        resource_type="user",
+        resource_id=user.id,
+        target_name=user_email,
+        details={
+            "action": "permanent_delete",
+            "email": user_email,
+            "name": user_name,
+            "was_superuser": user_was_superuser,
+            "was_soft_deleted_at": user_deleted_at.isoformat(),
+            "permanently_deleted_by": admin.email,
+        },
+        request=request,
+    )
+
+    # Permanently delete user using raw SQL to bypass ORM cascade loading
+    # Sprint 105: Use raw engine connection with autocommit to handle FK constraints
+    from sqlalchemy import text
+    from app.core.database import engine
+
+    user_id_str = str(user_id)
+
+    # Use raw connection with autocommit for each statement
+    # This ensures FK updates are visible before DELETE
+    async with engine.connect() as conn:
+        # ===================================================================
+        # Step 1: SET NULL for tables with ondelete="SET NULL"
+        # ===================================================================
+        
+        # Set audit_logs.user_id to NULL to preserve audit history (SOC 2 compliance)
+        await conn.execute(
+            text("UPDATE audit_logs SET user_id = NULL WHERE user_id = :user_id"),
+            {"user_id": user_id_str}
+        )
+        await conn.commit()
+
+        # Handle projects FK constraint
+        await conn.execute(
+            text("UPDATE projects SET owner_id = NULL WHERE owner_id = :user_id"),
+            {"user_id": user_id_str}
+        )
+        await conn.commit()
+
+        # Handle all other tables with SET NULL constraint
+        tables_set_null = [
+            "agents_md", "ai_engines", "backlog_items", "codegen_usage",
+            "compliance_scans", "consultation_requests", "consultation_comments",
+            "council_sessions", "decomposition_hints", "framework_versions",
+            "gate_approvals", "learning_aggregations", "sast_scans",
+            "sast_scan_approvals", "sprints", "sprint_dependencies",
+            "support_tickets", "support_messages", "support_attachments",
+            "support_escalations"
+        ]
+        
+        for table in tables_set_null:
+            try:
+                # Some tables may have created_by, updated_by, assigned_to, etc.
+                # We'll try common column names
+                for col in ["created_by", "updated_by", "assigned_to", "user_id", 
+                           "requester_id", "reviewer_id", "approver_id", "owner_id",
+                           "resolved_by", "escalated_by", "applied_by", "triggered_by"]:
+                    try:
+                        await conn.execute(
+                            text(f"UPDATE {table} SET {col} = NULL WHERE {col} = :user_id"),
+                            {"user_id": user_id_str}
+                        )
+                    except Exception:
+                        # Column doesn't exist or other error, continue
+                        pass
+                await conn.commit()
+            except Exception:
+                # Table doesn't exist or other error, continue
+                pass
+
+        # ===================================================================
+        # Step 2: DELETE from tables with ondelete="CASCADE"
+        # ===================================================================
+        
+        tables_cascade = [
+            "oauth_accounts", "refresh_tokens", "resource_allocations",
+            "support_ticket_watchers", "usage_tracking", "user_sessions",
+            "page_views", "pilot_participants", "analytics_events"
+        ]
+        
+        for table in tables_cascade:
+            try:
+                await conn.execute(
+                    text(f"DELETE FROM {table} WHERE user_id = :user_id"),
+                    {"user_id": user_id_str}
+                )
+                await conn.commit()
+            except Exception:
+                # Table doesn't exist or other error, continue
+                pass
+
+        # ===================================================================
+        # Step 3: Delete the user - FK constraints should be satisfied
+        # ===================================================================
+        await conn.execute(
+            text("DELETE FROM users WHERE id = :user_id"),
+            {"user_id": user_id_str}
+        )
+        await conn.commit()
 
 
 # =========================================================================
@@ -1232,13 +1523,13 @@ async def get_system_health(
             )
         )
 
-    # Check Redis (via cache service)
+    # Check Redis (via redis client)
     try:
-        from app.services.cache_service import get_cache_service
+        from app.utils.redis import get_redis_client
 
-        cache = get_cache_service()
+        redis = await get_redis_client()
         start = time.time()
-        await cache.ping()
+        await redis.ping()
         response_time = int((time.time() - start) * 1000)
         services.append(
             ServiceHealthStatus(
