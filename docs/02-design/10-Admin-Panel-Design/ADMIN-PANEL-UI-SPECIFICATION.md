@@ -1,13 +1,15 @@
 # Admin Panel - UI Specification
 ## SDLC 5.1.3 Complete Lifecycle - Design Phase
 
-**Version**: 1.1.0
-**Date**: 2025-12-18
-**Status**: DESIGN - Sprint 40 Part 3 (Bulk Delete)
+**Version**: 1.3.0
+**Date**: 2026-01-25
+**Status**: DESIGN - Sprint 105 (Show Deleted Users + Permanent Delete)
 **Author**: Frontend Lead
 **Reviewer**: CTO
 
 **Changelog**:
+- v1.3.0 (Jan 25, 2026): Added Permanent Delete button + confirmation dialog (Sprint 105)
+- v1.2.0 (Jan 25, 2026): Added "Show Deleted" toggle + Restore button (Sprint 105)
 - v1.1.0 (Dec 18, 2025): Added Bulk Delete Selected Users UI (Sprint 40 Part 3)
 - v1.0.0 (Dec 16, 2025): Initial UI specification (Sprint 37)
 
@@ -86,7 +88,9 @@
 │        ────────────────                                        │
 │                                                                │
 │  ┌─────────────────────────────────────────────────────────┐  │
-│  │ [🔍 Search users...]  [Status ▼] [Role ▼]  [+ Add User] │  │
+│  │ [🔍 Search users...]  [Status ▼] [Role ▼] │ [🔄 Show    │  │
+│  │                                           │   Deleted]  │  │
+│  │                                     [+ Add User]        │  │
 │  └─────────────────────────────────────────────────────────┘  │
 │                                                                │
 │  ┌─────────────────────────────────────────────────────────┐  │
@@ -104,7 +108,7 @@
 └────────────────────────────────────────────────────────────────┘
 ```
 
-#### Action Menu (⋮)
+#### Action Menu (⋮) - Active Users
 ```
 ┌─────────────────┐
 │ 👁️ View Details │
@@ -116,6 +120,129 @@
 │ 🗑️ Delete       │
 └─────────────────┘
 ```
+
+#### Deleted User Row (Sprint 105 - NEW)
+
+When "Show Deleted" toggle is enabled, deleted users appear with:
+- **Badge**: Red "Deleted" badge instead of "Active/Inactive"
+- **Actions**: "Restore" button (green) + "Permanent Delete" button (red, dangerous)
+- **Checkbox**: Disabled (cannot be selected for bulk actions)
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│ ☐ │ Bob Wilson  │ bob@example.com │User │🔴Deleted│[🔄Restore] [🗑️Permanent]│
+│(disabled)                                                                │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+**Button Styles**:
+- **Restore**: `variant="outline"` with green text (`text-green-600`)
+- **Permanent Delete**: `variant="destructive"` (red background)
+
+#### Restore User Confirmation
+```
+┌──────────────────────────────────────┐
+│ 🔄 Restore User                      │
+│                                      │
+│ Are you sure you want to restore     │
+│ bob@example.com?                     │
+│                                      │
+│ This will:                           │
+│ • Clear soft-delete markers          │
+│ • Reactivate the user account        │
+│ • Allow the user to log in again     │
+│                                      │
+│            [Cancel]  [Restore User]  │
+└──────────────────────────────────────┘
+```
+
+#### Permanent Delete Confirmation (Sprint 105 - NEW)
+
+**CRITICAL**: This dialog requires double confirmation due to irreversible nature.
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ 🗑️ Permanently Delete User                                   │
+│                                                              │
+│ ⚠️ DANGER: This action is IRREVERSIBLE!                     │
+│                                                              │
+│ You are about to permanently delete:                         │
+│ ┌──────────────────────────────────────────────────────────┐│
+│ │ bob@example.com                                          ││
+│ │ User ID: 550e8400-e29b-41d4-a716-446655440000           ││
+│ └──────────────────────────────────────────────────────────┘│
+│                                                              │
+│ This will permanently remove:                                │
+│ • The user account and all personal data                     │
+│ • All associated records (projects, teams, evidence, etc.)   │
+│ • All audit trail entries will have user_id set to NULL      │
+│                                                              │
+│ ⚠️ This action CANNOT be undone!                            │
+│                                                              │
+│ Type "PERMANENTLY DELETE" to confirm:                        │
+│ ┌──────────────────────────────────────────────────────────┐│
+│ │ ___________________________                              ││
+│ └──────────────────────────────────────────────────────────┘│
+│                                                              │
+│                    [Cancel]  [Permanently Delete]            │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**UI Notes**:
+- Dialog title: Red text with warning icon
+- "DANGER" banner: Red background with white text
+- Delete button: `variant="destructive"` (red background)
+- Delete button disabled until exact phrase typed: "PERMANENTLY DELETE"
+- Input validation: Case-insensitive match
+- Loading state: "Deleting..." with spinner
+
+**Error States**:
+
+*User not soft-deleted*:
+```
+┌──────────────────────────────────────────────────────────────┐
+│ ❌ Cannot Permanently Delete                                  │
+│                                                              │
+│ This user is not soft-deleted.                               │
+│                                                              │
+│ You must soft-delete the user first before permanent         │
+│ deletion is allowed.                                         │
+│                                                              │
+│                                        [OK]                  │
+└──────────────────────────────────────────────────────────────┘
+```
+
+*Self-delete prevention*:
+```
+┌──────────────────────────────────────────────────────────────┐
+│ ❌ Cannot Delete Own Account                                  │
+│                                                              │
+│ You cannot permanently delete your own account.              │
+│                                                              │
+│                                        [OK]                  │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Success Toast**:
+```
+✅ User permanently deleted
+   bob@example.com has been permanently removed.
+```
+
+#### Show Deleted Toggle (Sprint 105 - NEW)
+```
+┌───────────────────────────────┐
+│ [🔄] Show Deleted             │
+│  ◯ OFF (default) - Hide deleted users
+│  ◉ ON - Include soft-deleted users
+└───────────────────────────────┘
+```
+
+**Behavior**:
+- Default: OFF (deleted users hidden)
+- When ON: All users including soft-deleted shown
+- Page resets to 1 when toggled
+- Persists during session but resets on page reload
 
 #### Bulk Action Bar (When users selected)
 ```
