@@ -18,11 +18,15 @@ interface APIError {
 }
 
 /**
- * Generic API request function
+ * Generic API request function with timeout support
+ * @param endpoint API endpoint
+ * @param options Fetch options
+ * @param timeout Timeout in milliseconds (default: 10000ms = 10s)
  */
 async function apiRequest<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  timeout: number = 10000
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
 
@@ -30,29 +34,64 @@ async function apiRequest<T>(
     "Content-Type": "application/json",
   };
 
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
-    credentials: "include", // Include cookies for auth
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({
-      detail: "An unexpected error occurred",
-    }));
-
-    const error: APIError = {
-      detail: errorData.detail || "Request failed",
-      status: response.status,
-    };
-
-    throw error;
+  // Sprint 105: Fallback to localStorage token if cookies don't work
+  // This handles cases where httpOnly cookies expire (15 min) but localStorage token is still valid
+  if (typeof window !== "undefined") {
+    const accessToken = localStorage.getItem("access_token");
+    if (accessToken) {
+      defaultHeaders["Authorization"] = `Bearer ${accessToken}`;
+    }
   }
 
-  return response.json();
+  // Create AbortController for timeout
+  const controller = new AbortController();
+  const startTime = Date.now();
+  const timeoutId = setTimeout(() => {
+    console.log(`[apiRequest] Timeout after ${timeout}ms for ${endpoint}`);
+    controller.abort();
+  }, timeout);
+
+  console.log(`[apiRequest] Starting ${options.method || 'GET'} ${endpoint} (timeout: ${timeout}ms)`);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...options.headers,
+      },
+      credentials: "include", // Include cookies for auth
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    console.log(`[apiRequest] Response ${response.status} for ${endpoint} in ${Date.now() - startTime}ms`);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({
+        detail: "An unexpected error occurred",
+      }));
+
+      const error: APIError = {
+        detail: errorData.detail || "Request failed",
+        status: response.status,
+      };
+
+      console.log("[apiRequest] Throwing error:", error);
+      throw error;
+    }
+
+    return response.json();
+  } catch (err) {
+    clearTimeout(timeoutId);
+    const elapsed = Date.now() - startTime;
+    if (err instanceof Error && err.name === "AbortError") {
+      console.log(`[apiRequest] Aborted after ${elapsed}ms for ${endpoint}`);
+      throw { detail: "Request timeout", status: 408 } as APIError;
+    }
+    console.log(`[apiRequest] Error after ${elapsed}ms for ${endpoint}:`, err);
+    throw err;
+  }
 }
 
 // =============================================================================
@@ -252,24 +291,42 @@ export interface OAuthCallbackRequest {
 
 /**
  * Get OAuth authorization URL
+ * Sprint 105: Increased timeout to 30s for OAuth operations
  */
 export async function getOAuthAuthorizeUrl(
   provider: "github" | "google"
 ): Promise<OAuthAuthorizeResponse> {
-  return apiRequest<OAuthAuthorizeResponse>(`/auth/oauth/${provider}/authorize`);
+  return apiRequest<OAuthAuthorizeResponse>(`/auth/oauth/${provider}/authorize`, {}, 30000);
 }
 
 /**
- * Exchange OAuth code for tokens
+ * Exchange OAuth code for tokens (for login/signup flow)
+ * Sprint 105: Increased timeout to 120s for OAuth token exchange
+ * External OAuth providers (GitHub, Google) may have network latency
  */
 export async function exchangeOAuthCode(
   provider: "github" | "google",
   data: OAuthCallbackRequest
 ): Promise<TokenResponse> {
+  console.log("[exchangeOAuthCode] Starting with 120s timeout for", provider);
   return apiRequest<TokenResponse>(`/auth/oauth/${provider}/callback`, {
     method: "POST",
     body: JSON.stringify(data),
-  });
+  }, 120000);
+}
+
+/**
+ * Exchange GitHub OAuth code for tokens (for connect flow from Settings)
+ * This uses the /github/callback endpoint which doesn't validate state encoding
+ * Sprint 105: Increased timeout to 30s for OAuth token exchange
+ */
+export async function exchangeGitHubConnectCode(
+  data: OAuthCallbackRequest
+): Promise<TokenResponse> {
+  return apiRequest<TokenResponse>(`/github/callback`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  }, 30000);
 }
 
 // =============================================================================
@@ -1140,7 +1197,8 @@ export async function getGitHubConnectionStatus(): Promise<GitHubConnectionStatu
 }
 
 export async function getGitHubRepositories(): Promise<GitHubRepository[]> {
-  return apiRequest<GitHubRepository[]>("/github/repos");
+  const response = await apiRequest<{ repositories: GitHubRepository[]; total: number }>("/github/repositories");
+  return response.repositories;
 }
 
 export async function getGitHubPullRequests(
@@ -1160,7 +1218,7 @@ export async function getGitHubPullRequests(
 
 export async function disconnectGitHub(): Promise<{ success: boolean }> {
   return apiRequest<{ success: boolean }>("/github/disconnect", {
-    method: "POST",
+    method: "DELETE",
   });
 }
 
