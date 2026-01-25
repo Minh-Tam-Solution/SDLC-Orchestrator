@@ -9,7 +9,7 @@
 
 "use client";
 
-import { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -148,6 +148,14 @@ function RoleBadge({ role }: { role: TeamRole }) {
   );
 }
 
+function CheckIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+    </svg>
+  );
+}
+
 function MemberRow({
   member,
   teamId,
@@ -158,19 +166,67 @@ function MemberRow({
   canManage: boolean;
 }) {
   const [showMenu, setShowMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const removeMember = useRemoveTeamMember(teamId);
   const updateRole = useUpdateMemberRole(teamId);
 
+  const handleOpenMenu = () => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const dropdownHeight = 280; // Approximate height of dropdown
+      const viewportHeight = window.innerHeight;
+      const spaceBelow = viewportHeight - rect.bottom;
+
+      // If not enough space below, position above
+      if (spaceBelow < dropdownHeight) {
+        setMenuPosition({
+          top: rect.top - dropdownHeight - 4,
+          left: rect.right - 224, // 224px = w-56 (14rem)
+        });
+      } else {
+        setMenuPosition({
+          top: rect.bottom + 4,
+          left: rect.right - 224,
+        });
+      }
+    }
+    setShowMenu(!showMenu);
+  };
+
   const handleRemove = async () => {
     if (confirm(`Remove ${member.user_name || member.user_email} from team?`)) {
-      await removeMember.mutateAsync(member.user_id);
+      try {
+        await removeMember.mutateAsync(member.user_id);
+      } catch (err: unknown) {
+        // Log error for debugging
+        console.error("[RemoveMember] Failed:", err);
+        // Show user-friendly error message
+        const errorMsg = err && typeof err === "object" && "detail" in err
+          ? (err as { detail: string }).detail
+          : "Failed to remove member. Please try again.";
+        alert(errorMsg);
+      }
     }
     setShowMenu(false);
   };
 
   const handleRoleChange = async (newRole: TeamRole) => {
+    // Skip if same role
+    if (newRole === member.role) {
+      setShowMenu(false);
+      return;
+    }
     await updateRole.mutateAsync({ userId: member.user_id, data: { role: newRole } });
     setShowMenu(false);
+  };
+
+  // Role descriptions for better UX
+  const roleDescriptions: Record<TeamRole, string> = {
+    owner: "Full control, can delete team",
+    admin: "Manage members and settings",
+    member: "View and contribute",
+    ai_agent: "AI automation agent",
   };
 
   return (
@@ -207,42 +263,79 @@ function MemberRow({
       </td>
       <td className="py-3 pl-4">
         {canManage && (
-          <div className="relative">
+          <>
             <button
-              onClick={() => setShowMenu(!showMenu)}
+              ref={buttonRef}
+              onClick={handleOpenMenu}
               className="rounded p-1 hover:bg-gray-100"
+              disabled={updateRole.isPending || removeMember.isPending}
             >
-              <EllipsisVerticalIcon className="h-5 w-5 text-gray-400" />
+              {updateRole.isPending ? (
+                <svg className="h-5 w-5 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+              ) : (
+                <EllipsisVerticalIcon className="h-5 w-5 text-gray-400" />
+              )}
             </button>
 
             {showMenu && (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 z-20 mt-1 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
-                  <div className="px-3 py-1.5 text-xs font-medium text-gray-500 uppercase">
-                    Change Role
+                <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+                <div
+                  className="fixed z-50 w-56 rounded-lg border border-gray-200 bg-white py-1 shadow-xl"
+                  style={{ top: menuPosition.top, left: menuPosition.left }}
+                >
+                  <div className="px-3 py-2 border-b border-gray-100">
+                    <p className="text-xs font-medium text-gray-500 uppercase">Change Role</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Select a new role for this member</p>
                   </div>
-                  {(["owner", "admin", "member"] as TeamRole[]).map((role) => (
-                    <button
-                      key={role}
-                      onClick={() => handleRoleChange(role)}
-                      disabled={member.role === role || member.member_type === "ai_agent" && (role === "owner" || role === "admin")}
-                      className="block w-full px-3 py-1.5 text-left text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {TEAM_ROLE_META[role].label}
-                    </button>
-                  ))}
+                  {(["owner", "admin", "member"] as TeamRole[]).map((role) => {
+                    const isCurrentRole = member.role === role;
+                    const isDisabledForAI = member.member_type === "ai_agent" && (role === "owner" || role === "admin");
+                    const isDisabled = isCurrentRole || isDisabledForAI;
+
+                    return (
+                      <button
+                        key={role}
+                        onClick={() => handleRoleChange(role)}
+                        disabled={isDisabled}
+                        className={`flex items-center justify-between w-full px-3 py-2 text-left text-sm transition-colors ${
+                          isCurrentRole
+                            ? "bg-blue-50 text-blue-700"
+                            : isDisabledForAI
+                              ? "opacity-40 cursor-not-allowed text-gray-400"
+                              : "hover:bg-gray-50 text-gray-700"
+                        }`}
+                      >
+                        <div>
+                          <p className={`font-medium ${isCurrentRole ? "text-blue-700" : ""}`}>
+                            {TEAM_ROLE_META[role].label}
+                          </p>
+                          <p className={`text-xs ${isCurrentRole ? "text-blue-500" : "text-gray-400"}`}>
+                            {roleDescriptions[role]}
+                          </p>
+                        </div>
+                        {isCurrentRole && (
+                          <CheckIcon className="h-4 w-4 text-blue-600 shrink-0" />
+                        )}
+                      </button>
+                    );
+                  })}
                   <div className="border-t border-gray-100 my-1" />
                   <button
                     onClick={handleRemove}
-                    className="block w-full px-3 py-1.5 text-left text-sm text-red-600 hover:bg-red-50"
+                    disabled={removeMember.isPending}
+                    className="flex items-center w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
                   >
+                    <TrashIcon className="h-4 w-4 mr-2" />
                     Remove from team
                   </button>
                 </div>
               </>
             )}
-          </div>
+          </>
         )}
       </td>
     </tr>
@@ -259,17 +352,31 @@ function AddMemberModal({
   teamId: string;
 }) {
   const addMember = useAddTeamMember(teamId);
-  const [userId, setUserId] = useState("");
+  const [userEmail, setUserEmail] = useState("");
   const [role, setRole] = useState<TeamRole>("member");
   const [memberType, setMemberType] = useState<"human" | "ai_agent">("human");
   const [error, setError] = useState<string | null>(null);
 
+  // Sprint 105 Fix: Get error from mutation state as fallback
+  // This ensures errors are displayed even if try/catch doesn't work properly
+  const mutationError = addMember.error as { detail?: string } | null;
+  const displayError = error || mutationError?.detail || (addMember.isError ? "Failed to add member" : null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    // Reset mutation error state
+    addMember.reset();
 
-    if (!userId.trim()) {
-      setError("User ID is required");
+    if (!userEmail.trim()) {
+      setError("User email is required");
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(userEmail.trim())) {
+      setError("Please enter a valid email address");
       return;
     }
 
@@ -280,17 +387,38 @@ function AddMemberModal({
     }
 
     try {
-      await addMember.mutateAsync({
-        user_id: userId.trim(),
+      console.log("[AddMember] Starting mutation with:", {
+        email: userEmail.trim(),
         role,
         member_type: memberType,
       });
+      await addMember.mutateAsync({
+        email: userEmail.trim(),
+        role,
+        member_type: memberType,
+      });
+      console.log("[AddMember] Mutation succeeded");
       onClose();
-      setUserId("");
+      setUserEmail("");
       setRole("member");
       setMemberType("human");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add member");
+    } catch (err: unknown) {
+      // Handle API errors (thrown as { detail, status } objects)
+      console.log("[AddMember] Caught error:", err);
+      console.log("[AddMember] Error type:", typeof err);
+      console.log("[AddMember] Has detail:", err && typeof err === "object" && "detail" in err);
+
+      if (err && typeof err === "object" && "detail" in err) {
+        const errorDetail = (err as { detail: string }).detail;
+        console.log("[AddMember] Setting error detail:", errorDetail);
+        setError(errorDetail);
+      } else if (err instanceof Error) {
+        console.log("[AddMember] Setting error message:", err.message);
+        setError(err.message);
+      } else {
+        console.log("[AddMember] Setting default error");
+        setError("Failed to add member");
+      }
     }
   };
 
@@ -312,22 +440,22 @@ function AddMemberModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
+          {displayError && (
             <div className="rounded-lg bg-red-50 border border-red-200 p-3">
-              <p className="text-sm text-red-700">{error}</p>
+              <p className="text-sm text-red-700">{displayError}</p>
             </div>
           )}
 
           <div>
-            <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-1">
-              User ID <span className="text-red-500">*</span>
+            <label htmlFor="userEmail" className="block text-sm font-medium text-gray-700 mb-1">
+              User Email <span className="text-red-500">*</span>
             </label>
             <input
-              type="text"
-              id="userId"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              placeholder="Enter user UUID"
+              type="email"
+              id="userEmail"
+              value={userEmail}
+              onChange={(e) => setUserEmail(e.target.value)}
+              placeholder="Enter user email address"
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
@@ -340,8 +468,13 @@ function AddMemberModal({
               id="memberType"
               value={memberType}
               onChange={(e) => {
-                setMemberType(e.target.value as "human" | "ai_agent");
-                if (e.target.value === "ai_agent" && (role === "owner" || role === "admin")) {
+                const newMemberType = e.target.value as "human" | "ai_agent";
+                setMemberType(newMemberType);
+                // AI Agent member type can ONLY have "ai_agent" role (SASE compliance)
+                if (newMemberType === "ai_agent") {
+                  setRole("ai_agent");
+                } else if (role === "ai_agent") {
+                  // Switching from AI Agent to Human, default to "member" role
                   setRole("member");
                 }
               }}
@@ -356,29 +489,28 @@ function AddMemberModal({
             <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
               Role
             </label>
-            <select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value as TeamRole)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              {memberType === "human" ? (
-                <>
-                  <option value="owner">Owner (SE4H Coach)</option>
-                  <option value="admin">Admin (SE4H Coach)</option>
-                  <option value="member">Member (SE4H Member)</option>
-                </>
-              ) : (
-                <>
-                  <option value="member">Member (SE4A Executor)</option>
-                  <option value="ai_agent">AI Agent (SE4A Executor)</option>
-                </>
-              )}
-            </select>
-            {memberType === "ai_agent" && (
-              <p className="mt-1 text-xs text-amber-600">
-                AI agents cannot be assigned owner or admin roles (SASE compliance)
-              </p>
+            {memberType === "ai_agent" ? (
+              // AI Agent: Fixed role, no selection needed (SASE compliance)
+              <>
+                <div className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+                  AI Agent (SE4A Executor)
+                </div>
+                <p className="mt-1 text-xs text-amber-600">
+                  AI agents are automatically assigned the AI Agent role (SASE compliance)
+                </p>
+              </>
+            ) : (
+              // Human: Can select from owner, admin, member
+              <select
+                id="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value as TeamRole)}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="owner">Owner (SE4H Coach)</option>
+                <option value="admin">Admin (SE4H Coach)</option>
+                <option value="member">Member (SE4H Member)</option>
+              </select>
             )}
           </div>
 

@@ -199,11 +199,17 @@ export function useAddTeamMember(teamId: string) {
   return useMutation({
     mutationFn: (data: TeamMemberAdd) => addTeamMember(teamId, data),
     onSuccess: () => {
+      console.log("[useAddTeamMember] onSuccess called");
       // Invalidate members list and team stats
       queryClient.invalidateQueries({ queryKey: teamKeys.members(teamId) });
       queryClient.invalidateQueries({ queryKey: teamKeys.stats(teamId) });
       // Invalidate team detail (members_count changes)
       queryClient.invalidateQueries({ queryKey: teamKeys.detail(teamId) });
+    },
+    onError: (error) => {
+      // Sprint 105: Added onError callback for debugging
+      // This ensures React Query properly handles the error state
+      console.log("[useAddTeamMember] onError called:", error);
     },
   });
 }
@@ -240,6 +246,14 @@ export function useRemoveTeamMember(teamId: string) {
       queryClient.invalidateQueries({ queryKey: teamKeys.members(teamId) });
       queryClient.invalidateQueries({ queryKey: teamKeys.stats(teamId) });
       // Invalidate team detail (members_count changes)
+      queryClient.invalidateQueries({ queryKey: teamKeys.detail(teamId) });
+    },
+    onError: (error) => {
+      // Sprint 105: Also invalidate queries on error to sync with backend state
+      // This handles cases where member was already deleted (404 error)
+      console.log("[useRemoveTeamMember] onError - refreshing list:", error);
+      queryClient.invalidateQueries({ queryKey: teamKeys.members(teamId) });
+      queryClient.invalidateQueries({ queryKey: teamKeys.stats(teamId) });
       queryClient.invalidateQueries({ queryKey: teamKeys.detail(teamId) });
     },
   });
