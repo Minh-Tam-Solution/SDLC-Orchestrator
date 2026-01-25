@@ -235,23 +235,83 @@ export function useUpdateMemberRole(teamId: string) {
 /**
  * Hook to remove member from team
  * Sprint 84: DELETE /teams/{team_id}/members/{user_id} - Admin/Owner only
+ * Sprint 105: Added optimistic updates to prevent stale UI after delete
  */
 export function useRemoveTeamMember(teamId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (userId: string) => removeTeamMember(teamId, userId),
+    mutationFn: (userId: string) => {
+      console.log("[useRemoveTeamMember] mutationFn called for userId:", userId);
+      return removeTeamMember(teamId, userId);
+    },
+    // Sprint 105: Optimistic update - immediately remove member from cache
+    // This prevents the "ghost member" issue where user clicks delete on stale data
+    onMutate: async (userId: string) => {
+      console.log("[useRemoveTeamMember] onMutate called for userId:", userId);
+      // Cancel any outgoing refetches to prevent overwriting optimistic update
+      await queryClient.cancelQueries({ queryKey: teamKeys.members(teamId) });
+      await queryClient.cancelQueries({ queryKey: teamKeys.detail(teamId) });
+
+      // Snapshot the previous values for rollback
+      const previousMembers = queryClient.getQueryData<TeamMemberListResponse>(
+        teamKeys.membersList(teamId, undefined)
+      );
+      const previousTeam = queryClient.getQueryData<Team>(teamKeys.detail(teamId));
+
+      // Optimistically update the members list
+      if (previousMembers) {
+        queryClient.setQueryData<TeamMemberListResponse>(
+          teamKeys.membersList(teamId, undefined),
+          {
+            ...previousMembers,
+            items: previousMembers.items.filter((m) => m.user_id !== userId),
+            total: previousMembers.total - 1,
+          }
+        );
+      }
+
+      // Return context for rollback
+      return { previousMembers, previousTeam };
+    },
     onSuccess: () => {
-      // Invalidate members list and team stats
+      console.log("[useRemoveTeamMember] onSuccess called");
+      // Invalidate to get fresh data from server (confirms our optimistic update)
       queryClient.invalidateQueries({ queryKey: teamKeys.members(teamId) });
       queryClient.invalidateQueries({ queryKey: teamKeys.stats(teamId) });
-      // Invalidate team detail (members_count changes)
       queryClient.invalidateQueries({ queryKey: teamKeys.detail(teamId) });
     },
-    onError: (error) => {
-      // Sprint 105: Also invalidate queries on error to sync with backend state
-      // This handles cases where member was already deleted (404 error)
-      console.log("[useRemoveTeamMember] onError - refreshing list:", error);
+    onError: (error, _userId, context) => {
+      // Sprint 105: Handle 404 gracefully - member already deleted
+      const errorStatus = error && typeof error === "object" && "status" in error
+        ? (error as { status: number }).status
+        : null;
+
+      if (errorStatus === 404) {
+        // Member already deleted - treat as success
+        console.log("[useRemoveTeamMember] 404 = member already deleted, treating as success");
+        // Still invalidate to sync UI
+        queryClient.invalidateQueries({ queryKey: teamKeys.members(teamId) });
+        queryClient.invalidateQueries({ queryKey: teamKeys.stats(teamId) });
+        queryClient.invalidateQueries({ queryKey: teamKeys.detail(teamId) });
+        return; // Don't rollback on 404
+      }
+
+      // For real errors: Rollback optimistic update
+      console.log("[useRemoveMember] onError - rolling back:", error);
+
+      // Restore previous data
+      if (context?.previousMembers) {
+        queryClient.setQueryData(
+          teamKeys.membersList(teamId, undefined),
+          context.previousMembers
+        );
+      }
+      if (context?.previousTeam) {
+        queryClient.setQueryData(teamKeys.detail(teamId), context.previousTeam);
+      }
+
+      // Also invalidate to sync with backend state
       queryClient.invalidateQueries({ queryKey: teamKeys.members(teamId) });
       queryClient.invalidateQueries({ queryKey: teamKeys.stats(teamId) });
       queryClient.invalidateQueries({ queryKey: teamKeys.detail(teamId) });
