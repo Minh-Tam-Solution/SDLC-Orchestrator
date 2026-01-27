@@ -1,0 +1,439 @@
+# Auto-Generation Layer Configuration
+# Automatic compliance artifact generation to reduce developer friction
+#
+# Version: 1.0.0
+# Last Updated: January 27, 2026
+# Authority: AUTO-GENERATION-FAIL-SAFE-POLICY.md (FIX 1)
+# Sprint: Sprint 108 Day 2 - Auto-Generation Layer
+#
+# CORE PRINCIPLE:
+#   "GOVERNANCE MUST BE THE FASTEST WAY"
+#   If Orchestrator adds >5 min friction per PR -> PRODUCT FAILS
+#
+# TARGET:
+#   Manual effort baseline: 30 minutes per PR for compliance
+#   Orchestrator target: <5 minutes per PR
+#
+# FAIL-SAFE PRINCIPLE:
+#   "AUTO-GENERATION MAY FAIL, BUT GOVERNANCE MUST NEVER HARD-BLOCK"
+#   LLM failures -> Template fallback -> Minimal placeholder -> Developer edits
+
+principle: |
+  "GOVERNANCE MUST BE THE FASTEST WAY"
+  Developer friction target: <5 minutes per PR (80% faster than 30 min baseline)
+  Auto-generation should handle 80% of compliance work automatically.
+
+# Generator 1: Intent Skeleton (from task description)
+intent_skeleton:
+  enabled: true
+  trigger: "task_created"
+
+  description: |
+    Generate intent document from task description using LLM.
+    Auto-fills 80% of intent, developer confirms/edits 20%.
+
+  output_path: "docs/intents/TASK-{task_id}-intent.md"
+
+  auto_fill:
+    - "Task title -> Intent title"
+    - "Task description -> Problem statement"
+    - "Task acceptance criteria -> Expected outcomes"
+
+  human_review_required: false
+
+  llm_config:
+    model: "qwen3:32b"
+    timeout_seconds: 10
+    max_tokens: 1500
+    temperature: 0.3
+
+  template_fallback:
+    enabled: true
+    template_path: "templates/intent_template.md"
+    fields:
+      - name: "title"
+        source: "task.title"
+      - name: "problem_statement"
+        source: "task.description"
+      - name: "expected_outcomes"
+        source: "task.acceptance_criteria"
+
+  minimal_fallback:
+    enabled: true
+    content: |
+      # Intent: {task_title}
+
+      ## Why This Change?
+      [Auto-generation failed. Please document the business reason.]
+
+      ## What Problem Does It Solve?
+      {task_description}
+
+      ## Alternatives Considered
+      [Please document alternatives you considered.]
+
+  performance:
+    target_latency: "<10s"
+    cache_ttl: "1h"
+
+  time_saved: "~15 minutes per task"
+
+# Generator 2: Ownership Suggestion (from git/CODEOWNERS)
+ownership_suggestion:
+  enabled: true
+  trigger: "file_created OR file_modified"
+
+  description: |
+    Suggest file owner based on directory patterns, git blame, and CODEOWNERS.
+    No LLM needed - deterministic algorithm.
+
+  output: "File header @owner annotation"
+
+  algorithm:
+    priority_order:
+      - source: "CODEOWNERS"
+        confidence: 1.0
+        description: "Explicit ownership declared in CODEOWNERS file"
+
+      - source: "directory_patterns"
+        confidence: 0.9
+        description: "Directory ownership patterns"
+        patterns:
+          - path: "backend/app/services/**"
+            owner: "@backend-team"
+            module: "services"
+          - path: "backend/app/api/**"
+            owner: "@backend-team"
+            module: "api"
+          - path: "backend/app/models/**"
+            owner: "@backend-team"
+            module: "models"
+          - path: "frontend/src/components/**"
+            owner: "@frontend-team"
+            module: "components"
+          - path: "frontend/src/pages/**"
+            owner: "@frontend-team"
+            module: "pages"
+          - path: "docs/**"
+            owner: "@documentation-team"
+            module: "documentation"
+          - path: "tests/**"
+            owner: "@qa-team"
+            module: "testing"
+
+      - source: "git_blame"
+        confidence: 0.7
+        description: "Most frequent recent committer (last 90 days)"
+        lookback_days: 90
+        min_commits: 3
+
+      - source: "task_creator"
+        confidence: 0.5
+        description: "Developer who created the associated task"
+
+      - source: "fallback"
+        confidence: 0.3
+        description: "Default team based on file extension"
+        defaults:
+          ".py": "@backend-team"
+          ".ts": "@frontend-team"
+          ".tsx": "@frontend-team"
+          ".md": "@documentation-team"
+          ".yaml": "@devops-team"
+          ".yml": "@devops-team"
+
+  annotation_format:
+    python: |
+      # @owner: {owner}
+      # @module: {module}
+      # @created: {date}
+
+    typescript: |
+      /**
+       * @owner {owner}
+       * @module {module}
+       * @created {date}
+       */
+
+    yaml: |
+      # @owner: {owner}
+      # @module: {module}
+      # @created: {date}
+
+  performance:
+    target_latency: "<2s"
+    cache_git_blame: true
+    cache_ttl: "1h"
+
+  time_saved: "~2 minutes per file"
+
+# Generator 3: Context Attachment (from changed files)
+context_attachment:
+  enabled: true
+  trigger: "pr_created"
+
+  description: |
+    Auto-attach relevant ADRs, specs, and design docs to PR description.
+    Enriches PR with context for reviewers.
+
+  output: "PR description enriched with context refs"
+
+  algorithm:
+    step_1_extract_modules:
+      description: "Extract affected modules from diff"
+      patterns:
+        - "backend/app/services/{module}/**"
+        - "backend/app/api/routes/{module}.py"
+        - "backend/app/models/{module}.py"
+        - "frontend/src/components/{module}/**"
+
+    step_2_find_adrs:
+      description: "Search ADRs that mention extracted modules"
+      search_paths:
+        - "docs/02-design/03-ADRs/*.md"
+        - "docs/adr/*.md"
+      search_strategy:
+        - "title_match"
+        - "content_mention"
+        - "frontmatter_affects"
+
+    step_3_find_specs:
+      description: "Find specs in related directories"
+      search_paths:
+        - "docs/02-design/specs/*.md"
+        - "docs/01-planning/specs/*.md"
+
+    step_4_enrich_pr:
+      description: "Update PR description with context"
+      template: |
+        ## Related Context (Auto-Generated)
+
+        ### Architecture Decisions
+        {adrs_list}
+
+        ### Design Specs
+        {specs_list}
+
+        ### Affected Modules
+        {modules_list}
+
+        ---
+        *Context attached by SDLC Orchestrator Auto-Generation Layer*
+
+  performance:
+    target_latency: "<5s"
+    parallel_search: true
+    cache_adr_index: true
+    cache_ttl: "15m"
+
+  time_saved: "~5 minutes per PR"
+
+# Generator 4: Attestation Template (from AI session)
+attestation_template:
+  enabled: true
+  trigger: "ai_code_detected"
+
+  description: |
+    Pre-fill attestation form with AI session data.
+    Developer only needs to confirm review time and understanding (20%).
+
+  output_path: "docs/attestations/PR-{pr_number}-attestation.md"
+
+  auto_fill:
+    - name: "ai_provider"
+      source: "session.provider"
+      description: "AI provider from session metadata"
+
+    - name: "model_version"
+      source: "session.model"
+      description: "Model version from API response"
+
+    - name: "prompt_hash"
+      source: "sha256(session.prompts)"
+      description: "Hash of prompts for audit trail"
+
+    - name: "generated_lines"
+      source: "ai_detection.lines_count"
+      description: "Number of AI-generated lines"
+
+    - name: "session_id"
+      source: "session.id"
+      description: "Unique session identifier"
+
+    - name: "timestamp"
+      source: "session.timestamp"
+      description: "When code was generated"
+
+  human_confirms:
+    - name: "review_time"
+      required: true
+      validation: ">= 2 seconds per line"
+      description: "How long did you review the code?"
+
+    - name: "modifications_made"
+      required: true
+      description: "What did you change and why?"
+
+    - name: "understanding_confirmation"
+      required: true
+      description: "Attest you understand the code"
+
+  minimum_review_time:
+    rule: "2 seconds per line"
+    formula: "ai_lines * 2 / 60"
+    unit: "minutes"
+    warning_threshold: 0.8
+
+  template:
+    content: |
+      # AI Code Attestation - PR #{pr_number}
+
+      ## AI Session Metadata (Auto-Generated)
+      - **AI Provider**: {ai_provider}
+      - **Model**: {model_version}
+      - **Session ID**: {session_id}
+      - **Generated Lines**: {generated_lines}
+      - **Timestamp**: {timestamp}
+      - **Prompt Hash**: {prompt_hash}
+
+      ## Human Review (REQUIRED)
+      - **Review Time**: _____ minutes (Minimum: {min_review_time} minutes)
+      - **Modifications Made**:
+        - [ ] Refactored code structure
+        - [ ] Added error handling
+        - [ ] Fixed type hints
+        - [ ] Added input validation
+        - [ ] Removed unused code
+        - [ ] Other: _____
+      - **Understanding Confirmation**:
+        I have reviewed all AI-generated code and understand:
+        - [ ] The algorithm/logic used
+        - [ ] Edge cases handled
+        - [ ] Error conditions
+        - [ ] Performance characteristics
+
+      ## Attestation
+      I attest that I have reviewed this AI-generated code,
+      made necessary modifications, and take responsibility for its quality.
+
+      **Signed**: ________________
+      **Date**: {date}
+
+  performance:
+    target_latency: "<3s"
+    cache_session_data: true
+
+  time_saved: "~8 minutes per AI session"
+
+# Fail-Safe Configuration (FIX 1 Requirement)
+fail_safe:
+  principle: |
+    "AUTO-GENERATION MAY FAIL, BUT GOVERNANCE MUST NEVER HARD-BLOCK"
+
+  fallback_chain:
+    - level: 1
+      name: "LLM Generation"
+      description: "Use AI to generate high-quality content"
+      timeout: 10
+
+    - level: 2
+      name: "Template Generation"
+      description: "Use pre-defined templates with field substitution"
+      timeout: 2
+
+    - level: 3
+      name: "Minimal Placeholder"
+      description: "Create minimal structure for developer to edit"
+      timeout: 0.5
+
+  guarantee: |
+    "Developer can proceed within 2 minutes, regardless of auto-gen state"
+
+  ui_badges:
+    llm_success:
+      color: "green"
+      text: "Auto-generated by AI"
+
+    template_fallback:
+      color: "yellow"
+      text: "Generated from template. Please review."
+
+    minimal_fallback:
+      color: "orange"
+      text: "Auto-generation failed. Manual input required."
+
+  monitoring:
+    metrics:
+      - "governance.autogen.llm_success_rate"
+      - "governance.autogen.template_fallback_rate"
+      - "governance.autogen.minimal_fallback_rate"
+      - "governance.autogen.latency_p95"
+
+    alerts:
+      llm_success_rate_low:
+        condition: "llm_success_rate < 70%"
+        severity: "warning"
+        action: "Check Ollama health"
+
+      template_fallback_high:
+        condition: "template_fallback_rate > 30%"
+        severity: "warning"
+        action: "Review LLM configuration"
+
+      latency_high:
+        condition: "latency_p95 > 15s"
+        severity: "high"
+        action: "Scale Ollama or reduce timeout"
+
+# Performance Requirements
+performance:
+  manual_effort_baseline: "30 minutes per PR for compliance"
+  orchestrator_target: "<5 minutes per PR"
+
+  generator_latency_targets:
+    intent_skeleton: "<10s"
+    ownership_suggestion: "<2s"
+    context_attachment: "<5s"
+    attestation_template: "<3s"
+
+  total_generation_budget: "<20s"
+
+  optimization:
+    parallel_generation: true
+    cache_enabled: true
+    cache_backend: "redis"
+    cache_ttl_default: "1h"
+
+    early_return:
+      enabled: true
+      description: "Return partial results if some generators timeout"
+
+# Success Criteria (from Plan)
+success_criteria:
+  auto_generation_usage_rate:
+    target: ">80%"
+    measurement: "auto_generated_artifacts / total_artifacts"
+
+  developer_satisfaction:
+    target: "NPS >50"
+    survey_frequency: "weekly"
+
+  first_submission_pass_rate:
+    target: ">70% by Week 4"
+    measurement: "first_pass_prs / total_prs"
+
+  time_saved:
+    target: ">25 minutes per PR"
+    measurement: "manual_baseline - orchestrator_time"
+
+# Feature Flags
+feature_flags:
+  auto_generation_enabled: true
+  intent_generator_enabled: true
+  ownership_generator_enabled: true
+  context_generator_enabled: true
+  attestation_generator_enabled: true
+
+  llm_fallback_enabled: true
+  template_fallback_enabled: true
+  minimal_fallback_enabled: true

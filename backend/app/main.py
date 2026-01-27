@@ -179,7 +179,7 @@ async def lifespan(app: FastAPI):
 # ============================================================================
 
 # Import API routers (after lifespan is defined)
-from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, analytics_v2, council, sdlc_structure, sop, admin, docs, ai_detection, policy_packs, sast, evidence_timeline, override, codegen, pilot, preview, contract_lock, api_keys, payments, ai_providers, teams, organizations, planning, agents, evidence_manifest, check_runs, planning_subagent, learnings, risk_analysis, consultations, mrp, framework_version, context_validation, maturity  # Sprint 42-104: AI Safety + Codegen + Pilot + Preview + Contract Lock + API Keys + Payments + AI Providers + Teams + Planning + AGENTS.md + Evidence Manifest + Check Runs + Planning Subagent + Feedback Learning + Risk Analysis + CRP + MRP/VCR + Framework Version + Context Validation + Maturity
+from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, analytics_v2, council, sdlc_structure, sop, admin, docs, ai_detection, policy_packs, sast, evidence_timeline, override, codegen, pilot, preview, contract_lock, api_keys, payments, ai_providers, teams, organizations, planning, agents, evidence_manifest, check_runs, planning_subagent, learnings, risk_analysis, consultations, mrp, framework_version, context_validation, maturity, auto_generation  # Sprint 42-108: AI Safety + Codegen + Pilot + Preview + Contract Lock + API Keys + Payments + AI Providers + Teams + Planning + AGENTS.md + Evidence Manifest + Check Runs + Planning Subagent + Feedback Learning + Risk Analysis + CRP + MRP/VCR + Framework Version + Context Validation + Maturity + Auto-Generation
 
 # Create FastAPI app with lifespan
 app = FastAPI(
@@ -304,6 +304,7 @@ app.include_router(mrp.router, prefix="/api/v1", tags=["MRP - Merge Readiness Pr
 app.include_router(framework_version.router, prefix="/api/v1", tags=["Framework Version"])  # Sprint 103 - Framework Version Tracking
 app.include_router(context_validation.router, prefix="/api/v1", tags=["Context Validation"])  # Sprint 103 - AGENTS.md Context <60 Lines
 app.include_router(maturity.router, prefix="/api/v1", tags=["Agentic Maturity"])  # Sprint 104 - Agentic Maturity L0-L3
+app.include_router(auto_generation.router, prefix="/api/v1", tags=["Auto-Generation"])  # Sprint 108 - Governance Auto-Generation Layer
 
 # ============================================================================
 # Health Check Endpoints

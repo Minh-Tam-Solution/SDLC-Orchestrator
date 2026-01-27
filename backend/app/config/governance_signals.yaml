@@ -1,0 +1,330 @@
+# Governance Signals Configuration - Vibecoding Index Calculation
+# Non-blocking signals that capture CEO's "code smell" intuition.
+#
+# Version: 1.0.0 - Initial Weights (PRE-CEO CALIBRATION)
+# Last Updated: January 27, 2026
+# Authority: VIBECODING-INDEX-EXPLAINABILITY-SPEC.md Section 3
+# Status: ⏳ AWAITING CEO CALIBRATION SESSION
+#
+# NOTE: These weights are INITIAL ESTIMATES. Final weights will be set during
+# CEO Calibration Session (2-hour session reviewing 10 rejected PRs).
+
+principle: |
+  "NON-BLOCKING SIGNALS capture CEO intuition without hard-blocking developers.
+   These DON'T block PRs, but highlight to CEO/Tech Lead via Vibecoding Index."
+
+# Vibecoding Index Formula
+vibecoding_index:
+  formula: "weighted_sum_of_5_signals"
+
+  thresholds:
+    green:
+      range: "0-30"
+      routing: "auto_approve"
+      ceo_action: "NO REVIEW REQUIRED"
+    yellow:
+      range: "31-60"
+      routing: "tech_lead_review"
+      ceo_action: "Spot check if time permits"
+    orange:
+      range: "61-80"
+      routing: "ceo_should_review"
+      ceo_action: "Review within 24 hours"
+    red:
+      range: "81-100"
+      routing: "ceo_must_review"
+      ceo_action: "IMMEDIATE ATTENTION - Block merge until reviewed"
+
+  # Critical path override (from critical_paths.yaml)
+  critical_path_override:
+    enabled: true
+    minimum_index: 80
+    reason: "Even 1-line change to security/payment can be catastrophic"
+
+# Signal 1: Architectural Smell (Weight: 0.25)
+signal_1_architectural_smell:
+  weight: 0.25
+  description: "Detects design anti-patterns that create technical debt"
+
+  checks:
+    god_class:
+      description: "Class with too many responsibilities"
+      threshold: ">500 lines"
+      severity: "high"
+      score_formula: "min(100, line_count / 5)"
+
+    feature_envy:
+      description: "Method uses external class more than its own"
+      threshold: "external_calls > 2 * internal_calls"
+      severity: "medium"
+      score_formula: "70"
+
+    shotgun_surgery:
+      description: "Single change requires modifying many files"
+      threshold: ">10 files changed"
+      severity: "high"
+      score_formula: "min(100, file_count * 5)"
+
+    parallel_inheritance:
+      description: "Duplicated class hierarchies"
+      threshold: "detected"
+      severity: "medium"
+      score_formula: "60"
+
+  scoring:
+    range: "0-100"
+    interpretation: "Higher = Worse architectural smell"
+
+  examples:
+    bad:
+      - "UserService.py with 800 lines (score: 100)"
+      - "15 files changed for one feature (score: 75)"
+    good:
+      - "Single-responsibility classes <200 lines (score: 0)"
+      - "Changes localized to 2-3 files (score: 10)"
+
+# Signal 2: Abstraction Complexity (Weight: 0.15)
+signal_2_abstraction_complexity:
+  weight: 0.15
+  description: "Measures over-engineering and excessive abstraction"
+
+  checks:
+    inheritance_depth:
+      description: "Deep class inheritance hierarchy"
+      threshold: ">3 levels"
+      severity: "medium"
+      score_formula: "depth * 20"
+
+    interface_count:
+      description: "Too many interfaces for small codebase"
+      threshold: ">10 interfaces for <1000 LOC"
+      severity: "low"
+      score_formula: "interface_count * 5"
+
+    generic_type_depth:
+      description: "Overly nested generic types"
+      threshold: "T<U<V<W>>>"
+      severity: "high"
+      score_formula: "80"
+
+    factory_pattern_abuse:
+      description: "Factory for single implementation"
+      threshold: "detected"
+      severity: "medium"
+      score_formula: "60"
+
+  scoring:
+    range: "0-100"
+    interpretation: "Higher = More over-engineered"
+
+  examples:
+    bad:
+      - "5-level inheritance hierarchy (score: 100)"
+      - "Generic<Wrapper<Container<Value<T>>>> (score: 80)"
+    good:
+      - "Flat class structure (score: 0)"
+      - "Simple types (score: 10)"
+
+# Signal 3: AI Dependency Ratio (Weight: 0.20)
+signal_3_ai_dependency_ratio:
+  weight: 0.20
+  description: "Measures reliance on AI-generated code with minimal human review"
+
+  formula: "ai_lines / total_lines * 100"
+
+  thresholds:
+    green: "<40% AI-generated"
+    yellow: "40-70% AI-generated"
+    red: ">70% AI-generated"
+
+  red_flags:
+    high_ratio_low_modification:
+      condition: "ratio > 80% AND human_modification < 10%"
+      score: "90"
+      reason: "Copy-paste AI output without understanding"
+
+    no_human_review_time:
+      condition: "review_time < 2_seconds_per_line"
+      score: "85"
+      reason: "Insufficient review time (SDLC 5.0 requires 2 sec/line)"
+
+  scoring:
+    range: "0-100"
+    interpretation: "Higher = More AI-dependent, less human understanding"
+
+  examples:
+    bad:
+      - "95% AI, 5% human edits, 10s review for 500 lines (score: 90)"
+    good:
+      - "60% AI, 40% human refactoring, 20min review (score: 30)"
+
+# Signal 4: Change Surface Area (Weight: 0.20)
+signal_4_change_surface_area:
+  weight: 0.20
+  description: "Measures blast radius and risk of unintended consequences"
+
+  factors:
+    files_changed:
+      weight: 0.3
+      score_formula: "min(100, file_count * 3)"
+
+    modules_touched:
+      weight: 0.25
+      score_formula: "min(100, module_count * 10)"
+
+    api_contracts_affected:
+      weight: 0.25
+      score_formula: "api_contract_count * 20"
+
+    database_schema_touched:
+      weight: 0.15
+      score_formula: "100 if schema_changed else 0"
+
+    security_sensitive_files:
+      weight: 0.05
+      score_formula: "100 if security_file_touched else 0"
+
+  scoring:
+    range: "0-100"
+    interpretation: "Higher = Larger blast radius"
+
+  examples:
+    bad:
+      - "25 files, 5 modules, 3 API endpoints, DB schema change (score: 90)"
+    good:
+      - "2 files, 1 module, no API changes (score: 15)"
+
+# Signal 5: Drift Velocity (Weight: 0.20)
+signal_5_drift_velocity:
+  weight: 0.20
+  description: "Measures codebase consistency degradation over time"
+
+  measurement: "Pattern changes over 7-day window"
+
+  calculation: |
+    drift_velocity = (
+      new_patterns_introduced +
+      deprecated_patterns_used +
+      inconsistent_naming +
+      style_violations
+    ) / 7
+
+  factors:
+    new_patterns_introduced:
+      description: "New architectural patterns without ADR"
+      score: "20 per pattern"
+
+    deprecated_patterns_used:
+      description: "Using patterns marked as deprecated"
+      score: "30 per usage"
+
+    inconsistent_naming:
+      description: "Violates project naming conventions"
+      score: "10 per violation"
+
+    style_violations:
+      description: "Linting/formatting violations"
+      score: "5 per violation"
+
+  scoring:
+    range: "0-100"
+    interpretation: "Higher = Faster codebase drift"
+
+  examples:
+    bad:
+      - "New pattern without ADR, 5 deprecated usages, 10 naming violations (score: 85)"
+    good:
+      - "Follows existing patterns, no violations (score: 5)"
+
+# CEO Calibration Configuration
+ceo_calibration:
+  status: "PENDING"
+
+  initial_session:
+    scheduled: false
+    duration: "2 hours"
+    participants: ["CEO", "Tech Lead"]
+
+    agenda:
+      - "Review 10 recent rejected PRs"
+      - "Document 'CEO smell' for each"
+      - "Adjust signal weights based on CEO priorities"
+      - "Set threshold boundaries (Green/Yellow/Orange/Red)"
+
+    output: "docs/phase-0/CEO-Smell-Calibration.md"
+
+  recalibration_triggers:
+    ceo_override_rate: ">10% (CEO disagrees with system)"
+    false_positive_rate: ">20% (system flags good code)"
+    false_negative_rate: ">5% (system misses bad code)"
+
+  recalibration_frequency:
+    weekly_review: "Dashboard review + minor tweaks"
+    monthly_full_calibration: "Re-review rejected PRs + weight adjustment"
+
+# Performance Requirements
+performance:
+  calculation_latency_target: "<500ms (p95)"
+  cache_ttl: "5 minutes"
+
+  optimization:
+    cache_signal_results: true
+    parallel_signal_calculation: true
+    early_exit_on_critical_path: true
+
+# Monitoring and Alerts
+monitoring:
+  track_signal_distribution: true
+
+  metrics:
+    - "governance.signals.architectural_smell.avg"
+    - "governance.signals.abstraction_complexity.avg"
+    - "governance.signals.ai_dependency_ratio.avg"
+    - "governance.signals.change_surface_area.avg"
+    - "governance.signals.drift_velocity.avg"
+    - "governance.vibecoding_index.avg"
+    - "governance.vibecoding_index.p95"
+
+  alerts:
+    average_index_above_60:
+      condition: "7d_avg > 60"
+      severity: "warning"
+      message: "Codebase quality degrading. CEO review."
+
+    critical_path_modification_spike:
+      condition: "critical_path_changes > 5/day"
+      severity: "high"
+      message: "Unusual critical path activity. Investigate."
+
+# Validation
+validation:
+  test_cases:
+    - name: "Clean code baseline"
+      signals:
+        architectural_smell: 10
+        abstraction_complexity: 5
+        ai_dependency_ratio: 20
+        change_surface_area: 15
+        drift_velocity: 5
+      expected_index: 12.25
+      expected_category: "green"
+
+    - name: "High AI dependency"
+      signals:
+        architectural_smell: 30
+        abstraction_complexity: 20
+        ai_dependency_ratio: 90
+        change_surface_area: 40
+        drift_velocity: 25
+      expected_index: 40.25
+      expected_category: "yellow"
+
+    - name: "Architectural disaster"
+      signals:
+        architectural_smell: 85
+        abstraction_complexity: 70
+        ai_dependency_ratio: 60
+        change_surface_area: 80
+        drift_velocity: 75
+      expected_index: 75.25
+      expected_category: "orange"

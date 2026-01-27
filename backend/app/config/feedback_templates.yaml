@@ -1,0 +1,460 @@
+# Actionable Feedback Templates
+# Structured error messages with step-by-step fixes and CLI commands
+#
+# Version: 1.0.0
+# Last Updated: January 27, 2026
+# Authority: AUTO-GENERATION-FAIL-SAFE-POLICY.md Section 5 (FIX 5)
+#
+# Format: Each template includes:
+#   - what_failed: Clear description of the issue
+#   - why_matters: Business rationale (not just "compliance")
+#   - step_by_step_fix: Actionable instructions
+#   - documentation_link: Reference to framework docs
+#   - cli_command: Quick fix command (sdlcctl)
+
+format: |
+  ❌ GOVERNANCE FAILED: {title}
+
+  📍 What Failed:
+  {what_failed}
+
+  📋 Why It Matters:
+  {why_matters}
+
+  🔧 How To Fix (Step-by-Step):
+  {step_by_step_fix}
+
+  📚 Reference:
+  {documentation_link}
+
+  ⚡ Quick Fix Command:
+  $ {cli_command}
+
+# Template 1: Missing Ownership Declaration
+missing_ownership:
+  title: "Missing Ownership Declaration"
+
+  what_failed: |
+    File `{file_path}` has no ownership annotation.
+    Every file must declare an @owner.
+
+  why_matters: |
+    Unowned code = unmaintained code = technical debt.
+    When bugs occur, we need to know who's responsible.
+
+    Without ownership:
+    - No one feels accountable for quality
+    - Code rots faster (no one refactors)
+    - Onboarding is harder (who do I ask?)
+    - Bus factor increases (knowledge silos)
+
+  step_by_step_fix: |
+    1. Open `{file_path}`
+    2. Add at the top (before imports):
+       ```
+       # @owner: @{suggested_owner}
+       # @module: {suggested_module}
+       # @created: {today}
+       ```
+    3. Commit the change:
+       ```bash
+       git add {file_path}
+       git commit -m "Add ownership header to {file_path}"
+       ```
+    4. Re-run governance validation
+
+  documentation_link: "https://docs.sdlc.dev/anti-vibecoding#principle-2"
+
+  cli_command: "sdlcctl add-ownership --file {file_path} --owner @{suggested_owner}"
+
+  examples:
+    python:
+      before: |
+        from typing import List
+
+        def process_users(users: List[User]) -> None:
+            pass
+      after: |
+        # @owner: @backend-lead
+        # @module: user_management
+        # @created: 2026-01-27
+
+        from typing import List
+
+        def process_users(users: List[User]) -> None:
+            pass
+
+    typescript:
+      before: |
+        export const processUsers = (users: User[]): void => {
+          // implementation
+        };
+      after: |
+        /**
+         * @owner @frontend-lead
+         * @module user-management
+         * @created 2026-01-27
+         */
+
+        export const processUsers = (users: User[]): void => {
+          // implementation
+        };
+
+# Template 2: Missing Intent Statement
+missing_intent:
+  title: "Missing Intent Statement"
+
+  what_failed: |
+    PR #{pr_number} has no intent statement.
+    Task {task_id} WHY is not documented.
+
+  why_matters: |
+    Code without intent confuses future developers.
+    "What does this do?" (easy) vs "Why does this exist?" (harder)
+
+    Without intent:
+    - Future developers delete "dead code" that's actually critical
+    - Refactoring breaks assumptions you didn't document
+    - Code reviews can't validate alignment with business goals
+    - Technical debt accumulates from misunderstood code
+
+  step_by_step_fix: |
+    1. Run the intent generator:
+       ```bash
+       sdlcctl add-intent --task {task_id}
+       ```
+       This creates: `docs/intents/{task_id}-intent.md`
+
+    2. Edit the generated file with 3 sections:
+       - **Why This Change?**: Business reason (not technical details)
+       - **What Problem Does It Solve?**: User pain point or system issue
+       - **Alternatives Considered**: What you rejected and why
+
+    3. Link in PR description:
+       ```markdown
+       Intent: docs/intents/{task_id}-intent.md
+       ```
+
+    4. Commit the intent document:
+       ```bash
+       git add docs/intents/{task_id}-intent.md
+       git commit -m "Add intent statement for task {task_id}"
+       ```
+
+  documentation_link: "https://docs.sdlc.dev/anti-vibecoding#principle-1"
+
+  cli_command: "sdlcctl add-intent --task {task_id} --pr {pr_number}"
+
+  example_intent_document: |
+    # Intent: Add User Profile Caching
+
+    ## Why This Change?
+    User profile API is slowest endpoint (850ms p95).
+    Impacts 10,000+ users daily. CEO escalation.
+
+    ## What Problem Does It Solve?
+    - Users wait 1+ second for profile page load
+    - Database queries spike during peak hours
+    - Customer complaints about "slow dashboard"
+
+    ## Alternatives Considered
+    1. **Database query optimization** - Only 10% improvement, not enough
+    2. **CDN caching** - Profile data is personalized, can't use CDN
+    3. **Redis caching (CHOSEN)** - 90% cache hit rate, <50ms latency
+
+# Template 3: Stage Violation
+stage_violation:
+  title: "Stage Gating Violation"
+
+  what_failed: |
+    PR modifies files not allowed in current stage.
+
+    Current Stage: {current_stage}
+    Blocked Files:
+    {blocked_files}
+
+  why_matters: |
+    Working ahead of design leads to rework.
+    Complete {required_stage} before modifying these files.
+
+    Stage violations cause:
+    - Code written without approved architecture (rework later)
+    - Implementation before requirements are clear (wrong solution)
+    - Skipped quality gates (bugs in production)
+    - Wasted developer time (throwing away premature code)
+
+  step_by_step_fix: |
+    **Option 1: Complete the prerequisite stage**
+
+    1. Check project stage:
+       ```bash
+       sdlcctl status
+       ```
+
+    2. View exit criteria for required stage:
+       ```bash
+       sdlcctl stage show-exit-criteria {required_stage}
+       ```
+
+    3. Complete the exit criteria, then request stage advancement:
+       ```bash
+       sdlcctl stage complete {required_stage}
+       ```
+
+    4. Retry your PR after stage advancement approved
+
+    **Option 2: Emergency hotfix (requires CTO approval)**
+
+    If this is a production P0 incident:
+
+    1. Request exception:
+       ```bash
+       sdlcctl exception-request \
+         --type stage_bypass \
+         --reason "Production bug P0 - auth service down" \
+         --approver CTO \
+         --pr {pr_number}
+       ```
+
+    2. Wait for CTO approval (Slack notification sent)
+
+    3. Proceed with hotfix after approval
+
+  documentation_link: "https://docs.sdlc.dev/stages#{required_stage}"
+
+  cli_command: "sdlcctl stage status"
+
+  common_stage_violations:
+    - current: "Stage 01 (Planning)"
+      blocked: "backend/app/services/*.py"
+      reason: "Can't write code before architecture approved (Stage 02)"
+      fix: "Complete ADRs, get CTO sign-off, advance to Stage 02"
+
+    - current: "Stage 02 (Design)"
+      blocked: "backend/app/api/routes/*.py"
+      reason: "Can't implement APIs before design review passes Gate G2"
+      fix: "Complete design review, pass Gate G2, advance to Stage 03 (Build)"
+
+    - current: "Stage 05 (Test)"
+      blocked: "backend/app/services/*.py (new features)"
+      reason: "Code freeze during testing. Only bug fixes allowed."
+      fix: "Wait for Stage 05 to complete, then add new features in Stage 03"
+
+# Template 4: Missing AI Attestation
+missing_ai_attestation:
+  title: "Missing AI Code Attestation"
+
+  what_failed: |
+    PR contains AI-generated code without attestation.
+
+    AI-Generated Files Detected:
+    {ai_generated_files}
+
+    Total AI Lines: {ai_lines}
+    Human Review Time: {review_time} (Minimum required: {min_review_time})
+
+  why_matters: |
+    AI code without human review creates liability.
+    Developers must attest they understand AI-generated code.
+
+    Without attestation:
+    - Legal liability (who's responsible for AI bugs?)
+    - Quality risk (copy-paste without understanding)
+    - Security risk (AI hallucinations can introduce vulnerabilities)
+    - Audit trail missing (can't trace code provenance)
+
+  step_by_step_fix: |
+    1. Run the attestation generator:
+       ```bash
+       sdlcctl add-attestation --pr {pr_number}
+       ```
+       This pre-fills 80% of the form with AI session data.
+
+    2. Edit the generated attestation (`docs/attestations/{pr_number}-attestation.md`):
+       - **AI Provider**: (auto-filled: {ai_provider})
+       - **Model Version**: (auto-filled: {model_version})
+       - **Prompt Hash**: (auto-filled: {prompt_hash})
+       - **Generated Lines**: (auto-filled: {ai_lines})
+       - **Review Time**: ⚠️ REQUIRED - How long did you review?
+       - **Modifications Made**: ⚠️ REQUIRED - What did you change and why?
+       - **Understanding Confirmation**: ⚠️ REQUIRED - Attest you understand the code
+
+    3. Minimum review time: 2 seconds per line (SDLC 5.0 requirement)
+       - Your code: {ai_lines} lines
+       - Minimum time: {min_review_time}
+       - Your time: {review_time}
+       - ⚠️ {review_warning}
+
+    4. Commit attestation:
+       ```bash
+       git add docs/attestations/{pr_number}-attestation.md
+       git commit -m "Add AI code attestation for PR #{pr_number}"
+       ```
+
+  documentation_link: "https://docs.sdlc.dev/ai-governance#attestation"
+
+  cli_command: "sdlcctl add-attestation --pr {pr_number}"
+
+  example_attestation: |
+    # AI Code Attestation - PR #1234
+
+    ## AI Session Metadata (Auto-Generated)
+    - **AI Provider**: Claude (Anthropic)
+    - **Model**: claude-sonnet-4-5-20250929
+    - **Session ID**: abc123xyz
+    - **Generated Lines**: 450
+    - **Timestamp**: 2026-01-27T10:30:00Z
+
+    ## Human Review (REQUIRED)
+    - **Review Time**: 20 minutes (Minimum: 15 minutes ✅)
+    - **Modifications Made**:
+      - Refactored error handling (lines 120-145)
+      - Added input validation (lines 200-215)
+      - Fixed type hints (lines 50-60)
+      - Removed unused imports
+    - **Understanding Confirmation**:
+      I have reviewed all AI-generated code and understand:
+      - The algorithm used (binary search with early exit)
+      - Edge cases handled (empty list, single element)
+      - Error conditions (invalid input, timeout)
+      - Performance characteristics (O(log n) time complexity)
+
+    **Attestation**: I attest that I have reviewed this AI-generated code,
+    made necessary modifications, and take responsibility for its quality.
+
+    Signed: @developer-name
+    Date: 2026-01-27
+
+# Template 5: Quality Contract Violation
+quality_contract_violation:
+  title: "Quality Contract Violation"
+
+  what_failed: |
+    PR violates quality contract: {contract_name}
+
+    Failed Checks:
+    {failed_checks}
+
+  why_matters: |
+    Quality contracts ensure minimum standards.
+    Skipping these checks leads to production bugs.
+
+    Violated contract consequences:
+    - {contract_name} exists because: {contract_rationale}
+    - Historical context: {historical_incident}
+    - If we skip this check: {risk_description}
+
+  step_by_step_fix: |
+    **Automated Fix (Recommended)**
+
+    Run the auto-fix engine:
+    ```bash
+    sdlcctl auto-fix --pr {pr_number} --contract {contract_name}
+    ```
+
+    This will:
+    1. Analyze violations
+    2. Apply deterministic fixes (linting, formatting)
+    3. Generate suggested fixes for complex issues
+    4. Create a commit with fixes
+
+    **Manual Fix**
+
+    For each failed check:
+
+    {fix_instructions}
+
+    Then verify:
+    ```bash
+    sdlcctl validate --pr {pr_number}
+    ```
+
+  documentation_link: "https://docs.sdlc.dev/quality-contracts#{contract_name}"
+
+  cli_command: "sdlcctl auto-fix --pr {pr_number} --contract {contract_name}"
+
+  common_violations:
+    test_coverage_below_80:
+      failed_check: "Test coverage: {coverage}% (Required: 80%)"
+      fix: |
+        1. Run coverage report:
+           ```bash
+           pytest --cov=backend/app --cov-report=term-missing
+           ```
+        2. Identify uncovered lines (marked with `!!!!`)
+        3. Write tests for uncovered code
+        4. Re-run until coverage ≥80%
+
+    architecture_not_documented:
+      failed_check: "No ADR found for new module: {module_name}"
+      fix: |
+        1. Create ADR:
+           ```bash
+           sdlcctl adr create --module {module_name}
+           ```
+        2. Document:
+           - Problem: What issue does this module solve?
+           - Decision: Why this architecture?
+           - Consequences: Trade-offs accepted?
+        3. Get CTO review and approval
+
+    security_scan_failed:
+      failed_check: "Semgrep found {vuln_count} vulnerabilities"
+      fix: |
+        1. View vulnerabilities:
+           ```bash
+           semgrep --config=auto backend/app
+           ```
+        2. For each vulnerability:
+           - Understand the security issue
+           - Apply recommended fix
+           - Re-scan to verify fix
+        3. If false positive:
+           ```bash
+           sdlcctl security-exception \
+             --vuln-id {vuln_id} \
+             --reason "False positive: {reason}"
+           ```
+
+# Notification Configuration
+notifications:
+  delivery_methods:
+    - "github_pr_comment"
+    - "slack_dm"
+    - "email"
+
+  formatting:
+    markdown: true
+    include_code_snippets: true
+    include_file_links: true
+    include_quick_fix_buttons: true
+
+  tone:
+    style: "helpful_not_blocking"
+    avoid: ["ERROR", "FAILURE", "REJECT"]
+    prefer: ["Let's fix this", "Here's how to resolve", "Quick fix available"]
+
+# Analytics
+analytics:
+  track_template_usage: true
+  track_resolution_time: true
+  track_auto_fix_success_rate: true
+
+  metrics:
+    - "governance.feedback.{template_name}.shown.total"
+    - "governance.feedback.{template_name}.resolved.total"
+    - "governance.feedback.{template_name}.resolution_time.seconds"
+
+# A/B Testing
+ab_testing:
+  enabled: false
+  variants:
+    - variant: "control"
+      tone: "standard"
+    - variant: "experiment"
+      tone: "friendly_emoji"
+
+  metrics:
+    - "resolution_time"
+    - "developer_satisfaction"
+    - "skip_rate"

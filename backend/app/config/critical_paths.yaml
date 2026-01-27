@@ -1,0 +1,188 @@
+# Critical Path Configuration - MAX CRITICALITY OVERRIDE
+# Files in these paths automatically boost Vibecoding Index to minimum 80 (Red)
+# regardless of other signal scores.
+#
+# Rationale: Even small changes to security/payment/infrastructure can have
+# catastrophic consequences. CEO MUST review all critical path changes.
+#
+# Version: 1.0.0
+# Last Updated: January 27, 2026
+# Authority: VIBECODING-INDEX-EXPLAINABILITY-SPEC.md Section 4
+
+critical_paths:
+  description: |
+    Patterns for files that require CEO review regardless of code quality.
+    One-line change to auth.py = Index 80 (Red), not Index 5 (Green).
+
+  # Security-Critical Files
+  security:
+    description: "Authentication, authorization, cryptography, secrets management"
+    patterns:
+      - "auth/**"
+      - "security/**"
+      - "backend/app/services/auth*"
+      - "backend/app/middleware/auth*"
+      - "backend/app/utils/crypto*"
+      - "backend/app/utils/jwt*"
+      - "**/authentication*"
+      - "**/authorization*"
+      - "**/rbac*"
+      - "**/permission*"
+      - "**/oauth*"
+      - "**/mfa*"
+      - "**/.env*"
+      - "**/secrets*"
+      - "**/credentials*"
+      - "**/keys/**"
+      - "**/*_secret*"
+      - "**/*_password*"
+      - "**/*_token*"
+    examples:
+      - "backend/app/services/auth_service.py"
+      - "backend/app/middleware/authentication.py"
+      - "backend/app/utils/jwt_utils.py"
+      - ".env.production"
+
+  # Payment and Financial Logic
+  payment:
+    description: "Payment processing, billing, financial transactions"
+    patterns:
+      - "payment/**"
+      - "billing/**"
+      - "**/payment*"
+      - "**/stripe*"
+      - "**/paypal*"
+      - "**/transaction*"
+      - "**/invoice*"
+      - "**/subscription*"
+      - "**/pricing*"
+      - "backend/app/services/payment*"
+      - "backend/app/services/billing*"
+    examples:
+      - "backend/app/services/payment_service.py"
+      - "backend/app/services/stripe_integration.py"
+      - "backend/app/models/transaction.py"
+
+  # Database Schema Changes
+  database_schema:
+    description: "Database migrations, schema changes, ORM models"
+    patterns:
+      - "prisma/schema.prisma"
+      - "backend/alembic/versions/**"
+      - "**/migrations/**"
+      - "backend/app/models/**"
+      - "**/*_migration.py"
+      - "**/*_schema.sql"
+    examples:
+      - "prisma/schema.prisma"
+      - "backend/alembic/versions/001_create_users.py"
+      - "backend/app/models/user.py"
+
+  # Infrastructure and Deployment
+  infrastructure:
+    description: "CI/CD, Docker, Kubernetes, deployment configs"
+    patterns:
+      - "docker-compose*.yml"
+      - "Dockerfile*"
+      - "k8s/**"
+      - ".github/workflows/**"
+      - "terraform/**"
+      - "**/deployment*"
+      - "**/kubernetes*"
+      - "nginx.conf"
+      - "backend/app/config/settings*"
+    examples:
+      - "docker-compose.production.yml"
+      - "k8s/deployment.yaml"
+      - ".github/workflows/deploy-production.yml"
+      - "backend/app/config/settings.py"
+
+  # API Contracts (Breaking Changes)
+  api_contracts:
+    description: "Public API endpoints, OpenAPI spec, breaking changes"
+    patterns:
+      - "openapi/**"
+      - "**/api-specification.yml"
+      - "backend/app/api/routes/**"
+      - "backend/app/schemas/**"
+    examples:
+      - "openapi/api-specification.yml"
+      - "backend/app/api/routes/auth.py"
+      - "backend/app/schemas/user.py"
+
+# Detection Rules
+detection:
+  strategy: "pattern_matching"
+  case_sensitive: false
+
+  # When a file matches a critical path pattern:
+  override_behavior:
+    minimum_index: 80
+    category: "red"
+    routing: "ceo_must_review"
+    explanation_prefix: "🔴 CRITICAL PATH: "
+
+  # Evidence collection for critical path hits
+  evidence_required:
+    - "Why this critical file was modified"
+    - "What alternative was considered"
+    - "What testing was done"
+    - "Who reviewed the change"
+
+# Monitoring and Alerts
+monitoring:
+  alert_on_critical_path_change: true
+
+  notifications:
+    - target: "CEO"
+      method: "email"
+      priority: "high"
+    - target: "CTO"
+      method: "slack"
+      priority: "high"
+    - target: "Security Lead"
+      method: "slack"
+      priority: "medium"
+
+  metrics:
+    track_critical_path_modifications: true
+    metric_name: "governance.critical_path.modifications.total"
+    labels:
+      - "path_category"
+      - "repository"
+      - "author"
+
+# Exemptions (use sparingly, require CTO approval)
+exemptions:
+  enabled: false  # Enable only in emergency
+  approval_required: ["CTO", "CEO"]
+
+  # Example: Temporary exemption for hotfix
+  # exempt_prs:
+  #   - pr_number: 1234
+  #     reason: "Production P0 incident - auth service down"
+  #     approved_by: "CTO"
+  #     expires_at: "2026-01-28T00:00:00Z"
+
+# Configuration Validation
+validation:
+  require_at_least_one_pattern_per_category: true
+  warn_on_overlapping_patterns: true
+
+  # Test critical path detection with sample files
+  test_cases:
+    - file: "backend/app/services/auth_service.py"
+      expected_category: "security"
+      expected_override: true
+    - file: "backend/app/services/payment_service.py"
+      expected_category: "payment"
+      expected_override: true
+    - file: "prisma/schema.prisma"
+      expected_category: "database_schema"
+      expected_override: true
+    - file: "docker-compose.production.yml"
+      expected_category: "infrastructure"
+      expected_override: true
+    - file: "backend/app/services/user_service.py"
+      expected_category: null
+      expected_override: false
