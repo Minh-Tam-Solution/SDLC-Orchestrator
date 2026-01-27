@@ -129,6 +129,33 @@ from app.models.pr_learning import PRLearning
 from app.models.decomposition_hint import DecompositionHint, HintUsageLog
 from app.models.learning_aggregation import LearningAggregation
 
+# Governance System (Sprint 108) - 14 models
+from app.models.governance import (
+    GovernanceSubmission,
+    GovernanceRejection,
+    EvidenceVaultEntry,
+    GovernanceAuditLog,
+    OwnershipRegistry,
+    QualityContract,
+    ContextAuthority,
+    ContextSnapshot,
+    ContractVersion,
+    ContractViolation,
+    AIAttestation,
+    HumanReview,
+    GovernanceException,
+    EscalationLog,
+)
+
+# Consultation Request (Sprint 101) - 1 model
+from app.models.consultation_request import ConsultationRequest
+
+# Framework Version (Sprint 101) - 1 model
+from app.models.framework_version import FrameworkVersion
+
+# Agentic Maturity (Sprint 104) - 1 model
+from app.models.agentic_maturity import AgenticMaturityAssessment
+
 __all__ = [
     # Base
     "Base",
@@ -237,4 +264,25 @@ __all__ = [
     "DecompositionHint",
     "HintUsageLog",
     "LearningAggregation",
+    # Governance System - Sprint 108 (14 models)
+    "GovernanceSubmission",
+    "GovernanceRejection",
+    "EvidenceVaultEntry",
+    "GovernanceAuditLog",
+    "OwnershipRegistry",
+    "QualityContract",
+    "ContextAuthority",
+    "ContextSnapshot",
+    "ContractVersion",
+    "ContractViolation",
+    "AIAttestation",
+    "HumanReview",
+    "GovernanceException",
+    "EscalationLog",
+    # Consultation Request - Sprint 101 (1 model)
+    "ConsultationRequest",
+    # Framework Version - Sprint 101 (1 model)
+    "FrameworkVersion",
+    # Agentic Maturity - Sprint 104 (1 model)
+    "AgenticMaturityAssessment",
 ]
