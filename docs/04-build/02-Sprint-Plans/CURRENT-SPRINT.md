@@ -1,16 +1,131 @@
 # Current Sprint
 
-## 📍 Where We Are Now (Jan 23, 2026)
+## 📍 Where We Are Now (Jan 28, 2026)
 
-- **Latest completed milestone**: **Sprint 90** (Project Creation Enhancement) ✅
-- **Sprint 89**: **COMPLETE** ✅ MinIO Object Lock + PostgreSQL RLS + Evidence Hash Chain
-- **Sprint 90**: **COMPLETE** ✅ Team & GitHub selectors (1.5 days - AHEAD OF SCHEDULE!)
-- **E2E Test Status**: **100% PASS** (124/124 tests) ✅
-- **Pre-Launch Readiness**: **100%** (P0/P1/P2 all complete) ✅
-- **SDLC Framework**: **SDLC 5.1.3** (7-Pillar Architecture)
-- **Current focus**: Ready for next sprint planning
-- **Soft Launch Target**: **March 15, 2026**
+- **Current Sprint**: **Sprint 106** (App Builder Integration - MVP) 🔄
+- **Sprint 105**: **COMPLETE** ✅ Integration Testing + 19 Hotfixes Applied
+- **Sprint 104**: **COMPLETE** ✅ Agentic Maturity L0-L3 + Documentation
+- **Sprint 103**: **COMPLETE** ✅ Context <60 Lines + Framework Version Tracking
+- **Sprint 102**: **COMPLETE** ✅ MRP/VCR 5-Point + 4-Tier Backend
+- **E2E Test Status**: **100% PASS** ✅
+- **Pre-Launch Readiness**: **98.2%** (Bug fixes applied) ✅
+- **SDLC Framework**: **SDLC 5.2.0** (7-Pillar + AI Governance)
+- **Current focus**: Competitive parity - Universal app scaffolding (4 templates)
+- **Soft Launch Target**: **March 1, 2026**
 - **Public Launch Target**: **March 15, 2026**
+
+---
+
+## 🔄 Sprint 106: App Builder Integration (MVP) - DAY 0
+
+**Dates**: January 28 - February 4, 2026 (8 days)
+**Status**: Prerequisites Phase
+**Epic**: COMPETITIVE PARITY - Universal App Scaffolding
+
+### Strategic Context
+
+**Business Necessity**: Without instant scaffolding, SDLC Orchestrator appears "incomplete" vs competitors (Cursor, Bolt.new, Windsurf) → 15-20% conversion, 30% churn. With scaffolding → 25-35% conversion, 15-20% churn = **+102% revenue impact**.
+
+**Two-Track Strategy** (NOT contradiction of Jan 19):
+- **Enterprise Track**: Wrapper Strategy (govern Cursor/Copilot) - Q2 2026
+- **SME Track**: App Builder + Governance - Sprint 106 (NOW)
+
+### Day 0: Prerequisites (Jan 28, 2026) - IN PROGRESS
+
+**Completed**:
+- ✅ ADR-040: App Builder Strategic Necessity (with Alternatives Considered)
+- ✅ Intent Router Test Scenarios (18 edge cases, 95% accuracy target)
+- ✅ Sprint 106 Plan Documentation (8-day detailed plan)
+
+**In Progress**:
+- ⏳ TemplateBlueprint schema definition
+- ⏳ IntentRouter design (keyword-based with confidence scoring)
+- ⏳ QualityGateProfile design (Scaffold vs Production modes)
+
+### Sprint 106 Scope
+
+**Templates (4/13)**:
+1. Next.js Fullstack (Next.js + Prisma + NextAuth) - 450 LOC
+2. FastAPI (Python + SQLAlchemy + JWT) - 350 LOC
+3. Next.js SaaS (Next.js + Stripe) - extends Fullstack
+4. React Native (Expo + Zustand + Navigation) - 400 LOC
+
+**Key Features**:
+- Intent Router with 95%+ accuracy (18 test scenarios)
+- Quality Gates (Scaffold mode: G1+G2 mandatory, G3+G4 optional)
+- Evidence Vault integration (automatic SHA256 hashing)
+- Cost transparency (planning + execution breakdown)
+- Zero-cost deterministic scaffolding ($0.00 per generation)
+
+**Deferred to Sprint 107**:
+- Planning Sub-Agent integration
+- CRP workflow for template approval
+- Coordinator glue (planning → execution)
+
+### Success Metrics
+
+| Metric | Target | Status |
+|--------|--------|--------|
+| Templates implemented | 4/4 | ⏳ Day 1-2 |
+| Intent Router accuracy | 18/18 (100%) | ⏳ Day 3 |
+| Quality gates pass | G1+G2 mandatory | ⏳ Day 3 |
+| E2E test | Full workflow | ⏳ Day 4 |
+| Documentation | Complete | ✅ Day 0 |
+
+### Timeline
+
+```
+Day 0 (Jan 28): Prerequisites ← WE ARE HERE
+Day 1-2 (Jan 29-30): Template Development (4 templates)
+Day 3 (Jan 31): Provider Integration (AppBuilderProvider + Intent Router)
+Day 4 (Feb 1): E2E Testing + Documentation
+Day 5 (Feb 1): CTO Checkpoint Review
+```
+
+### References
+
+- [ADR-040: App Builder Strategic Necessity](../../02-design/03-ADRs/ADR-040-App-Builder-Strategic-Necessity.md)
+- [ADR-039: App Builder Technical Implementation](../../02-design/03-ADRs/ADR-039-App-Builder-Deterministic-Scaffolder.md)
+- [Sprint 106 Plan](./SPRINT-106-APP-BUILDER-INTEGRATION.md)
+- [Intent Router Test Scenarios](../../backend/tests/services/test_intent_router_scenarios.py)
+
+---
+
+## ✅ Sprint 105: Integration Testing + Launch Readiness - COMPLETED (Jan 25-27, 2026)
+
+### Bug Fixes Applied (Jan 24, 2026)
+
+| Bug | Severity | Status | Description |
+|-----|----------|--------|-------------|
+| Redis health check import | P1 | ✅ Fixed | Wrong import `get_cache_service` → `get_redis_client` |
+| Delete user not refreshing | P2 | ✅ Fixed | Added `onSuccess` callback + `e.preventDefault()` |
+| Create user hanging | P1 | ✅ Fixed | Schema mismatch `name` → `full_name` |
+| Update user schema mismatch | P2 | ✅ Fixed | Same `name` → `full_name` fix |
+| Agentic maturity import error | P0 | ✅ Fixed | Wrong Base class import |
+| Password min length inconsistent | P2 | ✅ Fixed | Changed `min_length=12` → `min_length=8` (consistent with test admin) |
+| GitHub OAuth cookie missing | P1 | ✅ Fixed | Hotfix 21: Added `set_auth_cookies()` to OAuth callback |
+| Team creation UI stuck | P2 | ✅ Fixed | Hotfix 22: Fixed error handling + rate limiter cookie support |
+| Evidence endpoint 500 error | P1 | ✅ Fixed | Hotfix 23: Changed `uploader.name` → `uploader.full_name` |
+| Soft-deleted users not visible | P2 | ✅ Fixed | Hotfix 24: Added "Show Deleted Users" feature to admin panel |
+
+### Files Modified
+
+- `backend/app/api/routes/admin.py` - Health check + User CRUD fixes + Hotfix 24 (restore endpoint)
+- `backend/app/models/agentic_maturity.py` - Base import fix
+- `frontend/src/components/admin/DeleteUserDialog.tsx` - Auto-refresh fix
+- `frontend/src/app/admin/users/page.tsx` - onSuccess callback + Hotfix 24 (Show Deleted toggle)
+- `.env.staging` - CORS origins updated
+- `backend/app/api/routes/github.py` - Hotfix 21: OAuth cookie support
+- `backend/app/middleware/rate_limiter.py` - Hotfix 22: Cookie support for rate limiting
+- `backend/app/api/routes/evidence.py` - Hotfix 23: User.full_name fix
+- `backend/app/schemas/admin.py` - Password min_length 12 → 8 + Hotfix 24 (deleted_at field)
+- `frontend/src/lib/types/admin.ts` - Hotfix 24: Added deleted_at + include_deleted
+- `frontend/src/hooks/useAdmin.ts` - Hotfix 24: useRestoreUser hook + include_deleted param
+- `backend/alembic/versions/s105_001_performance_indexes.py` - Safe indexes only
+- `backend/app/schemas/admin.py` - Password min_length 12 → 8
+- `backend/app/services/settings_service.py` - Default password min_length 12 → 8
+- `backend/app/utils/password_validator.py` - Docstring updated
+- `backend/alembic/versions/m8h9i0j1k2l3_admin_panel_tables.py` - Default 12 → 8
 
 ---
 

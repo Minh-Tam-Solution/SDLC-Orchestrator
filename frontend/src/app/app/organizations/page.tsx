@@ -164,6 +164,8 @@ function CreateOrganizationModal({
   const [slug, setSlug] = useState("");
   const [plan, setPlan] = useState<OrganizationPlan>("free");
   const [error, setError] = useState<string | null>(null);
+  // Sprint 105: Prevent double-submit race condition
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Auto-generate slug from name
   const handleNameChange = (value: string) => {
@@ -175,6 +177,12 @@ function CreateOrganizationModal({
     e.preventDefault();
     setError(null);
 
+    // Sprint 105: Double-submit protection - check both local and mutation state
+    if (isSubmitting || createOrg.isPending) {
+      console.log("[CreateOrg] Already submitting, skipping duplicate request");
+      return;
+    }
+
     if (!name.trim()) {
       setError("Organization name is required");
       return;
@@ -185,6 +193,9 @@ function CreateOrganizationModal({
       return;
     }
 
+    // Sprint 105: Set local submitting state BEFORE async call
+    setIsSubmitting(true);
+
     try {
       const result = await createOrg.mutateAsync({
         name: name.trim(),
@@ -194,9 +205,22 @@ function CreateOrganizationModal({
 
       onClose();
       router.push(`/app/organizations/${result.id}`);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to create organization";
+    } catch (err: unknown) {
+      // Sprint 105: Extract error message from API response or Error object
+      let errorMessage = "Failed to create organization";
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (err && typeof err === "object") {
+        // API errors come as {detail: "...", status: 409}
+        if ("detail" in err && typeof err.detail === "string") {
+          errorMessage = err.detail;
+        } else if ("message" in err && typeof err.message === "string") {
+          errorMessage = err.message;
+        }
+      }
       setError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -205,6 +229,7 @@ function CreateOrganizationModal({
     setSlug("");
     setPlan("free");
     setError(null);
+    setIsSubmitting(false);
     onClose();
   };
 
@@ -311,10 +336,10 @@ function CreateOrganizationModal({
             </button>
             <button
               type="submit"
-              disabled={createOrg.isPending}
+              disabled={isSubmitting || createOrg.isPending}
               className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
             >
-              {createOrg.isPending ? (
+              {(isSubmitting || createOrg.isPending) ? (
                 <>
                   <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

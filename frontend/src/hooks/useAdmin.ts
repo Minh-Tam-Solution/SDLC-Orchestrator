@@ -54,6 +54,11 @@ async function fetchWithAuth<T>(
     throw new Error(error.detail || `HTTP ${response.status}`);
   }
 
+  // Handle 204 No Content (e.g., DELETE responses)
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
   return response.json();
 }
 
@@ -111,6 +116,8 @@ export function useAdminUsers(params: AdminUserListParams = {}) {
   if (params.search) queryParams.set("search", params.search);
   if (params.is_active !== undefined) queryParams.set("is_active", params.is_active.toString());
   if (params.is_superuser !== undefined) queryParams.set("is_superuser", params.is_superuser.toString());
+  // Sprint 105: Show Deleted Users feature
+  if (params.include_deleted !== undefined) queryParams.set("include_deleted", params.include_deleted.toString());
   if (params.sort_by) queryParams.set("sort_by", params.sort_by);
   if (params.sort_order) queryParams.set("sort_order", params.sort_order);
 
@@ -256,6 +263,48 @@ export function useBulkDeleteUsers() {
       fetchWithAuth<BulkDeleteResponse>("/admin/users/bulk", {
         method: "DELETE",
         body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.users() });
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.stats() });
+    },
+  });
+}
+
+/**
+ * Restore soft-deleted user
+ * Sprint 105: Show Deleted Users feature
+ * - Restores user account by clearing deleted_at
+ * - Reactivates user (is_active=true)
+ */
+export function useRestoreUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userId: string) =>
+      fetchWithAuth<AdminUserDetail>(`/admin/users/${userId}/restore`, {
+        method: "POST",
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.users() });
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.stats() });
+    },
+  });
+}
+
+/**
+ * Permanently delete a soft-deleted user
+ * Sprint 105: Show Deleted Users feature
+ * - IRREVERSIBLE: Permanently removes user from database
+ * - Only works on users that are already soft-deleted
+ */
+export function usePermanentDeleteUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userId: string) =>
+      fetchWithAuth<void>(`/admin/users/${userId}/permanent`, {
+        method: "DELETE",
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminQueryKeys.users() });

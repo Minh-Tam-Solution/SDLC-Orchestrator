@@ -35,6 +35,8 @@ from .base_provider import (
 from .ollama_provider import OllamaCodegenProvider
 from .claude_provider import ClaudeCodegenProvider
 from .deepcode_provider import DeepCodeProvider
+from .app_builder_provider import AppBuilderProvider
+from .intent_router import IntentRouter, IntentType
 
 logger = logging.getLogger(__name__)
 
@@ -144,6 +146,9 @@ class CodegenService:
         self._registry = custom_registry if custom_registry is not None else registry
         self._initialized = False
 
+        # Sprint 106: Intent Router for automatic provider selection
+        self._intent_router = IntentRouter(confidence_threshold=0.75)
+
         if auto_register:
             self._register_default_providers()
 
@@ -152,14 +157,27 @@ class CodegenService:
         Register default providers and set fallback chain.
 
         Registers:
-        - OllamaCodegenProvider (primary)
+        - AppBuilderProvider (deterministic scaffolding, Sprint 106)
+        - OllamaCodegenProvider (primary LLM)
         - ClaudeCodegenProvider (fallback 1)
         - DeepCodeProvider (fallback 2)
+
+        Note:
+            app-builder is NOT in default fallback chain.
+            It's only used when Intent Router detects NEW_SCAFFOLD (confidence ≥ 0.75).
+            For explicit use: preferred_provider="app-builder"
         """
         if self._initialized:
             return
 
-        # Register providers
+        # Register App Builder Provider (Sprint 106)
+        try:
+            self._registry.register(AppBuilderProvider())
+            logger.info("Registered AppBuilderProvider (deterministic scaffolding)")
+        except Exception as e:
+            logger.warning(f"Failed to register AppBuilderProvider: {e}")
+
+        # Register LLM providers
         try:
             self._registry.register(OllamaCodegenProvider())
             logger.info("Registered OllamaCodegenProvider")
@@ -178,7 +196,7 @@ class CodegenService:
         except Exception as e:
             logger.warning(f"Failed to register DeepCodeProvider: {e}")
 
-        # Set default fallback chain
+        # Set default fallback chain (app-builder NOT included, intent-based routing)
         self._registry.set_fallback_chain(['ollama', 'claude', 'deepcode'])
 
         self._initialized = True
@@ -224,22 +242,82 @@ class CodegenService:
         """
         self._registry.set_fallback_chain(chain)
 
+    def _route_by_intent(
+        self,
+        spec: CodegenSpec,
+        has_existing_repo: bool = False
+    ) -> Optional[str]:
+        """
+        Route codegen request to appropriate provider based on intent detection.
+
+        Sprint 106: Intent-based routing for app-builder provider.
+
+        Routing Logic:
+        1. Detect intent from spec description
+        2. If NEW_SCAFFOLD + confidence ≥ 0.75 → "app-builder"
+        3. If DOMAIN_SME → "ep06-sme" (future)
+        4. Otherwise → None (use fallback chain)
+
+        Args:
+            spec: Code generation specification
+            has_existing_repo: True if user has uploaded repo context
+
+        Returns:
+            Provider name to use, or None to use fallback chain
+
+        Example:
+            >>> provider = service._route_by_intent(
+            ...     CodegenSpec(description="Create Instagram clone with Next.js")
+            ... )
+            >>> # Returns "app-builder" if confidence ≥ 0.75
+        """
+        try:
+            detection = self._intent_router.detect_intent(
+                description=spec.description,
+                domain=spec.domain if hasattr(spec, 'domain') else None,
+                has_existing_repo=has_existing_repo
+            )
+
+            logger.info(
+                f"Intent detection: {detection.intent.value} "
+                f"(confidence: {detection.confidence:.2f}) → "
+                f"Recommended: {detection.recommended_provider}"
+            )
+
+            # Route to app-builder if NEW_SCAFFOLD with high confidence
+            if self._intent_router.should_use_app_builder(detection):
+                logger.info(
+                    f"Auto-routing to app-builder (confidence: {detection.confidence:.2f})"
+                )
+                return "app-builder"
+
+            # For other intents, use fallback chain
+            # (DOMAIN_SME routing to ep06-sme can be added in future)
+            return None
+
+        except Exception as e:
+            logger.warning(f"Intent routing failed: {e}, using fallback chain")
+            return None
+
     async def generate(
         self,
         spec: CodegenSpec,
         preferred_provider: Optional[str] = None,
         use_cache: bool = True,
+        has_existing_repo: bool = False,
     ) -> CodegenResult:
         """
         Generate code using available provider.
 
-        Tries preferred provider first, then falls back through chain.
-        Uses caching to reduce latency for repeated requests (Sprint 48).
+        Sprint 106: Intent-based routing with automatic app-builder selection.
+        - NEW_SCAFFOLD (confidence ≥ 0.75) → auto-routes to app-builder
+        - Otherwise → uses preferred_provider or fallback chain
 
         Args:
             spec: CodegenSpec with app_blueprint
             preferred_provider: Optional preferred provider name
             use_cache: Whether to use cache (default: True)
+            has_existing_repo: True if user has uploaded repo context
 
         Returns:
             CodegenResult with generated code
@@ -249,8 +327,13 @@ class CodegenService:
             GenerationError: Generation failed
 
         Example:
+            >>> # Auto-routing to app-builder
             >>> result = await service.generate(
-            ...     spec=CodegenSpec(app_blueprint={...}),
+            ...     spec=CodegenSpec(description="Create Instagram clone")
+            ... )
+            >>> # Manual provider selection
+            >>> result = await service.generate(
+            ...     spec=CodegenSpec(description="Add auth"),
             ...     preferred_provider="ollama"
             ... )
         """
@@ -268,6 +351,13 @@ class CodegenService:
                     return cached_result
             except Exception as e:
                 logger.warning(f"Cache lookup failed: {e}")
+
+        # Sprint 106: Intent-based routing (if no explicit provider specified)
+        if preferred_provider is None:
+            routed_provider = self._route_by_intent(spec, has_existing_repo)
+            if routed_provider:
+                preferred_provider = routed_provider
+                logger.info(f"Intent router selected: {preferred_provider}")
 
         provider = self._registry.select_provider(preferred_provider)
 

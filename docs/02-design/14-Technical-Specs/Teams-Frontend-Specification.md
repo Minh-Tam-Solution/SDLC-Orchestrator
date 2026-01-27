@@ -1,13 +1,18 @@
 # Teams Frontend Specification
 ## React Components, Hooks, and Pages for Team Orchestration
 
-**Version**: 1.0.0
-**Date**: January 17, 2026
-**Status**: APPROVED
+**Version**: 1.1.0
+**Date**: January 25, 2026
+**Status**: APPROVED (Updated Sprint 105)
 **Author**: Frontend Lead
 **Reference**: ADR-028-Teams-Feature-Architecture
 **Sprint**: Sprint 72 (Feb 3 - Feb 17, 2026)
 **Framework**: SDLC 5.1.2 (Stage 08: COLLABORATE)
+
+**Changelog v1.1.0** (Jan 25, 2026):
+- Added `member_type` field to AddMemberInput interface
+- Added `ai_agent` to role type definition
+- Added SASE-compliant UX behavior: auto-select ai_agent role for AI agent member types
 
 ---
 
@@ -366,13 +371,30 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
 }
 
 export interface AddMemberInput {
-  user_id: string;
-  role?: "owner" | "admin" | "member";
+  user_id?: string;           // Optional if using user_email
+  user_email?: string;        // Find user by email (Sprint 105)
+  role?: "owner" | "admin" | "member" | "ai_agent";
+  member_type?: "human" | "ai_agent";  // SASE member type
 }
 
 export interface UpdateMemberRoleInput {
-  role: "owner" | "admin" | "member";
+  role: "owner" | "admin" | "member" | "ai_agent";
 }
+
+/**
+ * SASE Role Constraint (Sprint 105 UX Improvement):
+ *
+ * When member_type = "ai_agent":
+ *   - Role MUST be "ai_agent" (auto-selected by frontend)
+ *   - Frontend shows fixed display instead of dropdown
+ *   - This prevents user confusion between Member/AI Agent roles
+ *
+ * When member_type = "human":
+ *   - Role can be "owner", "admin", or "member"
+ *   - Frontend shows dropdown with 3 options
+ *
+ * Backend enforces: AI agents cannot have owner/admin roles (SASE compliance)
+ */
 
 /**
  * Hook to list team members

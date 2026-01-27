@@ -58,6 +58,22 @@ function OAuthCallbackHandler() {
       // NOTE: Using localStorage instead of sessionStorage because sessionStorage
       // can be lost in Incognito mode when redirecting to external OAuth providers
       const storedState = localStorage.getItem("oauth_state");
+
+      // Debug logging to identify state mismatch issue
+      console.log("[OAuth Debug]", {
+        urlState: state,
+        urlStateLength: state?.length,
+        storedState: storedState,
+        storedStateLength: storedState?.length,
+        match: storedState === state,
+        localStorage: {
+          oauth_state: storedState,
+          oauth_redirect: localStorage.getItem("oauth_redirect"),
+          oauth_flow: localStorage.getItem("oauth_flow"),
+          oauth_provider: localStorage.getItem("oauth_provider"),
+        },
+      });
+
       if (!storedState || storedState !== state) {
         setStatus("error");
         setErrorMessage("Invalid state parameter. Please try again.");
@@ -77,10 +93,14 @@ function OAuthCallbackHandler() {
 
       try {
         // Exchange code for tokens
+        console.log("[OAuth Callback] Starting token exchange at:", new Date().toISOString());
+        console.log("[OAuth Callback] Provider:", provider, "Code length:", code?.length);
+        const startTime = Date.now();
         const response = await exchangeOAuthCode(provider, {
           code,
           state,
         });
+        console.log("[OAuth Callback] Token exchange completed in:", Date.now() - startTime, "ms");
 
         // Store tokens
         if (response.access_token) {
@@ -112,6 +132,8 @@ function OAuthCallbackHandler() {
         }, 1500);
 
       } catch (error) {
+        console.log("[OAuth Callback] Error caught:", error);
+        console.log("[OAuth Callback] Error at:", new Date().toISOString());
         const apiErr = error as APIError;
         setStatus("error");
         setErrorMessage(apiErr.detail || "Failed to complete authentication. Please try again.");

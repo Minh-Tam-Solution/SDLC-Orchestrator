@@ -225,7 +225,9 @@ function CreateTeamModal({
       onClose();
       router.push(`/app/teams/${result.id}`);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to create team";
+      // Sprint 105: Handle API error object { detail, status } properly
+      const apiErr = err as { detail?: string; status?: number };
+      const errorMessage = apiErr.detail || (err instanceof Error ? err.message : "Failed to create team");
       setError(errorMessage);
     }
   };

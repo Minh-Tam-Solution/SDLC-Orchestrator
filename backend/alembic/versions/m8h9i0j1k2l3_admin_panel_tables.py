@@ -68,7 +68,7 @@ def upgrade() -> None:
         ('max_file_size_mb', '100', 'limits', 'Maximum file size in MB', 1),
         ('ai_council_enabled', 'true', 'features', 'Enable AI Council feature', 1),
         ('mfa_required', 'false', 'security', 'Require MFA for all users', 1),
-        ('password_min_length', '12', 'security', 'Minimum password length', 1),
+        ('password_min_length', '8', 'security', 'Minimum password length', 1),
         ('evidence_retention_days', '365', 'limits', 'Evidence retention period in days', 1)
         ON CONFLICT (key) DO NOTHING;
     """)

@@ -3,8 +3,8 @@
  *
  * @module frontend/landing/src/components/landing/Hero
  * @description Primary hero section with "Control Plane" messaging
- * @sdlc SDLC 5.1.3 Universal Framework (7-Pillar Architecture)
- * @status Sprint 79 - SDLC 5.1.3 Updates
+ * @sdlc SDLC 5.2.0 Universal Framework (7-Pillar Architecture)
+ * @status Sprint 105 - SDLC 5.2.0 Updates
  */
 
 "use client";

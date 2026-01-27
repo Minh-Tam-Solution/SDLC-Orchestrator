@@ -103,7 +103,9 @@ class RateLimiterMiddleware(BaseHTTPMiddleware):
 
     def _get_user_id(self, request: Request) -> Optional[str]:
         """
-        Extract user ID from JWT token.
+        Extract user ID from JWT token (header or cookie).
+
+        Sprint 105: Support both Authorization header and httpOnly cookies.
 
         Args:
             request: FastAPI request object
@@ -111,11 +113,22 @@ class RateLimiterMiddleware(BaseHTTPMiddleware):
         Returns:
             User ID string or None if not authenticated
         """
-        # Check Authorization header for JWT token
-        auth_header = request.headers.get("Authorization")
-        if auth_header and auth_header.startswith("Bearer "):
-            try:
+        token = None
+
+        # Priority 1: Check httpOnly cookie (Sprint 63 preferred method)
+        from app.core.cookies import ACCESS_TOKEN_COOKIE_NAME
+        cookie_token = request.cookies.get(ACCESS_TOKEN_COOKIE_NAME)
+        if cookie_token:
+            token = cookie_token
+
+        # Priority 2: Check Authorization header for JWT token
+        if not token:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
                 token = auth_header.split(" ")[1]
+
+        if token:
+            try:
                 # Decode JWT token to extract user_id
                 payload = decode_token(token)
                 

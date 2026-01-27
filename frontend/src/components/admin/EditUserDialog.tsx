@@ -7,6 +7,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { Copy, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +43,15 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyUUID = async () => {
+    if (user?.id) {
+      await navigator.clipboard.writeText(user.id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   useEffect(() => {
     if (user && open) {
@@ -53,6 +63,7 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
         is_superuser: user.is_superuser,
       });
       setErrors({});
+      setCopied(false);
     }
   }, [user, open]);
 
@@ -65,8 +76,8 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
       newErrors.email = "Invalid email format";
     }
 
-    if (formData.new_password && formData.new_password.length < 12) {
-      newErrors.new_password = "Password must be at least 12 characters";
+    if (formData.new_password && formData.new_password.length < 8) {
+      newErrors.new_password = "Password must be at least 8 characters";
     }
 
     setErrors(newErrors);
@@ -146,6 +157,37 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
           </DialogHeader>
 
           <div className="space-y-4 py-4">
+            {/* UUID Display - Read Only (Sprint 105) */}
+            <div className="space-y-2">
+              <Label htmlFor="uuid">User ID (UUID)</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="uuid"
+                  type="text"
+                  value={user.id}
+                  readOnly
+                  className="bg-gray-50 text-gray-600 font-mono text-sm"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={handleCopyUUID}
+                  className="shrink-0"
+                  title="Copy UUID"
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500">
+                Unique identifier for this user (read-only)
+              </p>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">
                 Email <span className="text-red-500">*</span>
@@ -180,7 +222,7 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
                 <p className="text-sm text-red-500">{errors.new_password}</p>
               )}
               <p className="text-xs text-gray-500">
-                Password must be at least 12 characters (if changing)
+                Password must be at least 8 characters (if changing)
               </p>
             </div>
 

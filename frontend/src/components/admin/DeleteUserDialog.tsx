@@ -25,9 +25,10 @@ interface DeleteUserDialogProps {
   user: AdminUser | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
-export function DeleteUserDialog({ user, open, onOpenChange }: DeleteUserDialogProps) {
+export function DeleteUserDialog({ user, open, onOpenChange, onSuccess }: DeleteUserDialogProps) {
   const { toast } = useToast();
   const deleteUserMutation = useDeleteAdminUser();
 
@@ -43,6 +44,7 @@ export function DeleteUserDialog({ user, open, onOpenChange }: DeleteUserDialogP
       });
 
       onOpenChange(false);
+      onSuccess?.();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Failed to delete user";
       toast({
@@ -92,7 +94,10 @@ export function DeleteUserDialog({ user, open, onOpenChange }: DeleteUserDialogP
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            onClick={handleDelete}
+            onClick={(e) => {
+              e.preventDefault();
+              handleDelete();
+            }}
             disabled={deleteUserMutation.isPending}
             className="bg-red-600 hover:bg-red-700 min-w-[120px]"
           >

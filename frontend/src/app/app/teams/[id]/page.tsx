@@ -167,6 +167,8 @@ function MemberRow({
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  // Sprint 105: Track delete in progress to prevent double-delete
+  const [isDeleting, setIsDeleting] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const removeMember = useRemoveTeamMember(teamId);
   const updateRole = useUpdateMemberRole(teamId);
@@ -194,21 +196,57 @@ function MemberRow({
     setShowMenu(!showMenu);
   };
 
-  const handleRemove = async () => {
+  const handleRemove = async (e: React.MouseEvent) => {
+    // Prevent event bubbling
+    e.stopPropagation();
+    e.preventDefault();
+
+    console.log("[RemoveMember] handleRemove called", {
+      userId: member.user_id,
+      isDeleting,
+      isPending: removeMember.isPending,
+    });
+
+    // Sprint 105: Prevent double-delete
+    if (isDeleting || removeMember.isPending) {
+      console.log("[RemoveMember] Already deleting, skipping");
+      return;
+    }
+
     if (confirm(`Remove ${member.user_name || member.user_email} from team?`)) {
+      setIsDeleting(true);
+      setShowMenu(false); // Close menu immediately
+
       try {
+        console.log("[RemoveMember] Calling mutateAsync for:", member.user_id);
         await removeMember.mutateAsync(member.user_id);
+        console.log("[RemoveMember] mutateAsync completed successfully");
       } catch (err: unknown) {
-        // Log error for debugging
-        console.error("[RemoveMember] Failed:", err);
-        // Show user-friendly error message
+        console.log("[RemoveMember] Caught error:", err);
+
+        // Sprint 105: Don't show error for 404 - member is already deleted
+        const errorStatus = err && typeof err === "object" && "status" in err
+          ? (err as { status: number }).status
+          : null;
+
+        if (errorStatus === 404) {
+          // Member already deleted - this is success from user's perspective
+          console.log("[RemoveMember] 404 = member already deleted, ignoring");
+          return;
+        }
+
+        // Log and show error for real errors only
+        console.error("[RemoveMember] Real error:", err);
         const errorMsg = err && typeof err === "object" && "detail" in err
           ? (err as { detail: string }).detail
           : "Failed to remove member. Please try again.";
         alert(errorMsg);
+      } finally {
+        setIsDeleting(false);
       }
+    } else {
+      setShowMenu(false);
     }
-    setShowMenu(false);
   };
 
   const handleRoleChange = async (newRole: TeamRole) => {
@@ -326,11 +364,11 @@ function MemberRow({
                   <div className="border-t border-gray-100 my-1" />
                   <button
                     onClick={handleRemove}
-                    disabled={removeMember.isPending}
-                    className="flex items-center w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    disabled={removeMember.isPending || isDeleting}
+                    className="flex items-center w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
                   >
                     <TrashIcon className="h-4 w-4 mr-2" />
-                    Remove from team
+                    {isDeleting ? "Removing..." : "Remove from team"}
                   </button>
                 </div>
               </>

@@ -1110,12 +1110,12 @@ async def forgot_password(
             PasswordResetToken.user_id == user.id,
             PasswordResetToken.used_at.is_(None),
         )
-        .values(used_at=datetime.now(timezone.utc))  # Mark as "used" to invalidate
+        .values(used_at=datetime.utcnow())  # Mark as "used" to invalidate (naive datetime to match column)
     )
 
     # Create new password reset token (1-hour expiry)
-    # Using timezone-aware datetime - PostgreSQL will store correctly in UTC
-    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+    # Using naive datetime to match PasswordResetToken.expires_at column type
+    expires_at = datetime.utcnow() + timedelta(hours=1)
     reset_token = PasswordResetToken(
         user_id=user.id,
         token_hash=token_hash,
@@ -1390,8 +1390,8 @@ async def reset_password(
     user.password_hash = new_password_hash
     user.updated_at = datetime.utcnow()
 
-    # Mark token as used
-    reset_token.used_at = datetime.now(timezone.utc)
+    # Mark token as used (naive datetime to match column type)
+    reset_token.used_at = datetime.utcnow()
 
     # Revoke all existing refresh tokens (security: logout all sessions)
     await db.execute(

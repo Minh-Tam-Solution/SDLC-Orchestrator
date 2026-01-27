@@ -346,9 +346,17 @@ class TeamStatistics(BaseModel):
 # =========================================================================
 
 class TeamMemberAdd(BaseModel):
-    """Schema for adding a member to a team."""
-    team_id: UUID = Field(..., description="Team UUID")
-    user_id: UUID = Field(..., description="User UUID to add")
+    """Schema for adding a member to a team.
+
+    Sprint 105: Accept user_id (UUID) OR email (string).
+    If email is provided, the service will lookup the user by email.
+
+    Note: team_id is optional in schema because it's provided via URL path
+    and set by the route handler before service call.
+    """
+    team_id: Optional[UUID] = Field(None, description="Team UUID (set from URL path)")
+    user_id: Optional[UUID] = Field(None, description="User UUID to add (optional if email provided)")
+    email: Optional[str] = Field(None, description="User email to add (optional if user_id provided)")
     role: TeamRole = Field(
         TeamRole.MEMBER,
         description="Member role in team"
@@ -357,6 +365,13 @@ class TeamMemberAdd(BaseModel):
         MemberType.HUMAN,
         description="Member type (human or ai_agent)"
     )
+
+    @model_validator(mode="after")
+    def validate_user_identifier(self) -> "TeamMemberAdd":
+        """Validate that either user_id or email is provided."""
+        if not self.user_id and not self.email:
+            raise ValueError("Either user_id or email must be provided")
+        return self
 
     @model_validator(mode="after")
     def validate_ai_agent_role(self) -> "TeamMemberAdd":

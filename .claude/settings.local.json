@@ -344,7 +344,19 @@
       "Bash(npx eslint:*)",
       "Bash(xargs sed -i 's|07-Continuous-Improvement|09-Continuous-Improvement|g' echo \"Path references updated \\(excluding 99-Legacy\\)\")",
       "Bash(# Verify the path updates worked grep -l \"\"03-Templates-Tools\"\" *.md)",
-      "Bash(15 LOC\" rule was gameable, replaced with intent-based triggers\n\nFRAMEWORK RESTRUCTURE:\n- Moved best-practices-2026 from 05-Templates-Tools/ to 04-AI-TOOLS-LANDSCAPE/\n- Reason: Concentric Circles Model - best practices are OUTER RING \\(strategic intel\\)\n- Updated CONTENT-MAP.md with new locations and SASE renumbering\n\nFILES UPDATED:\n- 04-AI-TOOLS-LANDSCAPE/best-practices-2026/01-planning-mode.md \\(risk-based\\)\n- CHANGELOG.md \\(risk-based planning documentation\\)\n- CONTENT-MAP.md \\(SASE renumbering: 01-CRP, 02-MRP, 03-VCR\\)\n- Various README.md files with redirect stubs\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(15 LOC\" rule was gameable, replaced with intent-based triggers\n\nFRAMEWORK RESTRUCTURE:\n- Moved best-practices-2026 from 05-Templates-Tools/ to 04-AI-TOOLS-LANDSCAPE/\n- Reason: Concentric Circles Model - best practices are OUTER RING \\(strategic intel\\)\n- Updated CONTENT-MAP.md with new locations and SASE renumbering\n\nFILES UPDATED:\n- 04-AI-TOOLS-LANDSCAPE/best-practices-2026/01-planning-mode.md \\(risk-based\\)\n- CHANGELOG.md \\(risk-based planning documentation\\)\n- CONTENT-MAP.md \\(SASE renumbering: 01-CRP, 02-MRP, 03-VCR\\)\n- Various README.md files with redirect stubs\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat\\(Sprint 105\\): Integration Testing + Launch Readiness COMPLETE\n\nSprint 105 Deliverables \\(10 SP\\):\n- E2E test suite: test_full_pr_workflow.py \\(~400 lines\\)\n  * Full PR workflow L2 tests \\(Risk → CRP → Planning → MRP → VCR\\)\n  * Context limit violation tests \\(<60 lines enforcement\\)\n  * Tier upgrade enforcement tests \\(4-tier policy\\)\n  * Learning loop tests \\(Sprint 100 feedback system\\)\n  * Maturity assessment tests \\(L0-L3\\)\n  * Framework version tracking tests\n  * Evidence vault operations tests\n  * Health check tests\n\n- Performance indexes: s105_001_performance_indexes.py\n  * PR queries optimization \\(project + status\\)\n  * Evidence queries optimization \\(project + type\\)\n  * Learning queries optimization \\(project + date\\)\n  * Consultation queries optimization \\(status + date\\)\n  * Maturity queries optimization \\(project + date\\)\n  * Uses CONCURRENTLY for production safety\n\n- Load testing: locustfile.py \\(~350 lines\\)\n  * Target: 1000 concurrent users\n  * Realistic user behavior simulation\n  * SDLCUser, DashboardUser, PRReviewerUser, ArchitectUser\n  * Success criteria: p50 <500ms, p95 <2s, p99 <5s\n\n- Security audit: security-audit-final.sh \\(~300 lines\\)\n  * Python scan \\(bandit\\)\n  * Dependency scan \\(grype\\)\n  * Container scan \\(trivy\\)\n  * Secret detection \\(gitleaks\\)\n  * AGPL compliance check\n  * SBOM generation \\(syft\\)\n\n- Launch checklist: LAUNCH-CHECKLIST.md \\(45 items\\)\n  * Infrastructure \\(12 items\\)\n  * Security \\(10 items\\)\n  * Performance \\(8 items\\)\n  * Testing \\(7 items\\)\n  * Monitoring \\(5 items\\)\n  * Documentation \\(5 items\\)\n  * Compliance \\(5 items\\)\n  * Pre-launch checks \\(3 items\\)\n\nReference: docs/04-build/02-Sprint-Plans/SPRINT-105-DESIGN.md\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(docker compose down:*)",
+      "Bash(ln:*)",
+      "Bash(git -C /home/nqh/shared/SDLC-Orchestrator stash list)",
+      "Bash(sudo netstat:*)",
+      "Bash(PGPASSWORD='staging_secure_password_change_me_32chars' docker exec postgres-central psql -U sdlc_user -d sdlc_orchestrator -c \"SELECT 1;\")",
+      "Bash(pm2 restart:*)",
+      "Bash(pm2 start:*)",
+      "Bash(ssh:*)",
+      "Bash(PYTHONPATH=/home/nqh/shared/SDLC-Orchestrator/backend:$PYTHONPATH python3 -m pytest:*)",
+      "Bash(for file in *.py)",
+      "Bash(do python3 -m py_compile \"$file\")"
     ],
     "deny": [],
     "ask": []

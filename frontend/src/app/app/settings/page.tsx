@@ -223,8 +223,13 @@ export default function SettingsPage() {
   // GitHub connect mutation
   const connectGitHubMutation = useMutation({
     mutationFn: () =>
-      fetchWithAuth<{ authorization_url: string }>("/github/authorize"),
+      fetchWithAuth<{ authorization_url: string; state: string }>("/github/authorize"),
     onSuccess: (data) => {
+      // Store OAuth state in localStorage for CSRF validation on callback
+      localStorage.setItem("oauth_state", data.state);
+      localStorage.setItem("oauth_flow", "connect");
+      localStorage.setItem("oauth_provider", "github");
+      localStorage.setItem("oauth_redirect", "/app/settings");
       window.location.href = data.authorization_url;
     },
   });

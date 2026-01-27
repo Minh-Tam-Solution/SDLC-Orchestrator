@@ -40,6 +40,49 @@ if TYPE_CHECKING:
     from app.models.user import User
 
 
+class UserOrganization(Base):
+    """
+    Join table for many-to-many relationship between users and organizations.
+
+    Sprint 105: Enables GitHub-style multi-organization membership.
+    A user can belong to multiple organizations with different roles in each.
+
+    Fields:
+        user_id: FK to users.id
+        organization_id: FK to organizations.id
+        role: User's role in this org (owner, admin, member)
+        joined_at: When user joined this organization
+    """
+
+    __tablename__ = "user_organizations"
+
+    user_id: Mapped[uuid4] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        doc="User ID"
+    )
+    organization_id: Mapped[uuid4] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        doc="Organization ID"
+    )
+    role: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        default="member",
+        doc="User's role in this organization: owner, admin, member"
+    )
+    joined_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        doc="When user joined this organization"
+    )
+
+    def __repr__(self) -> str:
+        return f"<UserOrganization(user={self.user_id}, org={self.organization_id}, role={self.role})>"
+
+
 class Organization(Base):
     """
     Organization model - multi-tenant root entity.

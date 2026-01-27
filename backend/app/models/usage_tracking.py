@@ -138,7 +138,8 @@ class UsageEvent(Base):
     resource_id = Column(UUID(as_uuid=True), nullable=True, index=True)
 
     # Additional event data
-    event_metadata = Column(JSONB, nullable=True)
+    # Note: Database column is 'metadata', model attribute is 'event_metadata'
+    event_metadata = Column("metadata", JSONB, nullable=True)
 
     # Performance
     duration_ms = Column(Integer, nullable=True)  # How long the action took

@@ -395,7 +395,7 @@ function CreateProjectModal({
                 </span>
               ) : (
                 <Link
-                  href="/app/settings/integrations"
+                  href="/app/settings"
                   className="text-xs text-blue-600 hover:underline"
                 >
                   Connect GitHub

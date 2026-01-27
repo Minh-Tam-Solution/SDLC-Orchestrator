@@ -27,7 +27,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.models.organization import Organization
+from app.models.organization import Organization, UserOrganization
 from app.models.team import Team
 from app.models.user import User
 from app.schemas.team import OrganizationCreate, OrganizationUpdate
@@ -103,6 +103,9 @@ class OrganizationsService:
         """
         Create new organization with creator as first member.
 
+        Sprint 105 Update: Uses join table for multi-org support (GitHub-style).
+        Creator is ADDED to the new org without being REMOVED from existing orgs.
+
         Args:
             data: Organization creation data
             creator_id: UUID of user creating the organization
@@ -114,7 +117,9 @@ class OrganizationsService:
             OrganizationSlugExistsError: If slug already exists
 
         Note:
-            Creator is automatically assigned to the organization
+            - Creator is added to user_organizations join table as 'owner'
+            - If user has no current organization, sets as default
+            - Existing org memberships are PRESERVED (not replaced)
         """
         # Check slug uniqueness
         existing = await self.db.scalar(
@@ -136,9 +141,18 @@ class OrganizationsService:
         self.db.add(org)
         await self.db.flush()
 
-        # Assign creator to organization
+        # Sprint 105: Add creator to join table as owner (multi-org support)
+        user_org = UserOrganization(
+            user_id=creator_id,
+            organization_id=org.id,
+            role="owner",
+            joined_at=datetime.utcnow()
+        )
+        self.db.add(user_org)
+
+        # Only set as default org if user has no current organization
         creator = await self.db.get(User, creator_id)
-        if creator:
+        if creator and creator.organization_id is None:
             creator.organization_id = org.id
 
         await self.db.commit()
@@ -180,6 +194,8 @@ class OrganizationsService:
         """
         List organizations with eager-loaded relationships.
 
+        Sprint 105 Update: Uses user_organizations join table for multi-org support.
+
         Args:
             user_id: Optional filter by user membership
             skip: Pagination offset
@@ -189,7 +205,7 @@ class OrganizationsService:
             List of Organization objects with teams/users loaded
 
         Note:
-            If user_id provided, only returns orgs user belongs to.
+            If user_id provided, returns ALL orgs user belongs to (via join table).
             Otherwise returns all organizations (superuser only).
             Uses selectinload to avoid N+1 query issues.
         """
@@ -203,8 +219,11 @@ class OrganizationsService:
         )
 
         if user_id:
-            # Filter by user's organization
-            query = query.join(User, Organization.id == User.organization_id).where(User.id == user_id)
+            # Sprint 105: Query via user_organizations join table (multi-org support)
+            query = query.join(
+                UserOrganization,
+                Organization.id == UserOrganization.organization_id
+            ).where(UserOrganization.user_id == user_id)
 
         query = query.offset(skip).limit(min(limit, 100))
         result = await self.db.scalars(query)

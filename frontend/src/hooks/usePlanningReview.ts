@@ -18,11 +18,8 @@ import {
 } from "@/lib/api";
 import type {
   PlanningRequest,
-  PlanApprovalRequest,
   ConformanceCheckRequest,
   PlanningResult,
-  ConformanceResult,
-  PlanningSessionSummary,
   PlanningStatus,
 } from "@/lib/types/planning-subagent";
 
@@ -197,8 +194,6 @@ export function usePlanningSubagentHealth() {
  * Combined hook for plan review workflow
  */
 export function usePlanReview(sessionId: string) {
-  const queryClient = useQueryClient();
-
   const session = usePlanningSession(sessionId);
   const approveMutation = useApprovePlanningSession();
   const rejectMutation = useRejectPlanningSession();
@@ -274,8 +269,6 @@ export function usePlanningSessionManagement(params?: {
   status?: PlanningStatus;
   limit?: number;
 }) {
-  const queryClient = useQueryClient();
-
   const sessions = usePlanningSessions(params);
   const createMutation = useCreatePlanningSession();
   const health = usePlanningSubagentHealth();

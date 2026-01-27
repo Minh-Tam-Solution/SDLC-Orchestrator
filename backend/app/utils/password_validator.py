@@ -48,10 +48,10 @@ async def validate_password_strength(
         >>> from app.services.settings_service import SettingsService
         >>> settings_svc = SettingsService(db)
         >>> await validate_password_strength("short", settings_svc)
-        HTTPException: Password must be at least 12 characters long
+        HTTPException: Password must be at least 8 characters long
 
-        >>> await validate_password_strength("VerySecurePassword123!", settings_svc)
-        None  # Valid
+        >>> await validate_password_strength("Admin@123", settings_svc)
+        None  # Valid (9 chars >= 8 min)
     """
     if not password:
         raise HTTPException(

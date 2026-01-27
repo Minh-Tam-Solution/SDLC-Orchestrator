@@ -1,12 +1,16 @@
 # Teams API Specification
 ## REST API Endpoints for Organizations, Teams, and Members
 
-**Version**: 1.0.0
-**Date**: January 17, 2026
-**Status**: APPROVED
+**Version**: 1.1.0
+**Date**: January 25, 2026
+**Status**: APPROVED (Updated Sprint 105)
 **Author**: Backend Lead
 **Reference**: ADR-028-Teams-Feature-Architecture
 **Sprint**: Sprint 71 (Feb 3 - Feb 17, 2026)
+
+**Changelog v1.1.0** (Jan 25, 2026):
+- Clarified SASE role constraints: AI agents (member_type=ai_agent) MUST have role=ai_agent
+- Added UX recommendation: Frontend should auto-select ai_agent role for AI agent member types
 
 ---
 
@@ -562,7 +566,14 @@ POST /teams/{team_id}/members
 
 **Validation:**
 - User must belong to the same organization as the team
-- **SASE Compliance**: AI agents (member_type=ai_agent) cannot be assigned owner or admin roles
+- **SASE Compliance**: AI agents (member_type=ai_agent) MUST have role=ai_agent only
+  - Cannot be assigned owner or admin roles (SASE human oversight principle)
+  - The `member` role is technically valid but discouraged for AI agents
+
+**UX Recommendation (Sprint 105)**:
+- Frontend should auto-select `role=ai_agent` when `member_type=ai_agent` is chosen
+- Show fixed "AI Agent (SE4A Executor)" display instead of dropdown for AI agent members
+- This prevents user confusion between "Member" and "AI Agent" roles for AI agent types
 
 ---
 

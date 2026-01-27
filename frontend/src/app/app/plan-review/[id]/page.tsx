@@ -139,23 +139,7 @@ function DocumentTextIcon({ className }: { className?: string }) {
   );
 }
 
-function UserIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-      />
-    </svg>
-  );
-}
+// UserIcon - reserved for future use in user display components
 
 // =============================================================================
 // METADATA CARD
@@ -316,13 +300,10 @@ function LoadingSkeleton() {
 
 export default function PlanReviewDetailPage() {
   const params = useParams();
-  const router = useRouter();
+  useRouter(); // Initialize router for navigation
   const sessionId = params.id as string;
 
   const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
-  const [approvalAction, setApprovalAction] = useState<"approve" | "reject">(
-    "approve"
-  );
 
   // Fetch session
   const {
@@ -337,31 +318,12 @@ export default function PlanReviewDetailPage() {
   const rejectMutation = useRejectPlanningSession();
 
   const handleApproveClick = useCallback(() => {
-    setApprovalAction("approve");
     setApprovalDialogOpen(true);
   }, []);
 
   const handleRejectClick = useCallback(() => {
-    setApprovalAction("reject");
     setApprovalDialogOpen(true);
   }, []);
-
-  const handleApprovalSubmit = useCallback(
-    async (notes?: string) => {
-      try {
-        if (approvalAction === "approve") {
-          await approveMutation.mutateAsync({ id: sessionId, notes });
-        } else {
-          await rejectMutation.mutateAsync({ id: sessionId, notes });
-        }
-        setApprovalDialogOpen(false);
-        refetch();
-      } catch (error) {
-        console.error("Failed to process approval:", error);
-      }
-    },
-    [approvalAction, sessionId, approveMutation, rejectMutation, refetch]
-  );
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
@@ -642,13 +604,21 @@ export default function PlanReviewDetailPage() {
 
       {/* Approval Dialog */}
       <PlanApprovalDialog
-        open={approvalDialogOpen}
+        plan={session}
+        isOpen={approvalDialogOpen}
         onOpenChange={setApprovalDialogOpen}
-        action={approvalAction}
-        onSubmit={handleApprovalSubmit}
-        isSubmitting={approveMutation.isPending || rejectMutation.isPending}
-        planSummary={session.plan.summary}
-        conformanceScore={session.conformance.score}
+        onApprove={async (notes) => {
+          await approveMutation.mutateAsync({ sessionId, notes });
+          setApprovalDialogOpen(false);
+          refetch();
+        }}
+        onReject={async (notes) => {
+          await rejectMutation.mutateAsync({ sessionId, notes });
+          setApprovalDialogOpen(false);
+          refetch();
+        }}
+        isApproving={approveMutation.isPending}
+        isRejecting={rejectMutation.isPending}
       />
     </div>
   );

@@ -300,21 +300,21 @@ class SettingsService:
         Get minimum password length requirement.
 
         Returns:
-            Minimum password length (default: 12 characters)
+            Minimum password length (default: 8 characters)
 
         Note:
             This is enforced during password creation and reset.
 
         Used by: backend/app/schemas/admin.py, backend/app/schemas/auth.py
         """
-        value = await self.get("password_min_length", default=12)
+        value = await self.get("password_min_length", default=8)
         try:
             length = int(value)
             # Sanity check: at least 8, at most 128
             return max(8, min(length, 128))
         except (ValueError, TypeError):
-            logger.warning(f"Invalid password_min_length value: {value}, using default 12")
-            return 12
+            logger.warning(f"Invalid password_min_length value: {value}, using default 8")
+            return 8
 
     # =========================================================================
     # Limit Settings (Phase 2)

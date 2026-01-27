@@ -319,7 +319,7 @@ async def get_vcr(
 
 
 @router.get(
-    "/vcr/{project_id}/{pr_id}/history",
+    "/vcr/{project_id}/history",
     response_model=VCRHistoryResponse,
     summary="Get VCR history",
     description="Retrieve VCR history for a PR or project.",

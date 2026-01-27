@@ -1016,7 +1016,7 @@ async def permanent_delete_user(
     await db.commit()
 
     # Permanently delete user using raw SQL
-    # Sprint 105 Fix v7: Commit audit first, then handle RULES
+    # Sprint 105 Fix v9: Dynamic FK constraint handling - query pg_constraint
     from sqlalchemy import text
     from app.db.session import engine
     import logging
@@ -1026,111 +1026,67 @@ async def permanent_delete_user(
 
     try:
         # ===================================================================
-        # Fix v6: audit_logs has RULES that block UPDATE/DELETE (SOC 2)
-        # We must DROP the RULE, UPDATE, then RECREATE the RULE
+        # Fix v10: DROP BOTH audit_logs rules for entire operation
+        # Rules interfere with PostgreSQL's internal FK constraint checks
         # ===================================================================
 
-        # Step 1: Temporarily drop the audit_logs_no_update RULE, update, recreate
+        # Step 1: DROP BOTH audit_logs rules (keep dropped until after user delete)
         async with engine.begin() as conn:
-            # Drop the rule that blocks UPDATE
             await conn.execute(text("DROP RULE IF EXISTS audit_logs_no_update ON audit_logs"))
-            logger.info("✓ Dropped audit_logs_no_update rule")
+            await conn.execute(text("DROP RULE IF EXISTS audit_logs_no_delete ON audit_logs"))
+            logger.info("✓ Dropped audit_logs rules")
 
-            # Now we can actually update audit_logs
+            # SET NULL on audit_logs
             result = await conn.execute(
                 text("UPDATE audit_logs SET user_id = NULL WHERE user_id = :user_id"),
                 {"user_id": user_id_str}
             )
-            logger.info(f"✓ SET NULL: audit_logs.user_id ({result.rowcount} rows)")
+            logger.info(f"✓ audit_logs SET NULL: {result.rowcount} rows")
 
-            # Recreate the rule to maintain SOC 2 compliance
-            await conn.execute(text("""
-                CREATE RULE audit_logs_no_update AS
-                ON UPDATE TO audit_logs DO INSTEAD NOTHING
-            """))
-            logger.info("✓ Recreated audit_logs_no_update rule")
-
-        # Step 2: SET NULL for all tables with SET NULL constraint
-        # These tables should not block deletion
-        set_null_tables = [
-            ("projects", "owner_id"),
-            ("backlog_items", "created_by"),
-            ("backlog_items", "assigned_to"),
-            ("sprints", "created_by"),
-            ("gates", "created_by"),
-            ("decomposition_sessions", "created_by"),
-            ("consultation_requests", "requester_id"),
-            ("consultation_requests", "assigned_reviewer_id"),
-            ("risk_analyses", "created_by"),
-            ("framework_versions", "applied_by"),
-            ("maturity_assessments", "assessed_by"),
-        ]
-        
-        for table_name, column_name in set_null_tables:
-            try:
-                async with engine.begin() as conn:
-                    result = await conn.execute(
-                        text(f"UPDATE {table_name} SET {column_name} = NULL WHERE {column_name} = :user_id"),
-                        {"user_id": user_id_str}
-                    )
-                    if result.rowcount > 0:
-                        logger.info(f"✓ SET NULL {table_name}.{column_name}: {result.rowcount} rows")
-            except Exception as e:
-                logger.debug(f"Skipped SET NULL {table_name}.{column_name}: {e}")
-
-        # Step 3: Delete from all CASCADE tables that reference users.id
-        related_tables = [
-            ("user_preferences", "user_id"),
-            ("user_sessions", "user_id"),
-            ("mfa_secrets", "user_id"),
-            ("oauth_accounts", "user_id"),
-            ("password_reset_tokens", "user_id"),
-            ("email_verification_tokens", "user_id"),
-            ("api_keys", "user_id"),
-            ("user_roles", "user_id"),
-            ("project_members", "user_id"),
-            ("feedback_interactions", "user_id"),
-            ("pr_learnings", "captured_by"),
-            ("usage_events", "user_id"),
-            ("refresh_tokens", "user_id"),
-            ("page_views", "user_id"),
-            ("analytics_events", "user_id"),
-            ("usage_tracking", "user_id"),
-            ("pilot_participants", "user_id"),
-            ("resource_allocations", "user_id"),
-        ]
-
-        for table_name, column_name in related_tables:
-            try:
-                async with engine.begin() as conn:
-                    result = await conn.execute(
-                        text(f"DELETE FROM {table_name} WHERE {column_name} = :user_id"),
-                        {"user_id": user_id_str}
-                    )
-                    if result.rowcount > 0:
-                        logger.info(f"✓ Deleted from {table_name}: {result.rowcount} rows")
-            except Exception as e:
-                logger.debug(f"Skipped {table_name}: {e}")
-
-        # Step 4: Final delete of the user record
+        # Step 2: Query ALL FK constraints pointing to users.id from pg_constraint
         async with engine.begin() as conn:
-            # Check if any FK constraints still blocking
-            check_fk = await conn.execute(
-                text("""
-                    SELECT COUNT(*) as fk_count
-                    FROM information_schema.table_constraints tc
-                    WHERE tc.constraint_type = 'FOREIGN KEY'
-                    AND tc.constraint_name IN (
-                        SELECT constraint_name
-                        FROM information_schema.key_column_usage
-                        WHERE referenced_table_name = 'users'
-                    )
-                """)
-            )
-            fk_result = check_fk.fetchone()
-            logger.info(f"FK constraints found: {fk_result[0] if fk_result else 0}")
-            
-            # Try to delete the user
+            fk_query = await conn.execute(text("""
+                SELECT
+                    cl.relname AS table_name,
+                    a.attname AS column_name,
+                    a.attnotnull AS is_not_null
+                FROM pg_constraint con
+                JOIN pg_class cl ON con.conrelid = cl.oid
+                JOIN pg_attribute a ON a.attrelid = cl.oid AND a.attnum = ANY(con.conkey)
+                JOIN pg_class ref_cl ON con.confrelid = ref_cl.oid
+                WHERE con.contype = 'f'
+                AND ref_cl.relname = 'users'
+                AND cl.relname != 'users'
+                ORDER BY cl.relname
+            """))
+            fk_constraints = fk_query.fetchall()
+            logger.info(f"Found {len(fk_constraints)} FK constraints to users")
+
+        # Step 3: Process each FK - SET NULL if nullable, DELETE if not nullable
+        for table_name, column_name, is_not_null in fk_constraints:
+            try:
+                async with engine.begin() as conn:
+                    if is_not_null:
+                        # Column is NOT NULL - must DELETE the rows
+                        result = await conn.execute(
+                            text(f'DELETE FROM "{table_name}" WHERE "{column_name}" = :user_id'),
+                            {"user_id": user_id_str}
+                        )
+                        if result.rowcount > 0:
+                            logger.info(f"✓ DELETE {table_name}.{column_name}: {result.rowcount} rows")
+                    else:
+                        # Column is nullable - SET NULL
+                        result = await conn.execute(
+                            text(f'UPDATE "{table_name}" SET "{column_name}" = NULL WHERE "{column_name}" = :user_id'),
+                            {"user_id": user_id_str}
+                        )
+                        if result.rowcount > 0:
+                            logger.info(f"✓ SET NULL {table_name}.{column_name}: {result.rowcount} rows")
+            except Exception as e:
+                logger.warning(f"Failed {table_name}.{column_name}: {e}")
+
+        # Step 4: Delete the user
+        async with engine.begin() as conn:
             result = await conn.execute(
                 text("DELETE FROM users WHERE id = :user_id"),
                 {"user_id": user_id_str}
@@ -1142,9 +1098,45 @@ async def permanent_delete_user(
                 )
             logger.info(f"✓ Successfully permanently deleted user {user_id_str}")
 
+        # Step 5: Recreate audit_logs rules (SOC 2 compliance)
+        async with engine.begin() as conn:
+            await conn.execute(text(
+                "CREATE RULE audit_logs_no_update AS ON UPDATE TO audit_logs DO INSTEAD NOTHING"
+            ))
+            await conn.execute(text(
+                "CREATE RULE audit_logs_no_delete AS ON DELETE TO audit_logs DO INSTEAD NOTHING"
+            ))
+            logger.info("✓ Recreated audit_logs rules")
+
     except HTTPException:
+        # Recreate rules even on failure
+        try:
+            async with engine.begin() as conn:
+                await conn.execute(text("DROP RULE IF EXISTS audit_logs_no_update ON audit_logs"))
+                await conn.execute(text("DROP RULE IF EXISTS audit_logs_no_delete ON audit_logs"))
+                await conn.execute(text(
+                    "CREATE RULE audit_logs_no_update AS ON UPDATE TO audit_logs DO INSTEAD NOTHING"
+                ))
+                await conn.execute(text(
+                    "CREATE RULE audit_logs_no_delete AS ON DELETE TO audit_logs DO INSTEAD NOTHING"
+                ))
+        except Exception:
+            pass
         raise
     except Exception as e:
+        # Recreate rules even on failure
+        try:
+            async with engine.begin() as conn:
+                await conn.execute(text("DROP RULE IF EXISTS audit_logs_no_update ON audit_logs"))
+                await conn.execute(text("DROP RULE IF EXISTS audit_logs_no_delete ON audit_logs"))
+                await conn.execute(text(
+                    "CREATE RULE audit_logs_no_update AS ON UPDATE TO audit_logs DO INSTEAD NOTHING"
+                ))
+                await conn.execute(text(
+                    "CREATE RULE audit_logs_no_delete AS ON DELETE TO audit_logs DO INSTEAD NOTHING"
+                ))
+        except Exception:
+            pass
         logger.error(f"Failed to permanently delete user {user_id_str}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

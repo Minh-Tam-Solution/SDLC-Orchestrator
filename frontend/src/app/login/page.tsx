@@ -138,6 +138,20 @@ function LoginForm() {
       localStorage.setItem("oauth_flow", "login");
       localStorage.setItem("oauth_provider", provider);
 
+      // Debug logging for OAuth state
+      console.log("[Login OAuth Debug] State stored:", {
+        provider,
+        state: response.state,
+        stateLength: response.state?.length,
+        authorizationUrl: response.authorization_url,
+        localStorage: {
+          oauth_state: localStorage.getItem("oauth_state"),
+          oauth_redirect: localStorage.getItem("oauth_redirect"),
+          oauth_flow: localStorage.getItem("oauth_flow"),
+          oauth_provider: localStorage.getItem("oauth_provider"),
+        },
+      });
+
       window.location.href = response.authorization_url;
     } catch (error) {
       const apiErr = error as APIError;

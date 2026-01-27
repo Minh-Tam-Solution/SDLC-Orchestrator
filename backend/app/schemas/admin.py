@@ -84,7 +84,8 @@ class AdminUserListItem(BaseModel):
             "is_active": true,
             "is_superuser": false,
             "created_at": "2025-10-01T08:00:00Z",
-            "last_login": "2025-12-15T10:30:00Z"
+            "last_login": "2025-12-15T10:30:00Z",
+            "deleted_at": null
         }
     """
 
@@ -96,6 +97,7 @@ class AdminUserListItem(BaseModel):
     is_superuser: bool = Field(..., description="Superuser status")
     created_at: datetime = Field(..., description="Account creation timestamp")
     last_login: Optional[datetime] = Field(None, description="Last login timestamp")
+    deleted_at: Optional[datetime] = Field(None, description="Soft deletion timestamp (Sprint 105)")
 
     class Config:
         from_attributes = True
@@ -154,7 +156,7 @@ class AdminUserCreate(BaseModel):
         }
 
     Security:
-        - Password minimum 12 characters (enforced at schema level)
+        - Password minimum 8 characters (enforced at schema level)
         - Email must be unique (validated at endpoint)
         - All fields are validated before database insertion
         - Action is audit logged
@@ -163,7 +165,7 @@ class AdminUserCreate(BaseModel):
     """
 
     email: EmailStr = Field(..., description="User email (must be unique)")
-    password: str = Field(..., min_length=12, description="Password (min 12 characters)")
+    password: str = Field(..., min_length=8, description="Password (min 8 characters)")
     full_name: Optional[str] = Field(None, max_length=255, description="User full name")  # BUG #2 Fix
     role: UserRole = Field(UserRole.DEV, description="User role (default: dev)")  # BUG #8 Fix
     is_active: bool = Field(default=True, description="Active status (default: true)")
@@ -207,7 +209,7 @@ class AdminUserUpdateFull(BaseModel):
 
     Security:
         - Email change triggers warning (user must use new email to login)
-        - Password reset min 12 characters (optional)
+        - Password reset min 8 characters (optional)
         - Email uniqueness validated at endpoint
         - All changes audit logged
         - Admin cannot demote self from superuser
@@ -220,7 +222,7 @@ class AdminUserUpdateFull(BaseModel):
     role: Optional[UserRole] = Field(None, description="User role")  # BUG #8 Fix
     is_active: Optional[bool] = Field(None, description="Active status")
     is_superuser: Optional[bool] = Field(None, description="Superuser status")
-    new_password: Optional[str] = Field(None, min_length=12, description="New password (min 12 chars, optional)")
+    new_password: Optional[str] = Field(None, min_length=8, description="New password (min 8 chars, optional)")
 
 
 class AdminUserListResponse(BaseModel):

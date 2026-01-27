@@ -43,12 +43,13 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Header, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Header, Request, Response, status
 from sqlalchemy import select, update, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_active_user
 from app.core.config import settings
+from app.core.cookies import set_auth_cookies
 from app.core.security import create_access_token, create_refresh_token, hash_api_key
 from app.db.session import get_db
 from app.models.project import Project
@@ -152,6 +153,8 @@ async def get_authorization_url(
 )
 async def handle_oauth_callback(
     callback_data: GitHubOAuthCallbackRequest,
+    request: Request,
+    response: Response,
     db: AsyncSession = Depends(get_db),
     settings_service: "SettingsService" = Depends(get_settings_service),
 ) -> GitHubOAuthCallbackResponse:
@@ -180,7 +183,7 @@ async def handle_oauth_callback(
     Flow:
         1. Exchange code for GitHub access token
         2. Get GitHub user info
-        3. Find or create user in database
+        3. Find or create user in database (or link to current user if authenticated)
         4. Store GitHub OAuth account
         5. Generate JWT tokens for app authentication
         6. Return tokens and user info
@@ -189,6 +192,41 @@ async def handle_oauth_callback(
     # For MVP, we proceed with code exchange
 
     try:
+        # Check if there's a current user (for "connect" flow from Settings)
+        # Sprint 105: Check BOTH cookies and Authorization header for current user
+        current_user = None
+        token = None
+
+        # Priority 1: Check httpOnly cookie (Sprint 63 preferred method)
+        from app.core.cookies import ACCESS_TOKEN_COOKIE_NAME
+        cookie_token = request.cookies.get(ACCESS_TOKEN_COOKIE_NAME)
+        if cookie_token:
+            token = cookie_token
+            logger.debug("Found access token in cookie for connect flow")
+
+        # Priority 2: Fallback to Authorization header
+        if not token:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header.split(" ")[1]
+                logger.debug("Found access token in Authorization header for connect flow")
+
+        # If we have a token, try to decode it and get the current user
+        if token:
+            try:
+                from app.core.security import decode_token
+                payload = decode_token(token)
+                if payload and payload.get("sub"):
+                    user_result = await db.execute(
+                        select(User).where(User.id == payload["sub"])
+                    )
+                    current_user = user_result.scalar_one_or_none()
+                    if current_user:
+                        logger.info(f"GitHub connect flow for existing user: {current_user.email}")
+            except Exception as e:
+                logger.debug(f"Could not decode token for connect flow: {e}")
+                # Not a problem - this is login/signup flow
+
         # 1. Exchange code for GitHub access token
         token_data = github_service.exchange_code_for_token(code=callback_data.code)
         github_access_token = token_data.get("access_token")
@@ -229,8 +267,42 @@ async def handle_oauth_callback(
                 select(User).where(User.id == oauth_account.user_id)
             )
             user = user.scalar_one()
+        elif current_user:
+            # Connect flow: Link GitHub to the currently authenticated user
+            user = current_user
+
+            # Check if this user already has a different GitHub account linked
+            existing_oauth = await db.execute(
+                select(OAuthAccount).where(
+                    and_(
+                        OAuthAccount.user_id == user.id,
+                        OAuthAccount.provider == "github",
+                    )
+                )
+            )
+            existing_oauth = existing_oauth.scalar_one_or_none()
+
+            if existing_oauth:
+                # Update existing link
+                existing_oauth.provider_account_id = github_id
+                existing_oauth.access_token = github_access_token
+                existing_oauth.updated_at = datetime.utcnow()
+                oauth_account = existing_oauth
+                logger.info(f"Updated GitHub link for user {user.email}")
+            else:
+                # Create new OAuth account link
+                oauth_account = OAuthAccount(
+                    user_id=user.id,
+                    provider="github",
+                    provider_account_id=github_id,
+                    access_token=github_access_token,
+                    refresh_token=None,
+                    expires_at=None,
+                )
+                db.add(oauth_account)
+                logger.info(f"Linked GitHub account {github_login} to existing user {user.email}")
         else:
-            # Check if user exists with same email
+            # Login/Signup flow: Find or create user by GitHub email
             user = await db.execute(
                 select(User).where(User.email == github_email)
             )
@@ -240,7 +312,7 @@ async def handle_oauth_callback(
                 # Create new user
                 user = User(
                     email=github_email,
-                    name=github_name or github_login,
+                    full_name=github_name or github_login,
                     avatar_url=github_avatar,
                     is_active=True,
                     password_hash=None,  # OAuth-only user
@@ -287,6 +359,10 @@ async def handle_oauth_callback(
         db.add(db_refresh_token)
 
         await db.commit()
+
+        # Sprint 105: Set httpOnly cookies for XSS protection (same as auth.py login)
+        # This ensures the frontend can make authenticated API requests via cookies
+        set_auth_cookies(response, access_token, refresh_token)
 
         return GitHubOAuthCallbackResponse(
             access_token=access_token,

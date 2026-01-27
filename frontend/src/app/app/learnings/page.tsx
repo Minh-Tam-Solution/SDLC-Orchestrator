@@ -58,13 +58,7 @@ function CheckBadgeIcon({ className }: { className?: string }) {
   );
 }
 
-function ExclamationTriangleIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-    </svg>
-  );
-}
+// ExclamationTriangleIcon - reserved for future use in warning displays
 
 function ArrowPathIcon({ className }: { className?: string }) {
   return (
@@ -335,8 +329,7 @@ export default function LearningsPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch projects for selector
-  const { data: projectsData } = useProjects();
-  const projects = projectsData?.items || [];
+  const { data: projects = [] } = useProjects();
 
   // Auto-select first project
   const effectiveProjectId = selectedProjectId || projects[0]?.id;
@@ -487,7 +480,7 @@ export default function LearningsPage() {
             {/* Feedback Type Filter */}
             <select
               value={filters.feedback_type || ""}
-              onChange={(e) => handleFilterChange("feedback_type", e.target.value as any)}
+              onChange={(e) => handleFilterChange("feedback_type", e.target.value as LearningFilterParams["feedback_type"])}
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <option value="">All Types</option>
@@ -504,7 +497,7 @@ export default function LearningsPage() {
             {/* Severity Filter */}
             <select
               value={filters.severity || ""}
-              onChange={(e) => handleFilterChange("severity", e.target.value as any)}
+              onChange={(e) => handleFilterChange("severity", e.target.value as LearningFilterParams["severity"])}
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <option value="">All Severities</option>
@@ -517,7 +510,7 @@ export default function LearningsPage() {
             {/* Status Filter */}
             <select
               value={filters.status || ""}
-              onChange={(e) => handleFilterChange("status", e.target.value as any)}
+              onChange={(e) => handleFilterChange("status", e.target.value as LearningFilterParams["status"])}
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <option value="">All Statuses</option>

@@ -14,7 +14,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Header, Footer } from "@/components/landing";
-import { exchangeOAuthCode, APIError } from "@/lib/api";
+import { exchangeOAuthCode, exchangeGitHubConnectCode, APIError } from "@/lib/api";
 import { trackEvent, ANALYTICS_EVENTS } from "@/lib/analytics";
 import Link from "next/link";
 
@@ -57,6 +57,22 @@ function GitHubCallbackHandler() {
       // NOTE: Using localStorage instead of sessionStorage because sessionStorage
       // can be lost in Incognito mode when redirecting to external OAuth providers
       const storedState = localStorage.getItem("oauth_state");
+
+      // Debug logging to identify state mismatch issue
+      console.log("[GitHub OAuth Debug]", {
+        urlState: state,
+        urlStateLength: state?.length,
+        storedState: storedState,
+        storedStateLength: storedState?.length,
+        match: storedState === state,
+        localStorage: {
+          oauth_state: storedState,
+          oauth_redirect: localStorage.getItem("oauth_redirect"),
+          oauth_flow: localStorage.getItem("oauth_flow"),
+          oauth_provider: localStorage.getItem("oauth_provider"),
+        },
+      });
+
       if (!storedState || storedState !== state) {
         setStatus("error");
         setErrorMessage("Invalid state parameter. Please try again.");
@@ -67,15 +83,17 @@ function GitHubCallbackHandler() {
         return;
       }
 
-      // Capture redirect BEFORE cleanup - default to Dashboard root
+      // Capture redirect and flow BEFORE cleanup - default to Dashboard root
       const redirectTo = localStorage.getItem("oauth_redirect") || "/";
+      const oauthFlow = localStorage.getItem("oauth_flow");
 
       try {
-        // Exchange code for tokens
-        const response = await exchangeOAuthCode("github", {
-          code,
-          state,
-        });
+        // Exchange code for tokens - use different endpoint based on flow
+        // "connect" flow from Settings uses /github/callback (simple state)
+        // login/signup flow uses /auth/oauth/github/callback (base64 encoded state)
+        const response = oauthFlow === "connect"
+          ? await exchangeGitHubConnectCode({ code, state })
+          : await exchangeOAuthCode("github", { code, state });
 
         // Store tokens
         if (response.access_token) {
@@ -86,7 +104,6 @@ function GitHubCallbackHandler() {
         }
 
         // Track successful authentication
-        const oauthFlow = localStorage.getItem("oauth_flow");
         if (oauthFlow === "signup") {
           trackEvent(ANALYTICS_EVENTS.REGISTRATION_COMPLETE, { method: "github" });
         } else {

@@ -30,6 +30,7 @@ from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -113,6 +114,13 @@ class InvalidRoleError(TeamsServiceError):
             f"Invalid role '{role}' for member_type '{member_type}' "
             f"(AI agents cannot be owner/admin per SASE)"
         )
+
+
+class UserNotFoundByEmailError(TeamsServiceError):
+    """User not found by email address."""
+    def __init__(self, email: str):
+        self.email = email
+        super().__init__(f"User with email '{email}' not found")
 
 
 # =========================================================================
@@ -214,11 +222,15 @@ class TeamsService:
 
         Note:
             Uses eager loading for members and projects to avoid N+1 queries.
+            Sprint 105: Filter out soft-deleted members at database level.
         """
         return await self.db.scalar(
             select(Team)
             .options(
-                selectinload(Team.members).selectinload(TeamMember.user),
+                # Sprint 105: Only load active members (exclude soft-deleted)
+                selectinload(
+                    Team.members.and_(TeamMember.deleted_at.is_(None))
+                ).selectinload(TeamMember.user),
                 selectinload(Team.projects),
                 selectinload(Team.organization)
             )
@@ -258,6 +270,11 @@ class TeamsService:
                 TeamMember.deleted_at.is_(None),
                 Team.deleted_at.is_(None)
             )
+            .options(
+                # Sprint 105: Only load active members (exclude soft-deleted)
+                selectinload(Team.members.and_(TeamMember.deleted_at.is_(None))),
+                selectinload(Team.projects)
+            )
         )
 
         if organization_id:
@@ -265,7 +282,7 @@ class TeamsService:
 
         query = query.offset(skip).limit(min(limit, 100))
         result = await self.db.scalars(query)
-        return list(result.all())
+        return list(result.unique().all())
 
     async def update_team(
         self,
@@ -371,7 +388,7 @@ class TeamsService:
         Add user to team with specified role.
 
         Args:
-            data: Member add data (team_id, user_id, role, member_type)
+            data: Member add data (team_id, user_id/email, role, member_type)
             requester_id: User adding the member
 
         Returns:
@@ -382,25 +399,57 @@ class TeamsService:
             UserAlreadyMemberError: If user is already a member
             PermissionDeniedError: If requester is not admin/owner
             InvalidRoleError: If AI agent assigned owner/admin role
+            UserNotFoundByEmailError: If email provided but user not found
 
         SASE Compliance:
             - Validates AI agents cannot be owner/admin (CTO R1/R2)
             - Human members default to member_type='human'
+
+        Sprint 105 Enhancement:
+            - Accepts user_id (UUID) OR email (string)
+            - If email provided, looks up user by email
         """
         # Check permission
         if not await self.check_permission(data.team_id, requester_id, "admin"):
             raise PermissionDeniedError("add_member", "admin")
 
-        # Check if already member
+        # Sprint 105: Resolve user_id from email if email provided
+        user_id = data.user_id
+        if not user_id and data.email:
+            # Lookup user by email
+            user = await self.db.scalar(
+                select(User).where(
+                    func.lower(User.email) == func.lower(data.email.strip()),
+                    User.deleted_at.is_(None)
+                )
+            )
+            if not user:
+                raise UserNotFoundByEmailError(data.email)
+            user_id = user.id
+
+        # Check if already an ACTIVE member
         existing = await self.db.scalar(
             select(TeamMember).where(
                 TeamMember.team_id == data.team_id,
-                TeamMember.user_id == data.user_id,
+                TeamMember.user_id == user_id,
                 TeamMember.deleted_at.is_(None)
             )
         )
         if existing:
-            raise UserAlreadyMemberError(data.user_id, data.team_id)
+            raise UserAlreadyMemberError(user_id, data.team_id)
+
+        # Sprint 105: Clean up any soft-deleted records (hard delete policy)
+        # This handles the case where a member was previously soft-deleted
+        soft_deleted = await self.db.scalar(
+            select(TeamMember).where(
+                TeamMember.team_id == data.team_id,
+                TeamMember.user_id == user_id,
+                TeamMember.deleted_at.isnot(None)
+            )
+        )
+        if soft_deleted:
+            await self.db.delete(soft_deleted)
+            await self.db.flush()
 
         # SASE Validation: AI agents cannot be owner/admin
         if data.member_type == "ai_agent" and data.role in ("owner", "admin"):
@@ -409,12 +458,22 @@ class TeamsService:
         # Create member
         member = TeamMember(
             team_id=data.team_id,
-            user_id=data.user_id,
+            user_id=user_id,
             role=data.role,
             member_type=data.member_type
         )
         self.db.add(member)
-        await self.db.commit()
+
+        try:
+            await self.db.commit()
+        except IntegrityError as e:
+            await self.db.rollback()
+            # Handle unique constraint violation (team_members_unique)
+            if "team_members_unique" in str(e):
+                raise UserAlreadyMemberError(user_id, data.team_id)
+            # Re-raise other integrity errors
+            raise
+
         await self.db.refresh(member)
 
         return member
@@ -478,8 +537,9 @@ class TeamsService:
             if not await self.check_permission(team_id, requester_id, "owner"):
                 raise PermissionDeniedError("remove_owner", "owner")
 
-        # Soft delete
-        member.deleted_at = datetime.utcnow()
+        # Hard delete - team member removal is permanent (not soft delete)
+        # Only user deletion uses soft delete, team membership is hard deleted
+        await self.db.delete(member)
         await self.db.commit()
 
         return True
@@ -562,8 +622,8 @@ class TeamsService:
         if not team:
             raise TeamNotFoundError(team_id)
 
-        # Count members by type
-        members = team.members
+        # Count members by type - filter out soft-deleted members (Sprint 105 fix)
+        members = [m for m in team.members if m.deleted_at is None]
         total_members = len(members)
         human_members = sum(1 for m in members if m.member_type == "human")
         ai_agents = sum(1 for m in members if m.member_type == "ai_agent")

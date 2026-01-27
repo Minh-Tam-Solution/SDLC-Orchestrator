@@ -2,9 +2,9 @@
  * Features Section - SDLC Orchestrator Landing Page
  *
  * @module frontend/landing/src/components/landing/Features
- * @description Six core capabilities with i18n support - SDLC 5.1.3 enhanced
- * @sdlc SDLC 5.1.3 Universal Framework (7-Pillar Architecture)
- * @status Sprint 79 - SDLC 5.1.3 Updates
+ * @description Six core capabilities with i18n support - SDLC 5.2.0 enhanced
+ * @sdlc SDLC 5.2.0 Universal Framework (7-Pillar Architecture)
+ * @status Sprint 105 - SDLC 5.2.0 Updates
  */
 
 "use client";
@@ -24,7 +24,7 @@ const featureIcons: Record<typeof featureKeys[number], string> = {
 };
 
 /**
- * Features component displaying six core capabilities (SDLC 5.1.3)
+ * Features component displaying six core capabilities (SDLC 5.2.0)
  */
 export function Features() {
   const t = useTranslations("features");
@@ -49,7 +49,7 @@ export function Features() {
           </p>
         </div>
 
-        {/* Feature Cards Grid - 6 features for SDLC 5.1.3 */}
+        {/* Feature Cards Grid - 6 features for SDLC 5.2.0 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {featureKeys.map((key) => (
             <Card

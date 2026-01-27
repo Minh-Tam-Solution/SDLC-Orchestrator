@@ -1,21 +1,34 @@
 """
-Quality Pipeline - 4-Gate Code Quality Validation.
+Quality Pipeline - 4-Gate Code Quality Validation
 
-Sprint 49: EP-06 Code Generation Quality Assurance
-ADR-022: IR-Based Codegen with 4-Gate Quality Pipeline
+SDLC Framework Compliance:
+- Framework: SDLC 5.2.0 (7-Pillar + AI Governance Principles)
+- Pillar 5: Test & Quality Assurance - Automated Quality Gates
+- AI Governance Principle 6: Multi-Tier Quality Enforcement
+- Methodology: Shift-left quality validation with deterministic feedback
 
+Purpose:
 Implements the 4-Gate Quality Pipeline for validating generated code:
 - Gate 1: Syntax Check (ast.parse, ruff for Python)
-- Gate 2: Security Scan (Semgrep SAST)
-- Gate 3: Context Validation (imports, dependencies)
-- Gate 4: Test Execution (pytest in sandbox - optional)
+- Gate 2: Security Scan (Semgrep SAST with OWASP Top 10 rules)
+- Gate 3: Context Validation (imports, dependencies, file structure)
+- Gate 4: Test Execution (pytest in sandbox OR smoke test for scaffolds)
+
+Sprint 106 Enhancement: Quality Gate Profiles
+- Scaffold Mode: G1+G2 mandatory, G3 soft-fail, G4 smoke test
+- Production Mode: All 4 gates mandatory, strict validation
 
 Each gate returns pass/fail with detailed feedback for auto-fix loops.
 
-Author: Backend Lead
-Date: December 24, 2025
-Version: 1.0.0
-Status: ACTIVE - Sprint 49 Implementation
+Related ADRs:
+- ADR-022: IR-Based Codegen with 4-Gate Quality Pipeline
+- ADR-040: App Builder Integration - Competitive Necessity
+
+Sprint: 49 (Original), 106 (Quality Profiles)
+Date: December 24, 2025 (Updated: January 27, 2026)
+Version: 1.1.0
+Owner: Backend Team
+Status: ACTIVE - Sprint 106 Enhancement
 """
 
 import ast
@@ -40,6 +53,110 @@ class GateStatus(str, Enum):
     PASSED = "passed"
     FAILED = "failed"
     SKIPPED = "skipped"
+    SOFT_FAIL = "soft_fail"  # Sprint 106: Pass but with warnings
+
+
+class QualityMode(str, Enum):
+    """
+    Quality mode for different use cases.
+    
+    Sprint 106: App Builder Integration
+    - SCAFFOLD: Lenient mode for initial project scaffolding
+    - PRODUCTION: Strict mode for production-ready code
+    """
+    SCAFFOLD = "scaffold"      # G1+G2 mandatory, G3 soft-fail, G4 smoke test
+    PRODUCTION = "production"  # All 4 gates mandatory, strict validation
+
+
+@dataclass
+class QualityGateProfile:
+    """
+    Quality Gate Profile - Controls which gates are mandatory.
+    
+    Sprint 106: App Builder Integration
+    
+    Two modes:
+    - SCAFFOLD: Lenient for initial project generation
+      - Gate 1 (Syntax): MANDATORY - Code must compile
+      - Gate 2 (Security): MANDATORY - No OWASP violations
+      - Gate 3 (Context): SOFT-FAIL - May have missing imports (placeholders)
+      - Gate 4 (Tests): SMOKE TEST - Just check if project builds
+    
+    - PRODUCTION: Strict for production-ready code
+      - All 4 gates MANDATORY
+      - No soft-fails allowed
+      - Full unit test execution
+    
+    Example:
+        # Scaffold mode for app-builder
+        profile = QualityGateProfile.scaffold_mode()
+        result = await quality_pipeline.run(files, profile)
+        
+        # Production mode for Ollama/Claude
+        profile = QualityGateProfile.production_mode()
+        result = await quality_pipeline.run(files, profile)
+    """
+    mode: QualityMode
+    gates: Dict[str, bool]  # gate_name → is_mandatory
+    
+    @classmethod
+    def scaffold_mode(cls) -> "QualityGateProfile":
+        """
+        Lenient profile for app scaffolding.
+        
+        Gate 1 (Syntax): MANDATORY - Code must compile/parse
+        Gate 2 (Security): MANDATORY - No OWASP Top 10 violations
+        Gate 3 (Context): SOFT-FAIL - Allow missing optional dependencies
+        Gate 4 (Tests): SMOKE TEST - Just check if builds (not full unit tests)
+        
+        Returns:
+            QualityGateProfile for scaffold mode
+        """
+        return cls(
+            mode=QualityMode.SCAFFOLD,
+            gates={
+                "syntax": True,      # MANDATORY - Must compile
+                "security": True,    # MANDATORY - No security issues
+                "context": False,    # OPTIONAL - Soft-fail allowed
+                "tests": False,      # OPTIONAL - Smoke test only
+            }
+        )
+    
+    @classmethod
+    def production_mode(cls) -> "QualityGateProfile":
+        """
+        Strict profile for production-ready code.
+        
+        All 4 gates are MANDATORY with no soft-fails.
+        
+        Returns:
+            QualityGateProfile for production mode
+        """
+        return cls(
+            mode=QualityMode.PRODUCTION,
+            gates={
+                "syntax": True,      # MANDATORY
+                "security": True,    # MANDATORY
+                "context": True,     # MANDATORY
+                "tests": True,       # MANDATORY - Full unit tests
+            }
+        )
+    
+    def is_gate_mandatory(self, gate_name: str) -> bool:
+        """Check if a gate is mandatory for this profile"""
+        return self.gates.get(gate_name, False)
+    
+    def allows_soft_fail(self, gate_name: str) -> bool:
+        """
+        Check if a gate allows soft-fail (pass with warnings).
+        
+        Only applicable in SCAFFOLD mode for Context gate.
+        """
+        return (
+            self.mode == QualityMode.SCAFFOLD and
+            gate_name == "context" and
+            not self.is_gate_mandatory(gate_name)
+        )
 
 
 @dataclass
@@ -67,7 +184,7 @@ class GateResult:
 
     @property
     def passed(self) -> bool:
-        return self.status == GateStatus.PASSED
+        return self.status in [GateStatus.PASSED, GateStatus.SOFT_FAIL]
 
     @property
     def error_count(self) -> int:

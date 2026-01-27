@@ -161,7 +161,10 @@ export interface TeamMemberWithPermissions extends TeamMember {
 // =========================================================================
 
 export interface TeamMemberAdd {
-  user_id: string;
+  /** User UUID to add (optional if email provided) */
+  user_id?: string;
+  /** User email to add (optional if user_id provided) - Sprint 105 */
+  email?: string;
   role?: TeamRole;
   member_type?: MemberType;
 }

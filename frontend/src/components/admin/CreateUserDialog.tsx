@@ -52,8 +52,8 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
 
     if (!formData.password) {
       newErrors.password = "Password is required";
-    } else if (formData.password.length < 12) {
-      newErrors.password = "Password must be at least 12 characters";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
     }
 
     setErrors(newErrors);
@@ -165,7 +165,7 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                 <p className="text-sm text-red-500">{errors.password}</p>
               )}
               <p className="text-sm text-muted-foreground">
-                Password must be at least 12 characters long
+                Password must be at least 8 characters long
               </p>
             </div>
 

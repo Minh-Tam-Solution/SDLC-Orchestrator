@@ -35,10 +35,13 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.api.dependencies import get_current_user
 from app.db.session import get_db
+from app.models.team_member import TeamMember
 from app.models.user import User
 from app.schemas.team import (
     TeamCreate,
@@ -63,6 +66,7 @@ from app.services.teams_service import (
     TeamSlugExistsError,
     TeamsService,
     UserAlreadyMemberError,
+    UserNotFoundByEmailError,
 )
 
 
@@ -403,21 +407,30 @@ async def add_team_member(
     - AI agents cannot be assigned owner or admin roles
     - Human members default to member_type='human'
     """
-    # Ensure team_id matches
-    if data.team_id != team_id:
-        data.team_id = team_id
+    # Always set team_id from URL path (Sprint 105 fix)
+    data.team_id = team_id
     
     service = TeamsService(db)
     
     try:
         member = await service.add_member(data, current_user.id)
-        # Reload to get user relationship
-        await db.refresh(member)
+        # Sprint 105: Properly load user relationship to avoid lazy loading hang
+        # Use selectinload query instead of refresh() which doesn't load relationships
+        member = await db.scalar(
+            select(TeamMember)
+            .options(selectinload(TeamMember.user))
+            .where(TeamMember.id == member.id)
+        )
         return member_to_response(member)
     except PermissionDeniedError:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin or owner role required to add members"
+        )
+    except UserNotFoundByEmailError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with email '{e.email}' not found. Please check the email address."
         )
     except UserAlreadyMemberError:
         raise HTTPException(

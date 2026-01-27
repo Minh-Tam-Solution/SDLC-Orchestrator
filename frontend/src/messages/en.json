@@ -11,7 +11,7 @@
     }
   },
   "hero": {
-    "badge": "SDLC 5.1.3 - 7-Pillar Architecture",
+    "badge": "SDLC 5.2.0 - 7-Pillar Architecture",
     "headline": "Control Plane for AI-Powered Development",
     "subheadline": "Govern Cursor, Claude Code, Copilot — Sprint Planning Governance, Team Management, full Planning Hierarchy. From Roadmap to Backlog.",
     "cta": {
@@ -25,7 +25,7 @@
     }
   },
   "features": {
-    "title": "SDLC 5.1.3 Core Capabilities",
+    "title": "SDLC 5.2.0 Core Capabilities",
     "subtitle": "7-Pillar Architecture for enterprise-grade AI governance",
     "items": {
       "gateEngine": {
@@ -469,7 +469,7 @@
         "description": "Integrate directly into VS Code."
       },
       "framework": {
-        "title": "SDLC 5.1.3 Framework",
+        "title": "SDLC 5.2.0 Framework",
         "description": "7-Pillar Architecture: Design Thinking → Sprint Governance → Documentation Permanence."
       },
       "quickLinks": {

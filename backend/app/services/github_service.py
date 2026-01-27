@@ -47,8 +47,8 @@ GITHUB_API_BASE_URL = "https://api.github.com"
 GITHUB_OAUTH_AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
 GITHUB_OAUTH_TOKEN_URL = "https://github.com/login/oauth/access_token"
 
-# Default scopes for repository access (read-only)
-DEFAULT_SCOPES = ["read:user", "user:email", "repo"]
+# Default scopes for repository access (including organization repos)
+DEFAULT_SCOPES = ["read:user", "user:email", "repo", "read:org"]
 
 # Rate limiting
 RATE_LIMIT_REQUESTS_PER_HOUR = 5000
@@ -323,6 +323,7 @@ class GitHubService:
         """
         params = {
             "visibility": visibility,
+            "affiliation": "owner,collaborator,organization_member",  # Include org repos
             "sort": sort,
             "direction": direction,
             "per_page": min(per_page, 100),

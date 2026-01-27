@@ -11,7 +11,7 @@
     }
   },
   "hero": {
-    "badge": "SDLC 5.1.3 - Kiến trúc 7 Trụ cột",
+    "badge": "SDLC 5.2.0 - Kiến trúc 7 Trụ cột",
     "headline": "Nền tảng quản trị phát triển phần mềm AI",
     "subheadline": "Quản lý Cursor, Claude Code, Copilot — Sprint Governance, Quản lý Team, Phân cấp Planning đầy đủ. Từ Roadmap đến Backlog.",
     "cta": {
@@ -25,7 +25,7 @@
     }
   },
   "features": {
-    "title": "Tính năng SDLC 5.1.3",
+    "title": "Tính năng SDLC 5.2.0",
     "subtitle": "Kiến trúc 7 Trụ cột cho quản trị AI doanh nghiệp",
     "items": {
       "gateEngine": {
@@ -469,7 +469,7 @@
         "description": "Tích hợp trực tiếp vào VS Code."
       },
       "framework": {
-        "title": "SDLC 5.1.3 Framework",
+        "title": "SDLC 5.2.0 Framework",
         "description": "Kiến trúc 7 Trụ cột: Design Thinking → Sprint Governance → Documentation Permanence."
       },
       "quickLinks": {

@@ -81,6 +81,27 @@ class PlanningDecision(str, Enum):
 # =========================================================================
 
 
+class RiskAnalysisContext(BaseModel):
+    """Context for risk analysis providing additional project/change information."""
+
+    stage: Optional[str] = Field(
+        default=None,
+        description="Current SDLC stage (00-discover, 04-build, etc.)",
+    )
+    has_tests: Optional[bool] = Field(
+        default=None,
+        description="Whether the change includes tests",
+    )
+    project_tier: Optional[str] = Field(
+        default=None,
+        description="Project tier (LITE, STANDARD, PROFESSIONAL, ENTERPRISE)",
+    )
+    maturity_level: Optional[str] = Field(
+        default=None,
+        description="Agentic maturity level (L0, L1, L2, L3)",
+    )
+
+
 class RiskAnalysisRequest(BaseModel):
     """
     Request to analyze a diff for risk factors.
