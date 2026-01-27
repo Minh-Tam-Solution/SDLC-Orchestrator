@@ -1,11 +1,11 @@
 """
 =========================================================================
 Governance Services - Complete Governance System
-SDLC Orchestrator - Sprint 109 (Vibecoding Index & Stage-Aware Gating)
+SDLC Orchestrator - Sprint 110 (CEO Dashboard & Observability)
 
-Version: 1.4.0
+Version: 1.5.0
 Date: January 27, 2026
-Status: ACTIVE - Sprint 109 Day 5
+Status: ACTIVE - Sprint 110 Day 1
 Authority: CTO + Backend Lead Approved
 Framework: SDLC 5.3.0 Quality Assurance System
 
@@ -15,6 +15,7 @@ Services:
 - GovernanceSignalsEngine: Vibecoding Index calculation (5 signals)
 - StageGatingService: Stage-aware PR validation (11 SDLC stages)
 - ContextAuthorityEngineV1: ADR & context linkage validation (metadata only)
+- CEODashboardService: Executive governance intelligence & metrics
 - FeedbackService: Actionable error messages (planned)
 
 Zero Mock Policy: Real implementations only
@@ -91,6 +92,23 @@ from app.services.governance.context_authority import (
     get_context_authority_engine,
 )
 
+from app.services.governance.ceo_dashboard import (
+    CEODashboardService,
+    TimeRange,
+    TrendDirection,
+    HealthStatus,
+    TimeSavedMetric,
+    RoutingBreakdown,
+    PendingDecision,
+    WeeklySummary,
+    TopRejectionReason,
+    CEOOverride,
+    SystemHealthSnapshot,
+    CEODashboardSummary,
+    create_ceo_dashboard_service,
+    get_ceo_dashboard_service,
+)
+
 __all__ = [
     # Auto-Generation Service
     "AutoGenerationService",
@@ -159,4 +177,20 @@ __all__ = [
     # Context Authority Factory Functions
     "create_context_authority_engine",
     "get_context_authority_engine",
+    # CEO Dashboard Service
+    "CEODashboardService",
+    "TimeRange",
+    "TrendDirection",
+    "HealthStatus",
+    "TimeSavedMetric",
+    "RoutingBreakdown",
+    "PendingDecision",
+    "WeeklySummary",
+    "TopRejectionReason",
+    "CEOOverride",
+    "SystemHealthSnapshot",
+    "CEODashboardSummary",
+    # CEO Dashboard Factory Functions
+    "create_ceo_dashboard_service",
+    "get_ceo_dashboard_service",
 ]
