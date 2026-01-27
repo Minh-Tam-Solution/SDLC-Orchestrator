@@ -3,9 +3,9 @@
 Governance Services - Complete Governance System
 SDLC Orchestrator - Sprint 109 (Vibecoding Index & Stage-Aware Gating)
 
-Version: 1.3.0
+Version: 1.4.0
 Date: January 27, 2026
-Status: ACTIVE - Sprint 109 Day 2
+Status: ACTIVE - Sprint 109 Day 5
 Authority: CTO + Backend Lead Approved
 Framework: SDLC 5.3.0 Quality Assurance System
 
@@ -14,6 +14,7 @@ Services:
 - GovernanceModeService: Enforcement mode management (OFF/WARNING/SOFT/FULL)
 - GovernanceSignalsEngine: Vibecoding Index calculation (5 signals)
 - StageGatingService: Stage-aware PR validation (11 SDLC stages)
+- ContextAuthorityEngineV1: ADR & context linkage validation (metadata only)
 - FeedbackService: Actionable error messages (planned)
 
 Zero Mock Policy: Real implementations only
@@ -74,6 +75,22 @@ from app.services.governance.stage_gating import (
     get_stage_gating_service,
 )
 
+from app.services.governance.context_authority import (
+    ContextAuthorityEngineV1,
+    ContextViolationType,
+    ViolationSeverity as ContextViolationSeverity,
+    ADRStatus,
+    ADR,
+    DesignSpec,
+    AgentsMdInfo,
+    ModuleAnnotation,
+    ContextViolation,
+    ContextValidationResult,
+    CodeSubmission as ContextCodeSubmission,
+    create_context_authority_engine,
+    get_context_authority_engine,
+)
+
 __all__ = [
     # Auto-Generation Service
     "AutoGenerationService",
@@ -127,4 +144,19 @@ __all__ = [
     # Stage Gating Factory Functions
     "create_stage_gating_service",
     "get_stage_gating_service",
+    # Context Authority Engine V1
+    "ContextAuthorityEngineV1",
+    "ContextViolationType",
+    "ContextViolationSeverity",
+    "ADRStatus",
+    "ADR",
+    "DesignSpec",
+    "AgentsMdInfo",
+    "ModuleAnnotation",
+    "ContextViolation",
+    "ContextValidationResult",
+    "ContextCodeSubmission",
+    # Context Authority Factory Functions
+    "create_context_authority_engine",
+    "get_context_authority_engine",
 ]
