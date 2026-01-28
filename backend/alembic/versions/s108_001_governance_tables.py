@@ -1,7 +1,7 @@
 """Sprint 108: Governance System - 14 Tables
 
 Revision ID: s108_001_governance
-Revises: s105_002_user_organizations
+Revises: s105_002_user_orgs
 Create Date: 2026-01-27 10:00:00.000000
 
 Sprint: 108 - Governance Foundation
@@ -40,7 +40,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "s108_001_governance"
-down_revision = "s105_002_user_organizations"
+down_revision = "s105_002_user_orgs"
 branch_labels = None
 depends_on = None
 
