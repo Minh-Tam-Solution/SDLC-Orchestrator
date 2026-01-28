@@ -394,6 +394,96 @@ class OPAService:
             )
 
     # ============================================================================
+    # Batch Evaluation (Sprint 111)
+    # ============================================================================
+
+    def batch_evaluate(
+        self,
+        evaluations: list[dict[str, Any]],
+        timeout: Optional[int] = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Evaluate multiple policies in batch.
+
+        Sprint 111 Day 5: Batch policy evaluation for performance optimization.
+
+        Args:
+            evaluations: List of evaluation requests:
+                [
+                    {
+                        "policy_code": "FRD_COMPLETENESS",
+                        "stage": "WHAT",
+                        "input_data": {...}
+                    },
+                    ...
+                ]
+            timeout: Request timeout per evaluation in seconds
+
+        Returns:
+            List of evaluation results (same order as input):
+            [
+                {
+                    "allowed": bool,
+                    "violations": list[str],
+                    "metadata": dict,
+                    "error": str | None  # If evaluation failed
+                },
+                ...
+            ]
+
+        Example:
+            evaluations = [
+                {"policy_code": "FRD_COMPLETENESS", "stage": "WHAT", "input_data": {...}},
+                {"policy_code": "API_COVERAGE", "stage": "HOW", "input_data": {...}},
+            ]
+            results = opa.batch_evaluate(evaluations)
+            for i, result in enumerate(results):
+                if result.get("error"):
+                    print(f"Evaluation {i} failed: {result['error']}")
+                elif result["allowed"]:
+                    print(f"Evaluation {i}: PASSED")
+                else:
+                    print(f"Evaluation {i}: FAILED - {result['violations']}")
+        """
+        results = []
+
+        for evaluation in evaluations:
+            try:
+                result = self.evaluate_policy(
+                    policy_code=evaluation.get("policy_code", "unknown"),
+                    stage=evaluation.get("stage", "unknown"),
+                    input_data=evaluation.get("input_data", {}),
+                    timeout=timeout,
+                )
+                result["error"] = None
+                results.append(result)
+
+            except OPAEvaluationError as e:
+                results.append({
+                    "allowed": False,
+                    "violations": [],
+                    "metadata": {
+                        "policy_code": evaluation.get("policy_code"),
+                        "stage": evaluation.get("stage"),
+                    },
+                    "error": str(e),
+                })
+
+            except Exception as e:
+                results.append({
+                    "allowed": False,
+                    "violations": [],
+                    "metadata": {
+                        "policy_code": evaluation.get("policy_code"),
+                        "stage": evaluation.get("stage"),
+                    },
+                    "error": f"Unexpected error: {str(e)}",
+                })
+
+        logger.info(f"Batch evaluation complete: {len(results)} policies evaluated")
+        return results
+
+    # ============================================================================
     # Health Check
     # ============================================================================
 
