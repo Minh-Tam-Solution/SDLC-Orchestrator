@@ -15,12 +15,12 @@ from datetime import datetime
 from io import BytesIO
 
 from app.services.evidence_service import EvidenceService
-from backend.tests.factories.evidence_factory import (
+from tests.factories.evidence_factory import (
     get_mock_evidence,
     get_mock_evidence_data,
     get_mock_evidence_upload_data,
 )
-from backend.tests.factories.gate_factory import get_mock_gate
+from tests.factories.gate_factory import get_mock_gate
 
 
 class TestEvidenceServiceUpload:

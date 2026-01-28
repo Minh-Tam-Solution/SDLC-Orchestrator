@@ -14,12 +14,12 @@ from unittest.mock import Mock, AsyncMock
 from datetime import datetime
 
 from app.services.project_service import ProjectService
-from backend.tests.factories.project_factory import (
+from tests.factories.project_factory import (
     get_mock_project,
     get_mock_project_data,
     get_mock_project_create_data,
 )
-from backend.tests.factories.user_factory import get_mock_user
+from tests.factories.user_factory import get_mock_user
 
 
 class TestProjectServiceCreate:

@@ -14,7 +14,7 @@ from unittest.mock import Mock, AsyncMock, patch
 from datetime import datetime
 
 from app.services.codegen.codegen_service import CodegenService
-from backend.tests.factories.codegen_factory import (
+from tests.factories.codegen_factory import (
     get_mock_codegen_spec,
     get_mock_codegen_result,
     get_mock_codegen_blueprint,

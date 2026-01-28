@@ -14,7 +14,7 @@ from unittest.mock import Mock, AsyncMock, patch
 from datetime import datetime
 
 from app.services.policy_service import PolicyService
-from backend.tests.factories.policy_factory import (
+from tests.factories.policy_factory import (
     get_mock_policy,
     get_mock_policy_data,
     get_mock_opa_policy_data,

@@ -14,7 +14,7 @@ from unittest.mock import Mock, AsyncMock, patch
 from datetime import datetime
 
 from app.services.user_service import UserService
-from backend.tests.factories.user_factory import (
+from tests.factories.user_factory import (
     get_mock_user,
     get_mock_user_data,
     get_mock_user_create_data,

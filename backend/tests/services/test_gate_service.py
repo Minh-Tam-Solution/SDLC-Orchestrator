@@ -14,13 +14,13 @@ from unittest.mock import Mock, AsyncMock
 from datetime import datetime
 
 from app.services.gate_service import GateService
-from backend.tests.factories.gate_factory import (
+from tests.factories.gate_factory import (
     get_mock_gate,
     get_mock_gate_data,
     get_mock_gate_create_data,
     get_mock_gate_approval_data,
 )
-from backend.tests.factories.project_factory import get_mock_project
+from tests.factories.project_factory import get_mock_project
 
 
 class TestGateServiceCreate:
