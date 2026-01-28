@@ -503,11 +503,11 @@ Full explainability view as shown in Section 2.2.
 
 ### CPO Commitment
 
-I, **[CPO Name]**, approve this Explainability Specification and commit to:
+I, **CPO**, approve this Explainability Specification and commit to:
 1. Ensuring every score > 30 has full explainability
 2. Monitoring CEO trust in the index
 3. Iterating on explainability based on CEO feedback
 4. Not deploying index changes without CEO preview
 
-**Signature:** _________________
-**Date:** _________________
+**Signature:** ✅ **APPROVED**
+**Date:** January 28, 2026
