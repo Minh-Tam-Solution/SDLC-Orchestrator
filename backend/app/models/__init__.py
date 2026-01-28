@@ -147,6 +147,28 @@ from app.models.governance import (
     EscalationLog,
 )
 
+# Governance System v2.0 (Sprint 118) - 14 models (SPEC-0001 + SPEC-0002)
+# PART 1: Specification Management (7 models)
+from app.models.governance_specification import (
+    GovernanceSpecification,
+    SpecVersion,
+    SpecFrontmatterMetadata,
+    SpecFunctionalRequirement,
+    SpecAcceptanceCriterion,
+    SpecImplementationPhase,
+    SpecCrossReference,
+)
+# PART 2: Vibecoding System (7 models)
+from app.models.governance_vibecoding import (
+    VibecodingSignal,
+    VibecodingIndexHistory,
+    ProgressiveRoutingRule,
+    KillSwitchTrigger,
+    KillSwitchEvent,
+    TierSpecificRequirement,
+    SpecValidationResult,
+)
+
 # Consultation Request (Sprint 101) - 1 model
 from app.models.consultation_request import ConsultationRequest
 
