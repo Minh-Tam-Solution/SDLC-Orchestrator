@@ -1,0 +1,278 @@
+# Governance Check Workflow - Sprint 114 Track 2
+# Mode: WARNING (violations logged, not blocking)
+# Purpose: Dogfooding Anti-Vibecoding System
+
+name: Governance Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+env:
+  GOVERNANCE_MODE: WARNING
+  ORCHESTRATOR_URL: ${{ secrets.ORCHESTRATOR_URL || 'http://localhost:8000' }}
+
+jobs:
+  governance-evaluate:
+    name: Evaluate PR Governance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR details
+        id: pr-details
+        run: |
+          echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          echo "pr_title=${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
+          echo "pr_author=${{ github.event.pull_request.user.login }}" >> $GITHUB_OUTPUT
+          echo "base_branch=${{ github.event.pull_request.base.ref }}" >> $GITHUB_OUTPUT
+          echo "head_branch=${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          # Get list of changed files
+          FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD | tr '\n' ',')
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+
+          # Count changed files
+          FILE_COUNT=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD | wc -l)
+          echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
+
+          # Get lines changed
+          STATS=$(git diff --stat origin/${{ github.event.pull_request.base.ref }}...HEAD | tail -1)
+          echo "stats=$STATS" >> $GITHUB_OUTPUT
+
+      - name: Evaluate Governance
+        id: governance
+        continue-on-error: true
+        run: |
+          # Create evaluation request payload
+          cat > /tmp/eval_request.json << EOF
+          {
+            "pr_number": ${{ steps.pr-details.outputs.pr_number }},
+            "pr_title": "${{ steps.pr-details.outputs.pr_title }}",
+            "pr_author": "${{ steps.pr-details.outputs.pr_author }}",
+            "base_branch": "${{ steps.pr-details.outputs.base_branch }}",
+            "head_branch": "${{ steps.pr-details.outputs.head_branch }}",
+            "files_changed": "${{ steps.changed-files.outputs.files }}",
+            "file_count": ${{ steps.changed-files.outputs.file_count }},
+            "repo": "${{ github.repository }}",
+            "commit_sha": "${{ github.event.pull_request.head.sha }}"
+          }
+          EOF
+
+          echo "Request payload:"
+          cat /tmp/eval_request.json
+
+          # Call governance evaluation API (if available)
+          if curl -s --connect-timeout 5 "${{ env.ORCHESTRATOR_URL }}/health" > /dev/null 2>&1; then
+            RESPONSE=$(curl -s -X POST "${{ env.ORCHESTRATOR_URL }}/api/v1/governance/evaluate" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${{ secrets.GOVERNANCE_TOKEN }}" \
+              -d @/tmp/eval_request.json)
+
+            echo "API Response: $RESPONSE"
+            echo "response=$RESPONSE" >> $GITHUB_OUTPUT
+            echo "api_available=true" >> $GITHUB_OUTPUT
+          else
+            echo "Orchestrator API not available - using local evaluation"
+            echo "api_available=false" >> $GITHUB_OUTPUT
+
+            # Local evaluation fallback
+            VIBECODING_INDEX=0
+            VIOLATIONS=""
+
+            # Check for large PR (surface area signal)
+            if [ ${{ steps.changed-files.outputs.file_count }} -gt 20 ]; then
+              VIBECODING_INDEX=$((VIBECODING_INDEX + 20))
+              VIOLATIONS="$VIOLATIONS- Large PR: ${{ steps.changed-files.outputs.file_count }} files changed (threshold: 20)\n"
+            fi
+
+            # Check for missing ownership (basic check)
+            UNOWNED_FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD | \
+              xargs -I {} sh -c 'grep -L "^# @owner:" {} 2>/dev/null || echo {}' | \
+              grep -E '\.(py|ts|tsx)$' | wc -l)
+            if [ $UNOWNED_FILES -gt 5 ]; then
+              VIBECODING_INDEX=$((VIBECODING_INDEX + 25))
+              VIOLATIONS="$VIOLATIONS- Missing ownership: $UNOWNED_FILES files without @owner header\n"
+            fi
+
+            # Determine zone
+            if [ $VIBECODING_INDEX -lt 30 ]; then
+              ZONE="green"
+            elif [ $VIBECODING_INDEX -lt 60 ]; then
+              ZONE="yellow"
+            elif [ $VIBECODING_INDEX -lt 80 ]; then
+              ZONE="orange"
+            else
+              ZONE="red"
+            fi
+
+            echo "vibecoding_index=$VIBECODING_INDEX" >> $GITHUB_OUTPUT
+            echo "zone=$ZONE" >> $GITHUB_OUTPUT
+            echo "violations=$VIOLATIONS" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Governance Comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = ${{ steps.pr-details.outputs.pr_number }};
+            const fileCount = ${{ steps.changed-files.outputs.file_count }};
+            const apiAvailable = '${{ steps.governance.outputs.api_available }}' === 'true';
+            const mode = '${{ env.GOVERNANCE_MODE }}';
+
+            let vibecodeIndex = parseInt('${{ steps.governance.outputs.vibecoding_index }}') || 0;
+            let zone = '${{ steps.governance.outputs.zone }}' || 'green';
+            let violations = '${{ steps.governance.outputs.violations }}' || '';
+
+            // Zone colors
+            const zoneColors = {
+              green: '🟢',
+              yellow: '🟡',
+              orange: '🟠',
+              red: '🔴'
+            };
+
+            const zoneEmoji = zoneColors[zone] || '⚪';
+
+            // Build comment
+            let comment = `## ${zoneEmoji} Governance Check (${mode} Mode)\n\n`;
+            comment += `| Metric | Value |\n`;
+            comment += `|--------|-------|\n`;
+            comment += `| **Vibecoding Index** | ${vibecodeIndex}/100 |\n`;
+            comment += `| **Zone** | ${zone.toUpperCase()} |\n`;
+            comment += `| **Files Changed** | ${fileCount} |\n`;
+            comment += `| **Mode** | ${mode} (non-blocking) |\n`;
+            comment += `| **API** | ${apiAvailable ? 'Connected' : 'Local Fallback'} |\n\n`;
+
+            if (violations) {
+              comment += `### Violations Detected\n\n`;
+              comment += violations.replace(/\\n/g, '\n');
+              comment += `\n`;
+            }
+
+            // Mode explanation
+            if (mode === 'WARNING') {
+              comment += `---\n`;
+              comment += `> **Note**: Running in WARNING mode (Sprint 114 Dogfooding). `;
+              comment += `Violations are logged but **not blocking**. `;
+              comment += `This helps us tune thresholds before enforcement.\n`;
+            }
+
+            // Recommendations based on zone
+            if (zone === 'orange' || zone === 'red') {
+              comment += `\n### Recommendations\n\n`;
+              if (fileCount > 20) {
+                comment += `- Consider breaking this PR into smaller, focused changes\n`;
+              }
+              comment += `- Review auto-generation suggestions for ownership and intent\n`;
+              comment += `- See [Governance Guide](/docs/governance) for best practices\n`;
+            }
+
+            comment += `\n---\n`;
+            comment += `*Governance Check v1.0.0 | Sprint 114 Track 2 | [Dashboard](/app/governance/dogfooding)*`;
+
+            // Find existing governance comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const existingComment = comments.find(c =>
+              c.user.type === 'Bot' &&
+              c.body.includes('Governance Check')
+            );
+
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: comment
+              });
+            }
+
+      - name: Create Check Run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const mode = '${{ env.GOVERNANCE_MODE }}';
+            const zone = '${{ steps.governance.outputs.zone }}' || 'green';
+            const vibecodeIndex = parseInt('${{ steps.governance.outputs.vibecoding_index }}') || 0;
+
+            // In WARNING mode, always pass but include summary
+            const conclusion = 'success';  // WARNING mode never blocks
+
+            const summary = `**Vibecoding Index**: ${vibecodeIndex}/100 (${zone.toUpperCase()} zone)\n\n` +
+              `Mode: ${mode} (non-blocking)\n\n` +
+              `This check is in observation mode. Results are logged for calibration.`;
+
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'Governance / Anti-Vibecoding',
+              head_sha: '${{ github.event.pull_request.head.sha }}',
+              status: 'completed',
+              conclusion: conclusion,
+              output: {
+                title: `Governance: ${zone.toUpperCase()} (${mode})`,
+                summary: summary
+              }
+            });
+
+      - name: Record Metrics
+        if: always()
+        run: |
+          # Record metrics for dogfooding analysis
+          cat >> /tmp/governance_metrics.json << EOF
+          {
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "pr_number": ${{ steps.pr-details.outputs.pr_number }},
+            "vibecoding_index": ${{ steps.governance.outputs.vibecoding_index || 0 }},
+            "zone": "${{ steps.governance.outputs.zone || 'unknown' }}",
+            "file_count": ${{ steps.changed-files.outputs.file_count }},
+            "mode": "${{ env.GOVERNANCE_MODE }}",
+            "api_available": ${{ steps.governance.outputs.api_available || false }},
+            "blocked": false,
+            "workflow_run_id": "${{ github.run_id }}"
+          }
+          EOF
+
+          echo "Metrics recorded:"
+          cat /tmp/governance_metrics.json
+
+          # TODO: Send to metrics collection endpoint when API is available
+          # curl -X POST "${{ env.ORCHESTRATOR_URL }}/api/v1/governance/metrics/record" \
+          #   -H "Content-Type: application/json" \
+          #   -d @/tmp/governance_metrics.json
+
+      - name: Upload Metrics Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-metrics-pr-${{ steps.pr-details.outputs.pr_number }}
+          path: /tmp/governance_metrics.json
+          retention-days: 30
