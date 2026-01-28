@@ -1,0 +1,571 @@
+# ============================================================================
+# Governance Rules Configuration
+# SDLC Orchestrator - Framework 6.0
+# ============================================================================
+# Sprint: 115 - Soft Enforcement (February 10-14, 2026)
+# ADR: ADR-041 (Framework 6.0 Governance System)
+# Purpose: Define all governance rules, thresholds, and enforcement logic
+# ============================================================================
+
+version: "6.0.0"
+effective_date: "2026-02-10"
+mode: "SOFT"  # OFF, WARNING, SOFT, FULL
+
+# ============================================================================
+# Governance Modes
+# ============================================================================
+modes:
+  OFF:
+    description: "No governance checks, all PRs pass (emergency only)"
+    enforcement: none
+    logging: disabled
+    use_cases:
+      - Emergency break glass for P0 incidents
+      - Initial deployment testing
+      - Rollback state during critical issues
+    
+  WARNING:
+    description: "Log issues but don't block PRs (dogfooding)"
+    enforcement: log_only
+    logging: enabled
+    notifications: slack_only
+    use_cases:
+      - Sprint 114 dogfooding phase
+      - Baseline metrics collection
+      - Threshold tuning
+    
+  SOFT:
+    description: "Block medium/high severity violations, warn on low"
+    enforcement: selective_blocking
+    logging: enabled
+    notifications: slack_and_email
+    blocking_rules:
+      - missing_ownership
+      - missing_intent
+      - vibecoding_index_high
+      - security_scan_failures
+      - missing_agents_md
+    warning_rules:
+      - stale_agents_md
+      - missing_adr_reference
+      - vibecoding_index_medium
+      - test_coverage_low
+    use_cases:
+      - Sprint 115 soft enforcement phase
+      - Gradual enforcement rollout
+      - CEO time savings target: 40h → 25h (-37.5%)
+    
+  FULL:
+    description: "Block all violations except Green auto-approve"
+    enforcement: strict_blocking
+    logging: enabled
+    notifications: slack_and_email_and_dashboard
+    auto_approve_threshold: 30  # Vibecoding Index <30 = Green = auto-approve
+    blocking_rules: all_violations
+    exceptions:
+      - green_auto_approve  # Index <30
+      - cto_manual_override
+      - break_glass_active
+    use_cases:
+      - Sprint 116 full enforcement phase
+      - Production-ready governance
+      - CEO time savings target: 40h → 10h (-75%)
+
+# ============================================================================
+# Vibecoding Index Thresholds
+# ============================================================================
+vibecoding_index:
+  description: "AI-generated score predicting CEO review complexity (0-100)"
+  calculation_method: "Weighted signals from 5 governance signals"
+  
+  thresholds:
+    green:
+      range: [0, 30]
+      label: "Green - Auto-Approve"
+      description: "Simple, well-documented PRs"
+      enforcement:
+        WARNING: log_only
+        SOFT: log_only
+        FULL: auto_approve  # Skip CEO review entirely
+      expected_ceo_time: "0-5 minutes"
+      characteristics:
+        - "≤5 files changed"
+        - "≤200 LOC"
+        - "Complete ownership"
+        - "Intent clearly stated"
+        - "ADR references present"
+        - "Tests included"
+        - "Security scans pass"
+      
+    yellow:
+      range: [31, 60]
+      label: "Yellow - Standard Review"
+      description: "Normal PRs requiring CEO attention"
+      enforcement:
+        WARNING: log_only
+        SOFT: log_only  # Don't block Yellow in SOFT mode
+        FULL: require_ceo_review
+      expected_ceo_time: "5-15 minutes"
+      characteristics:
+        - "6-15 files changed"
+        - "201-500 LOC"
+        - "Most ownership present"
+        - "Intent somewhat clear"
+        - "Some context provided"
+      
+    orange:
+      range: [61, 80]
+      label: "Orange - Detailed Review Required"
+      description: "Complex PRs needing careful CEO review"
+      enforcement:
+        WARNING: log_only
+        SOFT: warn_only  # Warn but don't block in SOFT
+        FULL: require_detailed_ceo_review
+      expected_ceo_time: "15-30 minutes"
+      characteristics:
+        - "16-30 files changed"
+        - "501-1000 LOC"
+        - "Some ownership gaps"
+        - "Intent unclear in places"
+        - "Limited context"
+        - "Test coverage <80%"
+      
+    red:
+      range: [81, 100]
+      label: "Red - Major Review / Block"
+      description: "High-complexity PRs, likely needs rework"
+      enforcement:
+        WARNING: log_only
+        SOFT: block  # Block Red PRs in SOFT mode
+        FULL: block
+      expected_ceo_time: ">30 minutes or reject"
+      characteristics:
+        - ">30 files changed"
+        - ">1000 LOC"
+        - "Significant ownership gaps"
+        - "No clear intent"
+        - "Missing context"
+        - "Test coverage <50%"
+        - "Security concerns"
+      blocking_reason: "PR too complex, requires decomposition"
+      suggested_actions:
+        - "Break PR into smaller chunks (<500 LOC each)"
+        - "Add missing ownership (CODEOWNERS)"
+        - "Write clear intent statement (WHY + WHAT)"
+        - "Attach ADR if architectural change"
+        - "Increase test coverage to >80%"
+
+# ============================================================================
+# Governance Signals (Input to Vibecoding Index)
+# ============================================================================
+signals:
+  ownership_signal:
+    description: "Check file ownership completeness"
+    weight: 0.25  # 25% of Vibecoding Index
+    sources:
+      - CODEOWNERS file
+      - git blame (commit frequency)
+      - PR assignees
+    scoring:
+      all_files_owned: 0 points (perfect)
+      most_files_owned: 10 points (1-2 unowned files)
+      some_files_owned: 20 points (3-5 unowned files)
+      many_unowned: 30 points (>5 unowned files)
+    enforcement:
+      SOFT: block if >5 unowned files
+      FULL: block if >2 unowned files
+    error_message_template: "ownership_missing"
+    
+  intent_signal:
+    description: "Check intent statement quality"
+    weight: 0.20  # 20% of Vibecoding Index
+    sources:
+      - PR description
+      - INTENT.md file in PR
+      - First commit message
+    scoring:
+      clear_intent: 0 points (WHY + WHAT + HOW clearly stated)
+      partial_intent: 15 points (some sections missing)
+      vague_intent: 25 points (unclear purpose)
+      no_intent: 35 points (empty PR description)
+    enforcement:
+      SOFT: block if no_intent
+      FULL: block if partial_intent or worse
+    error_message_template: "intent_missing"
+    
+  context_signal:
+    description: "Check design context attachments"
+    weight: 0.15  # 15% of Vibecoding Index
+    sources:
+      - ADR references in PR description
+      - Technical spec links
+      - Design doc links
+      - AGENTS.md updated
+    scoring:
+      rich_context: 0 points (ADR + spec + design doc)
+      some_context: 10 points (1-2 references)
+      minimal_context: 20 points (only PR description)
+      no_context: 30 points (no design references)
+    enforcement:
+      SOFT: warn if minimal_context
+      FULL: block if no_context
+    error_message_template: "context_missing"
+    
+  security_signal:
+    description: "Check security scan results"
+    weight: 0.20  # 20% of Vibecoding Index
+    sources:
+      - Bandit (Python security)
+      - Grype (container vulnerabilities)
+      - Semgrep (code patterns)
+      - Gitleaks (secrets detection)
+    scoring:
+      all_pass: 0 points
+      low_severity: 10 points (informational findings)
+      medium_severity: 25 points (warnings)
+      high_severity: 40 points (critical findings)
+    enforcement:
+      SOFT: block if high_severity
+      FULL: block if medium_severity or worse
+    error_message_template: "security_scan_failed"
+    
+  stage_gating_signal:
+    description: "Check SDLC stage compliance"
+    weight: 0.20  # 20% of Vibecoding Index
+    sources:
+      - Stage-specific checklists
+      - Required artifacts per stage
+      - Stage gate approvals
+    scoring:
+      compliant: 0 points (all artifacts present)
+      mostly_compliant: 15 points (1-2 missing)
+      partially_compliant: 25 points (3-5 missing)
+      non_compliant: 35 points (>5 missing)
+    enforcement:
+      SOFT: warn if partially_compliant
+      FULL: block if non_compliant
+    error_message_template: "stage_gate_failed"
+
+# ============================================================================
+# Blocking Rules (SOFT Mode)
+# ============================================================================
+blocking_rules:
+  missing_ownership:
+    enabled: true
+    severity: medium
+    description: "PR has >5 files without ownership"
+    condition: "ownership_signal.unowned_files > 5"
+    error_message_template: "ownership_missing"
+    suggested_fix: "Update CODEOWNERS file or add file owners"
+    bypass:
+      - cto_manual_override
+      - break_glass_active
+    
+  missing_intent:
+    enabled: true
+    severity: high
+    description: "PR has no intent statement"
+    condition: "intent_signal.score >= 35"
+    error_message_template: "intent_missing"
+    suggested_fix: "Add WHY + WHAT + HOW to PR description"
+    bypass:
+      - cto_manual_override
+      - break_glass_active
+    
+  vibecoding_index_high:
+    enabled: true
+    severity: high
+    description: "Vibecoding Index >80 (Red zone)"
+    condition: "vibecoding_index > 80"
+    error_message_template: "complexity_too_high"
+    suggested_fix: "Break PR into smaller chunks (<500 LOC)"
+    bypass:
+      - cto_manual_override
+      - break_glass_active
+    
+  security_scan_failures:
+    enabled: true
+    severity: critical
+    description: "High severity security findings"
+    condition: "security_signal.severity == 'high'"
+    error_message_template: "security_scan_failed"
+    suggested_fix: "Fix critical security issues before proceeding"
+    bypass:
+      - cto_manual_override  # Can only be bypassed by CTO
+      - break_glass_active   # Or P0 incident
+    
+  missing_agents_md:
+    enabled: true
+    severity: medium
+    description: "AGENTS.md not updated when AI used"
+    condition: "ai_usage_detected AND agents_md_updated == false"
+    error_message_template: "agents_md_missing"
+    suggested_fix: "Update AGENTS.md with AI session details"
+    bypass:
+      - cto_manual_override
+      - break_glass_active
+
+# ============================================================================
+# Warning Rules (SOFT Mode - Don't Block)
+# ============================================================================
+warning_rules:
+  stale_agents_md:
+    enabled: true
+    severity: low
+    description: "AGENTS.md not updated in >30 days"
+    condition: "days_since_agents_md_update > 30"
+    error_message_template: "agents_md_stale"
+    suggested_fix: "Review and update AGENTS.md quarterly"
+    
+  missing_adr_reference:
+    enabled: true
+    severity: low
+    description: "Architectural change without ADR reference"
+    condition: "is_architectural_change AND adr_reference_count == 0"
+    error_message_template: "adr_missing"
+    suggested_fix: "Reference relevant ADR or create new one"
+    
+  vibecoding_index_medium:
+    enabled: true
+    severity: low
+    description: "Vibecoding Index 61-80 (Orange zone)"
+    condition: "vibecoding_index >= 61 AND vibecoding_index <= 80"
+    error_message_template: "complexity_medium"
+    suggested_fix: "Consider simplifying PR if possible"
+    
+  test_coverage_low:
+    enabled: true
+    severity: low
+    description: "Test coverage <80%"
+    condition: "test_coverage < 80"
+    error_message_template: "test_coverage_low"
+    suggested_fix: "Add tests to reach 80% coverage"
+
+# ============================================================================
+# Auto-Rollback Thresholds
+# ============================================================================
+auto_rollback:
+  enabled: true
+  check_interval_seconds: 10
+  
+  thresholds:
+    rejection_rate:
+      threshold_percent: 5.0
+      description: "Auto-rollback if >5% of PRs rejected"
+      action: "Rollback to WARNING mode"
+      notification: "slack_and_email"
+      
+    latency_p95:
+      threshold_ms: 100
+      description: "Auto-rollback if P95 latency >100ms"
+      action: "Rollback to WARNING mode"
+      notification: "slack_and_email"
+      
+    false_positive_rate:
+      threshold_percent: 10.0
+      description: "Auto-rollback if >10% false positives"
+      action: "Rollback to WARNING mode"
+      notification: "slack_and_email"
+      
+    complaint_rate:
+      threshold_percent: 3.0
+      description: "Auto-rollback if >3% developer complaints"
+      action: "Rollback to WARNING mode"
+      notification: "slack_and_email"
+  
+  cooldown_period_minutes: 60  # Wait 60 min before next auto-rollback
+
+# ============================================================================
+# Break Glass Rules
+# ============================================================================
+break_glass:
+  enabled: true
+  authorized_roles:
+    - CTO
+    - CEO
+  
+  incident_types:
+    P0:
+      description: "Production outage"
+      auto_revert_hours: 4
+      requires_2fa: true
+      notification: "slack_and_email_and_pagerduty"
+      
+    P1:
+      description: "Major service degradation"
+      auto_revert_hours: 8
+      requires_2fa: true
+      notification: "slack_and_email"
+      
+    HOTFIX:
+      description: "Critical security fix"
+      auto_revert_hours: 2
+      requires_2fa: true
+      notification: "slack_and_email_and_security_team"
+  
+  audit:
+    log_all_events: true
+    create_jira_ticket: true
+    notify_slack_channel: "#governance-alerts"
+
+# ============================================================================
+# Notification Configuration
+# ============================================================================
+notifications:
+  slack:
+    enabled: true
+    channels:
+      governance_alerts: "#governance-alerts"
+      mode_changes: "#governance-mode-changes"
+      break_glass: "#governance-break-glass"
+    
+  email:
+    enabled: true
+    recipients:
+      cto: "cto@sdlc-orchestrator.dev"
+      ceo: "ceo@sdlc-orchestrator.dev"
+      security_team: "security@sdlc-orchestrator.dev"
+    
+  dashboard:
+    enabled: true
+    real_time_updates: true
+    polling_interval_seconds: 5
+
+# ============================================================================
+# Exemptions & Overrides
+# ============================================================================
+exemptions:
+  file_patterns:
+    - "*.md"           # Markdown files exempt from ownership
+    - "docs/**"        # Documentation exempt
+    - "*.json"         # Config files exempt
+    - "package-lock.json"
+    - "yarn.lock"
+    
+  pr_labels:
+    - "governance-exempt"     # Skip all governance checks
+    - "documentation-only"    # Skip ownership for docs
+    - "dependency-update"     # Skip intent for dep updates
+    
+  repositories:
+    - name: "experimental-sandbox"
+      reason: "Sandbox repo for testing"
+      exempt_rules: all
+    
+  users:
+    - username: "dependabot"
+      reason: "Automated dependency updates"
+      exempt_rules: ["missing_intent", "missing_ownership"]
+    
+    - username: "renovate"
+      reason: "Automated dependency updates"
+      exempt_rules: ["missing_intent", "missing_ownership"]
+
+# ============================================================================
+# Feature Flags
+# ============================================================================
+feature_flags:
+  auto_generation:
+    enabled: true
+    components:
+      - intent_skeleton
+      - ownership_suggestions
+      - context_attachments
+      - attestation_prefill
+    
+  stage_gating:
+    enabled: true
+    stages:
+      - "01-planning"
+      - "02-design"
+      - "03-build"
+      - "04-test"
+      - "05-deploy"
+    
+  ceo_dashboard:
+    enabled: true
+    features:
+      - time_saved_tracking
+      - vibecoding_index_distribution
+      - pending_decisions
+      - routing_breakdown
+    
+  kill_switch:
+    enabled: true
+    features:
+      - mode_toggle
+      - auto_rollback
+      - break_glass
+      - audit_log
+
+# ============================================================================
+# Performance Limits
+# ============================================================================
+performance:
+  max_pr_size_files: 50
+  max_pr_size_loc: 2000
+  max_governance_check_duration_ms: 100
+  max_concurrent_checks: 10
+  cache_ttl_seconds: 300
+
+# ============================================================================
+# Audit & Compliance
+# ============================================================================
+audit:
+  log_all_governance_events: true
+  retention_days: 365
+  compliance_standards:
+    - SOC2
+    - GDPR
+  
+  required_fields:
+    - actor
+    - action
+    - resource
+    - timestamp
+    - outcome
+    - reason
+
+# ============================================================================
+# Rollout Strategy
+# ============================================================================
+rollout:
+  sprint_114_warning:
+    start_date: "2026-02-03"
+    end_date: "2026-02-07"
+    mode: WARNING
+    success_criteria:
+      - "PR latency <15%"
+      - "False positive rate <15%"
+      - "100+ PRs evaluated"
+    
+  sprint_115_soft:
+    start_date: "2026-02-10"
+    end_date: "2026-02-14"
+    mode: SOFT
+    success_criteria:
+      - "CEO time 40h → 25h"
+      - "False positive rate <10%"
+      - "Complaint rate <5%"
+    
+  sprint_116_full:
+    start_date: "2026-02-17"
+    end_date: "2026-02-21"
+    mode: FULL
+    success_criteria:
+      - "CEO time 40h → 10h"
+      - "Green auto-approve working"
+      - "Zero production incidents"
+
+# ============================================================================
+# Version History
+# ============================================================================
+changelog:
+  - version: "6.0.0"
+    date: "2026-02-10"
+    changes:
+      - "Initial SOFT mode enforcement rules"
+      - "5 governance signals implemented"
+      - "Vibecoding Index thresholds defined"
+      - "Auto-rollback logic configured"
+      - "Break glass procedures established"
