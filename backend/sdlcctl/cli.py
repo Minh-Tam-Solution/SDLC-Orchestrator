@@ -1,14 +1,13 @@
 """
 =========================================================================
-SDLC 5.2.0 Structure Validator CLI.
-SDLC Orchestrator - Sprint 99
+SDLC 5.3.0 Structure Validator CLI.
+SDLC Orchestrator - Sprint 119
 
-Version: 3.1.0
-Date: January 23, 2026
-Status: ACTIVE - Sprint 99 Planning Sub-agent Part 2
+Version: 3.2.0
+Date: January 29, 2026
+Status: ACTIVE - Sprint 119 Specification CLI
 Authority: Backend Team + CTO Approved
-Reference: ADR-034-Planning-Subagent-Orchestration
-Design: Conformance-Check-Service-Design.md
+Reference: SPEC-0002-Specification-Standard
 
 Purpose:
 - Main entry point for the sdlcctl command-line tool
@@ -17,6 +16,7 @@ Purpose:
 - Magic Mode - Natural language to code (Sprint 52)
 - Planning Mode - Sub-agent orchestration (Sprint 98)
 - Conformance Check - PR pattern validation (Sprint 99)
+- Specification Validation - Framework 6.0.0 specs (Sprint 119)
 
 Usage:
     sdlcctl validate ./my-project
@@ -24,6 +24,8 @@ Usage:
     sdlcctl magic "Nhà hàng Phở 24" -o ./pho24
     sdlcctl plan new "Add OAuth2 authentication"
     sdlcctl plan check --diff changes.diff
+    sdlcctl spec validate docs/02-design/14-Technical-Specs/
+    sdlcctl spec list --tier PROFESSIONAL
 =========================================================================
 """
 
@@ -46,6 +48,7 @@ from .commands.agents import (
     agents_context_command,
     agents_validate_context_command,
 )
+from .commands.spec import app as spec_app
 
 console = Console()
 
@@ -160,6 +163,9 @@ agents_app.command(name="validate-context", help="Validate per-file context limi
 
 # Register agents sub-app
 app.add_typer(agents_app, name="agents")
+
+# Register spec sub-app (Sprint 119 - Specification validation)
+app.add_typer(spec_app, name="spec")
 
 
 @app.command(name="tiers")
