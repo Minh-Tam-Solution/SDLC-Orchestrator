@@ -1,14 +1,28 @@
 # Stage 02: Design & Architecture (HOW?)
 ## System Architecture + Technical Design
 
-**Version**: 3.1.0
-**Date**: January 19, 2026
+**Version**: 3.2.0
+**Date**: January 30, 2026
 **Status**: ✅ COMPLETED - Gate G2 PASSED (CTO 9.4/10, CPO 9.2/10)
 **Authority**: CTO + Tech Lead + Backend Lead Approved
-**Foundation**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Foundation**: SDLC 6.0.0 (Multi-Frontend Aligned)
 **Previous Stage**: Stage 01 (Planning & Analysis - WHAT) ✅ COMPLETE
-**Next Stage**: Stage 04 (BUILD) - Sprint 78 COMPLETE, Sprint 79 IN PROGRESS
+**Next Stage**: Stage 04 (BUILD) - Sprint 122 Stabilization
 **Positioning**: Operating System for Software 3.0
+
+**Changelog v3.2.0** (Jan 30, 2026):
+- **SDLC 6.0.0 Migration**: Framework upgraded from 5.1.3 → 6.0.0
+- **Multi-Frontend Alignment**: Sprint 125-127 (26.5 SP in 1 day)
+  - CLI (sdlcctl) parity: 39% → 71% (+32 points)
+  - VS Code Extension parity: 67% → 89% (+22 points)
+- **CLI Validation Testing Bug Fixes**:
+  - Stage folder naming convention: `00-Project-Foundation` → `00-foundation`
+  - P0 artifact paths updated for SDLC 6.0.0
+  - Pre-commit hooks module created (`sdlcctl.hooks`)
+  - Fix command now creates `99-Legacy` folders consistently
+  - NLP parser test expectations aligned with actual implementation
+  - See: [sdlcctl CHANGELOG v1.2.0](../../backend/sdlcctl/CHANGELOG.md)
+- **Design Decision**: All CLI validation rules now enforce SDLC 6.0.0 lowercase naming
 
 **Changelog v3.1.0** (Jan 19, 2026):
 - **Sprint 78 Design Artifacts**: 4 new data models + 38 API endpoints documented

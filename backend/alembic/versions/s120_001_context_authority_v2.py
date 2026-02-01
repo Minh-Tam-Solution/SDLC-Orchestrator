@@ -5,9 +5,12 @@ Revises: s118_001_governance_v2_tables
 Create Date: 2026-01-29 18:00:00.000000
 
 Creates tables for Context Authority V2 (SPEC-0011):
-1. context_overlay_templates - Dynamic overlay templates
-2. context_snapshots - Point-in-time context for audit
-3. context_overlay_applications - Track template applications
+1. ca_v2_overlay_templates - Dynamic overlay templates
+2. ca_v2_context_snapshots - Point-in-time context for audit
+3. ca_v2_overlay_applications - Track template applications
+
+Note: All tables use ca_v2_* prefix to avoid conflict with Sprint 108
+context_snapshots table in governance module.
 
 Reference:
 - SPEC-0011: Context Authority V2 - Gate-Aware Dynamic Context
@@ -27,11 +30,11 @@ depends_on = None
 
 def upgrade():
     # =========================================================================
-    # Table 1: context_overlay_templates
+    # Table 1: ca_v2_overlay_templates
     # Dynamic overlay templates for gate-aware context injection
     # =========================================================================
     op.create_table(
-        'context_overlay_templates',
+        'ca_v2_overlay_templates',
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('trigger_type', sa.String(50), nullable=False, index=True,
                   comment='Trigger type: gate_pass, gate_fail, index_zone, stage_constraint'),
@@ -58,27 +61,35 @@ def upgrade():
         # Check constraints
         sa.CheckConstraint(
             "trigger_type IN ('gate_pass', 'gate_fail', 'index_zone', 'stage_constraint')",
-            name='ck_context_overlay_templates_trigger_type'
+            name='ck_ca_v2_overlay_templates_trigger_type'
         ),
         sa.CheckConstraint(
             "tier IS NULL OR tier IN ('LITE', 'STANDARD', 'PROFESSIONAL', 'ENTERPRISE')",
-            name='ck_context_overlay_templates_tier'
+            name='ck_ca_v2_overlay_templates_tier'
         ),
     )
 
     # Composite index for template lookup
     op.create_index(
-        'idx_context_overlay_templates_trigger_lookup',
-        'context_overlay_templates',
+        'idx_ca_v2_overlay_templates_trigger_lookup',
+        'ca_v2_overlay_templates',
         ['trigger_type', 'trigger_value', 'tier', 'is_active']
     )
 
+    # Priority index
+    op.create_index(
+        'idx_ca_v2_overlay_templates_priority',
+        'ca_v2_overlay_templates',
+        ['priority'],
+        postgresql_ops={'priority': 'DESC'}
+    )
+
     # =========================================================================
-    # Table 2: context_snapshots
+    # Table 2: ca_v2_context_snapshots
     # Point-in-time context for audit trail
     # =========================================================================
     op.create_table(
-        'context_snapshots',
+        'ca_v2_context_snapshots',
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('submission_id', postgresql.UUID(as_uuid=True),
                   sa.ForeignKey('governance_submissions.id', ondelete='CASCADE'),
@@ -123,40 +134,47 @@ def upgrade():
         # Check constraints
         sa.CheckConstraint(
             "vibecoding_zone IN ('GREEN', 'YELLOW', 'ORANGE', 'RED')",
-            name='ck_context_snapshots_zone'
+            name='ck_ca_v2_context_snapshots_zone'
         ),
         sa.CheckConstraint(
             "tier IN ('LITE', 'STANDARD', 'PROFESSIONAL', 'ENTERPRISE')",
-            name='ck_context_snapshots_tier'
+            name='ck_ca_v2_context_snapshots_tier'
         ),
     )
 
     # BRIN index for time-series queries
     op.execute("""
-        CREATE INDEX idx_context_snapshots_snapshot_at_brin
-        ON context_snapshots USING brin (snapshot_at);
+        CREATE INDEX idx_ca_v2_context_snapshots_snapshot_at_brin
+        ON ca_v2_context_snapshots USING brin (snapshot_at);
     """)
 
     # Composite index for project-based queries
     op.create_index(
-        'idx_context_snapshots_project_time',
-        'context_snapshots',
+        'idx_ca_v2_context_snapshots_project_time',
+        'ca_v2_context_snapshots',
         ['project_id', 'snapshot_at']
     )
 
+    # Validity index
+    op.create_index(
+        'idx_ca_v2_context_snapshots_validity',
+        'ca_v2_context_snapshots',
+        ['is_valid', 'snapshot_at']
+    )
+
     # =========================================================================
-    # Table 3: context_overlay_applications
+    # Table 3: ca_v2_overlay_applications
     # Track template applications to snapshots
     # =========================================================================
     op.create_table(
-        'context_overlay_applications',
+        'ca_v2_overlay_applications',
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('snapshot_id', postgresql.UUID(as_uuid=True),
-                  sa.ForeignKey('context_snapshots.id', ondelete='CASCADE'),
+                  sa.ForeignKey('ca_v2_context_snapshots.id', ondelete='CASCADE'),
                   nullable=False, index=True,
                   comment='Snapshot where template was applied'),
         sa.Column('template_id', postgresql.UUID(as_uuid=True),
-                  sa.ForeignKey('context_overlay_templates.id', ondelete='CASCADE'),
+                  sa.ForeignKey('ca_v2_overlay_templates.id', ondelete='CASCADE'),
                   nullable=False, index=True,
                   comment='Template that was applied'),
         sa.Column('template_content_snapshot', sa.Text(), nullable=False,
@@ -174,13 +192,13 @@ def upgrade():
                   server_default=sa.func.now()),
         # Unique constraint
         sa.UniqueConstraint('snapshot_id', 'template_id',
-                           name='uq_context_overlay_applications_snapshot_template'),
+                           name='uq_ca_v2_overlay_applications_snapshot_template'),
     )
 
     # Index for template usage analytics
     op.create_index(
-        'idx_context_overlay_applications_template_usage',
-        'context_overlay_applications',
+        'idx_ca_v2_overlay_applications_template_usage',
+        'ca_v2_overlay_applications',
         ['template_id', 'applied_at']
     )
 
@@ -188,7 +206,7 @@ def upgrade():
     # Seed Default Templates (SPEC-0011)
     # =========================================================================
     op.execute("""
-        INSERT INTO context_overlay_templates (
+        INSERT INTO ca_v2_overlay_templates (
             id, trigger_type, trigger_value, tier, overlay_content, priority,
             is_active, name, description, created_at, updated_at
         ) VALUES
@@ -235,6 +253,6 @@ def upgrade():
 
 def downgrade():
     # Drop tables in reverse order (respecting FKs)
-    op.drop_table('context_overlay_applications')
-    op.drop_table('context_snapshots')
-    op.drop_table('context_overlay_templates')
+    op.drop_table('ca_v2_overlay_applications')
+    op.drop_table('ca_v2_context_snapshots')
+    op.drop_table('ca_v2_overlay_templates')

@@ -50,13 +50,15 @@ async def spec_service(db_session: AsyncSession) -> SpecificationService:
 
 
 @pytest.fixture
-async def test_project(db_session: AsyncSession) -> Project:
+async def test_project(db_session: AsyncSession, test_user: User) -> Project:
     """Create a test project for specification tests."""
     project = Project(
         id=uuid4(),
         name="Test Project for Specifications",
+        slug=f"test-project-spec-{uuid4().hex[:8]}",
         description="Test project for Sprint 118 specification tests",
-        tier="STANDARD",
+        owner_id=test_user.id,
+        policy_pack_tier="STANDARD",
     )
     db_session.add(project)
     await db_session.commit()
@@ -71,7 +73,7 @@ async def test_user(db_session: AsyncSession) -> User:
         id=uuid4(),
         email="test-author@example.com",
         full_name="Test Author",
-        hashed_password="hashed_test_password",
+        password_hash="hashed_test_password",
         is_active=True,
     )
     db_session.add(user)

@@ -31,10 +31,38 @@ export class ApiError extends Error {
     static fromAxiosError(error: AxiosError): ApiError {
         const statusCode = error.response?.status ?? 0;
         const statusText = error.response?.statusText ?? 'Network Error';
-        const message =
-            (error.response?.data as { detail?: string })?.detail ??
-            error.message ??
-            'Unknown error';
+
+        // Extract error message from various FastAPI error formats
+        let message = 'Unknown error';
+        const data = error.response?.data;
+
+        if (data && typeof data === 'object') {
+            const detail = (data as any).detail;
+
+            if (typeof detail === 'string') {
+                // Simple string error
+                message = detail;
+            } else if (Array.isArray(detail) && detail.length > 0) {
+                // FastAPI validation error (array of errors)
+                message = detail.map((err: any) => {
+                    const loc = Array.isArray(err.loc) ? err.loc.join('.') : '';
+                    return `${loc}: ${err.msg}`;
+                }).join('; ');
+            } else if ((data as any).message) {
+                // Alternative message field
+                message = String((data as any).message);
+            } else {
+                // Fallback: try to stringify the data
+                try {
+                    message = JSON.stringify(data);
+                } catch {
+                    message = String(data);
+                }
+            }
+        } else if (error.message) {
+            message = error.message;
+        }
+
         return new ApiError(statusCode, statusText, message, error.response?.data);
     }
 }
@@ -268,7 +296,7 @@ export class ApiClient {
     /**
      * Makes a typed GET request
      */
-    private async get<T>(endpoint: string, config?: AxiosRequestConfig): Promise<T> {
+    async get<T>(endpoint: string, config?: AxiosRequestConfig): Promise<T> {
         const response = await this.client.get<T>(endpoint, config);
         return response.data;
     }
@@ -276,12 +304,20 @@ export class ApiClient {
     /**
      * Makes a typed POST request
      */
-    private async post<T>(
+    async post<T>(
         endpoint: string,
         data?: unknown,
         config?: AxiosRequestConfig
     ): Promise<T> {
         const response = await this.client.post<T>(endpoint, data, config);
+        return response.data;
+    }
+
+    /**
+     * Makes a typed DELETE request
+     */
+    async delete<T>(endpoint: string, config?: AxiosRequestConfig): Promise<T> {
+        const response = await this.client.delete<T>(endpoint, config);
         return response.data;
     }
 
@@ -605,7 +641,7 @@ export class ApiClient {
         return this.get<{
             folders: string[];
             files: { path: string; content: string }[];
-        }>(`/api/v1/templates/sdlc-structure?tier=${tier}&version=5.1.2`);
+        }>(`/api/v1/templates/sdlc-structure?tier=${tier}&version=6.0.0`);
     }
 
     // ============================================

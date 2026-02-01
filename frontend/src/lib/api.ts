@@ -292,11 +292,19 @@ export interface OAuthCallbackRequest {
 /**
  * Get OAuth authorization URL
  * Sprint 105: Increased timeout to 30s for OAuth operations
+ * Sprint 133: Pass dynamic redirect_uri based on current origin
  */
 export async function getOAuthAuthorizeUrl(
   provider: "github" | "google"
 ): Promise<OAuthAuthorizeResponse> {
-  return apiRequest<OAuthAuthorizeResponse>(`/auth/oauth/${provider}/authorize`, {}, 30000);
+  // Construct redirect_uri based on current origin to support localhost testing
+  const callbackPath = provider === "github" ? "/auth/github/callback" : "/auth/callback";
+  const redirectUri = typeof window !== "undefined"
+    ? `${window.location.origin}${callbackPath}`
+    : undefined;
+
+  const queryParams = redirectUri ? `?redirect_uri=${encodeURIComponent(redirectUri)}` : "";
+  return apiRequest<OAuthAuthorizeResponse>(`/auth/oauth/${provider}/authorize${queryParams}`, {}, 30000);
 }
 
 /**

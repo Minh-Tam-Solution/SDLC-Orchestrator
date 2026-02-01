@@ -19,6 +19,7 @@ export interface SDLCConfig {
     enableNotifications: boolean;
     aiCouncilEnabled: boolean;
     showViolationBadge: boolean;
+    showProjectsPanel: boolean;
 }
 
 /**
@@ -33,6 +34,7 @@ const DEFAULT_CONFIG: SDLCConfig = {
     enableNotifications: true,
     aiCouncilEnabled: true,
     showViolationBadge: true,
+    showProjectsPanel: false,
 };
 
 /**
@@ -112,6 +114,13 @@ export class ConfigManager {
     }
 
     /**
+     * Gets whether Projects panel should always be shown
+     */
+    get showProjectsPanel(): boolean {
+        return this.get('showProjectsPanel', DEFAULT_CONFIG.showProjectsPanel);
+    }
+
+    /**
      * Gets all configuration as an object
      */
     getAll(): SDLCConfig {
@@ -122,6 +131,7 @@ export class ConfigManager {
             enableNotifications: this.enableNotifications,
             aiCouncilEnabled: this.aiCouncilEnabled,
             showViolationBadge: this.showViolationBadge,
+            showProjectsPanel: this.showProjectsPanel,
         };
     }
 

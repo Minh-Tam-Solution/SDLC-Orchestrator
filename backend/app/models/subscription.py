@@ -308,7 +308,7 @@ class PaymentHistory(Base):
 
     __table_args__ = (
         Index("ix_payment_history_user_status", "user_id", "status"),
-        Index("ix_payment_history_vnp_txn_ref", "vnp_txn_ref"),
+        # Note: vnp_txn_ref index is already created by index=True on the column
         CheckConstraint(
             "status IN ('pending', 'completed', 'failed')",
             name="valid_payment_status",

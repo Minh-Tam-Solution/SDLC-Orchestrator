@@ -194,6 +194,37 @@ class Project(Base):
     maturity_assessments = relationship(
         "AgenticMaturityAssessment", back_populates="project", cascade="all, delete-orphan"
     )
+    # Governance Submissions (Sprint 120 - Context Authority V2)
+    governance_submissions = relationship(
+        "GovernanceSubmission", back_populates="project", cascade="all, delete-orphan"
+    )
+    # Context Snapshots (Sprint 120 - Context Authority V2)
+    context_snapshots = relationship(
+        "ContextSnapshot", back_populates="project", cascade="all, delete-orphan"
+    )
+    # Governance Specifications (Sprint 118 - SPEC-0001 + SPEC-0002)
+    governance_specifications = relationship(
+        "GovernanceSpecification", back_populates="project", cascade="all, delete-orphan"
+    )
+    # Vibecoding Signals (Sprint 118 - Anti-Vibecoding Governance)
+    vibecoding_signals = relationship(
+        "VibecodingSignal", back_populates="project", cascade="all, delete-orphan"
+    )
+    # Vibecoding Index History (Sprint 118 - Anti-Vibecoding Governance)
+    vibecoding_index_history = relationship(
+        "VibecodingIndexHistory", back_populates="project", cascade="all, delete-orphan"
+    )
+    # Compliance Validation (Sprint 123 - SPEC-0013)
+    compliance_scores = relationship(
+        "ComplianceScore", back_populates="project", cascade="all, delete-orphan"
+    )
+    folder_collision_checks = relationship(
+        "FolderCollisionCheck", back_populates="project", cascade="all, delete-orphan"
+    )
+    # GitHub Integration (Sprint 129 - ADR-044)
+    github_repository = relationship(
+        "GitHubRepository", back_populates="project", uselist=False, cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Project(id={self.id}, name={self.name}, slug={self.slug})>"

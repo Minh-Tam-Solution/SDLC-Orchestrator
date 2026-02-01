@@ -132,7 +132,6 @@ async def settings_reset(test_db: AsyncSession):
                 category="security",
                 description=f"Test setting: {key}",
                 version=1,
-                created_at=datetime.utcnow(),
                 updated_at=datetime.utcnow(),
             )
             test_db.add(setting)

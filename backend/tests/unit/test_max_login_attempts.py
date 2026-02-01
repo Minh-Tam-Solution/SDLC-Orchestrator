@@ -36,8 +36,9 @@ Zero Mock Policy: Real database integration tests
 """
 
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, Mock, patch
+from sqlalchemy import text
 
 from app.services.settings_service import SettingsService
 
@@ -65,7 +66,6 @@ async def test_get_max_login_attempts_from_db(settings_service, test_db_session)
         category="security",
         description="Max failed login attempts",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(setting)
@@ -91,7 +91,6 @@ async def test_get_max_login_attempts_sanity_check(settings_service, test_db_ses
         category="security",
         description="Too low",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(low_setting)
@@ -102,7 +101,7 @@ async def test_get_max_login_attempts_sanity_check(settings_service, test_db_ses
 
     # Test value too high (> 100)
     await test_db_session.execute(
-        "UPDATE system_settings SET value = '200' WHERE key = 'max_login_attempts'"
+        text("UPDATE system_settings SET value = '200' WHERE key = 'max_login_attempts'")
     )
     await test_db_session.commit()
 
@@ -114,7 +113,7 @@ async def test_get_max_login_attempts_sanity_check(settings_service, test_db_ses
 
     # Cleanup
     await test_db_session.execute(
-        "DELETE FROM system_settings WHERE key = 'max_login_attempts'"
+        text("DELETE FROM system_settings WHERE key = 'max_login_attempts'")
     )
     await test_db_session.commit()
 
@@ -191,7 +190,7 @@ async def test_locked_account_rejects_login(test_client, test_db_session, test_u
     """UT-2.6: Locked account rejects login with 403 error."""
     # Lock account manually
     test_user.failed_login_count = 5
-    test_user.locked_until = datetime.utcnow() + timedelta(minutes=30)
+    test_user.locked_until = datetime.now(timezone.utc) + timedelta(minutes=30)
     await test_db_session.commit()
 
     # Try to login with correct password
@@ -212,7 +211,7 @@ async def test_auto_unlock_after_30_minutes(test_client, test_db_session, test_u
     """UT-2.7: Account auto-unlocks after 30 minutes."""
     # Lock account with expired timestamp (31 minutes ago)
     test_user.failed_login_count = 5
-    test_user.locked_until = datetime.utcnow() - timedelta(minutes=31)
+    test_user.locked_until = datetime.now(timezone.utc) - timedelta(minutes=31)
     await test_db_session.commit()
 
     # Try to login with correct password
@@ -260,7 +259,7 @@ async def test_admin_can_unlock_account(test_client, test_db_session, test_user,
     """UT-2.9: Admin can manually unlock locked account."""
     # Lock user account
     test_user.failed_login_count = 5
-    test_user.locked_until = datetime.utcnow() + timedelta(minutes=30)
+    test_user.locked_until = datetime.now(timezone.utc) + timedelta(minutes=30)
     await test_db_session.commit()
 
     # Admin unlocks account
@@ -351,7 +350,7 @@ async def test_user(test_db_session):
     user = User(
         email="lockout.test@example.com",
         password_hash=get_password_hash("CorrectPassword123!"),
-        name="Lockout Test User",
+        full_name="Lockout Test User",
         is_active=True,
         is_superuser=False,
         failed_login_count=0,
@@ -377,7 +376,7 @@ async def admin_user(test_db_session):
     admin = User(
         email="admin.lockout@example.com",
         password_hash=get_password_hash("AdminPassword123!"),
-        name="Admin User",
+        full_name="Admin User",
         is_active=True,
         is_superuser=True,
     )

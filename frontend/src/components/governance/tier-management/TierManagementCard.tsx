@@ -264,6 +264,10 @@ export function TierManagementCard({
   const canRequestUpgrade = useCanRequestUpgrade();
   const upgradeMutation = useRequestTierUpgrade();
 
+  // Call hooks unconditionally (React rules of hooks)
+  const currentTier = (tierData?.current_tier ?? "LITE") as TierLevel;
+  const display = useTierDisplay(currentTier);
+
   if (isLoading) {
     return (
       <Card>
@@ -288,8 +292,6 @@ export function TierManagementCard({
     );
   }
 
-  const currentTier = tierData.current_tier as TierLevel;
-  const display = useTierDisplay(currentTier);
   const eligibility = tierData.upgrade_eligibility;
 
   if (compact) {

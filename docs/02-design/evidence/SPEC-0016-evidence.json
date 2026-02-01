@@ -1,0 +1,57 @@
+{
+  "$schema": "../../../backend/sdlcctl/sdlcctl/schemas/spec-evidence-schema.json",
+  "spec_id": "SPEC-0016",
+  "spec_title": "Implementation Evidence Validation",
+  "spec_type": "feature",
+  "implementation_date": "2026-02-01",
+  "sprint": "Sprint 133",
+  "interfaces": {
+    "backend": {
+      "api_routes": [
+        "backend/app/api/routes/evidence.py"
+      ],
+      "services": [],
+      "models": [],
+      "tests": [
+        "backend/tests/services/test_evidence_api.py"
+      ],
+      "coverage": 0.0,
+      "status": "partial"
+    },
+    "frontend": {
+      "components": [],
+      "pages": [],
+      "hooks": [],
+      "tests": [],
+      "status": "not_applicable"
+    },
+    "extension": {
+      "commands": [],
+      "services": [],
+      "views": [],
+      "tests": [],
+      "status": "not_applicable"
+    },
+    "cli": {
+      "commands": [
+        "backend/sdlcctl/sdlcctl/commands/evidence.py"
+      ],
+      "services": [],
+      "tests": [],
+      "status": "complete"
+    }
+  },
+  "validation": {
+    "last_checked": "2026-02-01T10:50:26.494712Z",
+    "checker_version": "1.0.0",
+    "status": "partial",
+    "missing_files": [
+      "backend/tests/services/test_evidence_api.py"
+    ],
+    "warnings": [
+      "No backend tests for evidence API endpoints",
+      "No CLI tests for evidence commands"
+    ]
+  },
+  "notes": "Sprint 133 - Evidence Vault + Gates Integration. Implements SPEC-0016 with JSON schema validation, Evidence Validator (495 LOC), CLI commands (451 LOC), API endpoints (413 LOC), OPA policy (300 LOC), pre-commit hooks, and CI/CD workflow. Proven working via ADR-043 dogfooding (detected 10 context drift violations)."
+}

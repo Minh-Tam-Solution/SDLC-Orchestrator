@@ -23,6 +23,10 @@ import type {
     HashVerifyResponse,
     CodegenSession,
     UnlockReason,
+    SpecValidationResult,
+    SpecValidationRequest,
+    SpecListResponse,
+    SpecTier,
 } from '../types/codegen';
 
 // ApiResponse interface reserved for future use with typed responses
@@ -362,6 +366,253 @@ export class CodegenApiService {
         return this.request<AppBlueprint>(
             'GET',
             `/api/v1/codegen/templates/domains/${domainId}`
+        );
+    }
+
+    // ========================================
+    // Specification Validation APIs (Sprint 126 - S126-06)
+    // SDLC 6.0.0 Spec Validation
+    // ========================================
+
+    /**
+     * Validate a specification against SDLC 6.0.0 SPEC-0002 standard
+     *
+     * Validates:
+     * - YAML frontmatter (required fields, format)
+     * - BDD requirements (GIVEN-WHEN-THEN format)
+     * - Cross-references (spec, ADR, file links)
+     * - Tier-specific required sections
+     *
+     * @param request - Specification validation request
+     * @returns Validation result with errors and warnings
+     */
+    public async validateSpecification(
+        request: SpecValidationRequest
+    ): Promise<SpecValidationResult> {
+        return this.request<SpecValidationResult>(
+            'POST',
+            '/api/v1/specs/validate',
+            request
+        );
+    }
+
+    /**
+     * Validate a specification file by path (local validation)
+     *
+     * This performs local validation without sending content to backend.
+     * Uses the same validation rules as the CLI sdlcctl spec validate.
+     *
+     * @param content - Specification file content
+     * @param tier - Optional tier for tier-specific validation
+     * @returns Validation result
+     */
+    public validateSpecificationLocal(
+        content: string,
+        tier?: SpecTier
+    ): SpecValidationResult {
+        const errors: Array<{
+            code: string;
+            field: string;
+            message: string;
+            severity: 'critical' | 'high';
+            line_number?: number;
+            suggestion?: string;
+        }> = [];
+        const warnings: Array<{
+            code: string;
+            field: string;
+            message: string;
+            suggestion?: string;
+            line_number?: number;
+        }> = [];
+
+        // Extract YAML frontmatter
+        const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+        const frontmatterValid = !!frontmatterMatch;
+        const requiredFields = ['spec_id', 'title', 'version', 'status', 'tier', 'owner', 'last_updated'];
+        const presentFields: string[] = [];
+        const missingFields: string[] = [];
+        let specId = 'UNKNOWN';
+        let version = '0.0.0';
+        const detectedTiers: SpecTier[] = [];
+
+        if (frontmatterMatch && frontmatterMatch[1]) {
+            const frontmatterContent = frontmatterMatch[1];
+            for (const field of requiredFields) {
+                const fieldMatch = new RegExp(`^${field}:`, 'm').test(frontmatterContent);
+                if (fieldMatch) {
+                    presentFields.push(field);
+                    // Extract values
+                    if (field === 'spec_id') {
+                        const match = frontmatterContent.match(/^spec_id:\s*(.+)$/m);
+                        if (match && match[1]) {
+                            specId = match[1].trim();
+                        }
+                    }
+                    if (field === 'version') {
+                        const match = frontmatterContent.match(/^version:\s*(.+)$/m);
+                        if (match && match[1]) {
+                            version = match[1].trim();
+                        }
+                    }
+                    if (field === 'tier') {
+                        const match = frontmatterContent.match(/^tier:\s*\[?([^\]]+)\]?$/m);
+                        if (match && match[1]) {
+                            const tierStr = match[1].replace(/[\[\]]/g, '').trim();
+                            const tiers = tierStr.split(',').map(t => t.trim().toUpperCase() as SpecTier);
+                            detectedTiers.push(...tiers);
+                        }
+                    }
+                } else {
+                    missingFields.push(field);
+                    errors.push({
+                        code: 'SPC-001',
+                        field,
+                        message: `Missing required frontmatter field: ${field}`,
+                        severity: 'critical',
+                        suggestion: `Add "${field}:" to the YAML frontmatter`,
+                    });
+                }
+            }
+        } else {
+            errors.push({
+                code: 'SPC-000',
+                field: 'frontmatter',
+                message: 'Missing YAML frontmatter block',
+                severity: 'critical',
+                suggestion: 'Add YAML frontmatter at the beginning of the file: ---\\nspec_id: SPEC-XXXX\\n...',
+            });
+            missingFields.push(...requiredFields);
+        }
+
+        // Validate BDD requirements (GIVEN-WHEN-THEN)
+        const bddPattern = /^(GIVEN|WHEN|THEN|AND|BUT)\s+.+$/gim;
+        const bddMatches = content.match(bddPattern) || [];
+        const bddValid = bddMatches.length > 0;
+        const requirementsSection = content.includes('## Requirements') || content.includes('## Functional Requirements');
+
+        if (requirementsSection && !bddValid) {
+            warnings.push({
+                code: 'SPC-BDD-001',
+                field: 'requirements',
+                message: 'Requirements section found but no BDD format (GIVEN-WHEN-THEN) detected',
+                suggestion: 'Use BDD format: GIVEN <precondition> WHEN <action> THEN <result>',
+            });
+        }
+
+        // Check for required sections based on tier
+        const effectiveTier = tier || (detectedTiers[0] as SpecTier) || 'PROFESSIONAL';
+        const tierSections: Record<SpecTier, string[]> = {
+            'LITE': ['## Overview', '## Requirements'],
+            'STANDARD': ['## Overview', '## Requirements', '## Data Model'],
+            'PROFESSIONAL': ['## Overview', '## Requirements', '## Data Model', '## API Specification', '## Security'],
+            'ENTERPRISE': ['## Overview', '## Requirements', '## Data Model', '## API Specification', '## Security', '## Performance', '## Compliance'],
+        };
+
+        const requiredSections = tierSections[effectiveTier] || tierSections['PROFESSIONAL'];
+        const presentSections: string[] = [];
+        const missingSections: string[] = [];
+
+        for (const section of requiredSections) {
+            if (content.includes(section)) {
+                presentSections.push(section);
+            } else {
+                missingSections.push(section);
+                warnings.push({
+                    code: 'SPC-SEC-001',
+                    field: 'sections',
+                    message: `Missing recommended section for ${effectiveTier} tier: ${section}`,
+                    suggestion: `Add ${section} section to the specification`,
+                });
+            }
+        }
+
+        // Cross-reference validation (basic)
+        const specRefPattern = /SPEC-\d{4}/g;
+        const adrRefPattern = /ADR-\d{3}/g;
+        const specRefs = content.match(specRefPattern) || [];
+        const adrRefs = content.match(adrRefPattern) || [];
+        const totalRefs = specRefs.length + adrRefs.length;
+
+        const result: SpecValidationResult = {
+            valid: errors.length === 0,
+            spec_id: specId,
+            spec_path: '',
+            version,
+            tier: detectedTiers.length > 0 ? detectedTiers : [effectiveTier],
+            errors,
+            warnings,
+            frontmatter: {
+                valid: frontmatterValid && missingFields.length === 0,
+                required_fields_present: presentFields,
+                required_fields_missing: missingFields,
+                optional_fields_present: [],
+                invalid_field_values: [],
+            },
+            bdd_validation: {
+                valid: bddValid || !requirementsSection,
+                total_requirements: bddMatches.length,
+                valid_requirements: bddMatches.length,
+                invalid_requirements: [],
+                coverage_percentage: bddMatches.length > 0 ? 100 : 0,
+            },
+            cross_references: {
+                valid: true,
+                total_references: totalRefs,
+                valid_references: totalRefs,
+                broken_references: [],
+            },
+            tier_sections: {
+                valid: missingSections.length === 0,
+                tier: effectiveTier,
+                required_sections: requiredSections,
+                present_sections: presentSections,
+                missing_sections: missingSections,
+            },
+            validation_timestamp: new Date().toISOString(),
+            validator_version: '1.2.0',
+        };
+
+        return result;
+    }
+
+    /**
+     * List all specifications in a project
+     *
+     * @param projectId - Optional project ID filter
+     * @param tier - Optional tier filter
+     * @returns List of specifications
+     */
+    public async listSpecifications(
+        projectId?: string,
+        tier?: SpecTier
+    ): Promise<SpecListResponse> {
+        let endpoint = '/api/v1/specs';
+        const params: string[] = [];
+
+        if (projectId) {
+            params.push(`project_id=${projectId}`);
+        }
+        if (tier) {
+            params.push(`tier=${tier}`);
+        }
+
+        if (params.length > 0) {
+            endpoint += `?${params.join('&')}`;
+        }
+
+        return this.request<SpecListResponse>('GET', endpoint);
+    }
+
+    /**
+     * Get SDLC 6.0.0 specification JSON schema
+     *
+     * @returns JSON schema for specification frontmatter validation
+     */
+    public async getSpecSchema(): Promise<Record<string, unknown>> {
+        return this.request<Record<string, unknown>>(
+            'GET',
+            '/api/v1/specs/schema'
         );
     }
 }

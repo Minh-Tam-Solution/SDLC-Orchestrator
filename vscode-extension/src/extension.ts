@@ -31,10 +31,13 @@ import { registerMagicCommand } from './commands/magicCommand';
 import { registerLockCommand, registerLockStatusCommand } from './commands/lockCommand';
 import { registerPreviewCommand } from './commands/previewCommand';
 import { registerResumeCommand } from './commands/resumeCommand';
+import { registerSpecValidationCommand } from './commands/specValidationCommand';
+import { registerGithubCommands } from './commands/connectGithubCommand';
 import { SDLCStructureService } from './services/sdlcStructureService';
 import { BlueprintProvider, registerBlueprintCommands } from './providers/blueprintProvider';
 import { AppBuilderPanel } from './panels/appBuilderPanel';
 import { registerGenerationPanelCommand } from './panels/generationPanel';
+import { ProjectDetector } from './services/projectDetector';
 
 /**
  * Extension state management
@@ -44,6 +47,7 @@ interface ExtensionState {
     authService: AuthService | undefined;
     cacheService: CacheService | undefined;
     codegenApi: CodegenApiService | undefined;
+    projectDetector: ProjectDetector | undefined;
     gateStatusProvider: GateStatusProvider | undefined;
     violationsProvider: ViolationsProvider | undefined;
     projectsProvider: ProjectsProvider | undefined;
@@ -59,6 +63,7 @@ const state: ExtensionState = {
     authService: undefined,
     cacheService: undefined,
     codegenApi: undefined,
+    projectDetector: undefined,
     gateStatusProvider: undefined,
     violationsProvider: undefined,
     projectsProvider: undefined,
@@ -90,6 +95,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         state.cacheService = new CacheService(context);
         state.codegenApi = new CodegenApiService(context, state.authService);
 
+        // Initialize Project Detector (Sprint 127 - Auto-Detect Project)
+        state.projectDetector = ProjectDetector.getInstance(state.apiClient);
+
         // Check authentication status
         const isAuthenticated = await state.authService.isAuthenticated();
         await vscode.commands.executeCommand(
@@ -109,16 +117,18 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         );
         state.projectsProvider = new ProjectsProvider(
             state.apiClient,
-            state.cacheService
+            state.cacheService,
+            state.projectDetector
         );
 
         // Initialize Blueprint Provider (Sprint 53 Day 2)
         state.blueprintProvider = new BlueprintProvider();
 
-        // Initialize Context Panel Provider (Sprint 81)
+        // Initialize Context Panel Provider (Sprint 81 + Sprint 127 Auto-Detect)
         state.contextPanelProvider = new ContextPanelProvider(
             state.apiClient,
-            state.cacheService
+            state.cacheService,
+            state.projectDetector
         );
         state.contextStatusBar = new ContextStatusBarItem();
 
@@ -165,7 +175,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         // Register commands
         registerCommands(context);
 
-        // Register init commands (SDLC 5.1.2 project initialization)
+        // Register init commands (SDLC 6.0.0 project initialization)
         registerInitCommand(context, state.apiClient);
 
         // Register App Builder commands (Sprint 53)
@@ -175,6 +185,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         registerLockStatusCommand(context, state.codegenApi);
         registerPreviewCommand(context, state.codegenApi);
         registerResumeCommand(context, state.codegenApi);
+
+        // Register Specification Validation commands (Sprint 126 - S126-06)
+        registerSpecValidationCommand(context, state.codegenApi);
+
+        // Register GitHub Integration commands (Sprint 129 Day 3)
+        registerGithubCommands(context, state.apiClient);
 
         // Register Blueprint commands (Sprint 53 Day 2)
         registerBlueprintCommands(context, state.blueprintProvider);
@@ -218,6 +234,26 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             await showWelcomeMessage();
             await context.globalState.update('sdlc.hasShownWelcome', true);
         }
+
+        // Auto-detect project on activation (Sprint 127)
+        if (state.projectDetector) {
+            const project = await state.projectDetector.getCurrentProject();
+            if (project) {
+                Logger.info(`Auto-detected project: ${project.name} (${project.uuid}) from ${project.source}`);
+            } else {
+                Logger.warn('No project auto-detected from workspace');
+            }
+        }
+
+        // Listen for workspace folder changes to invalidate project cache
+        context.subscriptions.push(
+            vscode.workspace.onDidChangeWorkspaceFolders(() => {
+                if (state.projectDetector) {
+                    state.projectDetector.invalidateCache();
+                    Logger.info('Project cache invalidated due to workspace folder change');
+                }
+            })
+        );
 
         // Initial data load if authenticated
         if (isAuthenticated) {
@@ -430,8 +466,8 @@ async function handleLogin(): Promise<void> {
         // Show login options
         const loginMethod = await vscode.window.showQuickPick(
             [
-                { label: '$(mail) Email & Password', description: 'Login with email and password (Recommended)', value: 'email' },
-                { label: '$(key) API Token', description: 'Login with API token', value: 'token' },
+                { label: '$(key) API Token', description: 'Never expires - Recommended for VS Code (sdlc_live_*)', value: 'token' },
+                { label: '$(mail) Email & Password', description: 'Login with email and password (JWT expires in 8 hours)', value: 'email' },
                 { label: '$(github) GitHub OAuth', description: 'Login with GitHub', value: 'github' },
             ],
             { placeHolder: 'Select login method' }
@@ -745,10 +781,10 @@ async function checkAndPromptForInit(context: vscode.ExtensionContext): Promise<
     let actions: string[];
 
     if (isEmptyOrMinimal) {
-        message = 'This folder is empty. Would you like to create an SDLC 5.1.2 project structure?';
+        message = 'This folder is empty. Would you like to create an SDLC 6.0.0 project structure?';
         actions = ['Create SDLC Project', 'Not Now', "Don't Ask Again"];
     } else {
-        message = 'This project doesn\'t have an SDLC configuration. Would you like to add SDLC 5.1.2 governance?';
+        message = 'This project doesn\'t have an SDLC configuration. Would you like to add SDLC 6.0.0 governance?';
         actions = ['Run Gap Analysis', 'Initialize', 'Not Now', "Don't Ask Again"];
     }
 

@@ -256,6 +256,18 @@ export function SignalBreakdown({
 }: SignalBreakdownProps) {
   const { data, isLoading, isError } = useVibecodingSignals(submissionId);
 
+  // Calculate zone and call hook unconditionally (React rules of hooks)
+  const indexScore = data?.index_score ?? 0;
+  const zone =
+    indexScore <= 20
+      ? "GREEN"
+      : indexScore <= 40
+      ? "YELLOW"
+      : indexScore <= 60
+      ? "ORANGE"
+      : "RED";
+  const { bgColor, textColor, borderColor, label } = useZoneColor(zone);
+
   if (isLoading) {
     return (
       <Card>
@@ -279,17 +291,6 @@ export function SignalBreakdown({
       </Card>
     );
   }
-
-  const indexScore = data.index_score;
-  const zone =
-    indexScore <= 20
-      ? "GREEN"
-      : indexScore <= 40
-      ? "YELLOW"
-      : indexScore <= 60
-      ? "ORANGE"
-      : "RED";
-  const { bgColor, textColor, borderColor, label } = useZoneColor(zone);
 
   if (compact) {
     return (

@@ -25,6 +25,19 @@ from typer.testing import CliRunner
 
 from sdlcctl.cli import app
 
+# Check if main backend app module is available (required for generate command)
+try:
+    import app as backend_app  # noqa: F401
+    HAS_BACKEND_APP = True
+except ImportError:
+    HAS_BACKEND_APP = False
+
+# Skip marker for tests requiring backend app module
+requires_backend_app = pytest.mark.skipif(
+    not HAS_BACKEND_APP,
+    reason="Requires main backend app module (run from backend directory)"
+)
+
 
 runner = CliRunner()
 
@@ -80,6 +93,7 @@ class TestGenerateCommandHelp:
         assert "--output" in result.stdout
 
 
+@requires_backend_app
 class TestGenerateValidation:
     """Test blueprint validation."""
 
@@ -112,6 +126,7 @@ class TestGenerateValidation:
             assert "validation failed" in result.stdout.lower() or "error" in result.stdout.lower()
 
 
+@requires_backend_app
 class TestGeneratePreview:
     """Test preview mode."""
 
@@ -137,6 +152,7 @@ class TestGeneratePreview:
         assert "files" in result.stdout.lower()
 
 
+@requires_backend_app
 class TestGenerateOutput:
     """Test file generation."""
 

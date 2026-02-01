@@ -1,0 +1,95 @@
+{
+  "$schema": "../../../backend/sdlcctl/sdlcctl/schemas/spec-evidence-schema.json",
+  "spec_id": "SPEC-0012",
+  "spec_title": "Validation Pipeline Interface - AI Safety Layer",
+  "spec_type": "feature",
+  "implementation_date": "2026-01-31",
+  "sprint": "Sprint 48",
+  "interfaces": {
+    "backend": {
+      "api_routes": [
+        "backend/app/api/routes/validation.py"
+      ],
+      "services": [
+        "backend/app/services/validation_pipeline.py",
+        "backend/app/services/validators/lint_validator.py",
+        "backend/app/services/validators/test_validator.py",
+        "backend/app/services/validators/coverage_validator.py"
+      ],
+      "models": [],
+      "schemas": [
+        "backend/app/schemas/validation.py"
+      ],
+      "tests": [
+        "backend/tests/unit/test_validation_pipeline.py",
+        "backend/tests/unit/services/validators/test_lint_validator.py",
+        "backend/tests/unit/services/validators/test_test_validator.py",
+        "backend/tests/unit/services/validators/test_coverage_validator.py"
+      ],
+      "coverage": 89.0,
+      "status": "partial"
+    },
+    "frontend": {
+      "components": [
+        "frontend/src/components/validation/ValidationPipelineStatus.tsx",
+        "frontend/src/components/validation/ValidatorResultCard.tsx",
+        "frontend/src/components/validation/PipelineProgressBar.tsx"
+      ],
+      "pages": [
+        "frontend/src/app/validation/pipeline/page.tsx"
+      ],
+      "hooks": [
+        "frontend/src/hooks/useValidationPipeline.ts"
+      ],
+      "tests": [
+        "frontend/e2e/validation-pipeline.spec.ts",
+        "frontend/src/components/validation/ValidationPipelineStatus.test.tsx"
+      ],
+      "status": "missing"
+    },
+    "extension": {
+      "commands": [],
+      "services": [],
+      "views": [],
+      "tests": [],
+      "status": "not_applicable"
+    },
+    "cli": {
+      "commands": [
+        "backend/sdlcctl/sdlcctl/commands/validate.py"
+      ],
+      "services": [],
+      "tests": [
+        "backend/sdlcctl/tests/test_validate_command.py"
+      ],
+      "status": "complete"
+    }
+  },
+  "validation": {
+    "last_checked": "2026-02-01T10:50:26.519324Z",
+    "checker_version": "1.0.0",
+    "status": "partial",
+    "missing_files": [
+      "backend/app/api/routes/validation.py",
+      "backend/app/schemas/validation.py",
+      "backend/tests/unit/services/validators/test_lint_validator.py",
+      "backend/tests/unit/services/validators/test_test_validator.py",
+      "backend/tests/unit/services/validators/test_coverage_validator.py",
+      "frontend/src/components/validation/ValidationPipelineStatus.tsx",
+      "frontend/src/components/validation/ValidatorResultCard.tsx",
+      "frontend/src/components/validation/PipelineProgressBar.tsx",
+      "frontend/src/app/validation/pipeline/page.tsx",
+      "frontend/src/hooks/useValidationPipeline.ts",
+      "frontend/e2e/validation-pipeline.spec.ts",
+      "frontend/src/components/validation/ValidationPipelineStatus.test.tsx",
+      "backend/sdlcctl/tests/test_validate_command.py"
+    ],
+    "warnings": [
+      "API routes for validation pipeline not exposed yet",
+      "Validation schemas need to be defined",
+      "Validator-specific unit tests missing",
+      "Frontend validation pipeline UI not implemented"
+    ]
+  },
+  "notes": "Sprint 48 - Validation Pipeline Interface (SPEC-0012) for AI Safety Layer. Backend partial (validation pipeline service exists with lint/test/coverage validators, 89% coverage). API routes and schemas missing. Frontend 0% complete (6 components missing). CLI complete with validate command. Core feature orchestrates parallel quality checks (Lint, Test, Coverage) for AI-generated code with <6 minute p95 latency target. Redis queue architecture with automatic retry (exponential backoff). Part of EP-02 Auto-Fix Engine. Ensures AI-generated PRs meet quality standards before merging."
+}

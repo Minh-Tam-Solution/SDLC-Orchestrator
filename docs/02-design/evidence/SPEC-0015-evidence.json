@@ -1,0 +1,60 @@
+{
+  "$schema": "../../../backend/sdlcctl/sdlcctl/schemas/spec-evidence-schema.json",
+  "spec_id": "SPEC-0015",
+  "spec_title": "VS Code Extension - Auto-Detect Project",
+  "spec_type": "feature",
+  "implementation_date": "2026-01-30",
+  "sprint": "Sprint 127",
+  "interfaces": {
+    "backend": {
+      "api_routes": [
+        "backend/app/api/routes/projects.py"
+      ],
+      "services": [],
+      "models": [],
+      "schemas": [],
+      "tests": [],
+      "coverage": 0.0,
+      "status": "not_applicable"
+    },
+    "frontend": {
+      "components": [],
+      "pages": [],
+      "hooks": [],
+      "tests": [],
+      "status": "not_applicable"
+    },
+    "extension": {
+      "commands": [
+        "vscode-extension/src/commands/openProjectCommand.ts"
+      ],
+      "services": [
+        "vscode-extension/src/services/projectDetector.ts"
+      ],
+      "views": [
+        "vscode-extension/src/views/projectsView.ts"
+      ],
+      "tests": [
+        "vscode-extension/src/test/suite/projectDetection.test.ts"
+      ],
+      "status": "complete"
+    },
+    "cli": {
+      "commands": [],
+      "services": [],
+      "tests": [],
+      "status": "not_applicable"
+    }
+  },
+  "validation": {
+    "last_checked": "2026-02-01T10:50:26.514611Z",
+    "checker_version": "1.0.0",
+    "status": "partial",
+    "missing_files": [
+      "vscode-extension/src/commands/openProjectCommand.ts",
+      "vscode-extension/src/test/suite/projectDetection.test.ts"
+    ],
+    "warnings": []
+  },
+  "notes": "Sprint 127 - VS Code Extension Auto-Detect Project (SPEC-0015). Extension 100% complete. Implements auto-detection of SDLC project from VS Code workspace folder, eliminating manual UUID configuration. Features: (1) ProjectDetector service scans workspace for .sdlc-config.json, (2) Auto-load project on extension activation, (3) Open Project command to switch projects, (4) ProjectsView UI updated to show auto-detected project. Reduces setup from 6 manual steps to 0. Workflow: User opens folder → Extension auto-detects → Project context loaded. All implementation files exist including tests. UX improvement: No manual UUID entry required."
+}

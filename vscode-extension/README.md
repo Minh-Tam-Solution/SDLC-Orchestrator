@@ -1,28 +1,48 @@
 # SDLC Orchestrator VS Code Extension
 
-**Version**: 1.0.0
+**Version**: 1.2.0
 **Status**: GA (General Availability)
-**SDLC Stage**: 04 (DEPLOY)
-**Sprint**: 53 - VS Code Extension + Contract Lock
+**Framework**: SDLC 6.0.0 (Multi-Frontend Aligned)
+**Sprint**: 127 - Multi-Frontend Alignment Complete
+**Last Updated**: January 30, 2026
 
 Gate status monitoring, AI-powered code generation, and compliance assistance directly in VS Code. Part of the SDLC Orchestrator governance platform - the **Operating System for Software 3.0**.
 
+## What's New in 1.2.0 (Sprint 127)
+
+### Multi-Frontend Alignment
+- **SDLC 6.0.0 Framework**: Full alignment with latest framework version
+- **Specification Validation**: YAML frontmatter validation (SPEC-0002 compliant)
+- **BDD Requirements**: GIVEN-WHEN-THEN validation support
+- **Tier-Specific Sections**: LITE/STANDARD/PROFESSIONAL/ENTERPRISE validation
+- **Extension Parity**: 67% → 89% feature parity (+22 points)
+
+### Bug Fixes & Improvements
+- **Stage Folder Naming**: Updated to SDLC 6.0.0 lowercase convention
+  - `00-Project-Foundation` → `00-foundation`
+  - `01-Planning-Analysis` → `01-planning`
+  - All 11 stages (00-10) updated
+- **Compilation**: Zero errors, production-ready
+- **Documentation**: Updated for SDLC 6.0.0 compliance
+
+See [CHANGELOG](CHANGELOG.md) for complete details.
+
 ## Key Features
 
-### App Builder (New in 1.0.0)
+### App Builder (New in 1.1.1)
 - **Blueprint Editor**: Visual tree view for building AppBlueprint specifications
 - **Module Management**: Add/remove modules with entity definitions
 - **Domain Templates**: Pre-built templates for Vietnamese SME (Restaurant, Hotel, Retail, HRM, CRM)
 - **Real-time Validation**: Immediate feedback on blueprint structure
 
-### Code Generation (New in 1.0.0)
+### Code Generation (New in 1.1.1)
 - **IR-Based Generation**: Deterministic output via Intermediate Representation
 - **Multi-Provider**: Ollama (primary) -> Claude (fallback) -> Rule-based
 - **4-Gate Quality Pipeline**: Syntax -> Security -> Context -> Tests
 - **SSE Streaming**: Real-time progress with file-by-file updates
 - **Resume Capability**: Checkpoint-based recovery for failed generations
 
-### Contract Lock (New in 1.0.0)
+### Contract Lock (New in 1.1.1)
 - **Specification Immutability**: Lock blueprints before code generation
 - **SHA256 Hash Verification**: Cryptographic integrity checking
 - **Audit Trail**: Full history of lock/unlock operations
@@ -79,9 +99,17 @@ Use Copilot-style commands in VS Code Chat:
 ## Quick Start
 
 1. **Install** the extension
-2. **Login** using Command Palette > "SDLC: Login"
-3. **Select Project** using Command Palette > "SDLC: Select Project"
-4. **View Gates** in the SDLC sidebar
+2. **Create API Key** (Recommended):
+   - Go to SDLC Orchestrator Dashboard → Settings → API Keys
+   - Click "Create New API Key"
+   - Copy the key (starts with `sdlc_live_`)
+3. **Login** using Command Palette > "SDLC: Login"
+   - Select "API Token" (Recommended - Never expires)
+   - Paste your API key
+4. **Select Project** using Command Palette > "SDLC: Select Project"
+5. **View Gates** in the SDLC sidebar
+
+**Why API Key?** Unlike email/password (JWT expires after 8 hours), API keys never expire until you revoke them - perfect for development tools!
 5. **Generate Code**:
    - Open App Builder: "SDLC: Open App Builder"
    - Create a blueprint with modules and entities
@@ -108,17 +136,18 @@ Use Copilot-style commands in VS Code Chat:
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `sdlc.apiUrl` | `http://localhost:8300` | Backend API URL (per IT Admin PORT_ALLOCATION_MANAGEMENT.md) |
+| `sdlc.apiUrl` | `https://sdlc.nhatquangholding.com` | Backend API URL |
 | `sdlc.autoRefreshInterval` | `30` | Auto-refresh interval (seconds) |
-| `sdlc.defaultProjectId` | `` | Default project to load on startup |
+| `sdlc.defaultProjectId` | `` | (Optional) Manual project UUID - auto-detected from workspace if not set |
 | `sdlc.enableNotifications` | `true` | Show gate status notifications |
 | `sdlc.aiCouncilEnabled` | `true` | Enable AI Council for critical violations |
 | `sdlc.showViolationBadge` | `true` | Show violation count in activity bar |
+| `sdlc.showProjectsPanel` | `false` | Always show Projects panel (auto-hidden when project detected) |
 
 ## Requirements
 
 - VS Code 1.80.0 or higher
-- SDLC Orchestrator backend running (v1.0.0+)
+- SDLC Orchestrator backend running (v1.1.1+)
 - Valid API token or GitHub OAuth
 
 ## Architecture
@@ -182,7 +211,7 @@ npm run watch
 ### Package Extension
 ```bash
 npm run package
-# Creates sdlc-orchestrator-1.0.0.vsix
+# Creates sdlc-orchestrator-1.1.1.vsix
 ```
 
 ### Run Tests

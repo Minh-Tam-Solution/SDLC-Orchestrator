@@ -68,6 +68,7 @@ from app.db.session import get_db
 from app.models.user import PasswordResetToken, RefreshToken, User
 from app.services.settings_service import SettingsService, get_settings_service
 from app.schemas.auth import (
+    DeviceTokenRequest,
     ForgotPasswordRequest,
     ForgotPasswordResponse,
     LoginRequest,
@@ -991,6 +992,285 @@ async def oauth_callback(
         token_type="bearer",
         expires_in=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
     )
+
+
+@router.post(
+    "/github/device",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+)
+async def github_device_flow_init() -> dict:
+    """
+    Initiate GitHub OAuth Device Flow (for CLI/Desktop apps).
+
+    This endpoint is designed for applications that cannot easily handle
+    browser redirects (like CLI tools, VS Code extensions, desktop apps).
+
+    Response (200 OK):
+        {
+            "device_code": "3584d83530557fdd1f46af8289938c8ef79f9dc5",
+            "user_code": "WDJB-MJHT",
+            "verification_uri": "https://github.com/login/device",
+            "expires_in": 900,
+            "interval": 5
+        }
+
+    Errors:
+        - 400 Bad Request: GitHub device flow initiation failed
+        - 500 Internal Server Error: Service unavailable
+
+    Flow:
+        1. Extension calls this endpoint to get device_code and user_code
+        2. Extension shows user_code and verification_uri to user
+        3. User visits https://github.com/login/device and enters user_code
+        4. Extension polls POST /auth/github/token with device_code
+        5. When user authorizes, token endpoint returns access_token
+        6. Extension creates user session with access_token
+
+    Usage:
+        - VS Code Extension: Show user_code in notification, open browser
+        - CLI: Print user_code and verification_uri, poll for token
+        - Desktop App: Show dialog with user_code, poll for token
+
+    Security:
+        - device_code expires in 15 minutes (900 seconds)
+        - user_code is 8 characters (format: XXXX-XXXX)
+        - Polling interval should be respected to avoid rate limits
+    """
+    from app.services.oauth_service import oauth_service
+
+    # Check if GitHub OAuth is configured
+    if not settings.GITHUB_CLIENT_ID:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="GitHub OAuth is not configured on this server",
+        )
+
+    try:
+        device_flow_data = await oauth_service.initiate_github_device_flow()
+        return device_flow_data
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except Exception as e:
+        import logging
+        logging.error(f"GitHub device flow error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to initiate GitHub device flow",
+        )
+
+
+@router.post(
+    "/github/token",
+    status_code=status.HTTP_200_OK,
+)
+async def github_device_flow_poll(
+    device_request: DeviceTokenRequest,
+    request: Request,
+    response: Response,
+    db: AsyncSession = Depends(get_db),
+    settings_service: SettingsService = Depends(get_settings_service),
+):
+    """
+    Poll for GitHub device authorization completion.
+
+    Request Body:
+        {
+            "device_code": "3584d83530557fdd1f46af8289938c8ef79f9dc5"
+        }
+
+    Response (200 OK - when authorized):
+        {
+            "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "token_type": "bearer",
+            "expires_in": 28800
+        }
+
+    Response (400 Bad Request - polling states):
+        {
+            "detail": "error:authorization_pending"  # User hasn't authorized yet
+        }
+        {
+            "detail": "error:slow_down"  # Polling too fast
+        }
+        {
+            "detail": "error:expired_token"  # Device code expired
+        }
+        {
+            "detail": "error:access_denied"  # User denied authorization
+        }
+
+    Errors:
+        - 400 Bad Request: Missing device_code
+        - 400 Bad Request: Polling error (see detail for error code)
+        - 500 Internal Server Error: User creation failed
+
+    Polling Logic:
+        1. Poll every `interval` seconds (from device flow response)
+        2. If "authorization_pending": Continue polling
+        3. If "slow_down": Increase interval by 5 seconds
+        4. If "expired_token" or "access_denied": Stop polling, show error
+        5. If success (200 OK with tokens): Stop polling, store tokens
+
+    Flow:
+        1. Extension polls this endpoint with device_code
+        2. Backend calls GitHub to check if user authorized
+        3. If authorized: Create/link user, return JWT tokens
+        4. If not yet: Return authorization_pending (400)
+        5. Extension continues polling until success or error
+    """
+    from app.services.oauth_service import oauth_service
+    from app.models.user import OAuthAccount
+    from fastapi.responses import JSONResponse
+
+    # Initialize audit service
+    audit_service = AuditService(db)
+
+    try:
+        # Poll GitHub for device authorization
+        oauth_tokens = await oauth_service.poll_github_device_token(device_request.device_code)
+
+        # Get user info from GitHub
+        user_info = await oauth_service.get_github_user_info(oauth_tokens.access_token)
+
+        # Find existing user by email
+        email = user_info.email.lower().strip()
+        result = await db.execute(select(User).where(User.email == email))
+        user = result.scalar_one_or_none()
+
+        if not user:
+            # Create new user
+            user = User(
+                email=email,
+                full_name=user_info.name,
+                avatar_url=user_info.avatar_url,
+                is_active=True,
+                password_hash=None,  # OAuth-only user
+            )
+            db.add(user)
+            await db.commit()
+            await db.refresh(user)
+
+            # Audit user creation
+            await audit_service.log(
+                action=AuditAction.USER_CREATED,
+                user_id=user.id,
+                resource_type="user",
+                resource_id=user.id,
+                details={
+                    "email": user.email,
+                    "registration_method": "oauth_github_device",
+                },
+                request=request,
+            )
+
+        # Check if OAuth account already linked
+        result = await db.execute(
+            select(OAuthAccount).where(
+                OAuthAccount.user_id == user.id,
+                OAuthAccount.provider == "github",
+            )
+        )
+        oauth_account = result.scalar_one_or_none()
+
+        if oauth_account:
+            # Update existing OAuth account
+            oauth_account.access_token = oauth_tokens.access_token
+            oauth_account.refresh_token = oauth_tokens.refresh_token
+            oauth_account.expires_at = (
+                datetime.utcnow() + timedelta(seconds=oauth_tokens.expires_in)
+                if oauth_tokens.expires_in
+                else None
+            )
+        else:
+            # Create new OAuth account link
+            oauth_account = OAuthAccount(
+                user_id=user.id,
+                provider="github",
+                provider_account_id=user_info.provider_account_id,
+                access_token=oauth_tokens.access_token,
+                refresh_token=oauth_tokens.refresh_token,
+                expires_at=(
+                    datetime.utcnow() + timedelta(seconds=oauth_tokens.expires_in)
+                    if oauth_tokens.expires_in
+                    else None
+                ),
+            )
+            db.add(oauth_account)
+
+        # Generate JWT tokens
+        access_token = await create_access_token(
+            subject=str(user.id),
+            settings_service=settings_service
+        )
+        refresh_token = create_refresh_token(subject=str(user.id))
+
+        # Store refresh token in database
+        db_refresh_token = RefreshToken(
+            user_id=user.id,
+            token_hash=hash_api_key(refresh_token),
+            expires_at=datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+        )
+        db.add(db_refresh_token)
+
+        # Update last login timestamp
+        user.last_login = datetime.utcnow()
+
+        await db.commit()
+
+        # Audit OAuth login
+        await audit_service.log(
+            action=AuditAction.USER_LOGIN,
+            user_id=user.id,
+            resource_type="user",
+            resource_id=user.id,
+            details={
+                "email": user.email,
+                "login_method": "oauth_github_device",
+            },
+            request=request,
+        )
+
+        # Set httpOnly cookies for XSS protection
+        if response:
+            set_auth_cookies(response, access_token, refresh_token)
+
+        return TokenResponse(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_type="bearer",
+            expires_in=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
+        )
+
+    except ValueError as e:
+        error_message = str(e)
+
+        # Check if this is a polling error (authorization_pending, slow_down, etc.)
+        if error_message.startswith("error:"):
+            error_code = error_message.replace("error:", "")
+            # Return error in the format Extension expects: {"error": "code"}
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={"error": error_code},
+            )
+
+        # Other ValueError (e.g., user info retrieval failed)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_message,
+        )
+
+    except Exception as e:
+        import logging
+        logging.error(f"GitHub device token poll error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to process GitHub device authorization",
+        )
 
 
 @router.get("/health", status_code=status.HTTP_200_OK)

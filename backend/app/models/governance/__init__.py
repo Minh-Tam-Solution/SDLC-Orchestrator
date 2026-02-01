@@ -42,7 +42,7 @@ from app.models.governance.evidence import EvidenceVaultEntry
 from app.models.governance.audit import GovernanceAuditLog
 from app.models.governance.ownership import OwnershipRegistry
 from app.models.governance.contract import QualityContract
-from app.models.governance.context import ContextAuthority, ContextSnapshot
+from app.models.governance.context import ContextAuthority, GovernanceContextSnapshot
 from app.models.governance.contract_version import ContractVersion
 from app.models.governance.violation import ContractViolation
 from app.models.governance.attestation import AIAttestation
@@ -58,7 +58,7 @@ __all__ = [
     "OwnershipRegistry",
     "QualityContract",
     "ContextAuthority",
-    "ContextSnapshot",
+    "GovernanceContextSnapshot",
     "ContractVersion",
     "ContractViolation",
     "AIAttestation",

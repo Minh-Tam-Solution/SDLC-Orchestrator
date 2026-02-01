@@ -40,7 +40,7 @@ import pytest
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, Mock, patch
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.support import SystemSetting
@@ -71,7 +71,6 @@ async def seed_test_settings(test_db_session: AsyncSession):
             category="security",
             description="Session timeout in minutes",
             version=1,
-            created_at=datetime.utcnow(),
             updated_at=datetime.utcnow(),
         ),
         SystemSetting(
@@ -80,7 +79,6 @@ async def seed_test_settings(test_db_session: AsyncSession):
             category="security",
             description="Maximum failed login attempts",
             version=1,
-            created_at=datetime.utcnow(),
             updated_at=datetime.utcnow(),
         ),
         SystemSetting(
@@ -89,7 +87,6 @@ async def seed_test_settings(test_db_session: AsyncSession):
             category="security",
             description="Minimum password length",
             version=1,
-            created_at=datetime.utcnow(),
             updated_at=datetime.utcnow(),
         ),
         SystemSetting(
@@ -98,7 +95,6 @@ async def seed_test_settings(test_db_session: AsyncSession):
             category="security",
             description="MFA required for all users",
             version=1,
-            created_at=datetime.utcnow(),
             updated_at=datetime.utcnow(),
         ),
     ]
@@ -112,8 +108,8 @@ async def seed_test_settings(test_db_session: AsyncSession):
 
     # Cleanup
     await test_db_session.execute(
-        "DELETE FROM system_settings WHERE key IN "
-        "('session_timeout_minutes', 'max_login_attempts', 'password_min_length', 'mfa_required')"
+        text("DELETE FROM system_settings WHERE key IN "
+        "('session_timeout_minutes', 'max_login_attempts', 'password_min_length', 'mfa_required')")
     )
     await test_db_session.commit()
 
@@ -196,7 +192,6 @@ async def test_get_session_timeout_minutes_custom_value(settings_service, test_d
         category="security",
         description="Custom timeout",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(custom_setting)
@@ -207,7 +202,7 @@ async def test_get_session_timeout_minutes_custom_value(settings_service, test_d
 
     # Cleanup
     await test_db_session.execute(
-        "DELETE FROM system_settings WHERE key = 'session_timeout_minutes'"
+        text("DELETE FROM system_settings WHERE key = 'session_timeout_minutes'")
     )
     await test_db_session.commit()
 
@@ -236,7 +231,6 @@ async def test_get_max_login_attempts_sanity_check(settings_service, test_db_ses
         category="security",
         description="Too low",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(low_setting)
@@ -247,7 +241,7 @@ async def test_get_max_login_attempts_sanity_check(settings_service, test_db_ses
 
     # Test value too high (> 100)
     await test_db_session.execute(
-        "UPDATE system_settings SET value = '200' WHERE key = 'max_login_attempts'"
+        text("UPDATE system_settings SET value = '200' WHERE key = 'max_login_attempts'")
     )
     await test_db_session.commit()
 
@@ -259,7 +253,7 @@ async def test_get_max_login_attempts_sanity_check(settings_service, test_db_ses
 
     # Cleanup
     await test_db_session.execute(
-        "DELETE FROM system_settings WHERE key = 'max_login_attempts'"
+        text("DELETE FROM system_settings WHERE key = 'max_login_attempts'")
     )
     await test_db_session.commit()
 
@@ -288,7 +282,6 @@ async def test_get_password_min_length_sanity_check(settings_service, test_db_se
         category="security",
         description="Too low",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(low_setting)
@@ -299,7 +292,7 @@ async def test_get_password_min_length_sanity_check(settings_service, test_db_se
 
     # Cleanup
     await test_db_session.execute(
-        "DELETE FROM system_settings WHERE key = 'password_min_length'"
+        text("DELETE FROM system_settings WHERE key = 'password_min_length'")
     )
     await test_db_session.commit()
 
@@ -328,7 +321,6 @@ async def test_is_mfa_required_true(settings_service, test_db_session):
         category="security",
         description="MFA required",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(mfa_setting)
@@ -339,7 +331,7 @@ async def test_is_mfa_required_true(settings_service, test_db_session):
 
     # Cleanup
     await test_db_session.execute(
-        "DELETE FROM system_settings WHERE key = 'mfa_required'"
+        text("DELETE FROM system_settings WHERE key = 'mfa_required'")
     )
     await test_db_session.commit()
 
@@ -484,7 +476,6 @@ async def test_invalid_value_type_falls_back_to_default(settings_service, test_d
         category="security",
         description="Invalid value",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(invalid_setting)
@@ -496,7 +487,7 @@ async def test_invalid_value_type_falls_back_to_default(settings_service, test_d
 
     # Cleanup
     await test_db_session.execute(
-        "DELETE FROM system_settings WHERE key = 'session_timeout_minutes'"
+        text("DELETE FROM system_settings WHERE key = 'session_timeout_minutes'")
     )
     await test_db_session.commit()
 

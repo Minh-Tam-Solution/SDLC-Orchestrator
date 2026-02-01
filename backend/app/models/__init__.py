@@ -21,6 +21,19 @@ Quality Standards:
 
 from app.db.base_class import Base
 
+# Import models that are referenced by Project relationships FIRST
+# (These are needed before Project is imported to resolve forward references)
+from app.models.compliance_validation import (
+    ComplianceScore,
+    ComplianceIssue,
+    FolderCollisionCheck,
+    ComplianceCategory,
+    IssueSeverity,
+)
+
+# Policy Pack (needed by Project relationship)
+from app.models.policy_pack import PolicyPack
+
 # Core Entities (6 models)
 from app.models.user import User, Role, OAuthAccount, APIKey, RefreshToken
 from app.models.project import Project, ProjectMember
@@ -96,8 +109,17 @@ from app.models.council_session import CouncilSession
 
 # Teams Foundation (Sprint 70) - 3 models
 from app.models.organization import Organization
-from app.models.team import Team
+from app.models.team import Team  # Must be before TeamInvitation (relationship dependency)
+from app.models.team_invitation import TeamInvitation, InvitationStatus  # Sprint 128
 from app.models.team_member import TeamMember
+
+# GitHub Integration (Sprint 129) - 2 models
+from app.models.github_integration import (
+    GitHubInstallation,
+    GitHubRepository,
+    InstallationStatus,
+    CloneStatus,
+)
 
 # Planning Hierarchy (Sprint 74) - 5 models
 from app.models.roadmap import Roadmap
@@ -138,7 +160,7 @@ from app.models.governance import (
     OwnershipRegistry,
     QualityContract,
     ContextAuthority,
-    ContextSnapshot,
+    GovernanceContextSnapshot,
     ContractVersion,
     ContractViolation,
     AIAttestation,
@@ -185,9 +207,14 @@ from app.models.context_authority_v2 import (
     ContextOverlayApplication,
 )
 
+# Note: ComplianceScore, ComplianceIssue, FolderCollisionCheck imported earlier
+# (before Project) to resolve forward references
+
 __all__ = [
     # Base
     "Base",
+    # Policy Pack (needed by Project)
+    "PolicyPack",
     # Core Entities (6)
     "User",
     "Role",
@@ -301,7 +328,7 @@ __all__ = [
     "OwnershipRegistry",
     "QualityContract",
     "ContextAuthority",
-    "ContextSnapshot",
+    "GovernanceContextSnapshot",
     "ContractVersion",
     "ContractViolation",
     "AIAttestation",
@@ -318,4 +345,15 @@ __all__ = [
     "ContextOverlayTemplate",
     "ContextSnapshotV2",
     "ContextOverlayApplication",
+    # Compliance Validation - Sprint 123 SPEC-0013 (3 models + 2 enums)
+    "ComplianceScore",
+    "ComplianceIssue",
+    "FolderCollisionCheck",
+    "ComplianceCategory",
+    "IssueSeverity",
+    # GitHub Integration - Sprint 129 ADR-044 (2 models + 2 enums)
+    "GitHubInstallation",
+    "GitHubRepository",
+    "InstallationStatus",
+    "CloneStatus",
 ]

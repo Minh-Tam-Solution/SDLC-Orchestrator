@@ -1,0 +1,298 @@
+# =========================================================================
+# Evidence Validation GitHub Actions Workflow
+# SDLC Orchestrator - Sprint 133
+#
+# Purpose: Enforce implementation evidence completeness in CI/CD
+# Framework: SDLC 6.0.0 Evidence-Based Validation (SPEC-0016)
+#
+# Triggers:
+# - Push to main/develop branches (evidence files or specs changed)
+# - Pull requests (validate before merge)
+# - Manual workflow dispatch
+#
+# Checks:
+# 1. JSON schema validation
+# 2. File existence validation
+# 3. Test coverage requirements
+# 4. Generate gap analysis report
+# 5. Comment on PR with results
+# =========================================================================
+
+name: Evidence Validation
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'docs/**/*-evidence.json'
+      - 'docs/02-design/14-Technical-Specs/SPEC-*.md'
+      - 'docs/02-design/01-ADRs/ADR-*.md'
+      - 'backend/**/*.py'
+      - 'frontend/**/*.tsx'
+      - 'vscode-extension/**/*.ts'
+
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'docs/**/*-evidence.json'
+      - 'docs/02-design/**/*.md'
+      - 'backend/**/*.py'
+      - 'frontend/**/*.tsx'
+      - 'vscode-extension/**/*.ts'
+
+  workflow_dispatch:
+    inputs:
+      fail_on_warnings:
+        description: 'Fail workflow on warnings (not just errors)'
+        required: false
+        default: false
+        type: boolean
+
+# Prevent concurrent runs
+concurrency:
+  group: evidence-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-evidence:
+    name: Validate Implementation Evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # =========================================================================
+      # Step 1: Checkout Repository
+      # =========================================================================
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for accurate diff analysis
+
+      # =========================================================================
+      # Step 2: Setup Python Environment
+      # =========================================================================
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      # =========================================================================
+      # Step 3: Install sdlcctl CLI Tool
+      # =========================================================================
+      - name: Install sdlcctl
+        run: |
+          cd backend/sdlcctl
+          pip install -e .
+          sdlcctl --version
+
+      # =========================================================================
+      # Step 4: Validate Evidence Files (JSON Schema)
+      # =========================================================================
+      - name: Validate Evidence JSON Schema
+        id: schema-validation
+        run: |
+          sdlcctl evidence validate --output evidence-report.json || echo "validation_failed=true" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      # =========================================================================
+      # Step 5: Generate Gap Analysis Report
+      # =========================================================================
+      - name: Generate Gap Analysis Report
+        id: gap-analysis
+        run: |
+          sdlcctl evidence check --output evidence-gaps.md
+          echo "## Evidence Validation Report" > evidence-summary.md
+          cat evidence-gaps.md >> evidence-summary.md
+        continue-on-error: true
+
+      # =========================================================================
+      # Step 6: Upload Artifacts
+      # =========================================================================
+      - name: Upload Evidence Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-validation-report
+          path: |
+            evidence-report.json
+            evidence-gaps.md
+            evidence-summary.md
+          retention-days: 30
+
+      # =========================================================================
+      # Step 7: Comment on PR (If PR Event)
+      # =========================================================================
+      - name: Comment on PR with Evidence Gaps
+        if: github.event_name == 'pull_request' && steps.schema-validation.outputs.validation_failed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Read validation report
+            let report;
+            try {
+              report = JSON.parse(fs.readFileSync('evidence-report.json', 'utf8'));
+            } catch (error) {
+              console.error('Failed to read evidence report:', error);
+              return;
+            }
+
+            // Build comment body
+            const totalViolations = report.summary.total_violations;
+            const errors = report.summary.errors;
+            const warnings = report.summary.warnings;
+
+            let body = `## ⚠️ Evidence Validation Failed\n\n`;
+            body += `**Context drift detected!** Implementation evidence is incomplete or invalid.\n\n`;
+            body += `### Summary\n\n`;
+            body += `| Metric | Count |\n`;
+            body += `|--------|-------|\n`;
+            body += `| Total Violations | ${totalViolations} |\n`;
+            body += `| Errors | ${errors} |\n`;
+            body += `| Warnings | ${warnings} |\n\n`;
+
+            // Add top violations
+            if (report.violations && report.violations.length > 0) {
+              body += `### Top Violations\n\n`;
+              const topViolations = report.violations.slice(0, 10);
+              for (const v of topViolations) {
+                body += `- **${v.rule_id}** (${v.severity}): ${v.message}\n`;
+                body += `  - File: \`${v.file_path}\`\n`;
+                if (v.suggestion) {
+                  body += `  - Suggestion: ${v.suggestion}\n`;
+                }
+                body += `\n`;
+              }
+
+              if (report.violations.length > 10) {
+                body += `\n_... and ${report.violations.length - 10} more violations. See full report in artifacts._\n\n`;
+              }
+            }
+
+            body += `### Action Required\n\n`;
+            body += `1. Review spec-to-code alignment\n`;
+            body += `2. Fix missing components or update evidence files\n`;
+            body += `3. Run: \`sdlcctl evidence validate\` locally\n`;
+            body += `4. Fix all errors before merging\n\n`;
+            body += `**Gates will be BLOCKED until evidence is complete.**\n\n`;
+            body += `---\n`;
+            body += `📊 **Full Report**: Check the workflow artifacts for detailed gap analysis.\n`;
+
+            // Post comment
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+      # =========================================================================
+      # Step 8: Fail Workflow if Evidence Invalid
+      # =========================================================================
+      - name: Fail workflow if evidence validation failed
+        if: steps.schema-validation.outputs.validation_failed == 'true'
+        run: |
+          echo "❌ Evidence validation failed!"
+          echo "Review the evidence-report.json artifact for details."
+          exit 1
+
+  # ===========================================================================
+  # Job 2: Evidence Completeness Metrics
+  # ===========================================================================
+  evidence-metrics:
+    name: Evidence Completeness Metrics
+    runs-on: ubuntu-latest
+    needs: validate-evidence
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install sdlcctl
+        run: |
+          cd backend/sdlcctl
+          pip install -e .
+
+      - name: Calculate Evidence Metrics
+        run: |
+          # Count total SPECs and ADRs
+          total_specs=$(find docs/02-design/14-Technical-Specs -name "SPEC-*.md" | wc -l)
+          total_adrs=$(find docs/02-design/01-ADRs -name "ADR-*.md" | wc -l)
+
+          # Count evidence files
+          total_evidence=$(find docs -name "*-evidence.json" | wc -l)
+
+          # Calculate completeness percentage
+          total_docs=$((total_specs + total_adrs))
+          if [ $total_docs -gt 0 ]; then
+            completeness=$((total_evidence * 100 / total_docs))
+          else
+            completeness=0
+          fi
+
+          echo "### Evidence Completeness Metrics" > metrics.md
+          echo "" >> metrics.md
+          echo "| Metric | Value |" >> metrics.md
+          echo "|--------|-------|" >> metrics.md
+          echo "| Total SPECs | $total_specs |" >> metrics.md
+          echo "| Total ADRs | $total_adrs |" >> metrics.md
+          echo "| Total Evidence Files | $total_evidence |" >> metrics.md
+          echo "| Completeness | ${completeness}% |" >> metrics.md
+
+          cat metrics.md
+
+      - name: Upload Metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-metrics
+          path: metrics.md
+          retention-days: 90
+
+  # ===========================================================================
+  # Job 3: Security Check (Evidence Files)
+  # ===========================================================================
+  security-check:
+    name: Security Check Evidence Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for sensitive data in evidence files
+        run: |
+          echo "Scanning evidence files for sensitive data..."
+
+          # Check for potential secrets in evidence files
+          if grep -r -i -E "(password|secret|api[_-]?key|token|credentials)" docs/**/*-evidence.json; then
+            echo "⚠️ Warning: Potential sensitive data found in evidence files!"
+            echo "Review and redact before committing."
+            exit 1
+          fi
+
+          echo "✅ No sensitive data detected."
+
+      - name: Validate file paths in evidence
+        run: |
+          echo "Validating file paths don't expose sensitive information..."
+
+          # Check for absolute paths or sensitive directories
+          if grep -r -E "(/home|/Users|C:\\\\|/root)" docs/**/*-evidence.json; then
+            echo "⚠️ Warning: Absolute paths detected in evidence files!"
+            echo "Use relative paths from project root."
+            exit 1
+          fi
+
+          echo "✅ File paths validated."

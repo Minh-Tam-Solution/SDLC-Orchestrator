@@ -29,6 +29,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
+from app.api.dependencies import get_current_user as get_authenticated_user
+from app.models.user import User
 from app.services.governance.mode_service import (
     GovernanceMode,
     GovernanceModeService,
@@ -192,26 +194,53 @@ class DogfoodingStatusResponse(BaseModel):
 
 
 # ============================================================================
-# Dependency: Get Current User (placeholder - should use real auth)
+# Dependency: Authentication (Sprint 132 P0 Fix - Real Auth)
 # ============================================================================
 
 
-async def get_current_user() -> str:
+async def get_current_user(
+    user: User = Depends(get_authenticated_user),
+) -> User:
     """
     Get current authenticated user.
 
-    TODO: Replace with real authentication dependency.
+    Uses real JWT authentication from app.api.dependencies.
+    Sprint 132 P0 Fix: Replaced placeholder with real auth.
+
+    Returns:
+        User: Authenticated user object
+
+    Raises:
+        HTTPException(401): If not authenticated
     """
-    return "system"  # Placeholder
+    return user
 
 
-async def get_admin_user() -> str:
+async def require_admin(
+    user: User = Depends(get_authenticated_user),
+) -> User:
     """
-    Get current authenticated admin user.
+    Require admin user for governance operations.
 
-    TODO: Replace with real admin authentication dependency.
+    Checks for:
+    - is_superuser flag (platform admin)
+    - C-suite role (ceo, cto, cpo, cio, cfo)
+
+    Sprint 132 P0 Fix: Replaced placeholder with real auth + role check.
+
+    Returns:
+        User: Authenticated admin user
+
+    Raises:
+        HTTPException(401): If not authenticated
+        HTTPException(403): If not admin/C-suite
     """
-    return "admin"  # Placeholder
+    if not user.is_superuser and not user.is_c_suite:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin or C-suite role required for governance operations",
+        )
+    return user
 
 
 # ============================================================================
@@ -303,7 +332,7 @@ async def get_governance_mode_state(
 )
 async def set_governance_mode(
     request: SetModeRequest,
-    current_user: str = Depends(get_admin_user),
+    current_user: User = Depends(require_admin),
     mode_service: GovernanceModeService = Depends(get_governance_mode_service),
 ) -> SetModeResponse:
     """Set governance mode."""
@@ -318,16 +347,19 @@ async def set_governance_mode(
     previous_state = mode_service.get_state()
     previous_mode = previous_state.current_mode
 
+    # Extract user identifier for audit trail
+    user_identifier = current_user.email or str(current_user.id)
+
     await mode_service.set_mode(
         mode=new_mode,
-        changed_by=current_user,
+        changed_by=user_identifier,
         reason=request.reason,
         project_id=request.project_id,
     )
 
     logger.info(
         f"Governance mode changed: {previous_mode.value} → {new_mode.value} "
-        f"by {current_user}: {request.reason}"
+        f"by {user_identifier}: {request.reason}"
     )
 
     return SetModeResponse(
@@ -335,7 +367,7 @@ async def set_governance_mode(
         previous_mode=previous_mode.value,
         new_mode=new_mode.value,
         changed_at=datetime.utcnow(),
-        changed_by=current_user,
+        changed_by=user_identifier,
         reason=request.reason,
         message=f"Governance mode changed from {previous_mode.value} to {new_mode.value}",
     )
@@ -364,7 +396,7 @@ async def set_governance_mode(
 )
 async def trigger_kill_switch(
     request: KillSwitchRequest,
-    current_user: str = Depends(get_admin_user),
+    current_user: User = Depends(require_admin),
     mode_service: GovernanceModeService = Depends(get_governance_mode_service),
 ) -> KillSwitchResponse:
     """Trigger emergency kill switch."""
@@ -376,8 +408,11 @@ async def trigger_kill_switch(
 
     previous_mode = mode_service.get_mode()
 
+    # Extract user identifier for audit trail
+    user_identifier = current_user.email or str(current_user.id)
+
     await mode_service.kill_switch(
-        triggered_by=current_user,
+        triggered_by=user_identifier,
         reason=request.reason,
     )
 
@@ -385,7 +420,7 @@ async def trigger_kill_switch(
     notifications = ["CEO", "CTO", "Tech Lead", "All developers"]
 
     logger.critical(
-        f"KILL SWITCH TRIGGERED by {current_user}: {request.reason}"
+        f"KILL SWITCH TRIGGERED by {user_identifier}: {request.reason}"
     )
 
     return KillSwitchResponse(
@@ -393,7 +428,7 @@ async def trigger_kill_switch(
         previous_mode=previous_mode.value,
         new_mode="warning",
         triggered_at=datetime.utcnow(),
-        triggered_by=current_user,
+        triggered_by=user_identifier,
         reason=request.reason,
         message="KILL SWITCH ACTIVATED: Governance rolled back to WARNING mode",
         notifications_sent=notifications,
@@ -415,27 +450,30 @@ async def trigger_kill_switch(
 )
 async def report_false_positive(
     request: FalsePositiveRequest,
-    current_user: str = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     mode_service: GovernanceModeService = Depends(get_governance_mode_service),
 ) -> FalsePositiveResponse:
     """Report a false positive."""
+    # Extract user identifier for audit trail
+    user_identifier = current_user.email or str(current_user.id)
+
     await mode_service.report_false_positive(
         violation_id=request.violation_id,
-        reported_by=current_user,
+        reported_by=user_identifier,
         reason=request.reason,
     )
 
     state = mode_service.get_state()
 
     logger.info(
-        f"False positive reported by {current_user}: {request.violation_id}"
+        f"False positive reported by {user_identifier}: {request.violation_id}"
     )
 
     return FalsePositiveResponse(
         success=True,
         violation_id=request.violation_id,
         reported_at=datetime.utcnow(),
-        reported_by=current_user,
+        reported_by=user_identifier,
         total_false_positives=state.false_positives_reported,
         false_positive_rate=state.false_positive_rate(),
         message="False positive recorded. Thank you for the feedback.",

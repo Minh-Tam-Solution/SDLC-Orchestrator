@@ -97,12 +97,19 @@ class Settings(BaseSettings):
 
     # Security
     SECRET_KEY: str = secrets.token_urlsafe(32)  # Generate random key if not set
-    ACCESS_TOKEN_EXPIRE_HOURS: int = 1
+    ACCESS_TOKEN_EXPIRE_HOURS: int = 8  # 8 hours for development tools (VS Code Extension, CLI)
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     # Redis
     # Port configurable via REDIS_URL env var (default: 6379)
     REDIS_URL: str = "redis://redis:6379/0"
+
+    # Team Invitation Rate Limiting (Sprint 128)
+    MAX_INVITATIONS_PER_TEAM_PER_HOUR: int = 50  # Sliding window
+    MAX_INVITATIONS_PER_EMAIL_PER_DAY: int = 3   # Prevent spam to same email
+    MAX_INVITATION_RESENDS: int = 3              # Max resends per invitation
+    INVITATION_RESEND_COOLDOWN_MINUTES: int = 5  # Cooldown between resends
+    INVITATION_EXPIRY_DAYS: int = 7              # Invitation validity period
 
     # MinIO (S3-Compatible Storage)
     # Port configurable via MINIO_ENDPOINT env var (default: 9000)
@@ -151,6 +158,9 @@ class Settings(BaseSettings):
     # OAuth Redirect URLs (configurable via env vars)
     OAUTH_REDIRECT_URL: str = "http://localhost:3000/auth/callback"
     GITHUB_OAUTH_REDIRECT_URL: str = "http://localhost:3000/auth/github/callback"
+
+    # Frontend URL (for links in GitHub status checks, emails, etc.)
+    FRONTEND_URL: str = "http://localhost:3000"
 
     # CORS (configurable via ALLOWED_ORIGINS env var)
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:4000,http://localhost:5173,http://localhost:8000"

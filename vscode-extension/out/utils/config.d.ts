@@ -17,6 +17,7 @@ export interface SDLCConfig {
     enableNotifications: boolean;
     aiCouncilEnabled: boolean;
     showViolationBadge: boolean;
+    showProjectsPanel: boolean;
 }
 /**
  * Configuration Manager singleton
@@ -60,6 +61,10 @@ export declare class ConfigManager {
      * Gets whether violation badge is shown
      */
     get showViolationBadge(): boolean;
+    /**
+     * Gets whether Projects panel should always be shown
+     */
+    get showProjectsPanel(): boolean;
     /**
      * Gets all configuration as an object
      */

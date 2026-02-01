@@ -1,0 +1,68 @@
+{
+  "$schema": "../../../backend/sdlcctl/sdlcctl/schemas/spec-evidence-schema.json",
+  "spec_id": "ADR-043",
+  "spec_title": "Team Invitation System Architecture",
+  "spec_type": "feature",
+  "implementation_date": "2026-01-30",
+  "sprint": "Sprint 128",
+  "interfaces": {
+    "backend": {
+      "api_routes": [
+        "backend/app/api/routes/invitations.py"
+      ],
+      "services": [
+        "backend/app/services/invitation_service.py"
+      ],
+      "models": [
+        "backend/app/models/invitation.py"
+      ],
+      "tests": [
+        "backend/tests/unit/test_invitation_service.py",
+        "backend/tests/integration/test_invitation_api.py"
+      ],
+      "coverage": 95.0,
+      "status": "complete"
+    },
+    "frontend": {
+      "components": [
+        "frontend/src/components/teams/InviteMemberModal.tsx",
+        "frontend/src/components/teams/InvitationList.tsx",
+        "frontend/src/components/teams/InvitationCard.tsx"
+      ],
+      "pages": [
+        "frontend/src/app/teams/[id]/invitations/page.tsx"
+      ],
+      "hooks": [
+        "frontend/src/hooks/useInvitations.ts"
+      ],
+      "tests": [
+        "frontend/e2e/invitations.spec.ts",
+        "frontend/src/components/teams/InviteMemberModal.test.tsx"
+      ],
+      "status": "complete"
+    },
+    "extension": {
+      "commands": [],
+      "services": [],
+      "views": [],
+      "tests": [],
+      "status": "not_applicable"
+    },
+    "cli": {
+      "commands": [],
+      "services": [],
+      "tests": [],
+      "status": "not_applicable"
+    }
+  },
+  "validation": {
+    "last_checked": "2026-02-01T10:50:26.501449Z",
+    "checker_version": "1.0.0",
+    "status": "partial",
+    "missing_files": [
+      "backend/app/models/invitation.py",
+      "backend/tests/unit/test_invitation_service.py",
+      "backend/tests/integration/test_invitation_api.py"
+    ]
+  }
+}

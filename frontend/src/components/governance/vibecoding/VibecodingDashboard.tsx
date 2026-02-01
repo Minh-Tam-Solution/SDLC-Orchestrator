@@ -101,6 +101,7 @@ function MinusIcon({ className }: { className?: string }) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function CheckCircleIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -197,6 +198,18 @@ export function VibecodingDashboard({
 }: VibecodingDashboardProps) {
   const { data: stats, isLoading, isError } = useVibecodingStats(projectId);
 
+  // Calculate zone and call hook unconditionally (React rules of hooks)
+  const averageIndex = stats?.average_index ?? 0;
+  const averageZone =
+    averageIndex <= 20
+      ? "GREEN"
+      : averageIndex <= 40
+      ? "YELLOW"
+      : averageIndex <= 60
+      ? "ORANGE"
+      : "RED";
+  const { bgColor, textColor, borderColor, label } = useZoneColor(averageZone);
+
   if (isLoading) {
     return (
       <Card>
@@ -220,17 +233,6 @@ export function VibecodingDashboard({
       </Card>
     );
   }
-
-  const averageIndex = stats.average_index;
-  const averageZone =
-    averageIndex <= 20
-      ? "GREEN"
-      : averageIndex <= 40
-      ? "YELLOW"
-      : averageIndex <= 60
-      ? "ORANGE"
-      : "RED";
-  const { bgColor, textColor, borderColor, label } = useZoneColor(averageZone);
 
   if (compact) {
     return (

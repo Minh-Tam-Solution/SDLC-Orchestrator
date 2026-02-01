@@ -75,6 +75,7 @@ class OAuthService:
         # GitHub OAuth endpoints
         self.github_auth_url = "https://github.com/login/oauth/authorize"
         self.github_token_url = "https://github.com/login/oauth/access_token"
+        self.github_device_code_url = "https://github.com/login/device/code"
         self.github_user_url = "https://api.github.com/user"
         self.github_emails_url = "https://api.github.com/user/emails"
 
@@ -115,7 +116,7 @@ class OAuthService:
         return base64.urlsafe_b64encode(digest).rstrip(b"=").decode()
 
     # =========================================================================
-    # GitHub OAuth
+    # GitHub OAuth - Authorization Code Flow
     # =========================================================================
 
     def get_github_auth_url(self, state: str, redirect_uri: str) -> str:
@@ -237,6 +238,114 @@ class OAuthService:
                 email=email,
                 name=user_data.get("name") or user_data.get("login"),
                 avatar_url=user_data.get("avatar_url"),
+            )
+
+    # =========================================================================
+    # GitHub OAuth - Device Flow (for CLI/Desktop apps)
+    # =========================================================================
+
+    async def initiate_github_device_flow(self) -> dict:
+        """
+        Initiate GitHub OAuth Device Flow.
+
+        This flow is designed for CLI tools and desktop apps where
+        browser redirects are difficult to handle.
+
+        Returns:
+            dict with:
+                - device_code: Used to poll for authorization
+                - user_code: User enters this code at verification_uri
+                - verification_uri: URL where user authorizes
+                - expires_in: Device code expiry (seconds)
+                - interval: Polling interval (seconds)
+
+        Raises:
+            ValueError: If device flow initiation fails
+
+        Flow:
+            1. App calls this endpoint to get device_code and user_code
+            2. App shows user_code and verification_uri to user
+            3. User visits verification_uri and enters user_code
+            4. App polls poll_github_device_token() until authorized
+        """
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                self.github_device_code_url,
+                data={
+                    "client_id": self.settings.GITHUB_CLIENT_ID,
+                    "scope": "read:user user:email",
+                },
+                headers={"Accept": "application/json"},
+            )
+
+            if response.status_code != 200:
+                raise ValueError(f"GitHub device flow failed: {response.text}")
+
+            data = response.json()
+
+            if "error" in data:
+                raise ValueError(f"GitHub device flow error: {data.get('error_description', data['error'])}")
+
+            return {
+                "device_code": data["device_code"],
+                "user_code": data["user_code"],
+                "verification_uri": data["verification_uri"],
+                "expires_in": data["expires_in"],
+                "interval": data["interval"],
+            }
+
+    async def poll_github_device_token(self, device_code: str) -> OAuthTokens:
+        """
+        Poll for GitHub device authorization completion.
+
+        Args:
+            device_code: Device code from initiate_github_device_flow()
+
+        Returns:
+            OAuthTokens with access_token when user has authorized
+
+        Raises:
+            ValueError: If polling fails with specific error codes:
+                - authorization_pending: User hasn't authorized yet (keep polling)
+                - slow_down: Polling too fast (increase interval)
+                - expired_token: Device code expired
+                - access_denied: User denied authorization
+
+        Usage:
+            Poll this endpoint every `interval` seconds until:
+            - Success: Returns OAuthTokens
+            - authorization_pending: Continue polling
+            - slow_down: Increase polling interval by 5 seconds
+            - expired_token/access_denied: Stop polling, show error
+        """
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                self.github_token_url,
+                data={
+                    "client_id": self.settings.GITHUB_CLIENT_ID,
+                    "device_code": device_code,
+                    "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
+                },
+                headers={"Accept": "application/json"},
+            )
+
+            data = response.json()
+
+            # Check for errors
+            if "error" in data:
+                # These are expected errors during polling - don't raise, return them
+                error = data["error"]
+                if error in ["authorization_pending", "slow_down", "expired_token", "access_denied"]:
+                    raise ValueError(f"error:{error}")  # Prefix with "error:" for parsing
+                else:
+                    raise ValueError(f"GitHub device token error: {data.get('error_description', error)}")
+
+            # Success - return tokens
+            return OAuthTokens(
+                access_token=data["access_token"],
+                token_type=data.get("token_type", "bearer"),
+                refresh_token=data.get("refresh_token"),
+                expires_in=data.get("expires_in"),
             )
 
     # =========================================================================

@@ -227,8 +227,8 @@ class ContextOverlayService:
         gate = result.scalar_one_or_none()
 
         if gate:
-            stage_name = f"Stage {gate.stage_number:02d}" if hasattr(gate, 'stage_number') else gate.name
-            gate_status = f"{gate.name} {'PASSED' if gate.status == 'passed' else 'PENDING'}"
+            stage_name = f"Stage {gate.stage_number:02d}" if hasattr(gate, 'stage_number') else gate.gate_name
+            gate_status = f"{gate.gate_name} {'PASSED' if gate.status == 'passed' else 'PENDING'}"
             return stage_name, gate_status
 
         return "Stage 00 (DISCOVER)", "No gates evaluated"

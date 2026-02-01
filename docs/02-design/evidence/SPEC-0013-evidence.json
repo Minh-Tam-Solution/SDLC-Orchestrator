@@ -1,0 +1,93 @@
+{
+  "$schema": "../../../backend/sdlcctl/sdlcctl/schemas/spec-evidence-schema.json",
+  "spec_id": "SPEC-0013",
+  "spec_title": "Compliance Validation Service",
+  "spec_type": "feature",
+  "implementation_date": "2025-12-15",
+  "sprint": "Sprint 123",
+  "interfaces": {
+    "backend": {
+      "api_routes": [
+        "backend/app/api/routes/compliance.py",
+        "backend/app/api/routes/compliance_validation.py"
+      ],
+      "services": [
+        "backend/app/services/compliance_scanner.py",
+        "backend/app/services/validation/compliance_scorer.py"
+      ],
+      "models": [
+        "backend/app/models/compliance_scan.py",
+        "backend/app/models/compliance_validation.py"
+      ],
+      "schemas": [
+        "backend/app/schemas/compliance.py"
+      ],
+      "migrations": [
+        "backend/alembic/versions/b7c8d9e0f1a2_add_compliance_scans.py",
+        "backend/alembic/versions/s123_001_compliance_validation.py"
+      ],
+      "tests": [
+        "backend/tests/services/test_compliance_validation.py"
+      ],
+      "coverage": 88.0,
+      "status": "complete"
+    },
+    "frontend": {
+      "components": [
+        "frontend/src/components/compliance/ComplianceScoreCard.tsx",
+        "frontend/src/components/compliance/ViolationCard.tsx",
+        "frontend/src/components/compliance/ScanHistoryTimeline.tsx",
+        "frontend/src/components/compliance/ComplianceTrendChart.tsx",
+        "frontend/src/components/compliance/ViolationsBySeverityChart.tsx",
+        "frontend/src/components/compliance/ViolationsByCategoryChart.tsx"
+      ],
+      "pages": [
+        "frontend/src/app/compliance/page.tsx"
+      ],
+      "hooks": [
+        "frontend/src/hooks/useCompliance.ts"
+      ],
+      "tests": [
+        "frontend/e2e/compliance.spec.ts",
+        "frontend/src/components/compliance/ComplianceScoreCard.test.tsx"
+      ],
+      "status": "missing"
+    },
+    "extension": {
+      "commands": [],
+      "services": [],
+      "views": [],
+      "tests": [],
+      "status": "not_applicable"
+    },
+    "cli": {
+      "commands": [
+        "backend/sdlcctl/sdlcctl/commands/compliance.py"
+      ],
+      "services": [],
+      "tests": [],
+      "status": "complete"
+    }
+  },
+  "validation": {
+    "last_checked": "2026-02-01T10:50:26.492445Z",
+    "checker_version": "1.0.0",
+    "status": "partial",
+    "missing_files": [
+      "frontend/src/components/compliance/ComplianceScoreCard.tsx",
+      "frontend/src/components/compliance/ViolationCard.tsx",
+      "frontend/src/components/compliance/ScanHistoryTimeline.tsx",
+      "frontend/src/components/compliance/ComplianceTrendChart.tsx",
+      "frontend/src/components/compliance/ViolationsBySeverityChart.tsx",
+      "frontend/src/components/compliance/ViolationsByCategoryChart.tsx",
+      "frontend/src/app/compliance/page.tsx",
+      "frontend/e2e/compliance.spec.ts",
+      "frontend/src/components/compliance/ComplianceScoreCard.test.tsx"
+    ],
+    "warnings": [
+      "Frontend compliance components in legacy folder (99-legacy), need migration to current structure",
+      "No CLI tests for compliance commands"
+    ]
+  },
+  "notes": "Sprint 123 - Compliance Validation Service. Backend 100% complete (2 API routes, 2 services, 2 models, 1 test, 88% coverage). Frontend exists in legacy folder (99-legacy/web-vite-sprint78) but not migrated to current App Router structure. CLI complete with compliance scan commands. Critical for HIPAA/SOC 2 compliance requirements."
+}

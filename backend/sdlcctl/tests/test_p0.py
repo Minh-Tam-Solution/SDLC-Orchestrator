@@ -23,7 +23,7 @@ class TestP0Artifact:
             artifact_id="P0-00-README",
             name="Stage 00 README",
             stage_id="00",
-            relative_path="00-Project-Foundation/README.md",
+            relative_path="00-foundation/README.md",
             description="Entry point for Stage 00",
             required_tiers={Tier.LITE, Tier.STANDARD},
         )
@@ -37,11 +37,11 @@ class TestP0Artifact:
             artifact_id="P0-01-FRD",
             name="FRD",
             stage_id="01",
-            relative_path="01-Planning-Analysis/01-Requirements/FRD.md",
+            relative_path="01-planning/01-Requirements/FRD.md",
             description="Requirements doc",
             alternative_paths=[
-                "01-Planning-Analysis/Requirements.md",
-                "01-Planning-Analysis/FRD.md",
+                "01-planning/Requirements.md",
+                "01-planning/FRD.md",
             ],
         )
         assert len(artifact.alternative_paths) == 2
@@ -131,7 +131,7 @@ class TestP0ArtifactChecker:
             docs_root = project_root / "docs"
 
             # Create minimal P0 structure for LITE tier
-            stage_00 = docs_root / "00-Project-Foundation"
+            stage_00 = docs_root / "00-foundation"
             stage_00.mkdir(parents=True)
             (stage_00 / "README.md").write_text(
                 "# Stage 00: Project Foundation\n\n"
@@ -139,21 +139,21 @@ class TestP0ArtifactChecker:
                 "It contains vision and business case documentation."
             )
 
-            stage_01 = docs_root / "01-Planning-Analysis"
+            stage_01 = docs_root / "01-planning"
             stage_01.mkdir(parents=True)
             (stage_01 / "README.md").write_text(
                 "# Stage 01: Planning & Analysis\n\n"
                 "Requirements and analysis documentation."
             )
 
-            stage_02 = docs_root / "02-Design-Architecture"
+            stage_02 = docs_root / "02-design"
             stage_02.mkdir(parents=True)
             (stage_02 / "README.md").write_text(
                 "# Stage 02: Design & Architecture\n\n"
                 "Technical design and architecture documentation."
             )
 
-            stage_03 = docs_root / "03-Development-Implementation"
+            stage_03 = docs_root / "03-integrate"
             stage_03.mkdir(parents=True)
             (stage_03 / "README.md").write_text(
                 "# Stage 03: Development\n\n"
@@ -252,7 +252,7 @@ class TestP0ArtifactChecker:
     def test_artifact_content_validation(self, temp_project):
         """Test artifact content size validation."""
         # Create file that's too small
-        small_file = temp_project / "docs" / "00-Project-Foundation" / "README.md"
+        small_file = temp_project / "docs" / "00-foundation" / "README.md"
         small_file.write_text("# Small")  # Only 7 bytes
 
         checker = P0ArtifactChecker(temp_project, "docs", tier=Tier.LITE)
@@ -267,7 +267,7 @@ class TestP0ArtifactChecker:
     def test_alternative_path_detection(self, temp_project):
         """Test detection of P0 artifacts at alternative paths."""
         # Create FRD at alternative location
-        frd = temp_project / "docs" / "01-Planning-Analysis" / "Functional-Requirements.md"
+        frd = temp_project / "docs" / "01-planning" / "Functional-Requirements.md"
         frd.write_text(
             "# Functional Requirements Document\n\n"
             "This document contains the functional requirements for the project. "

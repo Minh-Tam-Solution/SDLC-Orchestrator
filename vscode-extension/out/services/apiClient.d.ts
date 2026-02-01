@@ -8,7 +8,7 @@
  * @version 0.1.0
  */
 import * as vscode from 'vscode';
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosRequestConfig } from 'axios';
 import { AuthService } from './authService';
 /**
  * API Error class for typed error handling
@@ -141,11 +141,15 @@ export declare class ApiClient {
     /**
      * Makes a typed GET request
      */
-    private get;
+    get<T>(endpoint: string, config?: AxiosRequestConfig): Promise<T>;
     /**
      * Makes a typed POST request
      */
-    private post;
+    post<T>(endpoint: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>;
+    /**
+     * Makes a typed DELETE request
+     */
+    delete<T>(endpoint: string, config?: AxiosRequestConfig): Promise<T>;
     /**
      * Gets list of projects accessible to the current user
      */

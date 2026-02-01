@@ -1,0 +1,482 @@
+# SDLC 6.0.0 Documentation Compliance Workflow
+# Sprint 131 - Documentation Compliance Automation
+#
+# Validates:
+# - YAML frontmatter (Section 8 Specification Standard)
+# - BDD format (GIVEN-WHEN-THEN structure)
+# - Documentation structure
+#
+# Triggers on:
+# - Push to main/develop (docs/** changes)
+# - Pull requests to main (docs/** changes)
+
+name: Documentation Compliance
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'docs/**'
+      - 'scripts/sdlc-validation/**'
+      - '.github/workflows/documentation-compliance.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'scripts/sdlc-validation/**'
+
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      strict:
+        description: 'Run in strict mode (warnings as errors)'
+        required: false
+        type: boolean
+        default: false
+      target:
+        description: 'Target directory to validate'
+        required: false
+        type: string
+        default: 'docs/'
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  yaml-frontmatter:
+    name: YAML Frontmatter Validation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pyyaml
+
+      - name: Get changed files
+        id: changed-files
+        if: github.event_name == 'pull_request'
+        run: |
+          # Get list of changed markdown files in docs/
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'docs/**/*.md' | tr '\n' ' ')
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo "Changed files: $FILES"
+
+      - name: Validate YAML frontmatter (PR files)
+        id: validate-pr
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: |
+          set +e
+
+          FILES="${{ steps.changed-files.outputs.files }}"
+
+          if [ -z "$FILES" ]; then
+            echo "No markdown files changed in docs/"
+            echo "result=skip" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Run validation on changed files
+          python scripts/sdlc-validation/frontmatter_checker.py $FILES > frontmatter_report.txt 2>&1
+          RESULT=$?
+
+          echo "exit_code=$RESULT" >> $GITHUB_OUTPUT
+
+          if [ $RESULT -eq 0 ]; then
+            echo "result=pass" >> $GITHUB_OUTPUT
+          else
+            echo "result=fail" >> $GITHUB_OUTPUT
+          fi
+
+          cat frontmatter_report.txt
+
+      - name: Validate YAML frontmatter (full scan)
+        id: validate-full
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        run: |
+          set +e
+
+          TARGET="${{ github.event.inputs.target || 'docs/' }}"
+
+          # Find all markdown files in target directory (excluding legacy)
+          FILES=$(find "$TARGET" -name "*.md" -type f \
+            ! -path "*/99-Legacy/*" \
+            ! -path "*/10-Archive/*" \
+            ! -path "*/phase-0/*" | sort)
+
+          if [ -z "$FILES" ]; then
+            echo "No markdown files found in $TARGET"
+            echo "result=skip" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Run validation
+          python scripts/sdlc-validation/frontmatter_checker.py $FILES > frontmatter_report.txt 2>&1
+          RESULT=$?
+
+          echo "exit_code=$RESULT" >> $GITHUB_OUTPUT
+
+          if [ $RESULT -eq 0 ]; then
+            echo "result=pass" >> $GITHUB_OUTPUT
+          else
+            echo "result=fail" >> $GITHUB_OUTPUT
+          fi
+
+          cat frontmatter_report.txt
+
+      - name: Upload frontmatter report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontmatter-validation-report
+          path: frontmatter_report.txt
+          retention-days: 30
+
+      - name: Comment on PR (frontmatter)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const result = '${{ steps.validate-pr.outputs.result }}';
+            const exitCode = '${{ steps.validate-pr.outputs.exit_code }}';
+
+            let report = '';
+            try {
+              report = fs.readFileSync('frontmatter_report.txt', 'utf8');
+            } catch (e) {
+              report = 'No report generated';
+            }
+
+            // Truncate long reports
+            if (report.length > 5000) {
+              report = report.substring(0, 5000) + '\n... (truncated)';
+            }
+
+            let status = '✅ PASSED';
+            if (result === 'fail') {
+              status = '❌ FAILED';
+            } else if (result === 'skip') {
+              status = '⏭️ SKIPPED (no docs changes)';
+            }
+
+            const comment = `## YAML Frontmatter Validation ${status}
+
+            \`\`\`
+            ${report}
+            \`\`\`
+
+            ---
+            *SDLC 6.0.0 Section 8 • [Frontmatter Template](.claude/templates/yaml-frontmatter-technical-spec.md)*`;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existingComment = comments.find(c =>
+              c.user.type === 'Bot' &&
+              c.body.includes('YAML Frontmatter Validation')
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+
+  bdd-format:
+    name: BDD Format Validation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Get changed specification files
+        id: changed-specs
+        if: github.event_name == 'pull_request'
+        run: |
+          # Get specification files (ADRs, Specs, Sprint Plans)
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- \
+            'docs/**/SPEC-*.md' \
+            'docs/**/ADR-*.md' \
+            'docs/**/SPRINT-*.md' \
+            'docs/**/01-Requirements/*.md' \
+            'docs/**/14-Technical-Specs/*.md' | tr '\n' ' ')
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo "Changed spec files: $FILES"
+
+      - name: Validate BDD format (PR files)
+        id: validate-bdd-pr
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: |
+          set +e
+
+          FILES="${{ steps.changed-specs.outputs.files }}"
+
+          if [ -z "$FILES" ]; then
+            echo "No specification files changed"
+            echo "result=skip" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Run BDD validation on changed files
+          STRICT=""
+          if [ "${{ github.event.inputs.strict }}" == "true" ]; then
+            STRICT="--strict"
+          fi
+
+          python scripts/sdlc-validation/bdd_checker.py $STRICT $FILES > bdd_report.txt 2>&1
+          RESULT=$?
+
+          echo "exit_code=$RESULT" >> $GITHUB_OUTPUT
+
+          if [ $RESULT -eq 0 ]; then
+            echo "result=pass" >> $GITHUB_OUTPUT
+          else
+            echo "result=fail" >> $GITHUB_OUTPUT
+          fi
+
+          cat bdd_report.txt
+
+      - name: Validate BDD format (full scan)
+        id: validate-bdd-full
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        run: |
+          set +e
+
+          TARGET="${{ github.event.inputs.target || 'docs/' }}"
+
+          # Find specification files
+          FILES=$(find "$TARGET" \( \
+            -name "SPEC-*.md" -o \
+            -name "ADR-*.md" -o \
+            -path "*/01-Requirements/*.md" -o \
+            -path "*/14-Technical-Specs/*.md" \
+          \) -type f \
+            ! -path "*/99-Legacy/*" \
+            ! -path "*/10-Archive/*" | sort)
+
+          if [ -z "$FILES" ]; then
+            echo "No specification files found in $TARGET"
+            echo "result=skip" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Run BDD validation
+          STRICT=""
+          if [ "${{ github.event.inputs.strict }}" == "true" ]; then
+            STRICT="--strict"
+          fi
+
+          python scripts/sdlc-validation/bdd_checker.py $STRICT $FILES > bdd_report.txt 2>&1
+          RESULT=$?
+
+          echo "exit_code=$RESULT" >> $GITHUB_OUTPUT
+
+          if [ $RESULT -eq 0 ]; then
+            echo "result=pass" >> $GITHUB_OUTPUT
+          else
+            echo "result=fail" >> $GITHUB_OUTPUT
+          fi
+
+          cat bdd_report.txt
+
+      - name: Upload BDD report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bdd-validation-report
+          path: bdd_report.txt
+          retention-days: 30
+
+      - name: Comment on PR (BDD)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const result = '${{ steps.validate-bdd-pr.outputs.result }}';
+
+            let report = '';
+            try {
+              report = fs.readFileSync('bdd_report.txt', 'utf8');
+            } catch (e) {
+              report = 'No report generated';
+            }
+
+            // Truncate long reports
+            if (report.length > 5000) {
+              report = report.substring(0, 5000) + '\n... (truncated)';
+            }
+
+            let status = '✅ PASSED';
+            if (result === 'fail') {
+              status = '❌ FAILED';
+            } else if (result === 'skip') {
+              status = '⏭️ SKIPPED (no spec changes)';
+            }
+
+            const comment = `## BDD Format Validation ${status}
+
+            \`\`\`
+            ${report}
+            \`\`\`
+
+            ### BDD Format Guide
+
+            Specifications should use GIVEN-WHEN-THEN format:
+
+            \`\`\`gherkin
+            Scenario: [Feature Description]
+              Given [precondition/context]
+              When [user action or trigger]
+              Then [expected outcome]
+            \`\`\`
+
+            ---
+            *SDLC 6.0.0 Section 8 • [Spec Template](.claude/templates/yaml-frontmatter-technical-spec.md)*`;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existingComment = comments.find(c =>
+              c.user.type === 'Bot' &&
+              c.body.includes('BDD Format Validation')
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+
+  compliance-summary:
+    name: Compliance Summary
+    runs-on: ubuntu-latest
+    needs: [yaml-frontmatter, bdd-format]
+    if: always()
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate Summary
+        run: |
+          echo "## Documentation Compliance Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          # YAML Frontmatter status
+          if [ "${{ needs.yaml-frontmatter.result }}" == "success" ]; then
+            echo "| YAML Frontmatter | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.yaml-frontmatter.result }}" == "skipped" ]; then
+            echo "| YAML Frontmatter | ⏭️ Skipped |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| YAML Frontmatter | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # BDD Format status
+          if [ "${{ needs.bdd-format.result }}" == "success" ]; then
+            echo "| BDD Format | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.bdd-format.result }}" == "skipped" ]; then
+            echo "| BDD Format | ⏭️ Skipped |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| BDD Format | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*SDLC 6.0.0 Documentation Compliance • Sprint 131*" >> $GITHUB_STEP_SUMMARY
+
+      - name: Update compliance badge
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          mkdir -p .github/badges
+
+          YAML_OK="${{ needs.yaml-frontmatter.result == 'success' }}"
+          BDD_OK="${{ needs.bdd-format.result == 'success' }}"
+
+          if [ "$YAML_OK" == "true" ] && [ "$BDD_OK" == "true" ]; then
+            COLOR="green"
+            MESSAGE="COMPLIANT"
+          elif [ "$YAML_OK" == "true" ] || [ "$BDD_OK" == "true" ]; then
+            COLOR="yellow"
+            MESSAGE="PARTIAL"
+          else
+            COLOR="red"
+            MESSAGE="NON-COMPLIANT"
+          fi
+
+          cat > .github/badges/docs-compliance.json << EOF
+          {
+            "schemaVersion": 1,
+            "label": "Docs Compliance",
+            "message": "$MESSAGE",
+            "color": "$COLOR"
+          }
+          EOF
+
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .github/badges/docs-compliance.json
+          git diff --staged --quiet || git commit -m "chore: Update docs compliance badge [skip ci]"
+          git push || echo "Badge commit skipped"

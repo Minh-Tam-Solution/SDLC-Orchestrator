@@ -105,7 +105,7 @@ def professional_tier_project(project_structure):
 
     # Create additional P0 artifacts for PROFESSIONAL tier
     # Vision document
-    vision_path = docs_root / "00-Project-Foundation" / "01-Vision"
+    vision_path = docs_root / "00-foundation" / "01-Vision"
     vision_path.mkdir(exist_ok=True)
     (vision_path / "Product-Vision.md").write_text(
         "# Product Vision\n\n"

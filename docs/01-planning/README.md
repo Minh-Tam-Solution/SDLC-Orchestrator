@@ -3,12 +3,38 @@
 
 **Stage**: 01 - PLANNING
 **Question**: What are we building?
-**Version**: 4.1.0
-**Date**: January 19, 2026
+**Version**: 4.2.0
+**Date**: January 30, 2026
 **Status**: ✅ COMPLETED - Gate G1 PASSED
 **Authority**: PM + CTO + CPO Approved
-**Framework**: SDLC 5.1.3 + SASE Level 2
+**Framework**: SDLC 6.0.0 (Multi-Frontend Aligned)
 **Positioning**: Operating System for Software 3.0
+
+**Changelog v4.2.1** (Jan 30, 2026):
+- **CLI Test Bug Fixes**: Sprint 127 continuation - validation testing revealed SDLC 6.0.0 migration gaps
+  - **Stage Folder Naming**: Updated from legacy format to SDLC 6.0.0 convention
+    - `00-Project-Foundation` → `00-foundation` (lowercase, hyphenated)
+    - `01-Planning-Analysis` → `01-planning`
+    - Full migration across CLI codebase (tier.py, p0.py, scanner.py)
+  - **Pre-commit Hooks Module**: New `sdlcctl.hooks` package for CI/CD integration
+    - `run_validation()` with docs_root, tier, strict parameters
+  - **Fix Command Enhancement**: Creates `99-Legacy` folder in all stage folders
+  - **Test Coverage**: 264 passed, 7 skipped (environment-specific)
+  - See: [sdlcctl CHANGELOG v1.2.0](../../backend/sdlcctl/CHANGELOG.md)
+
+**Changelog v4.2.0** (Jan 30, 2026):
+- **Multi-Frontend Alignment**: Sprint 125-127 completed (26.5 SP in 1 day)
+  - 3 delivery surfaces defined: Web Dashboard, CLI (sdlcctl), VS Code Extension
+  - Frontend Alignment Matrix created (docs/01-planning/01-Requirements/Frontend-Alignment-Matrix.md)
+  - CLI parity: 39% → 71% (+32 points)
+  - Extension parity: 67% → 89% (+22 points)
+- **SDLC 6.0.0 Framework**: All surfaces aligned to latest framework version
+  - YAML frontmatter validation (SPEC-0002 compliant)
+  - BDD requirements validation (GIVEN-WHEN-THEN)
+  - Tier-specific sections validation (LITE/STANDARD/PROFESSIONAL/ENTERPRISE)
+- **ADR-045**: Multi-Frontend Alignment Strategy documented
+- **Framework Update Trigger**: GitHub Actions automation for version alignment
+- **Monthly Checkpoint**: Process established for ongoing alignment
 
 **Changelog v4.1.0** (Jan 19, 2026):
 - **Sprint 78 Complete**: Sprint Analytics + Cross-Project Coordination (36/36 SP, 100%)

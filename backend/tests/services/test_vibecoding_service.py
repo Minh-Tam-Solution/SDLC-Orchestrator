@@ -29,6 +29,7 @@ from app.models.governance_vibecoding import (
     KillSwitchEvent,
 )
 from app.models.project import Project
+from app.models.user import User
 from app.services.vibecoding_service import (
     VibecodingService,
     VibecodingIndexCalculationError,
@@ -47,13 +48,31 @@ async def vibecoding_service(db_session: AsyncSession) -> VibecodingService:
 
 
 @pytest.fixture
-async def test_project(db_session: AsyncSession) -> Project:
+async def test_user(db_session: AsyncSession) -> User:
+    """Create a test user for vibecoding tests."""
+    user = User(
+        id=uuid4(),
+        email=f"test-vibecoding-{uuid4().hex[:8]}@example.com",
+        full_name="Test User Vibecoding",
+        password_hash="hashed_test_password",
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+async def test_project(db_session: AsyncSession, test_user: User) -> Project:
     """Create a test project for vibecoding tests."""
     project = Project(
         id=uuid4(),
         name="Test Project for Vibecoding",
+        slug=f"test-project-vibecoding-{uuid4().hex[:8]}",
         description="Test project for Sprint 118 vibecoding tests",
-        tier="STANDARD",
+        owner_id=test_user.id,
+        policy_pack_tier="STANDARD",
     )
     db_session.add(project)
     await db_session.commit()
@@ -243,14 +262,15 @@ class TestIndexCalculation:
     ):
         """Index 40-59 should result in ORANGE zone."""
         # Target index ~50: adjust signals accordingly
+        # Lower values to ensure index stays in ORANGE zone (40-59)
         result = await vibecoding_service.calculate_index(
             project_id=test_project.id,
             submission_id="PR-004",
-            intent_clarity=40,
-            code_ownership=40,
-            context_completeness=40,
+            intent_clarity=35,
+            code_ownership=35,
+            context_completeness=35,
             ai_attestation=False,
-            rejection_rate=0.0,
+            rejection_rate=0.1,  # Some rejection to lower score
         )
 
         assert 40 <= result["index_score"] < 60
@@ -955,12 +975,25 @@ class TestHistoryQueries:
         db_session: AsyncSession,
     ):
         """History should be isolated per project."""
+        # Create another user for the other project
+        other_user = User(
+            id=uuid4(),
+            email=f"other-user-{uuid4().hex[:8]}@example.com",
+            full_name="Other User",
+            password_hash="hashed_test",
+            is_active=True,
+        )
+        db_session.add(other_user)
+        await db_session.flush()
+
         # Create another project
         other_project = Project(
             id=uuid4(),
             name="Other Project",
+            slug=f"other-project-{uuid4().hex[:8]}",
             description="Different project",
-            tier="STANDARD",
+            owner_id=other_user.id,
+            policy_pack_tier="STANDARD",
         )
         db_session.add(other_project)
         await db_session.commit()

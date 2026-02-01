@@ -178,7 +178,8 @@ export function useAllTierRequirements() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const tiers: TierLevel[] = ["LITE", "STANDARD", "PROFESSIONAL", "ENTERPRISE"];
 
-  const queries = tiers.map((tier) => ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _queries = tiers.map((tier) => ({
     queryKey: tierKeys.requirements(tier),
     queryFn: () => getTierRequirements(tier),
     enabled: isAuthenticated && !authLoading,

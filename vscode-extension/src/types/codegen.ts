@@ -330,3 +330,146 @@ export interface OnboardingSession {
     created_at: string;
     updated_at: string;
 }
+
+// ========================================
+// Specification Validation Types (Sprint 126 - S126-06)
+// SDLC 6.0.0 Spec Validation for VS Code Extension
+// ========================================
+
+/**
+ * SDLC 6.0.0 Tier classification
+ */
+export type SpecTier = 'LITE' | 'STANDARD' | 'PROFESSIONAL' | 'ENTERPRISE';
+
+/**
+ * Specification validation error
+ */
+export interface SpecValidationError {
+    code: string;
+    field: string;
+    message: string;
+    severity: 'critical' | 'high';
+    line_number?: number;
+    suggestion?: string;
+}
+
+/**
+ * Specification validation warning
+ */
+export interface SpecValidationWarning {
+    code: string;
+    field: string;
+    message: string;
+    suggestion?: string;
+    line_number?: number;
+}
+
+/**
+ * YAML Frontmatter validation result
+ */
+export interface FrontmatterValidation {
+    valid: boolean;
+    required_fields_present: string[];
+    required_fields_missing: string[];
+    optional_fields_present: string[];
+    invalid_field_values: Array<{
+        field: string;
+        value: string;
+        expected: string;
+    }>;
+}
+
+/**
+ * BDD Requirements validation result
+ */
+export interface BDDValidation {
+    valid: boolean;
+    total_requirements: number;
+    valid_requirements: number;
+    invalid_requirements: Array<{
+        line_number: number;
+        content: string;
+        issue: string;
+    }>;
+    coverage_percentage: number;
+}
+
+/**
+ * Cross-reference validation result
+ */
+export interface CrossReferenceValidation {
+    valid: boolean;
+    total_references: number;
+    valid_references: number;
+    broken_references: Array<{
+        reference: string;
+        line_number?: number;
+        type: 'spec' | 'adr' | 'file' | 'url';
+    }>;
+}
+
+/**
+ * Tier-specific sections validation
+ */
+export interface TierSectionsValidation {
+    valid: boolean;
+    tier: SpecTier;
+    required_sections: string[];
+    present_sections: string[];
+    missing_sections: string[];
+}
+
+/**
+ * Complete specification validation result
+ */
+export interface SpecValidationResult {
+    valid: boolean;
+    spec_id: string;
+    spec_path: string;
+    version: string;
+    tier: SpecTier[];
+    errors: SpecValidationError[];
+    warnings: SpecValidationWarning[];
+    frontmatter: FrontmatterValidation;
+    bdd_validation: BDDValidation;
+    cross_references: CrossReferenceValidation;
+    tier_sections: TierSectionsValidation;
+    validation_timestamp: string;
+    validator_version: string;
+}
+
+/**
+ * Specification list item
+ */
+export interface SpecListItem {
+    spec_id: string;
+    title: string;
+    version: string;
+    status: string;
+    tier: SpecTier[];
+    owner: string;
+    last_updated: string;
+    path: string;
+    is_valid: boolean;
+}
+
+/**
+ * Specification list response
+ */
+export interface SpecListResponse {
+    total: number;
+    specs: SpecListItem[];
+    by_tier: Record<SpecTier, number>;
+    by_status: Record<string, number>;
+}
+
+/**
+ * Specification validation request
+ */
+export interface SpecValidationRequest {
+    content: string;
+    path?: string;
+    tier?: SpecTier;
+    validate_cross_refs?: boolean;
+    validate_bdd?: boolean;
+}

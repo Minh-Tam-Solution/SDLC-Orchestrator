@@ -1,0 +1,55 @@
+{
+  "$schema": "../../../backend/sdlcctl/sdlcctl/schemas/spec-evidence-schema.json",
+  "spec_id": "SPEC-0002",
+  "spec_title": "Framework 6.0.0 Specification Standard",
+  "spec_type": "standard",
+  "implementation_date": "2026-01-28",
+  "sprint": "Sprint 106",
+  "interfaces": {
+    "backend": {
+      "api_routes": [],
+      "services": [],
+      "models": [],
+      "schemas": [],
+      "tests": [],
+      "coverage": 0.0,
+      "status": "not_applicable"
+    },
+    "frontend": {
+      "components": [],
+      "pages": [],
+      "hooks": [],
+      "tests": [],
+      "status": "not_applicable"
+    },
+    "extension": {
+      "commands": [],
+      "services": [],
+      "views": [],
+      "tests": [],
+      "status": "not_applicable"
+    },
+    "cli": {
+      "commands": [
+        "backend/sdlcctl/sdlcctl/commands/spec.py"
+      ],
+      "services": [
+        "backend/sdlcctl/sdlcctl/validation/validators/spec_frontmatter_validator.py"
+      ],
+      "tests": [
+        "backend/sdlcctl/tests/unit/validation/test_spec_frontmatter_validator.py"
+      ],
+      "status": "complete"
+    }
+  },
+  "validation": {
+    "last_checked": "2026-02-01T10:50:26.508132Z",
+    "checker_version": "1.0.0",
+    "status": "partial",
+    "missing_files": [
+      "backend/sdlcctl/sdlcctl/validation/validators/spec_frontmatter_validator.py"
+    ],
+    "warnings": []
+  },
+  "notes": "Sprint 106 - Framework 6.0.0 Specification Standard (SPEC-0002). This is a DOCUMENTATION STANDARD, not a code feature. Defines unified format for technical specifications with YAML frontmatter, behavior-driven requirements, and structured acceptance criteria. CLI 100% complete (spec command, spec frontmatter validator). Implementation evidence: (1) All specs in docs/02-design/14-Technical-Specs/ follow this standard (YAML frontmatter, BDD format, tier classification), (2) JSON schema backend/sdlcctl/sdlcctl/schemas/spec-evidence-schema.json enforces structure, (3) CLI validator ensures compliance. All 15+ SPECs use this standard consistently. Documentation framework, not software implementation."
+}

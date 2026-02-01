@@ -1,1751 +1,977 @@
 """
-=========================================================================
-GitHub Router - Repository Integration API
-SDLC Orchestrator - Stage 03 (BUILD)
+GitHub Integration API Endpoints - Sprint 129
 
-Version: 1.0.0
-Date: November 28, 2025
-Status: ACTIVE - Sprint 15 (GitHub Foundation)
-Authority: Backend Lead + CPO Approved
-Foundation: Sprint 15 Plan, User-Onboarding-Flow-Architecture.md
-Framework: SDLC 4.9 Complete Lifecycle
+RESTful API for GitHub App integration with clone-local strategy.
 
-Purpose:
-- GitHub OAuth flow (initiate, callback)
-- Repository listing and selection
-- Repository sync to projects
-- Webhook handling (push, PR, issues)
-
-Endpoints:
-- GET /github/authorize - Get OAuth authorization URL
-- POST /github/callback - Handle OAuth callback
-- GET /github/status - Get GitHub connection status
-- GET /github/repositories - List user's repositories
-- GET /github/repositories/{owner}/{repo} - Get repository details
-- GET /github/repositories/{owner}/{repo}/contents - Get repository contents
-- GET /github/repositories/{owner}/{repo}/languages - Get language breakdown
-- POST /github/sync - Sync repository to SDLC Orchestrator project
-- POST /github/webhook - Handle GitHub webhook events
-- DELETE /github/disconnect - Disconnect GitHub account
+Key Features:
+- List user's GitHub App installations
+- List repositories for an installation
+- Link/unlink repositories to projects
+- Trigger repository clone
+- Webhook handling (installation events)
 
 Security:
-- JWT authentication required (except webhook)
-- Webhook HMAC signature validation
-- Rate limiting (100 req/min per user)
+- All endpoints require authentication (except webhooks)
+- Webhook signature validation (HMAC-SHA256)
+- Installation tokens not stored (generated on-demand)
+- Multi-tenant isolation via installation_id
 
-Zero Mock Policy: Real GitHub API calls, production-ready
-=========================================================================
+Reference: ADR-044-GitHub-Integration-Strategy.md
+API Spec: docs/01-planning/05-API-Design/API-Specification.md
 """
-
-import secrets
 import logging
-from datetime import datetime
+from pathlib import Path
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Header, Request, Response, status
-from sqlalchemy import select, update, and_
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
+from sqlalchemy.orm import Session
 
-from app.api.dependencies import get_current_active_user
+from app.api.dependencies import get_current_user, get_db
 from app.core.config import settings
-from app.core.cookies import set_auth_cookies
-from app.core.security import create_access_token, create_refresh_token, hash_api_key
-from app.db.session import get_db
-from app.models.project import Project
-from app.models.stage_mapping import ProjectStageMapping
-from app.models.user import OAuthAccount, User, RefreshToken
-from app.services.settings_service import SettingsService, get_settings_service
-from app.schemas.github import (
-    GitHubConnectionStatus,
-    GitHubOAuthCallbackRequest,
-    GitHubOAuthCallbackResponse,
-    GitHubOAuthURLResponse,
-    GitHubRateLimitInfo,
+from app.models.user import User
+from app.models.github_integration import (
+    GitHubInstallation,
     GitHubRepository,
-    GitHubRepositoryContents,
-    GitHubRepositoryLanguages,
-    GitHubRepositoryListResponse,
-    GitHubSyncRequest,
-    GitHubSyncResponse,
-    GitHubWebhookEvent,
-    GitHubWebhookResponse,
-    SaveStageMappingsRequest,
-    SaveStageMappingsResponse,
-    StageMappingItem,
+    CloneStatus,
 )
-from app.services.github_service import (
-    GitHubAPIError,
-    GitHubAuthError,
-    GitHubRateLimitError,
-    github_service,
+from app.schemas.github import (
+    GitHubLinkRequest,
+    GitHubCloneRequest,
+    GitHubInstallationResponse,
+    GitHubInstallationsListResponse,
+    GitHubRepoInfo,
+    GitHubRepositoriesListResponse,
+    GitHubRepositoryResponse,
+    GitHubLinkResponse,
+    GitHubCloneStatusResponse,
+    GitHubScanResult,
 )
+from app.services import github_app_service
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/github", tags=["GitHub"])
+router = APIRouter(prefix="/api/v1/github", tags=["github"])
 
 
 # ============================================================================
-# OAuth Flow Endpoints
+# Installation Endpoints (Authenticated)
 # ============================================================================
+
+@router.get(
+    "/installations",
+    response_model=GitHubInstallationsListResponse,
+    summary="List user's GitHub installations",
+    description="""
+    List all active GitHub App installations for the current user.
+
+    Returns installations where the user installed the GitHub App.
+    Each installation provides access to repositories in that user/org.
+
+    **Note**: To get repositories for an installation, use
+    GET /github/installations/{installation_id}/repositories
+    """,
+)
+async def list_installations(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> GitHubInstallationsListResponse:
+    """
+    List user's GitHub App installations.
+
+    Args:
+        current_user: Authenticated user
+        db: Database session
+
+    Returns:
+        List of GitHubInstallation objects
+    """
+    installations = github_app_service.get_user_installations(current_user.id, db)
+
+    return GitHubInstallationsListResponse(
+        installations=[
+            GitHubInstallationResponse(
+                id=inst.id,
+                installation_id=inst.installation_id,
+                account_type=inst.account_type,
+                account_login=inst.account_login,
+                account_avatar_url=inst.account_avatar_url,
+                status=inst.status,
+                installed_at=inst.installed_at,
+                repositories_count=len(inst.repositories) if inst.repositories else 0
+            )
+            for inst in installations
+        ],
+        total_count=len(installations)
+    )
 
 
 @router.get(
-    "/authorize",
-    response_model=GitHubOAuthURLResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Get GitHub OAuth authorization URL",
-    description="Generate OAuth authorization URL for GitHub login/connect.",
+    "/installations/{installation_id}/repositories",
+    response_model=GitHubRepositoriesListResponse,
+    summary="List repositories for installation",
+    description="""
+    List repositories accessible to a GitHub App installation.
+
+    Requires the installation to be owned by the current user.
+    Results are paginated (default: 100 per page, max: 100).
+
+    **Note**: This fetches fresh data from GitHub API, not cached.
+    """,
 )
-async def get_authorization_url(
-    redirect_uri: Optional[str] = None,
-    current_user: Optional[User] = Depends(get_current_active_user),
-) -> GitHubOAuthURLResponse:
+async def list_installation_repositories(
+    installation_id: UUID,
+    page: int = 1,
+    per_page: int = 100,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> GitHubRepositoriesListResponse:
     """
-    Get GitHub OAuth authorization URL.
+    List repositories for a GitHub installation.
 
-    Query Parameters:
-        - redirect_uri: Optional custom redirect URI
+    Args:
+        installation_id: Our GitHubInstallation UUID
+        page: Page number (default: 1)
+        per_page: Results per page (default: 100)
+        current_user: Authenticated user
+        db: Database session
 
-    Response (200 OK):
-        {
-            "authorization_url": "https://github.com/login/oauth/authorize?...",
-            "state": "random_state_string"
-        }
+    Returns:
+        List of repository info from GitHub API
 
-    Flow:
-        1. Generate random state for CSRF protection
-        2. Build authorization URL with client_id and scopes
-        3. Return URL for frontend to redirect user
+    Raises:
+        HTTPException(403): If user doesn't own the installation
+        HTTPException(404): If installation not found
     """
-    # Generate CSRF protection state
-    state = secrets.token_urlsafe(32)
+    # Get installation from database
+    installation = db.query(GitHubInstallation).filter(
+        GitHubInstallation.id == installation_id
+    ).first()
 
-    # Store state in session/cache for validation (in production, use Redis)
-    # For MVP, we'll validate in callback by checking user context
-
-    try:
-        authorization_url = github_service.get_authorization_url(
-            state=state,
-            redirect_uri=redirect_uri,
-        )
-
-        return GitHubOAuthURLResponse(
-            authorization_url=authorization_url,
-            state=state,
-        )
-
-    except GitHubAuthError as e:
-        logger.error(f"GitHub OAuth URL generation failed: {e}")
+    if not installation:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to generate GitHub authorization URL",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "error": "installation_not_found",
+                "message": f"Installation {installation_id} not found"
+            }
         )
 
+    # Check ownership
+    if installation.installed_by != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "error": "not_installation_owner",
+                "message": "You do not own this GitHub installation"
+            }
+        )
+
+    # Fetch repositories from GitHub API
+    data = await github_app_service.list_repositories_for_installation(
+        installation.installation_id,  # GitHub's installation ID
+        page=page,
+        per_page=per_page
+    )
+
+    repositories = [
+        GitHubRepoInfo(
+            id=repo["id"],
+            name=repo["name"],
+            full_name=repo["full_name"],
+            owner=repo["owner"]["login"],
+            description=repo.get("description"),
+            private=repo.get("private", False),
+            default_branch=repo.get("default_branch", "main"),
+            html_url=repo["html_url"],
+            clone_url=repo.get("clone_url"),
+            size=repo.get("size"),
+            language=repo.get("language"),
+            updated_at=repo.get("updated_at")
+        )
+        for repo in data.get("repositories", [])
+    ]
+
+    total_count = data.get("total_count", len(repositories))
+    has_more = page * per_page < total_count
+
+    return GitHubRepositoriesListResponse(
+        repositories=repositories,
+        total_count=total_count,
+        page=page,
+        per_page=per_page,
+        has_more=has_more
+    )
+
+
+# ============================================================================
+# Project-Repository Linking Endpoints
+# ============================================================================
 
 @router.post(
-    "/callback",
-    response_model=GitHubOAuthCallbackResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Handle GitHub OAuth callback",
-    description="Exchange authorization code for access token and create/link user.",
+    "/projects/{project_id}/link",
+    response_model=GitHubLinkResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Link GitHub repository to project",
+    description="""
+    Link a GitHub repository to an SDLC Orchestrator project.
+
+    **Rules**:
+    - One project can only be linked to one repository
+    - One repository can only be linked to one project
+    - User must own the installation
+
+    **After linking**:
+    - Use POST /projects/{project_id}/clone to clone the repository
+    - Use GET /projects/{project_id}/scan to scan the cloned repository
+    """,
 )
-async def handle_oauth_callback(
-    callback_data: GitHubOAuthCallbackRequest,
-    request: Request,
-    response: Response,
-    db: AsyncSession = Depends(get_db),
-    settings_service: "SettingsService" = Depends(get_settings_service),
-) -> GitHubOAuthCallbackResponse:
+async def link_repository(
+    project_id: UUID,
+    data: GitHubLinkRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> GitHubLinkResponse:
     """
-    Handle GitHub OAuth callback.
+    Link a GitHub repository to a project.
 
-    Request Body:
-        {
-            "code": "authorization_code",
-            "state": "state_from_authorize"
-        }
+    Args:
+        project_id: Project UUID
+        data: Link request with installation_id, owner, repo
+        current_user: Authenticated user
+        db: Database session
 
-    Response (200 OK):
-        {
-            "access_token": "jwt_access_token",
-            "refresh_token": "jwt_refresh_token",
-            "token_type": "bearer",
-            "expires_in": 3600,
-            "github_connected": true,
-            "user_id": "uuid",
-            "email": "user@example.com",
-            "name": "User Name",
-            "avatar_url": "https://..."
-        }
+    Returns:
+        GitHubLinkResponse with linked repository info
 
-    Flow:
-        1. Exchange code for GitHub access token
-        2. Get GitHub user info
-        3. Find or create user in database (or link to current user if authenticated)
-        4. Store GitHub OAuth account
-        5. Generate JWT tokens for app authentication
-        6. Return tokens and user info
+    Raises:
+        HTTPException(404): If project or installation not found
+        HTTPException(403): If user doesn't own installation
+        HTTPException(409): If project or repo already linked
     """
-    # In production, validate state from session/cache
-    # For MVP, we proceed with code exchange
+    # Verify installation ownership
+    installation = db.query(GitHubInstallation).filter(
+        GitHubInstallation.id == data.installation_id
+    ).first()
 
-    try:
-        # Check if there's a current user (for "connect" flow from Settings)
-        # Sprint 105: Check BOTH cookies and Authorization header for current user
-        current_user = None
-        token = None
-
-        # Priority 1: Check httpOnly cookie (Sprint 63 preferred method)
-        from app.core.cookies import ACCESS_TOKEN_COOKIE_NAME
-        cookie_token = request.cookies.get(ACCESS_TOKEN_COOKIE_NAME)
-        if cookie_token:
-            token = cookie_token
-            logger.debug("Found access token in cookie for connect flow")
-
-        # Priority 2: Fallback to Authorization header
-        if not token:
-            auth_header = request.headers.get("Authorization")
-            if auth_header and auth_header.startswith("Bearer "):
-                token = auth_header.split(" ")[1]
-                logger.debug("Found access token in Authorization header for connect flow")
-
-        # If we have a token, try to decode it and get the current user
-        if token:
-            try:
-                from app.core.security import decode_token
-                payload = decode_token(token)
-                if payload and payload.get("sub"):
-                    user_result = await db.execute(
-                        select(User).where(User.id == payload["sub"])
-                    )
-                    current_user = user_result.scalar_one_or_none()
-                    if current_user:
-                        logger.info(f"GitHub connect flow for existing user: {current_user.email}")
-            except Exception as e:
-                logger.debug(f"Could not decode token for connect flow: {e}")
-                # Not a problem - this is login/signup flow
-
-        # 1. Exchange code for GitHub access token
-        token_data = github_service.exchange_code_for_token(code=callback_data.code)
-        github_access_token = token_data.get("access_token")
-
-        if not github_access_token:
-            raise GitHubAuthError("No access token in response")
-
-        # 2. Get GitHub user info
-        github_user = github_service.validate_access_token(github_access_token)
-        github_id = str(github_user.get("id"))
-        github_login = github_user.get("login")
-        github_email = github_user.get("email")
-        github_name = github_user.get("name")
-        github_avatar = github_user.get("avatar_url")
-
-        # If no email from user endpoint, fetch from emails endpoint
-        if not github_email:
-            # GitHub users can have private emails - use login@github.com as fallback
-            github_email = f"{github_login}@users.noreply.github.com"
-
-        # 3. Find existing OAuth account or user
-        oauth_account = await db.execute(
-            select(OAuthAccount).where(
-                and_(
-                    OAuthAccount.provider == "github",
-                    OAuthAccount.provider_account_id == github_id,
-                )
-            )
-        )
-        oauth_account = oauth_account.scalar_one_or_none()
-
-        if oauth_account:
-            # Existing GitHub connection - update token and get user
-            oauth_account.access_token = github_access_token
-            oauth_account.updated_at = datetime.utcnow()
-
-            user = await db.execute(
-                select(User).where(User.id == oauth_account.user_id)
-            )
-            user = user.scalar_one()
-        elif current_user:
-            # Connect flow: Link GitHub to the currently authenticated user
-            user = current_user
-
-            # Check if this user already has a different GitHub account linked
-            existing_oauth = await db.execute(
-                select(OAuthAccount).where(
-                    and_(
-                        OAuthAccount.user_id == user.id,
-                        OAuthAccount.provider == "github",
-                    )
-                )
-            )
-            existing_oauth = existing_oauth.scalar_one_or_none()
-
-            if existing_oauth:
-                # Update existing link
-                existing_oauth.provider_account_id = github_id
-                existing_oauth.access_token = github_access_token
-                existing_oauth.updated_at = datetime.utcnow()
-                oauth_account = existing_oauth
-                logger.info(f"Updated GitHub link for user {user.email}")
-            else:
-                # Create new OAuth account link
-                oauth_account = OAuthAccount(
-                    user_id=user.id,
-                    provider="github",
-                    provider_account_id=github_id,
-                    access_token=github_access_token,
-                    refresh_token=None,
-                    expires_at=None,
-                )
-                db.add(oauth_account)
-                logger.info(f"Linked GitHub account {github_login} to existing user {user.email}")
-        else:
-            # Login/Signup flow: Find or create user by GitHub email
-            user = await db.execute(
-                select(User).where(User.email == github_email)
-            )
-            user = user.scalar_one_or_none()
-
-            if not user:
-                # Create new user
-                user = User(
-                    email=github_email,
-                    full_name=github_name or github_login,
-                    avatar_url=github_avatar,
-                    is_active=True,
-                    password_hash=None,  # OAuth-only user
-                )
-                db.add(user)
-                await db.flush()  # Get user.id
-
-                logger.info(f"Created new user from GitHub: {github_email}")
-
-            # Create OAuth account link
-            oauth_account = OAuthAccount(
-                user_id=user.id,
-                provider="github",
-                provider_account_id=github_id,
-                access_token=github_access_token,
-                refresh_token=None,  # GitHub tokens don't expire by default
-                expires_at=None,
-            )
-            db.add(oauth_account)
-
-            logger.info(f"Linked GitHub account {github_login} to user {user.email}")
-
-        # Update user last login
-        user.last_login = datetime.utcnow()
-        if not user.avatar_url and github_avatar:
-            user.avatar_url = github_avatar
-        if not user.full_name and github_name:
-            user.full_name = github_name
-
-        # 5. Generate JWT tokens for app authentication (ADR-027: session_timeout from DB)
-        access_token = await create_access_token(
-            subject=str(user.id),
-            settings_service=settings_service
-        )
-        refresh_token = create_refresh_token(subject=str(user.id))
-
-        # Store refresh token in database
-        db_refresh_token = RefreshToken(
-            user_id=user.id,
-            token_hash=hash_api_key(refresh_token),
-            expires_at=datetime.utcnow()
-            + settings.REFRESH_TOKEN_EXPIRE_TIMEDELTA,
-        )
-        db.add(db_refresh_token)
-
-        await db.commit()
-
-        # Sprint 105: Set httpOnly cookies for XSS protection (same as auth.py login)
-        # This ensures the frontend can make authenticated API requests via cookies
-        set_auth_cookies(response, access_token, refresh_token)
-
-        return GitHubOAuthCallbackResponse(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            token_type="bearer",
-            expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-            github_connected=True,
-            user_id=user.id,
-            email=user.email,
-            name=user.full_name,
-            avatar_url=user.avatar_url,
-        )
-
-    except GitHubAuthError as e:
-        logger.error(f"GitHub OAuth callback failed: {e}")
+    if not installation:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"GitHub authentication failed: {str(e)}",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "error": "installation_not_found",
+                "message": f"Installation {data.installation_id} not found"
+            }
         )
 
-    except Exception as e:
-        logger.error(f"GitHub OAuth callback error: {e}")
-        await db.rollback()
+    if installation.installed_by != current_user.id:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to complete GitHub authentication",
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "error": "not_installation_owner",
+                "message": "You do not own this GitHub installation"
+            }
         )
 
+    # Get repository info from GitHub
+    repo_info = await github_app_service.get_repository_info(
+        installation.installation_id,
+        data.owner,
+        data.repo
+    )
 
-@router.get(
-    "/status",
-    response_model=GitHubConnectionStatus,
-    status_code=status.HTTP_200_OK,
-    summary="Get GitHub connection status",
-    description="Check if current user has GitHub connected.",
-)
-async def get_connection_status(
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
-) -> GitHubConnectionStatus:
-    """
-    Get GitHub connection status for current user.
+    # Link repository to project
+    github_repo = github_app_service.link_repository_to_project(
+        installation_uuid=installation.id,
+        project_id=project_id,
+        repo_info=repo_info,
+        user_id=current_user.id,
+        db=db
+    )
 
-    Response (200 OK):
-        {
-            "connected": true,
-            "github_username": "developer",
-            "github_avatar": "https://...",
-            "scopes": ["read:user", "user:email", "repo"],
-            "connected_at": "2025-01-01T00:00:00Z",
-            "rate_limit": {...}
-        }
-    """
-    # Find GitHub OAuth account
-    oauth_account = await db.execute(
-        select(OAuthAccount).where(
-            and_(
-                OAuthAccount.user_id == current_user.id,
-                OAuthAccount.provider == "github",
-            )
+    return GitHubLinkResponse(
+        message=f"Successfully linked {data.owner}/{data.repo} to project",
+        repository=GitHubRepositoryResponse(
+            id=github_repo.id,
+            installation_id=github_repo.installation_id,
+            project_id=github_repo.project_id,
+            github_repo_id=github_repo.github_repo_id,
+            owner=github_repo.owner,
+            name=github_repo.name,
+            full_name=github_repo.full_name,
+            default_branch=github_repo.default_branch,
+            is_private=github_repo.is_private,
+            html_url=github_repo.html_url,
+            local_path=github_repo.local_path,
+            last_cloned_at=github_repo.last_cloned_at,
+            clone_status=github_repo.clone_status,
+            clone_error=github_repo.clone_error,
+            connected_at=github_repo.connected_at,
+            connected_by=github_repo.connected_by
         )
     )
-    oauth_account = oauth_account.scalar_one_or_none()
-
-    if not oauth_account:
-        return GitHubConnectionStatus(
-            connected=False,
-            github_username=None,
-            github_avatar=None,
-            scopes=[],
-            connected_at=None,
-            rate_limit=None,
-        )
-
-    # Get current GitHub user info and rate limit
-    try:
-        github_user = github_service.validate_access_token(oauth_account.access_token)
-        rate_limit_data = github_service.get_rate_limit(oauth_account.access_token)
-
-        core_limit = rate_limit_data.get("resources", {}).get("core", {})
-
-        return GitHubConnectionStatus(
-            connected=True,
-            github_username=github_user.get("login"),
-            github_avatar=github_user.get("avatar_url"),
-            scopes=["read:user", "user:email", "repo"],  # Our requested scopes
-            connected_at=oauth_account.created_at,
-            rate_limit=GitHubRateLimitInfo(
-                limit=core_limit.get("limit", 5000),
-                remaining=core_limit.get("remaining", 5000),
-                reset=datetime.fromtimestamp(core_limit.get("reset", 0)),
-                used=core_limit.get("used", 0),
-            ),
-        )
-
-    except GitHubAuthError:
-        # Token expired or invalid
-        return GitHubConnectionStatus(
-            connected=False,
-            github_username=None,
-            github_avatar=None,
-            scopes=[],
-            connected_at=oauth_account.created_at,
-            rate_limit=None,
-        )
 
 
 @router.delete(
-    "/disconnect",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="Disconnect GitHub account",
-    description="Remove GitHub connection from current user.",
+    "/projects/{project_id}/unlink",
+    response_model=GitHubLinkResponse,
+    summary="Unlink GitHub repository from project",
+    description="""
+    Unlink a GitHub repository from a project.
+
+    This does NOT delete the repository from GitHub.
+    The local clone is also preserved (can be deleted manually).
+    """,
 )
-async def disconnect_github(
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
-) -> None:
-    """
-    Disconnect GitHub account from current user.
-
-    Response (204 No Content): Success
-
-    Errors:
-        - 404 Not Found: No GitHub connection exists
-    """
-    # Find and delete GitHub OAuth account
-    result = await db.execute(
-        select(OAuthAccount).where(
-            and_(
-                OAuthAccount.user_id == current_user.id,
-                OAuthAccount.provider == "github",
-            )
-        )
-    )
-    oauth_account = result.scalar_one_or_none()
-
-    if not oauth_account:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No GitHub connection found",
-        )
-
-    await db.delete(oauth_account)
-    await db.commit()
-
-    logger.info(f"User {current_user.email} disconnected GitHub account")
-
-
-# ============================================================================
-# Repository Endpoints
-# ============================================================================
-
-
-@router.get(
-    "/repositories",
-    response_model=GitHubRepositoryListResponse,
-    status_code=status.HTTP_200_OK,
-    summary="List user's GitHub repositories",
-    description="Get list of repositories accessible to the user.",
-)
-async def list_repositories(
-    visibility: str = "all",
-    sort: str = "updated",
-    direction: str = "desc",
-    per_page: int = 30,
-    page: int = 1,
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
-) -> GitHubRepositoryListResponse:
-    """
-    List user's GitHub repositories.
-
-    Query Parameters:
-        - visibility: 'all', 'public', 'private' (default: all)
-        - sort: 'created', 'updated', 'pushed', 'full_name' (default: updated)
-        - direction: 'asc', 'desc' (default: desc)
-        - per_page: Results per page, max 100 (default: 30)
-        - page: Page number (default: 1)
-
-    Response (200 OK):
-        {
-            "repositories": [...],
-            "total": 25,
-            "page": 1,
-            "per_page": 30
-        }
-
-    Errors:
-        - 401 Unauthorized: GitHub not connected
-        - 429 Too Many Requests: GitHub rate limit exceeded
-    """
-    # Get GitHub OAuth account
-    oauth_account = await db.execute(
-        select(OAuthAccount).where(
-            and_(
-                OAuthAccount.user_id == current_user.id,
-                OAuthAccount.provider == "github",
-            )
-        )
-    )
-    oauth_account = oauth_account.scalar_one_or_none()
-
-    if not oauth_account:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="GitHub not connected. Please connect your GitHub account first.",
-        )
-
-    try:
-        repos = github_service.list_repositories(
-            access_token=oauth_account.access_token,
-            visibility=visibility,
-            sort=sort,
-            direction=direction,
-            per_page=min(per_page, 100),
-            page=page,
-        )
-
-        # Transform to response model
-        repositories = [
-            GitHubRepository(
-                id=repo["id"],
-                name=repo["name"],
-                full_name=repo["full_name"],
-                description=repo.get("description"),
-                html_url=repo["html_url"],
-                clone_url=repo.get("clone_url"),
-                default_branch=repo.get("default_branch", "main"),
-                language=repo.get("language"),
-                private=repo.get("private", False),
-                fork=repo.get("fork", False),
-                stargazers_count=repo.get("stargazers_count", 0),
-                forks_count=repo.get("forks_count", 0),
-                open_issues_count=repo.get("open_issues_count", 0),
-                owner={
-                    "login": repo["owner"]["login"],
-                    "id": repo["owner"]["id"],
-                    "avatar_url": repo["owner"].get("avatar_url"),
-                    "type": repo["owner"].get("type", "User"),
-                },
-                created_at=repo.get("created_at"),
-                updated_at=repo.get("updated_at"),
-                pushed_at=repo.get("pushed_at"),
-            )
-            for repo in repos
-        ]
-
-        return GitHubRepositoryListResponse(
-            repositories=repositories,
-            total=len(repositories),  # GitHub doesn't return total, approximate
-            page=page,
-            per_page=per_page,
-        )
-
-    except GitHubAuthError as e:
-        logger.error(f"GitHub auth error listing repos: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="GitHub authentication failed. Please reconnect your account.",
-        )
-
-    except GitHubRateLimitError as e:
-        logger.error(f"GitHub rate limit: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail=str(e),
-        )
-
-    except GitHubAPIError as e:
-        logger.error(f"GitHub API error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"GitHub API error: {str(e)}",
-        )
-
-
-@router.get(
-    "/repositories/{owner}/{repo}",
-    response_model=GitHubRepository,
-    status_code=status.HTTP_200_OK,
-    summary="Get repository details",
-    description="Get detailed information about a specific repository.",
-)
-async def get_repository(
-    owner: str,
-    repo: str,
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
-) -> GitHubRepository:
-    """
-    Get repository details.
-
-    Path Parameters:
-        - owner: Repository owner (username or organization)
-        - repo: Repository name
-
-    Response (200 OK):
-        {
-            "id": 123456789,
-            "name": "my-project",
-            "full_name": "developer/my-project",
-            ...
-        }
-
-    Errors:
-        - 401 Unauthorized: GitHub not connected
-        - 404 Not Found: Repository not found or no access
-    """
-    # Get GitHub OAuth account
-    oauth_account = await db.execute(
-        select(OAuthAccount).where(
-            and_(
-                OAuthAccount.user_id == current_user.id,
-                OAuthAccount.provider == "github",
-            )
-        )
-    )
-    oauth_account = oauth_account.scalar_one_or_none()
-
-    if not oauth_account:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="GitHub not connected",
-        )
-
-    try:
-        repo_data = github_service.get_repository(
-            access_token=oauth_account.access_token,
-            owner=owner,
-            repo=repo,
-        )
-
-        return GitHubRepository(
-            id=repo_data["id"],
-            name=repo_data["name"],
-            full_name=repo_data["full_name"],
-            description=repo_data.get("description"),
-            html_url=repo_data["html_url"],
-            clone_url=repo_data.get("clone_url"),
-            default_branch=repo_data.get("default_branch", "main"),
-            language=repo_data.get("language"),
-            private=repo_data.get("private", False),
-            fork=repo_data.get("fork", False),
-            stargazers_count=repo_data.get("stargazers_count", 0),
-            forks_count=repo_data.get("forks_count", 0),
-            open_issues_count=repo_data.get("open_issues_count", 0),
-            owner={
-                "login": repo_data["owner"]["login"],
-                "id": repo_data["owner"]["id"],
-                "avatar_url": repo_data["owner"].get("avatar_url"),
-                "type": repo_data["owner"].get("type", "User"),
-            },
-            created_at=repo_data.get("created_at"),
-            updated_at=repo_data.get("updated_at"),
-            pushed_at=repo_data.get("pushed_at"),
-        )
-
-    except GitHubAPIError as e:
-        if "not found" in str(e).lower():
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Repository {owner}/{repo} not found or no access",
-            )
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"GitHub API error: {str(e)}",
-        )
-
-
-@router.get(
-    "/repositories/{owner}/{repo}/contents",
-    response_model=list[GitHubRepositoryContents],
-    status_code=status.HTTP_200_OK,
-    summary="Get repository contents",
-    description="Get file/directory listing for a repository path.",
-)
-async def get_repository_contents(
-    owner: str,
-    repo: str,
-    path: str = "",
-    ref: Optional[str] = None,
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
-) -> list[GitHubRepositoryContents]:
-    """
-    Get repository contents (files and directories).
-
-    Path Parameters:
-        - owner: Repository owner
-        - repo: Repository name
-
-    Query Parameters:
-        - path: Path within repository (default: root)
-        - ref: Branch/tag/commit reference (default: default branch)
-
-    Response (200 OK):
-        [
-            {"name": "README.md", "path": "README.md", "type": "file", ...},
-            {"name": "src", "path": "src", "type": "dir", ...}
-        ]
-    """
-    # Get GitHub OAuth account
-    oauth_account = await db.execute(
-        select(OAuthAccount).where(
-            and_(
-                OAuthAccount.user_id == current_user.id,
-                OAuthAccount.provider == "github",
-            )
-        )
-    )
-    oauth_account = oauth_account.scalar_one_or_none()
-
-    if not oauth_account:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="GitHub not connected",
-        )
-
-    try:
-        contents = github_service.get_repository_contents(
-            access_token=oauth_account.access_token,
-            owner=owner,
-            repo=repo,
-            path=path,
-            ref=ref,
-        )
-
-        # Handle single file response (GitHub returns dict for single file)
-        if isinstance(contents, dict):
-            contents = [contents]
-
-        return [
-            GitHubRepositoryContents(
-                name=item["name"],
-                path=item["path"],
-                type=item["type"],
-                size=item.get("size", 0),
-                sha=item["sha"],
-                download_url=item.get("download_url"),
-            )
-            for item in contents
-        ]
-
-    except GitHubAPIError as e:
-        if "not found" in str(e).lower():
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Path {path} not found in {owner}/{repo}",
-            )
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"GitHub API error: {str(e)}",
-        )
-
-
-@router.get(
-    "/repositories/{owner}/{repo}/languages",
-    response_model=GitHubRepositoryLanguages,
-    status_code=status.HTTP_200_OK,
-    summary="Get repository languages",
-    description="Get language breakdown for a repository.",
-)
-async def get_repository_languages(
-    owner: str,
-    repo: str,
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
-) -> GitHubRepositoryLanguages:
-    """
-    Get repository language breakdown.
-
-    Path Parameters:
-        - owner: Repository owner
-        - repo: Repository name
-
-    Response (200 OK):
-        {
-            "languages": {"Python": 50000, "TypeScript": 30000},
-            "primary_language": "Python"
-        }
-    """
-    # Get GitHub OAuth account
-    oauth_account = await db.execute(
-        select(OAuthAccount).where(
-            and_(
-                OAuthAccount.user_id == current_user.id,
-                OAuthAccount.provider == "github",
-            )
-        )
-    )
-    oauth_account = oauth_account.scalar_one_or_none()
-
-    if not oauth_account:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="GitHub not connected",
-        )
-
-    try:
-        languages = github_service.get_repository_languages(
-            access_token=oauth_account.access_token,
-            owner=owner,
-            repo=repo,
-        )
-
-        primary_language = max(languages, key=languages.get) if languages else None
-
-        return GitHubRepositoryLanguages(
-            languages=languages,
-            primary_language=primary_language,
-        )
-
-    except GitHubAPIError as e:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"GitHub API error: {str(e)}",
-        )
-
-
-# ============================================================================
-# Repository Analysis Endpoint (Sprint 15 Day 4)
-# ============================================================================
-
-
-@router.get(
-    "/repositories/{owner}/{repo}/analyze",
-    status_code=status.HTTP_200_OK,
-    summary="Analyze repository for SDLC recommendations",
-    description="Analyze GitHub repository and get policy pack recommendations.",
-)
-async def analyze_repository(
-    owner: str,
-    repo: str,
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
-) -> dict:
-    """
-    Analyze GitHub repository for SDLC recommendations.
-
-    Path Parameters:
-        - owner: Repository owner
-        - repo: Repository name
-
-    Response (200 OK):
-        {
-            "repository": {...},
-            "languages": {...},
-            "project_type": "fastapi_app",
-            "team_size_estimate": 10,
-            "recommendations": {
-                "policy_pack": "standard",
-                "initial_gates": ["G0.1", "G0.2"]
-            }
-        }
-
-    This endpoint analyzes the repository structure and provides:
-    - Project type detection (Python, Node, Go, etc.)
-    - Team size estimation
-    - Policy pack recommendation (Lite/Standard/Enterprise)
-    - Stage mapping suggestions
-    - Initial gates to create
-    """
-    # Get GitHub OAuth account
-    oauth_account = await db.execute(
-        select(OAuthAccount).where(
-            and_(
-                OAuthAccount.user_id == current_user.id,
-                OAuthAccount.provider == "github",
-            )
-        )
-    )
-    oauth_account = oauth_account.scalar_one_or_none()
-
-    if not oauth_account:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="GitHub not connected",
-        )
-
-    try:
-        from app.services.project_sync_service import project_sync_service
-
-        analysis = await project_sync_service.analyze_repository(
-            access_token=oauth_account.access_token,
-            owner=owner,
-            repo=repo,
-        )
-
-        return analysis
-
-    except GitHubAPIError as e:
-        if "not found" in str(e).lower():
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Repository {owner}/{repo} not found or no access",
-            )
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"GitHub API error: {str(e)}",
-        )
-
-
-# ============================================================================
-# Stage Mapping Endpoints (Sprint 49 - SDLC 5.1.2)
-# ============================================================================
-
-
-@router.post(
-    "/stage-mappings",
-    response_model=SaveStageMappingsResponse,
-    status_code=status.HTTP_201_CREATED,
-    summary="Save stage mappings for a project",
-    description="Persist folder-to-stage mappings for a project. Only /docs folders are stage-mapped per SDLC 5.1.2.",
-)
-async def save_stage_mappings(
-    request: SaveStageMappingsRequest,
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
-) -> SaveStageMappingsResponse:
-    """
-    Save stage mappings for a project (SDLC 5.1.2).
-
-    Request Body:
-        {
-            "project_id": "uuid",
-            "stage_mappings": [
-                {
-                    "folder_path": "docs/00-foundation",
-                    "stage_code": "00",
-                    "stage_name": "FOUNDATION",
-                    "is_auto_detected": true,
-                    "confidence": 0.95
-                }
-            ]
-        }
-
-    Response (201 Created):
-        {
-            "project_id": "uuid",
-            "mappings_saved": 5,
-            "mappings": [...]
-        }
-
-    SDLC 5.1.2 Rules:
-        - Only /docs folders are stage-mapped (stages 00-09)
-        - Stage 10 is archive folder, NOT a numbered stage
-        - Code folders (backend, frontend) are NOT stage-mapped
-    """
-    # Verify project exists and user has access
-    project_result = await db.execute(
-        select(Project).where(Project.id == request.project_id)
-    )
-    project = project_result.scalar_one_or_none()
-
-    if not project:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project {request.project_id} not found",
-        )
-
-    # Verify user owns or has access to project
-    if project.owner_id != current_user.id:
-        # Check if user is a member
-        from app.models.project import ProjectMember
-        member_result = await db.execute(
-            select(ProjectMember).where(
-                and_(
-                    ProjectMember.project_id == request.project_id,
-                    ProjectMember.user_id == current_user.id,
-                )
-            )
-        )
-        if not member_result.scalar_one_or_none():
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this project",
-            )
-
-    # Delete existing mappings for this project
-    await db.execute(
-        select(ProjectStageMapping).where(
-            ProjectStageMapping.project_id == request.project_id
-        )
-    )
-    # Use delete statement
-    from sqlalchemy import delete
-    await db.execute(
-        delete(ProjectStageMapping).where(
-            ProjectStageMapping.project_id == request.project_id
-        )
-    )
-
-    # Create new mappings
-    saved_mappings = []
-    for mapping in request.stage_mappings:
-        # Validate: only docs folders should be mapped
-        if not mapping.folder_path.startswith("docs"):
-            logger.warning(
-                f"Skipping non-docs folder mapping: {mapping.folder_path}"
-            )
-            continue
-
-        db_mapping = ProjectStageMapping(
-            project_id=request.project_id,
-            folder_path=mapping.folder_path,
-            stage_code=mapping.stage_code,
-            stage_name=mapping.stage_name,
-            is_auto_detected=mapping.is_auto_detected,
-            confidence=mapping.confidence,
-        )
-        db.add(db_mapping)
-        saved_mappings.append(mapping)
-
-    await db.commit()
-
-    logger.info(
-        f"Saved {len(saved_mappings)} stage mappings for project {project.name}"
-    )
-
-    return SaveStageMappingsResponse(
-        project_id=request.project_id,
-        mappings_saved=len(saved_mappings),
-        mappings=saved_mappings,
-    )
-
-
-@router.get(
-    "/projects/{project_id}/stage-mappings",
-    response_model=list[StageMappingItem],
-    status_code=status.HTTP_200_OK,
-    summary="Get stage mappings for a project",
-    description="Retrieve saved folder-to-stage mappings for a project.",
-)
-async def get_stage_mappings(
+async def unlink_repository(
     project_id: UUID,
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
-) -> list[StageMappingItem]:
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> GitHubLinkResponse:
     """
-    Get stage mappings for a project.
+    Unlink a GitHub repository from a project.
 
-    Path Parameters:
-        - project_id: Project UUID
+    Args:
+        project_id: Project UUID
+        current_user: Authenticated user
+        db: Database session
 
-    Response (200 OK):
-        [
-            {
-                "folder_path": "docs/00-foundation",
-                "stage_code": "00",
-                "stage_name": "FOUNDATION",
-                "is_auto_detected": true,
-                "confidence": 0.95
-            }
-        ]
+    Returns:
+        GitHubLinkResponse with unlinked repository info
+
+    Raises:
+        HTTPException(404): If no repository linked
     """
-    # Verify project exists
-    project_result = await db.execute(
-        select(Project).where(Project.id == project_id)
+    github_repo = github_app_service.unlink_repository(
+        project_id=project_id,
+        user_id=current_user.id,
+        db=db
     )
-    project = project_result.scalar_one_or_none()
 
-    if not project:
+    return GitHubLinkResponse(
+        message=f"Successfully unlinked {github_repo.full_name} from project",
+        repository=GitHubRepositoryResponse(
+            id=github_repo.id,
+            installation_id=github_repo.installation_id,
+            project_id=github_repo.project_id,
+            github_repo_id=github_repo.github_repo_id,
+            owner=github_repo.owner,
+            name=github_repo.name,
+            full_name=github_repo.full_name,
+            default_branch=github_repo.default_branch,
+            is_private=github_repo.is_private,
+            html_url=github_repo.html_url,
+            local_path=github_repo.local_path,
+            last_cloned_at=github_repo.last_cloned_at,
+            clone_status=github_repo.clone_status,
+            clone_error=github_repo.clone_error,
+            connected_at=github_repo.connected_at,
+            connected_by=github_repo.connected_by
+        )
+    )
+
+
+@router.get(
+    "/projects/{project_id}/repository",
+    response_model=GitHubRepositoryResponse,
+    summary="Get linked repository for project",
+    description="Get the GitHub repository linked to a project.",
+)
+async def get_project_repository(
+    project_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> GitHubRepositoryResponse:
+    """
+    Get the GitHub repository linked to a project.
+
+    Args:
+        project_id: Project UUID
+        current_user: Authenticated user
+        db: Database session
+
+    Returns:
+        GitHubRepositoryResponse
+
+    Raises:
+        HTTPException(404): If no repository linked
+    """
+    github_repo = db.query(GitHubRepository).filter(
+        GitHubRepository.project_id == project_id,
+        GitHubRepository.disconnected_at.is_(None)
+    ).first()
+
+    if not github_repo:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project {project_id} not found",
+            detail={
+                "error": "no_repo_linked",
+                "message": f"No repository linked to project {project_id}"
+            }
         )
 
-    # Get mappings
-    mappings_result = await db.execute(
-        select(ProjectStageMapping).where(
-            ProjectStageMapping.project_id == project_id
-        ).order_by(ProjectStageMapping.stage_code)
+    return GitHubRepositoryResponse(
+        id=github_repo.id,
+        installation_id=github_repo.installation_id,
+        project_id=github_repo.project_id,
+        github_repo_id=github_repo.github_repo_id,
+        owner=github_repo.owner,
+        name=github_repo.name,
+        full_name=github_repo.full_name,
+        default_branch=github_repo.default_branch,
+        is_private=github_repo.is_private,
+        html_url=github_repo.html_url,
+        local_path=github_repo.local_path,
+        last_cloned_at=github_repo.last_cloned_at,
+        clone_status=github_repo.clone_status,
+        clone_error=github_repo.clone_error,
+        connected_at=github_repo.connected_at,
+        connected_by=github_repo.connected_by
     )
-    mappings = mappings_result.scalars().all()
-
-    return [
-        StageMappingItem(
-            folder_path=m.folder_path,
-            stage_code=m.stage_code,
-            stage_name=m.stage_name,
-            is_auto_detected=m.is_auto_detected,
-            confidence=m.confidence,
-        )
-        for m in mappings
-    ]
 
 
 # ============================================================================
-# Repository Sync Endpoint
+# Clone & Scan Endpoints
 # ============================================================================
-
 
 @router.post(
-    "/sync",
-    response_model=GitHubSyncResponse,
-    status_code=status.HTTP_201_CREATED,
-    summary="Sync GitHub repository to project",
-    description="Create SDLC Orchestrator project from GitHub repository.",
+    "/projects/{project_id}/clone",
+    response_model=GitHubCloneStatusResponse,
+    summary="Clone linked repository",
+    description="""
+    Clone the linked GitHub repository to local storage.
+
+    Uses shallow clone (--depth=1) by default for faster cloning.
+    After clone, use GET /projects/{project_id}/scan for gap analysis.
+
+    **Clone Status Flow**:
+    pending → cloning → cloned (or failed)
+    """,
 )
-async def sync_repository(
-    sync_request: GitHubSyncRequest,
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
-) -> GitHubSyncResponse:
+async def clone_repository(
+    project_id: UUID,
+    data: GitHubCloneRequest = GitHubCloneRequest(),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> GitHubCloneStatusResponse:
     """
-    Sync GitHub repository to SDLC Orchestrator project.
+    Clone the linked GitHub repository.
 
-    Request Body:
-        {
-            "github_repo_id": 123456789,
-            "github_repo_full_name": "developer/my-project",
-            "project_name": "My Project",
-            "auto_setup": true
-        }
+    Args:
+        project_id: Project UUID
+        data: Clone options (shallow, force)
+        current_user: Authenticated user
+        db: Database session
 
-    Response (201 Created):
-        {
-            "project_id": "uuid",
-            "project_name": "My Project",
-            "project_slug": "my-project",
-            "github_repo_id": 123456789,
-            "github_repo_full_name": "developer/my-project",
-            "sync_status": "synced",
-            "synced_at": "2025-01-01T00:00:00Z"
-        }
+    Returns:
+        GitHubCloneStatusResponse with clone status
 
-    Flow:
-        1. Verify GitHub connection
-        2. Create project with GitHub metadata
-        3. Optionally run AI analysis and stage mapping
-        4. Return project info
+    Raises:
+        HTTPException(404): If no repository linked
+        HTTPException(409): If already cloned (unless force=True)
     """
-    # Get GitHub OAuth account
-    oauth_account = await db.execute(
-        select(OAuthAccount).where(
-            and_(
-                OAuthAccount.user_id == current_user.id,
-                OAuthAccount.provider == "github",
-            )
-        )
-    )
-    oauth_account = oauth_account.scalar_one_or_none()
+    # Get linked repository
+    github_repo = db.query(GitHubRepository).filter(
+        GitHubRepository.project_id == project_id,
+        GitHubRepository.disconnected_at.is_(None)
+    ).first()
 
-    if not oauth_account:
+    if not github_repo:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="GitHub not connected",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "error": "no_repo_linked",
+                "message": f"No repository linked to project {project_id}"
+            }
         )
 
-    # Check if project already exists for this repo
-    existing_project = await db.execute(
-        select(Project).where(
-            Project.slug == sync_request.github_repo_full_name.replace("/", "-").lower()
-        )
-    )
-    existing_project = existing_project.scalar_one_or_none()
-
-    if existing_project:
+    # Check if already cloned
+    if github_repo.clone_status == CloneStatus.CLONED and not data.force:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Project already exists for repository {sync_request.github_repo_full_name}",
+            detail={
+                "error": "already_cloned",
+                "message": "Repository already cloned. Use force=true to re-clone."
+            }
         )
 
-    # Get repository details for metadata
-    try:
-        owner, repo = sync_request.github_repo_full_name.split("/")
-        repo_data = github_service.get_repository(
-            access_token=oauth_account.access_token,
-            owner=owner,
-            repo=repo,
+    # Get installation
+    installation = github_repo.installation
+    if not installation:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "error": "installation_not_found",
+                "message": "GitHub installation not found for repository"
+            }
         )
-    except GitHubAPIError as e:
+
+    # Define target directory
+    target_dir = Path(f"/var/sdlc/repos/{project_id}")
+
+    # Update status to cloning
+    github_repo.start_clone(str(target_dir))
+    db.commit()
+
+    try:
+        # Clone repository
+        await github_app_service.clone_repository(
+            installation_id=installation.installation_id,
+            owner=github_repo.owner,
+            repo=github_repo.name,
+            target_dir=target_dir,
+            shallow=data.shallow
+        )
+
+        # Update status to cloned
+        github_repo.complete_clone()
+        github_repo.local_path = str(target_dir)
+        db.commit()
+
+        return GitHubCloneStatusResponse(
+            message=f"Successfully cloned {github_repo.full_name}",
+            clone_status=github_repo.clone_status,
+            local_path=github_repo.local_path,
+            last_cloned_at=github_repo.last_cloned_at
+        )
+
+    except HTTPException as e:
+        # Update status to failed
+        github_repo.fail_clone(str(e.detail.get("message", "Unknown error")))
+        db.commit()
+        raise
+
+
+@router.get(
+    "/projects/{project_id}/scan",
+    response_model=GitHubScanResult,
+    summary="Scan cloned repository",
+    description="""
+    Scan the cloned repository structure for gap analysis.
+
+    Returns folder/file structure to determine SDLC compliance.
+    Repository must be cloned first (clone_status = 'cloned').
+    """,
+)
+async def scan_repository(
+    project_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> GitHubScanResult:
+    """
+    Scan the cloned repository structure.
+
+    Args:
+        project_id: Project UUID
+        current_user: Authenticated user
+        db: Database session
+
+    Returns:
+        GitHubScanResult with folder/file structure
+
+    Raises:
+        HTTPException(404): If no repository linked
+        HTTPException(400): If repository not cloned
+    """
+    # Get linked repository
+    github_repo = db.query(GitHubRepository).filter(
+        GitHubRepository.project_id == project_id,
+        GitHubRepository.disconnected_at.is_(None)
+    ).first()
+
+    if not github_repo:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Repository not found: {str(e)}",
+            detail={
+                "error": "no_repo_linked",
+                "message": f"No repository linked to project {project_id}"
+            }
         )
 
-    # Create project
-    project_name = sync_request.project_name or repo_data["name"]
-    project_slug = sync_request.github_repo_full_name.replace("/", "-").lower()
+    if github_repo.clone_status != CloneStatus.CLONED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "error": "not_cloned",
+                "message": f"Repository not cloned. Current status: {github_repo.clone_status}"
+            }
+        )
 
-    project = Project(
-        name=project_name,
-        slug=project_slug,
-        description=repo_data.get("description") or f"Synced from GitHub: {sync_request.github_repo_full_name}",
-        owner_id=current_user.id,
-        is_active=True,
-        # GitHub integration fields (Sprint 15 Day 4)
-        github_repo_id=sync_request.github_repo_id,
-        github_repo_full_name=sync_request.github_repo_full_name,
-        github_sync_status="synced",
-        github_synced_at=datetime.utcnow(),
-    )
+    if not github_repo.local_path:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "error": "local_path_missing",
+                "message": "Repository local path not set"
+            }
+        )
 
-    db.add(project)
-    await db.flush()  # Get project.id
+    # Scan local repository
+    result = github_app_service.scan_local_repository(Path(github_repo.local_path))
 
-    # Sprint 15 Day 4: Run full sync with project_sync_service
-    sync_result = None
-    if sync_request.auto_setup:
-        from app.services.project_sync_service import project_sync_service
-        try:
-            sync_result = await project_sync_service.sync_project(
-                project_id=project.id,
-                access_token=oauth_account.access_token,
-                owner=owner,
-                repo=repo,
-                db=db,
-                create_initial_gates=True,
-            )
-            logger.info(
-                f"Auto-setup complete for project {project.name}: "
-                f"{len(sync_result.get('gates_created', []))} gates created"
-            )
-        except Exception as e:
-            logger.warning(f"Auto-setup failed (non-blocking): {e}")
-            # Continue without auto-setup - project is still created
-
-    await db.commit()
-
-    logger.info(
-        f"Created project {project.name} from GitHub repo {sync_request.github_repo_full_name}"
-    )
-
-    return GitHubSyncResponse(
-        project_id=project.id,
-        project_name=project.name,
-        project_slug=project.slug,
-        github_repo_id=sync_request.github_repo_id,
-        github_repo_full_name=sync_request.github_repo_full_name,
-        sync_status=project.github_sync_status or "synced",
-        synced_at=project.github_synced_at or datetime.utcnow(),
-    )
+    return GitHubScanResult(**result)
 
 
 # ============================================================================
-# Webhook Endpoint
+# Webhook Endpoints (Unauthenticated, Signature Verified)
 # ============================================================================
-
 
 @router.post(
-    "/webhook",
-    response_model=GitHubWebhookResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Handle GitHub webhook events",
-    description="Receive and process GitHub webhook events (push, PR, issues).",
+    "/webhooks",
+    summary="GitHub webhook handler",
+    description="""
+    Handle GitHub webhook events (Sprint 129.5).
+
+    **Supported Events**:
+    - installation: App install/uninstall/suspend/unsuspend
+    - push: Code pushed → triggers gap analysis
+    - pull_request: PR opened/sync/closed → triggers gate evaluation
+    - ping: Webhook configuration test
+
+    **Security**:
+    - Webhook signature validation (HMAC-SHA256)
+    - X-Hub-Signature-256 header required
+    - Idempotency via X-GitHub-Delivery header
+
+    **Processing**:
+    - Webhook returns 202 Accepted immediately
+    - Actual processing happens in background job
+    - Use X-GitHub-Delivery to track status
+    """,
+    status_code=status.HTTP_202_ACCEPTED,
 )
 async def handle_webhook(
     request: Request,
-    x_github_event: str = Header(..., alias="X-GitHub-Event"),
+    x_github_event: Optional[str] = Header(None, alias="X-GitHub-Event"),
     x_hub_signature_256: Optional[str] = Header(None, alias="X-Hub-Signature-256"),
-    db: AsyncSession = Depends(get_db),
-) -> GitHubWebhookResponse:
+    x_github_delivery: Optional[str] = Header(None, alias="X-GitHub-Delivery"),
+    db: Session = Depends(get_db),
+):
     """
-    Handle GitHub webhook events.
+    Handle GitHub webhook events (Sprint 129.5 implementation).
 
-    Headers:
-        - X-GitHub-Event: Event type (push, pull_request, issues)
-        - X-Hub-Signature-256: HMAC signature for validation
+    Args:
+        request: FastAPI request
+        x_github_event: GitHub event type header
+        x_hub_signature_256: Webhook signature header
+        x_github_delivery: Unique delivery ID (for idempotency)
+        db: Database session
 
-    Request Body: GitHub webhook payload (varies by event)
+    Returns:
+        Status response with delivery_id
 
-    Response (200 OK):
-        {
-            "received": true,
-            "event_type": "push",
-            "repository": "developer/my-project",
-            "message": "Push event processed: 3 commits to main"
-        }
-
-    Security:
-        - HMAC-SHA256 signature validation
-        - Only processes events from configured repositories
-
-    Sprint 81 Enhancement:
-        - pull_request.opened/synchronize -> Create Check Run
-        - pull_request.labeled (sdlc-recheck) -> Re-evaluate gates
+    Raises:
+        HTTPException(401): If signature invalid or missing
+        HTTPException(500): If webhook not configured
     """
-    # Read raw body for signature validation
-    body = await request.body()
+    from app.services.github_webhook_service import (
+        verify_webhook_signature,
+        process_webhook,
+    )
 
-    # Validate webhook signature
-    if x_hub_signature_256:
-        if not github_service.validate_webhook_signature(body, x_hub_signature_256):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid webhook signature",
-            )
-
-    # Parse webhook payload
-    try:
-        payload = await request.json()
-    except Exception:
+    # Get webhook secret
+    webhook_secret = settings.GITHUB_APP_WEBHOOK_SECRET
+    if not webhook_secret:
+        logger.warning("GitHub webhook secret not configured")
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid JSON payload",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"error": "webhook_not_configured", "message": "GITHUB_APP_WEBHOOK_SECRET not set"}
         )
 
-    # Parse and normalize event
-    event = github_service.parse_webhook_event(x_github_event, payload)
-    repo_full_name = event["repository"].get("full_name", "unknown")
+    # Get raw payload
+    payload_bytes = await request.body()
 
-    logger.info(f"Received GitHub webhook: {x_github_event} for {repo_full_name}")
+    # Verify signature (required)
+    if not x_hub_signature_256:
+        logger.warning(f"Webhook missing signature header (delivery: {x_github_delivery})")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"error": "signature_missing", "message": "X-Hub-Signature-256 header required"}
+        )
 
-    # Build response message
-    message = f"Webhook event {x_github_event} received"
-    check_run_created = False
+    if not verify_webhook_signature(payload_bytes, x_hub_signature_256, webhook_secret):
+        logger.warning(f"Webhook signature invalid (delivery: {x_github_delivery})")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"error": "signature_invalid", "message": "Webhook signature verification failed"}
+        )
 
-    # Sprint 81: Handle pull_request events -> Create Check Run
-    if x_github_event == "pull_request":
-        action = payload.get("action", "")
-        pr = payload.get("pull_request", {})
-        repo = payload.get("repository", {})
+    # Parse payload
+    data = await request.json()
 
-        # Find project by repo full name
-        project = await _find_project_by_repo(db, repo_full_name)
+    # Generate delivery ID if not provided (for testing)
+    delivery_id = x_github_delivery or f"local_{hash(payload_bytes) % 10**10}"
 
-        if project:
-            # Trigger Check Run for opened/synchronize actions
-            if action in ("opened", "synchronize"):
-                check_run_created = await _trigger_check_run(
-                    project_id=project.id,
-                    repo_owner=repo.get("owner", {}).get("login"),
-                    repo_name=repo.get("name"),
-                    head_sha=pr.get("head", {}).get("sha"),
-                )
-                if check_run_created:
-                    message = f"Pull request #{pr.get('number')} {action} - Check Run created"
-                else:
-                    message = f"Pull request #{pr.get('number')} {action} - Check Run skipped (GitHub App not configured)"
-
-            # Re-evaluate on sdlc-recheck label
-            elif action == "labeled":
-                label = payload.get("label", {}).get("name", "")
-                if label == "sdlc-recheck":
-                    check_run_created = await _trigger_check_run(
-                        project_id=project.id,
-                        repo_owner=repo.get("owner", {}).get("login"),
-                        repo_name=repo.get("name"),
-                        head_sha=pr.get("head", {}).get("sha"),
-                    )
-                    message = f"Pull request #{pr.get('number')} recheck triggered"
-                else:
-                    message = f"Pull request #{pr.get('number')} labeled: {label}"
-            else:
-                message = f"Pull request #{pr.get('number')} {action}"
-        else:
-            message = f"Pull request #{pr.get('number')} {action} - repository not registered"
-
-    # Sprint 100 (EP-11): Handle pull_request_review_comment events -> Extract learnings
-    elif x_github_event == "pull_request_review_comment":
-        action = payload.get("action", "")
-        comment = payload.get("comment", {})
-        pr = payload.get("pull_request", {})
-        repo = payload.get("repository", {})
-
-        # Find project by repo full name
-        project = await _find_project_by_repo(db, repo_full_name)
-
-        if project and action == "created":
-            # Extract learning from review comment
-            learning_created = await _extract_learning_from_comment(
-                db=db,
-                project_id=project.id,
-                pr_number=pr.get("number"),
-                pr_title=pr.get("title"),
-                pr_url=pr.get("html_url"),
-                comment_body=comment.get("body"),
-                comment_path=comment.get("path"),
-                comment_line=comment.get("line") or comment.get("original_line"),
-                comment_diff_hunk=comment.get("diff_hunk"),
-                reviewer_login=comment.get("user", {}).get("login"),
-            )
-            if learning_created:
-                message = f"PR #{pr.get('number')} comment extracted as learning"
-            else:
-                message = f"PR #{pr.get('number')} comment processed (no learning extracted)"
-        else:
-            message = f"PR review comment {action}" if project else "PR review comment - repository not registered"
-
-    # Sprint 100 (EP-11): Handle merged PRs -> Auto-extract all review comments
-    elif x_github_event == "pull_request" and payload.get("action") == "closed":
-        pr = payload.get("pull_request", {})
-        repo = payload.get("repository", {})
-
-        if pr.get("merged"):
-            project = await _find_project_by_repo(db, repo_full_name)
-            if project:
-                learnings_extracted = await _extract_learnings_from_merged_pr(
-                    db=db,
-                    project_id=project.id,
-                    pr_number=pr.get("number"),
-                    pr_title=pr.get("title"),
-                    pr_url=pr.get("html_url"),
-                    pr_merged_at=pr.get("merged_at"),
-                    repo_owner=repo.get("owner", {}).get("login"),
-                    repo_name=repo.get("name"),
-                )
-                message = f"PR #{pr.get('number')} merged - {learnings_extracted} learnings extracted"
-            else:
-                message = f"PR #{pr.get('number')} merged - repository not registered"
-        else:
-            message = f"PR #{pr.get('number')} closed without merge"
-
-    elif x_github_event == "push":
-        commits = event["data"].get("commits", 0)
-        ref = event["data"].get("ref", "").replace("refs/heads/", "")
-        message = f"Push event processed: {commits} commits to {ref}"
-
-    elif x_github_event == "issues":
-        action = event.get("action", "unknown")
-        issue_number = event["data"].get("number", 0)
-        message = f"Issue #{issue_number} {action}"
-
-    return GitHubWebhookResponse(
-        received=True,
-        event_type=x_github_event,
-        repository=repo_full_name,
-        message=message,
+    # Process webhook (with idempotency check)
+    result = await process_webhook(
+        event_type=x_github_event or "unknown",
+        delivery_id=delivery_id,
+        payload=data,
+        db_session=db
     )
 
+    # Add delivery_id to response for tracking
+    result["delivery_id"] = delivery_id
+
+    return result
+
+
+# Installation event handling moved to github_webhook_service.py (Sprint 129.5)
+
 
 # ============================================================================
-# Sprint 81: Check Run Helper Functions
+# Webhook Admin Endpoints (Authenticated, Admin Only)
 # ============================================================================
 
+@router.get(
+    "/webhooks/stats",
+    summary="Get webhook job queue statistics",
+    description="""
+    Get statistics about webhook job queues.
 
-async def _find_project_by_repo(
-    db: AsyncSession,
-    repo_full_name: str,
-) -> Optional[Project]:
+    **Statistics Include**:
+    - Queue length (pending jobs)
+    - Dead letter queue (DLQ) length
+    - Jobs by status (queued, processing, completed, failed)
+    - Total jobs tracked
+
+    **Access**: Requires admin authentication
+    """,
+)
+async def get_webhook_stats(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """
-    Find project by GitHub repository full name.
+    Get webhook job queue statistics.
 
     Args:
+        current_user: Authenticated user (must be admin)
         db: Database session
-        repo_full_name: GitHub repository full name (e.g., "owner/repo")
 
     Returns:
-        Project if found, None otherwise
+        Queue statistics
+
+    Raises:
+        HTTPException(403): If user is not admin
     """
-    result = await db.execute(
-        select(Project).where(
-            Project.github_repo_full_name == repo_full_name
+    from app.jobs.webhook_processor import get_queue_stats
+
+    # Check admin access
+    if not current_user.is_admin and not current_user.role in ("owner", "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
         )
-    )
-    return result.scalar_one_or_none()
+
+    stats = get_queue_stats()
+    return {
+        "status": "ok",
+        "stats": stats
+    }
 
 
-async def _trigger_check_run(
-    project_id: UUID,
-    repo_owner: str,
-    repo_name: str,
-    head_sha: str,
-) -> bool:
+@router.get(
+    "/webhooks/dlq",
+    summary="Get dead letter queue jobs",
+    description="""
+    Get jobs in the dead letter queue (failed after max retries).
+
+    **Dead Letter Queue (DLQ)**:
+    - Contains jobs that failed after 3 retry attempts
+    - Jobs can be manually retried via POST /webhooks/dlq/{job_id}/retry
+    - Monitor DLQ size for potential issues
+
+    **Access**: Requires admin authentication
+    """,
+)
+async def get_dlq_jobs(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """
-    Trigger GitHub Check Run for a PR.
-
-    Sprint 81: Advisory mode - Check Run provides feedback but doesn't block.
+    Get dead letter queue jobs.
 
     Args:
-        project_id: SDLC Orchestrator project ID
-        repo_owner: Repository owner
-        repo_name: Repository name
-        head_sha: Git commit SHA
-
-    Returns:
-        True if Check Run was created, False if skipped (e.g., App not configured)
-    """
-    try:
-        from app.services.github_app_service import get_github_app_service
-        from app.services.github_check_run_service import get_check_run_service
-
-        app_service = get_github_app_service()
-
-        # Check if GitHub App is configured
-        if not app_service.is_configured:
-            logger.info(
-                f"GitHub App not configured - skipping Check Run for {repo_owner}/{repo_name}"
-            )
-            return False
-
-        # Get Check Run service (without gate_service for now - Advisory mode)
-        check_run_service = get_check_run_service()
-
-        # Create Check Run
-        result = await check_run_service.create_check_run(
-            project_id=project_id,
-            repo_owner=repo_owner,
-            repo_name=repo_name,
-            head_sha=head_sha,
-        )
-
-        logger.info(
-            f"Check Run created for {repo_owner}/{repo_name} "
-            f"(id={result.check_run_id}, conclusion={result.conclusion})"
-        )
-        return True
-
-    except Exception as e:
-        logger.error(f"Failed to create Check Run: {e}")
-        return False
-
-
-# ============================================================================
-# Sprint 100 (EP-11): Learning Extraction Helper Functions
-# ============================================================================
-
-
-async def _extract_learning_from_comment(
-    db: AsyncSession,
-    project_id: UUID,
-    pr_number: int,
-    pr_title: Optional[str],
-    pr_url: Optional[str],
-    comment_body: str,
-    comment_path: Optional[str],
-    comment_line: Optional[int],
-    comment_diff_hunk: Optional[str],
-    reviewer_login: Optional[str],
-) -> bool:
-    """
-    Extract a learning from a PR review comment.
-
-    Sprint 100 EP-11: Automatically extract learnings from code review comments.
-    Uses AI-powered extraction to categorize feedback and extract patterns.
-
-    Args:
+        current_user: Authenticated user (must be admin)
         db: Database session
-        project_id: SDLC Orchestrator project ID
-        pr_number: GitHub PR number
-        pr_title: PR title for context
-        pr_url: Full URL to the PR
-        comment_body: Review comment text
-        comment_path: File path where comment was made
-        comment_line: Line number of comment
-        comment_diff_hunk: Code context (diff hunk)
-        reviewer_login: GitHub username of reviewer
 
     Returns:
-        True if learning was extracted, False otherwise
+        List of failed jobs
+
+    Raises:
+        HTTPException(403): If user is not admin
     """
-    # Skip trivial comments (too short, just approval, etc.)
-    if not comment_body or len(comment_body.strip()) < 20:
-        logger.debug(f"Skipping trivial comment: too short")
-        return False
+    from app.jobs.webhook_processor import get_dead_letter_jobs
 
-    # Skip approval-only comments
-    approval_patterns = [
-        "lgtm", "looks good to me", "ship it", "approved", "nice!", "great work",
-        ":+1:", ":shipit:", ":rocket:", "👍", "🚀"
-    ]
-    comment_lower = comment_body.lower().strip()
-    if any(pattern in comment_lower for pattern in approval_patterns) and len(comment_lower) < 50:
-        logger.debug(f"Skipping approval comment")
-        return False
-
-    try:
-        from app.services.feedback_learning_service import get_feedback_learning_service
-
-        service = get_feedback_learning_service(db)
-
-        # Extract learning using AI
-        learning = await service.extract_learning_from_comment(
-            project_id=project_id,
-            pr_number=pr_number,
-            pr_title=pr_title,
-            pr_url=pr_url,
-            review_comment=comment_body,
-            file_path=comment_path,
-            line_number=comment_line,
-            code_context=comment_diff_hunk,
-            reviewer_github_login=reviewer_login,
+    # Check admin access
+    if not current_user.is_admin and not current_user.role in ("owner", "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
         )
 
-        if learning:
-            logger.info(
-                f"Extracted learning from PR #{pr_number} comment: "
-                f"type={learning.feedback_type}, severity={learning.severity}"
-            )
-            return True
-        else:
-            logger.debug(f"No learning extracted from PR #{pr_number} comment")
-            return False
-
-    except Exception as e:
-        logger.error(f"Failed to extract learning from comment: {e}")
-        return False
+    jobs = get_dead_letter_jobs()
+    return {
+        "status": "ok",
+        "dlq_size": len(jobs),
+        "jobs": jobs
+    }
 
 
-async def _extract_learnings_from_merged_pr(
-    db: AsyncSession,
-    project_id: UUID,
-    pr_number: int,
-    pr_title: Optional[str],
-    pr_url: Optional[str],
-    pr_merged_at: Optional[str],
-    repo_owner: str,
-    repo_name: str,
-) -> int:
+@router.post(
+    "/webhooks/dlq/{job_id}/retry",
+    summary="Retry a dead letter queue job",
+    description="""
+    Retry a job from the dead letter queue.
+
+    **Retry Behavior**:
+    - Moves job from DLQ back to main queue
+    - Resets retry count to 0
+    - Job will be processed with next batch
+
+    **Access**: Requires admin authentication
+    """,
+)
+async def retry_dlq_job(
+    job_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """
-    Extract all learnings from a merged PR's review comments.
-
-    Sprint 100 EP-11: When a PR is merged, fetch all review comments
-    and extract learnings from each significant comment.
+    Retry a dead letter queue job.
 
     Args:
+        job_id: Job ID to retry
+        current_user: Authenticated user (must be admin)
         db: Database session
-        project_id: SDLC Orchestrator project ID
-        pr_number: GitHub PR number
-        pr_title: PR title for context
-        pr_url: Full URL to the PR
-        pr_merged_at: ISO timestamp when PR was merged
-        repo_owner: Repository owner
-        repo_name: Repository name
 
     Returns:
-        Number of learnings extracted
+        Retry result
+
+    Raises:
+        HTTPException(403): If user is not admin
+        HTTPException(404): If job not found in DLQ
     """
-    try:
-        # Get GitHub access token for API calls
-        # First, find a user with access to this project's repo
-        from app.models.user import OAuthAccount
+    from app.jobs.webhook_processor import retry_dead_letter_job
 
-        result = await db.execute(
-            select(OAuthAccount).where(
-                OAuthAccount.provider == "github"
-            ).limit(1)  # Get first available GitHub connection
-        )
-        oauth_account = result.scalar_one_or_none()
-
-        if not oauth_account:
-            logger.warning(f"No GitHub connection available for fetching PR comments")
-            return 0
-
-        # Fetch all review comments for this PR
-        comments = github_service.get_pull_request_comments(
-            access_token=oauth_account.access_token,
-            owner=repo_owner,
-            repo=repo_name,
-            pr_number=pr_number,
+    # Check admin access
+    if not current_user.is_admin and not current_user.role in ("owner", "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
         )
 
-        learnings_count = 0
-        for comment in comments:
-            success = await _extract_learning_from_comment(
-                db=db,
-                project_id=project_id,
-                pr_number=pr_number,
-                pr_title=pr_title,
-                pr_url=pr_url,
-                comment_body=comment.get("body", ""),
-                comment_path=comment.get("path"),
-                comment_line=comment.get("line") or comment.get("original_line"),
-                comment_diff_hunk=comment.get("diff_hunk"),
-                reviewer_login=comment.get("user", {}).get("login"),
-            )
-            if success:
-                learnings_count += 1
+    success = retry_dead_letter_job(job_id)
 
-        # Update PR merged timestamp in learnings
-        if learnings_count > 0 and pr_merged_at:
-            from datetime import datetime
-            from app.models.pr_learning import PRLearning
-
-            merged_datetime = datetime.fromisoformat(pr_merged_at.replace("Z", "+00:00"))
-            await db.execute(
-                update(PRLearning)
-                .where(
-                    and_(
-                        PRLearning.project_id == project_id,
-                        PRLearning.pr_number == pr_number,
-                    )
-                )
-                .values(pr_merged_at=merged_datetime)
-            )
-            await db.commit()
-
-        logger.info(
-            f"Extracted {learnings_count} learnings from merged PR #{pr_number}"
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"error": "job_not_found", "message": f"Job {job_id} not found in DLQ"}
         )
-        return learnings_count
 
-    except Exception as e:
-        logger.error(f"Failed to extract learnings from merged PR: {e}")
-        return 0
+    return {
+        "status": "ok",
+        "message": f"Job {job_id} re-queued for processing",
+        "job_id": job_id
+    }
+
+
+@router.post(
+    "/webhooks/process",
+    summary="Trigger webhook job processing",
+    description="""
+    Manually trigger processing of queued webhook jobs.
+
+    **Processing Behavior**:
+    - Processes up to `max_jobs` queued webhooks
+    - Returns processing summary
+    - Should be called by scheduler or admin
+
+    **Access**: Requires admin authentication
+    """,
+)
+async def trigger_webhook_processing(
+    max_jobs: int = 10,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Manually trigger webhook job processing.
+
+    Args:
+        max_jobs: Maximum jobs to process (default: 10)
+        current_user: Authenticated user (must be admin)
+        db: Database session
+
+    Returns:
+        Processing summary
+
+    Raises:
+        HTTPException(403): If user is not admin
+    """
+    from app.jobs.webhook_processor import process_webhook_jobs
+
+    # Check admin access
+    if not current_user.is_admin and not current_user.role in ("owner", "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+
+    summary = await process_webhook_jobs(max_jobs=max_jobs)
+
+    return {
+        "status": "ok",
+        "summary": summary
+    }
+
+
+@router.get(
+    "/webhooks/jobs/{job_id}",
+    summary="Get webhook job status",
+    description="""
+    Get status of a specific webhook job.
+
+    **Job Status**:
+    - queued: Waiting to be processed
+    - processing: Currently being processed
+    - completed: Successfully processed
+    - retrying: Failed, queued for retry
+    - failed: Failed after max retries (in DLQ)
+
+    **Access**: Requires authentication
+    """,
+)
+async def get_webhook_job_status(
+    job_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get webhook job status.
+
+    Args:
+        job_id: Job ID (from webhook delivery_id)
+        current_user: Authenticated user
+        db: Database session
+
+    Returns:
+        Job status or 404
+
+    Raises:
+        HTTPException(404): If job not found
+    """
+    from app.jobs.webhook_processor import get_job_status
+
+    job = get_job_status(job_id)
+
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"error": "job_not_found", "message": f"Job {job_id} not found"}
+        )
+
+    return {
+        "status": "ok",
+        "job": job
+    }

@@ -1,0 +1,88 @@
+{
+  "$schema": "../../../backend/sdlcctl/sdlcctl/schemas/spec-evidence-schema.json",
+  "spec_id": "SPEC-0014",
+  "spec_title": "CLI and Extension SDLC 6.0.0 Upgrade",
+  "spec_type": "upgrade",
+  "implementation_date": "2026-01-30",
+  "sprint": "Sprint 124",
+  "interfaces": {
+    "backend": {
+      "api_routes": [],
+      "services": [],
+      "models": [],
+      "schemas": [],
+      "tests": [],
+      "coverage": 0.0,
+      "status": "not_applicable"
+    },
+    "frontend": {
+      "components": [],
+      "pages": [],
+      "hooks": [],
+      "tests": [],
+      "status": "not_applicable"
+    },
+    "extension": {
+      "commands": [
+        "vscode-extension/src/commands/validateCommand.ts",
+        "vscode-extension/src/commands/specConvertCommand.ts"
+      ],
+      "services": [
+        "vscode-extension/src/services/sdlcValidatorService.ts",
+        "vscode-extension/src/services/specConverterService.ts"
+      ],
+      "views": [
+        "vscode-extension/src/views/validationResultsPanel.ts"
+      ],
+      "tests": [
+        "vscode-extension/src/test/suite/sdlc6Validation.test.ts",
+        "vscode-extension/src/test/suite/specConvert.test.ts"
+      ],
+      "status": "partial"
+    },
+    "cli": {
+      "commands": [
+        "backend/sdlcctl/sdlcctl/commands/validate.py",
+        "backend/sdlcctl/sdlcctl/commands/spec.py"
+      ],
+      "services": [
+        "backend/sdlcctl/sdlcctl/validation/engine.py",
+        "backend/sdlcctl/sdlcctl/validation/validators/spec_frontmatter_validator.py",
+        "backend/sdlcctl/sdlcctl/validation/validators/bdd_format_validator.py"
+      ],
+      "tests": [
+        "backend/sdlcctl/tests/test_validate.py",
+        "backend/sdlcctl/tests/test_spec_convert.py",
+        "backend/sdlcctl/tests/unit/validation/test_spec_frontmatter_validator.py",
+        "backend/sdlcctl/tests/unit/validation/test_bdd_format_validator.py"
+      ],
+      "status": "complete"
+    }
+  },
+  "validation": {
+    "last_checked": "2026-02-01T10:50:26.516883Z",
+    "checker_version": "1.0.0",
+    "status": "partial",
+    "missing_files": [
+      "vscode-extension/src/commands/validateCommand.ts",
+      "vscode-extension/src/commands/specConvertCommand.ts",
+      "vscode-extension/src/services/sdlcValidatorService.ts",
+      "vscode-extension/src/services/specConverterService.ts",
+      "vscode-extension/src/views/validationResultsPanel.ts",
+      "vscode-extension/src/test/suite/sdlc6Validation.test.ts",
+      "vscode-extension/src/test/suite/specConvert.test.ts",
+      "backend/sdlcctl/sdlcctl/validation/validators/spec_frontmatter_validator.py",
+      "backend/sdlcctl/sdlcctl/validation/validators/bdd_format_validator.py",
+      "backend/sdlcctl/tests/test_validate.py",
+      "backend/sdlcctl/tests/test_spec_convert.py",
+      "backend/sdlcctl/tests/unit/validation/test_bdd_format_validator.py"
+    ],
+    "warnings": [
+      "Extension spec convert command not implemented",
+      "Extension validation results panel missing",
+      "CLI BDD format validator incomplete",
+      "Extension tests for SDLC 6.0.0 validation missing"
+    ]
+  },
+  "notes": "Sprint 124 - CLI and Extension SDLC 6.0.0 Upgrade (SPEC-0014). Upgrades sdlcctl CLI and VS Code Extension from SDLC 5.0.0/5.3.0 to SDLC 6.0.0. CLI complete (validate + spec commands, spec frontmatter validator). Extension partial (validate command exists, spec convert and validation results panel missing). Supports YAML frontmatter validation, BDD requirements format, Context Authority Methodology, and OpenSpec integration via 'sdlcctl spec convert' command. Framework version alignment complete."
+}

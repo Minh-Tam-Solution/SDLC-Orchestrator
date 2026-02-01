@@ -9,6 +9,7 @@
 import * as vscode from 'vscode';
 import { ApiClient, Project } from '../services/apiClient';
 import { CacheService } from '../services/cacheService';
+import { ProjectDetector } from '../services/projectDetector';
 /**
  * Tree item representing a project
  */
@@ -27,6 +28,7 @@ export declare class ProjectTreeItem extends vscode.TreeItem {
 export declare class ProjectsProvider implements vscode.TreeDataProvider<ProjectTreeItem> {
     private apiClient;
     private cacheService?;
+    private projectDetector?;
     private _onDidChangeTreeData;
     readonly onDidChangeTreeData: vscode.Event<ProjectTreeItem | null | undefined>;
     private projects;
@@ -35,7 +37,16 @@ export declare class ProjectsProvider implements vscode.TreeDataProvider<Project
     private hasError;
     private errorMessage;
     private lastError;
-    constructor(apiClient: ApiClient, cacheService?: CacheService | undefined);
+    private shouldShowPanel;
+    constructor(apiClient: ApiClient, cacheService?: CacheService | undefined, projectDetector?: ProjectDetector | undefined);
+    /**
+     * Update panel visibility based on auto-detect and user settings (Sprint 127)
+     */
+    private updatePanelVisibility;
+    /**
+     * Set VS Code context key for panel visibility
+     */
+    private setVisibilityContext;
     /**
      * Load local project from .sdlc-config.json in workspace
      */

@@ -1,0 +1,105 @@
+{
+  "$schema": "../../../backend/sdlcctl/sdlcctl/schemas/spec-evidence-schema.json",
+  "spec_id": "SPEC-0011",
+  "spec_title": "Context Authority V2 - Gate-Aware Dynamic Context",
+  "spec_type": "feature",
+  "implementation_date": "2026-01-29",
+  "sprint": "Sprint 120",
+  "interfaces": {
+    "backend": {
+      "api_routes": [
+        "backend/app/api/routes/context_authority_v2.py"
+      ],
+      "services": [
+        "backend/app/services/governance/context_authority_v2.py"
+      ],
+      "models": [
+        "backend/app/models/context_authority_v2.py"
+      ],
+      "schemas": [
+        "backend/app/schemas/context_authority.py"
+      ],
+      "repositories": [
+        "backend/app/repositories/context_authority_v2.py"
+      ],
+      "migrations": [
+        "backend/alembic/versions/s120_001_context_authority_v2.py"
+      ],
+      "tests": [
+        "backend/tests/unit/services/governance/test_context_authority_isolated.py",
+        "backend/tests/services/governance/test_context_authority.py",
+        "backend/tests/integration/test_context_authority_v2.py"
+      ],
+      "coverage": 94.0,
+      "status": "complete"
+    },
+    "frontend": {
+      "components": [
+        "frontend/src/components/governance/auto-generation/IntentGeneratorCard.tsx",
+        "frontend/src/components/governance/auto-generation/OwnershipSuggestionsCard.tsx",
+        "frontend/src/components/governance/auto-generation/ContextAttachmentsCard.tsx",
+        "frontend/src/components/governance/auto-generation/AttestationFormCard.tsx",
+        "frontend/src/components/governance/vibecoding/VibecodingDashboard.tsx",
+        "frontend/src/components/governance/vibecoding/SignalBreakdown.tsx",
+        "frontend/src/components/governance/vibecoding/RoutingDecisionCard.tsx"
+      ],
+      "pages": [
+        "frontend/src/app/app/governance/page.tsx"
+      ],
+      "hooks": [
+        "frontend/src/hooks/useContextAuthority.ts"
+      ],
+      "tests": [
+        "frontend/e2e/context-authority.spec.ts",
+        "frontend/src/components/governance/vibecoding/VibecodingDashboard.test.tsx"
+      ],
+      "status": "partial"
+    },
+    "extension": {
+      "commands": [
+        "vscode-extension/src/commands/contextOverlayCommand.ts"
+      ],
+      "services": [
+        "vscode-extension/src/services/contextAuthorityService.ts"
+      ],
+      "views": [
+        "vscode-extension/src/views/contextPanel.ts"
+      ],
+      "tests": [
+        "vscode-extension/src/test/suite/contextAuthority.test.ts"
+      ],
+      "status": "partial"
+    },
+    "cli": {
+      "commands": [
+        "backend/sdlcctl/sdlcctl/commands/context.py"
+      ],
+      "services": [],
+      "tests": [
+        "backend/sdlcctl/tests/test_context_command.py"
+      ],
+      "status": "partial"
+    }
+  },
+  "validation": {
+    "last_checked": "2026-02-01T10:50:26.499054Z",
+    "checker_version": "1.0.0",
+    "status": "partial",
+    "missing_files": [
+      "frontend/src/hooks/useContextAuthority.ts",
+      "frontend/e2e/context-authority.spec.ts",
+      "frontend/src/components/governance/vibecoding/VibecodingDashboard.test.tsx",
+      "vscode-extension/src/commands/contextOverlayCommand.ts",
+      "vscode-extension/src/services/contextAuthorityService.ts",
+      "vscode-extension/src/test/suite/contextAuthority.test.ts",
+      "backend/sdlcctl/sdlcctl/commands/context.py",
+      "backend/sdlcctl/tests/test_context_command.py"
+    ],
+    "warnings": [
+      "Frontend hook and tests missing - full integration not complete",
+      "Extension context overlay command needs implementation",
+      "CLI context command needs implementation for template management"
+    ]
+  },
+  "notes": "Sprint 120 - Context Authority V2 Gate-Aware Dynamic Context (SPEC-0011). Backend 100% complete (11 endpoints, 94% test coverage, 3 repositories). Frontend partial (7 components exist, hook + tests missing). Extension partial (context panel exists in compiled output, source code needed). CLI partial (context command needed for template management). Core feature implements dynamic AGENTS.md overlay generation based on gate status, vibecoding index, and project tier. Progressive routing (GREEN → YELLOW → ORANGE → RED zones). Template system with gate-based, zone-based, and stage-based triggers."
+}

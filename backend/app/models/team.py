@@ -174,6 +174,12 @@ class Team(Base):
         back_populates="team",
         doc="Projects belonging to this team"
     )
+    invitations: Mapped[list["TeamInvitation"]] = relationship(
+        "TeamInvitation",
+        back_populates="team",
+        cascade="all, delete-orphan",
+        doc="Pending and historical team invitations"
+    )
 
     # Table constraints
     __table_args__ = (

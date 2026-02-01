@@ -20,7 +20,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, String, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, String, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -53,7 +53,7 @@ class ProjectStageMapping(Base):
     id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         primary_key=True,
-        server_default="gen_random_uuid()",
+        server_default=text("gen_random_uuid()"),
     )
 
     # Foreign key to project

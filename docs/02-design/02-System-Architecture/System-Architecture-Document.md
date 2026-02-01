@@ -1,14 +1,27 @@
 # System Architecture Document
 ## 5-Layer Architecture + Bridge-First Design (Software 3.0)
 
-**Version**: 3.1.0
-**Date**: January 08, 2026
+**Version**: 3.2.0
+**Date**: January 30, 2026
 **Status**: ACTIVE - APPROVED
 **Authority**: CTO + Tech Lead + Backend Lead
-**Foundation**: Stage 01 (Requirements v3.1.0, API Specs v3.1.0, Data Model v3.1.0)
+**Foundation**: Stage 01 (Requirements v4.2.0, API Specs v3.1.0, Data Model v3.1.0)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.0.0 (Multi-Frontend Aligned)
 **Positioning**: Operating System for Software 3.0
+
+**Changelog v3.2.0** (Jan 30, 2026):
+- **Multi-Frontend Alignment**: Sprint 125-127 architecture updates
+  - 3 delivery surfaces: Web Dashboard, CLI (sdlcctl), VS Code Extension
+  - ADR-045: Multi-Frontend Alignment Strategy documented
+  - Framework Update Trigger automation (GitHub Actions)
+  - Monthly Alignment Checkpoint process defined
+- **Validation Parity Architecture**: All surfaces share validation rules
+  - SPC-001 through SPC-006 error codes standardized
+  - E2E parity tests ensure consistent validation (25 tests)
+  - Local validation (no backend required) for CLI/Extension
+- **Feature Parity Targets**: CLI 71%, Extension 89%, Web 100%
+- **SDLC 6.0.0**: All surfaces aligned to Framework 6.0.0
 
 **Changelog v3.1.0** (Jan 08, 2026):
 - **MinIO Migration**: Migrated to AI-Platform shared service (`ai-platform-minio` on `ai-net` network)

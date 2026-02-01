@@ -67,9 +67,39 @@ class ApiError extends Error {
     static fromAxiosError(error) {
         const statusCode = error.response?.status ?? 0;
         const statusText = error.response?.statusText ?? 'Network Error';
-        const message = error.response?.data?.detail ??
-            error.message ??
-            'Unknown error';
+        // Extract error message from various FastAPI error formats
+        let message = 'Unknown error';
+        const data = error.response?.data;
+        if (data && typeof data === 'object') {
+            const detail = data.detail;
+            if (typeof detail === 'string') {
+                // Simple string error
+                message = detail;
+            }
+            else if (Array.isArray(detail) && detail.length > 0) {
+                // FastAPI validation error (array of errors)
+                message = detail.map((err) => {
+                    const loc = Array.isArray(err.loc) ? err.loc.join('.') : '';
+                    return `${loc}: ${err.msg}`;
+                }).join('; ');
+            }
+            else if (data.message) {
+                // Alternative message field
+                message = String(data.message);
+            }
+            else {
+                // Fallback: try to stringify the data
+                try {
+                    message = JSON.stringify(data);
+                }
+                catch {
+                    message = String(data);
+                }
+            }
+        }
+        else if (error.message) {
+            message = error.message;
+        }
         return new ApiError(statusCode, statusText, message, error.response?.data);
     }
 }
@@ -175,6 +205,13 @@ class ApiClient {
      */
     async post(endpoint, data, config) {
         const response = await this.client.post(endpoint, data, config);
+        return response.data;
+    }
+    /**
+     * Makes a typed DELETE request
+     */
+    async delete(endpoint, config) {
+        const response = await this.client.delete(endpoint, config);
         return response.data;
     }
     // ============================================
@@ -405,7 +442,7 @@ class ApiClient {
      * Get SDLC structure template for a tier
      */
     async getSDLCTemplate(tier) {
-        return this.get(`/api/v1/templates/sdlc-structure?tier=${tier}&version=5.1.2`);
+        return this.get(`/api/v1/templates/sdlc-structure?tier=${tier}&version=6.0.0`);
     }
     // ============================================
     // AGENTS.md Context Overlay APIs (Sprint 81)

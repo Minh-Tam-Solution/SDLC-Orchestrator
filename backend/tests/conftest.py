@@ -35,10 +35,20 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
+from sqlalchemy.orm import configure_mappers
+
 from app.core.config import settings
 from app.db.base_class import Base
+# Import all models FIRST to ensure SQLAlchemy configures all relationships
+# before app.main imports modules that reference models
+import app.models  # noqa: F401
+
+# Configure all mappers to resolve forward references (like "ComplianceScore" in Project)
+# This MUST be called after importing all models and before using any model relationships
+configure_mappers()
+
+from app.models import User, Role
 from app.main import app
-from app.models.user import Role, User
 from app.core.security import get_password_hash
 
 
@@ -61,32 +71,96 @@ TEST_DATABASE_URL = _ensure_asyncpg_url(settings.DATABASE_URL).replace(
     "sdlc_orchestrator", "sdlc_orchestrator_test"
 )
 
-# Test engine and session
-test_engine = create_async_engine(
-    TEST_DATABASE_URL,
-    echo=False,
-    pool_pre_ping=True,
-)
-
-TestAsyncSessionLocal = sessionmaker(
-    test_engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-    autocommit=False,
-    autoflush=False,
-)
-
 
 @pytest.fixture(scope="session")
 def event_loop() -> Generator:
     """Create event loop for async tests."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
+    policy = asyncio.get_event_loop_policy()
+    loop = policy.new_event_loop()
     yield loop
     loop.close()
 
 
 @pytest_asyncio.fixture(scope="function")
-async def db_session() -> AsyncGenerator[AsyncSession, None]:
+async def test_engine():
+    """Create a fresh test engine for each test function."""
+    engine = create_async_engine(
+        TEST_DATABASE_URL,
+        echo=False,
+        pool_pre_ping=True,
+        pool_size=5,
+        max_overflow=10,
+    )
+    yield engine
+    await engine.dispose()
+
+
+async def _drop_all_cascade(connection):
+    """Drop all tables, views, and enum types with CASCADE for clean test state."""
+    from sqlalchemy import text
+    # Drop all views first
+    await connection.execute(text("""
+        DO $$ DECLARE
+            r RECORD;
+        BEGIN
+            FOR r IN (SELECT viewname FROM pg_views WHERE schemaname = 'public') LOOP
+                EXECUTE 'DROP VIEW IF EXISTS ' || quote_ident(r.viewname) || ' CASCADE';
+            END LOOP;
+        END $$;
+    """))
+    # Drop all tables with CASCADE (this also drops associated indexes and constraints)
+    await connection.execute(text("""
+        DO $$ DECLARE
+            r RECORD;
+        BEGIN
+            FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename != 'alembic_version') LOOP
+                EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
+            END LOOP;
+        END $$;
+    """))
+    # Drop all enum types (so we can recreate them fresh)
+    await connection.execute(text("""
+        DO $$ DECLARE
+            r RECORD;
+        BEGIN
+            FOR r IN (SELECT typname FROM pg_type WHERE typnamespace = 'public'::regnamespace AND typtype = 'e') LOOP
+                EXECUTE 'DROP TYPE IF EXISTS ' || quote_ident(r.typname) || ' CASCADE';
+            END LOOP;
+        END $$;
+    """))
+
+
+async def _create_enum_types(connection):
+    """Pre-create PostgreSQL ENUM types before table creation.
+
+    SQLAlchemy's create_all in async mode doesn't reliably handle ENUM creation order.
+    We manually create them here to ensure they exist before table creation.
+    """
+    from sqlalchemy import text
+
+    # Define all enum types used in models (from app/models/subscription.py)
+    enum_definitions = [
+        ("subscription_plan_enum", ["free", "founder", "standard", "enterprise"]),
+        ("subscription_status_enum", ["active", "canceled", "past_due"]),
+        ("payment_status_enum", ["pending", "completed", "failed"]),
+    ]
+
+    for enum_name, enum_values in enum_definitions:
+        # Check if enum already exists
+        result = await connection.execute(text(
+            "SELECT 1 FROM pg_type WHERE typname = :name"
+        ), {"name": enum_name})
+        exists = result.scalar() is not None
+
+        if not exists:
+            values_str = ", ".join(f"'{v}'" for v in enum_values)
+            await connection.execute(text(
+                f"CREATE TYPE {enum_name} AS ENUM ({values_str})"
+            ))
+
+
+@pytest_asyncio.fixture(scope="function")
+async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
     """
     Create a fresh database session for each test.
 
@@ -96,9 +170,21 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
             db_session.add(user)
             await db_session.commit()
     """
-    # Create all tables
+    # Create session factory for this engine
+    TestAsyncSessionLocal = sessionmaker(
+        test_engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+        autocommit=False,
+        autoflush=False,
+    )
+
+    # Drop all tables, views, and types with CASCADE
     async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+        await _drop_all_cascade(conn)
+        # Pre-create PostgreSQL ENUM types before table creation
+        await _create_enum_types(conn)
+        # Create all tables
         await conn.run_sync(Base.metadata.create_all)
 
     # Create session
@@ -114,7 +200,14 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
 
     # Drop all tables after test
     async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+        await _drop_all_cascade(conn)
+
+
+# Alias for backward compatibility - some tests use test_db_session
+@pytest_asyncio.fixture(scope="function")
+async def test_db_session(db_session: AsyncSession) -> AsyncGenerator[AsyncSession, None]:
+    """Alias for db_session for backward compatibility."""
+    yield db_session
 
 
 # ============================================================================
@@ -132,6 +225,8 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
             response = await client.get("/health")
             assert response.status_code == 200
     """
+    from httpx import ASGITransport
+
     # Override database dependency
     from app.db.session import get_db
 
@@ -140,12 +235,20 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
 
     app.dependency_overrides[get_db] = override_get_db
 
-    # Create HTTP client
-    async with AsyncClient(app=app, base_url="http://testserver") as ac:
+    # Create HTTP client using ASGITransport (httpx 0.20+ API)
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://testserver") as ac:
         yield ac
 
     # Remove overrides
     app.dependency_overrides.clear()
+
+
+# Alias for backward compatibility - some tests use test_client
+@pytest_asyncio.fixture(scope="function")
+async def test_client(client: AsyncClient) -> AsyncGenerator[AsyncClient, None]:
+    """Alias for client for backward compatibility."""
+    yield client
 
 
 # ============================================================================
@@ -226,6 +329,13 @@ async def test_admin(db_session: AsyncSession) -> User:
     await db_session.refresh(user)
 
     return user
+
+
+# Alias for backward compatibility - some tests use admin_user
+@pytest_asyncio.fixture(scope="function")
+async def admin_user(test_admin: User) -> User:
+    """Alias for test_admin for backward compatibility."""
+    return test_admin
 
 
 @pytest_asyncio.fixture(scope="function")

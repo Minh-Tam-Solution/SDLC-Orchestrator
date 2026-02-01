@@ -26,6 +26,16 @@ export declare enum ErrorCode {
     VALIDATION_ERROR = 400,
     CONFIGURATION_ERROR = 401,
     NO_PROJECT_SELECTED = 402,
+    GITHUB_AUTH_FAILED = 500,
+    GITHUB_RATE_LIMIT = 501,
+    GITHUB_REPO_ACCESS_DENIED = 502,
+    GITHUB_REPO_NOT_FOUND = 503,
+    GITHUB_APP_NOT_INSTALLED = 504,
+    GITHUB_INSTALLATION_SUSPENDED = 505,
+    GITHUB_CLONE_FAILED = 506,
+    GITHUB_WEBHOOK_INVALID = 507,
+    GITHUB_TOKEN_EXPIRED = 508,
+    GITHUB_NETWORK_ERROR = 509,
     UNKNOWN = 999
 }
 /**
@@ -144,5 +154,50 @@ export declare function createAuthError(message: string, code: ErrorCode): SDLCE
  * @param statusCode - HTTP status code
  */
 export declare function createApiError(message: string, statusCode: number): SDLCError;
+/**
+ * GitHub-specific error class with additional context
+ */
+export declare class GitHubError extends SDLCError {
+    readonly retryAfter?: number | undefined;
+    readonly resetAt?: Date | undefined;
+    readonly limit?: number | undefined;
+    readonly remaining?: number | undefined;
+    constructor(code: ErrorCode, message: string, retryAfter?: number | undefined, resetAt?: Date | undefined, limit?: number | undefined, remaining?: number | undefined, originalError?: Error);
+    /**
+     * Gets formatted retry message
+     */
+    getRetryMessage(): string;
+    /**
+     * Gets rate limit info for display
+     */
+    getRateLimitInfo(): string;
+}
+/**
+ * Maps GitHub API error response to extension error code
+ */
+export declare function mapGitHubErrorCode(errorCode: string): ErrorCode;
+/**
+ * Creates a GitHubError from API response
+ */
+export declare function createGitHubError(response: {
+    code?: string;
+    message?: string;
+    retry_after?: number;
+    reset_at?: string;
+    limit?: number;
+    remaining?: number;
+}): GitHubError;
+/**
+ * Checks if error is a GitHub-specific error
+ */
+export declare function isGitHubError(error: unknown): error is GitHubError;
+/**
+ * Checks if error code is GitHub-related
+ */
+export declare function isGitHubErrorCode(code: ErrorCode): boolean;
+/**
+ * Parses error response from backend for GitHub errors
+ */
+export declare function parseGitHubApiError(error: unknown): SDLCError;
 export {};
 //# sourceMappingURL=errors.d.ts.map

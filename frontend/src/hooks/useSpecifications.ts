@@ -13,7 +13,7 @@
  * =========================================================================
  */
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "./useAuth";
 import { apiClient } from "@/lib/apiClient";
 

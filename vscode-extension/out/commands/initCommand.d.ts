@@ -1,14 +1,14 @@
 /**
  * SDLC Init Command Handler
  *
- * Implements the /init command for creating SDLC 5.1.2 compliant project structures.
+ * Implements the /init command for creating SDLC 6.0.0 compliant project structures.
  * Similar to Claude Code's /init command but for SDLC governance.
  *
- * SDLC 5.1.2 Rules:
+ * SDLC 6.0.0 Rules:
  * - Only /docs folders are mapped to stages (00-09)
  * - Code folders (src, backend, frontend, tests) are NOT stage-mapped
  *
- * Sprint 53 - SDLC 5.1.2 Compliance
+ * Sprint 53 - SDLC 6.0.0 Compliance
  * @version 1.0.0
  */
 import * as vscode from 'vscode';

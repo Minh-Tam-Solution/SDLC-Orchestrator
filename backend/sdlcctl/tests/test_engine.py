@@ -82,8 +82,8 @@ class TestValidationResult:
                 stages_found={
                     "00": StageInfo(
                         stage_id="00",
-                        folder_name="00-Project-Foundation",
-                        path=Path("/test/docs/00-Project-Foundation"),
+                        folder_name="00-foundation",
+                        path=Path("/test/docs/00-foundation"),
                         file_count=5,
                         has_readme=True,
                     )
@@ -195,7 +195,7 @@ class TestSDLCValidator:
             docs_root.mkdir()
 
             # Create only stage 00
-            stage_00 = docs_root / "00-Project-Foundation"
+            stage_00 = docs_root / "00-foundation"
             stage_00.mkdir()
             (stage_00 / "README.md").write_text(
                 "# Project Foundation\n\n"
@@ -298,7 +298,7 @@ class TestSDLCValidator:
         validator = SDLCValidator(compliant_project, tier=Tier.LITE)
         report = validator.generate_report()
 
-        assert "SDLC 5.0.0 Structure Validation Report" in report
+        assert "SDLC 6.0.0 Structure Validation Report" in report
         assert "Tier:" in report
         assert "Compliant:" in report
 
@@ -311,7 +311,7 @@ class TestSDLCValidator:
 
         # Remove correctly named stage
         import shutil
-        correct_stage = compliant_project / "docs" / "00-Project-Foundation"
+        correct_stage = compliant_project / "docs" / "00-foundation"
         if correct_stage.exists():
             shutil.rmtree(correct_stage)
 

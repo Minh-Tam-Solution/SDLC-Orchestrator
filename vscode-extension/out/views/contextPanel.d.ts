@@ -10,6 +10,7 @@
 import * as vscode from 'vscode';
 import { ApiClient } from '../services/apiClient';
 import { CacheService } from '../services/cacheService';
+import { ProjectDetector } from '../services/projectDetector';
 /**
  * Constraint from SDLC context overlay
  */
@@ -55,7 +56,7 @@ type ContextItemType = 'header' | 'stage' | 'gate' | 'sprint' | 'constraint' | '
 export declare class ContextTreeItem extends vscode.TreeItem {
     readonly itemType: ContextItemType;
     readonly children: ContextTreeItem[];
-    constructor(label: string, collapsibleState: vscode.TreeItemCollapsibleState, itemType: ContextItemType, itemDescription?: string, children?: ContextTreeItem[], itemTooltip?: string);
+    constructor(label: string, collapsibleState: vscode.TreeItemCollapsibleState, itemType: ContextItemType, itemDescription?: string, children?: ContextTreeItem[], itemTooltip?: string, itemCommand?: vscode.Command);
     private getIcon;
 }
 /**
@@ -64,13 +65,14 @@ export declare class ContextTreeItem extends vscode.TreeItem {
 export declare class ContextPanelProvider implements vscode.TreeDataProvider<ContextTreeItem> {
     private readonly apiClient;
     private readonly cacheService;
+    private readonly projectDetector?;
     private _onDidChangeTreeData;
     readonly onDidChangeTreeData: vscode.Event<ContextTreeItem | undefined | null | void>;
     private context;
     private isLoading;
     private lastError;
     private refreshInterval;
-    constructor(apiClient: ApiClient, cacheService: CacheService);
+    constructor(apiClient: ApiClient, cacheService: CacheService, projectDetector?: ProjectDetector | undefined);
     /**
      * Setup auto-refresh interval
      */

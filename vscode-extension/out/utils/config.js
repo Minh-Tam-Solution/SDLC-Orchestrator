@@ -55,6 +55,7 @@ const DEFAULT_CONFIG = {
     enableNotifications: true,
     aiCouncilEnabled: true,
     showViolationBadge: true,
+    showProjectsPanel: false,
 };
 /**
  * Configuration Manager singleton
@@ -122,6 +123,12 @@ class ConfigManager {
         return this.get('showViolationBadge', DEFAULT_CONFIG.showViolationBadge);
     }
     /**
+     * Gets whether Projects panel should always be shown
+     */
+    get showProjectsPanel() {
+        return this.get('showProjectsPanel', DEFAULT_CONFIG.showProjectsPanel);
+    }
+    /**
      * Gets all configuration as an object
      */
     getAll() {
@@ -132,6 +139,7 @@ class ConfigManager {
             enableNotifications: this.enableNotifications,
             aiCouncilEnabled: this.aiCouncilEnabled,
             showViolationBadge: this.showViolationBadge,
+            showProjectsPanel: this.showProjectsPanel,
         };
     }
     /**

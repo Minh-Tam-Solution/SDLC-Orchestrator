@@ -30,12 +30,14 @@ Reference:
 
 from datetime import datetime, UTC, timedelta
 from typing import Optional, List, Dict, Any
-from uuid import uuid4
+from uuid import uuid4, UUID
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 import hashlib
 import secrets
 import re
+
+from app.models.user import User
 
 # Custom Exceptions
 
@@ -181,46 +183,41 @@ class UserService:
         # Hash password (bcrypt simulation - would use real bcrypt)
         password_hash = self._hash_password(password)
 
-        # Create user (mock model for now, will use real SQLAlchemy model)
-        from types import SimpleNamespace
-        user = SimpleNamespace(
-            id=str(uuid4()),
+        # Sprint 132 P0 Fix: Use real SQLAlchemy User model
+        user = User(
+            id=uuid4(),
             email=email,
             password_hash=password_hash,
             role=role,
             full_name=user_data.get("full_name", ""),
             organization_id=user_data.get("organization_id"),
             is_active=True,
-            is_verified=False,
+            is_superuser=False,
             mfa_enabled=False,
             mfa_secret=None,
             last_login=None,
-            login_attempts=0,
+            failed_login_count=0,
             locked_until=None,
-            metadata=user_data.get("metadata", {}),
-            created_at=datetime.now(UTC),
-            updated_at=datetime.now(UTC),
-            deleted_at=None,
         )
 
-        # Database persistence (would use real db.add/commit)
-        # db.add(user)
-        # db.commit()
-        # db.refresh(user)
+        # Sprint 132 P0 Fix: Real database persistence
+        db.add(user)
+        db.commit()
+        db.refresh(user)
 
         return user
 
     def get_user_by_id(
         self,
         db: Session,
-        user_id: str
-    ) -> Optional[Any]:
+        user_id: str | UUID
+    ) -> Optional[User]:
         """
         Retrieve user by ID (excluding soft-deleted).
 
         Args:
             db: Database session
-            user_id: User UUID
+            user_id: User UUID (string or UUID object)
 
         Returns:
             User model instance or None if not found
@@ -230,22 +227,28 @@ class UserService:
             >>> if user is None:
             ...     raise UserNotFoundError("User not found")
         """
-        # Mock query (would use real SQLAlchemy query)
-        # user = db.query(User).filter(
-        #     and_(
-        #         User.id == user_id,
-        #         User.deleted_at.is_(None)
-        #     )
-        # ).first()
+        # Sprint 132 P0 Fix: Real SQLAlchemy query
+        # Convert string to UUID if needed
+        if isinstance(user_id, str):
+            try:
+                user_id = UUID(user_id)
+            except ValueError:
+                return None
 
-        # Return None to simulate not found
-        return None
+        user = db.query(User).filter(
+            and_(
+                User.id == user_id,
+                User.deleted_at.is_(None)
+            )
+        ).first()
+
+        return user
 
     def get_user_by_email(
         self,
         db: Session,
         email: str
-    ) -> Optional[Any]:
+    ) -> Optional[User]:
         """
         Retrieve user by email (for login).
 
@@ -261,15 +264,15 @@ class UserService:
         """
         email_lower = email.lower().strip()
 
-        # Mock query (would use real SQLAlchemy query)
-        # user = db.query(User).filter(
-        #     and_(
-        #         User.email == email_lower,
-        #         User.deleted_at.is_(None)
-        #     )
-        # ).first()
+        # Sprint 132 P0 Fix: Real SQLAlchemy query
+        user = db.query(User).filter(
+            and_(
+                User.email == email_lower,
+                User.deleted_at.is_(None)
+            )
+        ).first()
 
-        return None
+        return user
 
     def authenticate_user(
         self,

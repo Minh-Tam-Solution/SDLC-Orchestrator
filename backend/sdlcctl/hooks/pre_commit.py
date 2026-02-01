@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SDLC 5.0.0 Pre-commit Hook.
+SDLC 6.0.0 Pre-commit Hook.
 
 Validates SDLC structure before commits.
 Performance target: <2s execution time.
@@ -70,10 +70,10 @@ def run_validation(
 
     # Output results
     if result.is_compliant:
-        print(f"✓ SDLC 5.0.0 compliant ({result.compliance_score}/100) [{elapsed:.1f}s]")
+        print(f"✓ SDLC 6.0.0 compliant ({result.compliance_score}/100) [{elapsed:.1f}s]")
         return 0
     else:
-        print(f"✗ SDLC 5.0.0 validation failed ({result.compliance_score}/100)")
+        print(f"✗ SDLC 6.0.0 validation failed ({result.compliance_score}/100)")
         print(f"  Errors: {result.error_count}, Warnings: {result.warning_count}")
 
         # Show errors
@@ -100,7 +100,7 @@ def main() -> int:
     """Pre-commit hook entry point."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="SDLC 5.0.0 pre-commit hook")
+    parser = argparse.ArgumentParser(description="SDLC 6.0.0 pre-commit hook")
     parser.add_argument(
         "--path",
         "-p",

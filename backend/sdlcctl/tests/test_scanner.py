@@ -15,13 +15,13 @@ class TestStageInfo:
         """Test StageInfo creation with required fields."""
         info = StageInfo(
             stage_id="00",
-            folder_name="00-Project-Foundation",
-            path=Path("/docs/00-Project-Foundation"),
+            folder_name="00-foundation",
+            path=Path("/docs/00-foundation"),
             file_count=10,
             has_readme=True,
         )
         assert info.stage_id == "00"
-        assert info.folder_name == "00-Project-Foundation"
+        assert info.folder_name == "00-foundation"
         assert info.file_count == 10
         assert info.has_readme is True
         assert info.subfolders == []
@@ -75,7 +75,7 @@ class TestFolderScanner:
             docs_root.mkdir()
 
             # Create some stages
-            stage_00 = docs_root / "00-Project-Foundation"
+            stage_00 = docs_root / "00-foundation"
             stage_00.mkdir()
             (stage_00 / "README.md").write_text("# Stage 00\n\nContent here.")
 
@@ -145,7 +145,7 @@ class TestFolderScanner:
 
         # Remove correct one first
         import shutil
-        shutil.rmtree(temp_project / "docs" / "00-Project-Foundation")
+        shutil.rmtree(temp_project / "docs" / "00-foundation")
 
         scanner = FolderScanner(temp_project)
         result = scanner.scan()
@@ -153,7 +153,7 @@ class TestFolderScanner:
         violations = [v for v in result.naming_violations if v.get("type") == "stage_naming"]
         assert len(violations) >= 1
         assert violations[0]["found"] == "00-Wrong-Name"
-        assert violations[0]["expected"] == "00-Project-Foundation"
+        assert violations[0]["expected"] == "00-foundation"
 
     def test_scan_detects_legacy_folders(self, temp_project):
         """Test scan detects legacy folders."""
@@ -205,7 +205,7 @@ class TestFolderScanner:
         """Test file_exists method."""
         scanner = FolderScanner(temp_project)
 
-        assert scanner.file_exists("docs/00-Project-Foundation/README.md") is True
+        assert scanner.file_exists("docs/00-foundation/README.md") is True
         assert scanner.file_exists("docs/nonexistent.md") is False
 
     def test_get_stage_path(self, temp_project):
@@ -215,7 +215,7 @@ class TestFolderScanner:
         # Should find existing stage
         path = scanner.get_stage_path("00")
         assert path is not None
-        assert path.name == "00-Project-Foundation"
+        assert path.name == "00-foundation"
 
         # Should return None for non-existent stage
         path = scanner.get_stage_path("99")
@@ -238,7 +238,7 @@ class TestFolderScanner:
     def test_scan_counts_files(self, temp_project):
         """Test scan correctly counts files."""
         # Add more files to stage
-        stage = temp_project / "docs" / "00-Project-Foundation"
+        stage = temp_project / "docs" / "00-foundation"
         (stage / "doc1.md").write_text("Doc 1")
         (stage / "doc2.md").write_text("Doc 2")
         (stage / "doc3.md").write_text("Doc 3")

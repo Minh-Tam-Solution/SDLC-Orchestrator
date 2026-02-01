@@ -12,6 +12,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ApiClient, Project } from '../services/apiClient';
 import { CacheService, CacheKeys, CacheTTL } from '../services/cacheService';
+import { ProjectDetector } from '../services/projectDetector';
 import { Logger } from '../utils/logger';
 import { ConfigManager } from '../utils/config';
 import { classifyError, ErrorCode, SDLCError } from '../utils/errors';
@@ -118,10 +119,12 @@ export class ProjectsProvider implements vscode.TreeDataProvider<ProjectTreeItem
     private hasError = false;
     private errorMessage = '';
     private lastError: SDLCError | undefined;
+    private shouldShowPanel = true; // Sprint 127: Hide panel when auto-detect works
 
     constructor(
         private apiClient: ApiClient,
-        private cacheService?: CacheService
+        private cacheService?: CacheService,
+        private projectDetector?: ProjectDetector
     ) {
         // Register internal command for project selection
         vscode.commands.registerCommand(
@@ -132,6 +135,60 @@ export class ProjectsProvider implements vscode.TreeDataProvider<ProjectTreeItem
         // Load selected project from config
         const config = ConfigManager.getInstance();
         this.selectedProjectId = config.defaultProjectId || undefined;
+
+        // Sprint 127: Check if panel should be shown
+        this.updatePanelVisibility();
+    }
+
+    /**
+     * Update panel visibility based on auto-detect and user settings (Sprint 127)
+     */
+    private async updatePanelVisibility(): Promise<void> {
+        if (!this.projectDetector) {
+            this.shouldShowPanel = true;
+            await this.setVisibilityContext(true);
+            return;
+        }
+
+        // Check user setting (opt-in to show panel)
+        const config = vscode.workspace.getConfiguration('sdlc');
+        const showPanel = config.get<boolean>('showProjectsPanel', false);
+        if (showPanel) {
+            this.shouldShowPanel = true;
+            await this.setVisibilityContext(true);
+            return;
+        }
+
+        // Check for monorepo (multiple .sdlc/config.yaml)
+        const workspace = vscode.workspace.workspaceFolders?.[0];
+        if (!workspace) {
+            this.shouldShowPanel = false;
+            await this.setVisibilityContext(false);
+            return;
+        }
+
+        const pattern = new vscode.RelativePattern(workspace, '**/.sdlc/config.yaml');
+        try {
+            const files = await vscode.workspace.findFiles(pattern, null, 2);
+            const shouldShow = files.length > 1; // Show for monorepo
+            this.shouldShowPanel = shouldShow;
+            await this.setVisibilityContext(shouldShow);
+        } catch {
+            this.shouldShowPanel = false;
+            await this.setVisibilityContext(false);
+        }
+    }
+
+    /**
+     * Set VS Code context key for panel visibility
+     */
+    private async setVisibilityContext(visible: boolean): Promise<void> {
+        await vscode.commands.executeCommand(
+            'setContext',
+            'sdlc.projectsPanelVisible',
+            visible
+        );
+        Logger.debug(`Projects panel visibility context set to: ${visible}`);
     }
 
     /**
@@ -194,6 +251,9 @@ export class ProjectsProvider implements vscode.TreeDataProvider<ProjectTreeItem
         if (this.isLoading) {
             return;
         }
+
+        // Sprint 127: Update panel visibility before refresh
+        await this.updatePanelVisibility();
 
         this.isLoading = true;
         this.hasError = false;
@@ -340,6 +400,12 @@ export class ProjectsProvider implements vscode.TreeDataProvider<ProjectTreeItem
      * Gets children for tree item
      */
     getChildren(_element?: ProjectTreeItem): ProjectTreeItem[] {
+        // Sprint 127: Hide panel if auto-detect is working
+        if (!this.shouldShowPanel) {
+            Logger.debug('Projects panel hidden (auto-detect enabled)');
+            return [];
+        }
+
         // Projects view is flat - only root level
         return this.getRootItems();
     }

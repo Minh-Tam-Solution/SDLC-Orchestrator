@@ -67,8 +67,8 @@ async def user_alice(db: AsyncSession) -> User:
     user = User(
         id=uuid.uuid4(),
         email="alice@alpha.com",
-        username="alice",
-        hashed_password="hashed",
+        full_name="Alice",
+        password_hash="hashed",
         is_active=True,
         is_platform_admin=False,
     )
@@ -84,8 +84,8 @@ async def user_bob(db: AsyncSession) -> User:
     user = User(
         id=uuid.uuid4(),
         email="bob@beta.com",
-        username="bob",
-        hashed_password="hashed",
+        full_name="Bob",
+        password_hash="hashed",
         is_active=True,
         is_platform_admin=False,
     )
@@ -101,8 +101,8 @@ async def user_admin(db: AsyncSession) -> User:
     user = User(
         id=uuid.uuid4(),
         email="admin@sdlc.com",
-        username="admin",
-        hashed_password="hashed",
+        full_name="Admin",
+        password_hash="hashed",
         is_active=True,
         is_platform_admin=True,
     )
@@ -464,8 +464,8 @@ async def test_team_member_can_see_same_team_members(
     user_charlie = User(
         id=uuid.uuid4(),
         email="charlie@alpha.com",
-        username="charlie",
-        hashed_password="hashed",
+        full_name="Charlie",
+        password_hash="hashed",
         is_active=True,
     )
     db.add(user_charlie)

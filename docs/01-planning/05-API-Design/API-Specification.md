@@ -1,13 +1,25 @@
 # API Specification (OpenAPI 3.0)
 ## Complete REST + GraphQL Endpoints
 
-**Version**: 3.2.0
-**Date**: December 30, 2025
-**Status**: ACTIVE - Password Reset + EP-06 Quality Gates
+**Version**: 3.3.0
+**Date**: January 30, 2026
+**Status**: ACTIVE - Team Invitation System (Sprint 128)
 **Authority**: Backend Lead + CTO Review (✅ APPROVED)
-**Foundation**: FRD v3.1.0, Data Model ERD v3.1.0, Roadmap v5.0.0
+**Foundation**: FRD v3.1.0, Data Model ERD v3.2.0, Roadmap v5.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 5.1.2 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.0.0 Complete Lifecycle (10 Stages)
+
+**Changelog v3.3.0** (Jan 30, 2026):
+- Added Team Invitation System endpoints (Sprint 128):
+  - POST /teams/{team_id}/invitations - Send invitation with hash-based token
+  - GET /invitations/{token} - Get invitation details (public, no auth)
+  - POST /invitations/{token}/accept - Accept invitation
+  - POST /invitations/{token}/decline - Decline invitation
+  - POST /invitations/{id}/resend - Resend invitation email
+- Security: SHA256 token hashing, 7-day expiry, one-time use, rate limiting
+- Breaking change: POST /teams/{team_id}/members (email-based) → 410 GONE
+- Reference: ADR-043-Team-Invitation-System-Architecture.md
+- Total endpoints: 67 → 72 endpoints
 
 **Changelog v3.2.0** (Dec 30, 2025):
 - Added Password Reset endpoints (Sprint 60):

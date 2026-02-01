@@ -8,7 +8,7 @@
  */
 import * as vscode from 'vscode';
 import type { AuthService } from './authService';
-import type { AppBlueprint, GenerateRequest, MagicRequest, MagicParseResult, OnboardingSession, ContractLockResponse, ContractUnlockResponse, ContractLockStatus, HashVerifyResponse, CodegenSession, UnlockReason } from '../types/codegen';
+import type { AppBlueprint, GenerateRequest, MagicRequest, MagicParseResult, OnboardingSession, ContractLockResponse, ContractUnlockResponse, ContractLockStatus, HashVerifyResponse, CodegenSession, UnlockReason, SpecValidationResult, SpecValidationRequest, SpecListResponse, SpecTier } from '../types/codegen';
 /**
  * Code Generation API Service
  *
@@ -132,5 +132,43 @@ export declare class CodegenApiService {
      * Get template for a specific domain
      */
     getDomainTemplate(domainId: string): Promise<AppBlueprint>;
+    /**
+     * Validate a specification against SDLC 6.0.0 SPEC-0002 standard
+     *
+     * Validates:
+     * - YAML frontmatter (required fields, format)
+     * - BDD requirements (GIVEN-WHEN-THEN format)
+     * - Cross-references (spec, ADR, file links)
+     * - Tier-specific required sections
+     *
+     * @param request - Specification validation request
+     * @returns Validation result with errors and warnings
+     */
+    validateSpecification(request: SpecValidationRequest): Promise<SpecValidationResult>;
+    /**
+     * Validate a specification file by path (local validation)
+     *
+     * This performs local validation without sending content to backend.
+     * Uses the same validation rules as the CLI sdlcctl spec validate.
+     *
+     * @param content - Specification file content
+     * @param tier - Optional tier for tier-specific validation
+     * @returns Validation result
+     */
+    validateSpecificationLocal(content: string, tier?: SpecTier): SpecValidationResult;
+    /**
+     * List all specifications in a project
+     *
+     * @param projectId - Optional project ID filter
+     * @param tier - Optional tier filter
+     * @returns List of specifications
+     */
+    listSpecifications(projectId?: string, tier?: SpecTier): Promise<SpecListResponse>;
+    /**
+     * Get SDLC 6.0.0 specification JSON schema
+     *
+     * @returns JSON schema for specification frontmatter validation
+     */
+    getSpecSchema(): Promise<Record<string, unknown>>;
 }
 //# sourceMappingURL=codegenApi.d.ts.map

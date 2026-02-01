@@ -1,122 +1,311 @@
-/**
- * GitHub TanStack Query Hooks - SDLC Orchestrator Dashboard
- *
- * @module frontend/landing/src/hooks/useGitHub
- * @description React Query hooks for GitHub Integration API
- * @sdlc SDLC 5.1.2 Universal Framework
- * @status Sprint 69 - CTO Go-Live Requirements
- */
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  getGitHubConnectionStatus,
-  getGitHubRepositories,
-  getGitHubPullRequests,
-  disconnectGitHub,
-  type GitHubConnectionStatus,
-  type GitHubRepository,
-  type GitHubPullRequest,
-} from "@/lib/api";
-import { useAuth } from "@/hooks/useAuth";
-
-// Query keys for cache management
-export const githubKeys = {
-  all: ["github"] as const,
-  status: () => [...githubKeys.all, "status"] as const,
-  repos: () => [...githubKeys.all, "repos"] as const,
-  pulls: () => [...githubKeys.all, "pulls"] as const,
-  pullList: (owner: string, repo: string, options?: { state?: string }) =>
-    [...githubKeys.pulls(), owner, repo, options] as const,
-};
-
-/**
- * Hook to fetch GitHub connection status
- * Sprint 69: Check if user has connected GitHub
- */
-export function useGitHubStatus() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-
-  return useQuery({
-    queryKey: githubKeys.status(),
-    queryFn: getGitHubConnectionStatus,
-    enabled: isAuthenticated && !authLoading,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: false, // Don't retry if not connected
-  });
-}
-
-/**
- * Hook to fetch user's GitHub repositories
- * Sprint 69: List repos for project linking
- */
-export function useGitHubRepositories() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { data: status } = useGitHubStatus();
-
-  return useQuery({
-    queryKey: githubKeys.repos(),
-    queryFn: getGitHubRepositories,
-    enabled: isAuthenticated && !authLoading && status?.connected === true,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-}
-
-/**
- * Hook to fetch pull requests for a repository
- * Sprint 69: PR monitoring and validation
- */
-export function useGitHubPullRequests(
-  owner: string | undefined,
-  repo: string | undefined,
-  options?: { state?: "open" | "closed" | "all" }
-) {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { data: status } = useGitHubStatus();
-
-  return useQuery({
-    queryKey: githubKeys.pullList(owner || "", repo || "", options),
-    queryFn: () => {
-      if (!owner || !repo) {
-        throw new Error("Missing owner or repo");
-      }
-      return getGitHubPullRequests(owner, repo, options);
-    },
-    enabled:
-      isAuthenticated &&
-      !authLoading &&
-      status?.connected === true &&
-      !!owner &&
-      !!repo,
-    staleTime: 60 * 1000, // 1 minute - PRs change frequently
-  });
-}
-
-/**
- * Hook to disconnect GitHub integration
- * Sprint 69: Allow users to unlink GitHub
- */
-export function useDisconnectGitHub() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: disconnectGitHub,
-    onSuccess: () => {
-      // Invalidate all GitHub queries
-      queryClient.invalidateQueries({ queryKey: githubKeys.all });
-    },
-  });
-}
-
-/**
- * Hook to invalidate GitHub cache
- */
-export function useInvalidateGitHub() {
-  const queryClient = useQueryClient();
-
-  return () => {
-    queryClient.invalidateQueries({ queryKey: githubKeys.all });
+export interface GitHubRepository {
+  id: number;
+  name: string;
+  full_name: string;
+  description: string | null;
+  private: boolean;
+  url: string;
+  html_url: string;
+  clone_url: string;
+  default_branch: string;
+  language: string | null;
+  stargazers_count: number;
+  forks_count: number;
+  open_issues_count: number;
+  created_at: string;
+  updated_at: string;
+  pushed_at: string;
+  owner: {
+    login: string;
+    avatar_url: string;
   };
 }
 
-// Export types for use in components
-export type { GitHubConnectionStatus, GitHubRepository, GitHubPullRequest };
+export interface GitHubConnection {
+  id: string;
+  user_id: string;
+  github_user_id: number;
+  github_username: string;
+  github_avatar_url: string;
+  access_token_expires_at: string;
+  installation_id?: number;
+  connected_at: string;
+  last_synced_at?: string;
+}
+
+export interface ConnectGitHubRequest {
+  code: string;
+  state?: string;
+}
+
+export interface ConnectRepositoryRequest {
+  repository_id: number;
+  repository_name: string;
+  repository_owner: string;
+  default_branch: string;
+}
+
+export interface ProjectGitHubConnection {
+  id: string;
+  project_id: string;
+  repository_id: number;
+  repository_name: string;
+  repository_owner: string;
+  repository_full_name: string;
+  default_branch: string;
+  webhook_id?: number;
+  connected_at: string;
+  last_sync_at?: string;
+  sync_status: "idle" | "syncing" | "error";
+  last_error?: string;
+}
+
+export function useGitHub() {
+  const queryClient = useQueryClient();
+
+  // Fetch GitHub connection status
+  const {
+    data: connection,
+    isLoading: isLoadingConnection,
+    error: connectionError,
+    refetch: refetchConnection,
+  } = useQuery<GitHubConnection | null>({
+    queryKey: ["github-connection"],
+    queryFn: async () => {
+      try {
+        const response = await api.get("/github/connection");
+        return response.data;
+      } catch (error: any) {
+        if (error.response?.status === 404) {
+          return null; // Not connected
+        }
+        throw error;
+      }
+    },
+  });
+
+  // Fetch GitHub repositories (only if connected)
+  const {
+    data: repositories = [],
+    isLoading: isLoadingRepositories,
+    error: repositoriesError,
+    refetch: refetchRepositories,
+  } = useQuery<GitHubRepository[]>({
+    queryKey: ["github-repositories"],
+    queryFn: async () => {
+      const response = await api.get("/github/repositories");
+      return response.data;
+    },
+    enabled: !!connection,
+  });
+
+  // Connect GitHub account (OAuth flow)
+  const {
+    mutateAsync: connectGitHub,
+    isPending: isConnecting,
+    error: connectError,
+  } = useMutation({
+    mutationFn: async (data: ConnectGitHubRequest) => {
+      const response = await api.post("/github/connect", data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["github-connection"] });
+      queryClient.invalidateQueries({ queryKey: ["github-repositories"] });
+    },
+  });
+
+  // Disconnect GitHub account
+  const {
+    mutateAsync: disconnectGitHub,
+    isPending: isDisconnecting,
+    error: disconnectError,
+  } = useMutation({
+    mutationFn: async () => {
+      const response = await api.delete("/github/connection");
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["github-connection"] });
+      queryClient.invalidateQueries({ queryKey: ["github-repositories"] });
+      queryClient.invalidateQueries({ queryKey: ["project-github-connections"] });
+    },
+  });
+
+  // Sync repositories from GitHub
+  const {
+    mutateAsync: syncRepositories,
+    isPending: isSyncing,
+    error: syncError,
+  } = useMutation({
+    mutationFn: async () => {
+      const response = await api.post("/github/repositories/sync");
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["github-repositories"] });
+    },
+  });
+
+  // Connect repository to project
+  const {
+    mutateAsync: connectRepository,
+    isPending: isConnectingRepository,
+    error: connectRepositoryError,
+  } = useMutation({
+    mutationFn: async ({
+      projectId,
+      data,
+    }: {
+      projectId: string;
+      data: ConnectRepositoryRequest;
+    }) => {
+      const response = await api.post(
+        `/projects/${projectId}/github/repository`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: (_, { projectId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["project-github-connection", projectId],
+      });
+    },
+  });
+
+  // Disconnect repository from project
+  const {
+    mutateAsync: disconnectRepository,
+    isPending: isDisconnectingRepository,
+    error: disconnectRepositoryError,
+  } = useMutation({
+    mutationFn: async (projectId: string) => {
+      const response = await api.delete(`/projects/${projectId}/github/repository`);
+      return response.data;
+    },
+    onSuccess: (_, projectId) => {
+      queryClient.invalidateQueries({
+        queryKey: ["project-github-connection", projectId],
+      });
+    },
+  });
+
+  // Trigger manual sync for project repository
+  const {
+    mutateAsync: triggerProjectSync,
+    isPending: isTriggeringSync,
+    error: triggerSyncError,
+  } = useMutation({
+    mutationFn: async (projectId: string) => {
+      const response = await api.post(`/projects/${projectId}/github/sync`);
+      return response.data;
+    },
+    onSuccess: (_, projectId) => {
+      queryClient.invalidateQueries({
+        queryKey: ["project-github-connection", projectId],
+      });
+    },
+  });
+
+  // Computed values
+  const isConnected = !!connection;
+  const hasRepositories = repositories.length > 0;
+
+  return {
+    // Connection data
+    connection,
+    isConnected,
+    isLoadingConnection,
+    connectionError,
+
+    // Repositories data
+    repositories,
+    hasRepositories,
+    isLoadingRepositories,
+    repositoriesError,
+
+    // Connection actions
+    connectGitHub,
+    isConnecting,
+    connectError,
+    disconnectGitHub,
+    isDisconnecting,
+    disconnectError,
+
+    // Repository actions
+    syncRepositories,
+    isSyncing,
+    syncError,
+    connectRepository,
+    isConnectingRepository,
+    connectRepositoryError,
+    disconnectRepository,
+    isDisconnectingRepository,
+    disconnectRepositoryError,
+    triggerProjectSync,
+    isTriggeringSync,
+    triggerSyncError,
+
+    // Refetch functions
+    refetchConnection,
+    refetchRepositories,
+  };
+}
+
+// Hook for fetching project-specific GitHub connection
+export function useProjectGitHub(projectId: string | null) {
+  const queryClient = useQueryClient();
+
+  const {
+    data: projectConnection,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery<ProjectGitHubConnection | null>({
+    queryKey: ["project-github-connection", projectId],
+    queryFn: async () => {
+      if (!projectId) return null;
+      try {
+        const response = await api.get(`/projects/${projectId}/github/repository`);
+        return response.data;
+      } catch (error: any) {
+        if (error.response?.status === 404) {
+          return null; // Project not connected to GitHub
+        }
+        throw error;
+      }
+    },
+    enabled: !!projectId,
+  });
+
+  const isProjectConnected = !!projectConnection;
+
+  return {
+    projectConnection,
+    isProjectConnected,
+    isLoading,
+    error,
+    refetch,
+  };
+}
+
+// Hook for initiating GitHub OAuth flow
+export function useGitHubOAuth() {
+  const initiateOAuth = () => {
+    const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
+    const redirectUri = `${window.location.origin}/settings/github/callback`;
+    const state = Math.random().toString(36).substring(7);
+
+    // Store state in sessionStorage for verification
+    sessionStorage.setItem("github_oauth_state", state);
+
+    const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=read:user,repo&state=${state}`;
+
+    window.location.href = authUrl;
+  };
+
+  return { initiateOAuth };
+}

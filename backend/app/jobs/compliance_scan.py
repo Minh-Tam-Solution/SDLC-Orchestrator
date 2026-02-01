@@ -37,7 +37,7 @@ from datetime import datetime, timedelta
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import select, and_, func
+from sqlalchemy import select, and_, func, case
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import AsyncSessionLocal
@@ -356,8 +356,8 @@ async def process_scan_queue(max_jobs: int = 10) -> list[dict[str, Any]]:
             select(ScanJob)
             .where(ScanJob.status == ScanJobStatus.QUEUED.value)
             .order_by(
-                # High priority first
-                func.case(
+                # High priority first using SQLAlchemy case()
+                case(
                     (ScanJob.priority == "high", 1),
                     (ScanJob.priority == "normal", 2),
                     else_=3,

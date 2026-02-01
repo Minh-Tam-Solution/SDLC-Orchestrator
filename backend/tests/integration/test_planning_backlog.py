@@ -857,10 +857,9 @@ class TestAssigneeTeamMembershipValidation:
     async def team_member_user(self, db_session, project_with_team):
         """Create a second user who is a team member."""
         user = User(
-            username=f"teammember-{uuid4().hex[:8]}",
             email=f"teammember-{uuid4().hex[:8]}@test.com",
             full_name="Team Member User",
-            hashed_password="test_hash",
+            password_hash="test_hash",
         )
         db_session.add(user)
         await db_session.flush()
@@ -882,10 +881,9 @@ class TestAssigneeTeamMembershipValidation:
     async def non_team_user(self, db_session):
         """Create a user who is NOT a team member."""
         user = User(
-            username=f"nonmember-{uuid4().hex[:8]}",
             email=f"nonmember-{uuid4().hex[:8]}@test.com",
             full_name="Non Member User",
-            hashed_password="test_hash",
+            password_hash="test_hash",
         )
         db_session.add(user)
         await db_session.commit()
@@ -1159,10 +1157,9 @@ class TestAssigneeTeamMembershipValidation:
         """
         # Create AI agent user
         ai_user = User(
-            username=f"ai-agent-{uuid4().hex[:8]}",
             email=f"ai-agent-{uuid4().hex[:8]}@test.com",
             full_name="AI Agent",
-            hashed_password="test_hash",
+            password_hash="test_hash",
         )
         db_session.add(ai_user)
         await db_session.flush()

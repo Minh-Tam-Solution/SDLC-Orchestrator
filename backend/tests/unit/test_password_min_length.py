@@ -39,7 +39,7 @@ Zero Mock Policy: Real database integration tests
 import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock, Mock, patch
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 from app.services.settings_service import SettingsService
 
@@ -67,7 +67,6 @@ async def test_get_password_min_length_from_db(settings_service, test_db_session
         category="security",
         description="Minimum password length",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(setting)
@@ -93,7 +92,6 @@ async def test_get_password_min_length_sanity_check(settings_service, test_db_se
         category="security",
         description="Too low",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(low_setting)
@@ -104,7 +102,7 @@ async def test_get_password_min_length_sanity_check(settings_service, test_db_se
 
     # Test value too high (> 128)
     await test_db_session.execute(
-        "UPDATE system_settings SET value = '200' WHERE key = 'password_min_length'"
+        text("UPDATE system_settings SET value = '200' WHERE key = 'password_min_length'")
     )
     await test_db_session.commit()
 
@@ -116,7 +114,7 @@ async def test_get_password_min_length_sanity_check(settings_service, test_db_se
 
     # Cleanup
     await test_db_session.execute(
-        "DELETE FROM system_settings WHERE key = 'password_min_length'"
+        text("DELETE FROM system_settings WHERE key = 'password_min_length'")
     )
     await test_db_session.commit()
 
@@ -284,7 +282,6 @@ async def test_custom_min_length_propagates_to_all_endpoints(
         category="security",
         description="Custom minimum password length",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(setting)
@@ -425,7 +422,7 @@ async def test_user(test_db_session):
     user = User(
         email="password.test@example.com",
         password_hash=get_password_hash("CurrentPassword123!"),
-        name="Password Test User",
+        full_name="Password Test User",
         is_active=True,
         is_superuser=False,
     )
@@ -449,7 +446,7 @@ async def admin_user(test_db_session):
     admin = User(
         email="admin.password@example.com",
         password_hash=get_password_hash("AdminPassword123!"),
-        name="Admin User",
+        full_name="Admin User",
         is_active=True,
         is_superuser=True,
     )

@@ -28,7 +28,7 @@ class TestPerformanceBenchmarks:
 
         # Create 11 stages
         stages = [
-            "00-Project-Foundation",
+            "00-foundation",
             "01-Planning-Analysis",
             "02-Design-Architecture",
             "03-Development-Implementation",

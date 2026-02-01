@@ -39,7 +39,7 @@ from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 
 
-class ContextSnapshot(Base):
+class GovernanceContextSnapshot(Base):
     """
     Historical context state for reproducible validation.
 
@@ -48,9 +48,12 @@ class ContextSnapshot(Base):
     - AGENTS.md content
     - Design documents
     - Module registry
+
+    Note: Renamed from ContextSnapshot to GovernanceContextSnapshot to avoid
+    conflict with the newer ContextSnapshot in context_authority_v2.py (Sprint 120).
     """
 
-    __tablename__ = "context_snapshots"
+    __tablename__ = "governance_context_snapshots"
 
     # Primary Key
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
@@ -87,7 +90,7 @@ class ContextSnapshot(Base):
     project = relationship("Project")
 
     def __repr__(self) -> str:
-        return f"ContextSnapshot(id={self.id}, commit={self.commit_sha[:8]})"
+        return f"GovernanceContextSnapshot(id={self.id}, commit={self.commit_sha[:8]})"
 
 
 class ContextAuthority(Base):
@@ -145,7 +148,7 @@ class ContextAuthority(Base):
     # Context Snapshot Reference
     context_snapshot_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("context_snapshots.id", ondelete="SET NULL"),
+        ForeignKey("governance_context_snapshots.id", ondelete="SET NULL"),
         nullable=True,
     )
 
@@ -168,7 +171,7 @@ class ContextAuthority(Base):
     # Relationships
     submission = relationship("GovernanceSubmission", back_populates="context_authority")
     project = relationship("Project")
-    context_snapshot = relationship("ContextSnapshot")
+    context_snapshot = relationship("GovernanceContextSnapshot")
 
     def __repr__(self) -> str:
         return f"ContextAuthority(id={self.id}, status={self.validation_status})"

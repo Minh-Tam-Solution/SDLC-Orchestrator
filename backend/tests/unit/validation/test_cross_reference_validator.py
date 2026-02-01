@@ -35,7 +35,14 @@ class TestCrossReferenceValidator:
         stage1 = docs_root / "01-planning"
         stage1.mkdir()
 
-        # Create files with valid references
+        # Create index that references overview (so overview isn't orphaned)
+        index = docs_root / "README.md"
+        index.write_text(
+            "# Documentation\n\n"
+            "[Planning](./01-planning/overview.md)\n"
+        )
+
+        # Create files with valid cross-references
         doc1 = stage1 / "overview.md"
         doc2 = stage1 / "details.md"
 
@@ -43,7 +50,10 @@ class TestCrossReferenceValidator:
             "# Overview\n\n"
             "[See details](./details.md)\n"
         )
-        doc2.write_text("# Details\n\nSome content")
+        doc2.write_text(
+            "# Details\n\n"
+            "[Back to overview](./overview.md)\n"
+        )
 
         validator = CrossReferenceValidator(docs_root)
         violations = validator.validate()

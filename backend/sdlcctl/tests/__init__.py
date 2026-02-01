@@ -1,1 +1,1 @@
-"""SDLC 5.0.0 Validator Tests."""
+"""SDLC 6.0.0 Validator Tests."""

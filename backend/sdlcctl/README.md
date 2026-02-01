@@ -1,18 +1,20 @@
-# sdlcctl - SDLC 5.0.0 Structure Validator CLI
+# sdlcctl - SDLC 6.0.0 Structure Validator CLI
 
-**Version**: 1.1.0
-**Framework**: SDLC 5.0.0
+**Version**: 1.2.0
+**Framework**: SDLC 6.0.0
 **Author**: SDLC Orchestrator Team
+**Sprint**: 129 - GitHub Integration
 
-A command-line tool for validating, fixing, and initializing SDLC 5.0.0 compliant project structures.
+A command-line tool for validating, fixing, and initializing SDLC 6.0.0 compliant project structures.
 
 ---
 
 ## Features
 
-- **Validate** project folder structure against SDLC 5.0.0 standards
+- **Validate** project folder structure against SDLC 6.0.0 standards
 - **Fix** missing stage folders and P0 artifacts automatically
 - **Initialize** new projects with complete SDLC structure
+- **GitHub Integration** - Connect repositories with `--github` flag
 - **Generate reports** in Markdown, JSON, or HTML formats
 - **4-Tier Classification** support (LITE, STANDARD, PROFESSIONAL, ENTERPRISE)
 - **Pre-commit hook** for CI/CD integration (<2s execution)
@@ -42,6 +44,7 @@ pip install -e .
 - typer[all] >= 0.9.0
 - click < 8.2 (required for Typer compatibility)
 - rich >= 13.0.0
+- requests >= 2.31.0 (for GitHub API integration)
 
 ---
 
@@ -68,6 +71,9 @@ sdlcctl init
 
 # Non-interactive with specific tier
 sdlcctl init --tier professional --no-interactive
+
+# Initialize with GitHub repository
+sdlcctl init --github owner/repo --tier professional
 ```
 
 ### 3. Fix issues automatically
@@ -86,7 +92,7 @@ sdlcctl fix --no-interactive
 
 ### `sdlcctl validate`
 
-Validate SDLC 5.0.0 folder structure compliance.
+Validate SDLC 6.0.0 folder structure compliance.
 
 ```bash
 sdlcctl validate [OPTIONS]
@@ -186,7 +192,7 @@ sdlcctl fix --stages --no-p0
 
 ### `sdlcctl init`
 
-Initialize SDLC 5.0.0 project structure.
+Initialize SDLC 6.0.0 project structure.
 
 ```bash
 sdlcctl init [OPTIONS]
@@ -200,6 +206,8 @@ sdlcctl init [OPTIONS]
 | `--docs` | `-d` | Documentation folder name | `docs` |
 | `--tier` | `-t` | Project tier | Interactive prompt |
 | `--team-size` | | Team size for auto-tier | None |
+| `--github` | `-g` | GitHub repository to connect (owner/repo or URL) | None |
+| `--clone/--no-clone` | | Clone the GitHub repository if not exists locally | `true` |
 | `--scaffold` | | Create full folder structure | `true` |
 | `--no-scaffold` | | Do not create READMEs and templates | `false` |
 | `--force` | `-f` | Overwrite existing docs | `false` |
@@ -217,6 +225,59 @@ sdlcctl init --team-size 25
 
 # Non-interactive enterprise setup
 sdlcctl init --tier enterprise --no-interactive --force
+
+# Initialize with GitHub repository (clones automatically)
+sdlcctl init --github owner/repo --tier professional
+
+# Initialize with GitHub URL
+sdlcctl init --github https://github.com/owner/repo
+
+# Initialize with SSH URL
+sdlcctl init --github git@github.com:owner/repo.git
+
+# Link GitHub without cloning (use existing local repo)
+sdlcctl init --github owner/repo --no-clone
+
+# Full example with all options
+sdlcctl init --github acme-corp/my-project --tier professional --no-interactive
+```
+
+---
+
+### GitHub Integration
+
+The `--github` flag supports three repository formats:
+
+| Format | Example |
+|--------|---------|
+| Simple (recommended) | `owner/repo` |
+| HTTPS URL | `https://github.com/owner/repo` |
+| SSH URL | `git@github.com:owner/repo.git` |
+
+**Workflow:**
+
+1. Parse and validate repository format
+2. Check if SDLC Orchestrator GitHub App is installed
+3. Clone repository (if `--clone` is enabled and local copy doesn't exist)
+4. Create SDLC 6.0.0 folder structure
+5. Register project with SDLC Orchestrator backend
+
+**Environment Variables:**
+
+```bash
+# SDLC Orchestrator API endpoint
+export SDLC_API_URL=https://sdlc.example.com/api/v1
+
+# API authentication token
+export SDLC_API_TOKEN=your-api-token
+```
+
+**GitHub App Installation:**
+
+If the GitHub App is not installed, the CLI will prompt you to install it:
+
+```
+https://github.com/apps/sdlc-orchestrator/installations/new
 ```
 
 ---
@@ -265,7 +326,7 @@ sdlcctl tiers
 **Output:**
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                       SDLC 5.0.0 Tier Classification                    │
+│                       SDLC 6.0.0 Tier Classification                    │
 ├─────────────────┬──────────────┬──────────┬────────────┬────────────────┤
 │ Tier            │    Team Size │   Stages │ P0 Required│ Compliance     │
 ├─────────────────┼──────────────┼──────────┼────────────┼────────────────┤
@@ -280,7 +341,7 @@ sdlcctl tiers
 
 ### `sdlcctl stages`
 
-Display SDLC 5.0.0 stage definitions.
+Display SDLC 6.0.0 stage definitions.
 
 ```bash
 sdlcctl stages
@@ -289,7 +350,7 @@ sdlcctl stages
 **Output:**
 ```
 ┌────────────────────────────────────────────────────────────────────────────────┐
-│                              SDLC 5.0.0 Stages                                 │
+│                              SDLC 6.0.0 Stages                                 │
 ├──────┬─────────────────────────────────┬───────────────────────────────────────┤
 │ ID   │ Stage Name                      │ Question                              │
 ├──────┼─────────────────────────────────┼───────────────────────────────────────┤
@@ -330,7 +391,7 @@ Shows all 15 P0 artifacts with tier requirements:
 
 ## Tier Classification
 
-SDLC 5.0.0 supports 4 tiers based on team size and compliance needs:
+SDLC 6.0.0 supports 4 tiers based on team size and compliance needs:
 
 | Tier | Team Size | Required Stages | P0 Artifacts | Compliance |
 |------|-----------|-----------------|--------------|------------|
@@ -482,7 +543,7 @@ repos:
   - repo: local
     hooks:
       - id: sdlcctl-validate
-        name: SDLC 5.0.0 Validation
+        name: SDLC 6.0.0 Validation
         entry: python -m sdlcctl.hooks.pre_commit
         language: python
         pass_filenames: false
@@ -601,7 +662,7 @@ Run `sdlcctl p0` to see all 15 artifacts with tier requirements.
 
 ## Folder Structure
 
-SDLC 5.0.0 compliant project structure:
+SDLC 6.0.0 compliant project structure:
 
 ```
 project/
@@ -769,6 +830,66 @@ ls -la docs/
 sudo sdlcctl fix --no-interactive
 ```
 
+### GitHub Integration Issues
+
+**5. "Invalid GitHub repository format"**
+```bash
+# Valid formats:
+sdlcctl init --github owner/repo              # Simple format
+sdlcctl init --github https://github.com/owner/repo  # HTTPS URL
+sdlcctl init --github git@github.com:owner/repo.git  # SSH URL
+
+# Invalid examples:
+sdlcctl init --github just-a-name            # Missing owner
+sdlcctl init --github https://gitlab.com/... # Wrong host
+```
+
+**6. "GitHub App not installed"**
+```bash
+# Solution: Install the SDLC Orchestrator GitHub App
+# Visit: https://github.com/apps/sdlc-orchestrator/installations/new
+
+# Then retry:
+sdlcctl init --github owner/repo --tier professional
+```
+
+**7. "Clone failed: repository not found"**
+```bash
+# Check if repository exists and is accessible
+gh repo view owner/repo
+
+# For private repos, ensure GitHub App has access
+# Or use --no-clone to link without cloning
+sdlcctl init --github owner/repo --no-clone
+```
+
+**8. "Directory already exists and is not the same repository"**
+```bash
+# The target directory exists but has a different remote
+# Options:
+#   1. Remove the existing directory
+#   2. Use a different path
+#   3. Use --no-clone to skip cloning
+
+sdlcctl init --github owner/repo --no-clone --path /new/path
+```
+
+**9. "No API token configured"**
+```bash
+# Set your API token
+export SDLC_API_TOKEN=your-token
+
+# Or pass via environment
+SDLC_API_TOKEN=your-token sdlcctl init --github owner/repo
+```
+
+**10. "Git is not installed"**
+```bash
+# Install git
+sudo apt install git      # Ubuntu/Debian
+brew install git          # macOS
+```
+
 ---
 
 ## License
@@ -790,10 +911,10 @@ See [CONTRIBUTING.md](../../CONTRIBUTING.md) for detailed guidelines.
 
 ## Links
 
-- **Documentation**: [SDLC 5.0.0 Framework](https://github.com/your-org/sdlc-framework)
+- **Documentation**: [SDLC 6.0.0 Framework](https://github.com/your-org/sdlc-framework)
 - **Issues**: [GitHub Issues](https://github.com/your-org/sdlc-orchestrator/issues)
 - **Changelog**: [CHANGELOG.md](./CHANGELOG.md)
 
 ---
 
-*Generated by SDLC Orchestrator Team - Sprint 29*
+*Generated by SDLC Orchestrator Team - Sprint 129*

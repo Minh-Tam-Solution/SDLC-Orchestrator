@@ -67,15 +67,19 @@ const magicCommand_1 = require("./commands/magicCommand");
 const lockCommand_1 = require("./commands/lockCommand");
 const previewCommand_1 = require("./commands/previewCommand");
 const resumeCommand_1 = require("./commands/resumeCommand");
+const specValidationCommand_1 = require("./commands/specValidationCommand");
+const connectGithubCommand_1 = require("./commands/connectGithubCommand");
 const sdlcStructureService_1 = require("./services/sdlcStructureService");
 const blueprintProvider_1 = require("./providers/blueprintProvider");
 const appBuilderPanel_1 = require("./panels/appBuilderPanel");
 const generationPanel_1 = require("./panels/generationPanel");
+const projectDetector_1 = require("./services/projectDetector");
 const state = {
     apiClient: undefined,
     authService: undefined,
     cacheService: undefined,
     codegenApi: undefined,
+    projectDetector: undefined,
     gateStatusProvider: undefined,
     violationsProvider: undefined,
     projectsProvider: undefined,
@@ -103,17 +107,19 @@ async function activate(context) {
         state.apiClient = new apiClient_1.ApiClient(context, state.authService);
         state.cacheService = new cacheService_1.CacheService(context);
         state.codegenApi = new codegenApi_1.CodegenApiService(context, state.authService);
+        // Initialize Project Detector (Sprint 127 - Auto-Detect Project)
+        state.projectDetector = projectDetector_1.ProjectDetector.getInstance(state.apiClient);
         // Check authentication status
         const isAuthenticated = await state.authService.isAuthenticated();
         await vscode.commands.executeCommand('setContext', 'sdlc.isAuthenticated', isAuthenticated);
         // Initialize view providers with cache support
         state.gateStatusProvider = new gateStatusView_1.GateStatusProvider(state.apiClient, state.cacheService);
         state.violationsProvider = new violationsView_1.ViolationsProvider(state.apiClient, state.cacheService);
-        state.projectsProvider = new projectsView_1.ProjectsProvider(state.apiClient, state.cacheService);
+        state.projectsProvider = new projectsView_1.ProjectsProvider(state.apiClient, state.cacheService, state.projectDetector);
         // Initialize Blueprint Provider (Sprint 53 Day 2)
         state.blueprintProvider = new blueprintProvider_1.BlueprintProvider();
-        // Initialize Context Panel Provider (Sprint 81)
-        state.contextPanelProvider = new contextPanel_1.ContextPanelProvider(state.apiClient, state.cacheService);
+        // Initialize Context Panel Provider (Sprint 81 + Sprint 127 Auto-Detect)
+        state.contextPanelProvider = new contextPanel_1.ContextPanelProvider(state.apiClient, state.cacheService, state.projectDetector);
         state.contextStatusBar = new contextPanel_1.ContextStatusBarItem();
         // Register tree data providers
         context.subscriptions.push(vscode.window.registerTreeDataProvider('sdlc-context', state.contextPanelProvider), vscode.window.registerTreeDataProvider('sdlc-gate-status', state.gateStatusProvider), vscode.window.registerTreeDataProvider('sdlc-violations', state.violationsProvider), vscode.window.registerTreeDataProvider('sdlc-projects', state.projectsProvider), vscode.window.registerTreeDataProvider('sdlc-blueprint', state.blueprintProvider));
@@ -126,7 +132,7 @@ async function activate(context) {
         context.subscriptions.push(chatParticipantDisposable);
         // Register commands
         registerCommands(context);
-        // Register init commands (SDLC 5.1.2 project initialization)
+        // Register init commands (SDLC 6.0.0 project initialization)
         (0, initCommand_1.registerInitCommand)(context, state.apiClient);
         // Register App Builder commands (Sprint 53)
         (0, generateCommand_1.registerGenerateCommand)(context, state.codegenApi);
@@ -135,6 +141,10 @@ async function activate(context) {
         (0, lockCommand_1.registerLockStatusCommand)(context, state.codegenApi);
         (0, previewCommand_1.registerPreviewCommand)(context, state.codegenApi);
         (0, resumeCommand_1.registerResumeCommand)(context, state.codegenApi);
+        // Register Specification Validation commands (Sprint 126 - S126-06)
+        (0, specValidationCommand_1.registerSpecValidationCommand)(context, state.codegenApi);
+        // Register GitHub Integration commands (Sprint 129 Day 3)
+        (0, connectGithubCommand_1.registerGithubCommands)(context, state.apiClient);
         // Register Blueprint commands (Sprint 53 Day 2)
         (0, blueprintProvider_1.registerBlueprintCommands)(context, state.blueprintProvider);
         // Register App Builder Panel command (Sprint 53 Day 2)
@@ -164,6 +174,23 @@ async function activate(context) {
             await showWelcomeMessage();
             await context.globalState.update('sdlc.hasShownWelcome', true);
         }
+        // Auto-detect project on activation (Sprint 127)
+        if (state.projectDetector) {
+            const project = await state.projectDetector.getCurrentProject();
+            if (project) {
+                logger_1.Logger.info(`Auto-detected project: ${project.name} (${project.uuid}) from ${project.source}`);
+            }
+            else {
+                logger_1.Logger.warn('No project auto-detected from workspace');
+            }
+        }
+        // Listen for workspace folder changes to invalidate project cache
+        context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => {
+            if (state.projectDetector) {
+                state.projectDetector.invalidateCache();
+                logger_1.Logger.info('Project cache invalidated due to workspace folder change');
+            }
+        }));
         // Initial data load if authenticated
         if (isAuthenticated) {
             await refreshAllViews();
@@ -328,8 +355,8 @@ async function handleLogin() {
     try {
         // Show login options
         const loginMethod = await vscode.window.showQuickPick([
-            { label: '$(mail) Email & Password', description: 'Login with email and password (Recommended)', value: 'email' },
-            { label: '$(key) API Token', description: 'Login with API token', value: 'token' },
+            { label: '$(key) API Token', description: 'Never expires - Recommended for VS Code (sdlc_live_*)', value: 'token' },
+            { label: '$(mail) Email & Password', description: 'Login with email and password (JWT expires in 8 hours)', value: 'email' },
             { label: '$(github) GitHub OAuth', description: 'Login with GitHub', value: 'github' },
         ], { placeHolder: 'Select login method' });
         if (!loginMethod) {
@@ -590,11 +617,11 @@ async function checkAndPromptForInit(context) {
     let message;
     let actions;
     if (isEmptyOrMinimal) {
-        message = 'This folder is empty. Would you like to create an SDLC 5.1.2 project structure?';
+        message = 'This folder is empty. Would you like to create an SDLC 6.0.0 project structure?';
         actions = ['Create SDLC Project', 'Not Now', "Don't Ask Again"];
     }
     else {
-        message = 'This project doesn\'t have an SDLC configuration. Would you like to add SDLC 5.1.2 governance?';
+        message = 'This project doesn\'t have an SDLC configuration. Would you like to add SDLC 6.0.0 governance?';
         actions = ['Run Gap Analysis', 'Initialize', 'Not Now', "Don't Ask Again"];
     }
     const selection = await vscode.window.showInformationMessage(message, ...actions);

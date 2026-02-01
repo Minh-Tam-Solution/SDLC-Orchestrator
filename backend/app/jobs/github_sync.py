@@ -36,8 +36,7 @@ from sqlalchemy import select, and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import AsyncSessionLocal
-from app.models.project import Project
-from app.models.user import OAuthAccount
+from app.models import Project, OAuthAccount
 from app.services.github_service import GitHubAPIError, github_service
 from app.services.project_sync_service import project_sync_service
 

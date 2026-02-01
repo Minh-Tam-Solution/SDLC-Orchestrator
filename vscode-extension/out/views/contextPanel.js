@@ -53,13 +53,18 @@ const config_1 = require("../utils/config");
 class ContextTreeItem extends vscode.TreeItem {
     itemType;
     children;
-    constructor(label, collapsibleState, itemType, itemDescription, children, itemTooltip) {
+    constructor(label, collapsibleState, itemType, itemDescription, children, itemTooltip, itemCommand) {
         super(label, collapsibleState);
         this.itemType = itemType;
         this.contextValue = itemType;
-        this.description = itemDescription ?? false;
+        // Force convert to string to handle edge cases where objects are passed
+        this.description = itemDescription ? String(itemDescription) : '';
         this.tooltip = itemTooltip;
         this.children = children ?? [];
+        // Set command if provided
+        if (itemCommand) {
+            this.command = itemCommand;
+        }
         // Set icons based on item type
         this.iconPath = this.getIcon();
     }
@@ -93,15 +98,17 @@ exports.ContextTreeItem = ContextTreeItem;
 class ContextPanelProvider {
     apiClient;
     cacheService;
+    projectDetector;
     _onDidChangeTreeData = new vscode.EventEmitter();
     onDidChangeTreeData = this._onDidChangeTreeData.event;
     context = null;
     isLoading = false;
     lastError = null;
     refreshInterval;
-    constructor(apiClient, cacheService) {
+    constructor(apiClient, cacheService, projectDetector) {
         this.apiClient = apiClient;
         this.cacheService = cacheService;
+        this.projectDetector = projectDetector;
         // Start auto-refresh
         this.setupAutoRefresh();
     }
@@ -122,13 +129,58 @@ class ContextPanelProvider {
      * Refresh context data
      */
     async refresh() {
-        const projectId = this.apiClient.getCurrentProjectId();
+        // Sprint 127: Use ProjectDetector if available, fallback to manual config
+        let projectId;
+        let projectName;
+        logger_1.Logger.info('Context Overlay refresh started');
+        if (this.projectDetector) {
+            logger_1.Logger.debug('Attempting auto-detect project...');
+            try {
+                const detected = await this.projectDetector.getCurrentProject();
+                if (detected) {
+                    projectId = detected.uuid;
+                    projectName = detected.name;
+                    logger_1.Logger.info(`✅ Auto-detected project: ${projectName} (${projectId}) from ${detected.source}`);
+                }
+                else {
+                    // UUID resolution failed, but try to get just the name for better error message
+                    const nameOnly = this.projectDetector.detectProjectName();
+                    if (nameOnly) {
+                        projectName = nameOnly.name;
+                        logger_1.Logger.warn(`❌ Project "${projectName}" detected but not registered in backend`);
+                    }
+                    else {
+                        logger_1.Logger.warn('❌ Auto-detect returned null');
+                    }
+                }
+            }
+            catch (error) {
+                logger_1.Logger.error(`❌ Auto-detect failed: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        }
+        else {
+            logger_1.Logger.debug('ProjectDetector not available');
+        }
+        // Fallback to manual config if auto-detect fails
+        if (!projectId) {
+            projectId = this.apiClient.getCurrentProjectId();
+            logger_1.Logger.debug(`Fallback to manual config: ${projectId || 'NOT SET'}`);
+        }
         if (!projectId) {
             this.context = null;
-            this.lastError = 'No project selected';
+            // Show project name if detected but not registered
+            if (projectName) {
+                this.lastError = `Project "${projectName}" not registered yet. Click to register with backend.`;
+                logger_1.Logger.warn(`❌ Project "${projectName}" detected but no UUID - needs registration`);
+            }
+            else {
+                this.lastError = 'No project detected. Please configure sdlc.defaultProjectId in settings.';
+                logger_1.Logger.error('❌ No project ID available - showing error');
+            }
             this._onDidChangeTreeData.fire();
             return;
         }
+        logger_1.Logger.info(`Fetching context overlay for project: ${projectId}`);
         this.isLoading = true;
         this._onDidChangeTreeData.fire();
         try {
@@ -142,17 +194,58 @@ class ContextPanelProvider {
                 this._onDidChangeTreeData.fire();
             }
             // Fetch fresh data
+            logger_1.Logger.debug(`Calling API: getContextOverlay(${projectId})`);
             const overlay = await this.apiClient.getContextOverlay(projectId);
+            logger_1.Logger.info(`✅ Context overlay received successfully`);
             this.context = overlay;
             this.lastError = null;
             // Update cache (5 minute TTL)
             void this.cacheService.set(cacheKey, overlay, 300000);
-            logger_1.Logger.debug(`Context overlay refreshed for project ${projectId}`);
+            logger_1.Logger.info(`Context overlay refreshed successfully for project ${projectId}`);
         }
         catch (error) {
-            const message = error instanceof Error ? error.message : String(error);
-            logger_1.Logger.error(`Failed to fetch context overlay: ${message}`);
-            this.lastError = message;
+            // Sprint 127: Auto-register project if not found in backend
+            const statusCode = error?.response?.status || error?.statusCode;
+            if (statusCode === 422 || statusCode === 404) {
+                // Project not found in backend - prompt to register
+                logger_1.Logger.warn(`Project "${projectName}" not found in backend (${statusCode})`);
+                // Show friendly message with action
+                this.context = null;
+                this.lastError = `Project "${projectName || 'Unknown'}" not registered yet. Click to register with backend.`;
+                // TODO: Add "Register Project" command that creates project in backend
+                // For now, show helpful error message
+            }
+            else {
+                // Other errors - extract meaningful error message
+                let message = 'Unknown error';
+                if (error?.response?.data?.detail) {
+                    // FastAPI error format: {detail: "message"}
+                    message = error.response.data.detail;
+                }
+                else if (error?.response?.data?.message) {
+                    // Alternative error format: {message: "message"}
+                    message = error.response.data.message;
+                }
+                else if (error?.message) {
+                    // Standard Error object
+                    message = error.message;
+                }
+                else if (typeof error === 'string') {
+                    // String error
+                    message = error;
+                }
+                else {
+                    // Fallback: stringify the error
+                    try {
+                        message = JSON.stringify(error);
+                    }
+                    catch {
+                        message = String(error);
+                    }
+                }
+                logger_1.Logger.error(`Failed to fetch context overlay: ${message}`);
+                this.lastError = `Offline mode: ${message}`;
+            }
         }
         finally {
             this.isLoading = false;
@@ -203,7 +296,12 @@ class ContextPanelProvider {
         }
         // Error state
         if (this.lastError && !this.context) {
-            items.push(new ContextTreeItem('Error', vscode.TreeItemCollapsibleState.None, 'error', this.lastError));
+            // Check if this is a "not registered" error - make it actionable
+            const isNotRegistered = this.lastError.includes('not registered');
+            items.push(new ContextTreeItem(isNotRegistered ? 'Project Not Registered' : 'Error', vscode.TreeItemCollapsibleState.None, 'error', isNotRegistered ? 'Click to initialize project' : this.lastError, undefined, this.lastError, isNotRegistered ? {
+                command: 'sdlc.init',
+                title: 'Initialize SDLC Project',
+            } : undefined));
             return items;
         }
         // No project selected

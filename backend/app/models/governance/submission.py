@@ -195,6 +195,12 @@ class GovernanceSubmission(Base):
         back_populates="submission",
         cascade="all, delete-orphan",
     )
+    # Context Snapshots (Sprint 120 - Context Authority V2)
+    context_snapshots = relationship(
+        "ContextSnapshot",
+        back_populates="submission",
+        cascade="all, delete-orphan",
+    )
 
     # Constraints
     __table_args__ = (

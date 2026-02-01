@@ -42,7 +42,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ValidationError = exports.ApiError = exports.AuthError = exports.NetworkError = exports.SDLCError = exports.ErrorCode = void 0;
+exports.GitHubError = exports.ValidationError = exports.ApiError = exports.AuthError = exports.NetworkError = exports.SDLCError = exports.ErrorCode = void 0;
 exports.handleError = handleError;
 exports.withErrorHandling = withErrorHandling;
 exports.withRetry = withRetry;
@@ -50,6 +50,11 @@ exports.classifyError = classifyError;
 exports.createNetworkError = createNetworkError;
 exports.createAuthError = createAuthError;
 exports.createApiError = createApiError;
+exports.mapGitHubErrorCode = mapGitHubErrorCode;
+exports.createGitHubError = createGitHubError;
+exports.isGitHubError = isGitHubError;
+exports.isGitHubErrorCode = isGitHubErrorCode;
+exports.parseGitHubApiError = parseGitHubApiError;
 const vscode = __importStar(require("vscode"));
 const logger_1 = require("./logger");
 /**
@@ -76,6 +81,17 @@ var ErrorCode;
     ErrorCode[ErrorCode["VALIDATION_ERROR"] = 400] = "VALIDATION_ERROR";
     ErrorCode[ErrorCode["CONFIGURATION_ERROR"] = 401] = "CONFIGURATION_ERROR";
     ErrorCode[ErrorCode["NO_PROJECT_SELECTED"] = 402] = "NO_PROJECT_SELECTED";
+    // GitHub-specific errors (5xx)
+    ErrorCode[ErrorCode["GITHUB_AUTH_FAILED"] = 500] = "GITHUB_AUTH_FAILED";
+    ErrorCode[ErrorCode["GITHUB_RATE_LIMIT"] = 501] = "GITHUB_RATE_LIMIT";
+    ErrorCode[ErrorCode["GITHUB_REPO_ACCESS_DENIED"] = 502] = "GITHUB_REPO_ACCESS_DENIED";
+    ErrorCode[ErrorCode["GITHUB_REPO_NOT_FOUND"] = 503] = "GITHUB_REPO_NOT_FOUND";
+    ErrorCode[ErrorCode["GITHUB_APP_NOT_INSTALLED"] = 504] = "GITHUB_APP_NOT_INSTALLED";
+    ErrorCode[ErrorCode["GITHUB_INSTALLATION_SUSPENDED"] = 505] = "GITHUB_INSTALLATION_SUSPENDED";
+    ErrorCode[ErrorCode["GITHUB_CLONE_FAILED"] = 506] = "GITHUB_CLONE_FAILED";
+    ErrorCode[ErrorCode["GITHUB_WEBHOOK_INVALID"] = 507] = "GITHUB_WEBHOOK_INVALID";
+    ErrorCode[ErrorCode["GITHUB_TOKEN_EXPIRED"] = 508] = "GITHUB_TOKEN_EXPIRED";
+    ErrorCode[ErrorCode["GITHUB_NETWORK_ERROR"] = 509] = "GITHUB_NETWORK_ERROR";
     // Unknown (9xx)
     ErrorCode[ErrorCode["UNKNOWN"] = 999] = "UNKNOWN";
 })(ErrorCode || (exports.ErrorCode = ErrorCode = {}));
@@ -220,6 +236,27 @@ function getErrorMessage(code, technicalMessage) {
             return `Configuration error: ${technicalMessage}`;
         case ErrorCode.NO_PROJECT_SELECTED:
             return 'No project selected. Please select a project first.';
+        // GitHub-specific error messages
+        case ErrorCode.GITHUB_AUTH_FAILED:
+            return 'GitHub authentication failed. The GitHub App may need to be re-authorized.';
+        case ErrorCode.GITHUB_RATE_LIMIT:
+            return 'GitHub API rate limit exceeded. Please wait before trying again.';
+        case ErrorCode.GITHUB_REPO_ACCESS_DENIED:
+            return 'Access denied to this repository. Please check repository permissions.';
+        case ErrorCode.GITHUB_REPO_NOT_FOUND:
+            return 'Repository not found. It may have been deleted or made private.';
+        case ErrorCode.GITHUB_APP_NOT_INSTALLED:
+            return 'SDLC Orchestrator GitHub App is not installed for this account.';
+        case ErrorCode.GITHUB_INSTALLATION_SUSPENDED:
+            return 'GitHub App installation is suspended. Please reactivate it in GitHub settings.';
+        case ErrorCode.GITHUB_CLONE_FAILED:
+            return 'Failed to clone repository. Please check repository access and try again.';
+        case ErrorCode.GITHUB_WEBHOOK_INVALID:
+            return 'GitHub webhook validation failed. Please verify webhook configuration.';
+        case ErrorCode.GITHUB_TOKEN_EXPIRED:
+            return 'GitHub access token has expired. Reconnecting to GitHub...';
+        case ErrorCode.GITHUB_NETWORK_ERROR:
+            return 'Unable to connect to GitHub. Please check your network connection.';
         default:
             return technicalMessage || 'An unexpected error occurred.';
     }
@@ -234,6 +271,11 @@ function isRetryableError(code) {
         ErrorCode.CONNECTION_REFUSED,
         ErrorCode.SERVER_ERROR,
         ErrorCode.RATE_LIMITED,
+        // GitHub-specific retryable errors
+        ErrorCode.GITHUB_RATE_LIMIT,
+        ErrorCode.GITHUB_NETWORK_ERROR,
+        ErrorCode.GITHUB_TOKEN_EXPIRED,
+        ErrorCode.GITHUB_CLONE_FAILED,
     ].includes(code);
 }
 /**
@@ -262,6 +304,27 @@ function getSuggestedAction(code) {
             return 'Run "SDLC: Select Project" to choose a project.';
         case ErrorCode.CONFIGURATION_ERROR:
             return 'Check your extension settings.';
+        // GitHub-specific suggested actions
+        case ErrorCode.GITHUB_AUTH_FAILED:
+            return 'Run "SDLC: Connect GitHub" to re-authorize the GitHub App.';
+        case ErrorCode.GITHUB_RATE_LIMIT:
+            return 'Wait for the rate limit to reset (typically 1 hour). GitHub allows 5000 requests/hour.';
+        case ErrorCode.GITHUB_REPO_ACCESS_DENIED:
+            return 'Ask the repository owner to grant access, or install the GitHub App on this repository.';
+        case ErrorCode.GITHUB_REPO_NOT_FOUND:
+            return 'Verify the repository URL and check if it still exists on GitHub.';
+        case ErrorCode.GITHUB_APP_NOT_INSTALLED:
+            return 'Install the SDLC Orchestrator GitHub App from github.com/apps/sdlc-orchestrator.';
+        case ErrorCode.GITHUB_INSTALLATION_SUSPENDED:
+            return 'Go to GitHub Settings > Integrations > SDLC Orchestrator to reactivate.';
+        case ErrorCode.GITHUB_CLONE_FAILED:
+            return 'Check repository permissions and try "SDLC: Sync GitHub" to retry cloning.';
+        case ErrorCode.GITHUB_WEBHOOK_INVALID:
+            return 'Check the webhook secret in your GitHub App settings matches the backend configuration.';
+        case ErrorCode.GITHUB_TOKEN_EXPIRED:
+            return 'The token will auto-refresh. Try the operation again.';
+        case ErrorCode.GITHUB_NETWORK_ERROR:
+            return 'Check your network connection to github.com and try again.';
         default:
             return 'Try again or check the logs for more details.';
     }
@@ -353,6 +416,19 @@ function buildActions(error, options) {
     if (error.code === ErrorCode.NO_PROJECT_SELECTED) {
         actions.push('Select Project');
     }
+    // GitHub-specific actions
+    if (error.code === ErrorCode.GITHUB_APP_NOT_INSTALLED) {
+        actions.push('Install GitHub App');
+    }
+    if (error.code === ErrorCode.GITHUB_AUTH_FAILED || error.code === ErrorCode.GITHUB_TOKEN_EXPIRED) {
+        actions.push('Reconnect GitHub');
+    }
+    if (error.code === ErrorCode.GITHUB_REPO_ACCESS_DENIED || error.code === ErrorCode.GITHUB_INSTALLATION_SUSPENDED) {
+        actions.push('Open GitHub Settings');
+    }
+    if (error.code === ErrorCode.GITHUB_CLONE_FAILED) {
+        actions.push('Retry Sync');
+    }
     // Add custom actions
     if (options.customActions) {
         actions.push(...options.customActions.map((a) => a.title));
@@ -380,6 +456,19 @@ async function handleActionSelection(selection, error, options) {
         case 'Show Details':
             showErrorDetails(error);
             break;
+        // GitHub-specific actions
+        case 'Install GitHub App':
+            await vscode.env.openExternal(vscode.Uri.parse('https://github.com/apps/sdlc-orchestrator/installations/new'));
+            break;
+        case 'Reconnect GitHub':
+            await vscode.commands.executeCommand('sdlc.connectGithub');
+            break;
+        case 'Open GitHub Settings':
+            await vscode.env.openExternal(vscode.Uri.parse('https://github.com/settings/installations'));
+            break;
+        case 'Retry Sync':
+            await vscode.commands.executeCommand('sdlc.syncGithub');
+            break;
         default: {
             // Check custom actions
             const customAction = options.customActions?.find((a) => a.title === selection);
@@ -406,6 +495,24 @@ function showErrorDetails(error) {
     outputChannel.appendLine(`User Message: ${error.getUserMessage()}`);
     outputChannel.appendLine(`Suggested Action: ${error.getSuggestedAction()}`);
     outputChannel.appendLine(`Retryable: ${error.isRetryable() ? 'Yes' : 'No'}`);
+    // GitHub-specific details
+    if (error instanceof GitHubError) {
+        outputChannel.appendLine('');
+        outputChannel.appendLine('-'.repeat(60));
+        outputChannel.appendLine('GitHub Error Details:');
+        outputChannel.appendLine('-'.repeat(60));
+        if (error.retryAfter) {
+            outputChannel.appendLine(`Retry After: ${error.retryAfter} seconds`);
+            outputChannel.appendLine(error.getRetryMessage());
+        }
+        if (error.resetAt) {
+            outputChannel.appendLine(`Rate Limit Resets: ${error.resetAt.toLocaleString()}`);
+        }
+        const rateLimitInfo = error.getRateLimitInfo();
+        if (rateLimitInfo) {
+            outputChannel.appendLine(rateLimitInfo);
+        }
+    }
     if (error.originalError) {
         outputChannel.appendLine('');
         outputChannel.appendLine('-'.repeat(60));
@@ -570,5 +677,130 @@ function createApiError(message, statusCode) {
     const code = httpStatusToErrorCode(statusCode);
     const retryable = statusCode >= 500 || statusCode === 429;
     return new SDLCError(code, message, undefined, { category: 'api', retryable });
+}
+/**
+ * GitHub-specific error class with additional context
+ */
+class GitHubError extends SDLCError {
+    retryAfter;
+    resetAt;
+    limit;
+    remaining;
+    constructor(code, message, retryAfter, resetAt, limit, remaining, originalError) {
+        super(code, message, originalError, {
+            category: 'github',
+            retryAfter,
+            resetAt: resetAt?.toISOString(),
+            limit,
+            remaining,
+        });
+        this.retryAfter = retryAfter;
+        this.resetAt = resetAt;
+        this.limit = limit;
+        this.remaining = remaining;
+        this.name = 'GitHubError';
+    }
+    /**
+     * Gets formatted retry message
+     */
+    getRetryMessage() {
+        if (this.retryAfter && this.retryAfter > 0) {
+            const minutes = Math.ceil(this.retryAfter / 60);
+            if (minutes >= 60) {
+                return `Please wait ${Math.ceil(minutes / 60)} hour(s) before trying again.`;
+            }
+            return `Please wait ${minutes} minute(s) before trying again.`;
+        }
+        return '';
+    }
+    /**
+     * Gets rate limit info for display
+     */
+    getRateLimitInfo() {
+        if (this.limit !== undefined && this.remaining !== undefined) {
+            return `Rate limit: ${this.remaining}/${this.limit} requests remaining`;
+        }
+        return '';
+    }
+}
+exports.GitHubError = GitHubError;
+/**
+ * Maps GitHub API error response to extension error code
+ */
+function mapGitHubErrorCode(errorCode) {
+    const mapping = {
+        'github_auth_failed': ErrorCode.GITHUB_AUTH_FAILED,
+        'github_rate_limit_exceeded': ErrorCode.GITHUB_RATE_LIMIT,
+        'github_repo_access_denied': ErrorCode.GITHUB_REPO_ACCESS_DENIED,
+        'github_repo_not_found': ErrorCode.GITHUB_REPO_NOT_FOUND,
+        'github_app_not_installed': ErrorCode.GITHUB_APP_NOT_INSTALLED,
+        'github_installation_suspended': ErrorCode.GITHUB_INSTALLATION_SUSPENDED,
+        'github_clone_failed': ErrorCode.GITHUB_CLONE_FAILED,
+        'github_webhook_invalid_signature': ErrorCode.GITHUB_WEBHOOK_INVALID,
+        'github_token_expired': ErrorCode.GITHUB_TOKEN_EXPIRED,
+        'github_network_error': ErrorCode.GITHUB_NETWORK_ERROR,
+    };
+    return mapping[errorCode] || ErrorCode.UNKNOWN;
+}
+/**
+ * Creates a GitHubError from API response
+ */
+function createGitHubError(response) {
+    const code = response.code ? mapGitHubErrorCode(response.code) : ErrorCode.UNKNOWN;
+    const message = response.message || 'Unknown GitHub error';
+    const resetAt = response.reset_at ? new Date(response.reset_at) : undefined;
+    return new GitHubError(code, message, response.retry_after, resetAt, response.limit, response.remaining);
+}
+/**
+ * Checks if error is a GitHub-specific error
+ */
+function isGitHubError(error) {
+    return error instanceof GitHubError;
+}
+/**
+ * Checks if error code is GitHub-related
+ */
+function isGitHubErrorCode(code) {
+    return code >= 500 && code < 600;
+}
+/**
+ * Parses error response from backend for GitHub errors
+ */
+function parseGitHubApiError(error) {
+    if (error instanceof SDLCError) {
+        return error;
+    }
+    // Check for axios-like response structure
+    if (typeof error === 'object' && error !== null) {
+        const err = error;
+        // Check for response data with GitHub error structure
+        const response = err.response;
+        if (response) {
+            const data = response.data;
+            if (data && typeof data.code === 'string' && data.code.startsWith('github_')) {
+                const githubErrorData = {
+                    code: data.code,
+                };
+                if (typeof data.message === 'string') {
+                    githubErrorData.message = data.message;
+                }
+                if (typeof data.retry_after === 'number') {
+                    githubErrorData.retry_after = data.retry_after;
+                }
+                if (typeof data.reset_at === 'string') {
+                    githubErrorData.reset_at = data.reset_at;
+                }
+                if (typeof data.limit === 'number') {
+                    githubErrorData.limit = data.limit;
+                }
+                if (typeof data.remaining === 'number') {
+                    githubErrorData.remaining = data.remaining;
+                }
+                return createGitHubError(githubErrorData);
+            }
+        }
+    }
+    // Fall back to generic error classification
+    return classifyError(error);
 }
 //# sourceMappingURL=errors.js.map

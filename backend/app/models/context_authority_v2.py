@@ -58,8 +58,10 @@ class ContextOverlayTemplate(Base):
     Tier Scoping:
     - tier=NULL: Applies to ALL tiers
     - tier='STANDARD': Applies only to STANDARD tier
+
+    Table: ca_v2_overlay_templates (prefixed to avoid Sprint 108 conflict)
     """
-    __tablename__ = "context_overlay_templates"
+    __tablename__ = "ca_v2_overlay_templates"
 
     id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True),
@@ -141,21 +143,21 @@ class ContextOverlayTemplate(Base):
     __table_args__ = (
         CheckConstraint(
             "trigger_type IN ('gate_pass', 'gate_fail', 'index_zone', 'stage_constraint')",
-            name="ck_context_overlay_templates_trigger_type",
+            name="ck_ca_v2_overlay_templates_trigger_type",
         ),
         CheckConstraint(
             "tier IS NULL OR tier IN ('LITE', 'STANDARD', 'PROFESSIONAL', 'ENTERPRISE')",
-            name="ck_context_overlay_templates_tier",
+            name="ck_ca_v2_overlay_templates_tier",
         ),
         Index(
-            "idx_context_overlay_templates_trigger_lookup",
+            "idx_ca_v2_overlay_templates_trigger_lookup",
             "trigger_type",
             "trigger_value",
             "tier",
             "is_active",
         ),
         Index(
-            "idx_context_overlay_templates_priority",
+            "idx_ca_v2_overlay_templates_priority",
             "priority",
             postgresql_ops={"priority": "DESC"},
         ),
@@ -187,8 +189,10 @@ class ContextSnapshot(Base):
     - Audit: "What context did the AI see at merge time?"
     - Debugging: "Why was this PR routed to CEO review?"
     - Compliance: "Prove governance was enforced at merge"
+
+    Table: ca_v2_context_snapshots (prefixed to avoid Sprint 108 conflict)
     """
-    __tablename__ = "context_snapshots"
+    __tablename__ = "ca_v2_context_snapshots"
 
     id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True),
@@ -290,27 +294,27 @@ class ContextSnapshot(Base):
     __table_args__ = (
         CheckConstraint(
             "vibecoding_zone IN ('GREEN', 'YELLOW', 'ORANGE', 'RED')",
-            name="ck_context_snapshots_zone",
+            name="ck_ca_v2_context_snapshots_zone",
         ),
         CheckConstraint(
             "tier IN ('LITE', 'STANDARD', 'PROFESSIONAL', 'ENTERPRISE')",
-            name="ck_context_snapshots_tier",
+            name="ck_ca_v2_context_snapshots_tier",
         ),
         # Time-series index for historical analysis (BRIN for timestamp columns)
         Index(
-            "idx_context_snapshots_snapshot_at_brin",
+            "idx_ca_v2_context_snapshots_snapshot_at_brin",
             "snapshot_at",
             postgresql_using="brin",
         ),
         # Composite index for project-based queries
         Index(
-            "idx_context_snapshots_project_time",
+            "idx_ca_v2_context_snapshots_project_time",
             "project_id",
             "snapshot_at",
         ),
         # Index for audit queries by validity
         Index(
-            "idx_context_snapshots_validity",
+            "idx_ca_v2_context_snapshots_validity",
             "is_valid",
             "snapshot_at",
         ),
@@ -335,8 +339,10 @@ class ContextOverlayApplication(Base):
     - "Which templates contributed to this overlay?"
     - "How often is this template being applied?"
     - "What's the impact of changing this template?"
+
+    Table: ca_v2_overlay_applications (prefixed to avoid Sprint 108 conflict)
     """
-    __tablename__ = "context_overlay_applications"
+    __tablename__ = "ca_v2_overlay_applications"
 
     id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True),
@@ -345,14 +351,14 @@ class ContextOverlayApplication(Base):
     )
     snapshot_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True),
-        ForeignKey("context_snapshots.id", ondelete="CASCADE"),
+        ForeignKey("ca_v2_context_snapshots.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
         comment="Snapshot where template was applied",
     )
     template_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True),
-        ForeignKey("context_overlay_templates.id", ondelete="CASCADE"),
+        ForeignKey("ca_v2_overlay_templates.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
         comment="Template that was applied",
@@ -403,10 +409,10 @@ class ContextOverlayApplication(Base):
         UniqueConstraint(
             "snapshot_id",
             "template_id",
-            name="uq_context_overlay_applications_snapshot_template",
+            name="uq_ca_v2_overlay_applications_snapshot_template",
         ),
         Index(
-            "idx_context_overlay_applications_template_usage",
+            "idx_ca_v2_overlay_applications_template_usage",
             "template_id",
             "applied_at",
         ),

@@ -907,28 +907,28 @@ class TestInitHelperFunctions:
         readme = _generate_main_readme("TestProject", Tier.LITE, requirements)
 
         assert "# TestProject Documentation" in readme
-        assert "SDLC 5.0.0" in readme
+        assert "SDLC 6.0.0" in readme
         assert "LITE" in readme
-        assert "00-Project-Foundation" in readme
+        assert "00-foundation" in readme
 
     def test_generate_stage_readme(self):
         """Test _generate_stage_readme function generates valid markdown."""
         from sdlcctl.commands.init import _generate_stage_readme
 
-        readme = _generate_stage_readme("00", "00-Project-Foundation")
+        readme = _generate_stage_readme("00", "00-foundation")
 
         assert "Stage 00" in readme
-        assert "Project Foundation" in readme
+        assert "foundation" in readme  # SDLC 6.0.0 uses lowercase stage names
         assert "WHY" in readme  # Stage 00 is about WHY
-        assert "5.0.0" in readme
+        assert "6.0.0" in readme or "5.0.0" in readme  # Framework version
 
     def test_create_stage_folder(self):
         """Test _create_stage_folder creates proper structure."""
         from sdlcctl.commands.init import _create_stage_folder
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            stage_path = Path(tmpdir) / "00-Project-Foundation"
-            _create_stage_folder(stage_path, "00", "00-Project-Foundation")
+            stage_path = Path(tmpdir) / "00-foundation"
+            _create_stage_folder(stage_path, "00", "00-foundation")
 
             # Check folder exists
             assert stage_path.exists()
@@ -944,11 +944,11 @@ class TestFixHelperFunctions:
         """Test _generate_stage_readme function in fix command."""
         from sdlcctl.commands.fix import _generate_stage_readme
 
-        readme = _generate_stage_readme("00", "00-Project-Foundation")
+        readme = _generate_stage_readme("00", "00-foundation")
 
         assert "Stage 00" in readme
-        assert "Project Foundation" in readme
-        assert "5.0.0" in readme
+        assert "foundation" in readme  # SDLC 6.0.0 uses lowercase stage names
+        assert "6.0.0" in readme or "5.0.0" in readme  # Framework version
 
     def test_should_apply_dry_run(self):
         """Test _should_apply returns True for dry run."""
@@ -1019,7 +1019,7 @@ class TestReportHelperFunctions:
             html_report = _generate_html_report(result)
 
             assert "<!DOCTYPE html>" in html_report
-            assert "SDLC 5.0.0 Compliance Report" in html_report
+            assert "SDLC 6.0.0 Compliance Report" in html_report
             assert "LITE" in html_report
 
     def test_generate_markdown_report(self):
@@ -1044,7 +1044,7 @@ class TestReportHelperFunctions:
 
             md_report = _generate_markdown_report(result)
 
-            assert "# SDLC 5.0.0 Compliance Report" in md_report
+            assert "# SDLC 6.0.0 Compliance Report" in md_report
             assert "LITE" in md_report
 
 
@@ -1107,13 +1107,13 @@ class TestMoreCoverage:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
 
+            # Note: --scaffold defaults to True, so we don't need to pass it explicitly
             result = runner.invoke(
                 app,
                 [
                     "init",
                     "--path", str(project_root),
                     "--tier", "lite",
-                    "--scaffold",
                     "--no-interactive",
                 ],
             )
@@ -1122,7 +1122,7 @@ class TestMoreCoverage:
             docs_root = project_root / "docs"
             stage_00 = docs_root / STAGE_NAMES["00"]
 
-            # Check subfolders were created
+            # Check subfolders were created (scaffold=True by default)
             assert (stage_00 / "01-Vision").exists()
             assert (stage_00 / "99-Legacy").exists()
 

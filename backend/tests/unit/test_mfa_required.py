@@ -68,7 +68,6 @@ async def test_is_mfa_required_from_db(settings_service, test_db_session):
         category="security",
         description="MFA enforcement enabled",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(setting)
@@ -100,7 +99,6 @@ async def test_mfa_middleware_sets_deadline_on_first_request(
         category="security",
         description="MFA enforcement enabled",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(setting)
@@ -147,7 +145,6 @@ async def test_grace_period_allows_access_with_warning(
         category="security",
         description="MFA enforcement enabled",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(setting)
@@ -191,7 +188,6 @@ async def test_deadline_expired_blocks_access(
         category="security",
         description="MFA enforcement enabled",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(setting)
@@ -233,7 +229,6 @@ async def test_mfa_enabled_user_bypasses_enforcement(
         category="security",
         description="MFA enforcement enabled",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(setting)
@@ -276,7 +271,6 @@ async def test_exempt_user_bypasses_enforcement(
         category="security",
         description="MFA enforcement enabled",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(setting)
@@ -369,7 +363,6 @@ async def test_admin_can_view_mfa_status(test_client, test_db_session, test_user
         category="security",
         description="MFA enforcement enabled",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(setting)
@@ -415,7 +408,6 @@ async def test_multiple_users_independent_deadlines(
         category="security",
         description="MFA enforcement enabled",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(setting)
@@ -425,14 +417,14 @@ async def test_multiple_users_independent_deadlines(
     user1 = User(
         email="mfa.user1@example.com",
         password_hash=get_password_hash("Password123!"),
-        name="MFA User 1",
+        full_name="MFA User 1",
         is_active=True,
         mfa_setup_deadline=datetime.utcnow() + timedelta(days=3),
     )
     user2 = User(
         email="mfa.user2@example.com",
         password_hash=get_password_hash("Password123!"),
-        name="MFA User 2",
+        full_name="MFA User 2",
         is_active=True,
         mfa_setup_deadline=datetime.utcnow() + timedelta(days=6),
     )
@@ -523,7 +515,6 @@ async def test_mfa_required_false_no_enforcement(
         category="security",
         description="MFA enforcement disabled",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(setting)
@@ -598,7 +589,7 @@ async def test_user(test_db_session):
     user = User(
         email="mfa.test@example.com",
         password_hash=get_password_hash("CorrectPassword123!"),
-        name="MFA Test User",
+        full_name="MFA Test User",
         is_active=True,
         is_superuser=False,
         mfa_enabled=False,
@@ -624,7 +615,7 @@ async def admin_user(test_db_session):
     admin = User(
         email="admin.mfa@example.com",
         password_hash=get_password_hash("AdminPassword123!"),
-        name="Admin User",
+        full_name="Admin User",
         is_active=True,
         is_superuser=True,
     )

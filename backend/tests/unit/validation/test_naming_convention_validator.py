@@ -44,23 +44,25 @@ class TestNamingConventionValidator:
         assert len(name_001) >= 1
     
     def test_name_002_uppercase(self, tmp_path):
+        """README.md is exempt from naming validation as a conventional entrypoint."""
         docs = tmp_path / "docs"
         docs.mkdir()
         (docs / "README.md").write_text("# README")
         validator = NamingConventionValidator(docs)
         violations = validator.validate()
-        name_002 = [v for v in violations if v.rule_id == "NAME-002"]
-        assert len(name_002) >= 1
-        assert name_002[0].severity == Severity.INFO
+        # README.md is intentionally exempt from validation
+        assert len(violations) == 0
     
     def test_name_002_camelcase(self, tmp_path):
+        """CamelCase names are caught as NAME-001 (invalid chars) since uppercase is invalid."""
         docs = tmp_path / "docs"
         docs.mkdir()
         (docs / "userGuide.md").write_text("# Guide")
         validator = NamingConventionValidator(docs)
         violations = validator.validate()
-        name_002 = [v for v in violations if v.rule_id == "NAME-002"]
-        assert len(name_002) >= 1
+        # CamelCase is caught as invalid chars (NAME-001) because uppercase is invalid
+        name_001 = [v for v in violations if v.rule_id == "NAME-001"]
+        assert len(name_001) >= 1
     
     def test_numbering_prefix_ignored(self, tmp_path):
         docs = tmp_path / "docs"

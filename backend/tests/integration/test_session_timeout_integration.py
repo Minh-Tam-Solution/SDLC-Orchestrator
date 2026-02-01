@@ -35,6 +35,7 @@ import jwt
 import pytest
 from datetime import datetime, timedelta
 from fastapi import status
+from sqlalchemy import text
 
 from app.core.config import settings as app_settings
 from app.models.support import SystemSetting
@@ -51,7 +52,6 @@ async def test_user(test_db_session):
     """Create test user for authentication."""
     user = User(
         email="test.session@example.com",
-        username="testsession",
         password_hash=get_password_hash("SecurePass123!"),
         full_name="Test Session User",
         is_active=True,
@@ -77,7 +77,6 @@ async def session_timeout_setting(test_db_session):
         category="security",
         description="Session timeout in minutes",
         version=1,
-        created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
     test_db_session.add(setting)
@@ -210,7 +209,7 @@ async def test_admin_changes_timeout_new_tokens_reflect_change(
 
     # Admin changes timeout to 60 minutes
     await test_db_session.execute(
-        "UPDATE system_settings SET value = '60' WHERE key = 'session_timeout_minutes'"
+        text("UPDATE system_settings SET value = '60' WHERE key = 'session_timeout_minutes'")
     )
     await test_db_session.commit()
 
@@ -247,7 +246,7 @@ async def test_token_expiry_validation_works_with_dynamic_timeout(
     """IT-5: Token expiry validation works correctly with dynamic timeout."""
     # Set very short timeout (1 minute) for testing
     await test_db_session.execute(
-        "UPDATE system_settings SET value = '1' WHERE key = 'session_timeout_minutes'"
+        text("UPDATE system_settings SET value = '1' WHERE key = 'session_timeout_minutes'")
     )
     await test_db_session.commit()
 
@@ -311,8 +310,8 @@ async def test_custom_timeout_values(
     for timeout_value, description in test_cases:
         # Update timeout
         await test_db_session.execute(
-            f"UPDATE system_settings SET value = '{timeout_value}' "
-            "WHERE key = 'session_timeout_minutes'"
+            text(f"UPDATE system_settings SET value = '{timeout_value}' "
+            "WHERE key = 'session_timeout_minutes'")
         )
         await test_db_session.commit()
 
@@ -350,7 +349,7 @@ async def test_fallback_to_env_var_when_setting_missing(
     """IT-7: Fallback to env var (ACCESS_TOKEN_EXPIRE_HOURS) when DB setting missing."""
     # Ensure setting doesn't exist
     await test_db_session.execute(
-        "DELETE FROM system_settings WHERE key = 'session_timeout_minutes'"
+        text("DELETE FROM system_settings WHERE key = 'session_timeout_minutes'")
     )
     await test_db_session.commit()
 

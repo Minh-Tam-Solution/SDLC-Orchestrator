@@ -491,6 +491,6 @@
 **Framework**: SDLC 5.1.3 Stage 00 (WHY)
 **Component**: Business Case - Financial Validation
 **Review**: Monthly financial review with CEO/CFO
-**Session Log**: [SESSION-2025-12-21](../../01-planning/99-Session-Logs/SESSION-2025-12-21-CTO-Strategic-Planning.md)
+**Session Log**: [SESSION-2025-12-21](../../09-govern/01-CTO-Reports/SESSION-2025-12-21-CTO-Strategic-Planning.md)
 
 *"Build the RIGHT things with the RIGHT budget"* 💰

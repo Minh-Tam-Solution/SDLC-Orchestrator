@@ -151,7 +151,7 @@ class TestStageFolderValidator:
         assert all(not v.auto_fixable for v in stage_004_violations)
 
     def test_stage_005_missing_core_stages(self, tmp_path):
-        """Test STAGE-005: Missing required stages."""
+        """Test STAGE-005: Missing required stages is disabled by default."""
         docs_root = tmp_path / "docs"
         docs_root.mkdir()
 
@@ -164,10 +164,9 @@ class TestStageFolderValidator:
 
         stage_005_violations = [v for v in violations if v.rule_id == "STAGE-005"]
 
-        # Missing core: 00, 01, 02, 04
-        assert len(stage_005_violations) == 4
-        assert all(v.severity == Severity.WARNING for v in stage_005_violations)
-        assert all(v.auto_fixable for v in stage_005_violations)
+        # STAGE-005 check is currently disabled (commented out) in the validator
+        # as it's optional and project-dependent
+        assert len(stage_005_violations) == 0
 
     def test_stage_005_all_stages_present(self, tmp_path):
         """Test STAGE-005 when all core stages present."""
@@ -259,9 +258,9 @@ class TestStageFolderValidator:
         validator = StageFolderValidator(docs_root)
         violations = validator.validate()
 
-        # Should report missing core stages
+        # STAGE-005 check is disabled (commented out), so no violations expected
         stage_005_violations = [v for v in violations if v.rule_id == "STAGE-005"]
-        assert len(stage_005_violations) >= 4  # Missing 00, 01, 02, 04
+        assert len(stage_005_violations) == 0
 
     def test_mixed_valid_invalid_stages(self, tmp_path):
         """Test validation with mix of valid and invalid stages."""

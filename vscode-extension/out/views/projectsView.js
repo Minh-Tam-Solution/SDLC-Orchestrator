@@ -111,6 +111,7 @@ exports.ProjectTreeItem = ProjectTreeItem;
 class ProjectsProvider {
     apiClient;
     cacheService;
+    projectDetector;
     _onDidChangeTreeData = new vscode.EventEmitter();
     onDidChangeTreeData = this._onDidChangeTreeData.event;
     projects = [];
@@ -119,14 +120,61 @@ class ProjectsProvider {
     hasError = false;
     errorMessage = '';
     lastError;
-    constructor(apiClient, cacheService) {
+    shouldShowPanel = true; // Sprint 127: Hide panel when auto-detect works
+    constructor(apiClient, cacheService, projectDetector) {
         this.apiClient = apiClient;
         this.cacheService = cacheService;
+        this.projectDetector = projectDetector;
         // Register internal command for project selection
         vscode.commands.registerCommand('sdlc.internal.selectProjectItem', this.handleProjectSelect.bind(this));
         // Load selected project from config
         const config = config_1.ConfigManager.getInstance();
         this.selectedProjectId = config.defaultProjectId || undefined;
+        // Sprint 127: Check if panel should be shown
+        this.updatePanelVisibility();
+    }
+    /**
+     * Update panel visibility based on auto-detect and user settings (Sprint 127)
+     */
+    async updatePanelVisibility() {
+        if (!this.projectDetector) {
+            this.shouldShowPanel = true;
+            await this.setVisibilityContext(true);
+            return;
+        }
+        // Check user setting (opt-in to show panel)
+        const config = vscode.workspace.getConfiguration('sdlc');
+        const showPanel = config.get('showProjectsPanel', false);
+        if (showPanel) {
+            this.shouldShowPanel = true;
+            await this.setVisibilityContext(true);
+            return;
+        }
+        // Check for monorepo (multiple .sdlc/config.yaml)
+        const workspace = vscode.workspace.workspaceFolders?.[0];
+        if (!workspace) {
+            this.shouldShowPanel = false;
+            await this.setVisibilityContext(false);
+            return;
+        }
+        const pattern = new vscode.RelativePattern(workspace, '**/.sdlc/config.yaml');
+        try {
+            const files = await vscode.workspace.findFiles(pattern, null, 2);
+            const shouldShow = files.length > 1; // Show for monorepo
+            this.shouldShowPanel = shouldShow;
+            await this.setVisibilityContext(shouldShow);
+        }
+        catch {
+            this.shouldShowPanel = false;
+            await this.setVisibilityContext(false);
+        }
+    }
+    /**
+     * Set VS Code context key for panel visibility
+     */
+    async setVisibilityContext(visible) {
+        await vscode.commands.executeCommand('setContext', 'sdlc.projectsPanelVisible', visible);
+        logger_1.Logger.debug(`Projects panel visibility context set to: ${visible}`);
     }
     /**
      * Load local project from .sdlc-config.json in workspace
@@ -182,6 +230,8 @@ class ProjectsProvider {
         if (this.isLoading) {
             return;
         }
+        // Sprint 127: Update panel visibility before refresh
+        await this.updatePanelVisibility();
         this.isLoading = true;
         this.hasError = false;
         this.errorMessage = '';
@@ -310,6 +360,11 @@ class ProjectsProvider {
      * Gets children for tree item
      */
     getChildren(_element) {
+        // Sprint 127: Hide panel if auto-detect is working
+        if (!this.shouldShowPanel) {
+            logger_1.Logger.debug('Projects panel hidden (auto-detect enabled)');
+            return [];
+        }
         // Projects view is flat - only root level
         return this.getRootItems();
     }

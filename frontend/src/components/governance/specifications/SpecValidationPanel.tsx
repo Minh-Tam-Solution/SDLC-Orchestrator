@@ -286,9 +286,8 @@ export function SpecValidationPanel({
     setResult(null);
   };
 
-  const scoreDisplay = result
-    ? useComplianceScoreDisplay(result.compliance_score)
-    : null;
+  // Call hook unconditionally (React rules of hooks)
+  const scoreDisplay = useComplianceScoreDisplay(result?.compliance_score ?? 0);
 
   return (
     <Card>

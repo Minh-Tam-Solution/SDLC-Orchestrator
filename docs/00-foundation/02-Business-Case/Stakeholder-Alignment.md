@@ -528,6 +528,6 @@
 **Framework**: SDLC 5.1.3 Stage 00 (WHY)
 **Component**: Business Case - Executive Approval
 **Review**: Weekly with CEO (Monday 10 AM)
-**Session Log**: [SESSION-2025-12-21](../../01-planning/99-Session-Logs/SESSION-2025-12-21-CTO-Strategic-Planning.md)
+**Session Log**: [SESSION-2025-12-21](../../09-govern/01-CTO-Reports/SESSION-2025-12-21-CTO-Strategic-Planning.md)
 
 *"Aligned leadership, unstoppable execution"* 🚀

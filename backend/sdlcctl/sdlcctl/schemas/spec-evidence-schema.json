@@ -1,0 +1,356 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SDLC Spec Implementation Evidence",
+  "description": "Evidence file proving a specification (SPEC-00XX or ADR-XXX) has been implemented across all required interfaces",
+  "type": "object",
+  "required": ["spec_id", "spec_title", "spec_type", "implementation_date", "interfaces"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema identifier"
+    },
+    "spec_id": {
+      "type": "string",
+      "pattern": "^(SPEC-\\d{4}|ADR-\\d{3})$",
+      "description": "Specification identifier (e.g., SPEC-0013, ADR-043)",
+      "examples": ["SPEC-0013", "ADR-043"]
+    },
+    "spec_title": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 200,
+      "description": "Human-readable title of the specification",
+      "examples": ["Compliance Validation Service", "Team Invitation System Architecture"]
+    },
+    "spec_type": {
+      "type": "string",
+      "enum": ["feature", "architecture", "api", "security", "performance"],
+      "description": "Type of specification"
+    },
+    "implementation_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date when implementation was completed (YYYY-MM-DD)",
+      "examples": ["2026-01-15"]
+    },
+    "sprint": {
+      "type": "string",
+      "pattern": "^Sprint \\d{2,3}$",
+      "description": "Sprint when implementation was completed",
+      "examples": ["Sprint 123", "Sprint 128"]
+    },
+    "interfaces": {
+      "type": "object",
+      "description": "Evidence of implementation across all required interfaces",
+      "properties": {
+        "backend": {
+          "type": "object",
+          "description": "Backend API implementation evidence",
+          "properties": {
+            "api_routes": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^backend/app/api/routes/.*\\.py$"
+              },
+              "description": "FastAPI route files implementing the spec",
+              "examples": [["backend/app/api/routes/compliance_validation.py"]]
+            },
+            "services": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^backend/app/services/.*\\.py$"
+              },
+              "description": "Service layer implementations",
+              "examples": [["backend/app/services/validation/compliance_validator.py"]]
+            },
+            "models": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^backend/app/models/.*\\.py$"
+              },
+              "description": "Database models (SQLAlchemy)",
+              "examples": [["backend/app/models/compliance_validation.py"]]
+            },
+            "schemas": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^backend/app/schemas/.*\\.py$"
+              },
+              "description": "Pydantic schemas for validation",
+              "examples": [["backend/app/schemas/compliance.py"]]
+            },
+            "tests": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^backend/tests/.*\\.py$"
+              },
+              "minItems": 1,
+              "description": "Test files (pytest) - MANDATORY",
+              "examples": [["backend/tests/services/test_compliance_validation.py"]]
+            },
+            "migrations": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^backend/alembic/versions/.*\\.py$"
+              },
+              "description": "Alembic migration files (if database changes)",
+              "examples": [["backend/alembic/versions/s123_001_compliance_validation.py"]]
+            },
+            "coverage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Test coverage percentage (optional)"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["complete", "partial", "missing", "not_applicable"],
+              "description": "Implementation status for this interface"
+            }
+          },
+          "required": ["tests"],
+          "additionalProperties": false
+        },
+        "frontend": {
+          "type": "object",
+          "description": "Web frontend implementation evidence",
+          "properties": {
+            "components": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^frontend/src/components/.*\\.(tsx|jsx)$"
+              },
+              "description": "React components implementing the UI",
+              "examples": [["frontend/src/components/compliance/ValidationPanel.tsx"]]
+            },
+            "pages": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^frontend/src/(app|pages)/.*\\.(tsx|jsx)$"
+              },
+              "description": "Next.js pages or app routes",
+              "examples": [["frontend/src/app/compliance/page.tsx"]]
+            },
+            "hooks": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^frontend/src/hooks/.*\\.(ts|tsx)$"
+              },
+              "description": "React hooks for data fetching/state",
+              "examples": [["frontend/src/hooks/useCompliance.ts"]]
+            },
+            "api_client": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^frontend/src/(lib|api)/.*\\.(ts|tsx)$"
+              },
+              "description": "API client functions (TanStack Query)",
+              "examples": [["frontend/src/lib/api.ts"]]
+            },
+            "tests": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^frontend/(src/.*/.*\\.test\\.(tsx|ts)|e2e/.*\\.spec\\.ts)$"
+              },
+              "description": "Component tests (Vitest) and E2E tests (Playwright)",
+              "examples": [["frontend/src/components/compliance/ValidationPanel.test.tsx", "frontend/e2e/invitations.spec.ts"]]
+            },
+            "status": {
+              "type": "string",
+              "enum": ["complete", "partial", "missing", "not_applicable"],
+              "description": "Implementation status for this interface"
+            }
+          },
+          "additionalProperties": false
+        },
+        "extension": {
+          "type": "object",
+          "description": "VSCode Extension implementation evidence",
+          "properties": {
+            "commands": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^vscode-extension/src/commands/.*\\.ts$"
+              },
+              "description": "Command implementations",
+              "examples": [["vscode-extension/src/commands/connectGithubCommand.ts"]]
+            },
+            "services": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^vscode-extension/src/services/.*\\.ts$"
+              },
+              "description": "Service layer for business logic",
+              "examples": [["vscode-extension/src/services/githubService.ts"]]
+            },
+            "views": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^vscode-extension/src/(views|panels)/.*\\.ts$"
+              },
+              "description": "TreeView or WebView implementations",
+              "examples": [["vscode-extension/src/views/contextPanel.ts"]]
+            },
+            "package_json": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["vscode-extension/package.json"]
+              },
+              "description": "package.json entries (commands, menus, views)",
+              "examples": [["vscode-extension/package.json"]]
+            },
+            "tests": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^vscode-extension/src/test/.*\\.test\\.ts$"
+              },
+              "description": "Extension tests",
+              "examples": [["vscode-extension/src/test/suite/github.test.ts"]]
+            },
+            "status": {
+              "type": "string",
+              "enum": ["complete", "partial", "missing", "not_applicable"],
+              "description": "Implementation status for this interface"
+            }
+          },
+          "additionalProperties": false
+        },
+        "cli": {
+          "type": "object",
+          "description": "CLI (sdlcctl) implementation evidence",
+          "properties": {
+            "commands": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^backend/sdlcctl/sdlcctl/commands/.*\\.py$"
+              },
+              "description": "Click command implementations",
+              "examples": [["backend/sdlcctl/sdlcctl/commands/validate.py"]]
+            },
+            "services": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^backend/sdlcctl/sdlcctl/services/.*\\.py$"
+              },
+              "description": "Service layer for business logic",
+              "examples": [["backend/sdlcctl/sdlcctl/services/github_service.py"]]
+            },
+            "tests": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^backend/sdlcctl/tests/.*\\.py$"
+              },
+              "description": "CLI tests (pytest)",
+              "examples": [["backend/sdlcctl/tests/test_validate.py"]]
+            },
+            "status": {
+              "type": "string",
+              "enum": ["complete", "partial", "missing", "not_applicable"],
+              "description": "Implementation status for this interface"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "documentation": {
+      "type": "object",
+      "description": "Required documentation updates",
+      "properties": {
+        "user_guide": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^docs/.*\\.md$"
+          },
+          "description": "User-facing documentation",
+          "examples": [["docs/05-test/user-guide/team-invitations.md"]]
+        },
+        "api_docs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^docs/01-planning/05-API-Design/.*\\.md$"
+          },
+          "description": "API specification updates",
+          "examples": [["docs/01-planning/05-API-Design/Team-Invitation-API-Spec.md"]]
+        },
+        "runbooks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^docs/06-deploy/runbooks/.*\\.md$"
+          },
+          "description": "Operational runbooks",
+          "examples": [["docs/06-deploy/runbooks/team-invitation-troubleshooting.md"]]
+        }
+      },
+      "additionalProperties": false
+    },
+    "validation": {
+      "type": "object",
+      "description": "Validation metadata",
+      "properties": {
+        "last_checked": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of last validation",
+          "examples": ["2026-02-01T10:30:00Z"]
+        },
+        "checker_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Version of sdlcctl used for validation",
+          "examples": ["1.0.0"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["complete", "partial", "missing", "unvalidated"],
+          "description": "Overall implementation status"
+        },
+        "missing_files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Files referenced but not found on disk"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Non-blocking validation warnings"
+        }
+      },
+      "required": ["last_checked", "checker_version", "status"],
+      "additionalProperties": false
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional implementation notes or exceptions",
+      "maxLength": 1000
+    }
+  },
+  "additionalProperties": false
+}

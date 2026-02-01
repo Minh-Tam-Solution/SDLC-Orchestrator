@@ -548,3 +548,24 @@ class ResetPasswordResponse(BaseModel):
         description="Success message"
     )
     email: EmailStr = Field(..., description="Email address of the user")
+
+
+class DeviceTokenRequest(BaseModel):
+    """
+    Request to poll for GitHub device authorization token.
+
+    Used in GitHub OAuth Device Flow for CLI/Desktop apps.
+
+    Request Body:
+        {
+            "device_code": "3584d83530557fdd1f46af8289938c8ef79f9dc5"
+        }
+
+    Flow:
+        1. Extension calls POST /auth/github/device to get device_code
+        2. Extension polls POST /auth/github/token with device_code
+        3. Returns 400 with error="authorization_pending" until user authorizes
+        4. Returns 200 with tokens when user completes authorization
+    """
+
+    device_code: str = Field(..., description="Device code from GitHub device flow initiation")
