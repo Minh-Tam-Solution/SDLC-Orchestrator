@@ -18,9 +18,9 @@ Framework: SDLC 6.0.0
 Sprint: 125 - Multi-Frontend Alignment
 """
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"
 __author__ = "SDLC Orchestrator Team"
-__framework__ = "SDLC 6.0.1"
+__framework__ = "SDLC 6.0.2"
 
 from .validation.engine import SDLCValidator, ValidationResult
 from .validation.tier import Tier, TierDetector
