@@ -25,7 +25,7 @@ export function GitHubConnectButton({
   variant = "default",
   size = "default",
   showIcon = true,
-  onConnected,
+  onConnected: _onConnected, // eslint-disable-line @typescript-eslint/no-unused-vars
 }: GitHubConnectButtonProps) {
   const { isConnected, connection, disconnectGitHub, isDisconnecting } = useGitHub();
   const { initiateOAuth } = useGitHubOAuth();

@@ -68,39 +68,46 @@ export function useGitHub() {
 
   // Fetch GitHub connection status
   const {
-    data: connection,
+    data: connectionData,
     isLoading: isLoadingConnection,
     error: connectionError,
     refetch: refetchConnection,
   } = useQuery<GitHubConnection | null>({
     queryKey: ["github-connection"],
-    queryFn: async () => {
+    queryFn: async (): Promise<GitHubConnection | null> => {
       try {
-        const response = await api.get("/github/connection");
+        const response = await api.get<GitHubConnection>("/github/connection");
         return response.data;
-      } catch (error: any) {
+      } catch (err: unknown) {
+        const error = err as { response?: { status?: number } };
         if (error.response?.status === 404) {
           return null; // Not connected
         }
-        throw error;
+        throw err;
       }
     },
   });
 
+  // Sprint 136: Explicitly type connection to fix TanStack Query type inference
+  const connection: GitHubConnection | null | undefined = connectionData;
+
   // Fetch GitHub repositories (only if connected)
   const {
-    data: repositories = [],
+    data: repositoriesData,
     isLoading: isLoadingRepositories,
     error: repositoriesError,
     refetch: refetchRepositories,
   } = useQuery<GitHubRepository[]>({
     queryKey: ["github-repositories"],
-    queryFn: async () => {
-      const response = await api.get("/github/repositories");
+    queryFn: async (): Promise<GitHubRepository[]> => {
+      const response = await api.get<GitHubRepository[]>("/github/repositories");
       return response.data;
     },
     enabled: !!connection,
   });
+
+  // Sprint 136: Explicitly type repositories to fix TanStack Query type inference
+  const repositories: GitHubRepository[] = repositoriesData ?? [];
 
   // Connect GitHub account (OAuth flow)
   const {
@@ -257,7 +264,7 @@ export function useGitHub() {
 
 // Hook for fetching project-specific GitHub connection
 export function useProjectGitHub(projectId: string | null) {
-  const queryClient = useQueryClient();
+  const _queryClient = useQueryClient(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   const {
     data: projectConnection,
@@ -266,16 +273,17 @@ export function useProjectGitHub(projectId: string | null) {
     refetch,
   } = useQuery<ProjectGitHubConnection | null>({
     queryKey: ["project-github-connection", projectId],
-    queryFn: async () => {
+    queryFn: async (): Promise<ProjectGitHubConnection | null> => {
       if (!projectId) return null;
       try {
-        const response = await api.get(`/projects/${projectId}/github/repository`);
+        const response = await api.get<ProjectGitHubConnection>(`/projects/${projectId}/github/repository`);
         return response.data;
-      } catch (error: any) {
+      } catch (err: unknown) {
+        const error = err as { response?: { status?: number } };
         if (error.response?.status === 404) {
           return null; // Project not connected to GitHub
         }
-        throw error;
+        throw err;
       }
     },
     enabled: !!projectId,

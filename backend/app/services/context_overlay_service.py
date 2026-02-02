@@ -216,8 +216,28 @@ class ContextOverlayService:
         self,
         project_id: UUID,
     ) -> tuple[Optional[str], Optional[str]]:
-        """Get current stage and latest gate status."""
-        # Get latest gate for project
+        """
+        Get current stage and latest gate status.
+
+        Sprint 136 - SSOT Principle:
+        - First check ContextOverlay table for manually set stage/gate
+        - Fallback to calculating from Gate table if no manual entry
+        """
+        # Sprint 136: Check for existing context overlay (SSOT)
+        overlay_result = await self.db.execute(
+            select(ContextOverlayModel)
+            .where(ContextOverlayModel.project_id == project_id)
+            .where(ContextOverlayModel.trigger_type == "manual")  # Manual entries have priority
+            .order_by(ContextOverlayModel.generated_at.desc())
+            .limit(1)
+        )
+        manual_overlay = overlay_result.scalar_one_or_none()
+
+        if manual_overlay and manual_overlay.stage_name:
+            # Use manually set values (SSOT principle)
+            return manual_overlay.stage_name, manual_overlay.gate_status
+
+        # Fallback: Calculate from gates
         result = await self.db.execute(
             select(Gate)
             .where(Gate.project_id == project_id)

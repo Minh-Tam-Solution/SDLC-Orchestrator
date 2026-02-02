@@ -14,11 +14,17 @@
         "backend/app/services/invitation_service.py"
       ],
       "models": [
-        "backend/app/models/invitation.py"
+        "backend/app/models/team_invitation.py"
+      ],
+      "schemas": [
+        "backend/app/schemas/invitation.py"
+      ],
+      "migrations": [
+        "backend/alembic/versions/s128_001_team_invitations.py"
       ],
       "tests": [
-        "backend/tests/unit/test_invitation_service.py",
-        "backend/tests/integration/test_invitation_api.py"
+        "backend/tests/unit/services/test_invitation_service.py",
+        "backend/tests/security/test_invitation_security.py"
       ],
       "coverage": 95.0,
       "status": "complete"
@@ -56,13 +62,9 @@
     }
   },
   "validation": {
-    "last_checked": "2026-02-01T10:50:26.501449Z",
+    "last_checked": "2026-02-02T10:00:00.000000Z",
     "checker_version": "1.0.0",
-    "status": "partial",
-    "missing_files": [
-      "backend/app/models/invitation.py",
-      "backend/tests/unit/test_invitation_service.py",
-      "backend/tests/integration/test_invitation_api.py"
-    ]
+    "status": "complete",
+    "missing_files": []
   }
 }

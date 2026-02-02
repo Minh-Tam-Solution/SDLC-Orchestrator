@@ -22,14 +22,17 @@ export declare class GateTreeItem extends vscode.TreeItem {
     constructor(label: string, collapsibleState: vscode.TreeItemCollapsibleState, gate?: Gate | undefined, itemType?: 'gate' | 'detail', detailKey?: string | undefined);
     /**
      * Configures the tree item for a gate
+     * Sprint 136: Use gate_name instead of gate_type
      */
     private setupGateItem;
     /**
      * Gets status display text
+     * Sprint 136: Normalize to lowercase for case-insensitive comparison
      */
     private getStatusText;
     /**
      * Gets icon based on gate status
+     * Sprint 136: Normalize to lowercase for case-insensitive comparison
      */
     private getStatusIcon;
 }
@@ -74,10 +77,12 @@ export declare class GateStatusProvider implements vscode.TreeDataProvider<GateT
     private getGateDetails;
     /**
      * Checks for gate status changes and shows notifications
+     * Sprint 136: Normalize to lowercase for case-insensitive comparison
      */
     private checkForNotifications;
     /**
      * Gets current gate status summary
+     * Sprint 136: Normalize to lowercase for case-insensitive comparison
      */
     getStatusSummary(): {
         total: number;

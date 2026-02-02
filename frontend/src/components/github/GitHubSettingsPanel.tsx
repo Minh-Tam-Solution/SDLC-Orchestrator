@@ -249,7 +249,7 @@ export function GitHubSettingsPanel() {
                       {formatDistanceToNow(new Date(connection.access_token_expires_at), {
                         addSuffix: true,
                       })}
-                      . You'll need to reconnect when it expires.
+                      . You&apos;ll need to reconnect when it expires.
                     </p>
                   </div>
                 </div>

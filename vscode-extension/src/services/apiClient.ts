@@ -86,20 +86,30 @@ export interface Project {
 
 /**
  * Gate type definition
+ * Sprint 136: Fixed to match backend GateResponse schema
+ * Note: status values are UPPERCASE from backend (DRAFT, PENDING_APPROVAL, APPROVED, REJECTED)
+ * but code may compare with lowercase - normalize when comparing
  */
 export interface Gate {
     id: string;
     project_id: string;
-    gate_type: string;
-    name: string;
+    gate_name: string;  // e.g., "G0.1", "G1", "G2" - primary field from backend
+    name?: string;      // Alias for backward compat with tests
+    gate_type: string;  // e.g., "PROBLEM_DEFINITION", "SHIP_READY"
+    stage: string;      // e.g., "WHY", "WHAT", "BUILD"
     description: string;
-    status: 'not_started' | 'in_progress' | 'pending_approval' | 'approved' | 'rejected';
+    status: string;     // DRAFT, PENDING_APPROVAL, APPROVED, REJECTED (uppercase from backend)
     evidence_count: number;
-    required_evidence_count: number;
+    required_evidence_count: number;  // Required for display
+    exit_criteria?: Array<{ criterion: string; status: string }>;
+    approvals?: Array<{ approved_by: string; is_approved: boolean; comments?: string }>;
+    policy_violations?: string[];
     approver_id?: string;
-    approved_at?: string;
+    created_by?: string;
     created_at: string;
     updated_at: string;
+    approved_at?: string;
+    deleted_at?: string;
 }
 
 /**
@@ -321,6 +331,18 @@ export class ApiClient {
         return response.data;
     }
 
+    /**
+     * Makes a typed PUT request
+     */
+    async put<T>(
+        endpoint: string,
+        data?: unknown,
+        config?: AxiosRequestConfig
+    ): Promise<T> {
+        const response = await this.client.put<T>(endpoint, data, config);
+        return response.data;
+    }
+
     // ============================================
     // Project APIs
     // ============================================
@@ -362,6 +384,38 @@ export class ApiClient {
     }
 
     /**
+     * Updates a project (Sprint 136 - Sync local state to backend)
+     */
+    async updateProject(projectId: string, data: {
+        name?: string;
+        description?: string;
+        current_stage?: string;
+        gate_status?: string;
+        sprint_number?: number;
+        sprint_goal?: string;
+        tier?: string;
+    }): Promise<Project> {
+        return this.put<Project>(`/api/v1/projects/${projectId}`, data);
+    }
+
+    /**
+     * Updates project context overlay (stage, gate, sprint info)
+     * This syncs local project state to backend
+     */
+    async updateProjectContext(projectId: string, context: {
+        stage_name: string;
+        gate_status: string;
+        sprint?: {
+            number: number;
+            goal: string;
+            days_remaining?: number;
+        };
+        strict_mode?: boolean;
+    }): Promise<void> {
+        await this.put(`/api/v1/projects/${projectId}/context`, context);
+    }
+
+    /**
      * Gets the currently selected project ID from configuration
      */
     getCurrentProjectId(): string | undefined {
@@ -375,11 +429,12 @@ export class ApiClient {
 
     /**
      * Gets gates for a project
+     * Sprint 136: Fixed endpoint to use /gates?project_id= instead of /projects/{id}/gates
      */
     async getGates(projectId: string): Promise<Gate[]> {
         try {
             const response = await this.get<PaginatedResponse<Gate>>(
-                `/api/v1/projects/${projectId}/gates`
+                `/api/v1/gates?project_id=${projectId}`
             );
             // Defensive check for response format
             if (!response || !Array.isArray(response.items)) {

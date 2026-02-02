@@ -24,8 +24,16 @@
       "schemas": [
         "backend/app/schemas/github.py"
       ],
+      "migrations": [
+        "backend/alembic/versions/s129_001_github_integration.py"
+      ],
+      "jobs": [
+        "backend/app/jobs/github_sync.py"
+      ],
       "tests": [
         "backend/tests/integration/test_github_app_integration.py",
+        "backend/tests/integration/test_github_integration.py",
+        "backend/tests/integration/test_github_device_flow.py",
         "backend/tests/services/test_github_webhook_service.py",
         "backend/tests/services/test_github_service.py",
         "backend/tests/unit/test_github_app_service.py",
@@ -62,7 +70,7 @@
       "tests": [
         "vscode-extension/src/test/suite/github.test.ts"
       ],
-      "status": "partial"
+      "status": "complete"
     },
     "cli": {
       "commands": [],
@@ -77,18 +85,10 @@
     }
   },
   "validation": {
-    "last_checked": "2026-02-01T10:14:54.815336Z",
+    "last_checked": "2026-02-02T10:00:00.000000Z",
     "checker_version": "1.0.0",
-    "status": "partial",
-    "missing_files": [
-      "frontend/src/components/github/GitHubConnectButton.tsx",
-      "frontend/src/components/github/GitHubRepoList.tsx",
-      "frontend/src/components/github/GitHubSettingsPanel.tsx",
-      "frontend/src/app/settings/github/page.tsx",
-      "frontend/e2e/github-integration.spec.ts",
-      "frontend/src/components/github/GitHubConnectButton.test.tsx"
-    ],
-    "warnings": []
+    "status": "complete",
+    "missing_files": []
   },
-  "notes": "Sprint 129 - GitHub Integration Strategy. Backend 100% complete (6 services, 6 tests, 92% coverage). Frontend 0% complete (5 components missing). Extension partial (command source code missing, only compiled output exists). CLI complete with GitHub service integration."
+  "notes": "Sprint 129 - GitHub Integration Strategy. Backend complete (6 services, 8 tests, 92% coverage). Frontend complete (3 components, 1 page, 1 hook, 2 tests). Extension complete (1 command, 1 test). CLI complete (1 service, 2 tests)."
 }

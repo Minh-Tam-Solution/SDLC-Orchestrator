@@ -40,7 +40,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_db, get_current_user
+from app.api.dependencies import get_db, get_current_user
 from app.models.user import User
 from app.models.agents_md import AgentsMdFile
 from app.models.project import Project

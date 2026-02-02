@@ -1,25 +1,26 @@
 """
 =========================================================================
-SDLC 6.0.1 Specification Validator CLI.
-SDLC Orchestrator - Sprint 136
+SDLC 6.0.2 Specification Validator CLI.
+SDLC Orchestrator - Sprint 137
 
-Version: 1.3.0
-Date: February 1, 2026
-Status: ACTIVE - Sprint 136 Validate Consistency Command
+Version: 1.4.0
+Date: February 2, 2026
+Status: ACTIVE - Sprint 137 RFC-SDLC-602 E2E API Testing
 Authority: Backend Team + CTO Approved
-Reference: SPEC-0002-Specification-Standard, SPEC-0021-Stage-Consistency-Validation
+Reference: SPEC-0002-Specification-Standard, RFC-SDLC-602-E2E-API-TESTING
 
 Purpose:
 - Main entry point for the sdlcctl command-line tool
 - Structure validation, fixing, and initialization
-- YAML frontmatter validation (SDLC 6.0.1)
+- YAML frontmatter validation (SDLC 6.0.2)
 - BDD requirements validation (GIVEN-WHEN-THEN)
 - Code generation from AppBlueprint (Sprint 46)
 - Magic Mode - Natural language to code (Sprint 52)
 - Planning Mode - Sub-agent orchestration (Sprint 98)
 - Conformance Check - PR pattern validation (Sprint 99)
-- Specification Validation - Framework 6.0.1 specs (Sprint 119+)
+- Specification Validation - Framework 6.0.2 specs (Sprint 119+)
 - Stage Consistency Validation - SPEC-0021 (Sprint 136)
+- E2E API Testing Validation - RFC-SDLC-602 (Sprint 137)
 
 Usage:
     sdlcctl validate ./my-project
@@ -31,6 +32,9 @@ Usage:
     sdlcctl spec list --tier PROFESSIONAL
     sdlcctl spec convert --from openspec --path .openspec/
     sdlcctl validate-consistency --stage-01 docs/01-planning/ ...
+    sdlcctl e2e validate --min-pass-rate 80
+    sdlcctl e2e cross-reference --strict
+    sdlcctl e2e generate-report --results test_results.json
 =========================================================================
 """
 
@@ -62,6 +66,8 @@ from .commands.compliance import (
 )
 from .commands.evidence import app as evidence_app
 from .commands.consistency import validate_consistency_command
+from .commands.project import app as project_app
+from .commands.e2e import app as e2e_app
 
 console = Console()
 
@@ -206,8 +212,11 @@ app.add_typer(compliance_app, name="compliance")
 # Register evidence sub-app (Sprint 132 - Implementation evidence validation, SPEC-0016)
 app.add_typer(evidence_app, name="evidence")
 
-# Register compliance sub-app
-app.add_typer(compliance_app, name="compliance")
+# Register project sub-app (Sprint 136 - SSOT Design Principle)
+app.add_typer(project_app, name="project")
+
+# Register e2e sub-app (Sprint 137 - RFC-SDLC-602 E2E API Testing)
+app.add_typer(e2e_app, name="e2e")
 
 # Register validate-consistency command (Sprint 136 - SPEC-0021)
 app.command(

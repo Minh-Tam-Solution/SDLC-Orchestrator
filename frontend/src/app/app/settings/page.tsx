@@ -124,7 +124,11 @@ function GitHubIcon({ className }: { className?: string }) {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
-async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+/**
+ * Fetch with automatic token refresh on 401
+ * Sprint 136 Fix: When access token expires (15 min), automatically refresh and retry
+ */
+async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}, isRetry = false): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
@@ -133,6 +137,34 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
     },
     credentials: "include",
   });
+
+  // If 401 and not already a retry, try to refresh token
+  if (response.status === 401 && !isRetry) {
+    console.log("[Settings] Access token expired, attempting refresh...");
+    try {
+      // Call refresh token endpoint (uses httpOnly cookie)
+      const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (refreshResponse.ok) {
+        console.log("[Settings] Token refreshed, retrying original request...");
+        // Retry the original request
+        return fetchWithAuth<T>(endpoint, options, true);
+      }
+    } catch (refreshError) {
+      console.error("[Settings] Token refresh failed:", refreshError);
+    }
+
+    // Refresh failed - redirect to login
+    console.log("[Settings] Session expired, redirecting to login...");
+    window.location.href = "/login?reason=session_expired";
+    throw new Error("Session expired. Please log in again.");
+  }
 
   if (!response.ok) {
     throw new Error(`API error: ${response.status}`);

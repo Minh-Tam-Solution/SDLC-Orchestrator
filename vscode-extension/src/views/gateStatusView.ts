@@ -59,9 +59,10 @@ export class GateTreeItem extends vscode.TreeItem {
 
     /**
      * Configures the tree item for a gate
+     * Sprint 136: Use gate_name instead of gate_type
      */
     private setupGateItem(gate: Gate): void {
-        const stageInfo = GATE_STAGES.find((s) => gate.gate_type.startsWith(s.id));
+        const stageInfo = GATE_STAGES.find((s) => gate.gate_name.startsWith(s.id));
 
         // Set description
         this.description = this.getStatusText(gate.status);
@@ -71,28 +72,29 @@ export class GateTreeItem extends vscode.TreeItem {
 
         // Set tooltip
         this.tooltip = new vscode.MarkdownString();
-        this.tooltip.appendMarkdown(`### ${stageInfo?.name ?? gate.gate_type}\n\n`);
+        this.tooltip.appendMarkdown(`### ${stageInfo?.name ?? gate.gate_name}\n\n`);
         this.tooltip.appendMarkdown(`**Status:** ${gate.status}\n\n`);
-        this.tooltip.appendMarkdown(
-            `**Evidence:** ${gate.evidence_count}/${gate.required_evidence_count}\n\n`
-        );
+        this.tooltip.appendMarkdown(`**Evidence:** ${gate.evidence_count || 0}\n\n`);
         if (stageInfo?.description) {
             this.tooltip.appendMarkdown(`_${stageInfo.description}_`);
         }
 
         // Set command for clicking
+        // Sprint 136: Ensure gate.id is converted to string to avoid [object Object] in URL
         this.command = {
             command: 'sdlc.openGate',
             title: 'Open Gate',
-            arguments: [gate.id],
+            arguments: [String(gate.id)],
         };
     }
 
     /**
      * Gets status display text
+     * Sprint 136: Normalize to lowercase for case-insensitive comparison
      */
     private getStatusText(status: string): string {
-        switch (status) {
+        const normalizedStatus = status?.toLowerCase() ?? '';
+        switch (normalizedStatus) {
             case 'approved':
                 return 'Approved';
             case 'pending_approval':
@@ -101,6 +103,8 @@ export class GateTreeItem extends vscode.TreeItem {
                 return 'In Progress';
             case 'rejected':
                 return 'Rejected';
+            case 'draft':
+                return 'Draft';
             case 'not_started':
             default:
                 return 'Not Started';
@@ -109,9 +113,11 @@ export class GateTreeItem extends vscode.TreeItem {
 
     /**
      * Gets icon based on gate status
+     * Sprint 136: Normalize to lowercase for case-insensitive comparison
      */
     private getStatusIcon(status: string): vscode.ThemeIcon {
-        switch (status) {
+        const normalizedStatus = status?.toLowerCase() ?? '';
+        switch (normalizedStatus) {
             case 'approved':
                 return new vscode.ThemeIcon(
                     'check',
@@ -125,6 +131,11 @@ export class GateTreeItem extends vscode.TreeItem {
             case 'in_progress':
                 return new vscode.ThemeIcon(
                     'sync~spin',
+                    new vscode.ThemeColor('sdlc.gatePending')
+                );
+            case 'draft':
+                return new vscode.ThemeIcon(
+                    'edit',
                     new vscode.ThemeColor('sdlc.gatePending')
                 );
             case 'rejected':
@@ -367,8 +378,9 @@ export class GateStatusProvider implements vscode.TreeDataProvider<GateTreeItem>
         }
 
         // Map gates to stage items
+        // Sprint 136: Use gate_name instead of gate_type to match stage
         const gateItems = GATE_STAGES.map((stageInfo) => {
-            const gate = this.gates.find((g) => g.gate_type.startsWith(stageInfo.id));
+            const gate = this.gates.find((g) => g.gate_name.startsWith(stageInfo.id));
 
             if (gate) {
                 return new GateTreeItem(
@@ -456,6 +468,7 @@ export class GateStatusProvider implements vscode.TreeDataProvider<GateTreeItem>
 
     /**
      * Checks for gate status changes and shows notifications
+     * Sprint 136: Normalize to lowercase for case-insensitive comparison
      */
     private checkForNotifications(): void {
         const config = ConfigManager.getInstance();
@@ -463,9 +476,9 @@ export class GateStatusProvider implements vscode.TreeDataProvider<GateTreeItem>
             return;
         }
 
-        // Find gates pending approval
+        // Find gates pending approval (case-insensitive)
         const pendingGates = this.gates.filter(
-            (g) => g.status === 'pending_approval'
+            (g) => g.status?.toLowerCase() === 'pending_approval'
         );
 
         if (pendingGates.length > 0) {
@@ -488,6 +501,7 @@ export class GateStatusProvider implements vscode.TreeDataProvider<GateTreeItem>
 
     /**
      * Gets current gate status summary
+     * Sprint 136: Normalize to lowercase for case-insensitive comparison
      */
     getStatusSummary(): {
         total: number;
@@ -497,9 +511,9 @@ export class GateStatusProvider implements vscode.TreeDataProvider<GateTreeItem>
     } {
         return {
             total: GATE_STAGES.length,
-            approved: this.gates.filter((g) => g.status === 'approved').length,
-            pending: this.gates.filter((g) => g.status === 'pending_approval').length,
-            inProgress: this.gates.filter((g) => g.status === 'in_progress').length,
+            approved: this.gates.filter((g) => g.status?.toLowerCase() === 'approved').length,
+            pending: this.gates.filter((g) => g.status?.toLowerCase() === 'pending_approval').length,
+            inProgress: this.gates.filter((g) => g.status?.toLowerCase() === 'in_progress').length,
         };
     }
 }

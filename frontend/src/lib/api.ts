@@ -18,15 +18,18 @@ interface APIError {
 }
 
 /**
- * Generic API request function with timeout support
+ * Generic API request function with timeout support and automatic token refresh
+ * Sprint 136 Fix: When access token expires (15 min), automatically refresh and retry
  * @param endpoint API endpoint
  * @param options Fetch options
  * @param timeout Timeout in milliseconds (default: 10000ms = 10s)
+ * @param isRetry Internal flag to prevent infinite retry loops
  */
 async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {},
-  timeout: number = 10000
+  timeout: number = 10000,
+  isRetry: boolean = false
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
 
@@ -66,6 +69,36 @@ async function apiRequest<T>(
 
     clearTimeout(timeoutId);
     console.log(`[apiRequest] Response ${response.status} for ${endpoint} in ${Date.now() - startTime}ms`);
+
+    // Sprint 136: Auto-refresh token on 401 (except for auth endpoints and retries)
+    if (response.status === 401 && !isRetry && !endpoint.includes("/auth/")) {
+      console.log("[apiRequest] Access token expired, attempting refresh...");
+      try {
+        const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (refreshResponse.ok) {
+          console.log("[apiRequest] Token refreshed, retrying original request...");
+          // Retry the original request
+          return apiRequest<T>(endpoint, options, timeout, true);
+        }
+      } catch (refreshError) {
+        console.error("[apiRequest] Token refresh failed:", refreshError);
+      }
+
+      // Refresh failed - throw 401 to trigger login redirect
+      console.log("[apiRequest] Session expired");
+      const error: APIError = {
+        detail: "Session expired. Please log in again.",
+        status: 401,
+      };
+      throw error;
+    }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({
@@ -4201,3 +4234,75 @@ export async function getGovernanceAuditLog(
 export async function getKillSwitchDashboard(): Promise<KillSwitchDashboard> {
   return apiRequest<KillSwitchDashboard>("/governance/kill-switch/dashboard");
 }
+
+// =============================================================================
+// Sprint 136: Axios-style API object for backwards compatibility with hooks
+// Hooks like useGitHub and useInvitations use api.get/post/delete syntax
+// =============================================================================
+
+interface ApiResponse<T> {
+  data: T;
+}
+
+/**
+ * Axios-style API client object for backwards compatibility
+ * Used by hooks that expect api.get/post/put/delete syntax
+ */
+export const api = {
+  /**
+   * Make a GET request
+   * @param endpoint API endpoint (e.g., "/github/connection")
+   */
+  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
+    const data = await apiRequest<T>(endpoint, { method: "GET" });
+    return { data };
+  },
+
+  /**
+   * Make a POST request
+   * @param endpoint API endpoint
+   * @param body Request body (will be JSON stringified)
+   */
+  async post<T>(endpoint: string, body?: unknown): Promise<ApiResponse<T>> {
+    const data = await apiRequest<T>(endpoint, {
+      method: "POST",
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return { data };
+  },
+
+  /**
+   * Make a PUT request
+   * @param endpoint API endpoint
+   * @param body Request body (will be JSON stringified)
+   */
+  async put<T>(endpoint: string, body?: unknown): Promise<ApiResponse<T>> {
+    const data = await apiRequest<T>(endpoint, {
+      method: "PUT",
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return { data };
+  },
+
+  /**
+   * Make a PATCH request
+   * @param endpoint API endpoint
+   * @param body Request body (will be JSON stringified)
+   */
+  async patch<T>(endpoint: string, body?: unknown): Promise<ApiResponse<T>> {
+    const data = await apiRequest<T>(endpoint, {
+      method: "PATCH",
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return { data };
+  },
+
+  /**
+   * Make a DELETE request
+   * @param endpoint API endpoint
+   */
+  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
+    const data = await apiRequest<T>(endpoint, { method: "DELETE" });
+    return { data };
+  },
+};

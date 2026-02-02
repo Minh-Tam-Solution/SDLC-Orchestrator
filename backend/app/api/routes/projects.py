@@ -1,14 +1,15 @@
 """
 File: backend/app/api/routes/projects.py
-Version: 1.0.0
+Version: 1.1.0
 Status: ACTIVE - STAGE 03 (BUILD)
-Date: 2025-11-27
+Date: 2026-02-01
 Authority: Backend Lead + CTO Approved
-Foundation: SDLC 4.9 Complete Lifecycle, Zero Mock Policy
+Foundation: SDLC 6.0.0 Complete Lifecycle, Zero Mock Policy
 
 Description:
 Projects API routes for SDLC Orchestrator.
 Provides CRUD operations for projects.
+Sprint 136: Added project context update endpoint (SSOT principle).
 """
 
 from datetime import datetime
@@ -25,6 +26,7 @@ from app.db.session import get_db
 from app.models.project import Project, ProjectMember
 from app.models.gate import Gate
 from app.models.policy_pack import PolicyPack
+from app.models.agents_md import ContextOverlay
 from app.api.dependencies import get_current_user
 from app.models.user import User
 from app.services.cache_service import (
@@ -60,6 +62,50 @@ class ProjectUpdate(BaseModel):
     """Schema for updating a project"""
     name: Optional[str] = Field(None, min_length=1, max_length=255, description="Project name")
     description: Optional[str] = Field(None, max_length=2000, description="Project description")
+
+
+class ProjectContextUpdate(BaseModel):
+    """
+    Schema for updating project context (stage, gate, sprint).
+    
+    Sprint 136 - SSOT Principle:
+    - Database is the Single Source of Truth
+    - Extension/Dashboard READ from database
+    - Admin UI/CLI WRITE to database via this endpoint
+    """
+    stage: Optional[str] = Field(
+        None,
+        description="Current SDLC stage: FOUNDATION, PLANNING, DESIGN, INTEGRATE, BUILD, TEST, DEPLOY, OPERATE, GOVERN, ARCHIVE"
+    )
+    gate: Optional[str] = Field(
+        None,
+        description="Current/last passed gate: G0.1, G0.2, G1, G2, G3, G4, G5, G6, G7, G8, G9"
+    )
+    sprint_number: Optional[int] = Field(
+        None,
+        ge=1,
+        description="Current sprint number (e.g., 136)"
+    )
+    sprint_goal: Optional[str] = Field(
+        None,
+        max_length=500,
+        description="Current sprint goal"
+    )
+    strict_mode: Optional[bool] = Field(
+        None,
+        description="Post-G3 strict mode (bug fixes only)"
+    )
+
+
+class ProjectContextResponse(BaseModel):
+    """Response schema for project context"""
+    project_id: str
+    stage: Optional[str]
+    gate: Optional[str]
+    sprint_number: Optional[int]
+    sprint_goal: Optional[str]
+    strict_mode: bool
+    updated_at: str
 
 
 def slugify(text: str) -> str:
@@ -396,8 +442,21 @@ async def get_project(
     )
     gates = gates_result.scalars().all()
 
-    # Calculate current stage from highest gate stage
-    current_stage = max((gate.stage for gate in gates), default="00")
+    # Sprint 136: Read current_stage from ContextOverlay (SSOT) if exists
+    # Fallback to calculating from gates if no context overlay
+    context_result = await db.execute(
+        select(ContextOverlay)
+        .where(ContextOverlay.project_id == project_id)
+        .order_by(ContextOverlay.generated_at.desc())
+        .limit(1)
+    )
+    context_overlay = context_result.scalar_one_or_none()
+
+    if context_overlay and context_overlay.stage_name:
+        current_stage = context_overlay.stage_name
+    else:
+        # Fallback: Calculate from highest gate stage
+        current_stage = max((gate.stage for gate in gates), default="00")
 
     return {
         "id": str(project.id),
@@ -487,6 +546,211 @@ async def update_project(
         "created_at": project.created_at.isoformat() if project.created_at else None,
         "updated_at": project.updated_at.isoformat() if project.updated_at else None,
     }
+
+
+@router.put(
+    "/{project_id}/context",
+    response_model=ProjectContextResponse,
+    summary="Update project context (stage, gate, sprint)",
+    description="""
+    Update the current SDLC context for a project.
+    
+    **SSOT Principle (Sprint 136)**:
+    - Database is the Single Source of Truth
+    - Extension/Dashboard READ from this data
+    - Admin UI/CLI WRITE via this endpoint
+    
+    **Valid Stages**: FOUNDATION, PLANNING, DESIGN, INTEGRATE, BUILD, TEST, DEPLOY, OPERATE, GOVERN, ARCHIVE
+    **Valid Gates**: G0.1, G0.2, G1, G2, G3, G4, G5, G6, G7, G8, G9
+    """,
+)
+async def update_project_context(
+    project_id: UUID,
+    data: ProjectContextUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Update project SDLC context (stage, gate, sprint).
+    
+    Sprint 136 - SSOT Design Principle:
+    - Database as Single Source of Truth
+    - NOT local files → sync → backend (wrong direction)
+    - Correct: Admin UI/CLI → API → Database → Extension/Dashboard
+    
+    Only project owners and admins can update context.
+    """
+    # Validate stage value
+    valid_stages = [
+        "FOUNDATION", "PLANNING", "DESIGN", "INTEGRATE", "BUILD",
+        "TEST", "DEPLOY", "OPERATE", "GOVERN", "ARCHIVE"
+    ]
+    if data.stage and data.stage.upper() not in valid_stages:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid stage. Must be one of: {', '.join(valid_stages)}"
+        )
+    
+    # Validate gate value
+    valid_gates = ["G0.1", "G0.2", "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9"]
+    if data.gate and data.gate.upper() not in [g.upper() for g in valid_gates]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid gate. Must be one of: {', '.join(valid_gates)}"
+        )
+    
+    # Get project
+    result = await db.execute(
+        select(Project).where(
+            Project.id == project_id,
+            Project.deleted_at.is_(None),
+        )
+    )
+    project = result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    # Check permission (owner, admin, or regular superuser)
+    member_result = await db.execute(
+        select(ProjectMember).where(
+            ProjectMember.project_id == project_id,
+            ProjectMember.user_id == current_user.id,
+            ProjectMember.role.in_(["owner", "admin"]),
+        )
+    )
+    member = member_result.scalar_one_or_none()
+
+    is_regular_admin = current_user.is_superuser and not current_user.is_platform_admin
+    if not member and not is_regular_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to update this project's context",
+        )
+
+    # Get or create context overlay for this project
+    overlay_result = await db.execute(
+        select(ContextOverlay)
+        .where(ContextOverlay.project_id == project_id)
+        .order_by(ContextOverlay.generated_at.desc())
+        .limit(1)
+    )
+    existing_overlay = overlay_result.scalar_one_or_none()
+    
+    # Create new context overlay (audit trail)
+    from uuid import uuid4
+    new_overlay = ContextOverlay(
+        id=uuid4(),
+        project_id=project_id,
+        stage_name=data.stage.upper() if data.stage else (existing_overlay.stage_name if existing_overlay else None),
+        gate_status=data.gate if data.gate else (existing_overlay.gate_status if existing_overlay else None),
+        sprint_number=data.sprint_number if data.sprint_number is not None else (existing_overlay.sprint_number if existing_overlay else None),
+        sprint_goal=data.sprint_goal if data.sprint_goal is not None else (existing_overlay.sprint_goal if existing_overlay else None),
+        strict_mode=data.strict_mode if data.strict_mode is not None else (existing_overlay.strict_mode if existing_overlay else False),
+        constraints=[],
+        generated_at=datetime.utcnow(),
+        trigger_type="api",
+        trigger_ref=f"PUT /projects/{project_id}/context by {current_user.email}",
+    )
+    
+    db.add(new_overlay)
+    await db.commit()
+    await db.refresh(new_overlay)
+    
+    # Invalidate cache
+    await invalidate_projects_cache()
+    
+    return ProjectContextResponse(
+        project_id=str(project_id),
+        stage=new_overlay.stage_name,
+        gate=new_overlay.gate_status,
+        sprint_number=new_overlay.sprint_number,
+        sprint_goal=new_overlay.sprint_goal,
+        strict_mode=new_overlay.strict_mode,
+        updated_at=new_overlay.generated_at.isoformat(),
+    )
+
+
+@router.get(
+    "/{project_id}/context",
+    response_model=ProjectContextResponse,
+    summary="Get project context (stage, gate, sprint)",
+    description="Get the current SDLC context for a project (SSOT read endpoint).",
+)
+async def get_project_context(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Get project SDLC context (stage, gate, sprint).
+    
+    SSOT Read Endpoint - Extension and Dashboard use this.
+    """
+    # Get project
+    result = await db.execute(
+        select(Project).where(
+            Project.id == project_id,
+            Project.deleted_at.is_(None),
+        )
+    )
+    project = result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    # Check membership
+    member_result = await db.execute(
+        select(ProjectMember).where(
+            ProjectMember.project_id == project_id,
+            ProjectMember.user_id == current_user.id,
+        )
+    )
+    member = member_result.scalar_one_or_none()
+
+    is_regular_admin = current_user.is_superuser and not current_user.is_platform_admin
+    if not member and not is_regular_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to view this project's context",
+        )
+
+    # Get latest context overlay
+    overlay_result = await db.execute(
+        select(ContextOverlay)
+        .where(ContextOverlay.project_id == project_id)
+        .order_by(ContextOverlay.generated_at.desc())
+        .limit(1)
+    )
+    overlay = overlay_result.scalar_one_or_none()
+    
+    if not overlay:
+        # Return default context if no overlay exists
+        return ProjectContextResponse(
+            project_id=str(project_id),
+            stage="FOUNDATION",
+            gate="G0.1",
+            sprint_number=None,
+            sprint_goal=None,
+            strict_mode=False,
+            updated_at=project.created_at.isoformat() if project.created_at else datetime.utcnow().isoformat(),
+        )
+    
+    return ProjectContextResponse(
+        project_id=str(project_id),
+        stage=overlay.stage_name,
+        gate=overlay.gate_status,
+        sprint_number=overlay.sprint_number,
+        sprint_goal=overlay.sprint_goal,
+        strict_mode=overlay.strict_mode,
+        updated_at=overlay.generated_at.isoformat() if overlay.generated_at else datetime.utcnow().isoformat(),
+    )
 
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)

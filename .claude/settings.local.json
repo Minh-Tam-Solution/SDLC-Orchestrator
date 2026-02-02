@@ -460,7 +460,16 @@
       "Bash(npx vsce package --no-dependencies)",
       "Bash(.venv/bin/python:*)",
       "Bash(.venv/bin/sdlcctl:*)",
-      "Bash(npx @vscode/vsce package:*)"
+      "Bash(npx @vscode/vsce package:*)",
+      "Bash(sdlcctl project context:*)",
+      "Bash(NEXT_LINT_DISABLE=1 npm run build:*)",
+      "Bash(code --uninstall-extension:*)",
+      "Bash( code --uninstall-extension mtsolution.sdlc-orchestrator)",
+      "Bash( code --install-extension ./sdlc-orchestrator-1.3.0.vsix --force)",
+      "Bash(python -m backend.app.services.evidence_validator:*)",
+      "Bash( ls -la SDLC-Enterprise-Framework/02-Core-Methodology/*.md)",
+      "Bash( ls -la SDLC-Enterprise-Framework/02-Core-Methodology/Documentation-Standards/*.md)",
+      "Bash( ls -la SDLC-Enterprise-Framework/05-Templates-Tools/02-AI-Tools/testing_*.md)"
     ],
     "deny": [],
     "ask": []

@@ -89,7 +89,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         // Initialize configuration manager
         const config = ConfigManager.getInstance();
 
-        // Initialize services
+        // Initialize services (synchronous - won't fail)
         state.authService = new AuthService(context);
         state.apiClient = new ApiClient(context, state.authService);
         state.cacheService = new CacheService(context);
@@ -98,13 +98,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         // Initialize Project Detector (Sprint 127 - Auto-Detect Project)
         state.projectDetector = ProjectDetector.getInstance(state.apiClient);
 
-        // Check authentication status
-        const isAuthenticated = await state.authService.isAuthenticated();
-        await vscode.commands.executeCommand(
-            'setContext',
-            'sdlc.isAuthenticated',
-            isAuthenticated
-        );
+        // CRITICAL FIX (Sprint 136): Register TreeDataProviders BEFORE any async operations
+        // This prevents "There is no data provider registered" errors when:
+        // - Backend is unavailable
+        // - Authentication check fails
+        // - Network timeout occurs
 
         // Initialize view providers with cache support
         state.gateStatusProvider = new GateStatusProvider(
@@ -132,7 +130,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         );
         state.contextStatusBar = new ContextStatusBarItem();
 
-        // Register tree data providers
+        // Register tree data providers IMMEDIATELY (before async operations)
+        // This ensures views always have a provider, even if later steps fail
         context.subscriptions.push(
             vscode.window.registerTreeDataProvider(
                 'sdlc-context',
@@ -154,6 +153,23 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                 'sdlc-blueprint',
                 state.blueprintProvider
             )
+        );
+
+        Logger.info('TreeDataProviders registered successfully');
+
+        // NOW check authentication status (async - may fail)
+        let isAuthenticated = false;
+        try {
+            isAuthenticated = await state.authService.isAuthenticated();
+        } catch (authError) {
+            Logger.warn(`Authentication check failed (offline mode): ${authError instanceof Error ? authError.message : String(authError)}`);
+            // Continue with unauthenticated state - views will show appropriate messages
+        }
+
+        await vscode.commands.executeCommand(
+            'setContext',
+            'sdlc.isAuthenticated',
+            isAuthenticated
         );
 
         // Register Context Panel commands (Sprint 81)

@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { useProjects, useCreateProject, type Project } from "@/hooks/useProjects";
 import { useAuth } from "@/hooks/useAuth";
 import { useTeams } from "@/hooks/useTeams";
-import { useGitHubStatus, useGitHubRepositories, type GitHubRepository } from "@/hooks/useGitHub";
+import { useGitHub, type GitHubRepository } from "@/hooks/useGitHub";
 
 // Icons
 function PlusIcon({ className }: { className?: string }) {
@@ -227,8 +227,8 @@ function CreateProjectModal({
 
   // Sprint 90: Fetch teams and GitHub data using existing hooks
   const { data: teamsResponse, isLoading: teamsLoading } = useTeams();
-  const { data: githubStatus } = useGitHubStatus();
-  const { data: githubRepos, isLoading: reposLoading } = useGitHubRepositories();
+  // Sprint 136: Use unified useGitHub hook instead of removed useGitHubStatus/useGitHubRepositories
+  const { connection: githubStatus, repositories: githubRepos, isLoadingRepositories: reposLoading } = useGitHub();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -388,7 +388,7 @@ function CreateProjectModal({
                 <GitHubIcon className="h-4 w-4" />
                 Link to GitHub Repository
               </label>
-              {githubStatus?.connected ? (
+              {!!githubStatus ? (
                 <span className="text-xs text-green-600 flex items-center gap-1">
                   <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                   Connected
@@ -403,7 +403,7 @@ function CreateProjectModal({
               )}
             </div>
 
-            {githubStatus?.connected && (
+            {!!githubStatus && (
               <>
                 <div className="flex items-center gap-2 mb-2">
                   <input
@@ -486,7 +486,7 @@ function CreateProjectModal({
               </>
             )}
 
-            {!githubStatus?.connected && (
+            {!!!githubStatus && (
               <p className="text-xs text-gray-500 mt-1">
                 Connect your GitHub account to link repositories to projects.
               </p>

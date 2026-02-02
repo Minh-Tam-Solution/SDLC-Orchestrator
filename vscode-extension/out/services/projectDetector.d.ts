@@ -46,7 +46,13 @@ export declare class ProjectDetector {
      */
     getCurrentProject(): Promise<DetectedProject | null>;
     /**
-     * Detect project name from workspace
+     * Detect project info (name + optional UUID) from workspace
+     *
+     * @returns Project name, optional UUID, and detection source
+     */
+    private detectProjectInfo;
+    /**
+     * Detect project name from workspace (backward compatible wrapper)
      *
      * Priority:
      * 1. .sdlc/config.yaml → project.name
@@ -61,15 +67,25 @@ export declare class ProjectDetector {
         source: DetectedProject['source'];
     } | null;
     /**
-     * Resolve project name to UUID via backend API
+     * Resolve project to UUID via backend API
      *
-     * Calls: GET /api/v1/projects?name={name}
-     * Or: GET /api/v1/projects (filter client-side)
+     * Matching priority:
+     * 1. Match by git repository URL (most reliable)
+     * 2. Match by project name (case-insensitive)
      *
      * @param name - Project name to resolve
      * @returns Project UUID or null if not found
      */
     resolveProjectUUID(name: string): Promise<string | null>;
+    /**
+     * Get local git repository URL from .git/config
+     */
+    private getLocalGitRepoUrl;
+    /**
+     * Normalize git URL for comparison
+     * Converts SSH, HTTPS, and various formats to a standard form
+     */
+    private normalizeGitUrl;
     /**
      * Invalidate cache (force re-detection on next call)
      *

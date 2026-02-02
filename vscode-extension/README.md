@@ -1,12 +1,27 @@
 # SDLC Orchestrator VS Code Extension
 
-**Version**: 1.2.0
+**Version**: 1.3.0
 **Status**: GA (General Availability)
-**Framework**: SDLC 6.0.0 (Multi-Frontend Aligned)
-**Sprint**: 127 - Multi-Frontend Alignment Complete
-**Last Updated**: January 30, 2026
+**Framework**: SDLC 6.0.1 (Stage Consistency Validation)
+**Sprint**: 136 - Framework 6.0.1 + Stage Consistency Validation
+**Last Updated**: February 1, 2026
 
 Gate status monitoring, AI-powered code generation, and compliance assistance directly in VS Code. Part of the SDLC Orchestrator governance platform - the **Operating System for Software 3.0**.
+
+## What's New in 1.3.0 (Sprint 136)
+
+### SDLC 6.0.1 Framework Support
+- **Framework 6.0.1**: Updated from 6.0.0 to latest version
+- **SPEC-0021**: Stage Consistency Validation support
+- **Version Sync**: Synchronized with `sdlcctl` CLI v1.3.0
+
+### New CLI Command: validate-consistency
+- Extension now recognizes the new `sdlcctl validate-consistency` command
+- Validates cross-stage consistency between:
+  - Stage 01 (Planning) ↔ Stage 02 (Design)
+  - Stage 02 (Design) ↔ Stage 03 (Integrate)
+  - Stage 03 (Integrate) ↔ Stage 04 (Build)
+  - Stage 01 (Planning) ↔ Stage 04 (Build)
 
 ## What's New in 1.2.0 (Sprint 127)
 
@@ -16,14 +31,6 @@ Gate status monitoring, AI-powered code generation, and compliance assistance di
 - **BDD Requirements**: GIVEN-WHEN-THEN validation support
 - **Tier-Specific Sections**: LITE/STANDARD/PROFESSIONAL/ENTERPRISE validation
 - **Extension Parity**: 67% → 89% feature parity (+22 points)
-
-### Bug Fixes & Improvements
-- **Stage Folder Naming**: Updated to SDLC 6.0.0 lowercase convention
-  - `00-Project-Foundation` → `00-foundation`
-  - `01-Planning-Analysis` → `01-planning`
-  - All 11 stages (00-10) updated
-- **Compilation**: Zero errors, production-ready
-- **Documentation**: Updated for SDLC 6.0.0 compliance
 
 See [CHANGELOG](CHANGELOG.md) for complete details.
 

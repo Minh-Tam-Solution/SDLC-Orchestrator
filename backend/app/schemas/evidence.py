@@ -23,6 +23,10 @@ Evidence Types:
 - DEPLOYMENT_PROOF: Deployment logs, production screenshots
 - DOCUMENTATION: README, user guides, technical docs
 - COMPLIANCE: Security scans, license audits, GDPR compliance
+- E2E_TESTING_REPORT: E2E API test reports with pass rate (RFC-SDLC-602)
+- API_DOCUMENTATION_REFERENCE: Complete API endpoint reference docs (RFC-SDLC-602)
+- SECURITY_TESTING_RESULTS: OWASP Top 10 security testing results (RFC-SDLC-602)
+- STAGE_CROSS_REFERENCE: Stage 03↔05 bidirectional links validation (RFC-SDLC-602)
 
 Zero Mock Policy: Production-ready Pydantic v2 schemas
 =========================================================================
@@ -71,6 +75,11 @@ class EvidenceUploadRequest(BaseModel):
             "DEPLOYMENT_PROOF",
             "DOCUMENTATION",
             "COMPLIANCE",
+            # RFC-SDLC-602: E2E API Testing Evidence Types
+            "E2E_TESTING_REPORT",
+            "API_DOCUMENTATION_REFERENCE",
+            "SECURITY_TESTING_RESULTS",
+            "STAGE_CROSS_REFERENCE",
         }
         if v.upper() not in allowed_types:
             raise ValueError(

@@ -102,16 +102,18 @@ async function activate(context) {
     try {
         // Initialize configuration manager
         const config = config_1.ConfigManager.getInstance();
-        // Initialize services
+        // Initialize services (synchronous - won't fail)
         state.authService = new authService_1.AuthService(context);
         state.apiClient = new apiClient_1.ApiClient(context, state.authService);
         state.cacheService = new cacheService_1.CacheService(context);
         state.codegenApi = new codegenApi_1.CodegenApiService(context, state.authService);
         // Initialize Project Detector (Sprint 127 - Auto-Detect Project)
         state.projectDetector = projectDetector_1.ProjectDetector.getInstance(state.apiClient);
-        // Check authentication status
-        const isAuthenticated = await state.authService.isAuthenticated();
-        await vscode.commands.executeCommand('setContext', 'sdlc.isAuthenticated', isAuthenticated);
+        // CRITICAL FIX (Sprint 136): Register TreeDataProviders BEFORE any async operations
+        // This prevents "There is no data provider registered" errors when:
+        // - Backend is unavailable
+        // - Authentication check fails
+        // - Network timeout occurs
         // Initialize view providers with cache support
         state.gateStatusProvider = new gateStatusView_1.GateStatusProvider(state.apiClient, state.cacheService);
         state.violationsProvider = new violationsView_1.ViolationsProvider(state.apiClient, state.cacheService);
@@ -121,8 +123,20 @@ async function activate(context) {
         // Initialize Context Panel Provider (Sprint 81 + Sprint 127 Auto-Detect)
         state.contextPanelProvider = new contextPanel_1.ContextPanelProvider(state.apiClient, state.cacheService, state.projectDetector);
         state.contextStatusBar = new contextPanel_1.ContextStatusBarItem();
-        // Register tree data providers
+        // Register tree data providers IMMEDIATELY (before async operations)
+        // This ensures views always have a provider, even if later steps fail
         context.subscriptions.push(vscode.window.registerTreeDataProvider('sdlc-context', state.contextPanelProvider), vscode.window.registerTreeDataProvider('sdlc-gate-status', state.gateStatusProvider), vscode.window.registerTreeDataProvider('sdlc-violations', state.violationsProvider), vscode.window.registerTreeDataProvider('sdlc-projects', state.projectsProvider), vscode.window.registerTreeDataProvider('sdlc-blueprint', state.blueprintProvider));
+        logger_1.Logger.info('TreeDataProviders registered successfully');
+        // NOW check authentication status (async - may fail)
+        let isAuthenticated = false;
+        try {
+            isAuthenticated = await state.authService.isAuthenticated();
+        }
+        catch (authError) {
+            logger_1.Logger.warn(`Authentication check failed (offline mode): ${authError instanceof Error ? authError.message : String(authError)}`);
+            // Continue with unauthenticated state - views will show appropriate messages
+        }
+        await vscode.commands.executeCommand('setContext', 'sdlc.isAuthenticated', isAuthenticated);
         // Register Context Panel commands (Sprint 81)
         (0, contextPanel_1.registerContextCommands)(context, state.contextPanelProvider, state.contextStatusBar);
         // Register chat participant for Copilot-style @gate commands

@@ -91,19 +91,28 @@ class ProjectDetector {
             return this.cachedProject;
         }
         try {
-            // Step 1: Detect project name
-            const detected = this.detectProjectName();
+            // Step 1: Detect project info (name + optional UUID from config)
+            const detected = this.detectProjectInfo();
             if (!detected) {
                 logger_1.Logger.warn('No project detected from workspace');
                 return null;
             }
-            const { name, source } = detected;
-            logger_1.Logger.info(`Project detected: ${name} (source: ${source})`);
-            // Step 2: Resolve name to UUID
-            const uuid = await this.resolveProjectUUID(name);
-            if (!uuid) {
-                logger_1.Logger.error(`Failed to resolve project name to UUID: ${name}`);
-                return null;
+            const { name, uuid: configUuid, source } = detected;
+            logger_1.Logger.info(`Project detected: ${name} (source: ${source})${configUuid ? ' with UUID from config' : ''}`);
+            // Step 2: Use UUID from config OR resolve via API
+            let uuid;
+            if (configUuid) {
+                uuid = configUuid;
+                logger_1.Logger.info(`Using UUID from config file: ${uuid}`);
+            }
+            else {
+                logger_1.Logger.debug(`No UUID in config, resolving via API...`);
+                const resolvedUuid = await this.resolveProjectUUID(name);
+                if (!resolvedUuid) {
+                    logger_1.Logger.error(`Failed to resolve project name to UUID: ${name}`);
+                    return null;
+                }
+                uuid = resolvedUuid;
             }
             // Cache result
             this.cachedProject = { name, uuid, source };
@@ -116,33 +125,32 @@ class ProjectDetector {
         }
     }
     /**
-     * Detect project name from workspace
+     * Detect project info (name + optional UUID) from workspace
      *
-     * Priority:
-     * 1. .sdlc/config.yaml → project.name
-     * 2. package.json → name
-     * 3. .git/config → remote repo name
-     * 4. Workspace folder name
-     *
-     * @returns Project name and detection source
+     * @returns Project name, optional UUID, and detection source
      */
-    detectProjectName() {
+    detectProjectInfo() {
         const workspace = vscode.workspace.workspaceFolders?.[0];
         if (!workspace) {
             logger_1.Logger.debug('No workspace folder open');
             return null;
         }
         const workspacePath = workspace.uri.fsPath;
-        // Priority 1: .sdlc/config.yaml or .sdlc-config.json
+        // Priority 1: .sdlc/config.yaml or .sdlc-config.json (may include UUID)
         const sdlcConfigPath = path.join(workspacePath, '.sdlc', 'config.yaml');
         const sdlcConfigJsonPath = path.join(workspacePath, '.sdlc-config.json');
         if (fs.existsSync(sdlcConfigPath)) {
             try {
                 const content = fs.readFileSync(sdlcConfigPath, 'utf8');
                 const config = yaml.load(content);
-                if (config.project?.name) {
-                    logger_1.Logger.debug(`Detected from .sdlc/config.yaml: ${config.project.name}`);
-                    return { name: config.project.name, source: 'sdlc-config' };
+                const name = config.project?.name;
+                const uuid = config.project?.id || config.project_uuid;
+                if (name) {
+                    logger_1.Logger.debug(`Detected from .sdlc/config.yaml: ${name}${uuid ? ' (UUID: ' + uuid + ')' : ''}`);
+                    // Only include uuid if it's a valid string (not undefined)
+                    return uuid
+                        ? { name, uuid, source: 'sdlc-config' }
+                        : { name, source: 'sdlc-config' };
                 }
             }
             catch (error) {
@@ -153,9 +161,14 @@ class ProjectDetector {
             try {
                 const content = fs.readFileSync(sdlcConfigJsonPath, 'utf8');
                 const config = JSON.parse(content);
-                if (config.project?.name) {
-                    logger_1.Logger.debug(`Detected from .sdlc-config.json: ${config.project.name}`);
-                    return { name: config.project.name, source: 'sdlc-config' };
+                const name = config.project?.name;
+                const uuid = config.project?.id || config.project_uuid;
+                if (name) {
+                    logger_1.Logger.debug(`Detected from .sdlc-config.json: ${name}${uuid ? ' (UUID: ' + uuid + ')' : ''}`);
+                    // Only include uuid if it's a valid string (not undefined)
+                    return uuid
+                        ? { name, uuid, source: 'sdlc-config' }
+                        : { name, source: 'sdlc-config' };
                 }
             }
             catch (error) {
@@ -199,10 +212,29 @@ class ProjectDetector {
         return { name: folderName, source: 'folder-name' };
     }
     /**
-     * Resolve project name to UUID via backend API
+     * Detect project name from workspace (backward compatible wrapper)
      *
-     * Calls: GET /api/v1/projects?name={name}
-     * Or: GET /api/v1/projects (filter client-side)
+     * Priority:
+     * 1. .sdlc/config.yaml → project.name
+     * 2. package.json → name
+     * 3. .git/config → remote repo name
+     * 4. Workspace folder name
+     *
+     * @returns Project name and detection source
+     */
+    detectProjectName() {
+        const info = this.detectProjectInfo();
+        if (!info) {
+            return null;
+        }
+        return { name: info.name, source: info.source };
+    }
+    /**
+     * Resolve project to UUID via backend API
+     *
+     * Matching priority:
+     * 1. Match by git repository URL (most reliable)
+     * 2. Match by project name (case-insensitive)
      *
      * @param name - Project name to resolve
      * @returns Project UUID or null if not found
@@ -211,20 +243,77 @@ class ProjectDetector {
         try {
             // Get all projects (backend already supports this)
             const projects = await this.apiClient.getProjects();
-            // Find project by name (case-insensitive)
-            const nameLower = name.toLowerCase();
-            const project = projects.find((p) => p.name.toLowerCase() === nameLower);
-            if (!project) {
-                logger_1.Logger.warn(`Project not found in backend: ${name}`);
-                return null;
+            // Get local git repo URL for matching
+            const localRepoUrl = this.getLocalGitRepoUrl();
+            // Priority 1: Match by git repository URL (most reliable)
+            if (localRepoUrl) {
+                const normalizedLocalUrl = this.normalizeGitUrl(localRepoUrl);
+                const projectByRepo = projects.find((p) => {
+                    const repoUrl = p.repository_url || p.github_repo;
+                    if (!repoUrl)
+                        return false;
+                    return this.normalizeGitUrl(repoUrl) === normalizedLocalUrl;
+                });
+                if (projectByRepo) {
+                    logger_1.Logger.info(`Resolved by git repo URL: ${localRepoUrl} → UUID: ${projectByRepo.id}`);
+                    return projectByRepo.id;
+                }
             }
-            logger_1.Logger.info(`Resolved ${name} to UUID: ${project.id}`);
-            return project.id;
+            // Priority 2: Match by project name (case-insensitive)
+            const nameLower = name.toLowerCase();
+            const projectByName = projects.find((p) => p.name.toLowerCase() === nameLower);
+            if (projectByName) {
+                logger_1.Logger.info(`Resolved by name: ${name} → UUID: ${projectByName.id}`);
+                return projectByName.id;
+            }
+            logger_1.Logger.warn(`Project not found in backend: ${name}`);
+            return null;
         }
         catch (error) {
             logger_1.Logger.error(`Failed to resolve project UUID: ${error}`);
             return null;
         }
+    }
+    /**
+     * Get local git repository URL from .git/config
+     */
+    getLocalGitRepoUrl() {
+        const workspace = vscode.workspace.workspaceFolders?.[0];
+        if (!workspace) {
+            return null;
+        }
+        const gitConfigPath = path.join(workspace.uri.fsPath, '.git', 'config');
+        if (!fs.existsSync(gitConfigPath)) {
+            return null;
+        }
+        try {
+            const content = fs.readFileSync(gitConfigPath, 'utf8');
+            // Match: url = https://github.com/user/repo.git or git@github.com:user/repo.git
+            const match = content.match(/url\s*=\s*(.+)$/m);
+            return match?.[1]?.trim() || null;
+        }
+        catch {
+            return null;
+        }
+    }
+    /**
+     * Normalize git URL for comparison
+     * Converts SSH, HTTPS, and various formats to a standard form
+     */
+    normalizeGitUrl(url) {
+        return url
+            .trim()
+            .toLowerCase()
+            // Remove .git suffix
+            .replace(/\.git$/, '')
+            // Convert SSH to HTTPS-like format: git@github.com:user/repo → github.com/user/repo
+            .replace(/^git@([^:]+):(.+)$/, '$1/$2')
+            // Remove protocol
+            .replace(/^https?:\/\//, '')
+            // Remove www.
+            .replace(/^www\./, '')
+            // Remove trailing slash
+            .replace(/\/$/, '');
     }
     /**
      * Invalidate cache (force re-detection on next call)

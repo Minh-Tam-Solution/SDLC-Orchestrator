@@ -214,6 +214,13 @@ class ApiClient {
         const response = await this.client.delete(endpoint, config);
         return response.data;
     }
+    /**
+     * Makes a typed PUT request
+     */
+    async put(endpoint, data, config) {
+        const response = await this.client.put(endpoint, data, config);
+        return response.data;
+    }
     // ============================================
     // Project APIs
     // ============================================
@@ -248,6 +255,19 @@ class ApiClient {
         return this.get(`/api/v1/projects/${projectId}`);
     }
     /**
+     * Updates a project (Sprint 136 - Sync local state to backend)
+     */
+    async updateProject(projectId, data) {
+        return this.put(`/api/v1/projects/${projectId}`, data);
+    }
+    /**
+     * Updates project context overlay (stage, gate, sprint info)
+     * This syncs local project state to backend
+     */
+    async updateProjectContext(projectId, context) {
+        await this.put(`/api/v1/projects/${projectId}/context`, context);
+    }
+    /**
      * Gets the currently selected project ID from configuration
      */
     getCurrentProjectId() {
@@ -259,10 +279,11 @@ class ApiClient {
     // ============================================
     /**
      * Gets gates for a project
+     * Sprint 136: Fixed endpoint to use /gates?project_id= instead of /projects/{id}/gates
      */
     async getGates(projectId) {
         try {
-            const response = await this.get(`/api/v1/projects/${projectId}/gates`);
+            const response = await this.get(`/api/v1/gates?project_id=${projectId}`);
             // Defensive check for response format
             if (!response || !Array.isArray(response.items)) {
                 logger_1.Logger.warn('getGates: Invalid response format, returning empty array');

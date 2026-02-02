@@ -38,20 +38,37 @@ export interface Project {
 }
 /**
  * Gate type definition
+ * Sprint 136: Fixed to match backend GateResponse schema
+ * Note: status values are UPPERCASE from backend (DRAFT, PENDING_APPROVAL, APPROVED, REJECTED)
+ * but code may compare with lowercase - normalize when comparing
  */
 export interface Gate {
     id: string;
     project_id: string;
+    gate_name: string;
+    name?: string;
     gate_type: string;
-    name: string;
+    stage: string;
     description: string;
-    status: 'not_started' | 'in_progress' | 'pending_approval' | 'approved' | 'rejected';
+    status: string;
     evidence_count: number;
     required_evidence_count: number;
+    exit_criteria?: Array<{
+        criterion: string;
+        status: string;
+    }>;
+    approvals?: Array<{
+        approved_by: string;
+        is_approved: boolean;
+        comments?: string;
+    }>;
+    policy_violations?: string[];
     approver_id?: string;
-    approved_at?: string;
+    created_by?: string;
     created_at: string;
     updated_at: string;
+    approved_at?: string;
+    deleted_at?: string;
 }
 /**
  * Violation type definition
@@ -151,6 +168,10 @@ export declare class ApiClient {
      */
     delete<T>(endpoint: string, config?: AxiosRequestConfig): Promise<T>;
     /**
+     * Makes a typed PUT request
+     */
+    put<T>(endpoint: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>;
+    /**
      * Gets list of projects accessible to the current user
      */
     getProjects(page?: number, pageSize?: number): Promise<Project[]>;
@@ -159,11 +180,38 @@ export declare class ApiClient {
      */
     getProject(projectId: string): Promise<Project>;
     /**
+     * Updates a project (Sprint 136 - Sync local state to backend)
+     */
+    updateProject(projectId: string, data: {
+        name?: string;
+        description?: string;
+        current_stage?: string;
+        gate_status?: string;
+        sprint_number?: number;
+        sprint_goal?: string;
+        tier?: string;
+    }): Promise<Project>;
+    /**
+     * Updates project context overlay (stage, gate, sprint info)
+     * This syncs local project state to backend
+     */
+    updateProjectContext(projectId: string, context: {
+        stage_name: string;
+        gate_status: string;
+        sprint?: {
+            number: number;
+            goal: string;
+            days_remaining?: number;
+        };
+        strict_mode?: boolean;
+    }): Promise<void>;
+    /**
      * Gets the currently selected project ID from configuration
      */
     getCurrentProjectId(): string | undefined;
     /**
      * Gets gates for a project
+     * Sprint 136: Fixed endpoint to use /gates?project_id= instead of /projects/{id}/gates
      */
     getGates(projectId: string): Promise<Gate[]>;
     /**

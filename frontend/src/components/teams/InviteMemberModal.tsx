@@ -70,10 +70,11 @@ export function InviteMemberModal({
       setEmail("");
       setRole("member");
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { status?: number; data?: { detail?: string } } };
       // Handle specific error cases
-      if (err.response?.status === 400) {
-        const detail = err.response?.data?.detail;
+      if (error.response?.status === 400) {
+        const detail = error.response?.data?.detail;
         if (detail?.includes("already a member")) {
           setError(`${email} is already a member of ${teamName}`);
         } else if (detail?.includes("pending invitation")) {
@@ -81,7 +82,7 @@ export function InviteMemberModal({
         } else {
           setError(detail || "Failed to send invitation");
         }
-      } else if (err.response?.status === 429) {
+      } else if (error.response?.status === 429) {
         setError("Rate limit exceeded. Please try again in a few minutes.");
       } else {
         setError("Failed to send invitation. Please try again.");
@@ -102,7 +103,7 @@ export function InviteMemberModal({
         <DialogHeader>
           <DialogTitle>Invite Member to {teamName}</DialogTitle>
           <DialogDescription>
-            Send an invitation email to add a new member to your team. They'll
+            Send an invitation email to add a new member to your team. They&apos;ll
             receive a link to accept the invitation.
           </DialogDescription>
         </DialogHeader>

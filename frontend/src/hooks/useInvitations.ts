@@ -29,18 +29,21 @@ export function useInvitations(teamId: string) {
 
   // Fetch team invitations
   const {
-    data: invitations = [],
+    data: invitationsData,
     isLoading,
     error,
     refetch,
   } = useQuery<TeamInvitation[]>({
     queryKey: ["team-invitations", teamId],
-    queryFn: async () => {
-      const response = await api.get(`/teams/${teamId}/invitations`);
+    queryFn: async (): Promise<TeamInvitation[]> => {
+      const response = await api.get<TeamInvitation[]>(`/teams/${teamId}/invitations`);
       return response.data;
     },
     enabled: !!teamId,
   });
+
+  // Sprint 136: Explicitly type invitations to fix TanStack Query type inference
+  const invitations: TeamInvitation[] = invitationsData ?? [];
 
   // Send invitation mutation
   const {
@@ -176,9 +179,9 @@ export function useInvitations(teamId: string) {
 export function useAcceptInvitation(token: string | null) {
   return useQuery<TeamInvitation>({
     queryKey: ["invitation", token],
-    queryFn: async () => {
+    queryFn: async (): Promise<TeamInvitation> => {
       if (!token) throw new Error("No invitation token provided");
-      const response = await api.get(`/invitations/${token}`);
+      const response = await api.get<TeamInvitation>(`/invitations/${token}`);
       return response.data;
     },
     enabled: !!token,
