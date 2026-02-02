@@ -569,7 +569,9 @@ def remove_worktree(
         console.print(f"[red]✗[/red] Failed to remove worktree")
         console.print(f"[dim]Error: {stderr}[/dim]")
 
-        if "uncommitted changes" in stderr.lower() and not force:
+        # Check for uncommitted changes error messages
+        if ("uncommitted changes" in stderr.lower() or
+            "modified or untracked files" in stderr.lower()) and not force:
             console.print("\n[yellow]Hint:[/yellow] Use --force to remove worktree with uncommitted changes")
 
         raise typer.Exit(code=1)
