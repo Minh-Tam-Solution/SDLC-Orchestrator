@@ -68,6 +68,7 @@ from .commands.evidence import app as evidence_app
 from .commands.consistency import validate_consistency_command
 from .commands.project import app as project_app
 from .commands.e2e import app as e2e_app
+from .commands.worktree import app as worktree_app
 
 console = Console()
 
@@ -217,6 +218,9 @@ app.add_typer(project_app, name="project")
 
 # Register e2e sub-app (Sprint 137 - RFC-SDLC-602 E2E API Testing)
 app.add_typer(e2e_app, name="e2e")
+
+# Register worktree sub-app (Sprint 144 - RFC-SDLC-604 Parallel AI Development)
+app.add_typer(worktree_app, name="worktree")
 
 # Register validate-consistency command (Sprint 136 - SPEC-0021)
 app.command(
