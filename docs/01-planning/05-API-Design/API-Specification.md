@@ -1,13 +1,23 @@
 # API Specification (OpenAPI 3.0)
 ## Complete REST + GraphQL Endpoints
 
-**Version**: 3.3.0
-**Date**: January 30, 2026
-**Status**: ACTIVE - Team Invitation System (Sprint 128)
+**Version**: 3.4.0
+**Date**: February 8, 2026
+**Status**: ACTIVE - Product Truth Layer (Sprint 147)
 **Authority**: Backend Lead + CTO Review (✅ APPROVED)
 **Foundation**: FRD v3.1.0, Data Model ERD v3.2.0, Roadmap v5.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 6.0.0 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.0.3 Complete Lifecycle (10 Stages)
+
+**Changelog v3.4.0** (Feb 8, 2026):
+- Added Product Truth Layer telemetry endpoints (Sprint 147):
+  - POST /telemetry/events - Track product events (10 core events)
+  - GET /telemetry/funnels/{name} - Get funnel metrics
+  - GET /telemetry/dashboard - Get activation dashboard data
+- Supports 3 activation funnels: Time-to-First-Project, Evidence, Gate
+- Multi-interface: web, cli, extension telemetry
+- Reference: Product-Truth-Layer-Specification.md
+- Total endpoints: 72 → 75 endpoints
 
 **Changelog v3.3.0** (Jan 30, 2026):
 - Added Team Invitation System endpoints (Sprint 128):
@@ -1678,7 +1688,312 @@ codegen_escalation_queue_size{channel="human"} 1
 
 **Technical Spec Reference**: [Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
 
-**Total REST Endpoints**: 64 endpoints (35 original + 16 AI Governance + 12 EP-06 Codegen + 1 SDLC Validation)
+---
+
+### Product Truth Layer Telemetry Endpoints (Sprint 147)
+
+**Purpose**: Measure real product usage to replace narrative-based metrics ("82-85% realization")
+
+**3 Core Funnels**:
+1. Time-to-First-Project (signup → project → GitHub connect)
+2. Time-to-First-Evidence (project → validation → evidence)
+3. Time-to-First-Gate (evidence → approval request → gate pass)
+
+#### POST /telemetry/events
+
+Track a product event.
+
+```yaml
+/telemetry/events:
+  post:
+    tags:
+      - Telemetry
+    summary: Track product event
+    description: |
+      Track a product activation or engagement event. Supports 10 core events:
+      - user_signed_up, project_created, project_connected_github
+      - first_validation_run, first_evidence_uploaded, first_gate_passed
+      - invite_sent, invite_accepted, policy_violation_blocked, ai_council_used
+    operationId: trackEvent
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - event_name
+            properties:
+              event_name:
+                type: string
+                description: Event name (from core event taxonomy)
+                enum:
+                  - user_signed_up
+                  - project_created
+                  - project_connected_github
+                  - first_validation_run
+                  - first_evidence_uploaded
+                  - first_gate_passed
+                  - invite_sent
+                  - invite_accepted
+                  - policy_violation_blocked
+                  - ai_council_used
+              properties:
+                type: object
+                description: Event-specific properties
+                additionalProperties: true
+              project_id:
+                type: string
+                format: uuid
+                description: Associated project (optional)
+              organization_id:
+                type: string
+                format: uuid
+                description: Associated organization (optional)
+              session_id:
+                type: string
+                description: Client session identifier (optional)
+    responses:
+      '201':
+        description: Event tracked successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event_id:
+                  type: string
+                  format: uuid
+                tracked_at:
+                  type: string
+                  format: date-time
+      '400':
+        description: Invalid event name or properties
+      '401':
+        description: Unauthorized
+```
+
+**Request Example**:
+```json
+{
+  "event_name": "project_created",
+  "properties": {
+    "tier": "PROFESSIONAL",
+    "template_used": "sdlcctl-init"
+  },
+  "project_id": "550e8400-e29b-41d4-a716-446655440000",
+  "session_id": "cli-20260208120000-12345"
+}
+```
+
+**Response Example** (201 Created):
+```json
+{
+  "event_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "tracked_at": "2026-02-08T12:00:00Z"
+}
+```
+
+#### GET /telemetry/funnels/{funnel_name}
+
+Get funnel metrics for activation analysis.
+
+```yaml
+/telemetry/funnels/{funnel_name}:
+  get:
+    tags:
+      - Telemetry
+    summary: Get funnel metrics
+    description: |
+      Retrieve conversion metrics for activation funnels.
+      Supports 3 funnels: time-to-first-project, time-to-first-evidence, time-to-first-gate
+    operationId: getFunnelMetrics
+    security:
+      - BearerAuth: []
+    parameters:
+      - name: funnel_name
+        in: path
+        required: true
+        description: Funnel identifier
+        schema:
+          type: string
+          enum:
+            - time-to-first-project
+            - time-to-first-evidence
+            - time-to-first-gate
+      - name: start_date
+        in: query
+        description: Start date for metrics (default 30 days ago)
+        schema:
+          type: string
+          format: date
+      - name: end_date
+        in: query
+        description: End date for metrics (default today)
+        schema:
+          type: string
+          format: date
+      - name: cohort_by
+        in: query
+        description: Cohort grouping
+        schema:
+          type: string
+          enum: [day, week, month]
+          default: week
+    responses:
+      '200':
+        description: Funnel metrics
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                funnel_name:
+                  type: string
+                period:
+                  type: object
+                  properties:
+                    start:
+                      type: string
+                      format: date
+                    end:
+                      type: string
+                      format: date
+                steps:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      count:
+                        type: integer
+                      percentage:
+                        type: number
+                conversion_rates:
+                  type: object
+                  additionalProperties:
+                    type: number
+                median_times:
+                  type: object
+                  additionalProperties:
+                    type: number
+      '400':
+        description: Invalid funnel name or date range
+      '401':
+        description: Unauthorized
+```
+
+**Response Example**:
+```json
+{
+  "funnel_name": "time-to-first-project",
+  "period": {
+    "start": "2026-01-08",
+    "end": "2026-02-08"
+  },
+  "steps": [
+    { "name": "user_signed_up", "count": 127, "percentage": 100 },
+    { "name": "project_created", "count": 104, "percentage": 82 },
+    { "name": "project_connected_github", "count": 52, "percentage": 41 }
+  ],
+  "conversion_rates": {
+    "signup_to_project": 82,
+    "project_to_github": 50
+  },
+  "median_times": {
+    "signup_to_project_minutes": 3.2,
+    "project_to_github_minutes": 12.5
+  }
+}
+```
+
+#### GET /telemetry/dashboard
+
+Get activation dashboard summary data.
+
+```yaml
+/telemetry/dashboard:
+  get:
+    tags:
+      - Telemetry
+    summary: Get activation dashboard
+    description: |
+      Retrieve high-level activation metrics for dashboard display.
+      Includes signups, activation rate, and time-to-value metrics.
+    operationId: getTelemetryDashboard
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: Dashboard metrics
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                signups_7d:
+                  type: integer
+                  description: Signups in last 7 days
+                signups_7d_change:
+                  type: integer
+                  description: Percentage change from previous period
+                activation_rate:
+                  type: number
+                  description: Percentage of users who complete first gate
+                activation_rate_change:
+                  type: number
+                  description: Percentage change from previous period
+                time_to_first_project_p50_minutes:
+                  type: number
+                  description: Median time from signup to first project
+                time_to_first_project_change:
+                  type: number
+                  description: Percentage change from previous period
+                time_to_first_evidence_p50_minutes:
+                  type: number
+                  description: Median time from project to first evidence
+                time_to_first_evidence_change:
+                  type: number
+                  description: Percentage change from previous period
+                funnels:
+                  type: object
+                  description: Current vs target for each funnel
+                  additionalProperties:
+                    type: object
+                    properties:
+                      current:
+                        type: number
+                      target:
+                        type: number
+      '401':
+        description: Unauthorized
+```
+
+**Response Example**:
+```json
+{
+  "signups_7d": 127,
+  "signups_7d_change": 12,
+  "activation_rate": 64,
+  "activation_rate_change": 5,
+  "time_to_first_project_p50_minutes": 3.2,
+  "time_to_first_project_change": -18,
+  "time_to_first_evidence_p50_minutes": 12.5,
+  "time_to_first_evidence_change": -8,
+  "funnels": {
+    "time_to_first_project": { "current": 82, "target": 70 },
+    "time_to_first_evidence": { "current": 52, "target": 40 },
+    "time_to_first_gate": { "current": 25, "target": 25 }
+  }
+}
+```
+
+**Technical Spec Reference**: [Product-Truth-Layer-Specification.md](../../02-design/14-Technical-Specs/Product-Truth-Layer-Specification.md)
+
+**Total REST Endpoints**: 75 endpoints (35 original + 16 AI Governance + 12 EP-06 Codegen + 1 SDLC Validation + 5 Team Invitations + 3 Password Reset + 3 Telemetry)
 
 ---
 
@@ -2237,11 +2552,14 @@ GET /projects?limit=20&cursor=eyJpZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NT
 
 ---
 
-**Last Updated**: 2025-12-23
+**Last Updated**: 2026-02-08
 **Owner**: Backend Lead + CTO
-**Status**: ✅ APPROVED (EP-06 Codegen Quality Gates Extension)
+**Status**: ✅ APPROVED (Sprint 147 - Product Truth Layer)
 
 **Version History**:
+- v3.4.0 (Feb 8, 2026): Added 3 Product Truth Layer telemetry endpoints (75 total)
+- v3.3.0 (Jan 30, 2026): Added 5 Team Invitation endpoints (72 total)
+- v3.2.0 (Dec 30, 2025): Added 3 Password Reset endpoints (67 total)
 - v3.1.0 (Dec 23, 2025): Added 12 EP-06 Codegen Quality Gates endpoints (64 total)
 - v3.0.0 (Dec 21, 2025): EP-04/05/06 SDLC Structure + Migration endpoints (52 total)
 - v2.0.0 (Dec 3, 2025): Added 16 AI Governance endpoints (35 total)
@@ -2249,10 +2567,11 @@ GET /projects?limit=20&cursor=eyJpZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NT
 
 **Related Documents**:
 - [Functional Requirements Document](../01-Requirements/Functional-Requirements-Document.md) (v3.1.0)
-- [Data Model ERD](../04-Data-Model/Data-Model-ERD.md) (v3.1.0)
+- [Data Model ERD](../04-Data-Model/Data-Model-ERD.md) (v3.2.0)
 - [Non-Functional Requirements](../01-Requirements/Non-Functional-Requirements.md) (v3.1.0)
 - [EP-06 IR-Based Codegen Engine](../02-Epics/EP-06-IR-Based-Codegen-Engine.md)
-- **[Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)** *(NEW v3.1)*
+- [Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+- **[Product-Truth-Layer-Specification.md](../../02-design/14-Technical-Specs/Product-Truth-Layer-Specification.md)** *(NEW v3.4)*
 - [ADR-011-Context-Aware-Requirements](../../02-design/01-ADRs/ADR-011-Context-Aware-Requirements.md)
 - [ADR-012-AI-Task-Decomposition](../../02-design/01-ADRs/ADR-012-AI-Task-Decomposition.md)
 - [ADR-013-Planning-Hierarchy](../../02-design/01-ADRs/ADR-013-Planning-Hierarchy.md)
@@ -2260,4 +2579,4 @@ GET /projects?limit=20&cursor=eyJpZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NT
 
 ---
 
-**End of API Specification v3.1.0**
+**End of API Specification v3.4.0**

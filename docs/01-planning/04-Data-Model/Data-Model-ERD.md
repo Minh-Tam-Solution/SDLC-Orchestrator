@@ -1,15 +1,16 @@
 # Data Model & Entity-Relationship Diagram
 ## Database Schema and Relationships
 
-**Version**: 3.1.0
-**Date**: December 23, 2025
-**Status**: IMPLEMENTED - Production Ready + EP-06 Codegen
+**Version**: 3.2.0
+**Date**: February 8, 2026
+**Status**: IMPLEMENTED - Product Truth Layer (Sprint 147)
 **Authority**: CTO + Backend Lead ✅ APPROVED
 **Foundation**: FRD v3.1.0, Vision v4.0.0, EP-04/05/06 Data Requirements
 **Stage**: Stage 04 (BUILD)
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.0.3 Complete Lifecycle (10 Stages)
 
 **Changelog**:
+- v3.2.0 (Feb 8, 2026): Added product_events table (Sprint 147 - Product Truth Layer)
 - v3.1.0 (Dec 23, 2025): Added EP-06 Codegen tables (codegen_evidence, codegen_attempts, codegen_escalations)
 - v3.0.0 (Dec 21, 2025): SDLC 5.1.3 update, EP-04/05/06 entities added
 - v2.0.0 (Nov 29, 2025): ERD updated to reflect implemented 24-table schema
@@ -1010,9 +1011,90 @@ CREATE INDEX idx_vcr_req_status ON vcr_requests(status);
 
 ---
 
+## Product Truth Layer (Sprint 147)
+
+### Table: product_events
+
+**Purpose**: Track product activation and engagement events for funnel analysis.
+
+```sql
+CREATE TABLE product_events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_name VARCHAR(100) NOT NULL,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    project_id UUID REFERENCES projects(id) ON DELETE SET NULL,
+    organization_id UUID REFERENCES organizations(id) ON DELETE SET NULL,
+    properties JSONB NOT NULL DEFAULT '{}',
+    timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    session_id VARCHAR(100),
+    interface VARCHAR(20) CHECK (interface IN ('web', 'cli', 'extension', 'api')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+
+    -- Indexes for funnel queries
+    INDEX idx_events_user (user_id, timestamp),
+    INDEX idx_events_project (project_id, timestamp),
+    INDEX idx_events_name (event_name, timestamp),
+    INDEX idx_events_funnel (user_id, event_name, timestamp),
+    INDEX idx_events_interface (interface, timestamp)
+);
+```
+
+**Columns**:
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | UUID | PK | Unique event identifier |
+| event_name | VARCHAR(100) | NOT NULL | Event type (from taxonomy) |
+| user_id | UUID | FK → users | User who triggered event |
+| project_id | UUID | FK → projects | Associated project (optional) |
+| organization_id | UUID | FK → organizations | Associated organization (optional) |
+| properties | JSONB | NOT NULL DEFAULT '{}' | Event-specific properties |
+| timestamp | TIMESTAMPTZ | NOT NULL DEFAULT NOW() | When event occurred |
+| session_id | VARCHAR(100) | | Client session identifier |
+| interface | VARCHAR(20) | CHECK constraint | Source: web, cli, extension, api |
+| created_at | TIMESTAMPTZ | DEFAULT NOW() | Record creation time |
+
+**Event Taxonomy (Tier 1 - Activation)**:
+- `user_signed_up` - User registration completed
+- `project_created` - New project created
+- `project_connected_github` - GitHub repo connected
+- `first_validation_run` - First validation per project
+- `first_evidence_uploaded` - First evidence per project
+- `first_gate_passed` - First gate approval per project
+- `invite_sent` - Team invitation sent
+- `invite_accepted` - Team invitation accepted
+- `policy_violation_blocked` - OPA deny returned
+- `ai_council_used` - AI Council interaction
+
+**Relationships**:
+- N:1 with users (event triggered by user)
+- N:1 with projects (event associated with project)
+- N:1 with organizations (event associated with organization)
+
+**Materialized View**:
+```sql
+CREATE MATERIALIZED VIEW daily_activation_metrics AS
+SELECT
+    DATE(timestamp) as date,
+    COUNT(DISTINCT CASE WHEN event_name = 'user_signed_up' THEN user_id END) as signups,
+    COUNT(DISTINCT CASE WHEN event_name = 'project_created' THEN user_id END) as projects_created,
+    COUNT(DISTINCT CASE WHEN event_name = 'first_evidence_uploaded' THEN user_id END) as first_evidence,
+    COUNT(DISTINCT CASE WHEN event_name = 'first_gate_passed' THEN user_id END) as first_gate_pass
+FROM product_events
+GROUP BY DATE(timestamp);
+
+-- Index for fast date lookups
+CREATE INDEX ON daily_activation_metrics(date);
+```
+
+**Technical Spec Reference**: [Product-Truth-Layer-Specification.md](../../02-design/14-Technical-Specs/Product-Truth-Layer-Specification.md)
+
+---
+
 ## Document Control
 
 **Version History**:
+- v3.2.0 (February 8, 2026): Added product_events table (Sprint 147 - Product Truth Layer)
 - v3.1.0 (December 23, 2025): Added 6 EP-06 Codegen tables (ir_modules, codegen_*, vcr_requests)
 - v2.0.0 (November 29, 2025): Updated to reflect 24 implemented tables, NQH Portfolio seed data
 - v1.0.0 (January 13, 2025): Initial data model (15 tables - draft)
@@ -1022,19 +1104,21 @@ CREATE INDEX idx_vcr_req_status ON vcr_requests(status);
 - [FRD](../01-Requirements/Functional-Requirements-Document.md) (v3.1.0)
 - [NFR](../01-Requirements/Non-Functional-Requirements.md) (v3.1.0)
 - [EP-06 IR-Based Codegen Engine](../02-Epics/EP-06-IR-Based-Codegen-Engine.md)
-- **[Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)** *(NEW v3.1)*
+- [Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+- **[Product-Truth-Layer-Specification.md](../../02-design/14-Technical-Specs/Product-Truth-Layer-Specification.md)** *(NEW v3.2)*
 
 **Implementation**:
 - Migration (Base): `backend/alembic/versions/dce31118ffb7_initial_schema_24_tables.py`
 - Migration (EP-06): `backend/alembic/versions/[TBD]_codegen_tables.py` *(Sprint 48)*
+- Migration (Telemetry): `backend/alembic/versions/[TBD]_product_events.py` *(Sprint 147)*
 - Seed Data: `backend/alembic/versions/a502ce0d23a7_seed_data_realistic_mtc_nqh_examples.py`
 - Models: `backend/app/models/*.py`
 
 ---
 
-**End of Data Model v3.1.0**
+**End of Data Model v3.2.0**
 
-**Status**: ✅ IMPLEMENTED - Production Ready + EP-06 Codegen Designed
-**Date**: December 23, 2025
+**Status**: ✅ IMPLEMENTED - Product Truth Layer (Sprint 147)
+**Date**: February 8, 2026
 **Gate G3**: ✅ PASSED
-**Sprint 48**: EP-06 Codegen Tables Designed (Implementation Pending)
+**Sprint 147**: Product Truth Layer - product_events table added

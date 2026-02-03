@@ -3,12 +3,25 @@
 
 **Stage**: 07 - INTEGRATE
 **Question**: How do we connect with others?
-**Version**: 2.2.0
-**Date**: January 30, 2026
-**Status**: ✅ ACTIVE - EP-06 Codegen Integration Points
+**Version**: 2.3.0
+**Date**: February 3, 2026
+**Status**: ✅ ACTIVE - MCP Integration Phase 1 Complete
 **Authority**: Backend Lead + CTO Approved
-**Framework**: SDLC 6.0.0 (Multi-Frontend Aligned)
+**Framework**: SDLC 6.0.3 (Framework-First)
 **Positioning**: Operating System for Software 3.0
+
+**Changelog v2.3.0** (Feb 3, 2026):
+- **Sprint 145 MCP Integration**: Phase 1 complete with 3-adapter architecture
+  - Slack Adapter: Bot token auth, channel monitoring, HMAC validation
+  - GitHub Adapter: GitHub App auth, JWT signing, issue/PR integration
+  - Evidence Vault Adapter: Ed25519 signatures, SHA256 hash chains
+- **New API Endpoints**:
+  - E2E Testing API (5 endpoints): `/api/v1/e2e/*`
+  - Cross-Reference API (4 endpoints): `/api/v1/cross-reference/*`
+  - Organization Invitations API (7 endpoints): `/api/v1/org-invitations/*`
+- **Gate Approval Enhancement**: Async notifications, <1s response time
+- **Documentation**: Added SPRINT-145-API-ADDITIONS.md reference
+- **Framework Upgrade**: SDLC 6.0.0 → 6.0.3
 
 **Changelog v2.2.0** (Jan 30, 2026):
 - **Multi-Frontend Alignment**: Sprint 125-127 completed (26.5 SP in 1 day - historic achievement)
@@ -54,24 +67,25 @@ This stage manages API design, third-party integrations, and system interoperabi
 ```
 03-integrate/
 ├── README.md (this file)
-├── 01-api-contracts/
-│   ├── codegen-api-contract.md        # EP-06 Codegen API (12 endpoints)
-│   ├── evidence-api-contract.md       # Evidence Vault API
-│   ├── gates-api-contract.md          # Gate Engine API
-│   └── openapi/
-│       └── openapi.yml                # Full OpenAPI 3.0 spec (64 endpoints)
+├── 02-API-Specifications/
+│   ├── COMPLETE-API-ENDPOINT-REFERENCE.md  # Full API reference (1,135 endpoints)
+│   └── openapi.json                        # OpenAPI 3.1.0 spec (auto-generated)
 ├── 02-third-party/
-│   ├── ollama-integration.md          # NQH AI Platform (qwen2.5-coder:32b)
+│   ├── ollama-integration.md          # NQH AI Platform (qwen3-coder:30b)
 │   ├── claude-integration.md          # Anthropic Claude API
 │   ├── github-integration.md          # GitHub API (read-only bridge)
 │   ├── opa-integration.md             # OPA Policy Engine
 │   ├── minio-integration.md           # MinIO S3 Storage (AGPL-safe)
 │   └── semgrep-integration.md         # Semgrep SAST Scanner
-└── 03-integration-guides/
-    ├── multi-provider-fallback.md     # Ollama → Claude → DeepCode
-    ├── evidence-state-machine.md      # 8-state evidence lifecycle
-    ├── quality-gates-pipeline.md      # 4-Gate validation pipeline
-    └── vcr-workflow.md                # Version Control Review workflow
+├── 03-integration-guides/
+│   ├── GitHub-Integration-Guide.md    # GitHub webhook setup + API usage
+│   ├── GitHub-Webhooks-Setup.md       # Webhook configuration guide
+│   ├── multi-provider-fallback.md     # Ollama → Claude → DeepCode
+│   ├── evidence-state-machine.md      # 8-state evidence lifecycle
+│   ├── quality-gates-pipeline.md      # 4-Gate validation pipeline
+│   └── vcr-workflow.md                # Version Control Review workflow
+└── 99-Legacy/
+    └── SPRINT-145-API-ADDITIONS.md    # Sprint-specific API docs (archived)
 ```
 
 ---
@@ -266,6 +280,88 @@ Performance:
 
 ---
 
+## Sprint 145 Integrations (MCP Phase 1)
+
+### MCP 3-Adapter Architecture
+
+```yaml
+Architecture:
+  Service: MCP Service (CLI-only)
+  Adapters:
+    - Slack: Bot token auth, HMAC validation
+    - GitHub: GitHub App JWT signing
+    - Evidence Vault: Ed25519 asymmetric signing
+
+CLI Commands:
+  sdlcctl mcp connect --slack    # Connect Slack workspace
+  sdlcctl mcp connect --github   # Connect GitHub App
+  sdlcctl mcp list               # List active connections
+  sdlcctl mcp test <platform>    # Test connectivity
+  sdlcctl mcp disconnect         # Disconnect platform
+```
+
+### E2E Testing Integration
+
+```yaml
+Integration:
+  Service: E2E Testing Service
+  Type: REST API (/api/v1/e2e/*)
+  Protocol: HTTP with Evidence Vault integration
+
+Endpoints:
+  POST /api/v1/e2e/execute           # Execute test suite
+  GET  /api/v1/e2e/results/{id}      # Get test results
+  GET  /api/v1/e2e/status/{id}       # Check execution status
+  POST /api/v1/e2e/cancel/{id}       # Cancel execution
+  GET  /api/v1/e2e/history           # Execution history
+
+Performance:
+  Execution: Async (background task)
+  Results: Real-time polling
+```
+
+### Cross-Reference Validation
+
+```yaml
+Integration:
+  Service: Cross-Reference Service
+  Type: REST API (/api/v1/cross-reference/*)
+  Protocol: HTTP
+
+Endpoints:
+  POST /api/v1/cross-reference/validate        # Validate refs
+  GET  /api/v1/cross-reference/coverage/{id}   # Coverage metrics
+  GET  /api/v1/cross-reference/missing-tests/{id}  # Missing tests
+  GET  /api/v1/cross-reference/ssot-check/{id} # SSOT compliance
+
+Performance:
+  Latency: <5s for full project validation
+```
+
+### Organization Invitations
+
+```yaml
+Integration:
+  Service: Organization Service
+  Type: REST API (/api/v1/org-invitations/*)
+  Protocol: HTTP with email notifications
+
+Endpoints:
+  POST   /organizations/{id}/invitations  # Create invitation
+  POST   /org-invitations/{id}/resend     # Resend email
+  GET    /org-invitations/{token}         # Get by token
+  POST   /org-invitations/{token}/accept  # Accept invitation
+  POST   /org-invitations/{token}/decline # Decline invitation
+  GET    /organizations/{id}/invitations  # List invitations
+  DELETE /org-invitations/{id}            # Revoke invitation
+
+Security:
+  Token: Secure random (32 bytes)
+  Expiry: 7 days (configurable)
+```
+
+---
+
 ## Third-Party Integration Summary
 
 | Service | Type | License | Access Method | Sprint |
@@ -276,7 +372,9 @@ Performance:
 | **MinIO** | Object Storage | AGPL v3 | S3 API (network-only, AI-Platform shared) | MVP |
 | **Grafana** | Dashboards | AGPL v3 | iframe embed | MVP |
 | **Semgrep** | SAST Scanner | LGPL | CLI/HTTP | Sprint 43 |
-| **GitHub** | VCS | Commercial | REST API | MVP |
+| **GitHub** | VCS | Commercial | REST API + MCP Adapter | Sprint 145 |
+| **Slack** | Communication | Commercial | MCP Adapter (CLI) | Sprint 145 |
+| **Evidence Vault** | Audit Trail | Proprietary | Ed25519 Signing | Sprint 145 |
 
 ---
 

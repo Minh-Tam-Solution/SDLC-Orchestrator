@@ -3,7 +3,7 @@
 **Stage**: 05 - TEST
 **Question**: Does it work correctly?
 **Status**: ✅ **ACTIVE - TDD Strategy Complete**
-**Framework**: SDLC 5.2.0 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.0.3 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 **Version**: 4.0.0 (January 27, 2026)
 
 ---
@@ -276,7 +276,7 @@ See: [00-TEST-STRATEGY-2026.md § 4. Framework vs Orchestrator Testing](00-TEST-
 
 **Last Updated**: January 27, 2026
 **Owner**: QA Lead + CTO + Backend Lead
-**Framework**: SDLC 5.2.0 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.0.3 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 
 ---
 

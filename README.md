@@ -1,6 +1,6 @@
 # SDLC Orchestrator
 
-**Operating System for Software 3.0** - The control plane that governs AI coders (Cursor, Claude Code, Copilot), combining Design Thinking validation, SDLC 5.0.0 governance, IR-based codegen, and multi-provider AI - built on battle-tested OSS infrastructure.
+**Operating System for Software 3.0** - The control plane that governs AI coders (Cursor, Claude Code, Copilot), combining Design Thinking validation, SDLC 6.0.3 governance, IR-based codegen, and multi-provider AI - built on battle-tested OSS infrastructure.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
@@ -8,7 +8,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.5-blue.svg)](https://www.postgresql.org/)
 [![OPA](https://img.shields.io/badge/OPA-0.58-orange.svg)](https://www.openpolicyagent.org/)
-[![Sprint](https://img.shields.io/badge/Sprint-45-brightgreen.svg)](docs/04-build/02-Sprint-Plans/CURRENT-SPRINT.md)
+[![Sprint](https://img.shields.io/badge/Sprint-147-brightgreen.svg)](docs/04-build/02-Sprint-Plans/CURRENT-SPRINT.md)
 
 ---
 
@@ -429,7 +429,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 **Current Stage**: Stage 03 (BUILD - Development & Implementation)
 **Current Sprint**: Sprint 45 - Auto-Fix Engine
-**Framework**: SDLC 5.0.0 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.0.3 Complete Lifecycle (10 Stages)
 **Positioning**: Operating System for Software 3.0
 **Investment**: $564K total budget (90-day MVP) + $50K EP-06 extension
 
@@ -567,7 +567,7 @@ cd frontend/web && npm install && npm run dev
 - **Evidence Linking**: Security findings attached to code artifacts
 
 ### 7. Policy Pack Library
-- **110+ Pre-Built Policies**: All 10 SDLC 5.0.0 stages covered
+- **110+ Pre-Built Policies**: All 10 SDLC 6.0.3 stages covered
 - **Customizable**: Parameters (min_reviewers, test_coverage, etc.)
 - **Versioned**: Semantic versioning (v1.0, v1.1, etc.)
 
@@ -618,7 +618,7 @@ Layer 1: SDLC Framework                    ← Methodology foundation
 **Unique Value**:
 - ✅ **FIRST** Operating System for Software 3.0 (10-stage complete lifecycle)
 - ✅ **ONLY** platform combining Design Thinking + Quality Gates + IR Codegen
-- ✅ **Experience Moat**: 6-12 months to understand SDLC 5.0.0 nuances
+- ✅ **Experience Moat**: 6-12 months to understand SDLC 6.0.3 nuances
 - ✅ **Knowledge Moat**: 110+ pre-built policies, Vietnamese SME templates
 - ✅ **Cost Moat**: Ollama-first = 95% cost reduction vs external APIs
 
@@ -679,7 +679,7 @@ This project is licensed under the **Apache License 2.0** - see the [LICENSE](LI
 
 ## 🙏 Acknowledgments
 
-- **SDLC 5.0.0 Framework**: Inspired by industry best practices (CMMI, ITIL, Agile)
+- **SDLC 6.0.3 Framework**: Inspired by industry best practices (CMMI, ITIL, Agile)
 - **OPA**: Policy-as-Code foundation (CNCF graduated project)
 - **FastAPI**: Lightning-fast Python web framework
 - **React**: Industry-standard UI library
@@ -700,9 +700,9 @@ This project is licensed under the **Apache License 2.0** - see the [LICENSE](LI
 **Status**: ✅ Gate G3 APPROVED - Ship Ready (98.2%)
 **Version**: 1.0.0 (Beta Pilot Ready)
 **Current Sprint**: Sprint 45 - Auto-Fix Engine
-**Framework**: SDLC 5.0.0 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.0.3 Complete Lifecycle (10 Stages)
 **Positioning**: Operating System for Software 3.0
-**Last Updated**: December 23, 2025
+**Last Updated**: February 3, 2026
 
 ---
 

@@ -6,7 +6,7 @@
 **Status**: ✅ Gate G3 PASSED - Sprint 122 Stabilization
 **Authority**: CTO + Backend Lead + Tech Lead
 **Foundation**: Stage 02 (Design & Architecture) - 24 documents ✅ COMPLETE
-**Framework**: SDLC 6.0.0 (Multi-Frontend Aligned)
+**Framework**: SDLC 6.0.3 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 **Previous Stage**: Stage 02 (HOW - Design & Architecture) ✅ COMPLETE (Gate G2 PASSED)
 **Positioning**: Operating System for Software 3.0
 

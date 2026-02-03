@@ -28,7 +28,7 @@
 
 ### **1. Framework-First Enforcement Documentation** ✅ COMPLETE
 
-**File:** `docs/09-govern/05-Operations/FRAMEWORK-FIRST-ENFORCEMENT.md` (838 lines)
+**File:** `docs/09-govern/08-Operations/FRAMEWORK-FIRST-ENFORCEMENT.md` (838 lines)
 
 **Content:**
 - Framework-First Principle recap (Option A vs Option B)
@@ -195,7 +195,7 @@ Steps:
 
 All features properly use Framework methodology layer.
 
-See: [Framework-First Enforcement Guide](docs/09-govern/05-Operations/FRAMEWORK-FIRST-ENFORCEMENT.md)
+See: [Framework-First Enforcement Guide](docs/09-govern/08-Operations/FRAMEWORK-FIRST-ENFORCEMENT.md)
 ```
 
 **Status:**
@@ -360,7 +360,7 @@ Success Criteria:
 ### **Files Created (Items 5-6)**
 
 ```
-docs/09-govern/05-Operations/
+docs/09-govern/08-Operations/
 └── FRAMEWORK-FIRST-ENFORCEMENT.md (838 lines, commit c9506ec)
 
 .git/hooks/

@@ -836,7 +836,7 @@ Net ROI:
 - `docs/09-govern/04-Strategic-Updates/SE3.0-SASE-Integration-Plan-APPROVED.md`
 
 **Framework-First Enforcement:**
-- `docs/09-govern/05-Operations/FRAMEWORK-FIRST-ENFORCEMENT.md`
+- `docs/09-govern/08-Operations/FRAMEWORK-FIRST-ENFORCEMENT.md`
 
 **NQH-Bot Documentation:**
 - `https://github.com/Minh-Tam-Solution/Bflow` (NQH-Bot codebase)

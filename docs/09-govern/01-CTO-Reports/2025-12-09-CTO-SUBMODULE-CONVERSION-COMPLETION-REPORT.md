@@ -27,7 +27,7 @@
 
 ### **1. Crisis Recovery Documentation** ✅ COMPLETE
 
-**File:** `docs/09-govern/05-Operations/SUBMODULE-CRISIS-RECOVERY-PLAN.md`
+**File:** `docs/09-govern/08-Operations/SUBMODULE-CRISIS-RECOVERY-PLAN.md`
 
 **Content:**
 - 3 failure scenarios with step-by-step recovery procedures
@@ -65,7 +65,7 @@ Scenario 3: Submodule Commit Missing in Framework Repo
 
 ### **2. Team Training Evidence** ✅ COMPLETE
 
-**File:** `docs/09-govern/05-Operations/SUBMODULE-TEAM-TRAINING.md`
+**File:** `docs/09-govern/08-Operations/SUBMODULE-TEAM-TRAINING.md`
 
 **Content:**
 - 90-minute workshop curriculum (3 sessions)
@@ -120,7 +120,7 @@ Retake Policy: Unlimited (must pass before Week 1 end)
 
 ### **3. Zero Mock Policy Scan** ✅ COMPLETE
 
-**File:** `docs/09-govern/05-Operations/ZERO-MOCK-POLICY-SCAN-REPORT.md`
+**File:** `docs/09-govern/08-Operations/ZERO-MOCK-POLICY-SCAN-REPORT.md`
 
 **Scan Results:**
 ```yaml
@@ -180,7 +180,7 @@ SDLC Orchestrator (2025):
 
 ### **4. Performance Impact Measurements** ✅ COMPLETE
 
-**File:** `docs/09-govern/05-Operations/SUBMODULE-PERFORMANCE-IMPACT-REPORT.md`
+**File:** `docs/09-govern/08-Operations/SUBMODULE-PERFORMANCE-IMPACT-REPORT.md`
 
 **Measurements:**
 ```yaml
@@ -326,7 +326,7 @@ Risk 3: CI/CD Timeout >10 min
 
 **Estimated Time:** 2-3 hours
 
-**Deliverable:** `docs/09-govern/05-Operations/FRAMEWORK-FIRST-ENFORCEMENT.md`
+**Deliverable:** `docs/09-govern/08-Operations/FRAMEWORK-FIRST-ENFORCEMENT.md`
 
 ---
 
@@ -365,7 +365,7 @@ Risk 3: CI/CD Timeout >10 min
 ### **Files Created (4 documents)**
 
 ```
-docs/09-govern/05-Operations/
+docs/09-govern/08-Operations/
 ├── SUBMODULE-CRISIS-RECOVERY-PLAN.md (284 lines, commit 13a452a)
 ├── SUBMODULE-TEAM-TRAINING.md (642 lines, commit 8e56e2a)
 ├── ZERO-MOCK-POLICY-SCAN-REPORT.md (522 lines, commit 4b4133a)
