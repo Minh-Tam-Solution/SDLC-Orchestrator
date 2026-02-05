@@ -28,11 +28,11 @@ def upgrade() -> None:
     """Add approval records for all gates with status=APPROVED."""
     conn = op.get_bind()
 
-    # User IDs from seed data
-    ceo_user_id = "a0000000-0000-0000-0000-000000000001"
-    cto_user_id = "a0000000-0000-0000-0000-000000000002"
-    cpo_user_id = "a0000000-0000-0000-0000-000000000003"
-    qa_lead_user_id = "a0000000-0000-0000-0000-000000000007"
+    # User IDs from seed data (a502ce0d23a7)
+    ceo_user_id = "b0000000-0000-0000-0000-000000000001"  # Tai Dang
+    cto_user_id = "b0000000-0000-0000-0000-000000000003"  # Hiep Dinh
+    cpo_user_id = "b0000000-0000-0000-0000-000000000002"  # Dung Luong
+    qa_lead_user_id = "b0000000-0000-0000-0000-000000000010"
 
     # Define approvers for each gate type
     gate_approvers = {
