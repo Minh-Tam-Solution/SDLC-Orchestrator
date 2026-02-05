@@ -65,6 +65,36 @@ router = APIRouter(
 
 
 # =============================================================================
+# Helper Functions
+# =============================================================================
+
+
+async def check_project_access(
+    project_id: UUID, user: User, db: AsyncSession
+) -> None:
+    """Check if user has access to project. Raises 403 if not."""
+    from app.models.project import Project
+
+    query = select(Project).where(Project.id == project_id)
+    result = await db.execute(query)
+    project = result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found"
+        )
+
+    # Check if user owns project or is a member
+    if project.owner_id != user.id:
+        # TODO: Check project membership when teams are implemented
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this project"
+        )
+
+
+# =============================================================================
 # Framework Endpoints
 # =============================================================================
 
@@ -171,6 +201,9 @@ async def list_project_assessments(
     db: AsyncSession = Depends(get_db),
 ) -> AssessmentListResponse:
     """List compliance assessments for a project."""
+    # Authorization: Check project access
+    await check_project_access(project_id, current_user, db)
+
     logger.info(f"User {current_user.id} listing assessments for project {project_id}")
 
     # Build base query with join to control and framework

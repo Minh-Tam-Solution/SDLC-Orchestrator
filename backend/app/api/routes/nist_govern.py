@@ -90,6 +90,31 @@ GOVERN_CATEGORY = "GOVERN"
 # =============================================================================
 
 
+async def check_project_access(
+    project_id: UUID, user: User, db: AsyncSession
+) -> None:
+    """Check if user has access to project. Raises 403 if not."""
+    from app.models.project import Project
+
+    query = select(Project).where(Project.id == project_id)
+    result = await db.execute(query)
+    project = result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found"
+        )
+
+    # Check if user owns project or is a member
+    if project.owner_id != user.id:
+        # TODO: Check project membership when teams are implemented
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this project"
+        )
+
+
 async def _get_nist_framework(db: AsyncSession) -> ComplianceFramework:
     """Get NIST AI RMF framework or raise 404."""
     query = select(ComplianceFramework).where(
@@ -354,6 +379,9 @@ async def evaluate_govern(
     db: AsyncSession = Depends(get_db),
 ) -> GovernEvaluateResponse:
     """Evaluate NIST GOVERN policies for a project."""
+    # Authorization: Check project access
+    await check_project_access(request.project_id, current_user, db)
+
     logger.info(f"User {current_user.id} evaluating GOVERN for project {request.project_id}")
 
     # Evaluate all 5 policies
@@ -401,6 +429,9 @@ async def get_govern_dashboard(
     db: AsyncSession = Depends(get_db),
 ) -> GovernDashboardResponse:
     """Get GOVERN dashboard data."""
+    # Authorization: Check project access
+    await check_project_access(project_id, current_user, db)
+
     logger.info(f"User {current_user.id} viewing GOVERN dashboard for project {project_id}")
 
     framework = await _get_nist_framework(db)
@@ -486,6 +517,9 @@ async def list_risks(
     db: AsyncSession = Depends(get_db),
 ) -> RiskListResponse:
     """List risk register entries."""
+    # Authorization: Check project access
+    await check_project_access(project_id, current_user, db)
+
     framework = await _get_nist_framework(db)
 
     query = select(ComplianceRiskRegister).where(
@@ -548,6 +582,9 @@ async def create_risk(
     db: AsyncSession = Depends(get_db),
 ) -> RiskResponse:
     """Create risk register entry."""
+    # Authorization: Check project access
+    await check_project_access(data.project_id, current_user, db)
+
     logger.info(f"User {current_user.id} creating risk {data.risk_code} for project {data.project_id}")
 
     framework = await _get_nist_framework(db)
@@ -613,6 +650,9 @@ async def update_risk(
             detail=f"Risk entry {risk_id} not found",
         )
 
+    # Authorization: Check project access
+    await check_project_access(risk.project_id, current_user, db)
+
     # Update fields
     update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
@@ -662,6 +702,9 @@ async def get_raci(
     db: AsyncSession = Depends(get_db),
 ) -> RACIListResponse:
     """Get RACI matrix for project."""
+    # Authorization: Check project access
+    await check_project_access(project_id, current_user, db)
+
     framework = await _get_nist_framework(db)
 
     query = (
@@ -698,6 +741,9 @@ async def upsert_raci(
     db: AsyncSession = Depends(get_db),
 ) -> RACIResponse:
     """Create or update RACI entry."""
+    # Authorization: Check project access
+    await check_project_access(data.project_id, current_user, db)
+
     logger.info(f"User {current_user.id} upserting RACI for project {data.project_id} control {data.control_id}")
 
     # Check if RACI entry already exists

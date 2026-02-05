@@ -797,7 +797,7 @@ class NISTGovernService:
         import requests
 
         policy_path = f"v1/data/nist/govern/{control_code.lower().replace('-', '_')}"
-        opa_url = f"http://localhost:8181/{policy_path}"
+        opa_url = f"{settings.OPA_URL}/{policy_path}"
 
         try:
             response = requests.post(
