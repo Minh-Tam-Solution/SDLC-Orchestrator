@@ -166,7 +166,11 @@ Keep ≤150 lines. Dynamic context is delivered via PR comments.
 - Sprint 153: ✅ COMPLETE (Real-time Notifications, ~4,240 LOC, 32 tests)
 - Sprint 154: ✅ COMPLETE (Spec Standard, 113 tests, 90% achieved) - Tag: sprint-154-v1.0.0
 - Sprint 155: ✅ COMPLETE (Visual Editor + Cross-Reference, 536 tests, 178 frontend + 358 backend) - Tag: sprint-155-v1.0.0
-- Sprint 156-160: 📋 PLANNED - Compliance (NIST, EU AI Act, ISO 42001)
+- **Sprint 156-160**: ✅ **APPROVED** - COMPLIANCE (NIST + EU AI Act + ISO 42001)
+  - **Status**: CTO Full Approval (98/100 score) - Feb 5, 2026
+  - **Sprint 156**: NIST GOVERN (April 7-11) - 85 tests, ~9,700 LOC
+  - **Design**: ADR-051 Compliance Framework Architecture (22KB)
+  - **Budget**: $82K approved, Framework 90% → 90.5%
 - Sprint 161-165: 📋 PLANNED - Platform engineering + EP-06 GA
 - Discord/Jira: ⏸️ DEFERRED to Sprint 150+ (failed Opportunity Gate)
 - Desktop App: ❌ KILLED (low ROI, VS Code Extension sufficient)
@@ -177,8 +181,17 @@ Keep ≤150 lines. Dynamic context is delivered via PR comments.
 - [PRODUCT-TRUTH-LAYER-SPEC.md](docs/04-build/02-Sprint-Plans/PRODUCT-TRUTH-LAYER-SPEC.md)
 - [V1-V2-CONSOLIDATION-PLAN.md](docs/04-build/02-Sprint-Plans/V1-V2-CONSOLIDATION-PLAN.md)
 - [CTO-STRATEGIC-PLAN-PHASE-3-5.md](docs/09-govern/01-CTO-Reports/CTO-STRATEGIC-PLAN-PHASE-3-5.md)
+- [ADR-051-Compliance-Framework-Architecture.md](docs/02-design/ADR-051-Compliance-Framework-Architecture.md)
+- [SPRINT-156-CTO-APPROVAL.md](docs/09-govern/01-CTO-Reports/SPRINT-156-CTO-APPROVAL.md)
+- [SPRINT-156-KICKOFF-CHECKLIST.md](docs/04-build/02-Sprint-Plans/SPRINT-156-KICKOFF-CHECKLIST.md)
 
 **Next Phase** (Sprint 156+): COMPLIANCE - NIST AI RMF + EU AI Act + ISO 42001
+- **Sprint 156**: ✅ APPROVED (CTO score 98/100) - NIST GOVERN (April 7-11)
+  - 85 tests, ~9,700 LOC (12 backend + 5 frontend + 5 test files)
+  - 5 OPA policies (accountability, risk culture, legal, third-party, continuous improvement)
+  - 10 API endpoints (/api/v1/compliance/*)
+  - Database: 5 tables (frameworks, controls, assessments, risks, RACI)
+  - Framework: 90% → 90.5% (+0.5%)
 - Phase 3 (Sprint 156-160): Enterprise compliance ready (Framework 90%→92%)
 - Phase 4 (Sprint 161-165): EP-06 GA + IDP Golden Paths (Framework 92%→95%)
 - Phase 5 (Sprint 166-170+): Market launch + 10+ paying customers
