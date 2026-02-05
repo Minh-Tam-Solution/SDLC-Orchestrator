@@ -29,21 +29,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Create version_controlled_resolutions table for SASE VCR workflow."""
 
-    # Create enum type for VCR status (idempotent - won't fail if exists)
-    op.execute("""
-        DO $$ BEGIN
-            CREATE TYPE vcrstatus AS ENUM (
-                'draft',
-                'submitted',
-                'approved',
-                'rejected'
-            );
-        EXCEPTION
-            WHEN duplicate_object THEN null;
-        END $$;
-    """)
-
-    # Create VCR table
+    # Create VCR table (enum will be created automatically by SQLAlchemy with checkfirst=True)
     op.create_table(
         "version_controlled_resolutions",
         # Primary key
@@ -111,7 +97,6 @@ def upgrade() -> None:
                 "approved",
                 "rejected",
                 name="vcrstatus",
-                create_type=False,
             ),
             nullable=False,
             server_default="draft",
