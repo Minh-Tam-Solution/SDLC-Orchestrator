@@ -217,17 +217,25 @@ export function useAddTeamMember(teamId: string) {
 /**
  * Hook to update member role
  * Sprint 84: PATCH /teams/{team_id}/members/{user_id} - Owner only
+ * Sprint 152: Admin can also change roles (except promote to owner)
  */
 export function useUpdateMemberRole(teamId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ userId, data }: { userId: string; data: TeamMemberRoleUpdate }) =>
-      updateTeamMemberRole(teamId, userId, data),
+    mutationFn: ({ userId, data }: { userId: string; data: TeamMemberRoleUpdate }) => {
+      console.log("[useUpdateMemberRole] mutationFn called for userId:", userId, "role:", data.role);
+      return updateTeamMemberRole(teamId, userId, data);
+    },
     onSuccess: () => {
+      console.log("[useUpdateMemberRole] onSuccess called");
       // Invalidate members list and team stats
       queryClient.invalidateQueries({ queryKey: teamKeys.members(teamId) });
       queryClient.invalidateQueries({ queryKey: teamKeys.stats(teamId) });
+    },
+    onError: (error) => {
+      // Sprint 152: Added onError callback for proper error handling
+      console.log("[useUpdateMemberRole] onError called:", error);
     },
   });
 }

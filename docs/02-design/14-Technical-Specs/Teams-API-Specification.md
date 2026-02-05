@@ -614,14 +614,20 @@ PATCH /teams/{team_id}/members/{user_id}
 |--------|-----------|------|
 | 400 | Invalid role | `{"detail": "Role must be owner, admin, member, or ai_agent"}` |
 | 400 | AI agent to owner/admin | `{"detail": "AI agents cannot have owner or admin roles per SASE principles"}` |
-| 403 | Not owner | `{"detail": "Only team owner can change roles"}` |
+| 403 | Not admin/owner | `{"detail": "Admin or owner role required to change member roles"}` |
+| 403 | Admin promotes to owner | `{"detail": "Only owners can promote members to owner role"}` |
+| 403 | Demote last owner | `{"detail": "Cannot demote the last owner. Promote another member to owner first."}` |
 | 404 | Not found | `{"detail": "Member not found"}` |
-| 422 | Self-demote | `{"detail": "Cannot demote yourself. Transfer ownership first."}` |
 
-**Authorization:** Team owner only.
+**Authorization:** Team admin or owner (Sprint 152 update).
+
+**Permission Logic (Sprint 152):**
+- **Admin** can change roles to: `member`, `admin`
+- **Owner** can change roles to: `member`, `admin`, `owner`
+- Only Owner can promote someone to Owner
+- Cannot demote the last owner (must promote another member first)
 
 **Special Rules:**
-- Owner cannot demote themselves (must transfer ownership first)
 - Promoting to owner transfers ownership (previous owner becomes admin)
 - **SASE Compliance**: AI agents cannot be promoted to owner or admin roles
 
@@ -1144,8 +1150,9 @@ class TeamsService:
             ForbiddenError: Actor not owner
             ValueError: Cannot demote self
         """
-        # Authorization: Only owner can change roles
-        await self._require_team_role(team_id, updated_by, ["owner"])
+        # Authorization: Admin or owner can change roles (Sprint 152)
+        # Only owner can promote to owner
+        await self._require_team_role(team_id, updated_by, ["admin", "owner"])
 
         # Get membership
         result = await self.db.execute(
@@ -1592,7 +1599,9 @@ async def get_team_statistics(
 | `test_add_member_duplicate` | Reject if already member |
 | `test_add_member_wrong_org` | Reject if user in different org |
 | `test_remove_owner_fails` | Cannot remove team owner |
-| `test_update_role_owner_only` | Only owner can change roles |
+| `test_update_role_admin_success` | Admin can change member/admin roles |
+| `test_update_role_owner_to_owner` | Only owner can promote to owner |
+| `test_update_role_demote_last_owner_fails` | Cannot demote last owner |
 | `test_delete_team_with_projects` | Reject if team has projects |
 
 ### AI Agent Tests (CTO R1/R2)

@@ -231,6 +231,9 @@ class User(Base):
         foreign_keys="[AICodeEvent.user_id]", cascade="all, delete-orphan"
     )
 
+    # Product Telemetry (Sprint 147 - Product Truth Layer)
+    product_events = relationship("ProductEvent", back_populates="user", cascade="all, delete-orphan")
+
     # Override Relationships (Sprint 43)
     override_requests = relationship(
         "ValidationOverride", back_populates="requested_by",

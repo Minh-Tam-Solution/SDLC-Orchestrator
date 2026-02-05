@@ -3,18 +3,18 @@
 Notification Service - Alert & Notification Management
 SDLC Orchestrator - Stage 03 (BUILD)
 
-Version: 1.0.0
-Date: December 2, 2025
-Status: ACTIVE - Sprint 21 Day 2
+Version: 1.1.0
+Date: February 3, 2026
+Status: ACTIVE - Sprint 153 (WebSocket Integration)
 Authority: Backend Lead + CTO Approved
-Foundation: Sprint 21 Plan, ADR-007 Approved
-Framework: SDLC 4.9.1 Complete Lifecycle
+Foundation: Sprint 21 Plan, ADR-007 Approved, Sprint 153 Plan
+Framework: SDLC 6.0.3 Complete Lifecycle
 
 Purpose:
 - Send email notifications for compliance violations
 - Send Slack/Teams webhook notifications
 - Create in-app notification records
-- Real-time WebSocket notifications
+- Real-time WebSocket notifications (Sprint 153)
 
 Notification Types:
 1. COMPLIANCE_VIOLATION: Critical/high violations detected
@@ -22,12 +22,16 @@ Notification Types:
 3. GATE_APPROVAL_REQUIRED: Gate needs approval
 4. GATE_APPROVED: Gate was approved
 5. GATE_REJECTED: Gate was rejected
+6. EVIDENCE_UPLOADED: New evidence uploaded
+7. PROJECT_CREATED: New project created
+8. MEMBER_INVITED: Member invited to project
 
 Channels:
 - Email (SMTP/SendGrid)
 - Slack (Webhook)
 - Microsoft Teams (Webhook)
 - In-app (Database + WebSocket)
+- WebSocket (Real-time push - Sprint 153)
 
 Zero Mock Policy: Production-ready notification system
 =========================================================================
@@ -80,6 +84,7 @@ class NotificationChannel(str, Enum):
     TEAMS = "teams"
     IN_APP = "in_app"
     WEBHOOK = "webhook"
+    WEBSOCKET = "websocket"  # Sprint 153 - Real-time push
 
 
 class NotificationPriority(str, Enum):
@@ -425,6 +430,7 @@ class NotificationService:
             "email": False,
             "slack": False,
             "teams": False,
+            "websocket": False,  # Sprint 153
         }
 
         # Always send in-app notification
@@ -449,6 +455,28 @@ class NotificationService:
                     notification_type=payload.type.value,
                     failure_reason=str(type(e).__name__),
                 )
+
+        # Send WebSocket notification (Sprint 153 - Real-time)
+        start_time = time.time()
+        try:
+            ws_sent = await self._send_websocket_notification(payload, recipients)
+            results["websocket"] = ws_sent > 0
+            if ws_sent > 0:
+                delivery_seconds = time.time() - start_time
+                NotificationMetrics.record_notification_sent(
+                    channel="websocket",
+                    notification_type=payload.type.value,
+                    priority=payload.priority.value,
+                    delivery_seconds=delivery_seconds,
+                    status="success",
+                )
+        except Exception as e:
+            logger.error(f"Failed to send WebSocket notification: {e}")
+            NotificationMetrics.record_notification_failure(
+                channel="websocket",
+                notification_type=payload.type.value,
+                failure_reason=str(type(e).__name__),
+            )
 
         # Send email for high/critical priority
         if self.email_enabled and payload.priority in (
@@ -554,6 +582,87 @@ class NotificationService:
         logger.debug(
             f"Created {len(recipients)} in-app notifications for {payload.type.value}"
         )
+
+    async def _send_websocket_notification(
+        self,
+        payload: NotificationPayload,
+        recipients: list[User],
+    ) -> int:
+        """
+        Send real-time notification via WebSocket (Sprint 153).
+
+        Args:
+            payload: Notification payload
+            recipients: List of recipient users
+
+        Returns:
+            Number of users successfully notified
+        """
+        try:
+            from app.services.websocket_manager import (
+                WebSocketEvent,
+                WebSocketEventType,
+                get_websocket_manager,
+            )
+
+            manager = get_websocket_manager()
+
+            # Map notification type to WebSocket event type
+            event_type_map = {
+                NotificationType.GATE_APPROVED: WebSocketEventType.GATE_APPROVED,
+                NotificationType.GATE_REJECTED: WebSocketEventType.GATE_REJECTED,
+                NotificationType.GATE_APPROVAL_REQUIRED: WebSocketEventType.GATE_APPROVAL_REQUIRED,
+                NotificationType.EVIDENCE_UPLOADED: WebSocketEventType.EVIDENCE_UPLOADED,
+                NotificationType.COMPLIANCE_VIOLATION: WebSocketEventType.POLICY_VIOLATION,
+                NotificationType.SCAN_COMPLETED: WebSocketEventType.NOTIFICATION_CREATED,
+                NotificationType.PROJECT_CREATED: WebSocketEventType.PROJECT_UPDATED,
+                NotificationType.MEMBER_INVITED: WebSocketEventType.MEMBER_ADDED,
+            }
+
+            ws_event_type = event_type_map.get(
+                payload.type,
+                WebSocketEventType.NOTIFICATION_CREATED,
+            )
+
+            # Create WebSocket event
+            event = WebSocketEvent(
+                event_type=ws_event_type,
+                payload={
+                    "title": payload.title,
+                    "message": payload.message[:500],  # Truncate for WS
+                    "priority": payload.priority.value,
+                    "notification_type": payload.type.value,
+                    "metadata": payload.metadata or {},
+                },
+                project_id=payload.project_id,
+            )
+
+            # Send to project subscribers if project_id exists
+            if payload.project_id:
+                sent_count = await manager.broadcast_to_project(
+                    project_id=payload.project_id,
+                    event=event,
+                )
+                logger.debug(
+                    f"WebSocket broadcast to project {payload.project_id}: {sent_count} users"
+                )
+                return sent_count
+
+            # Otherwise send to specific recipients
+            if recipients:
+                user_ids = [user.id for user in recipients]
+                sent_count = await manager.broadcast_to_users(user_ids, event)
+                logger.debug(f"WebSocket broadcast to {sent_count}/{len(recipients)} users")
+                return sent_count
+
+            return 0
+
+        except ImportError:
+            logger.warning("WebSocket manager not available")
+            return 0
+        except Exception as e:
+            logger.error(f"WebSocket notification error: {e}")
+            return 0
 
     async def _send_email_notification(
         self,

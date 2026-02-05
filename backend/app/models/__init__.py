@@ -211,6 +211,9 @@ from app.models.context_authority_v2 import (
 # Product Telemetry (Sprint 147 - Product Truth Layer) - 1 model + constants
 from app.models.product_event import ProductEvent, EventNames
 
+# VCR - Version Controlled Resolution (Sprint 151 - SASE Artifacts) - 1 model + enum
+from app.models.vcr import VersionControlledResolution, VCRStatus
+
 # Note: ComplianceScore, ComplianceIssue, FolderCollisionCheck imported earlier
 # (before Project) to resolve forward references
 
@@ -368,4 +371,7 @@ __all__ = [
     # Product Telemetry - Sprint 147 Product Truth Layer (1 model + constants)
     "ProductEvent",
     "EventNames",
+    # VCR - Sprint 151 SASE Artifacts (1 model + enum)
+    "VersionControlledResolution",
+    "VCRStatus",
 ]

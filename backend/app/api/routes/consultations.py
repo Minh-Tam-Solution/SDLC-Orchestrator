@@ -348,3 +348,81 @@ async def add_comment(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         )
+
+
+# =============================================================================
+# AI-Assisted Generation (Sprint 151 Day 4)
+# =============================================================================
+
+
+from pydantic import BaseModel, Field
+
+
+class CRPAutoGenerateRequest(BaseModel):
+    """Request for AI-assisted CRP generation."""
+
+    context: str = Field(..., min_length=10, description="Development context/question")
+    code_snippet: Optional[str] = Field(None, description="Relevant code snippet")
+    related_files: Optional[list[str]] = Field(None, description="Related file paths")
+    project_tech_stack: Optional[list[str]] = Field(None, description="Project tech stack")
+
+
+class CRPAutoGenerateResponse(BaseModel):
+    """Response from AI-assisted CRP generation."""
+
+    title: str
+    question: str
+    context: str
+    options_considered: list[dict]
+    recommendation: Optional[str]
+    impact_assessment: str
+    required_expertise: list[str]
+    priority_suggestion: str
+    confidence: float
+    generation_time_ms: float
+    provider_used: str
+    fallback_used: bool
+
+
+@router.post(
+    "/auto-generate",
+    response_model=CRPAutoGenerateResponse,
+    status_code=status.HTTP_200_OK,
+    summary="AI-assisted CRP generation",
+    description="""
+    Generate CRP content using AI from development context.
+
+    Provides AI-generated suggestions for:
+    - Title and question formulation
+    - Context and background
+    - Options to consider with pros/cons
+    - Recommended approach
+    - Impact assessment
+    - Required expertise types
+    - Priority suggestion
+
+    Returns a confidence score (0-1) indicating
+    how confident the AI is in the generated content.
+
+    Sprint 151 Day 4 Implementation.
+    """,
+)
+async def auto_generate_crp(
+    request: CRPAutoGenerateRequest,
+    crp_service: CRPService = Depends(get_crp_service),
+    current_user: User = Depends(get_current_user),
+) -> CRPAutoGenerateResponse:
+    """
+    AI-assisted CRP content generation.
+
+    Uses SASE Generation Service to analyze context and generate
+    consultation request content.
+    """
+    result = await crp_service.auto_generate(
+        context=request.context,
+        code_snippet=request.code_snippet,
+        related_files=request.related_files,
+        project_tech_stack=request.project_tech_stack,
+    )
+
+    return CRPAutoGenerateResponse(**result)

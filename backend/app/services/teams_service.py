@@ -552,7 +552,7 @@ class TeamsService:
         requester_id: UUID
     ) -> TeamMember:
         """
-        Update member role (owner only).
+        Update member role (admin or owner).
 
         Args:
             team_id: Team UUID
@@ -565,16 +565,30 @@ class TeamsService:
 
         Raises:
             MemberNotFoundError: If member not found
-            PermissionDeniedError: If requester is not owner
+            PermissionDeniedError: If requester lacks permission
             InvalidRoleError: If AI agent assigned owner/admin role
-        """
-        # Check permission (owner only)
-        if not await self.check_permission(team_id, requester_id, "owner"):
-            raise PermissionDeniedError("update_member_role", "owner")
 
-        # Get member
+        Permission Logic (Sprint 152):
+            - Admin can change roles to: member, admin
+            - Only Owner can promote to owner
+            - Cannot demote the last owner
+        """
+        # Check if requester is at least admin
+        is_admin = await self.check_permission(team_id, requester_id, "admin")
+        is_owner = await self.check_permission(team_id, requester_id, "owner")
+
+        if not is_admin:
+            raise PermissionDeniedError("update_member_role", "admin")
+
+        # Only owner can promote to owner
+        if new_role == "owner" and not is_owner:
+            raise PermissionDeniedError("promote_to_owner", "owner")
+
+        # Get member with user eagerly loaded (needed for member_to_response)
         member = await self.db.scalar(
-            select(TeamMember).where(
+            select(TeamMember)
+            .options(selectinload(TeamMember.user))
+            .where(
                 TeamMember.team_id == team_id,
                 TeamMember.user_id == user_id,
                 TeamMember.deleted_at.is_(None)
@@ -587,11 +601,25 @@ class TeamsService:
         if member.member_type == "ai_agent" and new_role in ("owner", "admin"):
             raise InvalidRoleError(new_role, member.member_type)
 
+        # Prevent demoting the last owner
+        if member.role == "owner" and new_role != "owner":
+            owner_count = await self.db.scalar(
+                select(func.count())
+                .select_from(TeamMember)
+                .where(
+                    TeamMember.team_id == team_id,
+                    TeamMember.role == "owner",
+                    TeamMember.deleted_at.is_(None)
+                )
+            )
+            if owner_count <= 1:
+                raise PermissionDeniedError("demote_last_owner", "owner")
+
         # Update role
         member.role = new_role
         member.updated_at = datetime.utcnow()
         await self.db.commit()
-        await self.db.refresh(member)
+        await self.db.refresh(member, attribute_names=["user"])
 
         return member
 

@@ -255,8 +255,22 @@ function MemberRow({
       setShowMenu(false);
       return;
     }
-    await updateRole.mutateAsync({ userId: member.user_id, data: { role: newRole } });
-    setShowMenu(false);
+
+    try {
+      console.log("[RoleChange] Starting role change for:", member.user_id, "to:", newRole);
+      await updateRole.mutateAsync({ userId: member.user_id, data: { role: newRole } });
+      console.log("[RoleChange] Role change completed successfully");
+      setShowMenu(false);
+    } catch (err: unknown) {
+      console.log("[RoleChange] Caught error:", err);
+      setShowMenu(false);
+
+      // Extract error message from API response
+      const errorMsg = err && typeof err === "object" && "detail" in err
+        ? (err as { detail: string }).detail
+        : "Failed to change role. Please try again.";
+      alert(errorMsg);
+    }
   };
 
   // Role descriptions for better UX

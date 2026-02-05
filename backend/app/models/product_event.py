@@ -204,3 +204,6 @@ class EventNames:
     REPORT_GENERATED = "report_generated"
     POLICY_PACK_APPLIED = "policy_pack_applied"
     VIBECODING_SCORE_CHANGED = "vibecoding_score_changed"
+
+    # Tier 3: Deprecation Monitoring (Sprint 150)
+    DEPRECATED_ENDPOINT_CALLED = "deprecated_endpoint_called"

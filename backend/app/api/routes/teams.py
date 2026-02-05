@@ -502,7 +502,7 @@ async def list_team_members(
     "/{team_id}/members/{user_id}",
     response_model=TeamMemberResponse,
     summary="Update Member Role",
-    description="Update a member's role. Requires owner role."
+    description="Update a member's role. Requires admin or owner role."
 )
 async def update_member_role(
     team_id: UUID,
@@ -514,7 +514,10 @@ async def update_member_role(
     """
     Update a team member's role.
 
-    Requires owner role.
+    Permission Logic (Sprint 152):
+    - Admin can change roles to: member, admin
+    - Only Owner can promote to owner
+    - Cannot demote the last owner
 
     - **role**: New role (owner, admin, member, ai_agent)
 
@@ -527,9 +530,9 @@ async def update_member_role(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Role is required"
         )
-    
+
     service = TeamsService(db)
-    
+
     try:
         member = await service.update_member_role(
             team_id, user_id, data.role.value, current_user.id
@@ -540,10 +543,17 @@ async def update_member_role(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User {user_id} is not a member of team {team_id}"
         )
-    except PermissionDeniedError:
+    except PermissionDeniedError as e:
+        # Specific error messages based on permission type
+        if "promote_to_owner" in str(e.action):
+            detail = "Only owners can promote members to owner role"
+        elif "demote_last_owner" in str(e.action):
+            detail = "Cannot demote the last owner. Promote another member to owner first."
+        else:
+            detail = "Admin or owner role required to change member roles"
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Owner role required to change member roles"
+            detail=detail
         )
     except InvalidRoleError as e:
         raise HTTPException(

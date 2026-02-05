@@ -453,6 +453,83 @@ class CRPService:
         return None
 
     # =========================================================================
+    # AI-Assisted Generation (Sprint 151 Day 4)
+    # =========================================================================
+
+    async def auto_generate(
+        self,
+        context: str,
+        code_snippet: Optional[str] = None,
+        related_files: Optional[list[str]] = None,
+        project_tech_stack: Optional[list[str]] = None,
+    ) -> dict:
+        """
+        AI-assisted CRP generation from development context.
+
+        Uses SASE Generation Service to analyze context and generate CRP content.
+        Falls back to rule-based templates if AI is unavailable.
+
+        Args:
+            context: Description of the situation needing consultation
+            code_snippet: Relevant code snippet
+            related_files: List of related file paths
+            project_tech_stack: Project's technology stack
+
+        Returns:
+            dict with generated CRP content:
+                - title: Generated title
+                - question: The specific question
+                - context: Background information
+                - options_considered: List of options
+                - recommendation: Suggested approach
+                - impact_assessment: Impact analysis
+                - required_expertise: List of expertise types
+                - priority_suggestion: Suggested priority
+                - confidence: AI confidence score
+
+        Sprint 151 Day 4:
+        - Integrated with SASE Generation Service
+        - Context analysis for expertise detection
+        - Priority inference from keywords
+        - Option generation with pros/cons
+        """
+        from app.services.sase_generation_service import create_sase_generation_service
+
+        logger.info("Auto-generate CRP requested")
+
+        # Create SASE generation service
+        sase_service = create_sase_generation_service()
+
+        # Generate CRP content
+        result = await sase_service.generate_crp(
+            context=context,
+            code_snippet=code_snippet,
+            related_files=related_files,
+            project_tech_stack=project_tech_stack,
+        )
+
+        logger.info(
+            f"CRP auto-generated with confidence {result.confidence:.2f}, "
+            f"expertise: {result.required_expertise}, "
+            f"priority: {result.priority_suggestion}"
+        )
+
+        return {
+            "title": result.title,
+            "question": result.question,
+            "context": result.context,
+            "options_considered": result.options_considered,
+            "recommendation": result.recommendation,
+            "impact_assessment": result.impact_assessment,
+            "required_expertise": result.required_expertise,
+            "priority_suggestion": result.priority_suggestion,
+            "confidence": result.confidence,
+            "generation_time_ms": result.generation_time_ms,
+            "provider_used": result.provider_used,
+            "fallback_used": result.fallback_used,
+        }
+
+    # =========================================================================
     # Private Helpers
     # =========================================================================
 

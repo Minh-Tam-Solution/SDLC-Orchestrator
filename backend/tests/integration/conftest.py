@@ -3,11 +3,11 @@
 Integration Tests Conftest - Sprint 118 Track 2 Phase 5
 SDLC Orchestrator - Stage 04 (BUILD)
 
-Version: 2.0.0
-Date: January 29, 2026
-Status: ACTIVE - Sprint 118 Integration Testing
+Version: 2.1.0
+Date: February 4, 2026
+Status: ACTIVE - Sprint 154 E2E Testing
 Authority: Backend Lead + CTO Approved
-Framework: SDLC 5.3.0 Quality Assurance System
+Framework: SDLC 6.0.3 Quality Assurance System
 
 Purpose:
 - Fixtures for API integration tests
@@ -15,22 +15,41 @@ Purpose:
 - Authentication fixtures
 - Database session fixtures
 
-Updated: Sprint 118 - Added API client and auth fixtures
+Updated: Sprint 154 - Fixed mock_external_http to allow ASGITransport
 =========================================================================
 """
 
 import os
 import sys
 from typing import AsyncGenerator
+from unittest.mock import MagicMock, patch
 
 import pytest
 import pytest_asyncio
+import httpx
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 # Add backend to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+
+@pytest.fixture(autouse=True)
+def mock_external_http():
+    """
+    Override parent's mock_external_http to NOT interfere with ASGITransport.
+
+    Integration tests use ASGITransport which doesn't make real HTTP calls,
+    so we don't need to mock httpx at all. This fixture is a no-op that
+    overrides the parent's autouse fixture.
+
+    External service mocking (OPA, MinIO, Ollama) is handled by:
+    - Environment variables (REDIS_URL=localhost, etc.)
+    - Service-specific mock fixtures (mock_opa_client, etc.)
+    """
+    # No-op: Let ASGITransport handle requests directly to the FastAPI app
+    yield
 
 
 def pytest_configure(config):

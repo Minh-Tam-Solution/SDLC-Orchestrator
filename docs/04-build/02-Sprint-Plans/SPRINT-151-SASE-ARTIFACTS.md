@@ -1,13 +1,14 @@
 # Sprint 151: SASE Artifacts Enhancement
 ## VCR + CRP Workflow Implementation
 
-**Sprint ID**: S151  
-**Phase**: Phase 2 - Feature Complete  
-**Dates**: March 4-8, 2026 (5 days)  
-**Status**: 📋 PLANNED  
-**Priority**: P0 - Feature Completion  
-**Budget**: $8,000  
+**Sprint ID**: S151
+**Phase**: Phase 2 - Feature Complete
+**Dates**: March 4-8, 2026 (5 days)
+**Status**: 🔄 IN PROGRESS
+**Priority**: P0 - Feature Completion
+**Budget**: $8,000
 **Team**: 3 FTE (Backend + Frontend + Framework)
+**Design Docs**: [ADR-048](../../02-design/01-ADRs/ADR-048-SASE-VCR-CRP-Architecture.md), [SPEC-0024](../../02-design/14-Technical-Specs/SPEC-0024-VCR-CRP-Technical-Specification.md)
 
 ---
 

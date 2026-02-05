@@ -225,6 +225,10 @@ class Project(Base):
     github_repository = relationship(
         "GitHubRepository", back_populates="project", uselist=False, cascade="all, delete-orphan"
     )
+    # VCR - Version Controlled Resolution (Sprint 151 - SASE Artifacts)
+    vcrs = relationship(
+        "VersionControlledResolution", back_populates="project", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Project(id={self.id}, name={self.name}, slug={self.slug})>"

@@ -1,19 +1,20 @@
 """
 =========================================================================
 MRP/VCR Schemas - SDLC Orchestrator
-Sprint 102: MRP/VCR 5-Point Validation + 4-Tier Enforcement
+Sprint 152: MRP/VCR 5-Point Validation + Context Authority Integration
 
-Version: 1.0.0
-Date: January 23, 2026
-Status: ACTIVE - Sprint 102 Implementation
+Version: 1.1.0
+Date: February 3, 2026
+Status: ACTIVE - Sprint 152 MRP Integration
 Authority: Backend Lead + CTO Approved
-Reference: docs/04-build/02-Sprint-Plans/SPRINT-102-DESIGN.md
-Reference: SDLC 5.2.0 Framework - SASE Artifacts
+Reference: docs/04-build/02-Sprint-Plans/CURRENT-SPRINT.md
+Reference: SDLC 6.0.3 Framework - SASE Artifacts
 
 Purpose:
 - Define MRP (Merge Readiness Protocol) 5-point structure
 - Define VCR (Verification Completion Report) schema
 - Enable evidence validation and storage
+- Integrate with Context Authority SSOT snapshots
 
 MRP 5-Point Structure:
 1. Test Evidence (coverage, pass/fail)
@@ -21,6 +22,11 @@ MRP 5-Point Structure:
 3. Security Evidence (bandit, npm audit, grype)
 4. Build Evidence (docker, package)
 5. Conformance Evidence (pattern alignment, ADR)
+
+Sprint 152 Additions:
+- context_snapshot_id in ValidateMRPRequest and VCR
+- context_validation_passed in MRPValidation
+- Context Authority integration for SSOT validation
 
 Zero Mock Policy: Production-ready Pydantic schemas
 =========================================================================
@@ -325,6 +331,26 @@ class MRPValidation(BaseModel):
         description="Policy tier (LITE, STANDARD, PROFESSIONAL, ENTERPRISE)",
     )
 
+    # Context Authority Integration (Sprint 152)
+    context_snapshot_id: Optional[UUID] = Field(
+        default=None,
+        description="Context Authority snapshot ID for SSOT validation",
+    )
+    context_validation_passed: Optional[bool] = Field(
+        default=None,
+        description="Whether context validation passed (None if not performed)",
+    )
+    vibecoding_index: Optional[int] = Field(
+        default=None,
+        ge=0,
+        le=100,
+        description="Vibecoding index at time of validation (0-100)",
+    )
+    vibecoding_zone: Optional[str] = Field(
+        default=None,
+        description="Vibecoding zone: GREEN, YELLOW, ORANGE, RED",
+    )
+
     # Overall Result
     overall_passed: bool = Field(
         default=False,
@@ -444,6 +470,16 @@ class VCR(BaseModel):
         default=None,
         description="Whether CRP was approved",
     )
+
+    # Context Authority Integration (Sprint 152)
+    context_snapshot_id: Optional[UUID] = Field(
+        default=None,
+        description="Context Authority snapshot ID for SSOT audit trail",
+    )
+    context_snapshot_hash: Optional[str] = Field(
+        default=None,
+        description="SHA256 hash of context snapshot for integrity verification",
+    )
     model_config = ConfigDict(from_attributes=True)
 
     def is_merge_ready(self) -> bool:
@@ -473,6 +509,15 @@ class ValidateMRPRequest(BaseModel):
         default=False,
         description="Force re-validation even if cached",
     )
+    # Context Authority Integration (Sprint 152)
+    context_snapshot_id: Optional[UUID] = Field(
+        default=None,
+        description="Context Authority snapshot ID to validate against",
+    )
+    include_context_validation: bool = Field(
+        default=True,
+        description="Whether to include Context Authority validation in MRP",
+    )
 
 
 class ValidateMRPResponse(BaseModel):
@@ -488,6 +533,15 @@ class ValidateMRPResponse(BaseModel):
     github_check_url: Optional[str] = Field(
         default=None,
         description="URL to GitHub check run",
+    )
+    # Context Authority Integration (Sprint 152)
+    context_validation_message: Optional[str] = Field(
+        default=None,
+        description="Context Authority validation message",
+    )
+    context_overlay_applied: Optional[str] = Field(
+        default=None,
+        description="Name of context overlay that was applied",
     )
 
 

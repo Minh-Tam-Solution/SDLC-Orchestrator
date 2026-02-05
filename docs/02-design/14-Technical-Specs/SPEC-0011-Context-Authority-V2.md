@@ -2,14 +2,14 @@
 spec_id: SPEC-0011
 title: Context Authority V2 - Gate-Aware Dynamic Context
 version: "1.0.0"
-status: DRAFT
+status: APPROVED
 tier:
   - STANDARD
   - PROFESSIONAL
   - ENTERPRISE
 pillar: 7
 owner: Backend Team
-last_updated: 2026-01-29
+last_updated: 2026-02-04
 related_adrs:
   - ADR-041
   - ADR-040

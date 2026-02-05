@@ -4246,6 +4246,553 @@ export async function getKillSwitchDashboard(): Promise<KillSwitchDashboard> {
 }
 
 // =============================================================================
+// Sprint 151: VCR (Version Controlled Resolution) - SASE Artifacts Enhancement
+// =============================================================================
+
+/**
+ * VCR Status enum matching backend VCRStatus
+ */
+export type VCRStatus = "draft" | "submitted" | "approved" | "rejected";
+
+/**
+ * VCR User Summary for responses
+ */
+export interface VCRUserSummary {
+  id: string;
+  name: string;
+  email: string;
+}
+
+/**
+ * VCR (Version Controlled Resolution) interface
+ */
+export interface VCR {
+  id: string;
+  project_id: string;
+  pr_number?: number;
+  pr_url?: string;
+  title: string;
+  problem_statement: string;
+  root_cause_analysis?: string;
+  solution_approach: string;
+  implementation_notes?: string;
+  evidence_ids: string[];
+  adr_ids: string[];
+  ai_generated_percentage: number;
+  ai_tools_used: string[];
+  ai_generation_details: Record<string, unknown>;
+  status: VCRStatus;
+  created_by_id?: string;
+  approved_by_id?: string;
+  rejection_reason?: string;
+  created_at: string;
+  updated_at: string;
+  submitted_at?: string;
+  approved_at?: string;
+  created_by?: VCRUserSummary;
+  approved_by?: VCRUserSummary;
+}
+
+/**
+ * VCR Create request
+ */
+export interface VCRCreate {
+  project_id: string;
+  pr_number?: number;
+  pr_url?: string;
+  title: string;
+  problem_statement: string;
+  root_cause_analysis?: string;
+  solution_approach: string;
+  implementation_notes?: string;
+  evidence_ids?: string[];
+  adr_ids?: string[];
+  ai_generated_percentage?: number;
+  ai_tools_used?: string[];
+  ai_generation_details?: Record<string, unknown>;
+}
+
+/**
+ * VCR Update request
+ */
+export interface VCRUpdate {
+  title?: string;
+  problem_statement?: string;
+  root_cause_analysis?: string;
+  solution_approach?: string;
+  implementation_notes?: string;
+  evidence_ids?: string[];
+  adr_ids?: string[];
+  ai_generated_percentage?: number;
+  ai_tools_used?: string[];
+  ai_generation_details?: Record<string, unknown>;
+  pr_number?: number;
+  pr_url?: string;
+}
+
+/**
+ * VCR Reject request
+ */
+export interface VCRRejectRequest {
+  reason: string;
+}
+
+/**
+ * VCR List response (paginated)
+ */
+export interface VCRListResponse {
+  items: VCR[];
+  total: number;
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}
+
+/**
+ * VCR Statistics response
+ */
+export interface VCRStats {
+  total: number;
+  draft: number;
+  submitted: number;
+  approved: number;
+  rejected: number;
+  avg_approval_time_hours?: number;
+  ai_involvement_percentage: number;
+}
+
+/**
+ * VCR Auto-generate request - Sprint 151 Day 4
+ * Matches backend SASEGenerationService.generate_vcr parameters
+ */
+export interface VCRAutoGenerateRequest {
+  pr_diff: string;
+  commit_messages: string[];
+  pr_title?: string;
+  pr_description?: string;
+  branch_name?: string;
+  file_paths?: string[];
+}
+
+/**
+ * VCR Auto-generate response - Sprint 151 Day 4
+ * Matches backend VCRGenerationResult
+ */
+export interface VCRAutoGenerateResponse {
+  title: string;
+  problem_statement: string;
+  root_cause_analysis: string | null;
+  solution_approach: string;
+  implementation_notes: string | null;
+  ai_generated_percentage: number;
+  ai_tools_used: string[];
+  ai_tool_context: Record<string, unknown> | null;
+  confidence: number;
+  generation_time_ms: number;
+  provider_used: string;
+  fallback_used: boolean;
+}
+
+/**
+ * VCR List query options
+ */
+export interface VCRListOptions {
+  project_id?: string;
+  status?: VCRStatus;
+  created_by_id?: string;
+  limit?: number;
+  offset?: number;
+}
+
+/**
+ * Get VCRs with optional filters
+ * Sprint 151: GET /vcr
+ */
+export async function getVcrs(options?: VCRListOptions): Promise<VCRListResponse> {
+  const params = new URLSearchParams();
+  if (options?.project_id) params.append("project_id", options.project_id);
+  if (options?.status) params.append("status", options.status);
+  if (options?.created_by_id) params.append("created_by_id", options.created_by_id);
+  if (options?.limit) params.append("limit", options.limit.toString());
+  if (options?.offset) params.append("offset", options.offset.toString());
+  const query = params.toString() ? `?${params.toString()}` : "";
+  return apiRequest<VCRListResponse>(`/vcr${query}`);
+}
+
+/**
+ * Get a single VCR by ID
+ * Sprint 151: GET /vcr/{vcr_id}
+ */
+export async function getVcr(vcrId: string): Promise<VCR> {
+  return apiRequest<VCR>(`/vcr/${vcrId}`);
+}
+
+/**
+ * Create a new VCR
+ * Sprint 151: POST /vcr
+ */
+export async function createVcr(data: VCRCreate): Promise<VCR> {
+  return apiRequest<VCR>("/vcr", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Update a VCR (draft only)
+ * Sprint 151: PUT /vcr/{vcr_id}
+ */
+export async function updateVcr(vcrId: string, data: VCRUpdate): Promise<VCR> {
+  return apiRequest<VCR>(`/vcr/${vcrId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Delete a VCR (draft only)
+ * Sprint 151: DELETE /vcr/{vcr_id}
+ */
+export async function deleteVcr(vcrId: string): Promise<{ success: boolean; message: string }> {
+  return apiRequest<{ success: boolean; message: string }>(`/vcr/${vcrId}`, {
+    method: "DELETE",
+  });
+}
+
+/**
+ * Submit a VCR for approval
+ * Sprint 151: POST /vcr/{vcr_id}/submit
+ */
+export async function submitVcr(vcrId: string): Promise<VCR> {
+  return apiRequest<VCR>(`/vcr/${vcrId}/submit`, {
+    method: "POST",
+  });
+}
+
+/**
+ * Approve a VCR (CTO/CEO only)
+ * Sprint 151: POST /vcr/{vcr_id}/approve
+ */
+export async function approveVcr(vcrId: string): Promise<VCR> {
+  return apiRequest<VCR>(`/vcr/${vcrId}/approve`, {
+    method: "POST",
+  });
+}
+
+/**
+ * Reject a VCR (CTO/CEO only)
+ * Sprint 151: POST /vcr/{vcr_id}/reject
+ */
+export async function rejectVcr(vcrId: string, request: VCRRejectRequest): Promise<VCR> {
+  return apiRequest<VCR>(`/vcr/${vcrId}/reject`, {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+}
+
+/**
+ * Reopen a rejected VCR
+ * Sprint 151: POST /vcr/{vcr_id}/reopen
+ */
+export async function reopenVcr(vcrId: string): Promise<VCR> {
+  return apiRequest<VCR>(`/vcr/${vcrId}/reopen`, {
+    method: "POST",
+  });
+}
+
+/**
+ * Get VCR statistics for a project
+ * Sprint 151: GET /vcr/stats/{project_id}
+ */
+export async function getVcrStats(projectId: string): Promise<VCRStats> {
+  return apiRequest<VCRStats>(`/vcr/stats/${projectId}`);
+}
+
+/**
+ * Auto-generate VCR content using AI
+ * Sprint 151: POST /vcr/auto-generate
+ */
+export async function autoGenerateVcr(
+  request: VCRAutoGenerateRequest
+): Promise<VCRAutoGenerateResponse> {
+  return apiRequest<VCRAutoGenerateResponse>("/vcr/auto-generate", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+}
+
+// =============================================================================
+// Sprint 151: CRP (Consultation Request Protocol) - SASE Artifacts Enhancement
+// Backend already exists from Sprint 101, this adds frontend types
+// =============================================================================
+
+/**
+ * CRP Status enum matching backend ConsultationStatus
+ */
+export type CRPStatus = "pending" | "in_review" | "approved" | "rejected" | "cancelled" | "expired";
+
+/**
+ * CRP Priority enum matching backend ConsultationPriority
+ */
+export type CRPPriority = "low" | "medium" | "high" | "urgent";
+
+/**
+ * Reviewer Expertise enum
+ */
+export type ReviewerExpertise = "security" | "database" | "api" | "architecture" | "concurrency" | "general";
+
+/**
+ * CRP Comment interface
+ */
+export interface CRPComment {
+  id: string;
+  consultation_id: string;
+  user_id: string;
+  user_name?: string;
+  comment: string;
+  is_resolution_note: boolean;
+  created_at: string;
+}
+
+/**
+ * Risk Analysis interface (simplified for frontend)
+ */
+export interface RiskAnalysis {
+  id: string;
+  risk_score: number;
+  risk_factors: string[];
+  recommendation: string;
+}
+
+/**
+ * CRP (Consultation Request Protocol) interface
+ */
+export interface CRP {
+  id: string;
+  project_id: string;
+  pr_id?: string;
+  risk_analysis_id: string;
+  risk_analysis?: RiskAnalysis;
+  title: string;
+  description: string;
+  priority: CRPPriority;
+  required_expertise: ReviewerExpertise[];
+  diff_url?: string;
+  status: CRPStatus;
+  requester_id: string;
+  requester_name?: string;
+  assigned_reviewer_id?: string;
+  reviewer_name?: string;
+  resolution_notes?: string;
+  conditions?: string[];
+  resolved_at?: string;
+  resolved_by_id?: string;
+  created_at: string;
+  updated_at: string;
+  comments?: CRPComment[];
+  comment_count: number;
+}
+
+/**
+ * CRP Create request
+ */
+export interface CRPCreate {
+  project_id: string;
+  pr_id?: string;
+  risk_analysis_id: string;
+  title: string;
+  description: string;
+  priority?: CRPPriority;
+  required_expertise?: ReviewerExpertise[];
+  diff_url?: string;
+}
+
+/**
+ * CRP Assign Reviewer request
+ */
+export interface CRPAssignRequest {
+  reviewer_id: string;
+  notes?: string;
+}
+
+/**
+ * CRP Resolve request
+ */
+export interface CRPResolveRequest {
+  status: "approved" | "rejected" | "cancelled";
+  resolution_notes: string;
+  conditions?: string[];
+}
+
+/**
+ * CRP Add Comment request
+ */
+export interface CRPAddCommentRequest {
+  comment: string;
+  is_resolution_note?: boolean;
+}
+
+/**
+ * CRP List response (paginated)
+ */
+export interface CRPListResponse {
+  consultations: CRP[];
+  total: number;
+  page: number;
+  page_size: number;
+  has_more: boolean;
+}
+
+/**
+ * CRP List query options
+ */
+export interface CRPListOptions {
+  project_id?: string;
+  status?: CRPStatus;
+  priority?: CRPPriority;
+  requester_id?: string;
+  reviewer_id?: string;
+  expertise?: ReviewerExpertise;
+  search?: string;
+  page?: number;
+  page_size?: number;
+}
+
+/**
+ * CRP Auto-Generate Request - Sprint 151 Day 4
+ * Used for AI-assisted CRP content generation
+ */
+export interface CRPAutoGenerateRequest {
+  context: string;
+  code_snippet?: string;
+  related_files?: string[];
+  project_tech_stack?: string[];
+}
+
+/**
+ * Option considered for CRP - Sprint 151 Day 4
+ */
+export interface CRPOption {
+  name: string;
+  description: string;
+  pros: string[];
+  cons: string[];
+  complexity: string;
+  risk_level: string;
+}
+
+/**
+ * CRP Auto-Generate Response - Sprint 151 Day 4
+ * Contains AI-generated CRP content
+ */
+export interface CRPAutoGenerateResponse {
+  title: string;
+  question: string;
+  context: string;
+  options_considered: CRPOption[];
+  recommendation: string | null;
+  impact_assessment: string;
+  required_expertise: string[];
+  priority_suggestion: string;
+  confidence: number;
+  generation_time_ms: number;
+  provider_used: string;
+  fallback_used: boolean;
+}
+
+/**
+ * Get CRPs with optional filters
+ * Sprint 151: GET /consultations
+ */
+export async function getCrps(options?: CRPListOptions): Promise<CRPListResponse> {
+  const params = new URLSearchParams();
+  if (options?.project_id) params.append("project_id", options.project_id);
+  if (options?.status) params.append("status", options.status);
+  if (options?.priority) params.append("priority", options.priority);
+  if (options?.requester_id) params.append("requester_id", options.requester_id);
+  if (options?.reviewer_id) params.append("reviewer_id", options.reviewer_id);
+  if (options?.expertise) params.append("expertise", options.expertise);
+  if (options?.search) params.append("search", options.search);
+  if (options?.page) params.append("page", options.page.toString());
+  if (options?.page_size) params.append("page_size", options.page_size.toString());
+  const query = params.toString() ? `?${params.toString()}` : "";
+  return apiRequest<CRPListResponse>(`/consultations${query}`);
+}
+
+/**
+ * Get a single CRP by ID
+ * Sprint 151: GET /consultations/{id}
+ */
+export async function getCrp(crpId: string): Promise<CRP> {
+  return apiRequest<CRP>(`/consultations/${crpId}`);
+}
+
+/**
+ * Create a new CRP
+ * Sprint 151: POST /consultations
+ */
+export async function createCrp(data: CRPCreate): Promise<CRP> {
+  return apiRequest<CRP>("/consultations", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Assign a reviewer to a CRP
+ * Sprint 151: POST /consultations/{id}/assign
+ */
+export async function assignCrpReviewer(crpId: string, data: CRPAssignRequest): Promise<CRP> {
+  return apiRequest<CRP>(`/consultations/${crpId}/assign`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Resolve a CRP (approve/reject/cancel)
+ * Sprint 151: POST /consultations/{id}/resolve
+ */
+export async function resolveCrp(crpId: string, data: CRPResolveRequest): Promise<CRP> {
+  return apiRequest<CRP>(`/consultations/${crpId}/resolve`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Add a comment to a CRP
+ * Sprint 151: POST /consultations/{id}/comments
+ */
+export async function addCrpComment(crpId: string, data: CRPAddCommentRequest): Promise<CRPComment> {
+  return apiRequest<CRPComment>(`/consultations/${crpId}/comments`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Get pending reviews for current user
+ * Sprint 151: GET /consultations/my-reviews
+ */
+export async function getMyPendingReviews(): Promise<CRP[]> {
+  return apiRequest<CRP[]>("/consultations/my-reviews");
+}
+
+/**
+ * Auto-generate CRP content using AI
+ * Sprint 151 Day 4: POST /consultations/auto-generate
+ */
+export async function autoGenerateCrp(
+  request: CRPAutoGenerateRequest
+): Promise<CRPAutoGenerateResponse> {
+  return apiRequest<CRPAutoGenerateResponse>("/consultations/auto-generate", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+}
+
+// =============================================================================
 // Sprint 136: Axios-style API object for backwards compatibility with hooks
 // Hooks like useGitHub and useInvitations use api.get/post/delete syntax
 // =============================================================================
