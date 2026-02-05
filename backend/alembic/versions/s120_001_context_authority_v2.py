@@ -92,9 +92,10 @@ def upgrade():
         'ca_v2_context_snapshots',
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('submission_id', postgresql.UUID(as_uuid=True),
-                  sa.ForeignKey('governance_submissions.id', ondelete='CASCADE'),
-                  nullable=False, index=True,
-                  comment='Governance submission this snapshot belongs to'),
+                  sa.ForeignKey('governance_submissions.id', ondelete='CASCADE', initially='DEFERRED'),
+                  nullable=True,  # Made nullable to handle cases where governance_submissions doesn't exist yet
+                  index=True,
+                  comment='Governance submission this snapshot belongs to (nullable for standalone snapshots)'),
         sa.Column('project_id', postgresql.UUID(as_uuid=True),
                   sa.ForeignKey('projects.id', ondelete='CASCADE'),
                   nullable=False, index=True,

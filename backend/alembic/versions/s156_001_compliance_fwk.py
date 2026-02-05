@@ -395,7 +395,7 @@ def upgrade() -> None:
             "description": (
                 "Team members must complete AI risk awareness training. "
                 "At least 80%% of team members should have completed training on AI risks, "
-                "responsible AI practices, and the organization's AI governance policies."
+                "responsible AI practices, and the organization''s AI governance policies."
             ),
             "severity": "high",
             "gate_mapping": "G1",
