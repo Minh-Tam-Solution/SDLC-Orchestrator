@@ -139,6 +139,25 @@ class Project(Base):
         comment="Policy tier: LITE, STANDARD, PROFESSIONAL, ENTERPRISE"
     )
 
+    # EU AI Act Classification (Sprint 160 - EU AI Act Compliance)
+    eu_ai_act_risk_level = Column(
+        String(20),
+        nullable=True,
+        index=True,
+        comment="EU AI Act risk classification: prohibited, high_risk, limited_risk, minimal_risk"
+    )
+    eu_ai_act_classified_at = Column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="Timestamp of EU AI Act classification"
+    )
+    eu_ai_act_classified_by = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="User who performed EU AI Act classification"
+    )
+
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     updated_at = Column(
@@ -148,6 +167,7 @@ class Project(Base):
 
     # Relationships
     owner = relationship("User", back_populates="owned_projects", foreign_keys=[owner_id])
+    eu_ai_act_classifier = relationship("User", foreign_keys=[eu_ai_act_classified_by])
     team = relationship("Team", back_populates="projects")  # Sprint 70 - Teams Foundation
     members = relationship(
         "ProjectMember", back_populates="project", cascade="all, delete-orphan"
@@ -228,6 +248,10 @@ class Project(Base):
     # VCR - Version Controlled Resolution (Sprint 151 - SASE Artifacts)
     vcrs = relationship(
         "VersionControlledResolution", back_populates="project", cascade="all, delete-orphan"
+    )
+    # Tier-Based Gate Approval (Sprint 161 - Phase 4 AUTHORIZATION)
+    function_roles = relationship(
+        "ProjectFunctionRole", back_populates="project", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

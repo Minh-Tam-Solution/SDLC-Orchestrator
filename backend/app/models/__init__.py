@@ -37,6 +37,9 @@ from app.models.policy_pack import PolicyPack
 # Core Entities (6 models)
 from app.models.user import User, Role, OAuthAccount, APIKey, RefreshToken
 from app.models.project import Project, ProjectMember
+
+# Project Function Role (depends on Project - Sprint 161)
+from app.models.project_function_role import ProjectFunctionRole
 from app.models.gate import Gate
 
 # Gate Management (FR1) - 2 models
@@ -214,6 +217,45 @@ from app.models.product_event import ProductEvent, EventNames
 # VCR - Version Controlled Resolution (Sprint 151 - SASE Artifacts) - 1 model + enum
 from app.models.vcr import VersionControlledResolution, VCRStatus
 
+# Compliance Framework (Sprint 156 - Phase 3 COMPLIANCE) - 5 models + 5 enums
+from app.models.compliance import (
+    ComplianceFramework,
+    ComplianceControl,
+    ComplianceAssessment,
+    ComplianceRiskRegister,
+    ComplianceRACI,
+    AssessmentStatus as ComplianceAssessmentStatus,
+    ControlSeverity,
+    RiskLikelihood,
+    RiskImpact,
+    RiskStatus,
+)
+
+# NIST MAP & MEASURE (Sprint 157 - Phase 3 COMPLIANCE) - 2 models + 3 enums
+from app.models.nist_map_measure import (
+    AISystem,
+    PerformanceMetric,
+    AISystemType,
+    AIRiskLevel,
+    MetricType,
+)
+
+# NIST MANAGE (Sprint 158 - Phase 3 COMPLIANCE) - 2 models + 6 enums
+from app.models.nist_manage import (
+    ManageRiskResponse,
+    ManageIncident,
+    ResponseType,
+    ResponseStatus,
+    ResponsePriority,
+    IncidentSeverity,
+    IncidentType,
+    IncidentStatus,
+)
+
+# Tier-Based Gate Approval (Sprint 161 - Phase 4 AUTHORIZATION) - GateDecision model
+# Note: ProjectFunctionRole imported earlier (before Project) to resolve relationship
+from app.models.gate_decision import GateDecision
+
 # Note: ComplianceScore, ComplianceIssue, FolderCollisionCheck imported earlier
 # (before Project) to resolve forward references
 
@@ -374,4 +416,33 @@ __all__ = [
     # VCR - Sprint 151 SASE Artifacts (1 model + enum)
     "VersionControlledResolution",
     "VCRStatus",
+    # Compliance Framework - Sprint 156 Phase 3 (5 models + 5 enums)
+    "ComplianceFramework",
+    "ComplianceControl",
+    "ComplianceAssessment",
+    "ComplianceRiskRegister",
+    "ComplianceRACI",
+    "ComplianceAssessmentStatus",
+    "ControlSeverity",
+    "RiskLikelihood",
+    "RiskImpact",
+    "RiskStatus",
+    # NIST MAP & MEASURE - Sprint 157 Phase 3 (2 models + 3 enums)
+    "AISystem",
+    "PerformanceMetric",
+    "AISystemType",
+    "AIRiskLevel",
+    "MetricType",
+    # NIST MANAGE - Sprint 158 Phase 3 (2 models + 6 enums)
+    "ManageRiskResponse",
+    "ManageIncident",
+    "ResponseType",
+    "ResponseStatus",
+    "ResponsePriority",
+    "IncidentSeverity",
+    "IncidentType",
+    "IncidentStatus",
+    # Tier-Based Gate Approval - Sprint 161 Phase 4 (2 models)
+    "ProjectFunctionRole",
+    "GateDecision",
 ]

@@ -203,6 +203,10 @@ class Gate(Base):
     ai_evidence_drafts = relationship(
         "AIEvidenceDraft", back_populates="gate", cascade="all, delete-orphan"
     )
+    # Tier-Based Gate Approval (Sprint 161 - Phase 4 AUTHORIZATION)
+    decisions = relationship(
+        "GateDecision", back_populates="gate", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Gate(id={self.id}, gate_name={self.gate_name}, status={self.status})>"
