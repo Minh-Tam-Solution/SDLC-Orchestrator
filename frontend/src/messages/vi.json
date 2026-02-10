@@ -141,7 +141,17 @@
     },
     "founderNote": "Gói Founder: Dành cho startup Việt Nam xây dựng sản phẩm đầu tiên",
     "globalNote": "Cho team quốc tế: Gói Standard $30/người/tháng",
-    "globalLink": "Xem bảng giá quốc tế"
+    "globalLink": "Xem bảng giá quốc tế",
+    "popular": "Phổ biến nhất",
+    "getStarted": "Bắt đầu ngay",
+    "tryNow": "Thử ngay",
+    "currentPlan": "Gói hiện tại",
+    "contactSales": "Liên hệ Sales",
+    "upgrade": "Nâng cấp",
+    "toggleUsd": "USD ($)",
+    "toggleVnd": "VND (₫)",
+    "currencyLabel": "Đơn vị tiền tệ",
+    "perMonth": "tháng"
   },
   "ctas": {
     "demo": {
@@ -347,6 +357,9 @@
     "payNow": "Thanh toán ngay",
     "payment": "Thanh toán",
     "securePayment": "Thanh toán an toàn qua VNPay",
+    "stripePayment": "Thanh toán an toàn qua Stripe",
+    "stripeRedirect": "Bạn sẽ được chuyển đến Stripe Checkout để hoàn tất giao dịch.",
+    "stripeDescription": "Thẻ tín dụng/ghi nợ (Visa, Mastercard, JCB)",
     "features": "Bao gồm:",
     "periodMonthly": "/tháng",
     "periodAnnual": "/năm",
@@ -679,6 +692,655 @@
     "all": "Tất cả",
     "none": "Không có",
     "yes": "Có",
-    "no": "Không"
+    "no": "Không",
+    "create": "Tạo",
+    "confirm": "Xác nhận",
+    "noDescription": "Không có mô tả",
+    "updated": "Đã cập nhật",
+    "actions": "Thao tác",
+    "status": "Trạng thái",
+    "type": "Loại",
+    "name": "Tên",
+    "description": "Mô tả",
+    "details": "Chi tiết",
+    "saving": "Đang lưu...",
+    "creating": "Đang tạo...",
+    "uploading": "Đang tải lên...",
+    "removing": "Đang xóa...",
+    "optional": "tùy chọn",
+    "linkToRepo": "Liên kết dự án này với kho mã nguồn",
+    "connectGitHubHint": "Kết nối tài khoản GitHub để liên kết kho mã nguồn với dự án.",
+    "generate": "Tạo mới"
+  },
+  "dashboard": {
+    "nav": {
+      "dashboard": "Bảng điều khiển",
+      "notifications": "Thông báo",
+      "projects": "Dự án",
+      "teams": "Nhóm",
+      "organizations": "Tổ chức",
+      "gates": "Cổng chất lượng",
+      "approvals": "Phê duyệt",
+      "evidence": "Bằng chứng",
+      "policies": "Chính sách",
+      "contextAuthority": "Trung tâm ngữ cảnh",
+      "vcr": "VCR",
+      "crp": "CRP",
+      "mrp": "MRP",
+      "saseTemplates": "Mẫu SASE",
+      "agentsMd": "AGENTS.md",
+      "cliTokens": "Token CLI",
+      "checkRuns": "Kiểm tra",
+      "hashChain": "Chuỗi băm",
+      "appBuilder": "Trình tạo ứng dụng",
+      "sopGenerator": "Tạo SOP",
+      "specConverter": "Chuyển đổi Spec",
+      "compliance": "Tuân thủ",
+      "settings": "Cài đặt",
+      "adminPanel": "Quản trị viên",
+      "systemSettings": "Cài đặt hệ thống"
+    },
+    "header": {
+      "selectOrg": "Chọn tổ chức",
+      "organizations": "Tổ chức",
+      "teamsIn": "Nhóm trong {org}",
+      "noTeams": "Không có nhóm trong tổ chức này",
+      "manageOrgs": "Quản lý tổ chức",
+      "manageTeams": "Quản lý nhóm",
+      "profile": "Hồ sơ",
+      "signOut": "Đăng xuất",
+      "detail": "Chi tiết"
+    },
+    "footer": {
+      "version": "SDLC Orchestrator v1.0",
+      "sprint": "Sprint 171"
+    }
+  },
+  "projects": {
+    "title": "Dự án",
+    "subtitle": "Quản lý các dự án SDLC của bạn",
+    "actions": {
+      "newProject": "Dự án mới"
+    },
+    "search": {
+      "placeholder": "Tìm kiếm dự án..."
+    },
+    "status": {
+      "all": "Tất cả trạng thái",
+      "active": "Đang hoạt động",
+      "notStarted": "Chưa bắt đầu",
+      "completed": "Hoàn thành",
+      "archived": "Đã lưu trữ"
+    },
+    "form": {
+      "createTitle": "Tạo dự án mới",
+      "name": "Tên dự án",
+      "namePlaceholder": "Nhập tên dự án",
+      "description": "Mô tả",
+      "descPlaceholder": "Nhập mô tả dự án (tùy chọn)",
+      "team": "Nhóm",
+      "noTeam": "Không có nhóm (Dự án cá nhân)",
+      "policyTier": "Gói chính sách",
+      "liteTier": "LITE - Tuân thủ cơ bản",
+      "standardTier": "STANDARD - Dự án nhóm",
+      "proTier": "PROFESSIONAL - Doanh nghiệp",
+      "enterpriseTier": "ENTERPRISE - Tuân thủ đầy đủ",
+      "githubConnect": "Kết nối GitHub",
+      "githubConnected": "Đã kết nối",
+      "repoLink": "Liên kết kho GitHub",
+      "repoPlaceholder": "Chọn kho lưu trữ...",
+      "errors": {
+        "nameRequired": "Tên dự án là bắt buộc",
+        "userRequired": "ID người dùng là bắt buộc"
+      }
+    },
+    "card": {
+      "branch": "Nhánh:",
+      "updated": "Cập nhật:",
+      "private": "Riêng tư",
+      "public": "Công khai",
+      "na": "N/A"
+    },
+    "empty": {
+      "noProjects": "Không tìm thấy dự án",
+      "adjustSearch": "Thử điều chỉnh từ khóa tìm kiếm",
+      "getStarted": "Bắt đầu bằng cách tạo dự án mới"
+    },
+    "errors": {
+      "loadFailed": "Không thể tải danh sách dự án. Vui lòng thử lại sau.",
+      "loginRequired": "Vui lòng đăng nhập để xem dự án.",
+      "goToLogin": "Đi đến đăng nhập"
+    },
+    "detail": {
+      "backToProjects": "Quay lại dự án",
+      "currentStage": "Giai đoạn hiện tại",
+      "totalGates": "Tổng số cổng",
+      "created": "Ngày tạo",
+      "approved": "đã duyệt",
+      "stageTimeline": "Tiến trình giai đoạn SDLC",
+      "stageTimelineDesc": "Theo dõi tiến trình qua 10 giai đoạn",
+      "qualityGates": "Cổng chất lượng",
+      "qualityGatesDesc": "Tất cả cổng của dự án này",
+      "noGatesYet": "Chưa có cổng nào được tạo"
+    },
+    "loading": {
+      "teams": "Đang tải nhóm...",
+      "repos": "Đang tải kho lưu trữ..."
+    }
+  },
+  "gates": {
+    "title": "Cổng chất lượng",
+    "subtitle": "Đánh giá và quản lý các cổng chất lượng SDLC",
+    "passRate": "Tỷ lệ đạt tổng thể:",
+    "stages": {
+      "all": "Tất cả giai đoạn",
+      "g0": "G0 - Xác định vấn đề",
+      "g1": "G1 - Xác nhận giải pháp",
+      "g2": "G2 - Sẵn sàng thiết kế",
+      "g2_5": "G2.5 - Sẵn sàng API",
+      "g3": "G3 - Sẵn sàng phát hành",
+      "g3_5": "G3.5 - Sẵn sàng kiểm thử",
+      "g4": "G4 - Sẵn sàng ra mắt",
+      "g4_5": "G4.5 - Sẵn sàng vận hành",
+      "g5": "G5 - Sẵn sàng nhóm",
+      "g5_5": "G5.5 - Sẵn sàng tuân thủ"
+    },
+    "card": {
+      "evidence": "bằng chứng",
+      "violations": "vi phạm",
+      "view": "Xem"
+    },
+    "activity": {
+      "title": "Hoạt động cổng gần đây",
+      "approvedOn": "Đã duyệt vào",
+      "updated": "Cập nhật",
+      "approval": "phê duyệt",
+      "approvals": "phê duyệt",
+      "viewAll": "Xem tất cả cổng"
+    },
+    "empty": {
+      "noGates": "Không tìm thấy cổng",
+      "tryDifferentStage": "Thử chọn giai đoạn khác",
+      "createProject": "Tạo dự án để bắt đầu với cổng chất lượng"
+    },
+    "errors": {
+      "loadFailed": "Không thể tải danh sách cổng. Vui lòng thử lại sau."
+    },
+    "detail": {
+      "options": "Tùy chọn",
+      "editGate": "Sửa cổng",
+      "deleteGate": "Xóa cổng",
+      "submitApproval": "Gửi phê duyệt",
+      "submitting": "Đang gửi...",
+      "reject": "Từ chối",
+      "approve": "Phê duyệt",
+      "approving": "Đang phê duyệt...",
+      "processing": "Đang xử lý...",
+      "stage": "Giai đoạn",
+      "gateType": "Loại cổng",
+      "evidenceCount": "Bằng chứng",
+      "filesAttached": "tệp đính kèm",
+      "description": "Mô tả",
+      "exitCriteria": "Tiêu chí hoàn thành",
+      "exitCriteriaDesc": "Yêu cầu cần đạt để vượt qua cổng này",
+      "noExitCriteria": "Chưa định nghĩa tiêu chí",
+      "approvalHistory": "Lịch sử phê duyệt",
+      "approvalHistoryDesc": "Theo dõi tiến trình quy trình phê duyệt",
+      "noApprovals": "Chưa có phê duyệt nào",
+      "policyViolations": "Vi phạm chính sách",
+      "policyViolationsDesc": "Các vấn đề cần được giải quyết",
+      "gateNotFound": "Không tìm thấy cổng",
+      "backToGates": "Quay lại cổng"
+    },
+    "upload": {
+      "title": "Tải lên bằng chứng",
+      "selectFile": "Chọn tệp",
+      "evidenceType": "Loại bằng chứng",
+      "descriptionOptional": "Mô tả (tùy chọn)",
+      "descPlaceholder": "Thêm mô tả cho bằng chứng này...",
+      "clickToSelect": "Nhấp để chọn tệp",
+      "maxSize": "Tối đa 50MB"
+    },
+    "deleteConfirm": {
+      "title": "Xóa cổng",
+      "message": "Bạn có chắc chắn muốn xóa \"{name}\"? Hành động này không thể hoàn tác."
+    },
+    "editModal": {
+      "title": "Sửa cổng",
+      "description": "Cập nhật thông tin cổng. Nhấn lưu khi hoàn tất.",
+      "gateName": "Tên cổng",
+      "selectStage": "Chọn giai đoạn"
+    },
+    "status": {
+      "met": "đạt",
+      "notMet": "không đạt",
+      "pending": "đang chờ",
+      "approved": "Đã duyệt",
+      "rejected": "Đã từ chối",
+      "reviewer": "Người đánh giá",
+      "draft": "BẢN NHÁP",
+      "pendingApproval": "CHỜ PHÊ DUYỆT"
+    },
+    "evidenceTypes": {
+      "designDocs": "Tài liệu thiết kế",
+      "testResults": "Kết quả kiểm thử",
+      "codeReviews": "Đánh giá mã nguồn",
+      "deployProofs": "Bằng chứng triển khai",
+      "documentation": "Tài liệu",
+      "compliance": "Tuân thủ"
+    }
+  },
+  "evidence": {
+    "title": "Kho bằng chứng",
+    "subtitle": "Quản lý và theo dõi bằng chứng cho các cổng",
+    "actions": {
+      "upload": "Tải lên bằng chứng"
+    },
+    "stats": {
+      "total": "Tổng bằng chứng",
+      "verified": "Đã xác minh",
+      "pendingCheck": "Đang chờ kiểm tra",
+      "failedIntegrity": "Lỗi toàn vẹn"
+    },
+    "search": {
+      "placeholder": "Tìm kiếm bằng chứng..."
+    },
+    "types": {
+      "all": "Tất cả loại",
+      "DESIGN_DOCUMENT": "Tài liệu thiết kế",
+      "TEST_RESULTS": "Kết quả kiểm thử",
+      "CODE_REVIEW": "Đánh giá mã nguồn",
+      "DEPLOYMENT_PROOF": "Bằng chứng triển khai",
+      "DOCUMENTATION": "Tài liệu",
+      "COMPLIANCE": "Tuân thủ"
+    },
+    "table": {
+      "evidence": "Bằng chứng",
+      "type": "Loại",
+      "integrity": "Toàn vẹn",
+      "uploaded": "Đã tải lên",
+      "actions": "Thao tác"
+    },
+    "status": {
+      "valid": "Hợp lệ",
+      "pending": "Đang chờ",
+      "failed": "Thất bại"
+    },
+    "badges": {
+      "design": "Thiết kế",
+      "test": "Kiểm thử",
+      "review": "Đánh giá",
+      "deploy": "Triển khai",
+      "docs": "Tài liệu"
+    },
+    "uploadModal": {
+      "title": "Tải lên bằng chứng",
+      "selectFile": "Chọn tệp",
+      "clickToSelect": "Nhấn để chọn tệp",
+      "maxSize": "Tối đa 50MB",
+      "selectGate": "Chọn cổng",
+      "selectGatePlaceholder": "-- Chọn một cổng --",
+      "evidenceType": "Loại bằng chứng",
+      "descriptionOptional": "Mô tả (tùy chọn)",
+      "descPlaceholder": "Thêm mô tả cho bằng chứng này..."
+    },
+    "detailModal": {
+      "title": "Chi tiết bằng chứng",
+      "fileName": "Tên tệp",
+      "fileSize": "Kích thước tệp",
+      "gateId": "ID cổng",
+      "integrityStatus": "Trạng thái toàn vẹn",
+      "uploadedBy": "Người tải lên",
+      "uploadedAt": "Thời gian tải lên",
+      "sha256Hash": "Mã băm SHA256",
+      "download": "Tải xuống"
+    },
+    "empty": {
+      "noEvidence": "Không tìm thấy bằng chứng",
+      "adjustSearch": "Thử điều chỉnh từ khóa tìm kiếm",
+      "uploadToStart": "Tải lên bằng chứng để bắt đầu"
+    },
+    "errors": {
+      "loadFailed": "Không thể tải danh sách bằng chứng. Vui lòng thử lại sau.",
+      "selectFile": "Vui lòng chọn một tệp",
+      "selectGate": "Vui lòng chọn một cổng",
+      "fileTooLarge": "Kích thước tệp phải nhỏ hơn 50MB",
+      "uploadFailed": "Tải lên thất bại. Vui lòng thử lại."
+    }
+  },
+  "teams": {
+    "title": "Nhóm",
+    "subtitle": "Quản lý nhóm và cộng tác với AI agents",
+    "search": {
+      "placeholder": "Tìm kiếm nhóm..."
+    },
+    "form": {
+      "createTitle": "Tạo nhóm mới",
+      "organization": "Tổ chức",
+      "selectOrg": "Chọn một tổ chức",
+      "name": "Tên nhóm",
+      "namePlaceholder": "Nhập tên nhóm",
+      "slug": "Slug nhóm",
+      "slugPlaceholder": "slug-nhom",
+      "slugHint": "Định danh URL (duy nhất trong tổ chức)",
+      "description": "Mô tả",
+      "descPlaceholder": "Nhập mô tả nhóm (tùy chọn)",
+      "maturityLevel": "Mức độ trưởng thành Agentic",
+      "createTeam": "Tạo nhóm",
+      "nameRequired": "Tên nhóm là bắt buộc",
+      "slugRequired": "Slug nhóm là bắt buộc",
+      "orgRequired": "Vui lòng chọn một tổ chức",
+      "createFailed": "Không thể tạo nhóm"
+    },
+    "maturity": {
+      "l0": "L0 - Thủ công",
+      "l0Desc": "Không có AI agents, nhóm hoàn toàn thủ công",
+      "l1": "L1 - Hỗ trợ",
+      "l1Desc": "AI hỗ trợ gợi ý, con người kiểm duyệt tất cả",
+      "l2": "L2 - Giám sát",
+      "l2Desc": "AI và con người cộng tác, AI thực hiện tác vụ ít rủi ro",
+      "l3": "L3 - Tự chủ",
+      "l3Desc": "AI hoạt động tự chủ trong giới hạn đã định"
+    },
+    "card": {
+      "humans": "thành viên",
+      "aiAgents": "AI agents",
+      "projects": "dự án"
+    },
+    "empty": {
+      "noTeams": "Không tìm thấy nhóm",
+      "adjustSearch": "Thử điều chỉnh từ khóa tìm kiếm",
+      "getStarted": "Bắt đầu bằng cách tạo nhóm mới"
+    },
+    "errors": {
+      "loginRequired": "Vui lòng đăng nhập để xem nhóm.",
+      "goToLogin": "Đi đến đăng nhập"
+    },
+    "detail": {
+      "backToTeams": "Quay lại nhóm",
+      "totalMembers": "Tổng thành viên",
+      "humanMembers": "Thành viên",
+      "aiAgents": "AI Agents",
+      "projects": "Dự án",
+      "addMember": "Thêm thành viên",
+      "member": "Thành viên",
+      "role": "Vai trò",
+      "saseRole": "Vai trò SASE",
+      "joined": "Ngày tham gia"
+    },
+    "roles": {
+      "owner": "Chủ sở hữu",
+      "ownerDesc": "Toàn quyền, có thể xóa nhóm",
+      "admin": "Quản trị",
+      "adminDesc": "Quản lý thành viên và cài đặt",
+      "member": "Thành viên",
+      "memberDesc": "Xem và đóng góp",
+      "aiAgent": "AI Agent",
+      "aiAgentDesc": "Tác nhân AI tự động"
+    },
+    "addMemberModal": {
+      "title": "Thêm thành viên nhóm",
+      "email": "Email người dùng",
+      "memberType": "Loại thành viên",
+      "human": "Con người",
+      "aiAgent": "AI Agent",
+      "aiAgentSaseNote": "AI agents được tự động gán vai trò AI Agent (tuân thủ SASE)",
+      "adding": "Đang thêm..."
+    },
+    "editModal": {
+      "title": "Sửa nhóm",
+      "name": "Tên nhóm",
+      "description": "Mô tả",
+      "maturityLevel": "Mức độ trưởng thành Agentic"
+    },
+    "actions": {
+      "newTeam": "Nhóm mới",
+      "changeRole": "Đổi vai trò",
+      "changeRoleDesc": "Chọn vai trò mới cho thành viên này",
+      "removeFromTeam": "Xóa khỏi nhóm"
+    },
+    "deleteConfirm": {
+      "message": "Bạn có chắc chắn muốn xóa nhóm \"{name}\"? Hành động này không thể hoàn tác."
+    },
+    "memberErrors": {
+      "teamNotFound": "Không tìm thấy nhóm hoặc bạn không có quyền truy cập.",
+      "emailRequired": "Email người dùng là bắt buộc",
+      "invalidEmail": "Vui lòng nhập địa chỉ email hợp lệ",
+      "aiAgentRoleError": "AI agents không thể có vai trò chủ sở hữu hoặc quản trị (tuân thủ SASE)",
+      "addFailed": "Không thể thêm thành viên",
+      "changeRoleFailed": "Không thể đổi vai trò. Vui lòng thử lại.",
+      "removeConfirm": "Xóa {name} khỏi nhóm?"
+    }
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "subtitle": "Quản lý cài đặt tài khoản và tích hợp",
+    "profile": {
+      "title": "Hồ sơ",
+      "subtitle": "Thông tin tài khoản của bạn",
+      "loading": "Đang tải hồ sơ...",
+      "userId": "ID người dùng",
+      "status": "Trạng thái",
+      "active": "Đang hoạt động",
+      "inactive": "Không hoạt động",
+      "roles": "Vai trò",
+      "user": "Người dùng",
+      "lastLogin": "Đăng nhập lần cuối"
+    },
+    "apiKeys": {
+      "title": "Khóa API",
+      "subtitle": "Tạo token truy cập cho VS Code extension và công cụ CLI",
+      "loading": "Đang tải khóa API...",
+      "revoked": "Đã thu hồi",
+      "lastUsed": "Sử dụng lần cuối:",
+      "neverUsed": "Chưa sử dụng",
+      "justNow": "Vừa xong",
+      "minAgo": "{n} phút trước",
+      "hoursAgo": "{n} giờ trước",
+      "daysAgo": "{n} ngày trước",
+      "expires": "Hết hạn:",
+      "never": "Không bao giờ",
+      "revoke": "Thu hồi",
+      "noKeys": "Chưa có khóa API. Tạo một khóa để sử dụng với VS Code extension.",
+      "generateNew": "Tạo khóa API mới"
+    },
+    "apiKeyModal": {
+      "successTitle": "Tạo khóa API thành công",
+      "successDesc": "Hãy sao chép khóa API ngay bây giờ. Bạn sẽ không thể xem lại!",
+      "warningText": "Đây là lần duy nhất bạn thấy khóa API này. Lưu ở nơi an toàn.",
+      "yourApiKey": "Khóa API của bạn",
+      "savedKey": "Xong, tôi đã lưu khóa",
+      "generateTitle": "Tạo khóa API mới",
+      "generateDesc": "Tạo token truy cập cho VS Code extension hoặc công cụ CLI.",
+      "keyName": "Tên",
+      "vsCodeExtension": "VS Code Extension",
+      "expiration": "Thời hạn",
+      "days30": "30 ngày",
+      "days90": "90 ngày (Khuyến nghị)",
+      "year1": "1 năm",
+      "neverExpires": "Không hết hạn",
+      "generating": "Đang tạo..."
+    },
+    "revokeModal": {
+      "title": "Thu hồi khóa API?",
+      "message": "Thao tác này sẽ vô hiệu hóa khóa API ngay lập tức. Các ứng dụng đang sử dụng khóa này sẽ không thể xác thực.",
+      "revoking": "Đang thu hồi...",
+      "revokeKey": "Thu hồi khóa"
+    },
+    "github": {
+      "title": "Tích hợp GitHub",
+      "subtitle": "Kết nối tài khoản GitHub để đồng bộ kho lưu trữ và tạo dự án",
+      "loading": "Đang tải trạng thái GitHub...",
+      "connected": "Đã kết nối",
+      "signedInAs": "Đăng nhập với @{username}",
+      "connectedSince": "Kết nối từ",
+      "permissions": "Quyền truy cập",
+      "rateLimit": "Giới hạn API",
+      "rateLimitRemaining": "Còn {remaining} / {limit}",
+      "disconnect": "Ngắt kết nối GitHub",
+      "notConnected": "Chưa kết nối",
+      "notConnectedDesc": "Kết nối tài khoản GitHub để đồng bộ kho lưu trữ",
+      "connectAccount": "Kết nối tài khoản GitHub",
+      "redirecting": "Đang chuyển hướng..."
+    },
+    "disconnectModal": {
+      "title": "Ngắt kết nối tài khoản GitHub?",
+      "message": "Thao tác này sẽ xóa kết nối giữa tài khoản SDLC Orchestrator và GitHub. Các dự án hiện có không bị ảnh hưởng, nhưng đồng bộ tự động sẽ dừng.",
+      "disconnecting": "Đang ngắt kết nối..."
+    },
+    "dangerZone": {
+      "title": "Vùng nguy hiểm",
+      "subtitle": "Các thao tác không thể hoàn tác cho tài khoản",
+      "deleteAccount": "Xóa tài khoản",
+      "deleteAccountDesc": "Xóa vĩnh viễn tài khoản và tất cả dữ liệu liên quan"
+    },
+    "notifications": {
+      "title": "Cài đặt thông báo",
+      "subtitle": "Quản lý cách thức và thời gian nhận thông báo",
+      "saveChanges": "Lưu thay đổi",
+      "channels": {
+        "title": "Kênh thông báo",
+        "subtitle": "Chọn cách bạn muốn nhận thông báo",
+        "email": "Thông báo email",
+        "emailDesc": "Nhận thông báo qua email",
+        "push": "Thông báo đẩy trình duyệt",
+        "pushDesc": "Nhận thông báo đẩy trong trình duyệt",
+        "inApp": "Thông báo trong ứng dụng",
+        "inAppDesc": "Hiển thị thông báo trong trung tâm thông báo"
+      },
+      "types": {
+        "title": "Loại thông báo",
+        "subtitle": "Chọn loại thông báo bạn muốn nhận",
+        "gate": "Thông báo cổng",
+        "gateDesc": "Phê duyệt, từ chối và yêu cầu phê duyệt cổng",
+        "evidence": "Thông báo bằng chứng",
+        "evidenceDesc": "Tải lên, đánh giá và xác thực bằng chứng",
+        "policy": "Vi phạm chính sách",
+        "policyDesc": "Vi phạm chính sách và cảnh báo tuân thủ",
+        "team": "Thông báo nhóm",
+        "teamDesc": "Thay đổi thành viên nhóm và lời mời",
+        "system": "Thông báo hệ thống",
+        "systemDesc": "Cập nhật hệ thống, bảo trì và thông báo"
+      },
+      "quietHours": {
+        "title": "Giờ im lặng",
+        "subtitle": "Tạm dừng thông báo trong thời gian cụ thể",
+        "enable": "Bật giờ im lặng",
+        "enableDesc": "Tạm dừng thông báo đẩy và trong ứng dụng",
+        "startTime": "Thời gian bắt đầu",
+        "endTime": "Thời gian kết thúc"
+      },
+      "emailDigest": {
+        "title": "Tóm tắt email",
+        "subtitle": "Nhận tóm tắt thông báo qua email",
+        "enable": "Bật tóm tắt email",
+        "enableDesc": "Nhận tóm tắt thay vì email riêng lẻ",
+        "frequency": "Tần suất tóm tắt",
+        "daily": "Hàng ngày",
+        "weekly": "Hàng tuần"
+      },
+      "toast": {
+        "saved": "Đã lưu cài đặt",
+        "savedDesc": "Tùy chọn thông báo đã được cập nhật.",
+        "error": "Lỗi",
+        "errorDesc": "Không thể lưu tùy chọn thông báo."
+      }
+    }
+  },
+  "pilot": {
+    "hero": {
+      "badge": "Chương trình thí điểm",
+      "headline": "Tham gia Chương trình Thí điểm SDLC Orchestrator",
+      "subheadline": "Trở thành một trong 10 founder SME Việt Nam đầu tiên định hình tương lai quản trị AI",
+      "cta": "Đăng ký ngay"
+    },
+    "benefits": {
+      "title": "Tại sao nên tham gia Chương trình Thí điểm?",
+      "subtitle": "Quyền lợi độc quyền cho những người tiên phong",
+      "items": {
+        "earlyAccess": {
+          "title": "Truy cập Sớm",
+          "description": "Trải nghiệm tính năng mới trước khi ra mắt chính thức"
+        },
+        "freeSupport": {
+          "title": "Hỗ trợ 1-1 Miễn phí",
+          "description": "Onboarding chuyên biệt và hỗ trợ kỹ thuật"
+        },
+        "lifetime": {
+          "title": "Giảm giá Trọn đời",
+          "description": "Giảm 50% phí đăng ký cho tất cả thành viên thí điểm"
+        },
+        "community": {
+          "title": "Cộng đồng Founder",
+          "description": "Kết nối với các founder Việt Nam khác xây dựng với AI"
+        }
+      }
+    },
+    "form": {
+      "title": "Đăng ký Chương trình Thí điểm",
+      "subtitle": "Giới hạn 10 thành viên - Đăng ký ngay!",
+      "name": "Họ và tên",
+      "namePlaceholder": "Nguyễn Văn A",
+      "email": "Địa chỉ Email",
+      "emailPlaceholder": "ban@congty.com",
+      "company": "Tên Công ty",
+      "companyPlaceholder": "Công ty Startup của tôi",
+      "role": "Vai trò của bạn",
+      "rolePlaceholder": "Chọn vai trò",
+      "roleOptions": {
+        "founder": "Founder / CEO",
+        "cto": "CTO / Trưởng phòng Kỹ thuật",
+        "manager": "Quản lý Kỹ thuật",
+        "developer": "Lập trình viên",
+        "other": "Khác"
+      },
+      "submit": "Tham gia Chương trình Thí điểm",
+      "submitting": "Đang gửi...",
+      "success": {
+        "title": "Đã gửi đơn đăng ký!",
+        "description": "Cảm ơn bạn đã đăng ký. Chúng tôi sẽ liên hệ trong vòng 24 giờ để xác nhận."
+      },
+      "validation": {
+        "nameRequired": "Vui lòng nhập họ tên đầy đủ",
+        "nameMin": "Tên phải có ít nhất 2 ký tự",
+        "nameTooLong": "Tên phải ít hơn 100 ký tự",
+        "emailRequired": "Vui lòng nhập địa chỉ email",
+        "emailInvalid": "Vui lòng nhập địa chỉ email hợp lệ",
+        "companyRequired": "Vui lòng nhập tên công ty",
+        "companyTooLong": "Tên công ty quá dài",
+        "roleRequired": "Vui lòng chọn vai trò"
+      },
+      "errors": {
+        "alreadyEnrolled": "Bạn đã đăng ký chương trình thí điểm",
+        "serverError": "Đã xảy ra lỗi. Vui lòng thử lại sau.",
+        "unauthorized": "Vui lòng đăng nhập để đăng ký chương trình thí điểm"
+      }
+    },
+    "faq": {
+      "title": "Câu hỏi Thường gặp",
+      "subtitle": "Mọi thứ bạn cần biết về chương trình thí điểm",
+      "items": {
+        "q1": {
+          "question": "Ai có thể tham gia chương trình thí điểm?",
+          "answer": "Founder và lãnh đạo kỹ thuật của SME Việt Nam trong các ngành F&B, Khách sạn, hoặc Bán lẻ. Chúng tôi tìm kiếm những đội ngũ sẵn sàng tích hợp quản trị AI vào quy trình phát triển."
+        },
+        "q2": {
+          "question": "Chương trình thí điểm kéo dài bao lâu?",
+          "answer": "Chương trình kéo dài 6 tuần với các buổi check-in hàng tuần. Bạn sẽ làm việc chặt chẽ với đội ngũ chúng tôi để triển khai SDLC Orchestrator và đóng góp phản hồi."
+        },
+        "q3": {
+          "question": "Cam kết thời gian là bao nhiêu?",
+          "answer": "Khoảng 2 giờ mỗi tuần: 1 giờ cho các buổi onboarding/đào tạo và 1 giờ để tích hợp với quy trình hiện tại của bạn."
+        },
+        "q4": {
+          "question": "Có thực sự miễn phí không?",
+          "answer": "Có! Chương trình thí điểm hoàn toàn miễn phí. Bạn sẽ được truy cập đầy đủ tất cả tính năng, hỗ trợ chuyên biệt, và giảm giá 50% trọn đời sau khi kết thúc chương trình."
+        },
+        "q5": {
+          "question": "Điều gì xảy ra sau chương trình thí điểm?",
+          "answer": "Thành viên thí điểm nhận giảm giá 50% trọn đời, hỗ trợ ưu tiên, truy cập sớm các tính năng mới, và có tiếng nói trong lộ trình sản phẩm. Bạn cũng là thành viên của cộng đồng founder."
+        }
+      }
+    }
   }
 }

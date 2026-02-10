@@ -131,6 +131,67 @@ curl http://localhost:3002/api/health
 
 ---
 
+## 🟡 **STAGING Environment Ports**
+
+**Container Prefix**: `sdlc-staging-*`
+**Network**: `ai-net` (shared with AI-Platform services)
+**Compose File**: `docker-compose.staging.yml`
+**Env File**: `.env.staging`
+**Migration Status**: ✅ **MinIO migrated to AI-Platform shared service (Jan 8, 2026)**
+
+| Service | Container Name | Internal Port | Host Port | Access URL |
+|---------|----------------|---------------|-----------|------------|
+| **Backend** | sdlc-staging-backend | 8000 | 8002 | http://localhost:8002 |
+| **Frontend** | sdlc-staging-frontend | 80 | 8312 | http://localhost:8312 |
+| **PostgreSQL** | sdlc-staging-postgres | 5432 | 5436 | postgresql://localhost:5436 |
+| **Redis** | sdlc-staging-redis | 6379 | 6384 | redis://localhost:6384 |
+| **MinIO S3 API** | ai-platform-minio (shared) | 9000 | 9020 | http://localhost:9020 |
+| **MinIO Console** | ai-platform-minio (shared) | 9001 | 9021 | http://localhost:9021 |
+| **OPA** | sdlc-staging-opa | 8181 | 8183 | http://localhost:8183 |
+| **Prometheus** | sdlc-staging-prometheus | 9090 | 9092 | http://localhost:9092 |
+| **Grafana** | sdlc-staging-grafana | 3000 | 3003 | http://localhost:3003 |
+| **Alertmanager** | sdlc-staging-alertmanager | 9093 | 9101 | http://localhost:9101 |
+
+### **Staging Health Checks**
+```bash
+# Backend API
+curl http://localhost:8002/health
+# Expected: {"status":"healthy","version":"1.1.0","service":"sdlc-orchestrator-backend"}
+
+# Frontend
+curl http://localhost:8312/health
+# Expected: "healthy"
+
+# PostgreSQL
+docker exec sdlc-staging-postgres pg_isready -U sdlc_user
+# Expected: "sdlc_user ready to accept connections"
+
+# Redis
+docker exec sdlc-staging-redis redis-cli --raw incr ping
+# Expected: (integer) 1
+
+# MinIO (shared AI-Platform service)
+curl http://localhost:9020/minio/health/live
+# Expected: 200 OK
+
+# Prometheus
+curl http://localhost:9092/-/healthy
+# Expected: 200 OK
+
+# Grafana
+curl http://localhost:3003/api/health
+# Expected: {"commit":"...","database":"ok","version":"10.2.0"}
+```
+
+### **MinIO Migration Notes (Jan 8, 2026)**
+- **Old Setup**: Dedicated `sdlc-staging-minio` container on `sdlc-network` (ports 9010/9011)
+- **New Setup**: Shared `ai-platform-minio` on `ai-net` network (ports 9020/9021)
+- **Benefits**: Single MinIO instance per machine, shared across AI-Platform services
+- **Rollback Window**: Feb 17, 2026 (7-day grace period completed)
+- **Documentation**: See `/docs/09-govern/08-Operations/MINIO-MIGRATION-FEB2026.md`
+
+---
+
 ## 🔄 **Quick Commands**
 
 ### **Start Environments**
@@ -255,6 +316,6 @@ Before deploying a new environment, verify:
 
 ---
 
-**Last Updated**: 2025-12-16 (Sprint 33 Day 3)
-**Owner**: DevOps Team
-**Status**: ✅ PRODUCTION + BETA DEPLOYED (9/9 services each)
+**Last Updated**: 2026-02-10 (Sprint 171 - MinIO Migration Update)
+**Owner**: DevOps Team + AI-Platform Infrastructure Team
+**Status**: ✅ PRODUCTION + BETA + STAGING DEPLOYED (Staging uses shared AI-Platform MinIO)

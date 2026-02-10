@@ -308,6 +308,106 @@ export async function getPaymentStatus(
 }
 
 // =============================================================================
+// Pricing API (Sprint 171 - Multi-Currency)
+// =============================================================================
+
+export interface PricingPlan {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  currency: string;
+  formatted_price: string;
+  billing_period: string;
+  features: string[];
+  is_popular: boolean;
+}
+
+export interface PricingResponse {
+  plans: PricingPlan[];
+  currency: string;
+  detected_country: string | null;
+}
+
+export interface CheckoutRequest {
+  plan_id: string;
+  currency?: string;
+  billing_period?: string;
+}
+
+export interface CheckoutResponse {
+  checkout_url: string;
+  session_id: string;
+}
+
+/**
+ * Get pricing plans with prices in the requested currency.
+ * Public endpoint - no auth required.
+ */
+export async function getPricingPlans(
+  currency?: string
+): Promise<PricingResponse> {
+  const params = currency ? `?currency=${currency}` : "";
+  return apiRequest<PricingResponse>(`/pricing/plans${params}`);
+}
+
+/**
+ * Create a Stripe Checkout session for plan purchase.
+ */
+export async function createCheckoutSession(
+  accessToken: string,
+  data: CheckoutRequest
+): Promise<CheckoutResponse> {
+  return apiRequest<CheckoutResponse>("/pricing/checkout", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(data),
+  });
+}
+
+// =============================================================================
+// Pilot Program API (Sprint 171 - Market Expansion)
+// =============================================================================
+
+export interface PilotParticipantData {
+  domain?: "fnb" | "hospitality" | "retail";
+  company_name?: string;
+  company_size?: "micro" | "small" | "medium";
+  referral_source?: string;
+}
+
+export interface PilotParticipantResponse {
+  id: string;
+  user_id: string;
+  status: string;
+  domain?: string;
+  company_name?: string;
+  company_size?: string;
+  registered_at?: string;
+  activated_at?: string;
+  created_at: string;
+}
+
+/**
+ * Register user for pilot program.
+ * Sprint 171: Requires authentication. Returns existing participant if already enrolled.
+ *
+ * @param data Pilot participant data
+ * @returns Participant response (200 if new or existing)
+ * @throws APIError on failure (401 if not logged in, 400 for validation errors)
+ */
+export async function registerPilotParticipant(
+  data: PilotParticipantData
+): Promise<PilotParticipantResponse> {
+  return apiRequest<PilotParticipantResponse>("/pilot/participants", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+// =============================================================================
 // OAuth API (Sprint 59)
 // =============================================================================
 
@@ -1015,6 +1115,449 @@ export interface CodegenListOptions {
  */
 export async function getCodegenTemplates(): Promise<CodegenTemplate[]> {
   return apiRequest<CodegenTemplate[]>("/codegen/templates");
+}
+
+// =============================================================================
+// Template Marketplace API (Sprint 165 Day 3)
+// =============================================================================
+
+export interface TemplateTag {
+  name: string;
+  color: string;
+}
+
+export interface TemplateAuthor {
+  name: string;
+  role: string;
+}
+
+export interface TemplateQualityMetrics {
+  gates_passed: number;
+  gates_total: number;
+  pass_rate: number;
+  avg_latency_ms: number;
+  last_validated: string | null;
+}
+
+export interface MarketplaceTemplate {
+  id: string;
+  name: string;
+  description: string;
+  language: string;
+  framework: string;
+  category: string;
+  difficulty: string;
+  tags: TemplateTag[];
+  author: TemplateAuthor;
+  file_count: number;
+  estimated_loc: number;
+  quality: TemplateQualityMetrics;
+  version: string;
+  created_at: string;
+  updated_at: string;
+  usage_count: number;
+  is_official: boolean;
+}
+
+export interface MarketplaceListResponse {
+  templates: MarketplaceTemplate[];
+  total: number;
+  categories: string[];
+  languages: string[];
+}
+
+export interface MarketplaceFilterOptions {
+  category?: string;
+  language?: string;
+  difficulty?: string;
+  search?: string;
+  tag?: string;
+}
+
+/**
+ * List marketplace templates with filtering
+ * Sprint 165 Day 3: Template Marketplace Foundation
+ */
+export async function getMarketplaceTemplates(
+  options?: MarketplaceFilterOptions
+): Promise<MarketplaceListResponse> {
+  const params = new URLSearchParams();
+  if (options?.category) params.set("category", options.category);
+  if (options?.language) params.set("language", options.language);
+  if (options?.difficulty) params.set("difficulty", options.difficulty);
+  if (options?.search) params.set("search", options.search);
+  if (options?.tag) params.set("tag", options.tag);
+
+  const queryString = params.toString();
+  const url = queryString
+    ? `/codegen/templates/marketplace?${queryString}`
+    : "/codegen/templates/marketplace";
+
+  return apiRequest<MarketplaceListResponse>(url);
+}
+
+/**
+ * Get marketplace template detail by ID
+ * Sprint 165 Day 3: Template Marketplace Foundation
+ */
+export async function getMarketplaceTemplate(
+  templateId: string
+): Promise<MarketplaceTemplate> {
+  return apiRequest<MarketplaceTemplate>(
+    `/codegen/templates/marketplace/${templateId}`
+  );
+}
+
+// =============================================================================
+// Codegen Feedback API (Sprint 165 Day 4)
+// =============================================================================
+
+export interface FeedbackCreate {
+  template_id: string;
+  session_id?: string;
+  rating: number;
+  category?: string;
+  comment?: string;
+  tags?: string[];
+}
+
+export interface FeedbackResponse {
+  id: string;
+  template_id: string;
+  rating: number;
+  category: string;
+  comment: string | null;
+  tags: string[];
+  created_at: string;
+}
+
+export interface FeedbackAggregation {
+  template_id: string;
+  total_reviews: number;
+  average_rating: number;
+  rating_distribution: Record<string, number>;
+  top_tags: Array<{ tag: string; count: number }>;
+  category_breakdown: Record<string, number>;
+}
+
+/**
+ * Submit codegen feedback
+ * Sprint 165 Day 4: Feedback Backend
+ */
+export async function submitCodegenFeedback(
+  feedback: FeedbackCreate
+): Promise<FeedbackResponse> {
+  return apiRequest<FeedbackResponse>("/codegen/feedback", {
+    method: "POST",
+    body: JSON.stringify(feedback),
+  });
+}
+
+/**
+ * Get feedback aggregation for a template
+ * Sprint 165 Day 4: Feedback Backend
+ */
+export async function getCodegenFeedbackAggregation(
+  templateId: string
+): Promise<FeedbackAggregation> {
+  return apiRequest<FeedbackAggregation>(
+    `/codegen/feedback/aggregate/${templateId}`
+  );
+}
+
+// =============================================================================
+// Golden Path API (Sprint 166 Day 3)
+// =============================================================================
+
+export interface GoldenPathSummary {
+  path_id: string;
+  display_name: string;
+  description: string;
+  category: string;
+  version: string;
+  tech_stack: string[];
+  estimated_files: number;
+  estimated_loc: number;
+}
+
+export interface GoldenPathListResponse {
+  paths: GoldenPathSummary[];
+  total: number;
+  categories: string[];
+}
+
+export interface GoldenPathGenerateRequest {
+  path_id: string;
+  project_name: string;
+  project_description?: string;
+  author?: string;
+  version?: string;
+  options?: Record<string, unknown>;
+}
+
+export interface GoldenPathFilePreview {
+  path: string;
+  language: string;
+  estimated_lines: number;
+}
+
+export interface GoldenPathPreviewResponse {
+  path_id: string;
+  display_name: string;
+  project_name: string;
+  files: GoldenPathFilePreview[];
+  total_files: number;
+  estimated_loc: number;
+}
+
+export interface GoldenPathGenerateResponse {
+  path_id: string;
+  project_name: string;
+  files: Array<{ path: string; content: string; language: string }>;
+  file_count: number;
+  total_lines: number;
+  total_size_bytes: number;
+  generation_time_ms: number;
+  quality_passed: boolean;
+  manifest: Record<string, unknown>;
+}
+
+export interface GoldenPathValidateResponse {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+/**
+ * List available Golden Path templates
+ * Sprint 166 Day 3: Golden Path API
+ */
+export async function getGoldenPaths(): Promise<GoldenPathListResponse> {
+  return apiRequest<GoldenPathListResponse>("/codegen/golden-paths");
+}
+
+/**
+ * Get Golden Path detail by ID
+ * Sprint 166 Day 3: Golden Path API
+ */
+export async function getGoldenPath(
+  pathId: string
+): Promise<GoldenPathSummary> {
+  return apiRequest<GoldenPathSummary>(`/codegen/golden-paths/${pathId}`);
+}
+
+/**
+ * Generate a Golden Path project scaffold
+ * Sprint 166 Day 3: Golden Path API
+ */
+export async function generateGoldenPath(
+  request: GoldenPathGenerateRequest
+): Promise<GoldenPathGenerateResponse> {
+  return apiRequest<GoldenPathGenerateResponse>(
+    "/codegen/golden-paths/generate",
+    {
+      method: "POST",
+      body: JSON.stringify(request),
+    }
+  );
+}
+
+/**
+ * Preview Golden Path file tree (without content)
+ * Sprint 166 Day 3: Golden Path API
+ */
+export async function previewGoldenPath(
+  request: GoldenPathGenerateRequest
+): Promise<GoldenPathPreviewResponse> {
+  return apiRequest<GoldenPathPreviewResponse>(
+    "/codegen/golden-paths/preview",
+    {
+      method: "POST",
+      body: JSON.stringify(request),
+    }
+  );
+}
+
+/**
+ * Validate Golden Path configuration
+ * Sprint 166 Day 3: Golden Path API
+ */
+export async function validateGoldenPath(
+  pathId: string,
+  projectName: string,
+  options?: Record<string, unknown>
+): Promise<GoldenPathValidateResponse> {
+  return apiRequest<GoldenPathValidateResponse>(
+    "/codegen/golden-paths/validate",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        path_id: pathId,
+        project_name: projectName,
+        options: options || {},
+      }),
+    }
+  );
+}
+
+// =============================================================================
+// Custom Golden Path API (Sprint 168 Day 3)
+// =============================================================================
+
+export interface CustomPathFileDefinition {
+  path_template: string;
+  content_template: string;
+  language: string;
+  category: string;
+}
+
+export interface CustomGoldenPath {
+  id: string;
+  user_id: string;
+  project_id: string | null;
+  path_id: string;
+  display_name: string;
+  description: string;
+  category: string;
+  version: string;
+  tech_stack: string[];
+  file_definitions: CustomPathFileDefinition[];
+  options_schema: Record<string, unknown> | null;
+  is_published: boolean;
+  is_validated: boolean;
+  validation_result: Record<string, unknown> | null;
+  usage_count: number;
+  estimated_files: number;
+  estimated_loc: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CustomGoldenPathList {
+  paths: CustomGoldenPath[];
+  total: number;
+}
+
+export interface CreateCustomPathRequest {
+  path_id: string;
+  display_name: string;
+  description?: string;
+  category?: string;
+  version?: string;
+  tech_stack?: string[];
+  file_definitions?: CustomPathFileDefinition[];
+  options_schema?: Record<string, unknown>;
+  project_id?: string;
+}
+
+export interface UpdateCustomPathRequest {
+  display_name?: string;
+  description?: string;
+  category?: string;
+  version?: string;
+  tech_stack?: string[];
+  file_definitions?: CustomPathFileDefinition[];
+  options_schema?: Record<string, unknown>;
+  is_published?: boolean;
+}
+
+export interface CustomPathValidateResponse {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  quality_result: Record<string, unknown> | null;
+}
+
+/**
+ * List custom golden paths for the current user
+ * Sprint 168 Day 3: Custom Path Builder
+ */
+export async function getCustomPaths(
+  category?: string
+): Promise<CustomGoldenPathList> {
+  const params = category ? `?category=${category}` : "";
+  return apiRequest<CustomGoldenPathList>(
+    `/codegen/custom-paths${params}`
+  );
+}
+
+/**
+ * Get custom golden path detail
+ * Sprint 168 Day 3: Custom Path Builder
+ */
+export async function getCustomPath(
+  pathId: string
+): Promise<CustomGoldenPath> {
+  return apiRequest<CustomGoldenPath>(`/codegen/custom-paths/${pathId}`);
+}
+
+/**
+ * Create a new custom golden path
+ * Sprint 168 Day 3: Custom Path Builder
+ */
+export async function createCustomPath(
+  data: CreateCustomPathRequest
+): Promise<CustomGoldenPath> {
+  return apiRequest<CustomGoldenPath>("/codegen/custom-paths", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Update a custom golden path
+ * Sprint 168 Day 3: Custom Path Builder
+ */
+export async function updateCustomPath(
+  pathId: string,
+  data: UpdateCustomPathRequest
+): Promise<CustomGoldenPath> {
+  return apiRequest<CustomGoldenPath>(`/codegen/custom-paths/${pathId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Delete a custom golden path (soft delete)
+ * Sprint 168 Day 3: Custom Path Builder
+ */
+export async function deleteCustomPath(pathId: string): Promise<void> {
+  return apiRequest<void>(`/codegen/custom-paths/${pathId}`, {
+    method: "DELETE",
+  });
+}
+
+/**
+ * Generate project from custom golden path
+ * Sprint 168 Day 3: Custom Path Builder
+ */
+export async function generateCustomPath(
+  pathId: string,
+  projectName: string,
+  projectDescription?: string
+): Promise<GoldenPathGenerateResponse> {
+  const params = new URLSearchParams({ project_name: projectName });
+  if (projectDescription) {
+    params.set("project_description", projectDescription);
+  }
+  return apiRequest<GoldenPathGenerateResponse>(
+    `/codegen/custom-paths/${pathId}/generate?${params.toString()}`,
+    { method: "POST" }
+  );
+}
+
+/**
+ * Validate a custom golden path definition
+ * Sprint 168 Day 3: Custom Path Builder
+ */
+export async function validateCustomPath(
+  pathId: string
+): Promise<CustomPathValidateResponse> {
+  return apiRequest<CustomPathValidateResponse>(
+    `/codegen/custom-paths/${pathId}/validate`,
+    { method: "POST" }
+  );
 }
 
 /**
@@ -4793,6 +5336,1313 @@ export async function autoGenerateCrp(
 }
 
 // =============================================================================
+// Sprint 156: Compliance Framework APIs (NIST AI RMF GOVERN)
+// =============================================================================
+
+/**
+ * Compliance Framework - represents a regulatory framework (e.g., NIST AI RMF)
+ */
+export interface ComplianceFramework {
+  id: string;
+  code: string;
+  name: string;
+  version: string;
+  description: string | null;
+  total_controls: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Compliance Control - individual control within a framework
+ */
+export interface ComplianceControl {
+  id: string;
+  framework_id: string;
+  control_code: string;
+  category: string;
+  title: string;
+  description: string | null;
+  severity: string;
+  gate_mapping: string | null;
+  evidence_required: EvidenceRequirement[];
+  opa_policy_code: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Evidence requirement for a compliance control
+ */
+export interface EvidenceRequirement {
+  type: string;
+  description: string;
+  required: boolean;
+  accepted_formats: string[];
+}
+
+/**
+ * Result of evaluating a single GOVERN policy
+ */
+export interface PolicyEvaluationResult {
+  control_code: string;
+  title: string;
+  allowed: boolean;
+  reason: string;
+  severity: string;
+  details: Record<string, unknown>;
+}
+
+/**
+ * Request body for GOVERN policy evaluation
+ */
+export interface GovernEvaluateRequest {
+  project_id: string;
+  ai_systems?: Array<{ name: string; owner: string | null; type: string }>;
+  team_training?: { total_members: number; trained_members: number; completion_pct: number };
+  legal_review?: { approved: boolean; reviewer: string; date: string };
+  third_party_apis?: Array<{ name: string; sla_documented: boolean; privacy_agreement: boolean }>;
+  incident_postmortems?: Array<{ incident_date: string; postmortem_date: string | null; process_updated: boolean }>;
+}
+
+/**
+ * Response from GOVERN policy evaluation
+ */
+export interface GovernEvaluateResponse {
+  framework_code: string;
+  project_id: string;
+  results: PolicyEvaluationResult[];
+  overall_compliance_pct: number;
+  evaluated_at: string;
+}
+
+/**
+ * GOVERN dashboard data for a project
+ */
+export interface GovernDashboardResponse {
+  framework_code: string;
+  project_id: string;
+  overall_compliance_pct: number;
+  policies: PolicyEvaluationResult[];
+  risk_summary: { low: number; medium: number; high: number; critical: number };
+  raci_coverage_pct: number;
+}
+
+/**
+ * Compliance risk entry
+ */
+export interface ComplianceRisk {
+  id: string;
+  project_id: string;
+  framework_id: string;
+  risk_code: string;
+  title: string;
+  description: string | null;
+  likelihood: string;
+  impact: string;
+  risk_score: number;
+  risk_level: string;
+  category: string;
+  mitigation_strategy: string | null;
+  responsible_id: string | null;
+  status: string;
+  target_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Request body for creating a compliance risk
+ */
+export interface RiskCreate {
+  project_id: string;
+  framework_id: string;
+  risk_code: string;
+  title: string;
+  description?: string;
+  likelihood: string;
+  impact: string;
+  category: string;
+  mitigation_strategy?: string;
+  responsible_id?: string;
+  target_date?: string;
+}
+
+/**
+ * Request body for updating a compliance risk
+ */
+export interface RiskUpdate {
+  title?: string;
+  description?: string;
+  likelihood?: string;
+  impact?: string;
+  mitigation_strategy?: string;
+  responsible_id?: string;
+  status?: string;
+  target_date?: string;
+}
+
+/**
+ * RACI matrix entry for a compliance control
+ */
+export interface ComplianceRACI {
+  id: string;
+  project_id: string;
+  control_id: string;
+  responsible_id: string | null;
+  accountable_id: string | null;
+  consulted_ids: string[];
+  informed_ids: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Request body for creating/updating a RACI entry
+ */
+export interface RACICreate {
+  project_id: string;
+  control_id: string;
+  responsible_id?: string;
+  accountable_id?: string;
+  consulted_ids?: string[];
+  informed_ids?: string[];
+}
+
+/**
+ * Paginated risk list response
+ */
+export interface RiskListResponse {
+  items: ComplianceRisk[];
+  total: number;
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}
+
+/**
+ * RACI list response
+ */
+export interface RACIListResponse {
+  items: ComplianceRACI[];
+  total: number;
+}
+
+/**
+ * List all compliance frameworks
+ * Sprint 156: GET /compliance/frameworks
+ */
+export async function getComplianceFrameworks(
+  activeOnly: boolean = true
+): Promise<{ items: ComplianceFramework[]; total: number }> {
+  return apiRequest<{ items: ComplianceFramework[]; total: number }>(
+    `/compliance/frameworks?active_only=${activeOnly}`
+  );
+}
+
+/**
+ * Get a single compliance framework by code
+ * Sprint 156: GET /compliance/frameworks/{code}
+ */
+export async function getComplianceFramework(code: string): Promise<ComplianceFramework> {
+  return apiRequest<ComplianceFramework>(`/compliance/frameworks/${code}`);
+}
+
+/**
+ * List compliance assessments for a project
+ * Sprint 156: GET /compliance/projects/{pid}/assessments
+ */
+export async function getComplianceAssessments(
+  projectId: string,
+  frameworkCode?: string,
+  status?: string
+): Promise<{ items: unknown[]; total: number }> {
+  const params = new URLSearchParams();
+  if (frameworkCode) params.append("framework_code", frameworkCode);
+  if (status) params.append("status", status);
+  const qs = params.toString();
+  return apiRequest<{ items: unknown[]; total: number }>(
+    `/compliance/projects/${projectId}/assessments${qs ? `?${qs}` : ""}`
+  );
+}
+
+/**
+ * Evaluate GOVERN policies for a project
+ * Sprint 156: POST /compliance/nist/govern/evaluate
+ */
+export async function evaluateGovern(data: GovernEvaluateRequest): Promise<GovernEvaluateResponse> {
+  return apiRequest<GovernEvaluateResponse>("/compliance/nist/govern/evaluate", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Get GOVERN compliance dashboard for a project
+ * Sprint 156: GET /compliance/nist/govern/dashboard
+ */
+export async function getGovernDashboard(projectId: string): Promise<GovernDashboardResponse> {
+  return apiRequest<GovernDashboardResponse>(
+    `/compliance/nist/govern/dashboard?project_id=${projectId}`
+  );
+}
+
+/**
+ * List compliance risks for a project
+ * Sprint 156: GET /compliance/nist/risks
+ */
+export async function getComplianceRisks(
+  projectId: string,
+  options?: { framework_id?: string; status?: string; limit?: number; offset?: number }
+): Promise<RiskListResponse> {
+  const params = new URLSearchParams({ project_id: projectId });
+  if (options?.framework_id) params.append("framework_id", options.framework_id);
+  if (options?.status) params.append("status", options.status);
+  if (options?.limit) params.append("limit", String(options.limit));
+  if (options?.offset) params.append("offset", String(options.offset));
+  return apiRequest<RiskListResponse>(`/compliance/nist/risks?${params.toString()}`);
+}
+
+/**
+ * Create a new compliance risk
+ * Sprint 156: POST /compliance/nist/risks
+ */
+export async function createComplianceRisk(data: RiskCreate): Promise<ComplianceRisk> {
+  return apiRequest<ComplianceRisk>("/compliance/nist/risks", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Update an existing compliance risk
+ * Sprint 156: PUT /compliance/nist/risks/{id}
+ */
+export async function updateComplianceRisk(riskId: string, data: RiskUpdate): Promise<ComplianceRisk> {
+  return apiRequest<ComplianceRisk>(`/compliance/nist/risks/${riskId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Get RACI matrix for a project
+ * Sprint 156: GET /compliance/nist/raci
+ */
+export async function getComplianceRaci(projectId: string): Promise<RACIListResponse> {
+  return apiRequest<RACIListResponse>(`/compliance/nist/raci?project_id=${projectId}`);
+}
+
+/**
+ * Create or update a RACI entry
+ * Sprint 156: POST /compliance/nist/raci
+ */
+export async function createComplianceRaci(data: RACICreate): Promise<ComplianceRACI> {
+  return apiRequest<ComplianceRACI>("/compliance/nist/raci", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+// =============================================================================
+// Sprint 157: NIST MAP & MEASURE Types + API Functions
+// =============================================================================
+
+/**
+ * AI System entry (MAP function context)
+ */
+export interface AISystem {
+  id: string;
+  project_id: string;
+  name: string;
+  description: string | null;
+  system_type: string;
+  risk_level: string;
+  purpose: string | null;
+  scope: string | null;
+  stakeholders: Array<{ role: string; name: string; impact_type?: string }>;
+  dependencies: Array<{ name: string; type: string; version?: string; provider?: string }>;
+  categorization: Record<string, unknown> | null;
+  owner_id: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Request body for creating an AI system
+ */
+export interface AISystemCreate {
+  project_id: string;
+  name: string;
+  description?: string;
+  system_type: string;
+  risk_level?: string;
+  purpose?: string;
+  scope?: string;
+  stakeholders?: Array<{ role: string; name: string; impact_type?: string }>;
+  dependencies?: Array<{ name: string; type: string; version?: string; provider?: string }>;
+  categorization?: Record<string, unknown>;
+  owner_id?: string;
+}
+
+/**
+ * Request body for updating an AI system
+ */
+export interface AISystemUpdate {
+  name?: string;
+  description?: string;
+  system_type?: string;
+  risk_level?: string;
+  purpose?: string;
+  scope?: string;
+  stakeholders?: Array<{ role: string; name: string; impact_type?: string }>;
+  dependencies?: Array<{ name: string; type: string; version?: string; provider?: string }>;
+  categorization?: Record<string, unknown>;
+  owner_id?: string;
+}
+
+/**
+ * Paginated AI system list
+ */
+export interface AISystemListResponse {
+  items: AISystem[];
+  total: number;
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}
+
+/**
+ * MAP evaluate request
+ */
+export interface MapEvaluateRequest {
+  project_id: string;
+}
+
+/**
+ * MAP evaluate response
+ */
+export interface MapEvaluateResponse {
+  project_id: string;
+  framework_code: string;
+  function: string;
+  overall_compliant: boolean;
+  policies_passed: number;
+  policies_total: number;
+  compliance_percentage: number;
+  results: PolicyEvaluationResult[];
+  evaluated_at: string;
+}
+
+/**
+ * MAP dashboard data
+ */
+export interface MapDashboardResponse {
+  project_id: string;
+  compliance_percentage: number;
+  policies_passed: number;
+  policies_total: number;
+  policy_results: PolicyEvaluationResult[];
+  ai_system_summary: Record<string, number>;
+  total_systems: number;
+  risk_summary: { critical: number; high: number; medium: number; low: number };
+  total_risks: number;
+}
+
+/**
+ * Risk-to-impact mapping for MAP-3.1
+ */
+export interface RiskImpactMapping {
+  risk_id: string;
+  risk_code: string;
+  title: string;
+  category: string;
+  impact_areas: string[];
+  affected_stakeholders: string[];
+  risk_score: number;
+}
+
+/**
+ * Performance metric entry (MEASURE function)
+ */
+export interface PerformanceMetric {
+  id: string;
+  project_id: string;
+  ai_system_id: string;
+  metric_type: string;
+  metric_name: string;
+  metric_value: number;
+  threshold_min: number | null;
+  threshold_max: number | null;
+  is_within_threshold: boolean;
+  unit: string | null;
+  demographic_group: string | null;
+  tags: string[];
+  measured_at: string;
+  measured_by_id: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+/**
+ * Request body for creating a metric
+ */
+export interface MetricCreate {
+  project_id: string;
+  ai_system_id: string;
+  metric_type: string;
+  metric_name: string;
+  metric_value: number;
+  threshold_min?: number;
+  threshold_max?: number;
+  unit?: string;
+  demographic_group?: string;
+  tags?: string[];
+  measured_at: string;
+  notes?: string;
+}
+
+/**
+ * Paginated metric list
+ */
+export interface MetricListResponse {
+  items: PerformanceMetric[];
+  total: number;
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}
+
+/**
+ * MEASURE evaluate request
+ */
+export interface MeasureEvaluateRequest {
+  project_id: string;
+}
+
+/**
+ * MEASURE evaluate response
+ */
+export interface MeasureEvaluateResponse {
+  project_id: string;
+  framework_code: string;
+  function: string;
+  overall_compliant: boolean;
+  policies_passed: number;
+  policies_total: number;
+  compliance_percentage: number;
+  results: PolicyEvaluationResult[];
+  evaluated_at: string;
+}
+
+/**
+ * MEASURE dashboard data
+ */
+export interface MeasureDashboardResponse {
+  project_id: string;
+  compliance_percentage: number;
+  policies_passed: number;
+  policies_total: number;
+  policy_results: PolicyEvaluationResult[];
+  total_metrics: number;
+  within_threshold: number;
+  bias_groups_count: number;
+  disparity_summary: Record<string, unknown>;
+}
+
+/**
+ * Metric trend data point
+ */
+export interface MetricTrendPoint {
+  measured_at: string;
+  metric_value: number;
+  is_within_threshold: boolean;
+}
+
+/**
+ * Metric trend response
+ */
+export interface MetricTrendResponse {
+  ai_system_id: string;
+  metric_type: string;
+  data_points: MetricTrendPoint[];
+  total_points: number;
+}
+
+/**
+ * Bias summary per demographic group
+ */
+export interface BiasGroupSummary {
+  demographic_group: string;
+  avg_score: number;
+  min_score: number;
+  max_score: number;
+  count: number;
+}
+
+/**
+ * Bias summary per AI system
+ */
+export interface BiasSystemSummary {
+  ai_system_id: string;
+  ai_system_name: string;
+  groups: BiasGroupSummary[];
+  disparity_ratio: number | null;
+  is_compliant: boolean;
+}
+
+/**
+ * Overall bias summary for a project
+ */
+export interface BiasSummaryResponse {
+  project_id: string;
+  systems: BiasSystemSummary[];
+  total_bias_metrics: number;
+  compliant_systems: number;
+  non_compliant_systems: number;
+}
+
+// --- MAP API Functions ---
+
+/**
+ * Evaluate MAP policies for a project
+ * Sprint 157: POST /compliance/nist/map/evaluate
+ */
+export async function evaluateMap(data: MapEvaluateRequest): Promise<MapEvaluateResponse> {
+  return apiRequest<MapEvaluateResponse>("/compliance/nist/map/evaluate", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Get MAP dashboard for a project
+ * Sprint 157: GET /compliance/nist/map/dashboard
+ */
+export async function getMapDashboard(projectId: string): Promise<MapDashboardResponse> {
+  return apiRequest<MapDashboardResponse>(
+    `/compliance/nist/map/dashboard?project_id=${projectId}`
+  );
+}
+
+/**
+ * List AI systems for a project
+ * Sprint 157: GET /compliance/nist/map/ai-systems
+ */
+export async function getAISystems(
+  projectId: string,
+  options?: { limit?: number; offset?: number }
+): Promise<AISystemListResponse> {
+  const params = new URLSearchParams({ project_id: projectId });
+  if (options?.limit) params.append("limit", String(options.limit));
+  if (options?.offset) params.append("offset", String(options.offset));
+  return apiRequest<AISystemListResponse>(`/compliance/nist/map/ai-systems?${params.toString()}`);
+}
+
+/**
+ * Register a new AI system
+ * Sprint 157: POST /compliance/nist/map/ai-systems
+ */
+export async function createAISystem(data: AISystemCreate): Promise<AISystem> {
+  return apiRequest<AISystem>("/compliance/nist/map/ai-systems", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Update an AI system
+ * Sprint 157: PUT /compliance/nist/map/ai-systems/{id}
+ */
+export async function updateAISystem(systemId: string, data: AISystemUpdate): Promise<AISystem> {
+  return apiRequest<AISystem>(`/compliance/nist/map/ai-systems/${systemId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Delete (soft) an AI system
+ * Sprint 157: DELETE /compliance/nist/map/ai-systems/{id}
+ */
+export async function deleteAISystem(systemId: string): Promise<void> {
+  return apiRequest<void>(`/compliance/nist/map/ai-systems/${systemId}`, {
+    method: "DELETE",
+  });
+}
+
+/**
+ * Get risk-to-impact mappings for a project
+ * Sprint 157: GET /compliance/nist/map/risk-impacts
+ */
+export async function getRiskImpacts(
+  projectId: string
+): Promise<{ items: RiskImpactMapping[]; total: number }> {
+  return apiRequest<{ items: RiskImpactMapping[]; total: number }>(
+    `/compliance/nist/map/risk-impacts?project_id=${projectId}`
+  );
+}
+
+// --- MEASURE API Functions ---
+
+/**
+ * Evaluate MEASURE policies for a project
+ * Sprint 157: POST /compliance/nist/measure/evaluate
+ */
+export async function evaluateMeasure(data: MeasureEvaluateRequest): Promise<MeasureEvaluateResponse> {
+  return apiRequest<MeasureEvaluateResponse>("/compliance/nist/measure/evaluate", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Get MEASURE dashboard for a project
+ * Sprint 157: GET /compliance/nist/measure/dashboard
+ */
+export async function getMeasureDashboard(projectId: string): Promise<MeasureDashboardResponse> {
+  return apiRequest<MeasureDashboardResponse>(
+    `/compliance/nist/measure/dashboard?project_id=${projectId}`
+  );
+}
+
+/**
+ * List performance metrics for a project
+ * Sprint 157: GET /compliance/nist/measure/metrics
+ */
+export async function getPerformanceMetrics(
+  projectId: string,
+  options?: { ai_system_id?: string; metric_type?: string; limit?: number; offset?: number }
+): Promise<MetricListResponse> {
+  const params = new URLSearchParams({ project_id: projectId });
+  if (options?.ai_system_id) params.append("ai_system_id", options.ai_system_id);
+  if (options?.metric_type) params.append("metric_type", options.metric_type);
+  if (options?.limit) params.append("limit", String(options.limit));
+  if (options?.offset) params.append("offset", String(options.offset));
+  return apiRequest<MetricListResponse>(`/compliance/nist/measure/metrics?${params.toString()}`);
+}
+
+/**
+ * Record a single metric
+ * Sprint 157: POST /compliance/nist/measure/metrics
+ */
+export async function createPerformanceMetric(data: MetricCreate): Promise<PerformanceMetric> {
+  return apiRequest<PerformanceMetric>("/compliance/nist/measure/metrics", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Record batch metrics
+ * Sprint 157: POST /compliance/nist/measure/metrics/batch
+ */
+export async function createPerformanceMetricsBatch(
+  projectId: string,
+  metrics: MetricCreate[]
+): Promise<PerformanceMetric[]> {
+  return apiRequest<PerformanceMetric[]>("/compliance/nist/measure/metrics/batch", {
+    method: "POST",
+    body: JSON.stringify({ project_id: projectId, metrics }),
+  });
+}
+
+/**
+ * Get metric trend data
+ * Sprint 157: GET /compliance/nist/measure/metrics/trend
+ */
+export async function getMetricTrend(
+  aiSystemId: string,
+  metricType: string,
+  days: number = 30
+): Promise<MetricTrendResponse> {
+  const params = new URLSearchParams({
+    ai_system_id: aiSystemId,
+    metric_type: metricType,
+    days: String(days),
+  });
+  return apiRequest<MetricTrendResponse>(`/compliance/nist/measure/metrics/trend?${params.toString()}`);
+}
+
+/**
+ * Get bias/disparity summary
+ * Sprint 157: GET /compliance/nist/measure/bias-summary
+ */
+export async function getBiasSummary(projectId: string): Promise<BiasSummaryResponse> {
+  return apiRequest<BiasSummaryResponse>(
+    `/compliance/nist/measure/bias-summary?project_id=${projectId}`
+  );
+}
+
+// =============================================================================
+// Sprint 158: NIST AI RMF MANAGE Types & API Functions
+// =============================================================================
+
+/**
+ * Risk response type enum
+ */
+export type ManageResponseType = "mitigate" | "accept" | "transfer" | "avoid";
+
+/**
+ * Risk response status enum
+ */
+export type ManageResponseStatus = "planned" | "in_progress" | "completed" | "deferred";
+
+/**
+ * Risk response priority enum
+ */
+export type ManageResponsePriority = "critical" | "high" | "medium" | "low";
+
+/**
+ * Incident severity enum
+ */
+export type ManageIncidentSeverity = "critical" | "high" | "medium" | "low";
+
+/**
+ * Incident type enum
+ */
+export type ManageIncidentType =
+  | "performance_degradation"
+  | "bias_detected"
+  | "security_breach"
+  | "availability"
+  | "data_quality"
+  | "compliance_violation";
+
+/**
+ * Incident status enum
+ */
+export type ManageIncidentStatus =
+  | "open"
+  | "investigating"
+  | "mitigating"
+  | "resolved"
+  | "closed";
+
+/**
+ * Resource allocation item
+ */
+export interface ResourceAllocation {
+  type: string;
+  description: string;
+  budget: number;
+}
+
+/**
+ * Deactivation criteria for MANAGE-2.4
+ */
+export interface DeactivationCriteria {
+  conditions: string[];
+  threshold?: number | null;
+  action: string;
+}
+
+/**
+ * Risk response record
+ */
+export interface ManageRiskResponse {
+  id: string;
+  project_id: string;
+  risk_id: string;
+  response_type: ManageResponseType;
+  description: string;
+  assigned_to: string | null;
+  priority: ManageResponsePriority;
+  status: ManageResponseStatus;
+  due_date: string | null;
+  resources_allocated: ResourceAllocation[];
+  deactivation_criteria: DeactivationCriteria | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Risk response create request
+ */
+export interface RiskResponseCreate {
+  project_id: string;
+  risk_id: string;
+  response_type: ManageResponseType;
+  description: string;
+  assigned_to?: string;
+  priority?: ManageResponsePriority;
+  due_date?: string;
+  resources_allocated?: ResourceAllocation[];
+  deactivation_criteria?: DeactivationCriteria;
+  notes?: string;
+}
+
+/**
+ * Risk response update request
+ */
+export interface RiskResponseUpdate {
+  response_type?: ManageResponseType;
+  description?: string;
+  assigned_to?: string;
+  priority?: ManageResponsePriority;
+  status?: ManageResponseStatus;
+  due_date?: string;
+  resources_allocated?: ResourceAllocation[];
+  deactivation_criteria?: DeactivationCriteria;
+  notes?: string;
+}
+
+/**
+ * Risk response list response
+ */
+export interface RiskResponseListResponse {
+  items: ManageRiskResponse[];
+  total: number;
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}
+
+/**
+ * AI incident record
+ */
+export interface ManageIncident {
+  id: string;
+  project_id: string;
+  ai_system_id: string;
+  risk_id: string | null;
+  title: string;
+  description: string | null;
+  severity: ManageIncidentSeverity;
+  incident_type: ManageIncidentType;
+  status: ManageIncidentStatus;
+  reported_by: string | null;
+  assigned_to: string | null;
+  resolution: string | null;
+  root_cause: string | null;
+  occurred_at: string;
+  resolved_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Incident create request
+ */
+export interface IncidentCreate {
+  project_id: string;
+  ai_system_id: string;
+  risk_id?: string;
+  title: string;
+  description?: string;
+  severity: ManageIncidentSeverity;
+  incident_type: ManageIncidentType;
+  reported_by?: string;
+  assigned_to?: string;
+  occurred_at: string;
+}
+
+/**
+ * Incident update request
+ */
+export interface IncidentUpdate {
+  title?: string;
+  description?: string;
+  severity?: ManageIncidentSeverity;
+  status?: ManageIncidentStatus;
+  assigned_to?: string;
+  resolution?: string;
+  root_cause?: string;
+  resolved_at?: string;
+}
+
+/**
+ * Incident list response
+ */
+export interface IncidentListResponse {
+  items: ManageIncident[];
+  total: number;
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}
+
+/**
+ * MANAGE evaluate request
+ */
+export interface ManageEvaluateRequest {
+  project_id: string;
+}
+
+/**
+ * MANAGE evaluate response
+ */
+export interface ManageEvaluateResponse {
+  project_id: string;
+  framework_code: string;
+  function: string;
+  overall_compliant: boolean;
+  policies_passed: number;
+  policies_total: number;
+  compliance_percentage: number;
+  results: PolicyEvaluationResult[];
+  evaluated_at: string;
+}
+
+/**
+ * MANAGE dashboard response
+ */
+export interface ManageDashboardResponse {
+  project_id: string;
+  compliance_percentage: number;
+  policies_passed: number;
+  policies_total: number;
+  policy_results: PolicyEvaluationResult[];
+  total_risk_responses: number;
+  completed_responses: number;
+  total_incidents: number;
+  open_incidents: number;
+  critical_incidents: number;
+  has_deactivation_criteria: boolean;
+}
+
+/**
+ * Evaluate MANAGE policies
+ * Sprint 158: POST /compliance/nist/manage/evaluate
+ */
+export async function evaluateManage(
+  projectId: string
+): Promise<ManageEvaluateResponse> {
+  return apiRequest<ManageEvaluateResponse>("/compliance/nist/manage/evaluate", {
+    method: "POST",
+    body: JSON.stringify({ project_id: projectId }),
+  });
+}
+
+/**
+ * Get MANAGE dashboard
+ * Sprint 158: GET /compliance/nist/manage/dashboard
+ */
+export async function getManageDashboard(
+  projectId: string
+): Promise<ManageDashboardResponse> {
+  return apiRequest<ManageDashboardResponse>(
+    `/compliance/nist/manage/dashboard?project_id=${projectId}`
+  );
+}
+
+/**
+ * List risk responses
+ * Sprint 158: GET /compliance/nist/manage/risk-responses
+ */
+export async function getRiskResponses(
+  projectId: string,
+  options?: { status?: string; limit?: number; offset?: number }
+): Promise<RiskResponseListResponse> {
+  const params = new URLSearchParams({ project_id: projectId });
+  if (options?.status) params.set("status", options.status);
+  if (options?.limit) params.set("limit", String(options.limit));
+  if (options?.offset) params.set("offset", String(options.offset));
+  return apiRequest<RiskResponseListResponse>(
+    `/compliance/nist/manage/risk-responses?${params.toString()}`
+  );
+}
+
+/**
+ * Create risk response
+ * Sprint 158: POST /compliance/nist/manage/risk-responses
+ */
+export async function createRiskResponse(
+  data: RiskResponseCreate
+): Promise<ManageRiskResponse> {
+  return apiRequest<ManageRiskResponse>("/compliance/nist/manage/risk-responses", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Update risk response
+ * Sprint 158: PUT /compliance/nist/manage/risk-responses/{id}
+ */
+export async function updateRiskResponse(
+  responseId: string,
+  data: RiskResponseUpdate
+): Promise<ManageRiskResponse> {
+  return apiRequest<ManageRiskResponse>(
+    `/compliance/nist/manage/risk-responses/${responseId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }
+  );
+}
+
+/**
+ * List incidents
+ * Sprint 158: GET /compliance/nist/manage/incidents
+ */
+export async function getIncidents(
+  projectId: string,
+  options?: { ai_system_id?: string; status?: string; limit?: number; offset?: number }
+): Promise<IncidentListResponse> {
+  const params = new URLSearchParams({ project_id: projectId });
+  if (options?.ai_system_id) params.set("ai_system_id", options.ai_system_id);
+  if (options?.status) params.set("status", options.status);
+  if (options?.limit) params.set("limit", String(options.limit));
+  if (options?.offset) params.set("offset", String(options.offset));
+  return apiRequest<IncidentListResponse>(
+    `/compliance/nist/manage/incidents?${params.toString()}`
+  );
+}
+
+/**
+ * Create incident
+ * Sprint 158: POST /compliance/nist/manage/incidents
+ */
+export async function createIncident(
+  data: IncidentCreate
+): Promise<ManageIncident> {
+  return apiRequest<ManageIncident>("/compliance/nist/manage/incidents", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Update incident
+ * Sprint 158: PUT /compliance/nist/manage/incidents/{id}
+ */
+export async function updateIncident(
+  incidentId: string,
+  data: IncidentUpdate
+): Promise<ManageIncident> {
+  return apiRequest<ManageIncident>(
+    `/compliance/nist/manage/incidents/${incidentId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }
+  );
+}
+
+// =============================================================================
+// Sprint 160: EU AI Act Classification Types
+// =============================================================================
+
+/**
+ * EU AI Act Risk Levels (Art.5-6)
+ */
+export type EUAIActRiskLevel = "prohibited" | "high_risk" | "limited_risk" | "minimal_risk";
+
+/**
+ * EU AI Act Control Categories
+ */
+export type EUAIActCategory = "CLASSIFICATION" | "HIGH_RISK" | "TRANSPARENCY" | "LIMITED_RISK" | "POST_MARKET";
+
+/**
+ * Classification input for EU AI Act assessment
+ */
+export interface ClassificationInput {
+  prohibited_practices: string[];
+  annex_iii_categories: string[];
+  user_interaction: boolean;
+}
+
+/**
+ * Classification response with risk level and controls
+ */
+export interface ClassificationResponse {
+  project_id: string;
+  risk_level: EUAIActRiskLevel;
+  classification_reason: string;
+  classified_at: string;
+  classified_by: string;
+  applicable_controls: number;
+  controls: EUAIActControlSummary[];
+  next_steps: string[];
+}
+
+/**
+ * EU AI Act control summary
+ */
+export interface EUAIActControlSummary {
+  control_code: string;
+  title: string;
+  category: EUAIActCategory;
+  severity: string;
+  gate_mapping: string;
+}
+
+/**
+ * Full control detail
+ */
+export interface EUAIActControlDetail {
+  id: string;
+  control_code: string;
+  category: EUAIActCategory;
+  title: string;
+  description: string;
+  severity: string;
+  gate_mapping: string;
+  evidence_required: string[];
+  opa_policy_code: string | null;
+  sort_order: number;
+}
+
+/**
+ * Control list response
+ */
+export interface ControlListResponse {
+  framework_code: string;
+  framework_name: string;
+  total_controls: number;
+  controls: EUAIActControlDetail[];
+}
+
+/**
+ * Assessment input
+ */
+export interface AssessmentInput {
+  status: string;
+  evidence_ids: string[];
+  notes: string;
+}
+
+/**
+ * Assessment response
+ */
+export interface AssessmentResponse {
+  assessment_id: string;
+  project_id: string;
+  control_code: string;
+  control_title: string;
+  status: string;
+  evidence_ids: string[];
+  notes: string;
+  assessor_id: string;
+  assessed_at: string | null;
+  auto_evaluated: boolean;
+  opa_result: Record<string, unknown> | null;
+}
+
+/**
+ * Statistics for conformity report
+ */
+export interface ConformityStatistics {
+  total_controls: number;
+  compliant: number;
+  non_compliant: number;
+  in_progress: number;
+  not_started: number;
+  not_applicable: number;
+}
+
+/**
+ * Category assessment detail
+ */
+export interface CategoryAssessment {
+  control_code: string;
+  title: string;
+  status: string;
+  severity: string;
+  gate_mapping: string;
+  assessed_at: string | null;
+  notes: string | null;
+}
+
+/**
+ * Conformity report response
+ */
+export interface ConformityReportResponse {
+  project_id: string;
+  project_name: string;
+  framework: {
+    code: string;
+    name: string;
+    version: string;
+  };
+  classification: {
+    risk_level: EUAIActRiskLevel;
+    classified_at: string | null;
+    classified_by: string | null;
+  };
+  conformity_status: "conformant" | "non_conformant" | "in_progress";
+  compliance_percentage: number;
+  statistics: ConformityStatistics;
+  assessments_by_category: Record<string, CategoryAssessment[]>;
+  generated_at: string;
+  next_steps: string[];
+}
+
+// =============================================================================
+// Sprint 160: EU AI Act API Functions
+// =============================================================================
+
+/**
+ * Classify project for EU AI Act risk level
+ * Sprint 160: POST /eu-ai-act/projects/{project_id}/classify
+ */
+export async function classifyProjectEUAIAct(
+  projectId: string,
+  data: ClassificationInput
+): Promise<ClassificationResponse> {
+  return apiRequest<ClassificationResponse>(
+    `/eu-ai-act/projects/${projectId}/classify`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    }
+  );
+}
+
+/**
+ * Get EU AI Act controls
+ * Sprint 160: GET /eu-ai-act/controls
+ */
+export async function getEUAIActControls(options?: {
+  risk_level?: EUAIActRiskLevel;
+  category?: EUAIActCategory;
+}): Promise<ControlListResponse> {
+  const params = new URLSearchParams();
+  if (options?.risk_level) params.append("risk_level", options.risk_level);
+  if (options?.category) params.append("category", options.category);
+  const queryString = params.toString();
+  return apiRequest<ControlListResponse>(
+    `/eu-ai-act/controls${queryString ? `?${queryString}` : ""}`
+  );
+}
+
+/**
+ * Assess single EU AI Act control
+ * Sprint 160: POST /eu-ai-act/projects/{project_id}/assess/{control_code}
+ */
+export async function assessEUAIActControl(
+  projectId: string,
+  controlCode: string,
+  data: AssessmentInput
+): Promise<AssessmentResponse> {
+  return apiRequest<AssessmentResponse>(
+    `/eu-ai-act/projects/${projectId}/assess/${controlCode}`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    }
+  );
+}
+
+/**
+ * Generate EU AI Act conformity report
+ * Sprint 160: GET /eu-ai-act/projects/{project_id}/report
+ */
+export async function getEUAIActConformityReport(
+  projectId: string
+): Promise<ConformityReportResponse> {
+  return apiRequest<ConformityReportResponse>(
+    `/eu-ai-act/projects/${projectId}/report`
+  );
+}
+
+// =============================================================================
 // Sprint 136: Axios-style API object for backwards compatibility with hooks
 // Hooks like useGitHub and useInvitations use api.get/post/delete syntax
 // =============================================================================
@@ -4863,3 +6713,153 @@ export const api = {
     return { data };
   },
 };
+
+
+// =====================================================================
+// TIER APPROVAL API (Sprint 163)
+// =====================================================================
+
+import type {
+  FunctionRoleAssignment,
+  FunctionRoleAssignRequest,
+  ApprovalChainMetadata,
+  RecordDecisionRequest as DecisionInput,
+  RecordDecisionResponse,
+  ApprovalStatus,
+  CanApproveResult,
+  Delegation,
+  DelegationCreateRequest,
+} from "@/lib/types/approval";
+
+/** Assign a functional role to a user in a project. */
+export async function assignFunctionRole(
+  projectId: string,
+  data: FunctionRoleAssignRequest,
+): Promise<FunctionRoleAssignment> {
+  return apiRequest<FunctionRoleAssignment>(
+    `/tier-approval/projects/${projectId}/function-roles`,
+    { method: "POST", body: JSON.stringify(data) },
+  );
+}
+
+/** List all functional role assignments for a project. */
+export async function getProjectFunctionRoles(
+  projectId: string,
+): Promise<FunctionRoleAssignment[]> {
+  return apiRequest<FunctionRoleAssignment[]>(
+    `/tier-approval/projects/${projectId}/function-roles`,
+  );
+}
+
+/** Request approval for a gate (creates approval chain). */
+export async function requestGateApproval(
+  gateId: string,
+): Promise<ApprovalChainMetadata> {
+  return apiRequest<ApprovalChainMetadata>(
+    `/tier-approval/gates/${gateId}/request-approval`,
+    { method: "POST" },
+  );
+}
+
+/** Record an approval/rejection decision. */
+export async function recordDecision(
+  decisionId: string,
+  data: Omit<DecisionInput, "decision_id">,
+): Promise<RecordDecisionResponse> {
+  return apiRequest<RecordDecisionResponse>(
+    `/tier-approval/decisions/${decisionId}/decide`,
+    {
+      method: "POST",
+      body: JSON.stringify({ ...data, decision_id: decisionId }),
+    },
+  );
+}
+
+/** Get approval chain status for a gate. */
+export async function getGateApprovalStatus(
+  gateId: string,
+): Promise<ApprovalStatus> {
+  return apiRequest<ApprovalStatus>(
+    `/tier-approval/gates/${gateId}/status`,
+  );
+}
+
+/** Check if current user can approve a gate. */
+export async function checkCanApprove(
+  gateId: string,
+): Promise<CanApproveResult> {
+  return apiRequest<CanApproveResult>(
+    `/tier-approval/gates/${gateId}/can-approve`,
+  );
+}
+
+/** Create a temporary approval delegation. */
+export async function createDelegation(
+  projectId: string,
+  data: DelegationCreateRequest,
+): Promise<Delegation> {
+  return apiRequest<Delegation>(
+    `/tier-approval/projects/${projectId}/delegations`,
+    { method: "POST", body: JSON.stringify(data) },
+  );
+}
+
+/** List delegations for a project (active by default). */
+export async function getProjectDelegations(
+  projectId: string,
+  activeOnly: boolean = true,
+): Promise<Delegation[]> {
+  const params = activeOnly ? "?active_only=true" : "?active_only=false";
+  return apiRequest<Delegation[]>(
+    `/tier-approval/projects/${projectId}/delegations${params}`,
+  );
+}
+
+// =============================================================================
+// API Keys (Sprint 169 Day 4 - SDK Integration)
+// =============================================================================
+
+/** API key (masked - actual key never returned after creation). */
+export interface ApiKeyResponse {
+  id: string;
+  name: string;
+  prefix: string;
+  last_used_at: string | null;
+  expires_at: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+/** API key created response (includes full key - shown ONCE). */
+export interface ApiKeyCreatedResponse {
+  id: string;
+  name: string;
+  api_key: string;
+  prefix: string;
+  expires_at: string | null;
+  created_at: string;
+}
+
+/** Request to create an API key. */
+export interface ApiKeyCreateRequest {
+  name: string;
+  expires_in_days?: number | null;
+}
+
+/** List user's API keys (masked). */
+export async function getApiKeys(): Promise<ApiKeyResponse[]> {
+  return apiRequest<ApiKeyResponse[]>("/api-keys");
+}
+
+/** Create a new API key (returns full key ONCE). */
+export async function createApiKey(data: ApiKeyCreateRequest): Promise<ApiKeyCreatedResponse> {
+  return apiRequest<ApiKeyCreatedResponse>("/api-keys", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/** Revoke (delete) an API key. */
+export async function revokeApiKey(keyId: string): Promise<void> {
+  return apiRequest<void>(`/api-keys/${keyId}`, { method: "DELETE" });
+}

@@ -384,8 +384,8 @@ services:
       MINIO_ROOT_USER: test_user
       MINIO_ROOT_PASSWORD: test_password_12345
     ports:
-      - "9001:9000"
-      - "9002:9001"
+      - "9050:9000"  # Test S3 API (avoid conflict with staging 9020)
+      - "9051:9001"  # Test Console (avoid conflict with staging 9021)
     volumes:
       - minio-test-data:/data
     healthcheck:

@@ -27,15 +27,15 @@ This document defines comprehensive End-to-End (E2E) test scenarios for SDLC Orc
 
 ### 1.2 Test Environment
 
-| Component | Dev URL | Production URL (Local Test) | Port |
-|-----------|---------|------------------------------|------|
-| Frontend | http://localhost:3000 | http://localhost:8310 | 3000/8310 |
-| Backend API | http://localhost:8000 | http://localhost:8300 | 8000/8300 |
-| API Docs | http://localhost:8000/api/docs | http://localhost:8300/api/docs | - |
-| MinIO Console | http://localhost:9001 | http://localhost:9011 | 9001/9011 |
-| OPA | http://localhost:8181 | http://localhost:8185 | 8181/8185 |
-| PostgreSQL | localhost:5432 | localhost:5450 | 5432/5450 |
-| Redis | localhost:6379 | localhost:6395 | 6379/6395 |
+| Component | Dev URL | Staging URL (Local Test) | Port |
+|-----------|---------|--------------------------|------|
+| Frontend | http://localhost:3000 | http://localhost:8312 | 3000/8312 |
+| Backend API | http://localhost:8000 | http://localhost:8002 | 8000/8002 |
+| API Docs | http://localhost:8000/api/docs | http://localhost:8002/api/docs | - |
+| MinIO Console | http://localhost:9051 | http://localhost:9021 | 9051/9021 |
+| OPA | http://localhost:8181 | http://localhost:8183 | 8181/8183 |
+| PostgreSQL | localhost:5432 | localhost:5436 | 5432/5436 |
+| Redis | localhost:6379 | localhost:6384 | 6379/6384 |
 
 ### 1.3 Test Accounts
 
