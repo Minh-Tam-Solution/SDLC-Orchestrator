@@ -43,12 +43,14 @@ def lite_tier_project(project_structure):
             f"This stage covers important aspects of the project lifecycle. "
             f"Please refer to the documents in this folder for more details."
         )
-        # Create 99-Legacy with AI directive
-        legacy = stage_path / "99-Legacy"
-        legacy.mkdir()
-        (legacy / "README.md").write_text(
-            "# Legacy Content\n\n**AI Directive**: DO NOT READ this folder.\n"
-        )
+    # Create centralized 10-archive with stage-aligned Legacy (RFC-001, SDLC 6.0.5)
+    archive_path = docs_root / "10-archive"
+    archive_path.mkdir(exist_ok=True)
+    (archive_path / "README.md").write_text(
+        "# 10-Archive\n\n```yaml\ndirective: AI-NEVER-READ\n```\n"
+    )
+    for stage_id in ["00", "01", "02", "03"]:
+        (archive_path / f"{stage_id}-Legacy").mkdir(exist_ok=True)
 
     return project_structure
 
@@ -70,11 +72,14 @@ def standard_tier_project(project_structure):
             f"Documentation for stage {stage_id}. "
             f"This stage covers important aspects of the project lifecycle."
         )
-        legacy = stage_path / "99-Legacy"
-        legacy.mkdir()
-        (legacy / "README.md").write_text(
-            "# Legacy Content\n\n**AI Directive**: DO NOT READ this folder.\n"
-        )
+    # Create centralized 10-archive with stage-aligned Legacy (RFC-001, SDLC 6.0.5)
+    archive_path = docs_root / "10-archive"
+    archive_path.mkdir(exist_ok=True)
+    (archive_path / "README.md").write_text(
+        "# 10-Archive\n\n```yaml\ndirective: AI-NEVER-READ\n```\n"
+    )
+    for stage_id in ["00", "01", "02", "03", "04", "05"]:
+        (archive_path / f"{stage_id}-Legacy").mkdir(exist_ok=True)
 
     return project_structure
 
@@ -97,11 +102,14 @@ def professional_tier_project(project_structure):
             f"This stage covers important aspects of the project lifecycle. "
             f"Please refer to the documents in this folder for more details."
         )
-        legacy = stage_path / "99-Legacy"
-        legacy.mkdir()
-        (legacy / "README.md").write_text(
-            "# Legacy Content\n\n**AI Directive**: DO NOT READ this folder.\n"
-        )
+    # Create centralized 10-archive with stage-aligned Legacy (RFC-001, SDLC 6.0.5)
+    archive_path = docs_root / "10-archive"
+    archive_path.mkdir(exist_ok=True)
+    (archive_path / "README.md").write_text(
+        "# 10-Archive\n\n```yaml\ndirective: AI-NEVER-READ\n```\n"
+    )
+    for stage_id in ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09"]:
+        (archive_path / f"{stage_id}-Legacy").mkdir(exist_ok=True)
 
     # Create additional P0 artifacts for PROFESSIONAL tier
     # Vision document

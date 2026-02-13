@@ -64,8 +64,8 @@ This stage transforms architecture (Stage 02 - HOW) into working code with:
 ├── 12-Pull-Requests/            # PR templates and guidelines
 ├── 13-Test-Reports/             # Test execution reports
 ├── 14-AI-Detection/             # AI code detection tools
-├── 15-Handover/                 # Knowledge transfer docs
-└── 99-Legacy/                   # Archived documents
+└── 15-Handover/                 # Knowledge transfer docs
+# Note: Legacy content migrated to docs/10-archive/04-Legacy/ per RFC-001
 ```
 
 **Note**: Sprint implementation logs (SPRINT-XX-DAY-X-COMPLETE.md) are now located in

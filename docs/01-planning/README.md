@@ -128,9 +128,8 @@ Stage 01 documents were updated to support Sprint 48 implementation of Codegen Q
 │   ├── AGPL-Containment-Legal-Brief.md     # Legal opinion
 │   ├── Legal-Review-Report.md              # External counsel report
 │   └── License-Audit-Report.md             # License scan results
-├── 99-Legacy/
-│   └── [Old drafts and superseded docs]
 └── STAGE-01-PROGRESS-REPORT.md             # Progress tracking
+# Note: Legacy content migrated to docs/10-archive/01-Legacy/ per RFC-001
 ```
 
 ---

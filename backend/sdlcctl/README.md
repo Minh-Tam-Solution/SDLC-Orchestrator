@@ -1292,19 +1292,16 @@ project/
 │   │   ├── 02-Business-Case/
 │   │   ├── 03-Design-Thinking/
 │   │   ├── 04-Roadmap/
-│   │   └── 99-Legacy/                      # AI: DO NOT READ
 │   ├── 01-Planning-Analysis/
 │   │   ├── README.md
 │   │   ├── 01-Requirements/
-│   │   ├── 02-User-Stories/
-│   │   └── 99-Legacy/
+│   │   └── 02-User-Stories/
 │   ├── 02-Design-Architecture/
 │   │   ├── README.md
 │   │   ├── 01-System-Architecture/
 │   │   ├── 02-Data-Model/
 │   │   ├── 03-API-Design/
-│   │   ├── 04-ADRs/
-│   │   └── 99-Legacy/
+│   │   └── 04-ADRs/
 │   ├── 03-Development-Implementation/
 │   ├── 04-Testing-QA/
 │   ├── 05-Deployment-Release/
@@ -1312,21 +1309,23 @@ project/
 │   ├── 07-Integration-External/
 │   ├── 08-Collaboration-Team/
 │   ├── 09-Executive-Reports/
-│   └── 10-Archive-Lessons/                 # ENTERPRISE only
+│   └── 10-archive/                          # Centralized legacy archive (RFC-001)
+│       ├── README.md                        # AI-NEVER-READ directive
+│       ├── 00-Legacy/                       # From 00-Project-Foundation
+│       ├── 01-Legacy/                       # From 01-Planning-Analysis
+│       ├── 02-Legacy/                       # From 02-Design-Architecture
+│       └── ...                              # {NN}-Legacy per stage
 └── src/
 ```
 
-### 99-Legacy Folders
+### Centralized Archive (RFC-001, SDLC 6.0.5)
 
-Each stage includes a `99-Legacy/` folder for archived content:
+All legacy content is centralized in `10-archive/{NN}-Legacy/` folders:
 
-```markdown
-# Legacy Content
-
-**AI Directive**: DO NOT READ this folder.
-
-This folder contains archived, outdated content.
-Move deprecated documents here instead of deleting them.
+```yaml
+directive: AI-NEVER-READ
+reason: Contains outdated, superseded, or historical content
+standard: RFC-001 Legacy Document Organization (SDLC 6.0.5 MANDATORY)
 ```
 
 ---

@@ -24,7 +24,7 @@ PHASE-04 implements the **SDLC Structure Validator** - a CLI tool and CI/CD gate
 | Stage 08 | Team-Management | Team-Management + Collaboration Standards |
 | Industry Standards | None | ISO/IEC, CMMI, SAFe, DORA, SRE, ITIL |
 | P0 Artifacts | N/A | 15 AI-discoverability artifacts |
-| Legacy Handling | Manual | 99-Legacy with AI-NEVER-READ directive |
+| Legacy Handling | Manual | 10-archive/{NN}-Legacy with AI-NEVER-READ directive |
 
 **Key Deliverables**:
 1. SDLC Validator CLI (`sdlcctl validate`)
@@ -124,9 +124,9 @@ P0_Artifacts:
   Stage:
     - Stage README.md (each stage)
 
-# Legacy Handling (SDLC 5.1.3)
+# Legacy Handling (SDLC 6.0.3 - RFC-001)
 Legacy:
-  Location: 99-Legacy/
+  Location: docs/10-archive/{NN}-Legacy/
   Directive: AI-NEVER-READ
   Purpose: Historical reference only, not for active development
 ```
@@ -191,7 +191,7 @@ Legacy:
     "max_depth": 3,
     "require_readme": true,
     "require_p0_artifacts": true,
-    "legacy_handling": "99-Legacy"
+    "legacy_handling": "10-archive"
   },
   "p0_artifacts": {
     "framework": ["SDLC-Executive-Summary.md", "SDLC-Core-Methodology.md", "README.md", "CHANGELOG.md"],
@@ -208,7 +208,7 @@ Legacy:
     "**/node_modules/**",
     "**/.git/**",
     "**/dist/**",
-    "**/99-Legacy/**"
+    "**/10-archive/**"
   ],
   "custom_stages": {}
 }
@@ -320,7 +320,7 @@ P0 Artifacts: 15/15 ✅
   ✅ openapi.yml
   ✅ Stage READMEs (10/10)
 
-Legacy: 99-Legacy/ (Excluded - AI-NEVER-READ directive)
+Legacy: docs/10-archive/ (Excluded - AI-NEVER-READ directive)
 
 Total: 129 files validated
 Time: 1.2s

@@ -93,9 +93,7 @@ Escalation: CTO for P1 incidents
 
 ## Archive
 
-| Folder | Purpose |
-|--------|---------|
-| [99-Legacy/](99-Legacy/) | Archived ops docs |
+Legacy ops docs migrated to `docs/10-archive/07-Legacy/` per RFC-001.
 
 ---
 

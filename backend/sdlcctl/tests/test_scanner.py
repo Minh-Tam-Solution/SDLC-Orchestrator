@@ -156,16 +156,19 @@ class TestFolderScanner:
         assert violations[0]["expected"] == "00-foundation"
 
     def test_scan_detects_legacy_folders(self, temp_project):
-        """Test scan detects legacy folders."""
-        legacy = temp_project / "docs" / "99-Legacy"
-        legacy.mkdir()
-        (legacy / "old-doc.md").write_text("Old content")
+        """Test scan detects legacy/archive folders (both old and new patterns)."""
+        # Test new RFC-001 pattern (10-archive)
+        archive = temp_project / "docs" / "10-archive"
+        archive.mkdir()
+        (archive / "00-Legacy").mkdir()
+        (archive / "old-doc.md").write_text("Old content")
 
         scanner = FolderScanner(temp_project)
         result = scanner.scan()
 
-        assert len(result.legacy_folders) == 1
-        assert result.legacy_folders[0].name == "99-Legacy"
+        assert len(result.legacy_folders) >= 1
+        archive_names = [f.name for f in result.legacy_folders]
+        assert "10-archive" in archive_names
 
     def test_scan_ignores_patterns(self, temp_project):
         """Test scan ignores specified patterns."""

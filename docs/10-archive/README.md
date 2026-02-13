@@ -1,20 +1,22 @@
-# Stage 10: Archive (GOVERN - Historical Reference)
+# Stage 10: Archive (Centralized Legacy Archive)
 
-**Version**: 5.0.0
+**Version**: 6.0.5
 **Stage**: 10 - Archive
 **Question Answered**: What is the historical record?
 **Status**: REFERENCE ONLY
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.0.5 (RFC-001: Legacy Document Organization Standard)
 
 ---
 
 ## Purpose
 
-This folder contains **archived and historical documents** that are no longer actively used but preserved for:
-- Historical reference
-- Audit compliance
+This folder is the **single centralized archive** for all legacy and historical documents, organized by stage-aligned subdirectories per RFC-001 (SDLC 6.0.5 MANDATORY standard).
+
+Benefits:
+- Historical reference and audit compliance
 - Learning from past decisions
 - Legal requirements
+- **Zero `99-Legacy/` in active stages (00-09)** — eliminates AI context pollution
 
 ---
 
@@ -35,36 +37,49 @@ exception: User explicitly requests historical information
 ## Folder Structure
 
 ```
-10-Archive/
-├── README.md                    # This file (P0 entry point with AI-NEVER-READ)
-├── 01-Sprint-Reports/           # Historical sprint reports
-├── 02-Daily-Reports/            # Archived daily reports
-├── 03-Progress-Updates/         # Old progress updates
-├── 04-Historical-Documents/     # Legacy documents
-└── llm-council/                 # Archived LLM council experiments
+10-archive/
+├── README.md                                # This file (AI-NEVER-READ directive)
+│
+├── 00-Legacy/                               # Foundation archives (from 00-foundation)
+├── 01-Legacy/                               # Planning archives (from 01-planning)
+├── 02-Legacy/                               # Design archives (from 02-design)
+├── 03-Legacy/                               # Integration archives (from 03-integrate)
+├── 04-Legacy/                               # Build archives (from 04-build)
+├── 05-Legacy/                               # Test archives (from 05-test)
+├── 07-Legacy/                               # Operations archives (from 07-operate)
+├── 08-Legacy/                               # Collaboration archives (from 08-collaborate)
+├── 09-Legacy/                               # Governance archives (from 09-govern)
+│
+├── 04-Historical-Documents/                 # Pre-existing historical documents
+├── OpenCode-Evaluation-Aborted-Jan12-2026/  # Archived evaluation
+├── Root-Cleanup-Feb-2026/                   # Root cleanup records
+└── Temp-Debug-Docs/                         # Temporary debug documentation
 ```
 
 ---
 
-## Archive vs 99-Legacy
+## Archive Pattern (RFC-001)
 
-| Folder | Location | Purpose |
-|--------|----------|---------|
-| `10-Archive/` | Top-level stage folder | Project-wide historical archive |
-| `99-Legacy/` | Within each stage folder | Stage-specific archived content |
+**MANDATORY (SDLC 6.0.5)**: All legacy content lives in `10-archive/{NN}-Legacy/` where `{NN}` is the stage number.
 
-### When to Use
+```
+Stage 00 legacy → 10-archive/00-Legacy/
+Stage 01 legacy → 10-archive/01-Legacy/
+Stage 02 legacy → 10-archive/02-Legacy/
+...
+Stage 09 legacy → 10-archive/09-Legacy/
+```
 
-**10-Archive/**:
-- Cross-stage historical documents
-- Completed sprint reports
-- Superseded project-wide decisions
-- Historical experiments (e.g., llm-council)
+### Rules
 
-**99-Legacy/**:
-- Stage-specific archived content
-- Superseded designs (in 02-Design-Architecture/99-Legacy/)
-- Old requirements (in 01-Planning-Analysis/99-Legacy/)
+| # | Rule | Level |
+|---|------|-------|
+| R-001 | Zero `99-Legacy/` folders in active stages (00-09) | MANDATORY |
+| R-002 | All legacy content in `10-archive/{NN}-Legacy/` | MANDATORY |
+| R-003 | `README.md` with `AI-NEVER-READ` directive in archive root | MANDATORY |
+| R-004 | Preserve original directory structure inside `{NN}-Legacy/` | MANDATORY |
+| R-005 | Use `cp -r` + verify + `rm -rf` for migration (never `mv`) | RECOMMENDED |
+| R-006 | Add migration timestamp to archived README files | RECOMMENDED |
 
 ---
 
@@ -74,7 +89,7 @@ exception: User explicitly requests historical information
 
 ```yaml
 Rule: Never delete project documentation
-Instead: Move to 10-Archive/ or stage-specific 99-Legacy/
+Instead: Move to 10-archive/{NN}-Legacy/ (stage-aligned)
 Reason: Historical reference, audit trail, learning
 ```
 
@@ -103,29 +118,26 @@ Decision: Keep for audit / Delete if no value
 
 ---
 
-## Current Archive Contents
+## Migration Evidence
 
-### llm-council/ (Experimental)
+Migrated from `99-Legacy/` per-stage to centralized `10-archive/{NN}-Legacy/` on February 13, 2026.
 
-Historical LLM council experiments. Superseded by:
-- AI Council Service (Sprint 26)
-- Web Dashboard AI (Sprint 28)
-
-Status: **ARCHIVED** - Do not reference for new development
-
-### Sprint Reports
-
-Historical sprint reports before standardization. Current reports are in:
-- `docs/03-Development-Implementation/02-Sprint-Plans/`
-- `docs/09-Executive-Reports/01-CTO-Reports/`
+| Source | Destination | Files |
+|--------|-------------|-------|
+| `00-foundation/99-Legacy/` | `10-archive/00-Legacy/` | 12 |
+| `01-planning/99-Legacy/` | `10-archive/01-Legacy/` | 1 |
+| `02-design/99-Legacy/` | `10-archive/02-Legacy/` | 4 |
+| `03-integrate/99-Legacy/` | `10-archive/03-Legacy/` | 1 |
+| `04-build/99-Legacy/` | `10-archive/04-Legacy/` | 123 |
+| `05-test/99-Legacy/` | `10-archive/05-Legacy/` | 1 |
+| `07-operate/99-Legacy/` | `10-archive/07-Legacy/` | 1 |
+| `08-collaborate/99-Legacy/` | `10-archive/08-Legacy/` | 1 |
+| `09-govern/99-Legacy/` | `10-archive/09-Legacy/` | 86 |
+| **Total** | | **230** |
 
 ---
 
-## SDLC 5.1.3 Compliance
-
-This stage maps to **Stage 10: Archive** in SDLC 5.1.3.
-
-### Tier Requirements
+## Tier Requirements (SDLC 6.0.5)
 
 | Tier | Archive Requirements |
 |------|---------------------|
@@ -154,18 +166,17 @@ DO:
 
 ---
 
-## Related Folders
+## Related Documents
 
-| Folder | Purpose | Read Status |
-|--------|---------|-------------|
-| [09-Executive-Reports/](../09-Executive-Reports/) | Current governance | Active |
-| [03-Development-Implementation/](../03-Development-Implementation/) | Current sprint work | Active |
-| This folder | Historical archive | AI-NEVER-READ |
+| Document | Purpose |
+|----------|---------|
+| RFC-001 (Framework) | Legacy Document Organization Standard |
+| SDLC-Legacy-Document-Organization.md (Framework) | RFC-001 rules and migration guide |
+| migrate-legacy-to-archive.sh (Framework) | Automated migration script |
 
 ---
 
 **Document Status**: P0 Entry Point (AI-NEVER-READ Directive)
-**Compliance**: SDLC 5.1.3 Stage 10
-**Last Updated**: December 5, 2025
+**Compliance**: SDLC 6.0.5 (RFC-001 MANDATORY)
+**Last Updated**: February 13, 2026
 **Owner**: PM + CTO
-

@@ -350,7 +350,7 @@ class SDLCValidator:
     def _validate_legacy_folders(
         self, scan_result: ScanResult
     ) -> List[ValidationIssue]:
-        """Validate 99-Legacy folder handling."""
+        """Validate legacy/archive folder handling (RFC-001, SDLC 6.0.5)."""
         issues: List[ValidationIssue] = []
 
         for legacy_path in scan_result.legacy_folders:
@@ -387,17 +387,25 @@ class SDLCValidator:
                     )
                 )
 
-        # Check for legacy folders inside stages
+        # RFC-001 (SDLC 6.0.5): Check for 99-Legacy in active stages — should be migrated
         for stage_id, stage_info in scan_result.stages_found.items():
             stage_legacy = stage_info.path / "99-Legacy"
-            if stage_legacy.exists() and stage_legacy not in scan_result.legacy_folders:
+            if stage_legacy.exists():
                 issues.append(
                     ValidationIssue(
-                        code="SDLC-009",
-                        severity=ValidationSeverity.INFO,
-                        message=f"Stage {stage_id} has local legacy folder",
+                        code="SDLC-010",
+                        severity=ValidationSeverity.WARNING,
+                        message=(
+                            f"Stage {stage_id} has 99-Legacy/ folder. "
+                            "Per RFC-001 (SDLC 6.0.5), migrate to 10-archive/"
+                            f"{stage_id}-Legacy/"
+                        ),
                         stage_id=stage_id,
                         path=str(stage_legacy),
+                        fix_suggestion=(
+                            f"Run: cp -r {stage_legacy} docs/10-archive/"
+                            f"{stage_id}-Legacy/ && rm -rf {stage_legacy}"
+                        ),
                     )
                 )
 

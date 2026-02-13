@@ -84,8 +84,7 @@ This stage manages API design, third-party integrations, and system interoperabi
 │   ├── evidence-state-machine.md      # 8-state evidence lifecycle
 │   ├── quality-gates-pipeline.md      # 4-Gate validation pipeline
 │   └── vcr-workflow.md                # Version Control Review workflow
-└── 99-Legacy/
-    └── SPRINT-145-API-ADDITIONS.md    # Sprint-specific API docs (archived)
+└── (Legacy content migrated to docs/10-archive/03-Legacy/ per RFC-001)
 ```
 
 ---

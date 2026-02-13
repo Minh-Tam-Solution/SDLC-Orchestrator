@@ -363,7 +363,7 @@ Orchestrator implementation: **AGENTS.md + CRP/MRP/VCR + Dynamic Context**
 
 ## References
 
-- **Framework**: [ADR-029](../SDLC-Enterprise-Framework/99-Legacy/ADR-029-AGENTS-MD-Migration.md)
+- **Framework**: ADR-029-AGENTS-MD-Migration (archived, previously in Framework submodule)
 - **Framework**: [SDLC-Agentic-Core-Principles.md](../SDLC-Enterprise-Framework/02-Core-Methodology/SDLC-Agentic-Core-Principles.md)
 - **Framework**: [AGENTS-MD-Template.md](../SDLC-Enterprise-Framework/03-Templates-Tools/SASE-Artifacts/AGENTS-MD-Template.md)
 - **Orchestrator**: [agents.py](../backend/sdlcctl/commands/agents.py) - Sprint 80-81 implementation

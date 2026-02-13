@@ -135,8 +135,7 @@ This stage transforms requirements (Stage 01 - WHAT) into technical architecture
 │   ├── Quality-Gates-Codegen-Specification.md ✅ (Sprint 48) ⭐
 │   ├── Pilot-Execution-Specification.md ✅ (Sprint 49)
 │   └── Productization-Baseline-Specification.md ✅ (Sprint 50)
-└── 99-Legacy/
-    └── (archived docs, duplicate ADRs)
+└── (Legacy content migrated to docs/10-archive/02-Legacy/ per RFC-001)
 ```
 
 ---

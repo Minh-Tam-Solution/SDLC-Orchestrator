@@ -88,9 +88,7 @@ This stage manages the deployment, release, and distribution of SDLC Orchestrato
 
 ## Archive
 
-| Folder | Purpose |
-|--------|---------|
-| [99-Legacy/](99-Legacy/) | Archived deployment docs |
+Legacy deployment docs migrated to `docs/10-archive/06-Legacy/` per RFC-001.
 
 ---
 

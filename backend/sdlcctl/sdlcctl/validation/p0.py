@@ -471,8 +471,9 @@ class P0ArtifactChecker:
 ├── README.md                         # This file (P0 entry point)
 ├── 01-[Subfolder]/                   # [Description]
 ├── 02-[Subfolder]/                   # [Description]
-└── 99-Legacy/                        # Archived content (AI: DO NOT READ)
 ```
+
+Legacy content archived in `docs/10-archive/{stage_id}-Legacy/` per RFC-001 (SDLC 6.0.5).
 
 ---
 
@@ -491,12 +492,12 @@ class P0ArtifactChecker:
 - Key documents listed above
 
 **DO NOT Read**:
-- `99-Legacy/` folder - Contains archived, outdated content
+- `10-archive/` folder - Contains archived, outdated content
 
 ---
 
 **Document Status**: P0 Entry Point
-**Compliance**: SDLC 6.0.0 Stage {stage_id}
+**Compliance**: SDLC 6.0.5 Stage {stage_id}
 **Last Updated**: [Date]
 **Owner**: [Role]
 

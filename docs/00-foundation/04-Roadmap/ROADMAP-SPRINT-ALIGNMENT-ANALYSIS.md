@@ -341,7 +341,7 @@ Sprint 47-50: EP-05 Enterprise Migration
 4. **Update Phase Plans** (Jan 24-25)
    - Create PHASE-05: Teams & Planning
    - Create PHASE-06: SASE Integration
-   - Archive old phase plans to 99-Legacy
+   - Archive old phase plans to docs/10-archive/04-Legacy/
 
 ---
 

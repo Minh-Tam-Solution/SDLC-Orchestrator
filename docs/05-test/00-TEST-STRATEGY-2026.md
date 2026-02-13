@@ -770,7 +770,7 @@ jobs:
 ### 8.2 Remediation Sprint Plan (Sprint 107-109)
 
 #### Sprint 107: Foundation (Week 1)
-- [ ] Move legacy docs to `99-Legacy/`
+- [ ] Move legacy docs to `docs/10-archive/05-Legacy/`
 - [ ] Create test factories for all models
 - [ ] Create test stubs for all services (NotImplementedError)
 - [ ] Setup docker-compose.test.yml

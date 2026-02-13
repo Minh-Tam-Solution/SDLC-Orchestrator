@@ -66,13 +66,16 @@ class TestPerformanceBenchmarks:
                     )
                     file_count += 1
 
-            # Create 99-Legacy folder
-            legacy_path = stage_path / "99-Legacy"
-            legacy_path.mkdir()
-            (legacy_path / "README.md").write_text(
-                "# Legacy\n\n**AI Directive**: DO NOT READ\n"
-            )
-            file_count += 1
+        # Create centralized 10-archive (RFC-001, SDLC 6.0.5)
+        archive_path = docs_path / "10-archive"
+        archive_path.mkdir()
+        (archive_path / "README.md").write_text(
+            "# Archive\n\n```yaml\ndirective: AI-NEVER-READ\n```\n"
+        )
+        for stage in stages:
+            stage_id = stage.split("-")[0]
+            (archive_path / f"{stage_id}-Legacy").mkdir(exist_ok=True)
+        file_count += 1
 
         return tmp_path
 

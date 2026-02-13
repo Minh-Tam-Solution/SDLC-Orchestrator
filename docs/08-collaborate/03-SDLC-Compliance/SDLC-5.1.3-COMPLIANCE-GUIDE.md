@@ -91,7 +91,7 @@ SDLC 5.1.3 introduces the **7-Pillar Architecture** with **Sprint Planning Gover
 │                                                                     │
 │  Pillar 6: Documentation Permanence                                 │
 │  ├── Version-free document naming                                   │
-│  ├── Archive management (99-Legacy, 10-archive)                     │
+│  ├── Archive management (docs/10-archive/{NN}-Legacy)               │
 │  └── Traceability requirements                                      │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -387,7 +387,7 @@ repos:
 
 ### Files to Archive
 
-Move to `99-Legacy/SDLC-4.9-Archive/`:
+Move to `docs/10-archive/08-Legacy/` (per RFC-001):
 - SDLC-4.9-COMPLIANCE-GUIDE.md
 - Any documents explicitly referencing 4.9 methodology
 

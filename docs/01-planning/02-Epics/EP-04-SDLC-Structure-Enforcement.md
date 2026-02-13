@@ -101,7 +101,7 @@ validation:
   - Each child folder must start with XX- (01-99)
   - No duplicate numbers within same parent
   - Must be sequential (01, 02, 03... not 01, 03, 05)
-  - 99-Legacy/ exempt from sequence
+  - 10-archive/ exempt from sequence
 
 auto_fix_strategy:
   1. Scan current structure
@@ -127,7 +127,7 @@ auto_fix_strategy:
   1. Find all ADR files recursively
   2. Check for number conflicts (e.g., two ADR-015)
   3. Move to {stage}/01-ADRs/
-  4. Archive duplicates to 99-Legacy/
+  4. Archive duplicates to docs/10-archive/{NN}-Legacy/
   5. Update all references
 ```
 

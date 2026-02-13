@@ -48,8 +48,8 @@
    - Compliance dashboard automation
 
 ### Secondary Objectives (P1)
-4. **Archive 99-Legacy Directories** (Tech debt cleanup)
-   - Move obsolete docs to `docs/10-Archive/`
+4. **Archive Legacy Directories** (Tech debt cleanup)
+   - Move obsolete docs to `docs/10-archive/{NN}-Legacy/` per RFC-001
    - Update cross-references
    - Create migration guide
 
@@ -434,24 +434,24 @@ drift_detection:
 
 ### Track 4: Legacy Migration (2 days, 8 SP)
 
-#### Task 4.1: Archive 99-Legacy Directories
+#### Task 4.1: Archive Legacy Directories to 10-archive
 **Owner**: PM/PJM Office + Backend Lead
 **Effort**: 1 day (4 SP)
 
-**Migration Strategy**:
+**Migration Strategy** (per RFC-001):
 1. Identify obsolete docs (pre-SDLC 5.0, 2024-2025)
-2. Move to `docs/10-Archive/yyyy-mm/`
+2. Move to `docs/10-archive/{NN}-Legacy/`
 3. Update cross-references with [ARCHIVED] tag
 4. Create migration guide
 
 **Directories to Archive**:
 - `docs/01-planning/99-Session-Logs/` → Already moved ✅
-- `docs/02-design/99-Legacy/`
-- `docs/04-build/99-Old-Sprints/` (Sprint 1-50)
+- `docs/02-design/99-Legacy/` → Migrated to `docs/10-archive/02-Legacy/` ✅
+- `docs/04-build/99-Old-Sprints/` (Sprint 1-50) → Migrated to `docs/10-archive/04-Legacy/` ✅
 - `frontend/99-legacy/`
 
 **Acceptance Criteria**:
-- [ ] All 99-* directories archived
+- [ ] All legacy directories archived to docs/10-archive/
 - [ ] Cross-references updated
 - [ ] Migration guide created
 - [ ] No broken links

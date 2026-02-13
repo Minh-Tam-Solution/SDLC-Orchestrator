@@ -148,7 +148,7 @@ def test_gate_approval_calls_notify_method():
 ## Remediation Plan (Sprint 107-109)
 
 ### Sprint 107: Foundation (Week 1)
-- [ ] Move legacy docs to `99-Legacy/`
+- [ ] Move legacy docs to `docs/10-archive/05-Legacy/`
 - [ ] Create test factories for all models
 - [ ] Create test stubs for all services
 - [ ] Setup docker-compose.test.yml
@@ -252,9 +252,7 @@ See: [00-TEST-STRATEGY-2026.md § 4. Framework vs Orchestrator Testing](00-TEST-
 
 ## Archive
 
-| Folder | Purpose |
-|--------|---------|
-| **[99-Legacy/](99-Legacy/)** | Archived test documents (pre-2026) |
+Legacy test documents (pre-2026) migrated to `docs/10-archive/05-Legacy/` per RFC-001.
 
 ---
 

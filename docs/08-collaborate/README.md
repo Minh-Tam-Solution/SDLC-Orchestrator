@@ -31,7 +31,7 @@ Define **team coordination, communication, and collaboration standards** for eff
 ├── 06-Strategic-Initiatives/         # Strategic team decisions
 ├── 07-Communication/                 # Communication channels, templates
 ├── 08-Technical-Reviews/             # Code review, architecture reviews
-└── 99-Legacy/                        # Archived content (AI: DO NOT READ)
+└── (Legacy content migrated to docs/10-archive/08-Legacy/ per RFC-001)
 ```
 
 ---
@@ -171,7 +171,7 @@ This stage maps to **Stage 08: Team Management (COLLABORATE)** in SDLC 5.1.3.
 - Communication protocols
 
 **DO NOT Read**:
-- `99-Legacy/` folder - Contains archived, outdated content
+- `docs/10-archive/` folders - Contains archived, outdated content
 
 **Key Insight**: Team structure and communication protocols are tier-dependent. This project uses PROFESSIONAL tier standards.
 

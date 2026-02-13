@@ -918,8 +918,8 @@ See: [README-ABORT-DECISION.md](../../99-archive/OpenCode-Evaluation-Aborted-Jan
 ## Historical Context (Legacy)
 
 Previous roadmap versions archived at:
-- [Product-Roadmap-2026-Software3.0.md](../99-Legacy/Product-Roadmap-2026-Software3.0.md) (Draft v0.1)
-- [TIMELINE-UPDATE-NOV-2025.md](../99-Legacy/TIMELINE-UPDATE-NOV-2025.md)
+- Product-Roadmap-2026-Software3.0.md (Draft v0.1) - migrated to `docs/10-archive/00-Legacy/` per RFC-001
+- TIMELINE-UPDATE-NOV-2025.md - migrated to `docs/10-archive/00-Legacy/` per RFC-001
 
 ---
 

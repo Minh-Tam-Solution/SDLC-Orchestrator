@@ -262,15 +262,20 @@ def _apply_scanner_autofix(
                             f"# Stage {stage_id}: {stage_name}\n\n",
                             encoding="utf-8",
                         )
-                    # Create 99-Legacy folder (SDLC 6.0.0 compliant)
-                    legacy_path = stage_path / "99-Legacy"
-                    legacy_path.mkdir(exist_ok=True)
-                    legacy_readme = legacy_path / "README.md"
-                    if not legacy_readme.exists():
-                        legacy_readme.write_text(
-                            "# Legacy Content\n\n"
-                            "**AI Directive**: DO NOT READ this folder.\n\n"
-                            "This folder contains archived, outdated content.\n",
+                    # Create 10-archive/{NN}-Legacy (RFC-001, SDLC 6.0.5)
+                    archive_path = docs_path / "10-archive"
+                    archive_path.mkdir(exist_ok=True)
+                    legacy_dir = archive_path / f"{stage_id}-Legacy"
+                    legacy_dir.mkdir(exist_ok=True)
+                    archive_readme = archive_path / "README.md"
+                    if not archive_readme.exists():
+                        archive_readme.write_text(
+                            "# 10-Archive: Centralized Legacy Archive\n\n"
+                            "```yaml\n"
+                            "directive: AI-NEVER-READ\n"
+                            "reason: Contains outdated, superseded, or historical content\n"
+                            "```\n\n"
+                            "**Standard**: RFC-001 (SDLC 6.0.5 MANDATORY)\n",
                             encoding="utf-8",
                         )
                     console.print(f"[green]✓ Created:[/green] {stage_path}")
@@ -356,16 +361,22 @@ def _fix_missing_stages(
                 readme_content = _generate_stage_readme(stage_id, stage_name)
                 readme_path.write_text(readme_content, encoding="utf-8")
 
-                # Create 99-Legacy folder
-                legacy_path = stage_path / "99-Legacy"
-                legacy_path.mkdir(exist_ok=True)
-                legacy_readme = legacy_path / "README.md"
-                legacy_readme.write_text(
-                    "# Legacy Content\n\n"
-                    "**AI Directive**: DO NOT READ this folder.\n\n"
-                    "This folder contains archived, outdated content.\n",
-                    encoding="utf-8",
-                )
+                # Create 10-archive/{NN}-Legacy (RFC-001, SDLC 6.0.5)
+                archive_path = docs_path / "10-archive"
+                archive_path.mkdir(exist_ok=True)
+                legacy_dir = archive_path / f"{stage_id}-Legacy"
+                legacy_dir.mkdir(exist_ok=True)
+                archive_readme = archive_path / "README.md"
+                if not archive_readme.exists():
+                    archive_readme.write_text(
+                        "# 10-Archive: Centralized Legacy Archive\n\n"
+                        "```yaml\n"
+                        "directive: AI-NEVER-READ\n"
+                        "reason: Contains outdated, superseded, or historical content\n"
+                        "```\n\n"
+                        "**Standard**: RFC-001 (SDLC 6.0.5 MANDATORY)\n",
+                        encoding="utf-8",
+                    )
 
                 console.print(f"[green]✓ Created:[/green] {stage_path}")
             else:
@@ -502,8 +513,9 @@ def _generate_stage_readme(stage_id: str, stage_name: str) -> str:
 ├── README.md                         # This file (P0 entry point)
 ├── 01-[Subfolder]/                   # [Description]
 ├── 02-[Subfolder]/                   # [Description]
-└── 99-Legacy/                        # Archived content (AI: DO NOT READ)
 ```
+
+Legacy content archived in `docs/10-archive/{stage_id}-Legacy/` per RFC-001 (SDLC 6.0.5).
 
 ---
 
@@ -522,12 +534,12 @@ def _generate_stage_readme(stage_id: str, stage_name: str) -> str:
 - Key documents listed above
 
 **DO NOT Read**:
-- `99-Legacy/` folder - Contains archived, outdated content
+- `10-archive/` folder - Contains archived, outdated content
 
 ---
 
 **Document Status**: P0 Entry Point
-**Compliance**: SDLC 6.0.0 Stage {stage_id}
+**Compliance**: SDLC 6.0.5 Stage {stage_id}
 **Last Updated**: [Date]
 **Owner**: [Role]
 

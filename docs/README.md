@@ -75,7 +75,7 @@
 **Critical Rules**:
 ```yaml
 NEVER read:
-  - Any folder named `99-Legacy/` - Contains archived, outdated content
+  - Any folder under `docs/10-archive/` - Contains archived, outdated content
   - Any file with date prefix before Dec 2025 (unless specifically requested)
 
 ALWAYS prefer:
@@ -426,9 +426,9 @@ SAST: Semgrep (security rules)
 
 ## Archive Policy
 
-### 99-Legacy Folders
+### Legacy Archive (10-archive)
 
-Each stage folder may contain a `99-Legacy/` subfolder:
+All legacy content has been migrated from per-stage `99-Legacy/` folders to a centralized archive per RFC-001:
 - Contains **archived, outdated content**
 - **DO NOT** reference for active work
 - Used for historical reference only
@@ -438,13 +438,16 @@ Each stage folder may contain a `99-Legacy/` subfolder:
 
 ```
 docs/
-├── 00-foundation/
-│   └── 99-Legacy/          # Archived vision docs
-├── 02-design/
-│   └── 99-Legacy/          # Superseded architecture
-├── 03-integration/
-│   └── 99-Legacy/          # Old API versions
-└── 10-Archive/             # General archive (historical)
+├── 10-archive/
+│   ├── 00-Legacy/          # Archived vision docs
+│   ├── 01-Legacy/          # Archived planning docs
+│   ├── 02-Legacy/          # Superseded architecture
+│   ├── 03-Legacy/          # Old API versions
+│   ├── 04-Legacy/          # Old sprint plans
+│   ├── 05-Legacy/          # Old test docs
+│   ├── 07-Legacy/          # Old ops docs
+│   ├── 08-Legacy/          # Old team docs
+│   └── 09-Legacy/          # Old governance docs
 ```
 
 ### Archive Rules

@@ -105,8 +105,7 @@ This stage combines:
 │   ├── Competitive-Landscape.md        # 5 competitor categories
 │   ├── Market-Sizing.md                # TAM/SAM/SOM analysis
 │   └── OSS-Landscape-Research.md       # OSS components evaluation
-└── 99-Legacy/                          # Archived documents
-    └── [Historical update reports]
+└── (Legacy content migrated to docs/10-archive/00-Legacy/ per RFC-001)
 ```
 
 ---

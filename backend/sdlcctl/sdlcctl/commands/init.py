@@ -257,6 +257,11 @@ def init_command(
                         )
                     progress.update(task, description=f"Created {stage_name} (optional)")
 
+        # Create centralized 10-archive with stage-aligned Legacy subdirs (RFC-001, SDLC 6.0.5)
+        if scaffold:
+            _create_archive_structure(docs_path, requirements.required_stages)
+            progress.update(task, description="Created 10-archive structure")
+
     # Success message
     console.print()
     console.print("[bold green]✓ SDLC 6.0.0 structure initialized successfully![/bold green]")
@@ -454,17 +459,34 @@ def _create_stage_folder(stage_path: Path, stage_id: str, stage_name: str) -> No
                 encoding="utf-8",
             )
 
-    # Create 99-Legacy folder
-    legacy_path = stage_path / "99-Legacy"
-    legacy_path.mkdir(exist_ok=True)
-    legacy_readme = legacy_path / "README.md"
-    legacy_readme.write_text(
-        "# Legacy Content\n\n"
-        "**AI Directive**: DO NOT READ this folder.\n\n"
-        "This folder contains archived, outdated content.\n"
-        "Move deprecated documents here instead of deleting them.\n",
+    # Note: Legacy archive is centralized in 10-archive/{NN}-Legacy/ per RFC-001 (SDLC 6.0.5)
+    # Created by _create_archive_structure() after all stages are initialized
+
+
+def _create_archive_structure(docs_path: Path, stage_ids: list) -> None:
+    """Create centralized 10-archive with stage-aligned Legacy subdirs (RFC-001, SDLC 6.0.5)."""
+    archive_path = docs_path / "10-archive"
+    archive_path.mkdir(exist_ok=True)
+
+    # Create archive README with AI-NEVER-READ directive
+    archive_readme = archive_path / "README.md"
+    archive_readme.write_text(
+        "# 10-Archive: Centralized Legacy Archive\n\n"
+        "```yaml\n"
+        "directive: AI-NEVER-READ\n"
+        "reason: Contains outdated, superseded, or historical content\n"
+        "exception: User explicitly requests historical information\n"
+        "```\n\n"
+        "**Standard**: RFC-001 Legacy Document Organization (SDLC 6.0.5 MANDATORY)\n\n"
+        "All legacy content is organized by stage: `{NN}-Legacy/` where `{NN}` is the stage number.\n"
+        "Move deprecated documents to the appropriate `{NN}-Legacy/` folder instead of deleting them.\n",
         encoding="utf-8",
     )
+
+    # Create {NN}-Legacy subdirs for each stage
+    for stage_id in stage_ids:
+        legacy_dir = archive_path / f"{stage_id}-Legacy"
+        legacy_dir.mkdir(exist_ok=True)
 
 
 def _get_stage_subfolders(stage_id: str) -> list:
@@ -531,7 +553,7 @@ with {len(requirements.required_stages)} stages.
 AI assistants should:
 1. Start with this README for navigation
 2. Read stage README.md files for context
-3. **NEVER** read `99-Legacy/` folders
+3. **NEVER** read `10-archive/` folders
 
 ---
 
@@ -584,8 +606,9 @@ def _generate_stage_readme(stage_id: str, stage_name: str) -> str:
 ├── README.md                         # This file (P0 entry point)
 ├── 01-[Subfolder]/                   # [Description]
 ├── 02-[Subfolder]/                   # [Description]
-└── 99-Legacy/                        # Archived content (AI: DO NOT READ)
 ```
+
+Legacy content archived in `docs/10-archive/{stage_id}-Legacy/` per RFC-001 (SDLC 6.0.5).
 
 ---
 
@@ -604,7 +627,7 @@ def _generate_stage_readme(stage_id: str, stage_name: str) -> str:
 - Key documents listed above
 
 **DO NOT Read**:
-- `99-Legacy/` folder - Contains archived, outdated content
+- `10-archive/` folder - Contains archived, outdated content
 
 ---
 

@@ -119,11 +119,7 @@ Examples:
 
 ## Archive
 
-| Folder | Purpose |
-|--------|---------|
-| [99-Legacy/](99-Legacy/) | Archived reports, old formats |
-
-**Note**: Legacy folder contains old report structures. Do not reference for current work.
+Legacy reports and old formats migrated to `docs/10-archive/09-Legacy/` per RFC-001. Do not reference for current work.
 
 ---
 

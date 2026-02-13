@@ -332,10 +332,11 @@ class TestValidateCommandAdvanced:
             stage_00.mkdir(parents=True)
             (stage_00 / "README.md").write_text("# Stage 00")
 
-            # Create legacy folder
-            legacy = docs_root / "99-Legacy"
-            legacy.mkdir()
-            (legacy / "old.txt").write_text("Old content")
+            # Create archive folder (RFC-001 pattern)
+            archive = docs_root / "10-archive"
+            archive.mkdir()
+            (archive / "00-Legacy").mkdir()
+            (archive / "old.txt").write_text("Old content")
 
             yield project_root
 
@@ -933,7 +934,8 @@ class TestInitHelperFunctions:
             # Check folder exists
             assert stage_path.exists()
             assert (stage_path / "README.md").exists()
-            assert (stage_path / "99-Legacy").exists()
+            # 99-Legacy no longer created per stage (RFC-001, SDLC 6.0.5)
+            # Archive is centralized in 10-archive/{NN}-Legacy/
             assert (stage_path / "01-Vision").exists()
 
 
@@ -1124,7 +1126,10 @@ class TestMoreCoverage:
 
             # Check subfolders were created (scaffold=True by default)
             assert (stage_00 / "01-Vision").exists()
-            assert (stage_00 / "99-Legacy").exists()
+            # RFC-001: Archive is centralized, not per-stage
+            archive_path = docs_root / "10-archive"
+            assert archive_path.exists(), "10-archive should be created"
+            assert (archive_path / "00-Legacy").exists(), "00-Legacy should exist in 10-archive"
 
     def test_validate_strict_fails_on_warnings(self):
         """Test strict mode validation fails on warnings."""
@@ -1414,8 +1419,8 @@ class TestEdgeCases:
                 stage_name = STAGE_NAMES[stage_id]
                 assert (docs_root / stage_name).exists(), f"Stage {stage_id} should exist"
 
-    def test_fix_creates_legacy_folder(self):
-        """Test fix creates 99-Legacy folder in stages."""
+    def test_fix_creates_archive_structure(self):
+        """Test fix creates 10-archive/{NN}-Legacy structure (RFC-001, SDLC 6.0.5)."""
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
             docs_root = project_root / "docs"
@@ -1434,11 +1439,11 @@ class TestEdgeCases:
             )
             assert result.exit_code == 0
 
-            # Check 99-Legacy exists in at least one stage
-            stage_00 = docs_root / STAGE_NAMES["00"]
-            if stage_00.exists():
-                legacy_path = stage_00 / "99-Legacy"
-                assert legacy_path.exists(), "99-Legacy folder should be created"
+            # Check 10-archive/{NN}-Legacy exists (RFC-001)
+            archive_path = docs_root / "10-archive"
+            if archive_path.exists():
+                assert (archive_path / "README.md").exists(), "Archive README should exist"
+                assert (archive_path / "00-Legacy").exists(), "00-Legacy should be created"
 
     def test_report_invalid_output_path(self):
         """Test report with invalid output path."""

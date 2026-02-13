@@ -326,14 +326,15 @@ class TestSDLCValidator:
         assert len(naming_warnings) > 0
 
     def test_legacy_folder_handling(self, compliant_project):
-        """Test legacy folder detection and validation."""
-        # Create legacy folder
-        legacy = compliant_project / "docs" / "99-Legacy"
-        legacy.mkdir()
-        (legacy / "README.md").write_text(
-            "# Legacy\n\n"
-            "This is legacy content but missing AI directive."
+        """Test archive folder detection and validation (RFC-001)."""
+        # Create archive folder with missing AI directive
+        archive = compliant_project / "docs" / "10-archive"
+        archive.mkdir()
+        (archive / "README.md").write_text(
+            "# Archive\n\n"
+            "This is archive content but missing AI directive."
         )
+        (archive / "00-Legacy").mkdir()
 
         validator = SDLCValidator(compliant_project, tier=Tier.LITE)
         result = validator.validate()
@@ -370,12 +371,14 @@ class TestValidatorIntegration:
                     f"Documentation for stage {stage_id}. "
                     f"Contains detailed information about this stage."
                 )
-                # Create legacy folder with proper directive
-                legacy = stage_path / "99-Legacy"
-                legacy.mkdir()
-                (legacy / "README.md").write_text(
-                    "# Legacy\n\n**AI Directive**: DO NOT READ this folder.\n"
-                )
+            # Create centralized archive (RFC-001, SDLC 6.0.5)
+            archive = docs / "10-archive"
+            archive.mkdir(exist_ok=True)
+            (archive / "README.md").write_text(
+                "# Archive\n\n```yaml\ndirective: AI-NEVER-READ\n```\n"
+            )
+            for sid in ["00", "01", "02", "03", "04", "05"]:
+                (archive / f"{sid}-Legacy").mkdir(exist_ok=True)
 
             # Run validation
             validator = SDLCValidator(project_root, tier=Tier.STANDARD)
