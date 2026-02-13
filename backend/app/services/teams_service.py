@@ -206,9 +206,21 @@ class TeamsService:
         )
         self.db.add(member)
         await self.db.commit()
-        await self.db.refresh(team)
 
-        return team
+        # Re-query with eager loading to avoid lazy-load hang in async context
+        # (refresh() only reloads columns, not relationships)
+        team_loaded = await self.db.scalar(
+            select(Team)
+            .options(
+                selectinload(
+                    Team.members.and_(TeamMember.deleted_at.is_(None))
+                ),
+                selectinload(Team.projects),
+            )
+            .where(Team.id == team.id)
+        )
+
+        return team_loaded or team
 
     async def get_team(self, team_id: UUID) -> Optional[Team]:
         """

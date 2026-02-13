@@ -52,15 +52,18 @@ const vscode = __importStar(require("vscode"));
 const path = __importStar(require("path"));
 const sdlcStructureService_1 = require("../services/sdlcStructureService");
 const logger_1 = require("../utils/logger");
+const telemetryService_1 = require("../services/telemetryService");
 /**
  * SDLC Init Command Handler
  */
 class InitCommandHandler {
     structureService;
     apiClient;
-    constructor(apiClient) {
+    authService;
+    constructor(apiClient, authService) {
         this.structureService = new sdlcStructureService_1.SDLCStructureService();
         this.apiClient = apiClient;
+        this.authService = authService;
     }
     /**
      * Execute the /init command
@@ -72,6 +75,28 @@ class InitCommandHandler {
         if (!workspaceRoot) {
             void vscode.window.showErrorMessage('No workspace folder open. Please open a folder first.');
             return false;
+        }
+        // Auth pre-check: warn user if not authenticated (server sync will fail)
+        if (!options.offline && this.authService) {
+            const isAuth = await this.authService.isAuthenticated();
+            if (!isAuth) {
+                const action = await vscode.window.showWarningMessage('You are not logged in to SDLC Orchestrator.\n\nProject will be created locally but cannot be registered with the backend until you log in.', { modal: true }, 'Login First', 'Continue Offline');
+                if (action === 'Login First') {
+                    await vscode.commands.executeCommand('sdlc.login');
+                    // Re-check after login
+                    const nowAuth = await this.authService.isAuthenticated();
+                    if (!nowAuth) {
+                        logger_1.Logger.warn('User cancelled login, continuing offline');
+                        options.offline = true;
+                    }
+                }
+                else if (action === 'Continue Offline') {
+                    options.offline = true;
+                }
+                else {
+                    return false; // User dismissed the dialog
+                }
+            }
         }
         // Check if already initialized
         if (this.structureService.hasSDLCConfig(workspaceRoot) && !options.force) {
@@ -139,13 +164,8 @@ class InitCommandHandler {
             progress.report({ increment: 60, message: 'Finalizing...' });
             // Try to sync with server if online
             if (!options.offline && this.apiClient) {
-                try {
-                    progress.report({ increment: 80, message: 'Syncing with server...' });
-                    await this.syncWithServer(workspaceRoot, projectName, tier);
-                }
-                catch {
-                    logger_1.Logger.warn('Failed to sync with server, continuing in offline mode');
-                }
+                progress.report({ increment: 80, message: 'Registering with server...' });
+                await this.syncWithServer(workspaceRoot, projectName, tier);
             }
             progress.report({ increment: 100, message: 'Done!' });
             return result;
@@ -153,17 +173,21 @@ class InitCommandHandler {
         if (result.success) {
             await this.showSuccessMessage(result.createdFolders, result.createdFiles, tier);
             await this.openGettingStarted(workspaceRoot);
+            // Track telemetry (Sprint 147 - Product Truth Layer)
+            void (0, telemetryService_1.trackProjectCreated)(`vscode-${path.basename(workspaceRoot)}`, tier);
+            void (0, telemetryService_1.trackCommand)('sdlc.init', true);
             return true;
         }
         else {
             void vscode.window.showErrorMessage('Failed to create SDLC structure');
+            void (0, telemetryService_1.trackCommand)('sdlc.init', false);
             return false;
         }
     }
     /**
      * Handle initialization for existing projects (gap analysis)
      */
-    async handleExistingProject(workspaceRoot, _options) {
+    async handleExistingProject(workspaceRoot, options) {
         logger_1.Logger.info('Analyzing existing project for SDLC compliance');
         // Step 1: Select target tier
         const tier = await this.selectTier('Select the governance tier for gap analysis');
@@ -188,7 +212,14 @@ class InitCommandHandler {
             }
             const result = this.structureService.generateStructure(workspaceRoot, projectName, tier, { createTemplates: false });
             if (result.success) {
+                // Sprint 172: Sync with server to register project in backend
+                if (!options.offline && this.apiClient) {
+                    await this.syncWithServer(workspaceRoot, projectName, tier);
+                }
                 void vscode.window.showInformationMessage(`Created ${result.createdFolders.length} folders and ${result.createdFiles.length} files`);
+                // Track telemetry (Sprint 147 - Product Truth Layer)
+                void (0, telemetryService_1.trackProjectCreated)(`vscode-${path.basename(workspaceRoot)}`, tier);
+                void (0, telemetryService_1.trackCommand)('sdlc.init', true);
                 return true;
             }
         }
@@ -202,7 +233,14 @@ class InitCommandHandler {
             const configPath = path.join(workspaceRoot, '.sdlc-config.json');
             const fs = await import('fs');
             fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+            // Sprint 172: Sync with server to register project in backend
+            if (!options.offline && this.apiClient) {
+                await this.syncWithServer(workspaceRoot, projectName, tier);
+            }
             void vscode.window.showInformationMessage('Created .sdlc-config.json');
+            // Track telemetry (Sprint 147 - Product Truth Layer)
+            void (0, telemetryService_1.trackProjectCreated)(`vscode-${path.basename(workspaceRoot)}`, tier);
+            void (0, telemetryService_1.trackCommand)('sdlc.init', true);
             return true;
         }
         return false;
@@ -463,10 +501,13 @@ class InitCommandHandler {
     }
     /**
      * Sync project with SDLC Orchestrator server
+     *
+     * Returns true if sync succeeded, false otherwise.
+     * Shows user-facing error messages on failure instead of silently swallowing.
      */
     async syncWithServer(workspaceRoot, projectName, tier) {
         if (!this.apiClient) {
-            return;
+            return false;
         }
         try {
             // Call server API to register project
@@ -489,12 +530,32 @@ class InitCommandHandler {
                     },
                 });
                 logger_1.Logger.info(`Project synced with server: ${response.project_id}`);
+                return true;
             }
+            return false;
         }
         catch (error) {
+            const statusCode = error?.statusCode ?? error?.response?.status ?? 0;
             const errorMsg = error instanceof Error ? error.message : String(error);
-            logger_1.Logger.warn(`Failed to sync with server: ${errorMsg}`);
-            // Continue without server sync - local-first approach
+            logger_1.Logger.warn(`Failed to sync with server: [${statusCode}] ${errorMsg}`);
+            if (statusCode === 401 || statusCode === 403) {
+                const action = await vscode.window.showWarningMessage('Authentication failed. Please log in to register this project with the backend.', 'Login Now');
+                if (action === 'Login Now') {
+                    await vscode.commands.executeCommand('sdlc.login');
+                }
+            }
+            else if (statusCode === 409) {
+                // Project already exists - not really an error
+                void vscode.window.showInformationMessage(`Project "${projectName}" is already registered in the backend.`);
+                return true;
+            }
+            else if (statusCode === 0 || statusCode >= 500) {
+                void vscode.window.showWarningMessage(`Cannot reach SDLC backend server. Project created locally. Error: ${errorMsg}`);
+            }
+            else {
+                void vscode.window.showWarningMessage(`Failed to register project with backend (${statusCode}): ${errorMsg}`);
+            }
+            return false;
         }
     }
     /**
@@ -521,8 +582,8 @@ exports.InitCommandHandler = InitCommandHandler;
 /**
  * Register the init command
  */
-function registerInitCommand(context, apiClient) {
-    const handler = new InitCommandHandler(apiClient);
+function registerInitCommand(context, apiClient, authService) {
+    const handler = new InitCommandHandler(apiClient, authService);
     // Main init command
     context.subscriptions.push(vscode.commands.registerCommand('sdlc.init', async () => {
         await handler.execute();

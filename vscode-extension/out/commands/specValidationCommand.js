@@ -53,6 +53,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerSpecValidationCommand = registerSpecValidationCommand;
 const vscode = __importStar(require("vscode"));
 const logger_1 = require("../utils/logger");
+const telemetryService_1 = require("../services/telemetryService");
 // Diagnostic collection for showing validation errors in Problems panel
 let diagnosticCollection;
 /**
@@ -84,7 +85,18 @@ function registerSpecValidationCommand(context, codegenApi) {
     });
     context.subscriptions.push(onSaveDisposable);
     // Register command to show spec validation results
-    const showResultsCommand = vscode.commands.registerCommand('sdlc.showSpecValidationResults', (result) => {
+    const showResultsCommand = vscode.commands.registerCommand('sdlc.showSpecValidationResults', async (result) => {
+        if (!result) {
+            // No cached result - run validation on current file first
+            const editor = vscode.window.activeTextEditor;
+            if (editor && editor.document.languageId === 'markdown') {
+                await executeValidateSpec(codegenApi);
+            }
+            else {
+                void vscode.window.showWarningMessage('No spec validation results available. Open a spec file and run "SDLC: Validate Spec" first.');
+            }
+            return;
+        }
         showValidationResultsPanel(result);
     });
     context.subscriptions.push(showResultsCommand);
@@ -203,11 +215,18 @@ async function validateDocument(document, codegenApi, tier) {
                 }
             }
             logger_1.Logger.info(`Spec validation complete: ${result.spec_id} - ${errorCount} errors, ${warningCount} warnings`);
+            // Track telemetry (Sprint 147 - Product Truth Layer)
+            void (0, telemetryService_1.trackSpecValidation)(1, // spec_count
+            errorCount === 0 ? 1 : 0, // valid_count
+            errorCount > 0 ? 1 : 0);
+            void (0, telemetryService_1.trackCommand)('sdlc.validateSpec', errorCount === 0);
         }
         catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             logger_1.Logger.error(`Spec validation failed: ${errorMessage}`);
             void vscode.window.showErrorMessage(`Specification validation failed: ${errorMessage}`);
+            // Track telemetry for failed validation (Sprint 147)
+            void (0, telemetryService_1.trackCommand)('sdlc.validateSpec', false);
         }
     });
 }
@@ -250,6 +269,10 @@ function updateDiagnostics(document, result) {
  * Show validation results in an output channel
  */
 function showValidationResultsPanel(result) {
+    if (!result || !result.spec_id) {
+        void vscode.window.showWarningMessage('No spec validation results available. Run "SDLC: Validate Spec" on a specification file first.');
+        return;
+    }
     const outputChannel = vscode.window.createOutputChannel('SDLC Spec Validation');
     outputChannel.clear();
     outputChannel.appendLine('═'.repeat(70));

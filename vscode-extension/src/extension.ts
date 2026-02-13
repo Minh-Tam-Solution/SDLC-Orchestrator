@@ -197,7 +197,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         registerCommands(context);
 
         // Register init commands (SDLC 6.0.0 project initialization)
-        registerInitCommand(context, state.apiClient);
+        registerInitCommand(context, state.apiClient, state.authService);
 
         // Register App Builder commands (Sprint 53)
         registerGenerateCommand(context, state.codegenApi);

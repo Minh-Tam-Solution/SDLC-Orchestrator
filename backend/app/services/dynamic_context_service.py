@@ -60,6 +60,7 @@ from app.events.lifecycle_events import (
     ConstraintType,
 )
 from app.models.agents_md import AgentsMdFile
+from app.models.gate import Gate
 from app.models.project import Project
 
 logger = logging.getLogger(__name__)
@@ -494,7 +495,10 @@ class DynamicContextService:
 
     async def load_context(self, project_id: UUID) -> DynamicContext:
         """
-        Load context from database (for service restart).
+        Load context from database (for cold start / service restart).
+
+        Queries the gates table to find the latest gate status for this
+        project, so that the in-memory context reflects the DB truth.
 
         Args:
             project_id: Project UUID
@@ -502,8 +506,66 @@ class DynamicContextService:
         Returns:
             DynamicContext loaded from DB or fresh instance
         """
-        # TODO: Load from database when context persistence is implemented
-        return self._get_or_create_context(project_id)
+        context = self._get_or_create_context(project_id)
+
+        # Only hydrate from DB if context has never been updated by events
+        if context.update_count == 0:
+            try:
+                result = await self.db.execute(
+                    select(Gate)
+                    .where(Gate.project_id == project_id)
+                    .where(Gate.deleted_at.is_(None))
+                    .order_by(Gate.created_at.desc())
+                )
+                gates = result.scalars().all()
+
+                if gates:
+                    # Map DB gate status → DynamicContext GateStatus enum
+                    db_to_event_status = {
+                        "APPROVED": GateStatus.PASSED,
+                        "REJECTED": GateStatus.FAILED,
+                        "PENDING_APPROVAL": GateStatus.IN_PROGRESS,
+                        "IN_PROGRESS": GateStatus.IN_PROGRESS,
+                        "DRAFT": GateStatus.PENDING,
+                        "ARCHIVED": GateStatus.BYPASSED,
+                    }
+
+                    # Find the highest gate that has been approved
+                    latest_approved = None
+                    for gate in gates:
+                        if gate.status == "APPROVED":
+                            latest_approved = gate
+                            break  # Already sorted desc by created_at
+
+                    if latest_approved:
+                        # Use gate_name directly (e.g. "G3", "G0.2", "G2.1: Architecture Review")
+                        gate_id = latest_approved.gate_name.split(":")[0].strip() if latest_approved.gate_name else "G0"
+                        context.current_gate = gate_id
+                        context.gate_status = GateStatus.PASSED
+                        context.gate_passed_at = latest_approved.approved_at
+                    else:
+                        # No approved gate - use the most recent gate's status
+                        most_recent = gates[0]
+                        gate_id = most_recent.gate_name.split(":")[0].strip() if most_recent.gate_name else "G0"
+                        context.current_gate = gate_id
+                        context.gate_status = db_to_event_status.get(
+                            most_recent.status, GateStatus.PENDING
+                        )
+
+                    logger.info(
+                        "Loaded gate context from DB: project=%s gate=%s status=%s",
+                        project_id,
+                        context.current_gate,
+                        context.gate_status.value,
+                    )
+            except Exception as e:
+                logger.warning(
+                    "Failed to load gate context from DB for project %s: %s",
+                    project_id,
+                    str(e),
+                )
+
+        return context
 
     # ========================================================================
     # AGENTS.md Generation

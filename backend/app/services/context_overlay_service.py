@@ -238,17 +238,47 @@ class ContextOverlayService:
             return manual_overlay.stage_name, manual_overlay.gate_status
 
         # Fallback: Calculate from gates
+        # Find the highest approved gate first (most meaningful status)
+        approved_result = await self.db.execute(
+            select(Gate)
+            .where(Gate.project_id == project_id)
+            .where(Gate.status == "APPROVED")
+            .where(Gate.deleted_at.is_(None))
+            .order_by(Gate.created_at.desc())
+            .limit(1)
+        )
+        approved_gate = approved_result.scalar_one_or_none()
+
+        if approved_gate:
+            # Use gate_name directly (e.g. "G3", "G0.2", "G2.1: Architecture Review")
+            gate_id = approved_gate.gate_name.split(":")[0].strip() if approved_gate.gate_name else "G0"
+            stage_name = approved_gate.stage or "BUILD"
+            gate_status = f"{gate_id} PASSED"
+            return stage_name, gate_status
+
+        # No approved gates - check for any pending/in-progress gate
         result = await self.db.execute(
             select(Gate)
             .where(Gate.project_id == project_id)
+            .where(Gate.deleted_at.is_(None))
             .order_by(Gate.created_at.desc())
             .limit(1)
         )
         gate = result.scalar_one_or_none()
 
         if gate:
-            stage_name = f"Stage {gate.stage_number:02d}" if hasattr(gate, 'stage_number') else gate.gate_name
-            gate_status = f"{gate.gate_name} {'PASSED' if gate.status == 'passed' else 'PENDING'}"
+            gate_id = gate.gate_name.split(":")[0].strip() if gate.gate_name else "G0"
+            # Map DB status to display status
+            status_display = {
+                "APPROVED": "PASSED",
+                "REJECTED": "FAILED",
+                "PENDING_APPROVAL": "PENDING",
+                "IN_PROGRESS": "IN PROGRESS",
+                "DRAFT": "DRAFT",
+                "ARCHIVED": "ARCHIVED",
+            }.get(gate.status, "PENDING")
+            stage_name = gate.stage or "DISCOVER"
+            gate_status = f"{gate_id} {status_display}"
             return stage_name, gate_status
 
         return "Stage 00 (DISCOVER)", "No gates evaluated"

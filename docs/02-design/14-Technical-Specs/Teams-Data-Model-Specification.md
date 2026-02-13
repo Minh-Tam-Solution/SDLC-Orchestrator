@@ -944,7 +944,75 @@ TeamMemberResponse.model_rebuild()
 
 ---
 
-## 9. Success Criteria
+## 9. Project-Team Assignment Rules (Sprint 172)
+
+### 9.1 Tier-Dependent Assignment Matrix
+
+Project-team assignment rules vary by `policy_pack_tier`:
+
+| Tier | Team Required | Unassign Allowed | Transfer Authorization | Downgrade Behavior |
+|------|--------------|------------------|----------------------|-------------------|
+| **LITE** | No (nullable) | Yes | Owner | Keep team_id, return warning |
+| **STANDARD** | Recommended | Yes (with warning) | Owner/Admin | Keep team_id, return warning |
+| **PROFESSIONAL** | Yes (NOT NULL enforced) | No (blocked, 400) | Owner/Admin + target team member | Keep team_id, return warning |
+| **ENTERPRISE** | Yes (NOT NULL enforced) | No (blocked, 400) | Owner/Admin + target team member | Keep team_id, return warning |
+
+### 9.2 Cross-Organization Constraint
+
+Target team MUST have the same `organization_id` as the project's current organizational context. Enforced at API layer:
+
+```python
+# Validation in update_project endpoint
+if target_team.organization_id != project_org_id:
+    raise HTTPException(
+        status_code=400,
+        detail="Target team must be in same organization as project"
+    )
+```
+
+### 9.3 Ownership Transfer Flow
+
+1. Current owner selects new owner from project members list
+2. Backend validates new owner is active ProjectMember
+3. `project.owner_id` updated to new user's ID
+4. Change logged to `governance_audit_log` with action `PROJECT_OWNERSHIP_TRANSFERRED`
+5. Both old and new owner notified
+
+### 9.4 Authorization Matrix
+
+| Action | LITE | STANDARD | PROFESSIONAL | ENTERPRISE |
+|--------|------|----------|--------------|------------|
+| Change team | Owner | Owner/Admin | Owner/Admin | Owner/Admin |
+| Transfer ownership | Owner only | Owner only | Owner only | Owner only |
+| Unassign team (null) | Owner | Owner/Admin | Blocked | Blocked |
+| Change tier | Owner/Admin | Owner/Admin | Owner/Admin | Owner/Admin |
+
+### 9.5 Validation Rules for Project-Team Assignment
+
+| Field | Rule | Error Message |
+|-------|------|---------------|
+| `team_id` | Target team must exist and not be deleted | "Target team not found" |
+| `team_id` | Target team must be in same organization | "Target team must be in same organization as project" |
+| `team_id` | User must be member of target team | "You must be a member of target team to reassign" |
+| `team_id` (null) | PROFESSIONAL/ENTERPRISE cannot be null | "Cannot unassign team for PROFESSIONAL/ENTERPRISE tier" |
+| `owner_id` | New owner must be existing ProjectMember | "New owner must be an existing project member" |
+| `owner_id` | Only current owner can transfer | "Only the project owner can transfer ownership" |
+| `policy_pack_tier` upgrade | PROFESSIONAL+ requires non-null team_id | "PROFESSIONAL tier requires team assignment" |
+| `policy_pack_tier` downgrade | Allowed, keep team_id | Warning: "Tier downgraded. Team assignment is no longer required but has been preserved." |
+
+### 9.6 Audit Trail
+
+All project-team changes are logged to `governance_audit_log`:
+
+| Action | Fields Logged |
+|--------|--------------|
+| `PROJECT_TEAM_REASSIGNED` | old_team_id, new_team_id, tier, initiated_by |
+| `PROJECT_OWNERSHIP_TRANSFERRED` | old_owner_id, new_owner_id, initiated_by |
+| `PROJECT_TIER_CHANGED` | old_tier, new_tier, warning_issued, initiated_by |
+
+---
+
+## 10. Success Criteria
 
 - [ ] All 3 new tables created successfully
 - [ ] Indexes created for all foreign keys
@@ -957,6 +1025,12 @@ TeamMemberResponse.model_rebuild()
 - [ ] **CTO R1**: `ai_agent` role constraint works correctly
 - [ ] **CTO R2**: `member_type` column with human/ai_agent values
 - [ ] **SASE Compliance**: AI agents cannot be assigned owner/admin roles
+- [ ] **Sprint 172**: Project team reassignment via PATCH works correctly
+- [ ] **Sprint 172**: Ownership transfer validates new owner is ProjectMember
+- [ ] **Sprint 172**: Cross-org team assignment is blocked (400)
+- [ ] **Sprint 172**: PROFESSIONAL+ tier cannot have null team_id
+- [ ] **Sprint 172**: Tier downgrade keeps team_id and returns warning
+- [ ] **Sprint 172**: All changes logged to governance_audit_log
 
 ---
 
@@ -964,8 +1038,9 @@ TeamMemberResponse.model_rebuild()
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
-| **Date** | January 17, 2026 |
+| **Version** | 1.1.0 |
+| **Date** | February 12, 2026 |
 | **Author** | Backend Lead |
 | **Reviewer** | CTO |
 | **Status** | APPROVED |
+| **Changelog** | v1.1.0 - Added Section 9: Project-Team Assignment Rules (Sprint 172) |

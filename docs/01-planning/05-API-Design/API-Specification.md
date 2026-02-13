@@ -885,11 +885,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-    put:
+    patch:
       tags:
         - Projects
-      summary: Update project
-      description: Update project (requires EM/PM role)
+      summary: Update project metadata, team assignment, or ownership
+      description: |
+        Update project fields. Supports partial updates (PATCH semantics).
+
+        **Authorization by field**:
+        - `name`, `description`: Project owner or admin
+        - `team_id`: Project owner/admin + must be member of target team
+        - `owner_id`: Project owner only (ownership transfer)
+        - `policy_pack_tier`: Project owner or admin
+
+        **Tier-dependent validation**:
+        - `team_id` reassignment: target team must be in same organization
+        - PROFESSIONAL/ENTERPRISE tiers cannot have null `team_id`
+        - Tier downgrade: allowed, keeps team_id, returns warning in response
+        - Tier upgrade to PROFESSIONAL+: requires non-null team_id
+
+        **Ownership transfer**:
+        - New owner must be an existing ProjectMember
+        - Only current owner can initiate transfer
+        - All changes logged to governance_audit_log
       operationId: updateProject
       security:
         - BearerAuth: []
@@ -907,24 +925,48 @@ paths:
             schema:
               type: object
               properties:
-                project_name:
+                name:
                   type: string
+                  description: Project name
                 description:
                   type: string
-                current_stage:
+                  description: Project description
+                team_id:
                   type: string
-                  enum: [stage-00, stage-01, stage-02, stage-03, stage-04, stage-05, stage-06, stage-07, stage-08, stage-09]
+                  format: uuid
+                  nullable: true
+                  description: Reassign to different team (null to unassign for LITE/STANDARD)
+                owner_id:
+                  type: string
+                  format: uuid
+                  description: Transfer ownership to existing project member
+                policy_pack_tier:
+                  type: string
+                  enum: [LITE, STANDARD, PROFESSIONAL, ENTERPRISE]
+                  description: Change policy pack tier (may trigger validation)
       responses:
         '200':
-          description: Project updated
+          description: Project updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Project'
+                allOf:
+                  - $ref: '#/components/schemas/Project'
+                  - type: object
+                    properties:
+                      warning:
+                        type: string
+                        description: Warning message (e.g., tier downgrade notification)
+        '400':
+          description: Validation error (cross-org team, tier constraint violation)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '403':
-          description: Forbidden
+          description: Insufficient permissions
         '404':
-          description: Project not found
+          description: Project, team, or user not found
 
     delete:
       tags:

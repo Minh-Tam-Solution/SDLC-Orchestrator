@@ -151,7 +151,7 @@ async function activate(context) {
         // Register commands
         registerCommands(context);
         // Register init commands (SDLC 6.0.0 project initialization)
-        (0, initCommand_1.registerInitCommand)(context, state.apiClient);
+        (0, initCommand_1.registerInitCommand)(context, state.apiClient, state.authService);
         // Register App Builder commands (Sprint 53)
         (0, generateCommand_1.registerGenerateCommand)(context, state.codegenApi);
         (0, magicCommand_1.registerMagicCommand)(context, state.codegenApi);

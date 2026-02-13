@@ -275,10 +275,12 @@ CREATE TABLE projects (
   id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name              VARCHAR(255) NOT NULL,
   description       TEXT,
-  team_id           UUID NOT NULL REFERENCES teams(id),
+  team_id           UUID REFERENCES teams(id) ON DELETE SET NULL, -- Nullable for LITE/STANDARD tiers
+  owner_id          UUID NOT NULL REFERENCES users(id),           -- Project owner (transferable)
   created_by        UUID NOT NULL REFERENCES users(id),
   current_stage     VARCHAR(20) NOT NULL DEFAULT 'stage-00', -- stage-00 to stage-06
   status            VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'archived', 'paused')),
+  policy_pack_tier  VARCHAR(20) NOT NULL DEFAULT 'LITE' CHECK (policy_pack_tier IN ('LITE', 'STANDARD', 'PROFESSIONAL', 'ENTERPRISE')),
   github_repo_url   VARCHAR(500),
   created_at        TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at        TIMESTAMP NOT NULL DEFAULT NOW()
@@ -287,13 +289,32 @@ CREATE TABLE projects (
 CREATE INDEX idx_projects_team_id ON projects(team_id);
 CREATE INDEX idx_projects_status ON projects(status);
 CREATE INDEX idx_projects_current_stage ON projects(current_stage);
+CREATE INDEX idx_projects_owner_id ON projects(owner_id);
 ```
 
 **Relationships**:
 - N:1 with teams (many projects belong to one team)
+- N:1 with users via owner_id (project owner, transferable via PATCH)
 - 1:N with gates (one project has many gates)
 - 1:N with features (one project has many features)
-- N:M with users (project_users join table)
+- N:M with users (project_members join table)
+
+**Updatable Fields** (via PATCH /projects/{project_id}):
+- `name`, `description`: Owner/Admin can update
+- `team_id`: Owner/Admin can reassign to different team (same org only)
+- `owner_id`: Owner can transfer ownership to existing project member
+- `policy_pack_tier`: Owner/Admin can upgrade/downgrade
+
+**Tier-Dependent Team Assignment Constraints**:
+
+| Tier | team_id Required | Unassign Allowed | Enforcement |
+|------|-----------------|------------------|-------------|
+| LITE | No (nullable) | Yes | Advisory |
+| STANDARD | Recommended | Yes (warning) | Soft |
+| PROFESSIONAL | Yes (NOT NULL) | No (blocked) | Hard |
+| ENTERPRISE | Yes (NOT NULL) | No (blocked) | Hard |
+
+**Cross-Org Constraint**: `team.organization_id` must match project's organization context. Enforced at API layer.
 
 ---
 

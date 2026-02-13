@@ -66,6 +66,7 @@ const fs = __importStar(require("fs"));
 const child_process_1 = require("child_process");
 const util_1 = require("util");
 const logger_1 = require("../utils/logger");
+const telemetryService_1 = require("../services/telemetryService");
 const execAsync = (0, util_1.promisify)(child_process_1.exec);
 // Diagnostic collection for E2E validation errors
 let e2eDiagnosticCollection;
@@ -96,6 +97,10 @@ function registerE2EValidateCommand(context) {
     context.subscriptions.push(initCommand);
     // Register show E2E results command
     const showResultsCommand = vscode.commands.registerCommand('sdlc.showE2EResults', (result) => {
+        if (!result) {
+            void vscode.window.showWarningMessage('No E2E validation results available. Run "SDLC: E2E Validate" first.');
+            return;
+        }
         showE2EResultsPanel(result);
     });
     context.subscriptions.push(showResultsCommand);
@@ -163,6 +168,9 @@ async function executeE2EValidate(config) {
                 progress.report({ increment: 20, message: 'Done!' });
                 await showValidationSummary(result, config);
                 logger_1.Logger.info(`E2E validation complete: ${result.passRate}% pass rate, ${result.errors.length} errors`);
+                // Track telemetry (Sprint 147 - Product Truth Layer)
+                void (0, telemetryService_1.trackValidationRun)('extension', 'e2e', result.valid ? 'pass' : 'fail', result.errors.length);
+                void (0, telemetryService_1.trackCommand)('sdlc.e2eValidate', result.valid);
             }
             else {
                 // Fallback to local validation (when CLI not installed)
@@ -184,6 +192,9 @@ async function executeE2EValidate(config) {
                 updateE2EDiagnostics(result);
                 await showValidationSummary(result, config);
                 logger_1.Logger.info(`E2E validation (local) complete: ${result.passRate}% pass rate`);
+                // Track telemetry (Sprint 147 - Product Truth Layer)
+                void (0, telemetryService_1.trackValidationRun)('extension', 'e2e', result.valid ? 'pass' : 'fail', result.errors.length);
+                void (0, telemetryService_1.trackCommand)('sdlc.e2eValidate', result.valid);
             }
         }
         catch (error) {
@@ -191,6 +202,8 @@ async function executeE2EValidate(config) {
             logger_1.Logger.error(`E2E validation failed: ${errorMessage}`);
             void vscode.window.showErrorMessage(`E2E validation failed: ${errorMessage}\n` +
                 `Check Output → SDLC Orchestrator for details.`);
+            // Track telemetry for failed validation (Sprint 147)
+            void (0, telemetryService_1.trackCommand)('sdlc.e2eValidate', false);
         }
     });
 }

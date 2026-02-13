@@ -13,6 +13,7 @@
  */
 import * as vscode from 'vscode';
 import { ApiClient } from '../services/apiClient';
+import { AuthService } from '../services/authService';
 /**
  * Init command options
  */
@@ -27,7 +28,8 @@ interface InitOptions {
 export declare class InitCommandHandler {
     private readonly structureService;
     private readonly apiClient;
-    constructor(apiClient?: ApiClient);
+    private readonly authService;
+    constructor(apiClient?: ApiClient, authService?: AuthService);
     /**
      * Execute the /init command
      */
@@ -86,6 +88,9 @@ export declare class InitCommandHandler {
     private getServerUrl;
     /**
      * Sync project with SDLC Orchestrator server
+     *
+     * Returns true if sync succeeded, false otherwise.
+     * Shows user-facing error messages on failure instead of silently swallowing.
      */
     private syncWithServer;
     /**
@@ -96,6 +101,6 @@ export declare class InitCommandHandler {
 /**
  * Register the init command
  */
-export declare function registerInitCommand(context: vscode.ExtensionContext, apiClient?: ApiClient): void;
+export declare function registerInitCommand(context: vscode.ExtensionContext, apiClient?: ApiClient, authService?: AuthService): void;
 export {};
 //# sourceMappingURL=initCommand.d.ts.map

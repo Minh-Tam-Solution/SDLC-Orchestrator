@@ -2500,7 +2500,30 @@ Dynamic context is delivered via PR comments (not in this file).
 
 ---
 
-## 15. Approvals
+## 15. Implementation Notes
+
+### 15.1 Gate Status Enum Mapping (Feb 11, 2026)
+
+The system uses two different status enum systems that MUST be explicitly mapped:
+
+| Gate Model (DB - UPPERCASE) | DynamicContext (Events) | Display String |
+|-----------------------------|------------------------|----------------|
+| `APPROVED` | `GateStatus.PASSED` | `PASSED` |
+| `REJECTED` | `GateStatus.FAILED` | `FAILED` |
+| `PENDING_APPROVAL` | `GateStatus.IN_PROGRESS` | `PENDING` |
+| `IN_PROGRESS` | `GateStatus.IN_PROGRESS` | `IN PROGRESS` |
+| `DRAFT` | `GateStatus.PENDING` | `DRAFT` |
+| `ARCHIVED` | `GateStatus.BYPASSED` | `ARCHIVED` |
+
+**Important**: Gate model uses UPPERCASE strings. Always use case-sensitive comparison with UPPERCASE values. See `ContextOverlayService._get_stage_and_gate()` and `DynamicContextService.load_context()` for reference implementations.
+
+### 15.2 Cold-Start DB Hydration (Feb 11, 2026)
+
+`DynamicContextService` maintains in-memory context that resets on server restart. The `load_context()` method MUST query the gates table to hydrate initial state when `update_count == 0`. This ensures the Context Overlay API returns correct data immediately after deployment, without waiting for an EventBus `GateStatusChanged` event.
+
+---
+
+## 16. Approvals
 
 | Role | Name | Status | Date |
 |------|------|--------|------|
@@ -2510,6 +2533,6 @@ Dynamic context is delivered via PR comments (not in this file).
 
 ---
 
-**SDLC 5.1.3 | Sprint 80 | Stage 02 (HOW - Design)**
+**SDLC 6.0.3 | Sprint 80+ | Stage 04 (BUILD)**
 
 *Document ID: TDS-080-001*

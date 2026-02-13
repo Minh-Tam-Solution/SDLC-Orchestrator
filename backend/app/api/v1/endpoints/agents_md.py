@@ -565,8 +565,8 @@ async def get_dynamic_context(
     - Active constraints
     - Security scan status
     """
-    # Get or create context
-    context = context_service._get_or_create_context(repo_id)
+    # Load context (hydrates from DB on cold start)
+    context = await context_service.load_context(repo_id)
 
     return DynamicContextResponse(
         repo_id=repo_id,

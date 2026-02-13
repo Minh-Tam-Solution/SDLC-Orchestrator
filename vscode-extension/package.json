@@ -2,7 +2,7 @@
   "name": "sdlc-orchestrator",
   "displayName": "SDLC Orchestrator",
   "description": "Gate status monitoring, compliance assistance, and AI-powered development for SDLC 6.0.2 governance platform with E2E API Testing support",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "publisher": "mtsolution",
   "license": "Apache-2.0",
   "repository": {

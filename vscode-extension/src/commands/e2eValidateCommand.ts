@@ -94,7 +94,13 @@ export function registerE2EValidateCommand(
     // Register show E2E results command
     const showResultsCommand = vscode.commands.registerCommand(
         'sdlc.showE2EResults',
-        (result: E2EValidationResult) => {
+        (result?: E2EValidationResult) => {
+            if (!result) {
+                void vscode.window.showWarningMessage(
+                    'No E2E validation results available. Run "SDLC: E2E Validate" first.'
+                );
+                return;
+            }
             showE2EResultsPanel(result);
         }
     );

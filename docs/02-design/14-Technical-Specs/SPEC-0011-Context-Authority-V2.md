@@ -1,7 +1,7 @@
 ---
 spec_id: SPEC-0011
 title: Context Authority V2 - Gate-Aware Dynamic Context
-version: "1.0.0"
+version: "1.1.0"
 status: APPROVED
 tier:
   - STANDARD
@@ -9,7 +9,7 @@ tier:
   - ENTERPRISE
 pillar: 7
 owner: Backend Team
-last_updated: 2026-02-04
+last_updated: 2026-02-11
 related_adrs:
   - ADR-041
   - ADR-040
@@ -448,17 +448,54 @@ overlay_content: |
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Created** | January 29, 2026 |
+| **Updated** | February 11, 2026 |
 | **Author** | Backend Team |
-| **Status** | DRAFT |
-| **Sprint** | 119 (Day 5) |
-| **Framework** | SDLC 6.0 (pending) |
+| **Status** | APPROVED |
+| **Sprint** | 119 (Day 5), Updated Sprint 172+ |
+| **Framework** | SDLC 6.0.3 (7-Pillar) |
 | **Decision** | EXTEND (Context Authority V2) |
 
 ---
 
+## 11. Known Issues & Fixes
+
+### 11.1 BUG-001: Gate Status Mapping Mismatch (Fixed Feb 11, 2026)
+
+**Symptom**: Extension Context Overlay showed "G3 Pending" while Gate Status panel showed "G3 Approved".
+
+**Root Cause**: Two data source inconsistencies:
+
+1. **`ContextOverlayService._get_stage_and_gate()`** compared gate status using lowercase `'passed'`, but the Gate model stores status as UPPERCASE (`"APPROVED"`, `"REJECTED"`). The mapping was also wrong - DB uses `"APPROVED"` not `"passed"`:
+
+```python
+# BUG (before fix):
+gate_status = f"{gate.gate_name} {'PASSED' if gate.status == 'passed' else 'PENDING'}"
+# gate.status is "APPROVED" (UPPERCASE) → never equals 'passed' → always shows PENDING
+```
+
+2. **`DynamicContextService.load_context()`** had a TODO stub that never loaded gate data from the database. On server restart, all projects defaulted to `GateStatus.PENDING`.
+
+**Fix Applied**:
+
+| File | Change |
+|------|--------|
+| `context_overlay_service.py` | Rewrote `_get_stage_and_gate()` to query highest APPROVED gate first, with proper UPPERCASE status mapping (`APPROVED→PASSED`, `REJECTED→FAILED`, etc.) |
+| `dynamic_context_service.py` | Implemented `load_context()` to hydrate in-memory context from gates table on cold start (only when `update_count == 0`) |
+| `agents_md.py` | Changed endpoint to call `load_context()` instead of `_get_or_create_context()` |
+
+**Lesson Learned**: When two views display the same data from different API sources, ensure both sources use the same status enum system or normalize at the API boundary. Gate model uses `APPROVED/REJECTED/DRAFT` while DynamicContext uses `PASSED/FAILED/PENDING` - the mapping between these must be explicit.
+
+---
+
 ## Changelog
+
+### v1.1.0 (February 11, 2026)
+- **BUG-001 FIX**: Gate status mapping mismatch between Context Overlay and Gate Status
+- Added Section 11 (Known Issues & Fixes)
+- Updated status to APPROVED (was DRAFT)
+- Documented dual-enum mapping lesson (Gate model vs DynamicContext)
 
 ### v1.0.0 (January 29, 2026)
 - Initial specification

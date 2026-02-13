@@ -1,7 +1,7 @@
 # Sprint 172: Project Metadata Auto-Sync
 
 **Sprint Duration**: Feb 10-14, 2026 (5 days)
-**Status**: 🔄 IN PROGRESS
+**Status**: ✅ PARTIAL COMPLETE
 **Phase**: Phase 6 - Market Expansion + Infrastructure
 **Framework**: SDLC 6.0.3 (7-Pillar + Section 7 Quality Assurance)
 **CTO Approval**: ✅ APPROVED (Feb 10, 2026)
@@ -268,19 +268,30 @@ AGENTS.md (update with Sprint 172 completion)
 ### Estimated Effort
 
 ```yaml
-Total Effort: 3-4 hours
+Feature 1 (Project Metadata Auto-Sync): 3-4 hours
   Day 1 (Backend): 2 hours
   Day 2 (Frontend): 1 hour
   Day 3 (Testing): 1 hour
   Day 4 (Deploy): 0.5 hour
   Day 5 (Docs): 1 hour
 
+Feature 2 (Project-Team-Tier Ownership): 18 hours
+  Backend Schema: 2 hours
+  Backend Validation: 3 hours
+  Backend Endpoint: 3 hours
+  Frontend Types/Hook: 2 hours
+  Frontend Edit Modal: 3 hours
+  Testing: 4 hours
+  Documentation: 1 hour
+
+Total Sprint Effort: ~22 hours
+
 Team Allocation:
-  - Backend Lead: 2.5 hours
-  - Frontend Lead: 1 hour
-  - QA Engineer: 1 hour
+  - Backend Lead: 10.5 hours (F1: 2.5h + F2: 8h)
+  - Frontend Lead: 6 hours (F1: 1h + F2: 5h)
+  - QA Engineer: 5 hours (F1: 1h + F2: 4h)
   - DevOps: 0.5 hour
-  - Tech Lead: 1 hour (docs)
+  - Tech Lead: 2 hours (docs)
 ```
 
 ### Code Metrics (Estimated)
@@ -382,19 +393,176 @@ Total Pipeline: <130ms (under 200ms target)
 Sprint 172 is **DONE** when:
 
 - [x] **Phase 1** (Quick Fix): SDLC-Orchestrator metadata updated via migration ✅
-- [ ] **Phase 2** (Auto-Sync):
+- [x] **Phase 1.5** (Bug Fixes - Gate Status & Cold Start):
+  - [x] Gate status mapping fixed (UPPERCASE DB enum → display string)
+  - [x] DynamicContextService.load_context() hydrates from DB on cold start
+  - [x] ContextOverlayService queries highest APPROVED gate first
+  - [x] TeamsService.create_team() uses selectinload (no lazy-load hang)
+  - [x] Documentation: SPEC-0011 v1.1.0, AGENTS-MD Tech Design Section 15
+- [x] **Phase 1.6** (VSCode Extension v1.6.3):
+  - [x] Auth pre-check in init command (warn if not logged in)
+  - [x] syncWithServer returns bool + user-facing error messages
+  - [x] Null guards for E2E validate and spec validation results
+  - [x] Version bump 1.6.2 → 1.6.3
+- [x] **Feature 2 - Design** (Project-Team-Tier Ownership Spec):
+  - [x] Project-Ownership-Transfer-Spec.md written (333 lines)
+  - [x] Data-Model-ERD.md updated (owner_id, policy_pack_tier, tier constraints)
+  - [x] API-Specification.md updated (PUT → PATCH, team/owner/tier fields)
+  - [x] Teams-Data-Model-Specification.md Section 9 added
+  - [x] Sprint plan expanded with Feature 2 tasks
+- [ ] **Phase 2** (Auto-Sync) - Deferred to Sprint 173:
   - [ ] POST `/projects/{id}/sync` endpoint live in staging
   - [ ] Auto-sync on project page load (frontend integration)
   - [ ] 95%+ test coverage (unit + integration + E2E)
-  - [ ] <200ms p95 latency (measured, not estimated)
-  - [ ] All smoke tests pass
-  - [ ] Documentation complete (tech spec + sprint plan + API docs)
-  - [ ] CTO approval for production deployment
+- [ ] **Feature 2 - Implementation** - Deferred to Sprint 173:
+  - [ ] PATCH `/projects/{id}` supports team_id, owner_id, policy_pack_tier
+  - [ ] Cross-org team assignment blocked (400)
+  - [ ] PROFESSIONAL+ null team_id blocked (400)
+  - [ ] Frontend Edit Project modal working
+  - [ ] 13 unit tests + E2E tests passing
 
 **Sign-off Required**:
 - CTO (Technical approval)
 - QA Lead (Test verification)
 - DevOps (Deployment confirmation)
+
+---
+
+## 🏗️ **Feature 2: Project-Team-Tier Ownership Management**
+
+**Priority**: P1
+**Effort**: 18h (2.25 days)
+**Technical Spec**: [Project-Ownership-Transfer-Spec.md](../../../02-design/14-Technical-Specs/Project-Ownership-Transfer-Spec.md)
+**CTO Approval**: ✅ APPROVED (Feb 12, 2026)
+
+### Overview
+
+Enable project team reassignment, ownership transfer, and tier management via `PATCH /projects/{project_id}`. Currently only `name` and `description` are updatable. This feature adds:
+- `team_id` reassignment (same org only, tier-dependent)
+- `owner_id` transfer (to existing project member)
+- `policy_pack_tier` upgrade/downgrade (with validation)
+
+### Task F2.1: Backend - ProjectUpdate Schema (2h)
+**Owner**: Backend Team
+**Priority**: P0
+
+**File**: `backend/app/schemas/project.py`
+
+Add to `ProjectUpdate`:
+- `team_id: Optional[str]` - reassign to different team
+- `owner_id: Optional[str]` - transfer ownership
+- `policy_pack_tier: Optional[str]` - LITE/STANDARD/PROFESSIONAL/ENTERPRISE
+
+**Acceptance Criteria**:
+- [ ] ProjectUpdate schema accepts all 5 fields
+- [ ] Pydantic validation for tier enum values
+- [ ] Backward compatible (existing name/description updates still work)
+
+### Task F2.2: Backend - Validation Service (3h)
+**Owner**: Backend Team
+**Priority**: P0
+
+**File**: `backend/app/services/teams_service.py`
+
+New method `validate_project_team_reassignment()`:
+- Cross-org check: target team.organization_id must match project's org
+- User membership: requesting user must be TeamMember of target team
+- Tier enforcement: PROFESSIONAL/ENTERPRISE cannot have null team_id
+- Ownership: new owner must be existing ProjectMember
+
+**Acceptance Criteria**:
+- [ ] Cross-org assignment returns 400
+- [ ] Non-member of target team returns 403
+- [ ] PROFESSIONAL null team_id returns 400
+- [ ] Invalid owner_id returns 404
+
+### Task F2.3: Backend - Update Endpoint (3h)
+**Owner**: Backend Team
+**Priority**: P0
+
+**File**: `backend/app/api/routes/projects.py`
+
+Extend `update_project()` handler:
+1. Existing auth check (owner/admin of project)
+2. If `team_id` provided: call validation service
+3. If `owner_id` provided: validate is ProjectMember + only owner can transfer
+4. If `policy_pack_tier` changes: validate tier requirements, warn on downgrade
+5. Log all changes to `governance_audit_log`
+6. Use `selectinload` for response (avoid lazy-load hang)
+
+**Acceptance Criteria**:
+- [ ] Team reassignment works (same org)
+- [ ] Ownership transfer works (valid member)
+- [ ] Tier upgrade validates team_id requirement
+- [ ] Tier downgrade returns warning, keeps team_id
+- [ ] All changes logged to audit trail
+- [ ] No lazy-load hang (selectinload used)
+
+### Task F2.4: Frontend - API Types & Hook (2h)
+**Owner**: Frontend Team
+**Priority**: P0
+
+**Files**: `frontend/src/lib/api.ts`, `frontend/src/hooks/useProjects.ts`
+
+- Add `ProjectUpdate` interface with optional fields
+- Add `updateProject(projectId, data)` API function
+- Add `useUpdateProject(projectId)` mutation hook
+- Update `ProjectDetail` type: add `team_id`, `team_name`, `policy_pack_tier`
+- Cache invalidation on success (project detail + lists)
+
+**Acceptance Criteria**:
+- [ ] updateProject API function created
+- [ ] useUpdateProject hook with cache invalidation
+- [ ] ProjectDetail type includes team_id, team_name
+- [ ] TypeScript compilation passes
+
+### Task F2.5: Frontend - Edit Project Modal (3h)
+**Owner**: Frontend Team
+**Priority**: P0
+
+**File**: `frontend/src/app/app/projects/[id]/page.tsx`
+
+- "Edit Project" button visible to owner/admin only
+- Dialog with: name, description, team selector, owner transfer dropdown, tier badge
+- Team selector: `useTeams()` dropdown, pre-filled with current team
+- Owner transfer: dropdown of project members, current owner selected
+- Loading/error states following existing modal patterns
+
+**Acceptance Criteria**:
+- [ ] Edit button visible for owner/admin
+- [ ] Edit button hidden for viewers/non-members
+- [ ] Team selector shows user's teams only
+- [ ] Owner transfer dropdown shows project members
+- [ ] Success toast after update
+- [ ] Error toast for validation failures
+
+### Task F2.6: Testing (4h)
+**Owner**: QA Team
+**Priority**: P0
+
+**Test Scenarios** (13 unit + integration + E2E):
+- [ ] Update name/description → 200
+- [ ] Reassign team (same org) → 200
+- [ ] Reassign team (cross-org) → 400
+- [ ] Transfer ownership (valid member) → 200
+- [ ] Transfer ownership (non-member) → 404
+- [ ] Transfer by non-owner → 403
+- [ ] Unassign team (LITE) → 200
+- [ ] Unassign team (PROFESSIONAL) → 400
+- [ ] Upgrade LITE → PROFESSIONAL (with team) → 200
+- [ ] Upgrade LITE → PROFESSIONAL (no team) → 400
+- [ ] Downgrade PROFESSIONAL → LITE → 200 + warning
+- [ ] E2E: Edit modal opens and submits
+- [ ] E2E: Unauthorized user cannot see edit button
+
+### Task F2.7: Documentation Review (1h)
+**Owner**: Tech Lead
+**Priority**: P1
+
+- [ ] Verify Data-Model-ERD.md matches implementation
+- [ ] Verify API-Specification.md matches implementation
+- [ ] Verify Project-Ownership-Transfer-Spec.md is complete
+- [ ] Update AGENTS.md with Sprint 172 ownership feature
 
 ---
 
@@ -421,13 +589,17 @@ Sprint 172 is **DONE** when:
 - ADR-029 compliance ensured vendor neutrality
 
 ### What Could Be Improved
-- TBD (post-sprint)
+- Auto-Sync feature (Phase 2) deferred — underestimated dependency on gate status bug fix
+- Feature 2 design docs completed but implementation deferred to Sprint 173
 
 ### Action Items
-- TBD (post-sprint)
+- Sprint 173: Implement Phase 2 Auto-Sync (ProjectSyncService + API endpoint)
+- Sprint 173: Implement Feature 2 PATCH /projects/{id} (team/owner/tier management)
+- Cleanup: Fix 15 pre-existing agents_md_validator test failures (Sprint 80 drift)
 
 ---
 
-**Sprint Status**: 🔄 IN PROGRESS (Day 1)
-**Next Update**: Daily standup (Feb 11, 2026)
+**Sprint Status**: ✅ PARTIAL COMPLETE (Phase 1 + Bug Fixes + Design)
+**Completed**: Feb 13, 2026
+**Deferred**: Phase 2 Auto-Sync + Feature 2 Implementation → Sprint 173
 **CTO Review**: Sprint close (Feb 14, 2026)

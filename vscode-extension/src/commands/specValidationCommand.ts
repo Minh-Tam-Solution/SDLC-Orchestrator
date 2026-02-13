@@ -65,7 +65,19 @@ export function registerSpecValidationCommand(
     // Register command to show spec validation results
     const showResultsCommand = vscode.commands.registerCommand(
         'sdlc.showSpecValidationResults',
-        (result: SpecValidationResult) => {
+        async (result?: SpecValidationResult) => {
+            if (!result) {
+                // No cached result - run validation on current file first
+                const editor = vscode.window.activeTextEditor;
+                if (editor && editor.document.languageId === 'markdown') {
+                    await executeValidateSpec(codegenApi);
+                } else {
+                    void vscode.window.showWarningMessage(
+                        'No spec validation results available. Open a spec file and run "SDLC: Validate Spec" first.'
+                    );
+                }
+                return;
+            }
             showValidationResultsPanel(result);
         }
     );
@@ -322,6 +334,13 @@ function updateDiagnostics(document: vscode.TextDocument, result: SpecValidation
  * Show validation results in an output channel
  */
 function showValidationResultsPanel(result: SpecValidationResult): void {
+    if (!result || !result.spec_id) {
+        void vscode.window.showWarningMessage(
+            'No spec validation results available. Run "SDLC: Validate Spec" on a specification file first.'
+        );
+        return;
+    }
+
     const outputChannel = vscode.window.createOutputChannel('SDLC Spec Validation');
     outputChannel.clear();
 

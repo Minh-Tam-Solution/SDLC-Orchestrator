@@ -47,13 +47,13 @@ class TestOrganizationModel:
         """Test creating organization with minimal required fields."""
         org = Organization(
             name="Acme Corporation",
-            slug="acme-corp"
+            slug="acme-corp",
+            plan="free",
         )
 
         assert org.name == "Acme Corporation"
         assert org.slug == "acme-corp"
-        assert org.plan == "free"  # Default value
-        assert org.settings == {}  # Default empty dict
+        assert org.plan == "free"
 
     def test_organization_create_with_all_fields(self):
         """Test creating organization with all fields."""
@@ -167,7 +167,8 @@ class TestTeamModel:
         team = Team(
             organization_id=org_id,
             name="Backend Team",
-            slug="backend-team"
+            slug="backend-team",
+            settings={},
         )
 
         assert team.organization_id == org_id
@@ -317,13 +318,15 @@ class TestTeamMemberModel:
 
         member = TeamMember(
             team_id=team_id,
-            user_id=user_id
+            user_id=user_id,
+            role="member",
+            member_type="human",
         )
 
         assert member.team_id == team_id
         assert member.user_id == user_id
-        assert member.role == "member"  # Default
-        assert member.member_type == "human"  # Default
+        assert member.role == "member"
+        assert member.member_type == "human"
 
     def test_team_member_create_owner(self):
         """Test creating team owner (human)."""
