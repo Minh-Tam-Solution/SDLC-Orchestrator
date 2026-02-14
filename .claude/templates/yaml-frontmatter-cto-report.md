@@ -1,4 +1,4 @@
-# CTO Report Template (SDLC 6.0.0)
+# CTO Report Template (SDLC 6.0.5)
 
 **File naming**: `CTO-REPORT-YYYY-MM-DD-[kebab-case-title].md`
 **Location**: `docs/09-govern/01-CTO-Reports/`

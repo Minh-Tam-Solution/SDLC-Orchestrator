@@ -19,7 +19,7 @@ related_adrs:
   - ADR-040-App-Builder-OpenSpec-Integration
 related_specs:
   - SPEC-0001-Governance-System-Implementation
-framework_version: 6.0.0
+framework_version: 6.0.5
 tags:
   - codegen
   - quality-gates
@@ -685,14 +685,14 @@ CREATE TABLE codegen_usage (
 
 ### 7.1 Changes from Previous Version
 
-This is the initial version (1.0.0) migrated from SDLC 5.3.0 format to Framework 6.0.0 format.
+This is the initial version (1.0.0) migrated from SDLC 5.3.0 format to Framework 6.0.5 format.
 
 **Migration Changes**:
 - Added YAML frontmatter with spec_id, tier, stage, relationships
 - Converted requirements to BDD format (GIVEN-WHEN-THEN)
 - Added tier-specific requirements (LITE/STANDARD/PROFESSIONAL/ENTERPRISE)
 - Added acceptance criteria table with test methods
-- Reorganized content to match 9-section Framework 6.0.0 template
+- Reorganized content to match 9-section Framework 6.0.5 template
 - Added relationship to SPEC-0001 (Governance System)
 
 **Content Updates**:
@@ -702,7 +702,7 @@ This is the initial version (1.0.0) migrated from SDLC 5.3.0 format to Framework
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0.0 | 2026-01-28 | Backend Lead | Initial version (migrated to Framework 6.0.0) |
+| 1.0.0 | 2026-01-28 | Backend Lead | Initial version (migrated to Framework 6.0.5) |
 | 0.9.0 | 2025-12-23 | Backend Lead + QA Lead | Original spec in SDLC 5.1.3 format |
 
 ---
@@ -870,7 +870,7 @@ rules:
 ## Document Control
 
 **Change Log**:
-- 2026-01-28: Migrated to Framework 6.0.0 format (Backend Lead)
+- 2026-01-28: Migrated to Framework 6.0.5 format (Backend Lead)
 - 2025-12-23: Original specification created (Backend Lead + QA Lead)
 
 **Approval**:

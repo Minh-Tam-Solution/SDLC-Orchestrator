@@ -1,5 +1,5 @@
 # Sprint 117 Day 2: Migration Summary Report
-## Framework 6.0.0 Spec Migration - P0 Specs (3 of 5 Complete)
+## Framework 6.0.5 Spec Migration - P0 Specs (3 of 5 Complete)
 
 **Date**: January 28, 2026
 **Sprint**: Sprint 117 Week 1 Day 2
@@ -10,14 +10,14 @@
 
 ## Executive Summary
 
-**Objective**: Migrate 3 P0 (critical priority) specifications to Framework 6.0.0 format on Day 2 of Sprint 117.
+**Objective**: Migrate 3 P0 (critical priority) specifications to Framework 6.0.5 format on Day 2 of Sprint 117.
 
 **Result**: ✅ **100% COMPLETE** - All 3 P0 specs successfully migrated:
 - SPEC-0003: ADR-007 AI Context Engine (~900 lines)
 - SPEC-0004: Policy Guards Design (~1,100 lines)
 - SPEC-0005: System Architecture Document (~1,050 lines)
 
-**Total Output**: ~3,050 lines of Framework 6.0.0-compliant specifications
+**Total Output**: ~3,050 lines of Framework 6.0.5-compliant specifications
 **Requirements Converted**: 20 functional requirements (FR-001 to FR-020) in BDD format
 **Acceptance Criteria**: 35 acceptance criteria with test methods and tier applicability
 **ADR References**: 15 architecture decision records linked
@@ -201,7 +201,7 @@ Layer 1: Infrastructure (OPA, MinIO, Grafana, PostgreSQL, Redis)
 
 ---
 
-## Framework 6.0.0 Compliance Checklist
+## Framework 6.0.5 Compliance Checklist
 
 ### YAML Frontmatter (3/3 specs)
 - [x] `spec_version: "1.0.0"` added
@@ -213,7 +213,7 @@ Layer 1: Infrastructure (OPA, MinIO, Grafana, PostgreSQL, Redis)
 - [x] `owner:` assigned (CTO, Backend Lead, Tech Lead)
 - [x] `related_adrs:` linked (14 unique ADRs)
 - [x] `related_specs:` linked (cross-references)
-- [x] `framework_version: SDLC 6.0.0` declared
+- [x] `framework_version: SDLC 6.0.5` declared
 
 ### BDD Requirements Format (3/3 specs)
 - [x] All functional requirements use GIVEN-WHEN-THEN format
@@ -251,7 +251,7 @@ Layer 1: Infrastructure (OPA, MinIO, Grafana, PostgreSQL, Redis)
 
 ## Quality Metrics
 
-### Framework 6.0.0 Compliance
+### Framework 6.0.5 Compliance
 - **YAML Frontmatter**: 100% (30/30 fields complete across 3 specs)
 - **BDD Requirements**: 100% (35/35 requirements in GIVEN-WHEN-THEN)
 - **Acceptance Criteria**: 100% (36/36 criteria with test methods)
@@ -277,7 +277,7 @@ Layer 1: Infrastructure (OPA, MinIO, Grafana, PostgreSQL, Redis)
 ### Total Lines Written
 - **Day 1**: ~1,600 lines (SPEC-0001: 750 lines, SPEC-0002: 850 lines)
 - **Day 2**: ~3,050 lines (SPEC-0003: 900 lines, SPEC-0004: 1,100 lines, SPEC-0005: 1,050 lines)
-- **Cumulative**: ~4,650 lines of Framework 6.0.0-compliant specifications
+- **Cumulative**: ~4,650 lines of Framework 6.0.5-compliant specifications
 
 ### Total Requirements Converted
 - **Day 1**: 14 functional requirements (7 + 7)
@@ -434,7 +434,7 @@ failure_consequence: "blocking"
 
 ### Version Correction
 
-**Framework Version**: 6.0.0 (In Development)
+**Framework Version**: 6.0.5 (In Development)
 - User feedback: "chúng ta vẫn giữ phiên bản SDLC 6.0 nhé, chưa lên 6.1"
 - Translation: "we still keep SDLC version 6.0, not upgrading to 6.1 yet"
 - Rationale: Framework 6.0 still in development, not officially released
@@ -453,7 +453,7 @@ failure_consequence: "blocking"
 > Purity Compliance: 100% (zero .py/.ts/.sh files)
 > Platform-Agnostic: 100% (no GitHub/Git references)
 > Expert Critiques: All 5 issues (A-E) addressed
-> Version: Correctly set to 6.0.0 (in development)
+> Version: Correctly set to 6.0.5 (in development)
 >
 > Deferred: 2 checks (SPEC-0001/0002 frontmatter validation - will be validated when specs are created)
 >
@@ -497,5 +497,5 @@ failure_consequence: "blocking"
 
 ---
 
-*Sprint 117 Day 2 Migration Summary - Framework 6.0.0 Track 1*
-*SDLC Orchestrator - First Governance Platform on Framework 6.0.0*
+*Sprint 117 Day 2 Migration Summary - Framework 6.0.5 Track 1*
+*SDLC Orchestrator - First Governance Platform on Framework 6.0.5*

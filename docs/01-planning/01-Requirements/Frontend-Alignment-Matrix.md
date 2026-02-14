@@ -2,7 +2,7 @@
 
 **Version**: 1.4.0
 **Status**: ACTIVE
-**Framework**: SDLC 6.0.0
+**Framework**: SDLC 6.0.5
 **Last Updated**: 2026-01-30 (Sprint 126 Complete - E2E Tests)
 **Owner**: PM + Architect
 
@@ -24,11 +24,11 @@ SDLC Orchestrator delivers governance through **3 frontend surfaces**. This matr
 
 | Component | Current | Target | Status | Sprint |
 |-----------|---------|--------|--------|--------|
-| SDLC Enterprise Framework | 6.0.0 | 6.0.0 | ✅ Aligned | - |
-| Backend API | 6.0.0 | 6.0.0 | ✅ Aligned | - |
-| **Web Dashboard** | 6.0.0 | 6.0.0 | ✅ Aligned | - |
-| **CLI (sdlcctl)** | **6.0.0** | 6.0.0 | ✅ **ALIGNED** | 125 ✅ |
-| **VS Code Extension** | **6.0.0** | 6.0.0 | ✅ **ALIGNED** | 125 ✅ |
+| SDLC Enterprise Framework | 6.0.5 | 6.0.5 | ✅ Aligned | - |
+| Backend API | 6.0.5 | 6.0.5 | ✅ Aligned | - |
+| **Web Dashboard** | 6.0.5 | 6.0.5 | ✅ Aligned | - |
+| **CLI (sdlcctl)** | **6.0.5** | 6.0.5 | ✅ **ALIGNED** | 125 ✅ |
+| **VS Code Extension** | **6.0.5** | 6.0.5 | ✅ **ALIGNED** | 125 ✅ |
 
 > **Sprint 125 Complete (Jan 30, 2026)**: CLI v1.2.0 published to [PyPI](https://pypi.org/project/sdlcctl/1.2.0/), Extension v1.2.0 published to [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=mtsolution.sdlc-orchestrator)
 
@@ -48,7 +48,7 @@ SDLC Orchestrator delivers governance through **3 frontend surfaces**. This matr
 | Folder Structure Validation | ✅ | ✅ | ✅ | ✅ Aligned | - |
 | Tier Classification | ✅ | ✅ | ✅ | ✅ Aligned | - |
 | Compliance Scoring | ✅ | ✅ | ⚠️ | Frontend | 126 |
-| **SDLC 6.0.0 Spec Features** |
+| **SDLC 6.0.5 Spec Features** |
 | YAML Frontmatter Validation | ✅ | ✅ | ✅ | ✅ Aligned | **126** ✅ |
 | JSON Schema Validation | ✅ | ✅ | ✅ | ✅ Aligned | **126** ✅ |
 | BDD Requirements Validation | ✅ | ✅ | ✅ | ✅ Aligned | **126** ✅ |
@@ -63,7 +63,7 @@ SDLC Orchestrator delivers governance through **3 frontend surfaces**. This matr
 | **AI Features** |
 | AI Council Chat | ✅ | ❌ | ✅ | - | - |
 | AI Recommendations | ✅ | ❌ | ✅ | - | - |
-| Context Authority (6.0.0) | ✅ | ❌ | ❌ | **All** | **127** |
+| Context Authority (6.0.5) | ✅ | ❌ | ❌ | **All** | **127** |
 
 ### 3.2 Feature Status Summary
 
@@ -71,14 +71,14 @@ SDLC Orchestrator delivers governance through **3 frontend surfaces**. This matr
 |----------|-----|-----|-----------|
 | Total Features | 18 | 12 | 16 |
 | Implemented | 18 | 12 | 16 |
-| **SDLC 6.0.0 Features** | 5/7 | **7/7** | **4/7** |
+| **SDLC 6.0.5 Features** | 5/7 | **7/7** | **4/7** |
 | Parity Score | 100% | **71%** | **89%** |
 
 > **Updated Jan 30, 2026 (Sprint 126)**:
 > - ✅ CLI added JSON Schema validation for frontmatter
 > - ✅ CLI added BDD requirements validation (GIVEN-WHEN-THEN)
 > - ✅ CLI added tier-specific sections validation
-> - ✅ CLI added `sdlcctl spec convert` (OpenSpec → SDLC 6.0.0)
+> - ✅ CLI added `sdlcctl spec convert` (OpenSpec → SDLC 6.0.5)
 > - ✅ CLI added `sdlcctl spec init` (create new spec with template)
 > - ✅ CLI already had `sdlcctl spec list` from Sprint 119
 > - ✅ **Extension** added spec validation commands (S126-06)
@@ -114,7 +114,7 @@ SDLC Orchestrator delivers governance through **3 frontend surfaces**. This matr
 | **Evidence** |
 | POST /evidence | Upload evidence | ✅ | ❌ | ✅ | |
 | GET /evidence | List evidence | ✅ | ❌ | ✅ | |
-| **Specs (SDLC 6.0.0)** |
+| **Specs (SDLC 6.0.5)** |
 | POST /specs/validate | Validate spec | ✅ | ⚠️ | ⚠️ | CLI/Ext: local impl |
 | POST /specs/convert | Convert spec | ❌ | ⚠️ | ❌ | CLI: local impl |
 | GET /specs | List specs | ✅ | ⚠️ | ❌ | CLI: local impl |
@@ -139,7 +139,7 @@ SDLC Orchestrator delivers governance through **3 frontend surfaces**. This matr
 |--------|-------------|--------|------------|
 | ~~GAP-001~~ | ~~CLI on SDLC 5.0.0~~ | ~~Users get outdated validation~~ | ✅ **Sprint 125 RESOLVED** |
 | ~~GAP-002~~ | ~~Extension on SDLC 5.x~~ | ~~Users get outdated validation~~ | ✅ **Sprint 125 RESOLVED** |
-| ~~GAP-003~~ | ~~No spec YAML validation in CLI~~ | ~~6.0.0 specs not validated~~ | ✅ **Sprint 125 RESOLVED** |
+| ~~GAP-003~~ | ~~No spec YAML validation in CLI~~ | ~~6.0.5 specs not validated~~ | ✅ **Sprint 125 RESOLVED** |
 | ~~GAP-004~~ | ~~No BDD validation in CLI~~ | ~~Requirements format not checked~~ | ✅ **Sprint 126 RESOLVED** |
 
 ### 5.2 High Priority Gaps (P1)
@@ -147,9 +147,9 @@ SDLC Orchestrator delivers governance through **3 frontend surfaces**. This matr
 | Gap ID | Description | Impact | Resolution |
 |--------|-------------|--------|------------|
 | ~~GAP-005~~ | ~~No spec convert in CLI~~ | ~~Manual OpenSpec conversion~~ | ✅ **Sprint 126 RESOLVED** |
-| GAP-006 | No Context Authority in CLI/Ext | 6.0.0 feature missing | Sprint 127 |
+| GAP-006 | No Context Authority in CLI/Ext | 6.0.5 feature missing | Sprint 127 |
 | GAP-007 | Extension compliance scoring partial | Inconsistent UX | Sprint 127 |
-| ~~GAP-008~~ | ~~No spec features in Extension~~ | ~~6.0.0 specs not validated in IDE~~ | ✅ **Sprint 126 RESOLVED** |
+| ~~GAP-008~~ | ~~No spec features in Extension~~ | ~~6.0.5 specs not validated in IDE~~ | ✅ **Sprint 126 RESOLVED** |
 
 ### 5.3 Backlog Gaps (P2)
 
@@ -170,8 +170,8 @@ Sprint 124 (Complete)
 └── [DONE] Frontend Alignment Matrix
 
 Sprint 125 ✅ COMPLETE (Jan 30, 2026 - 14 days early!)
-├── [DONE] Update CLI version refs → 6.0.0 (~35 files)
-├── [DONE] Update Extension version refs → 6.0.0 (5 files)
+├── [DONE] Update CLI version refs → 6.0.5 (~35 files)
+├── [DONE] Update Extension version refs → 6.0.5 (5 files)
 ├── [DONE] Implement SpecFrontmatterValidator (16 tests)
 ├── [DONE] Publish CLI v1.2.0 to PyPI
 ├── [DONE] Publish Extension v1.2.0 to Marketplace
@@ -180,7 +180,7 @@ Sprint 125 ✅ COMPLETE (Jan 30, 2026 - 14 days early!)
 Sprint 126 ✅ COMPLETE (Jan 30, 2026)
 ├── [DONE] JSON Schema validation integration
 ├── [DONE] Implement spec_bdd_validator (CLI)
-├── [DONE] Implement sdlcctl spec convert (OpenSpec → SDLC 6.0.0)
+├── [DONE] Implement sdlcctl spec convert (OpenSpec → SDLC 6.0.5)
 ├── [DONE] Implement sdlcctl spec init (create new spec)
 ├── [EXISTS] sdlcctl spec list (was in Sprint 119)
 ├── [DONE] Add spec validation to Extension (S126-06)
@@ -232,7 +232,7 @@ Sprint 127 (Feb 17-28, 2026)
 | Date | Version | Change | Author |
 |------|---------|--------|--------|
 | 2026-01-30 | 1.0.0 | Initial matrix created | AI Assistant |
-| 2026-01-30 | 1.1.0 | Sprint 125 complete - CLI/Extension aligned to 6.0.0 | AI Assistant |
+| 2026-01-30 | 1.1.0 | Sprint 125 complete - CLI/Extension aligned to 6.0.5 | AI Assistant |
 | 2026-01-30 | 1.2.0 | Sprint 126 CLI enhancements - spec convert/init/list, JSON Schema, BDD | AI Assistant |
 | 2026-01-30 | 1.3.0 | Sprint 126 Extension spec validation (S126-06) - GAP-008 resolved | AI Assistant |
 | 2026-01-30 | 1.4.0 | Sprint 126 E2E tests complete (S126-07) - Full validation parity | AI Assistant |

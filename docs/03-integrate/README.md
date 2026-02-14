@@ -7,7 +7,7 @@
 **Date**: February 3, 2026
 **Status**: ✅ ACTIVE - MCP Integration Phase 1 Complete
 **Authority**: Backend Lead + CTO Approved
-**Framework**: SDLC 6.0.3 (Framework-First)
+**Framework**: SDLC 6.0.5 (Framework-First)
 **Positioning**: Operating System for Software 3.0
 
 **Changelog v2.3.0** (Feb 3, 2026):
@@ -21,7 +21,7 @@
   - Organization Invitations API (7 endpoints): `/api/v1/org-invitations/*`
 - **Gate Approval Enhancement**: Async notifications, <1s response time
 - **Documentation**: Added SPRINT-145-API-ADDITIONS.md reference
-- **Framework Upgrade**: SDLC 6.0.0 → 6.0.3
+- **Framework Upgrade**: SDLC 6.0.3 → 6.0.5
 
 **Changelog v2.2.0** (Jan 30, 2026):
 - **Multi-Frontend Alignment**: Sprint 125-127 completed (26.5 SP in 1 day - historic achievement)
@@ -31,7 +31,7 @@
   - ADR-045: Multi-Frontend Alignment Strategy documented
   - CLI integration parity: 39% → 71% (+32 points)
   - Extension integration parity: 67% → 89% (+22 points)
-- **Framework Upgrade**: SDLC 5.1.3 → 6.0.0 with 7-Pillar Architecture
+- **Framework Upgrade**: SDLC 5.1.3 → 6.0.5 with 7-Pillar Architecture
 - **Integration API Alignment**: Spec validation endpoints consistent across all frontends
 - **Automation**: Framework Update Trigger (GitHub Actions) for version alignment
 

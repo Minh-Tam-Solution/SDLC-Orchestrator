@@ -18,7 +18,7 @@ approver: CTO
 related_adrs:
   - ADR-041-Framework-6.0-Governance-System
 related_specs: []
-framework_version: 6.0.0
+framework_version: 6.0.5
 tags:
   - governance
   - vibecoding-index
@@ -490,14 +490,14 @@ class CEODashboardService:
 
 ### 7.1 Changes from Previous Version
 
-This is the initial version (1.0.0) migrated from SDLC 5.3.0 format to Framework 6.0.0 format.
+This is the initial version (1.0.0) migrated from SDLC 5.3.0 format to Framework 6.0.5 format.
 
 **Migration Changes**:
 - Added YAML frontmatter with spec_id, tier, stage, relationships
 - Converted requirements to BDD format (GIVEN-WHEN-THEN)
 - Added tier-specific requirements (LITE/STANDARD/PROFESSIONAL/ENTERPRISE)
 - Added acceptance criteria table with test methods
-- Reorganized content to match 9-section Framework 6.0.0 template
+- Reorganized content to match 9-section Framework 6.0.5 template
 
 **Content Updates**:
 - None (content preserved from original spec)
@@ -506,7 +506,7 @@ This is the initial version (1.0.0) migrated from SDLC 5.3.0 format to Framework
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0.0 | 2026-01-28 | Backend Lead | Initial version (migrated to Framework 6.0.0) |
+| 1.0.0 | 2026-01-28 | Backend Lead | Initial version (migrated to Framework 6.0.5) |
 
 ---
 
@@ -617,7 +617,7 @@ governance_api_latency_seconds{endpoint, method}
 ## Document Control
 
 **Change Log**:
-- 2026-01-28: Migrated to Framework 6.0.0 format (Backend Lead)
+- 2026-01-28: Migrated to Framework 6.0.5 format (Backend Lead)
 
 **Approval**:
 - ✅ Backend Lead: Approved

@@ -1,6 +1,6 @@
 """sdlcctl validate-consistency command.
 
-SDLC 6.0.1 - SPEC-0021 Stage Consistency Validation.
+SDLC 6.0.5 - SPEC-0021 Stage Consistency Validation.
 Sprint 136 - Validate Consistency Command Implementation.
 
 Validates cross-stage consistency between:

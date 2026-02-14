@@ -2,7 +2,7 @@
 Unit Tests for POST /projects/{id}/sync API Endpoint
 
 Sprint 172 - Project Metadata Auto-Sync
-Framework: SDLC 6.0.3
+Framework: SDLC 6.0.5
 
 Tests the sync endpoint behavior via FastAPI dependency overrides.
 No PostgreSQL or Redis required — fully mocked at the dependency layer.
@@ -71,7 +71,7 @@ def _make_fake_metadata(**overrides):
         "current_sprint": "Sprint 171",
         "sprint_status": "90% COMPLETE",
         "sprint_description": "Market Expansion Foundation",
-        "framework_version": "SDLC 6.0.3",
+        "framework_version": "SDLC 6.0.5",
         "gate_status": "Gate G3 APPROVED - Ship Ready (98.2%)",
         "description": "Synced description from README",
         "last_commit_date": "2026-02-10T18:00:00",
@@ -152,7 +152,7 @@ class TestSyncProjectMetadata:
                 assert resp.status_code == 200
                 body = resp.json()
                 assert body["id"] == str(project_id)
-                assert body["metadata"]["framework_version"] == "SDLC 6.0.3"
+                assert body["metadata"]["framework_version"] == "SDLC 6.0.5"
                 assert body["metadata"]["current_sprint"] == "Sprint 171"
                 assert body["metadata"]["tier"] == "professional"
                 assert body["metadata"]["gate_status"] == "Gate G3 APPROVED - Ship Ready (98.2%)"
@@ -349,7 +349,7 @@ class TestSyncProjectMetadata:
 
                 # Regular admin should succeed despite no membership
                 assert resp.status_code == 200
-                assert resp.json()["metadata"]["framework_version"] == "SDLC 6.0.3"
+                assert resp.json()["metadata"]["framework_version"] == "SDLC 6.0.5"
         finally:
             app.dependency_overrides.clear()
 

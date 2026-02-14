@@ -234,7 +234,7 @@ suite('Spec Validation Test Suite', () => {
             valid,
             spec_id: specId,
             spec_path: '/test/spec.md',
-            version: '6.0.0',
+            version: '6.0.5',
             tier: ['PROFESSIONAL'] as SpecTier[],
             errors,
             warnings,
@@ -274,7 +274,7 @@ suite('Spec Validation Test Suite', () => {
     // Test Cases - Valid Specs
     // ===========================================================================
 
-    test('Valid SDLC 6.0.0 spec passes validation', () => {
+    test('Valid SDLC 6.0.5 spec passes validation', () => {
         const validSpec = `---
 spec_id: SPEC-0001
 title: "Valid Specification"
@@ -684,7 +684,7 @@ suite('Spec Validation Types Test Suite', () => {
             valid: true,
             spec_id: 'SPEC-0001',
             spec_path: '/test/spec.md',
-            version: '6.0.0',
+            version: '6.0.5',
             tier: ['PROFESSIONAL'],
             errors: [],
             warnings: [],

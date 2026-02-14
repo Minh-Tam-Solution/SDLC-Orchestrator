@@ -10,7 +10,7 @@ last_updated: "2026-01-29"
 tags: ["codegen", "multi-provider", "ep-06", "ir-based", "ollama", "vietnam-sme", "architecture-decision"]
 related_specs: ["SPEC-0003", "SPEC-0004", "SPEC-0009", "SPEC-0010"]
 stage: "02-DESIGN"
-framework_version: "6.0.0"
+framework_version: "6.0.5"
 ---
 
 # SPEC-0006: Multi-Provider Codegen Architecture (ADR-022)
@@ -20,7 +20,7 @@ framework_version: "6.0.0"
 **Decision Date**: December 23, 2025
 **Decision Makers**: CTO, CEO (joint review)
 **Sprint**: Sprint 45 (Jan 6-17, 2026)
-**Framework**: SDLC 6.0.0 + SASE Level 2
+**Framework**: SDLC 6.0.5 + SASE Level 2
 
 ---
 
@@ -985,12 +985,12 @@ echo "PASS: No AGPL SDK imports"
 | **Last Updated** | January 29, 2026 |
 | **Author** | Backend Lead + Architect |
 | **Approvals** | CTO ✅ (Dec 23, 2025), CEO ✅ (Dec 23, 2025) |
-| **Framework Version** | SDLC 6.0.0 |
+| **Framework Version** | SDLC 6.0.5 |
 | **Status** | APPROVED |
 | **Migration From** | ADR-022-Multi-Provider-Codegen-Architecture.md |
 
 ---
 
 *SPEC-0006: Multi-Provider Codegen Architecture - Provider-agnostic IR-based code generation for Vietnam SME*
-*Framework 6.0.0 Specification Format - BDD Requirements + Tier Classification*
+*Framework 6.0.5 Specification Format - BDD Requirements + Tier Classification*
 *Sprint 117 Track 1 Day 3 - P1 Spec Migration*

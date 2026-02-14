@@ -5,7 +5,7 @@ Tests cross-reference validation with OPA policy evaluation and fallback.
 
 Reference:
   - RFC-SDLC-602 E2E API Testing Enhancement
-  - SDLC Framework 6.0.2
+  - SDLC Framework 6.0.5
 """
 
 import json

@@ -4,7 +4,7 @@ SDLC Orchestrator - Sprint 146 (Organization Access Control)
 
 SDLC Stage: 04 - BUILD
 Sprint: 146 - Organization Access Control System
-Framework: SDLC 6.0.2
+Framework: SDLC 6.0.5
 Reference: ADR-047-Organization-Invitation-System-Architecture
 
 Purpose:

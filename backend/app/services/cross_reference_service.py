@@ -7,7 +7,7 @@ Version: 1.0.0
 Date: February 4, 2026
 Status: ACTIVE - Sprint 155 Implementation
 Authority: Backend Lead + CTO Approved
-Framework: SDLC 6.0.4
+Framework: SDLC 6.0.5
 
 Purpose:
 - Validate cross-references between documents (ADR ↔ Spec ↔ Test)

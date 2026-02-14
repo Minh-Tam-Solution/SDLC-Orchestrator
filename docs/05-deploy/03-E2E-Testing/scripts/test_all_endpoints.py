@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-E2E API Test Script - SDLC 6.0.2
+E2E API Test Script - SDLC 6.0.5
 
 This script tests all API endpoints defined in Stage 03 OpenAPI specification.
 Reference: RFC-SDLC-602-E2E-API-TESTING

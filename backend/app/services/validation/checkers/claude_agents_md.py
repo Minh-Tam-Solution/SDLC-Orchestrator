@@ -26,7 +26,7 @@ class ClaudeAgentsMdChecker(BaseCategoryChecker):
     Validates:
     1. CLAUDE.md exists
     2. AGENTS.md exists (recommended)
-    3. Framework version current (6.0.0)
+    3. Framework version current (6.0.5)
     4. Required sections present
     """
 
@@ -34,7 +34,7 @@ class ClaudeAgentsMdChecker(BaseCategoryChecker):
 
     REQUIRED_FILES = ["CLAUDE.md"]
     RECOMMENDED_FILES = ["AGENTS.md"]
-    CURRENT_FRAMEWORK = "6.0.0"
+    CURRENT_FRAMEWORK = "6.0.5"
     REQUIRED_SECTIONS = [
         "PROJECT OVERVIEW",
         "YOUR ROLE",

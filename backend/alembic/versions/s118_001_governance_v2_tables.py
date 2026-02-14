@@ -14,7 +14,7 @@ Reference:
 - D1: docs/02-design/02-System-Architecture/Database-Schema-Governance-v2.md
 - D5: docs/04-build/02-Sprint-Plans/Implementation-Phases-Governance-v2.md
 - ADR-041: Stage Dependency Matrix
-- SDLC Framework 6.0.0 (7-Pillar + Section 7 Quality Assurance System)
+- SDLC Framework 6.0.5 (7-Pillar + Section 7 Quality Assurance System)
 """
 from alembic import op
 import sqlalchemy as sa
@@ -308,7 +308,7 @@ def upgrade():
             server_default=sa.text('CURRENT_TIMESTAMP'),
             onupdate=sa.text('CURRENT_TIMESTAMP'),
         ),
-        comment='YAML frontmatter metadata (SPEC-0002 Framework 6.0.0 compliance)',
+        comment='YAML frontmatter metadata (SPEC-0002 Framework 6.0.5 compliance)',
     )
 
     # GIN index for JSONB array searches

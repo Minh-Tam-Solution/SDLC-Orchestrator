@@ -3,9 +3,9 @@ Unit Tests for SDLC Specification CLI - Sprint 119 Track 2.
 
 Tests for sdlcctl spec validate command and related validators.
 
-Framework: SDLC 6.0.0
+Framework: SDLC 6.0.5
 Sprint: 119 - Specification CLI Commands
-Reference: SPEC-0002 Framework 6.0.0 Specification Standard
+Reference: SPEC-0002 Framework 6.0.5 Specification Standard
 """
 
 import tempfile
@@ -31,7 +31,7 @@ def runner():
 
 @pytest.fixture
 def valid_spec_content() -> str:
-    """Valid SDLC 6.0.0 specification content."""
+    """Valid SDLC 6.0.5 specification content."""
     return """---
 spec_id: SPEC-0001
 title: Test Specification
@@ -546,7 +546,7 @@ class TestSpecCLI:
         """Test spec validate --help."""
         result = runner.invoke(app, ["validate", "--help"])
         assert result.exit_code == 0
-        assert "Validate SDLC Framework 6.0.0 specifications" in result.output
+        assert "Validate SDLC Framework 6.0.5 specifications" in result.output
 
     def test_spec_validate_valid_file(
         self, runner: CliRunner, tmp_path: Path, valid_spec_content: str

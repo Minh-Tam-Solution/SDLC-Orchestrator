@@ -619,7 +619,7 @@ subprocess.run(f"git worktree add {path} {branch}", shell=True)
 **Success Criteria**:
 - 2.5x speedup demonstrated (dogfooding evidence)
 - RFC-SDLC-604 fully implemented
-- Framework 6.0.3 patterns validated
+- Framework 6.0.5 patterns validated
 
 ---
 
@@ -729,5 +729,5 @@ sdlcctl worktree remove ../sdlc-auth-tests
 
 ---
 
-*SDLC Framework 6.0.3 - Worktree CLI Commands Technical Design*
+*SDLC Framework 6.0.5 - Worktree CLI Commands Technical Design*
 *Sprint 144 Day 1 - Track 2 Implementation*

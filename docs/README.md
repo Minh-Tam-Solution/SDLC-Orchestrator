@@ -2,7 +2,7 @@
 
 **Version**: 4.0.0
 **Date**: February 3, 2026
-**Framework**: SDLC 6.0.3 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+**Framework**: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 **Status**: Gate G3 APPROVED - Ship Ready (98.2%)
 **Tier**: PROFESSIONAL (10-50 team size)
 
@@ -17,7 +17,7 @@
 | **Active Stage** | 04 - BUILD | Feb 3, 2026 |
 | **Sprint** | 147 - Spring Cleaning | 🔄 IN PROGRESS |
 | **Gate G3** | Ship Ready | ✅ APPROVED (98.2%) |
-| **Framework** | SDLC 6.0.3 (7-Pillar + Section 7+8) | ✅ Upgraded |
+| **Framework** | SDLC 6.0.5 (7-Pillar + Section 7+8) | ✅ Upgraded |
 | **Next Gate** | G4 - Internal Validation | 30 days post-launch |
 | **Beta Pilot** | 5 internal teams | Week 1-2 post-G3 |
 
@@ -166,12 +166,12 @@ cd backend && pip install -r requirements.txt && uvicorn app.main:app --reload  
 
 ---
 
-## Documentation Structure (SDLC 6.0.3 Restructured)
+## Documentation Structure (SDLC 6.0.5 Restructured)
 
 ### 7-Pillar Architecture + Section 7 & 8
 
 ```yaml
-SDLC 6.0.3 (7-Pillar + Sections):
+SDLC 6.0.5 (7-Pillar + Sections):
   Pillar 0: Design Thinking Foundation
   Pillar 1: 10-Stage Lifecycle
   Pillar 2: Sprint Planning Governance
@@ -185,7 +185,7 @@ SDLC 6.0.3 (7-Pillar + Sections):
 
 ### 10-Stage Lifecycle Map
 
-> **SDLC 6.0.3 Compliance**: Stage 03 is INTEGRATE (API contracts before coding)
+> **SDLC 6.0.5 Compliance**: Stage 03 is INTEGRATE (API contracts before coding)
 
 | Stage | Folder | Question | Status | Key Documents |
 |-------|--------|----------|--------|---------------|
@@ -342,7 +342,7 @@ SAST: Semgrep (security rules)
 
 ---
 
-## Project Tiers (SDLC 6.0.3)
+## Project Tiers (SDLC 6.0.5)
 
 ### Tier Classification
 
@@ -420,7 +420,7 @@ SAST: Semgrep (security rules)
 - **OWASP ASVS Level 2**: 264/264 requirements
 - **Zero Mock Policy**: No placeholders in production code
 - **AGPL Containment**: Network-only access to OSS
-- **SDLC 6.0.3**: 10-stage complete lifecycle
+- **SDLC 6.0.5**: 10-stage complete lifecycle
 
 ---
 
@@ -494,7 +494,7 @@ docs/
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 4.0.0 | Feb 3, 2026 | SDLC 6.0.3 upgrade, Section 7+8, Sprint 147, docs cleanup |
+| 4.0.0 | Feb 3, 2026 | SDLC 6.0.5 upgrade, Section 7+8, Sprint 147, docs cleanup |
 | 3.0.0 | Jan 18, 2026 | SDLC 5.1.3 upgrade, 7-Pillar Architecture, Sprint 74 |
 | 2.1.0 | Dec 12, 2025 | Gate G3 APPROVED (98.2%), Sprint 31 complete |
 | 2.0.0 | Dec 5, 2025 | Major upgrade: 10-15KB, P0 artifacts, AI guidance |
@@ -528,7 +528,7 @@ docs/
 ---
 
 **Document Status**: ACTIVE - P0 Entry Point
-**Compliance**: SDLC 6.0.3 PROFESSIONAL Tier (7-Pillar + Section 7 + Section 8)
+**Compliance**: SDLC 6.0.5 PROFESSIONAL Tier (7-Pillar + Section 7 + Section 8)
 **Gate G3**: ✅ APPROVED (98.2% readiness)
 **Last Updated**: February 3, 2026
 **Owner**: CTO + CPO Office

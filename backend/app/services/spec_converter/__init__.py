@@ -2,7 +2,7 @@
 Spec Converter Service
 Sprint 154 - Spec Standard Completion
 
-SDLC 6.0.3 Section 8: Unified Specification Standard
+SDLC 6.0.5 Section 8: Unified Specification Standard
 
 Provides:
 - Bidirectional format conversion (BDD ↔ OpenSpec ↔ User Story)

@@ -9,7 +9,7 @@ created: 2026-02-04
 updated: 2026-02-04
 author: CTO + AI Assistant
 sprint: Sprint 153
-framework: SDLC 6.0.3
+framework: SDLC 6.0.5
 adr_ref: ADR-049-Real-Time-Notifications-Architecture
 ---
 

@@ -3,7 +3,7 @@
  *
  * @module frontend/src/app/app/compliance/page
  * @description Unified compliance dashboard showing all frameworks
- * @sdlc SDLC 6.0.4 - Sprint 156 (Phase 3: COMPLIANCE)
+ * @sdlc SDLC 6.0.5 - Sprint 156 (Phase 3: COMPLIANCE)
  * @status Sprint 156 - NIST AI RMF GOVERN
  */
 

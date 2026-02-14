@@ -1,5 +1,5 @@
 ---
-# Required Fields (9/9) - SDLC 6.0.0 Section 8
+# Required Fields (9/9) - SDLC 6.0.5 Section 8
 sprint_id: SPRINT-123
 title: "Compliance Validation Service (P0)"
 status: PLANNING
@@ -7,7 +7,7 @@ tier: PROFESSIONAL
 owner: "Backend Lead"
 start_date: 2026-03-03
 end_date: 2026-03-14
-framework_version: 6.0.0
+framework_version: 6.0.5
 
 # Context Management (AGENTS.md 4-Zone Model)
 context_zone: Semi-Static
@@ -28,7 +28,7 @@ related_specs:
 predecessor: SPRINT-122
 successor: SPRINT-124
 goals:
-  - "Automate SDLC 6.0.0 compliance scoring (X/100) with category breakdown"
+  - "Automate SDLC 6.0.5 compliance scoring (X/100) with category breakdown"
   - "Implement duplicate folder detection to prevent migration collisions"
 deliverables:
   - "Compliance Scorer (10 categories, 10 pts each)"
@@ -43,7 +43,7 @@ deliverables:
 **Status**: 📋 PLANNED
 **Total Estimated LOC**: ~1,200
 **Estimated Effort**: 24h (16h Compliance Scorer + 8h Duplicate Detection)
-**Framework**: SDLC 6.0.0
+**Framework**: SDLC 6.0.5
 **Priority**: P0 (First post-feature-freeze sprint)
 
 ---
@@ -55,19 +55,19 @@ Sprint 123 implements P0 Compliance Validation features derived from NQH-Bot and
 ### Sprint Objective
 
 ```
-PRIMARY: Automate SDLC 6.0.0 compliance scoring (X/100) with category breakdown
+PRIMARY: Automate SDLC 6.0.5 compliance scoring (X/100) with category breakdown
 SECONDARY: Implement duplicate folder detection to prevent migration collisions
 ```
 
 ### Background: Lessons Learned
 
-**Source**: PM/PJM Review of NQH-Bot + BFlow SDLC 6.0.0 Migrations (Jan 30, 2026)
+**Source**: PM/PJM Review of NQH-Bot + BFlow SDLC 6.0.5 Migrations (Jan 30, 2026)
 
 | Issue | Impact at NQH-Bot | Prevention |
 |-------|-------------------|------------|
 | Duplicate stage folders (04/05/06 collision) | Broken links, Gate failure | Automated detection |
 | Version reference inconsistency | Outdated AGENTS.md header | Automated validation |
-| 23% specs missed 6.0.0 format | Failed Gate G-Phase-3 | YAML frontmatter validator |
+| 23% specs missed 6.0.5 format | Failed Gate G-Phase-3 | YAML frontmatter validator |
 | Manual compliance scoring | Subjective, inconsistent | Automated X/100 scoring |
 
 ---
@@ -97,7 +97,7 @@ Phase 2 (Mar 22+): Future Sprints
 
 ### Feature 1: Compliance Scorer (16h)
 
-**Goal**: Automated SDLC 6.0.0 compliance scoring with category breakdown
+**Goal**: Automated SDLC 6.0.5 compliance scoring with category breakdown
 
 #### 1.1 Scoring Categories (10 categories, 10 pts each)
 
@@ -307,7 +307,7 @@ CREATE TABLE folder_collision_checks (
 # File: backend/app/services/validation/compliance_scorer.py
 
 class ComplianceScorerService:
-    """SDLC 6.0.0 Compliance Scoring Engine."""
+    """SDLC 6.0.5 Compliance Scoring Engine."""
 
     CATEGORY_CHECKERS = {
         "documentation_structure": DocumentationStructureChecker,
@@ -502,7 +502,7 @@ Existing Commands Extended:
 
 ### External
 
-- [x] SDLC 6.0.0 Framework finalized - ✅ Complete (Jan 28, 2026)
+- [x] SDLC 6.0.5 Framework finalized - ✅ Complete (Jan 28, 2026)
 - [x] NQH-Bot lessons documented - ✅ Complete (Jan 30, 2026)
 - [x] BFlow scripts tested - ✅ Complete (Jan 30, 2026)
 
@@ -556,7 +556,7 @@ sdlcctl validate --duplicates --project bflow
 ## Sprint 123 Kickoff: Compliance Validation
 
 **Date**: March 3, 2026
-**Goal**: Automate SDLC 6.0.0 compliance checking
+**Goal**: Automate SDLC 6.0.5 compliance checking
 
 ### Why This Sprint Matters
 - NQH-Bot migration revealed manual compliance scoring is inconsistent
@@ -607,8 +607,8 @@ LOC Progress: XXXX / 1,200 (XX%)
 
 ## References
 
-- [PM-PJM-REVIEW-SDLC-6.0.0-MIGRATION.md](../../../NQH-Bot-Platform/docs/08-Team-Management/01-SDLC-Compliance/PM-PJM-REVIEW-SDLC-6.0.0-MIGRATION.md)
-- [SPRINT-127-GATE-READINESS-CHECKLIST.md](../../../Bflow-Platform/docs/08-Team-Management/02-SDLC-Compliance/SDLC-6.0.0-Preparation/SPRINT-127-GATE-READINESS-CHECKLIST.md)
+- [PM-PJM-REVIEW-SDLC-6.0.5-MIGRATION.md](../../../NQH-Bot-Platform/docs/08-Team-Management/01-SDLC-Compliance/PM-PJM-REVIEW-SDLC-6.0.5-MIGRATION.md)
+- [SPRINT-127-GATE-READINESS-CHECKLIST.md](../../../Bflow-Platform/docs/08-Team-Management/02-SDLC-Compliance/SDLC-6.0.5-Preparation/SPRINT-127-GATE-READINESS-CHECKLIST.md)
 - [SPEC-0013-Compliance-Validation-Service.md](../../02-design/14-Technical-Specs/SPEC-0013-Compliance-Validation-Service.md)
 
 ---

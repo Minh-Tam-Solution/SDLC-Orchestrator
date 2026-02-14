@@ -2,7 +2,7 @@
 
 **Version**: 1.5.0
 **Status**: GA (General Availability)
-**Framework**: SDLC 6.0.2 (E2E API Testing + Stage Cross-Reference)
+**Framework**: SDLC 6.0.5 (E2E API Testing + Stage Cross-Reference)
 **Sprint**: 139 - E2E Commands Implementation
 **Last Updated**: February 2, 2026
 
@@ -35,8 +35,8 @@ Gate status monitoring, AI-powered code generation, and compliance assistance di
 
 ## What's New in 1.4.0 (Sprint 138)
 
-### SDLC 6.0.2 Framework Support
-- **Framework 6.0.2**: RFC-SDLC-602 E2E API Testing Enhancement
+### SDLC 6.0.5 Framework Support
+- **Framework 6.0.5**: RFC-SDLC-602 E2E API Testing Enhancement
 - **E2E API Testing Workflow**: 6-phase standardized testing process awareness
 - **Stage Cross-Reference**: Stage 03 ↔ Stage 05 bidirectional traceability
 - **OWASP API Top 10**: Security checklist integration ready
@@ -54,8 +54,8 @@ Gate status monitoring, AI-powered code generation, and compliance assistance di
 
 ## What's New in 1.3.0 (Sprint 136)
 
-### SDLC 6.0.1 Framework Support
-- **Framework 6.0.1**: Updated from 6.0.0 to latest version
+### SDLC 6.0.5 Framework Support
+- **Framework 6.0.5**: Updated from 6.0.5 to latest version
 - **SPEC-0021**: Stage Consistency Validation support
 - **Version Sync**: Synchronized with `sdlcctl` CLI v1.3.0
 
@@ -70,7 +70,7 @@ Gate status monitoring, AI-powered code generation, and compliance assistance di
 ## What's New in 1.2.0 (Sprint 127)
 
 ### Multi-Frontend Alignment
-- **SDLC 6.0.0 Framework**: Full alignment with latest framework version
+- **SDLC 6.0.5 Framework**: Full alignment with latest framework version
 - **Specification Validation**: YAML frontmatter validation (SPEC-0002 compliant)
 - **BDD Requirements**: GIVEN-WHEN-THEN validation support
 - **Tier-Specific Sections**: LITE/STANDARD/PROFESSIONAL/ENTERPRISE validation

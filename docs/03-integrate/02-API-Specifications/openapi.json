@@ -37077,7 +37077,7 @@
           "Compliance Validation"
         ],
         "summary": "Calculate compliance score",
-        "description": "Calculate SDLC 6.0.0 compliance score for a project. 10 categories \u00d7 10 points = 100 maximum score.",
+        "description": "Calculate SDLC 6.0.5 compliance score for a project. 10 categories \u00d7 10 points = 100 maximum score.",
         "operationId": "validate_compliance_api_v1_projects__project_id__validate_compliance_post",
         "security": [
           {
@@ -43295,7 +43295,7 @@
             "type": "string",
             "title": "Framework Version",
             "description": "SDLC Framework version",
-            "default": "6.0.0"
+            "default": "6.0.5"
           },
           "validation_version": {
             "type": "string",
@@ -61759,7 +61759,7 @@
             "type": "string",
             "title": "Framework Version",
             "description": "SDLC Framework version",
-            "default": "6.0.0"
+            "default": "6.0.5"
           }
         },
         "type": "object",

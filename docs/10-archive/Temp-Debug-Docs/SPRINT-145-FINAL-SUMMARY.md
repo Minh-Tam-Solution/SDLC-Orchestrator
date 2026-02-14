@@ -145,7 +145,7 @@ timestamp = datetime.now(timezone.utc).isoformat()
 
 ## 🔐 FRAMEWORK COMPLIANCE
 
-### SDLC 6.0.0 Framework-First
+### SDLC 6.0.5 Framework-First
 - ✅ **Zero Mock Policy** enforced (real integrations only)
 - ✅ **Framework-First** principle maintained
 - ✅ **Evidence Vault** integration (71 artifacts)

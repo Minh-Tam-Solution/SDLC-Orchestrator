@@ -525,7 +525,18 @@
       "Bash(git commit -m \"$\\(cat <<''EOF''\nchore: Update SDLC-Enterprise-Framework submodule to 6.0.4\n\nFramework upgraded with:\n- TDD Workflow Integration \\(RED-GREEN-REFACTOR\\)\n- 3-Phase Sprint Lifecycle Enhanced\n- Tier-Aware TDD Coverage Requirements\n- Spec Converter Methodology \\(SpecIR\\)\n- Sprint 154 Validation: 113 tests, 100% pass\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(npx vitest run:*)",
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzAyNzYzMTYsImlhdCI6MTc3MDI3MjcxNiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImIwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSJ9.C6OdYGhRURMbO5ce9gF_Bp4yeHiD176TFx0Eu5-ex4c\")",
-      "Bash(__NEW_LINE_0b5c4f24ad47594e__ echo \"\")"
+      "Bash(__NEW_LINE_0b5c4f24ad47594e__ echo \"\")",
+      "Bash(/home/nqh/shared/SDLC-Orchestrator/.venv/bin/python -m pytest:*)",
+      "Bash(git status:*)",
+      "Bash(vsce:*)",
+      "Bash(/home/nqh/shared/SDLC-Orchestrator/.venv/bin/python:*)",
+      "Bash(/home/nqh/shared/SDLC-Orchestrator/.venv/bin/pip install:*)",
+      "Bash(/home/nqh/shared/SDLC-Orchestrator/.venv/bin/sdlcctl:*)",
+      "Bash(/home/dttai/.vscode-server/cli/servers/Stable-bdd88df003631aaa0bcbe057cb0a940b80a476fa/server/bin/remote-cli/code:*)",
+      "Bash(node -e:*)",
+      "Bash(# Try docker - SDLC backend is likely in Docker docker ps --format \"\"{{.ID}} {{.Names}} {{.Ports}}\"\")",
+      "Bash(sdlcctl --version:*)",
+      "Bash(sdlcctl report:*)"
     ],
     "deny": [],
     "ask": []

@@ -2,14 +2,14 @@
 E2E Tests for Cross-Frontend Spec Validation Parity.
 
 Sprint 126 - S126-07: Verifies that CLI, Web Dashboard, and VS Code Extension
-produce identical validation results for SDLC 6.0.0 specifications.
+produce identical validation results for SDLC 6.0.5 specifications.
 
 Test Categories:
 1. Valid spec detection (all frontends pass)
 2. Invalid spec detection (all frontends detect same violations)
 3. OpenSpec format detection
 
-SDLC 6.0.0 Framework Compliance:
+SDLC 6.0.5 Framework Compliance:
 - SPEC-0002: Specification Standard
 - Tier-specific validation requirements
 """
@@ -35,7 +35,7 @@ class TestSpecValidationParity:
 
     @pytest.fixture
     def valid_spec(self) -> Path:
-        """Valid SDLC 6.0.0 specification."""
+        """Valid SDLC 6.0.5 specification."""
         return FIXTURES_DIR / "valid_spec_professional.md"
 
     @pytest.fixture
@@ -60,7 +60,7 @@ class TestSpecValidationParity:
 
     @pytest.fixture
     def openspec_format(self) -> Path:
-        """Non-SDLC 6.0.0 OpenSpec format file."""
+        """Non-SDLC 6.0.5 OpenSpec format file."""
         return FIXTURES_DIR / "openspec_format.md"
 
     # ==========================================================================
@@ -361,7 +361,7 @@ class TestSpecValidationParity:
 
     def test_valid_spec_passes_all_frontends(self, valid_spec: Path):
         """
-        Test 1.1: Valid SDLC 6.0.0 spec passes validation on all frontends.
+        Test 1.1: Valid SDLC 6.0.5 spec passes validation on all frontends.
 
         Verifies cross-frontend parity for valid specifications.
         """
@@ -475,7 +475,7 @@ class TestSpecValidationParity:
         """
         Test 2: OpenSpec format detection.
 
-        Non-SDLC 6.0.0 format should be detected and flagged.
+        Non-SDLC 6.0.5 format should be detected and flagged.
         """
         ext_result = self._validate_with_extension_logic(openspec_format)
 
@@ -494,7 +494,7 @@ class TestSpecValidationPerformance:
 
     @pytest.fixture
     def valid_spec(self) -> Path:
-        """Valid SDLC 6.0.0 specification."""
+        """Valid SDLC 6.0.5 specification."""
         return FIXTURES_DIR / "valid_spec_professional.md"
 
     def test_validation_latency(self, valid_spec: Path):
@@ -598,12 +598,12 @@ class TestSpecConvertValidateWorkflow:
     """
     Test 3: Spec convert → validate workflow.
 
-    Tests the workflow of converting OpenSpec to SDLC 6.0.0 and validating.
+    Tests the workflow of converting OpenSpec to SDLC 6.0.5 and validating.
     """
 
     def test_converted_spec_is_valid(self):
         """
-        Test that converted OpenSpec is valid SDLC 6.0.0.
+        Test that converted OpenSpec is valid SDLC 6.0.5.
 
         Workflow: sdlcctl spec convert → sdlcctl spec validate
         """

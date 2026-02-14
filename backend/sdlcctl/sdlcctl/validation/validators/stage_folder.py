@@ -1,7 +1,7 @@
 """
 Stage Folder Validator.
 
-Validates SDLC 6.0.0 stage folder structure and naming.
+Validates SDLC 6.0.5 stage folder structure and naming.
 
 Rules:
 - STAGE-001: Invalid stage folder naming (e.g., "1-planning" → "01-planning")
@@ -37,12 +37,12 @@ class StageFolderValidator(BaseValidator):
 
     VALIDATOR_ID = "stage-folder"
     VALIDATOR_NAME = "Stage Folder Validator"
-    VALIDATOR_DESCRIPTION = "Validates SDLC 6.0.0 stage folder structure"
+    VALIDATOR_DESCRIPTION = "Validates SDLC 6.0.5 stage folder structure"
 
     # Stage pattern: 2 digits + hyphen + name
     STAGE_PATTERN = re.compile(r"^(\d{2})-(.+)$")
 
-    # Valid stage IDs (00-10 in SDLC 6.0.0)
+    # Valid stage IDs (00-10 in SDLC 6.0.5)
     VALID_STAGE_IDS = set(STAGE_NAMES.keys())
 
     # Legacy/archive folders to skip
@@ -170,7 +170,7 @@ class StageFolderValidator(BaseValidator):
         """
         Check for STAGE-002: Unknown stage number.
 
-        Valid stage IDs: 00-10 (SDLC 6.0.0)
+        Valid stage IDs: 00-10 (SDLC 6.0.5)
         Invalid: 11+, negative numbers, etc.
 
         Args:

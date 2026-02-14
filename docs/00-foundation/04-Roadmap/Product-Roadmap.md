@@ -5,8 +5,8 @@
 **Date**: February 3, 2026
 **Status**: ✅ CTO APPROVED - Sprint 147+ Roadmap (Spring Cleaning → Feature Complete)
 **Authority**: CTO Approval (Feb 3, 2026), CEO/CPO Signatures (Jan 27, 2026)
-**Foundation**: Financial Model v1.0, Product Vision v4.1.0, ADR-041, Framework 6.0.3
-**Framework**: SDLC 6.0.3 + Quality Assurance System (Pillar 7) + Organization Access Control
+**Foundation**: Financial Model v1.0, Product Vision v4.1.0, ADR-041, Framework 6.0.5
+**Framework**: SDLC 6.0.5 + Quality Assurance System (Pillar 7) + Organization Access Control
 
 **Changelog v7.0.0** (Feb 3, 2026):
 - **Sprint 145 DEPLOYED**: MCP Integration Phase 1 (189%, 5,953 LOC)
@@ -72,7 +72,7 @@
   - [PRODUCT-TRUTH-LAYER-SPEC.md](../04-build/02-Sprint-Plans/PRODUCT-TRUTH-LAYER-SPEC.md)
   - [V1-V2-CONSOLIDATION-PLAN.md](../04-build/02-Sprint-Plans/V1-V2-CONSOLIDATION-PLAN.md)
 
-**Changelog v6.0.0** (Jan 28, 2026):
+**Changelog v6.0.5** (Jan 28, 2026):
 - **Framework 6.0 Governance System**: Quality Assurance System (Pillar 7) complete
   - ADR-041 + Technical Spec approved (864 lines design documentation)
   - 6 components: Auto-Gen, Signals Engine, Stage Gating, Context Authority, Feedback, Kill Switch
@@ -309,7 +309,7 @@ Layer 1: SDLC-Enterprise-Framework (Methodology) ← Our foundation
 - ✅ **CLI Tool**: sdlcctl validate
 - ✅ **MCP Integration**: Model Context Protocol server + 12 context providers
 
-**Governance System (Framework 6.0.3):**
+**Governance System (Framework 6.0.5):**
 - ✅ **Auto-Generation Layer**: Intent skeleton, Ownership suggestions, Context attachment, Attestation pre-fill
 - ✅ **Governance Signals Engine**: Vibecoding Index (0-100), 5 signals
 - ✅ **Stage Gating Service**: 11 SDLC stage validation, prerequisite checking

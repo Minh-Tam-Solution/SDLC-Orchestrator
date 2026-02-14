@@ -62,12 +62,12 @@ async def test_parse_agents_md_no_sprint_returns_empty(tmp_path: Path):
 @pytest.mark.asyncio
 async def test_parse_claude_md_framework_and_gate_status(tmp_path: Path):
     (tmp_path / "CLAUDE.md").write_text(
-        """**Version**: 3.3.0\n**Status**: Gate G3 APPROVED - Ship Ready (98.2%)\n**Framework**: SDLC 6.0.3 (7-Pillar + Section 7 Quality Assurance)\n""",
+        """**Version**: 3.3.0\n**Status**: Gate G3 APPROVED - Ship Ready (98.2%)\n**Framework**: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance)\n""",
         encoding="utf-8",
     )
     svc = ProjectMetadataService()
     data = await svc._parse_claude_md(str(tmp_path))
-    assert data["framework_version"] == "SDLC 6.0.3"
+    assert data["framework_version"] == "SDLC 6.0.5"
     assert "Gate G3" in data["gate_status"]
 
 
@@ -95,7 +95,7 @@ async def test_sync_project_metadata_merges_sources(tmp_path: Path):
     agents.append("**Sprint 171**: Market Expansion Foundation — ✅ 90% COMPLETE\n")
     (tmp_path / "AGENTS.md").write_text("".join(agents), encoding="utf-8")
     (tmp_path / "CLAUDE.md").write_text(
-        """**Status**: Gate G3 APPROVED - Ship Ready (98.2%)\n**Framework**: SDLC 6.0.3\n""",
+        """**Status**: Gate G3 APPROVED - Ship Ready (98.2%)\n**Framework**: SDLC 6.0.5\n""",
         encoding="utf-8",
     )
     (tmp_path / "README.md").write_text("# Title\n\nRepo description here.\n", encoding="utf-8")
@@ -107,5 +107,5 @@ async def test_sync_project_metadata_merges_sources(tmp_path: Path):
     assert metadata.name == "SDLC-Orchestrator"
     assert metadata.tier == "professional"
     assert metadata.current_sprint == "Sprint 171"
-    assert metadata.framework_version == "SDLC 6.0.3"
+    assert metadata.framework_version == "SDLC 6.0.5"
     assert metadata.description and "Repo description" in metadata.description

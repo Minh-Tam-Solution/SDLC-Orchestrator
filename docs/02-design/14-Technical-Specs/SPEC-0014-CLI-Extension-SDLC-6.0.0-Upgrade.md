@@ -1,6 +1,6 @@
 ---
 spec_id: SPEC-0014
-title: CLI and Extension SDLC 6.0.0 Upgrade
+title: CLI and Extension SDLC 6.0.5 Upgrade
 version: "1.0.0"
 status: DRAFT
 tier:
@@ -17,7 +17,7 @@ tags:
   - sdlcctl
   - vscode-extension
   - framework-upgrade
-  - sdlc-6.0.0
+  - sdlc-6.0.5
 related_adrs:
   - ADR-014-SDLC-Structure-Validator
   - ADR-041-Stage-Dependency-Matrix
@@ -26,7 +26,7 @@ related_specs:
   - SPEC-0013
 ---
 
-# SPEC-0014: CLI and Extension SDLC 6.0.0 Upgrade
+# SPEC-0014: CLI and Extension SDLC 6.0.5 Upgrade
 
 **Version**: 1.0.0
 **Status**: DRAFT
@@ -41,7 +41,7 @@ related_specs:
 
 ### 1.1 Purpose
 
-Upgrade `sdlcctl` CLI and VS Code Extension from SDLC 5.0.0/5.3.0 to **SDLC 6.0.0** to support the new Unified Specification Standard (Section 8), including:
+Upgrade `sdlcctl` CLI and VS Code Extension from SDLC 5.0.0/5.3.0 to **SDLC 6.0.5** to support the new Unified Specification Standard (Section 8), including:
 - YAML frontmatter validation
 - BDD requirements format validation
 - Context Authority Methodology support
@@ -52,10 +52,10 @@ Upgrade `sdlcctl` CLI and VS Code Extension from SDLC 5.0.0/5.3.0 to **SDLC 6.0.
 **Current State**:
 - sdlcctl CLI: v1.1.2 targeting SDLC 5.0.0
 - VS Code Extension: v1.1.2 with SDLC 5.x validation
-- Framework: SDLC 6.0.0 released January 28, 2026
+- Framework: SDLC 6.0.5 released January 28, 2026
 
 **Problem**: CLI and Extension are outdated, causing:
-1. Version mismatch with Framework (5.0.0 vs 6.0.0)
+1. Version mismatch with Framework (5.0.0 vs 6.0.5)
 2. Missing spec validation for YAML frontmatter
 3. Missing BDD requirements validation
 4. No OpenSpec → SDLC 6.0 conversion support
@@ -63,7 +63,7 @@ Upgrade `sdlcctl` CLI and VS Code Extension from SDLC 5.0.0/5.3.0 to **SDLC 6.0.
 ### 1.3 Scope
 
 **In Scope**:
-- Update all version references from 5.x to 6.0.0
+- Update all version references from 5.x to 6.0.5
 - Implement YAML frontmatter validator
 - Implement BDD requirements validator
 - Implement tier-specific section validator
@@ -86,10 +86,10 @@ Upgrade `sdlcctl` CLI and VS Code Extension from SDLC 5.0.0/5.3.0 to **SDLC 6.0.
 
 ```gherkin
 GIVEN sdlcctl CLI codebase has SDLC 5.0.0/5.3.0 references
-  AND SDLC Framework is at version 6.0.0
+  AND SDLC Framework is at version 6.0.5
 WHEN developer runs sdlcctl --version or any command
-THEN all output should reference "SDLC 6.0.0"
-  AND help text should mention Framework 6.0.0 features
+THEN all output should reference "SDLC 6.0.5"
+  AND help text should mention Framework 6.0.5 features
 ```
 
 **Files to Update** (38 files):
@@ -138,7 +138,7 @@ THEN the validator should parse frontmatter between --- delimiters
 
 ```gherkin
 GIVEN a specification file with functional requirements section
-  AND SDLC 6.0.0 requires BDD format (GIVEN-WHEN-THEN)
+  AND SDLC 6.0.5 requires BDD format (GIVEN-WHEN-THEN)
 WHEN sdlcctl spec validate --strict runs
 THEN the validator should detect requirement blocks (FR-XX, NFR-XX)
   AND validate BDD structure: GIVEN ... WHEN ... THEN ...
@@ -182,7 +182,7 @@ THEN the CLI should:
 
 **Conversion Mapping**:
 ```yaml
-OpenSpec → SDLC 6.0.0:
+OpenSpec → SDLC 6.0.5:
   PROPOSAL.md/title → frontmatter.title
   PROPOSAL.md/description → ## Overview
   DESIGN_DECISIONS.md → ## Design Decisions (Sprint-Scoped)
@@ -225,10 +225,10 @@ THEN the CLI should:
 
 ```gherkin
 GIVEN VS Code extension validates project structure
-  AND Framework is SDLC 6.0.0
+  AND Framework is SDLC 6.0.5
 WHEN extension performs validation
 THEN it should:
-  - Reference SDLC 6.0.0 in all UI text
+  - Reference SDLC 6.0.5 in all UI text
   - Validate specs with YAML frontmatter
   - Show spec validation in Problems panel
   - Support spec convert/init commands via Command Palette
@@ -259,14 +259,14 @@ THEN it should:
 
 | ID | Criteria | Priority | Sprint |
 |----|----------|----------|--------|
-| AC-01 | All 38 files updated with 6.0.0 references | P0 | 124 |
+| AC-01 | All 38 files updated with 6.0.5 references | P0 | 124 |
 | AC-02 | `sdlcctl spec validate` validates YAML frontmatter | P0 | 124 |
 | AC-03 | `sdlcctl spec convert` converts OpenSpec → SDLC 6.0 | P0 | 125 |
 | AC-04 | `sdlcctl spec list` displays spec inventory | P1 | 125 |
 | AC-05 | `sdlcctl spec init` creates new spec from template | P1 | 125 |
 | AC-06 | BDD validator warns on non-BDD requirements | P1 | 125 |
 | AC-07 | Tier validator checks section requirements | P1 | 125 |
-| AC-08 | VS Code extension updated to 6.0.0 | P1 | 126 |
+| AC-08 | VS Code extension updated to 6.0.5 | P1 | 126 |
 | AC-09 | All tests pass (95%+ coverage) | P0 | 126 |
 | AC-10 | Published: CLI v1.2.0, Extension v1.2.0 | P0 | 126 |
 
@@ -295,7 +295,7 @@ def spec_convert(
     output: str = typer.Option(None, "--output", "-o"),
     tier: str = typer.Option(None, "--tier", "-t"),
 ) -> None:
-    """Convert external spec format to SDLC 6.0.0 specification."""
+    """Convert external spec format to SDLC 6.0.5 specification."""
     ...
 
 @spec_app.command(name="list")
@@ -336,10 +336,10 @@ VALID_STATUSES = {"DRAFT", "REVIEW", "APPROVED", "ACTIVE", "DEPRECATED"}
 VALID_TIERS = {"LITE", "STANDARD", "PROFESSIONAL", "ENTERPRISE"}
 
 class SpecFrontmatterValidator(BaseValidator):
-    """Validate YAML frontmatter in SDLC 6.0.0 specifications."""
+    """Validate YAML frontmatter in SDLC 6.0.5 specifications."""
 
     name = "spec_frontmatter"
-    description = "Validates YAML frontmatter against SDLC 6.0.0 spec schema"
+    description = "Validates YAML frontmatter against SDLC 6.0.5 spec schema"
 
     REQUIRED_FIELDS = [
         "spec_id", "title", "version", "status",
@@ -356,7 +356,7 @@ class SpecFrontmatterValidator(BaseValidator):
         if frontmatter is None:
             issues.append(ValidationIssue(
                 severity="error",
-                message="Missing YAML frontmatter (required by SDLC 6.0.0)",
+                message="Missing YAML frontmatter (required by SDLC 6.0.5)",
                 file=file_path,
                 line=1,
                 suggestion="Add YAML frontmatter between --- delimiters at file start"
@@ -479,7 +479,7 @@ SDLC-Enterprise-Framework/05-Templates-Tools/01-Specification-Standard/
 
 | Task | Effort | Owner | Status |
 |------|--------|-------|--------|
-| Update VS Code extension to 6.0.0 | 4h | Frontend | PENDING |
+| Update VS Code extension to 6.0.5 | 4h | Frontend | PENDING |
 | Add extension spec validation | 3h | Frontend | PENDING |
 | Write tests (95%+ coverage) | 4h | Backend | PENDING |
 | Update documentation | 2h | Backend | PENDING |
@@ -505,7 +505,7 @@ SDLC-Enterprise-Framework/05-Templates-Tools/01-Specification-Standard/
 - CLI command integration
 
 ### Manual Testing
-- Test with real SDLC 6.0.0 specs from Framework
+- Test with real SDLC 6.0.5 specs from Framework
 - Test with existing 5.x specs (backward compatibility)
 - Test VS Code extension UX
 
@@ -516,13 +516,13 @@ SDLC-Enterprise-Framework/05-Templates-Tools/01-Specification-Standard/
 If issues discovered post-release:
 1. **CLI**: Publish v1.2.1 patch or revert to v1.1.2
 2. **Extension**: Unpublish v1.2.0, keep v1.1.2 available
-3. **Framework**: No framework changes needed (already at 6.0.0)
+3. **Framework**: No framework changes needed (already at 6.0.5)
 
 ---
 
 ## 9. References
 
-- [SDLC 6.0.0 CHANGELOG](../../SDLC-Enterprise-Framework/CHANGELOG.md)
+- [SDLC 6.0.5 CHANGELOG](../../SDLC-Enterprise-Framework/CHANGELOG.md)
 - [SPEC-0002: Specification Standard](./SPEC-0002-Specification-Standard.md)
 - [spec-frontmatter-schema.json](../../SDLC-Enterprise-Framework/05-Templates-Tools/01-Specification-Standard/spec-frontmatter-schema.json)
 - [ADR-014: SDLC Structure Validator](../03-ADRs/ADR-014-SDLC-Structure-Validator.md)

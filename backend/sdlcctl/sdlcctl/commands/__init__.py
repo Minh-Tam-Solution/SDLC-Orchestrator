@@ -1,4 +1,4 @@
-"""SDLC 6.0.0 CLI Commands."""
+"""SDLC 6.0.5 CLI Commands."""
 
 from .validate import validate_command
 from .fix import fix_command

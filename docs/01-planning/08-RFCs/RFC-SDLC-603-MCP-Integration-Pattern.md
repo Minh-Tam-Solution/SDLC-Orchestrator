@@ -5,7 +5,7 @@
 **Author**: Framework Architect
 **Sprint**: 143 - Framework-First Track 1
 **Related**: Boris Cherny Tactics Analysis (Gap #1 - MCP Integration)
-**Framework Version**: SDLC 6.0.3
+**Framework Version**: SDLC 6.0.5
 
 ---
 
@@ -43,7 +43,7 @@ The key insight: **AI should automate the entire bug-fixing pipeline**, not just
 - ❌ No MCP (Model Context Protocol) integration
 - ❌ No Slack/Discord bot for bug reports
 - ✅ Manual bug tracking via GitHub Issues (standard workflow)
-- ✅ MCP reference architecture exists (SDLC 6.0.2 OUTER RING)
+- ✅ MCP reference architecture exists (SDLC 6.0.5 OUTER RING)
 - ✅ Security controls documented (Mutual TLS, token TTL)
 - ❌ No actual MCP server implementation
 
@@ -73,12 +73,12 @@ The key insight: **AI should automate the entire bug-fixing pipeline**, not just
 - Issue tracker integration beyond read-only (GitHub API write)
 - Real-time notification system
 
-### Reference Architecture (from SDLC 6.0.2)
+### Reference Architecture (from SDLC 6.0.5)
 
 From `CLAUDE.md` lines 458-478 (MCP reference):
 ```yaml
 MCP Status:
-  Reference Architecture: ✅ (SDLC 6.0.2 documentation)
+  Reference Architecture: ✅ (SDLC 6.0.5 documentation)
   Security Controls: ✅ (Mutual TLS, audit logging)
   Configuration: ✅ (.mcp.json template)
   CLI Commands: ✅ (sdlcctl mcp serve, auth issue/renew)
@@ -424,7 +424,7 @@ Each step is **reversible** without data loss.
 
 ### 7.1 Recommendation
 
-**APPROVE** MCP Integration Pattern for SDLC Framework 6.0.3.
+**APPROVE** MCP Integration Pattern for SDLC Framework 6.0.5.
 
 **Reasoning**:
 1. ✅ Addresses major gap identified in Boris Cherny analysis
@@ -552,4 +552,4 @@ sdlcctl mcp disconnect --slack  # Remove integration
 
 ---
 
-*SDLC Framework 6.0.3 - MCP Integration Pattern*
+*SDLC Framework 6.0.5 - MCP Integration Pattern*

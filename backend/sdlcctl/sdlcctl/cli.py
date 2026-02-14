@@ -1,6 +1,6 @@
 """
 =========================================================================
-SDLC 6.0.2 Specification Validator CLI.
+SDLC 6.0.5 Specification Validator CLI.
 SDLC Orchestrator - Sprint 137
 
 Version: 1.4.0
@@ -12,13 +12,13 @@ Reference: SPEC-0002-Specification-Standard, RFC-SDLC-602-E2E-API-TESTING
 Purpose:
 - Main entry point for the sdlcctl command-line tool
 - Structure validation, fixing, and initialization
-- YAML frontmatter validation (SDLC 6.0.2)
+- YAML frontmatter validation (SDLC 6.0.5)
 - BDD requirements validation (GIVEN-WHEN-THEN)
 - Code generation from AppBlueprint (Sprint 46)
 - Magic Mode - Natural language to code (Sprint 52)
 - Planning Mode - Sub-agent orchestration (Sprint 98)
 - Conformance Check - PR pattern validation (Sprint 99)
-- Specification Validation - Framework 6.0.2 specs (Sprint 119+)
+- Specification Validation - Framework 6.0.5 specs (Sprint 119+)
 - Stage Consistency Validation - SPEC-0021 (Sprint 136)
 - E2E API Testing Validation - RFC-SDLC-602 (Sprint 137)
 
@@ -75,7 +75,7 @@ console = Console()
 # Create main Typer app
 app = typer.Typer(
     name="sdlcctl",
-    help="SDLC 6.0.0 Specification Validator CLI",
+    help="SDLC 6.0.5 Specification Validator CLI",
     add_completion=True,
     no_args_is_help=True,
 )
@@ -101,9 +101,9 @@ def main(
     ),
 ) -> None:
     """
-    SDLC 6.0.0 Specification Validator CLI.
+    SDLC 6.0.5 Specification Validator CLI.
 
-    Validate, fix, and initialize SDLC 6.0.0 compliant project structures.
+    Validate, fix, and initialize SDLC 6.0.5 compliant project structures.
 
     Supports 4-Tier Classification:
     - LITE: 1-2 people, 4 stages
@@ -115,19 +115,19 @@ def main(
 
 
 # Register commands
-app.command(name="validate", help="Validate SDLC 6.0.0 folder structure")(
+app.command(name="validate", help="Validate SDLC 6.0.5 folder structure")(
     validate_command
 )
 app.command(name="fix", help="Automatically fix SDLC structure issues")(
     fix_command
 )
-app.command(name="init", help="Initialize SDLC 6.0.0 project structure")(
+app.command(name="init", help="Initialize SDLC 6.0.5 project structure")(
     init_command
 )
 app.command(name="report", help="Generate SDLC compliance report")(
     report_command
 )
-app.command(name="migrate", help="Migrate from SDLC 5.x to 6.0.0")(
+app.command(name="migrate", help="Migrate from SDLC 5.x to 6.0.5")(
     migrate_command
 )
 app.command(name="generate", help="Generate backend scaffold from AppBlueprint")(
@@ -187,10 +187,10 @@ app.add_typer(agents_app, name="agents")
 # Register spec sub-app (Sprint 119 - Specification validation)
 app.add_typer(spec_app, name="spec")
 
-# Create compliance sub-app for SDLC 6.0.0 compliance validation (Sprint 123)
+# Create compliance sub-app for SDLC 6.0.5 compliance validation (Sprint 123)
 compliance_app = typer.Typer(
     name="compliance",
-    help="SDLC 6.0.0 compliance validation (SPEC-0013)",
+    help="SDLC 6.0.5 compliance validation (SPEC-0013)",
     no_args_is_help=True,
 )
 
@@ -236,7 +236,7 @@ def show_tiers() -> None:
 
     from .validation.tier import TIER_REQUIREMENTS, Tier
 
-    table = Table(title="SDLC 6.0.0 Tier Classification", show_header=True)
+    table = Table(title="SDLC 6.0.5 Tier Classification", show_header=True)
     table.add_column("Tier", style="cyan", width=15)
     table.add_column("Team Size", justify="right", width=12)
     table.add_column("Stages", justify="right", width=10)
@@ -267,18 +267,18 @@ def show_tiers() -> None:
 
 @app.command(name="stages")
 def show_stages() -> None:
-    """Show SDLC 6.0.0 stage definitions (Contract-First Order)."""
+    """Show SDLC 6.0.5 stage definitions (Contract-First Order)."""
     from rich.table import Table
 
     from .validation.tier import STAGE_NAMES
 
-    table = Table(title="SDLC 6.0.0 Stages (Contract-First Order)", show_header=True)
+    table = Table(title="SDLC 6.0.5 Stages (Contract-First Order)", show_header=True)
     table.add_column("ID", style="cyan", width=5)
     table.add_column("Stage Name", width=20)
     table.add_column("Purpose", width=50)
     table.add_column("Type", width=12)
 
-    # SDLC 6.0.0 Stage Definitions (10 Stages: 00-09 + Archive folder)
+    # SDLC 6.0.5 Stage Definitions (10 Stages: 00-09 + Archive folder)
     # Reference: SDLC-Enterprise-Framework/README.md (v5.1.1)
     questions = {
         "00": ("FOUNDATION - Strategic Discovery & Validation (WHY?)", "LINEAR"),
@@ -313,7 +313,7 @@ def show_p0() -> None:
     from .validation.p0 import P0_ARTIFACTS
     from .validation.tier import Tier
 
-    table = Table(title="SDLC 6.0.0 P0 Artifacts", show_header=True)
+    table = Table(title="SDLC 6.0.5 P0 Artifacts", show_header=True)
     table.add_column("Artifact", style="cyan", width=25)
     table.add_column("Stage", width=8)
     table.add_column("Path", width=45)

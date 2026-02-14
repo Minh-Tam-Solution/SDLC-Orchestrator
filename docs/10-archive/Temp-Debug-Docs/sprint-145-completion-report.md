@@ -449,7 +449,7 @@ def verify_artifact(artifact_id):
 ---
 
 #### 2. Framework-First Methodology
-**Context**: SDLC 6.0.0 framework enforces "design before build"
+**Context**: SDLC 6.0.5 framework enforces "design before build"
 
 **Application in Sprint 145**:
 - Day 1: Unit tests (foundation first)
@@ -591,11 +591,11 @@ def verify_artifact(artifact_id):
 
 ---
 
-## FRAMEWORK 6.0.0 COMPLIANCE
+## FRAMEWORK 6.0.5 COMPLIANCE
 
-### SDLC 6.0.0 Integration
+### SDLC 6.0.5 Integration
 
-Sprint 145 implements **Framework 6.0.0** patterns:
+Sprint 145 implements **Framework 6.0.5** patterns:
 
 | Framework Principle | Sprint 145 Implementation | Status |
 |---------------------|---------------------------|--------|

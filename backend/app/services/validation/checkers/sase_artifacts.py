@@ -1,7 +1,7 @@
 """
 SASE Artifacts Checker - Sprint 123 (SPEC-0013)
 
-Validates SDLC 6.0.0 SASE (Specification-Aware Software Engineering) artifacts:
+Validates SDLC 6.0.5 SASE (Specification-Aware Software Engineering) artifacts:
 1. CRP (Context & Requirements Protocol) present
 2. MRP (Modification Request Protocol) present
 3. VCR (Validation & Compliance Record) template present

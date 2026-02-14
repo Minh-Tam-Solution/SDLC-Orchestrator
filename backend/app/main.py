@@ -321,7 +321,7 @@ app.include_router(governance_vibecoding.router, prefix="/api/v1", tags=["Govern
 app.include_router(tier_management.router, prefix="/api/v1", tags=["Tier Management"])  # Sprint 118 - 4-Tier Classification System
 app.include_router(context_authority_v2.router, prefix="/api/v1", tags=["Context Authority V2"])  # Sprint 120 - Context Authority V2 Gate-Aware Dynamic Context (SPEC-0011)
 app.include_router(gates_engine.router, prefix="/api/v1", tags=["Gates Engine"])  # Sprint 120 - Gates Engine OPA Integration + Gate Evaluation (Track B)
-app.include_router(compliance_validation.router, prefix="/api/v1", tags=["Compliance Validation"])  # Sprint 123 - SDLC 6.0.0 Compliance Validation (SPEC-0013)
+app.include_router(compliance_validation.router, prefix="/api/v1", tags=["Compliance Validation"])  # Sprint 123 - SDLC 6.0.5 Compliance Validation (SPEC-0013)
 app.include_router(cross_reference.router, prefix="/api/v1", tags=["Cross-Reference"])  # Sprint 139 - RFC-SDLC-602 E2E Cross-Reference Validation (Stage 03 ↔ Stage 05)
 app.include_router(e2e_testing.router, prefix="/api/v1", tags=["E2E Testing"])  # Sprint 140 - RFC-SDLC-602 E2E Test Execution API (Phase 2 & 3)
 app.include_router(telemetry.router, prefix="/api/v1", tags=["Telemetry"])  # Sprint 147 - Product Truth Layer (Replace "82-85% realization" with measured metrics)

@@ -1,7 +1,7 @@
 """
 SDLC Orchestrator - Test Suite Package
 
-SDLC 6.0.0 Compliance - Test-Driven Development
+SDLC 6.0.5 Compliance - Test-Driven Development
 Sprint 132 - Go-Live Preparation
 
 This file makes the 'tests' directory a Python package,

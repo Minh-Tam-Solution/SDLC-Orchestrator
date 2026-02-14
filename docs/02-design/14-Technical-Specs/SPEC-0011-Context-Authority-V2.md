@@ -454,7 +454,7 @@ overlay_content: |
 | **Author** | Backend Team |
 | **Status** | APPROVED |
 | **Sprint** | 119 (Day 5), Updated Sprint 172+ |
-| **Framework** | SDLC 6.0.3 (7-Pillar) |
+| **Framework** | SDLC 6.0.5 (7-Pillar) |
 | **Decision** | EXTEND (Context Authority V2) |
 
 ---

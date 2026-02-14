@@ -4,7 +4,7 @@
 **Sprint Goal**: SDK documentation, CLI performance optimization, SDK cookbook, and Phase 5 retrospective
 **Status**: COMPLETE
 **Priority**: P1 (User Education + Developer Experience)
-**Framework**: SDLC 6.0.3 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.0.5 (7-Pillar + AI Governance Principles)
 **Budget**: $15K (5 days x $3K/day)
 **Previous Sprint**: [Sprint 169 COMPLETE (93/100)](SPRINT-169-COMPLETION-REPORT.md)
 

@@ -13,7 +13,7 @@ PART 1: SPECIFICATION MANAGEMENT (7 models)
 References:
 - D1: docs/02-design/02-System-Architecture/Database-Schema-Governance-v2.md
 - Migration: backend/alembic/versions/s118_001_governance_v2_tables.py
-- SPEC-0002: Specification Standard (Framework 6.0.0)
+- SPEC-0002: Specification Standard (Framework 6.0.5)
 """
 from datetime import datetime
 from typing import Optional, List
@@ -243,7 +243,7 @@ class SpecFrontmatterMetadata(Base):
     """
     YAML frontmatter metadata (SPEC-0002 compliance).
 
-    Framework 6.0.0 requires:
+    Framework 6.0.5 requires:
     - authors (MANDATORY)
     - reviewers, stakeholders (RECOMMENDED)
     - tags, dependencies, supersedes (OPTIONAL)

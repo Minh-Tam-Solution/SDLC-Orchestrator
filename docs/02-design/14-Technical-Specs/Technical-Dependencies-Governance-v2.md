@@ -7,7 +7,7 @@
 **Created**: 2026-01-28
 **Sprint**: 118 Track 2 - D3
 **Related Specs**: SPEC-0001, SPEC-0002
-**Framework**: SDLC 6.0.0
+**Framework**: SDLC 6.0.5
 
 ---
 

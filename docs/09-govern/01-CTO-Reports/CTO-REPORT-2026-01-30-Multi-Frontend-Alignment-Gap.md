@@ -18,8 +18,8 @@ During Sprint 124 CLI/Extension update work, a **significant planning gap** was 
 > **The project planning did not comprehensively align the 3 frontend surfaces (Web App, CLI, VSCode Extension) with backend changes and SDLC Framework version upgrades.**
 
 This resulted in:
-- CLI targeting SDLC 5.0.0 while Framework is at 6.0.0
-- VSCode Extension missing SDLC 6.0.0 validation capabilities
+- CLI targeting SDLC 5.0.0 while Framework is at 6.0.5
+- VSCode Extension missing SDLC 6.0.5 validation capabilities
 - Web App governance features not reflected in CLI/Extension
 - No unified alignment matrix tracking feature parity
 
@@ -41,11 +41,11 @@ This resulted in:
 
 | Component | Current Version | Framework Version | Gap |
 |-----------|-----------------|-------------------|-----|
-| SDLC Enterprise Framework | 6.0.0 | 6.0.0 | ✅ None |
-| Backend API | 6.0.0 aware | 6.0.0 | ✅ None |
-| Web App (Frontend) | Mixed | 6.0.0 | ⚠️ Partial |
-| **sdlcctl CLI** | **5.0.0** | 6.0.0 | ❌ **CRITICAL** |
-| **VSCode Extension** | **5.x** | 6.0.0 | ❌ **CRITICAL** |
+| SDLC Enterprise Framework | 6.0.5 | 6.0.5 | ✅ None |
+| Backend API | 6.0.5 aware | 6.0.5 | ✅ None |
+| Web App (Frontend) | Mixed | 6.0.5 | ⚠️ Partial |
+| **sdlcctl CLI** | **5.0.0** | 6.0.5 | ❌ **CRITICAL** |
+| **VSCode Extension** | **5.x** | 6.0.5 | ❌ **CRITICAL** |
 
 ### 2.2 Feature Parity Matrix
 
@@ -75,9 +75,9 @@ This resulted in:
 | 02 | Technical Specs | ✅ | SPEC-0014 created (draft) |
 | 03 | Sprint Plans | ❌ | No CLI/Extension sprint alignment |
 
-### 2.4 SDLC 6.0.0 Features Not Implemented in CLI/Extension
+### 2.4 SDLC 6.0.5 Features Not Implemented in CLI/Extension
 
-| Feature | SDLC 6.0.0 Spec | CLI Status | Extension Status |
+| Feature | SDLC 6.0.5 Spec | CLI Status | Extension Status |
 |---------|-----------------|------------|------------------|
 | YAML Frontmatter Schema | Section 8 | ❌ Not implemented | ❌ Not implemented |
 | BDD Requirements Format | Section 8 | ❌ Not implemented | ❌ Not implemented |
@@ -92,7 +92,7 @@ This resulted in:
 
 ### Primary Causes
 
-1. **Framework Evolution Speed**: SDLC Framework evolved from 5.0.0 → 5.3.0 → 6.0.0 in 2 months
+1. **Framework Evolution Speed**: SDLC Framework evolved from 5.0.0 → 5.3.0 → 6.0.5 in 2 months
 2. **Decoupled Development**: CLI/Extension developed separately from Web App
 3. **Missing Alignment Process**: No formal process to sync Framework → All Frontends
 4. **Documentation Lag**: Stage 00-03 docs not updated when Framework changed
@@ -113,9 +113,9 @@ This resulted in:
 | Action | Owner | Priority | Effort |
 |--------|-------|----------|--------|
 | Create Multi-Frontend Alignment Matrix | Backend Lead | P0 | 2h |
-| Update CLI version refs to 6.0.0 | Backend Lead | P0 | 2h |
+| Update CLI version refs to 6.0.5 | Backend Lead | P0 | 2h |
 | Add spec frontmatter validator to CLI | Backend Lead | P0 | 4h |
-| Update Extension version refs to 6.0.0 | Frontend Lead | P0 | 2h |
+| Update Extension version refs to 6.0.5 | Frontend Lead | P0 | 2h |
 | Update Stage 01 FRD with CLI/Extension FR | PM | P1 | 4h |
 
 ### Medium-Term (Sprint 126-127)
@@ -141,11 +141,11 @@ This resulted in:
 
 ### Sprint 125: Multi-Frontend Alignment (Foundation)
 
-**Goal**: Achieve SDLC 6.0.0 version parity across all frontends
+**Goal**: Achieve SDLC 6.0.5 version parity across all frontends
 
 | Task | Component | SP | Owner |
 |------|-----------|-----|-------|
-| Update all version refs 5.x → 6.0.0 | CLI | 2 | Backend |
+| Update all version refs 5.x → 6.0.5 | CLI | 2 | Backend |
 | Create spec_frontmatter_validator | CLI | 3 | Backend |
 | Copy Framework 6.0 templates | CLI | 1 | Backend |
 | Update Extension version refs | Extension | 2 | Frontend |
@@ -155,9 +155,9 @@ This resulted in:
 | Publish Extension v1.2.0 | Extension | 1 | Frontend |
 | **Total** | | **15 SP** | |
 
-### Sprint 126: SDLC 6.0.0 Full Support
+### Sprint 126: SDLC 6.0.5 Full Support
 
-**Goal**: Implement all SDLC 6.0.0 spec validation features
+**Goal**: Implement all SDLC 6.0.5 spec validation features
 
 | Task | Component | SP | Owner |
 |------|-----------|-----|-------|
@@ -200,9 +200,9 @@ This resulted in:
 
 | Metric | Target | Measurement |
 |--------|--------|-------------|
-| CLI Framework Version | 6.0.0 | `sdlcctl --version` output |
-| Extension Framework Version | 6.0.0 | Extension about page |
-| Spec Validation Coverage | 100% | All SDLC 6.0.0 rules implemented |
+| CLI Framework Version | 6.0.5 | `sdlcctl --version` output |
+| Extension Framework Version | 6.0.5 | Extension about page |
+| Spec Validation Coverage | 100% | All SDLC 6.0.5 rules implemented |
 | Feature Parity | >90% | Alignment matrix score |
 | Test Coverage | 95%+ | pytest coverage report |
 | Documentation Completeness | 100% | Stage 00-03 audit pass |
@@ -216,7 +216,7 @@ This resulted in:
 **Option A (Recommended)**: Proceed with Sprint 125-127 alignment plan
 - Effort: 47 SP (~94 hours)
 - Duration: 3 sprints
-- Outcome: Full SDLC 6.0.0 alignment
+- Outcome: Full SDLC 6.0.5 alignment
 
 **Option B**: Minimal update (version refs only)
 - Effort: 8 SP (~16 hours)
@@ -253,14 +253,14 @@ This resulted in:
 
 See SPEC-0014 Section 5.1 for complete list of 38 files.
 
-### B. SDLC 6.0.0 Changelog Reference
+### B. SDLC 6.0.5 Changelog Reference
 
-See `/SDLC-Enterprise-Framework/CHANGELOG.md` for complete 6.0.0 changes.
+See `/SDLC-Enterprise-Framework/CHANGELOG.md` for complete 6.0.5 changes.
 
 ### C. Related Documents
 
-- SPEC-0014: CLI and Extension SDLC 6.0.0 Upgrade
-- SPEC-0002: Framework 6.0.0 Specification Standard
+- SPEC-0014: CLI and Extension SDLC 6.0.5 Upgrade
+- SPEC-0002: Framework 6.0.5 Specification Standard
 - ADR-014: SDLC Structure Validator
 
 ---

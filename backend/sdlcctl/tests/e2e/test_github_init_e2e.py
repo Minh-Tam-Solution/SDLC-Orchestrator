@@ -74,7 +74,7 @@ class TestGitHubInitE2EFlow:
         1. Parse 'test-org/test-repo' format
         2. Check GitHub App installation (mocked)
         3. Clone repository (mocked)
-        4. Create SDLC 6.0.0 structure
+        4. Create SDLC 6.0.5 structure
         5. Verify project initialization
         """
         os.chdir(temp_workspace)

@@ -316,4 +316,4 @@ if (error instanceof GitHubRateLimitError) {
 **Document Version**: 1.0.0
 **Last Updated**: January 31, 2026
 **Author**: SDLC Orchestrator Team
-**Framework**: SDLC 6.0.0
+**Framework**: SDLC 6.0.5

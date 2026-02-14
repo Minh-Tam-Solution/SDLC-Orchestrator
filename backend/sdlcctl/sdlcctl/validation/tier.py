@@ -1,5 +1,5 @@
 """
-SDLC 6.0.0 Tier Detection and Classification.
+SDLC 6.0.5 Tier Detection and Classification.
 
 4-Tier Classification:
 - LITE: 1-2 people, 4 required stages (00, 01, 02, 04)
@@ -16,7 +16,7 @@ from typing import List, Optional
 
 
 class Tier(Enum):
-    """SDLC 6.0.0 Project Tier Classification."""
+    """SDLC 6.0.5 Project Tier Classification."""
 
     LITE = "lite"
     STANDARD = "standard"
@@ -54,7 +54,7 @@ class TierRequirements:
             raise ValueError("max_team_size must be >= min_team_size")
 
 
-# SDLC 6.0.0 Stage definitions (10 Stages: 00-09 + Archive folder)
+# SDLC 6.0.5 Stage definitions (10 Stages: 00-09 + Archive folder)
 # Reference: SDLC-Enterprise-Framework/README.md
 # Note: 10-archive is a project-level archive folder, not a formal stage
 STAGE_NAMES = {
@@ -71,7 +71,7 @@ STAGE_NAMES = {
     "10": "10-archive",       # ARCHIVE - Project-level archive (optional, for legacy docs)
 }
 
-# Stage display names and questions (SDLC 6.0.0)
+# Stage display names and questions (SDLC 6.0.5)
 STAGE_QUESTIONS = {
     "00": "FOUNDATION",   # WHY? - Strategic Discovery & Validation
     "01": "PLANNING",     # WHAT? - Requirements & User Stories

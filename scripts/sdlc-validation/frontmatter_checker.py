@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-YAML Frontmatter Validator for SDLC 6.0.0 Section 8 Compliance
+YAML Frontmatter Validator for SDLC 6.0.5 Section 8 Compliance
 
 This script validates that markdown files have proper YAML frontmatter
-with all required fields according to SDLC 6.0.0 Section 8 Specification Standard.
+with all required fields according to SDLC 6.0.5 Section 8 Specification Standard.
 
 Usage:
     python frontmatter_checker.py <file1.md> <file2.md> ...
@@ -21,7 +21,7 @@ from typing import Dict, List, Tuple, Optional
 from datetime import datetime
 
 
-# SDLC 6.0.0 Section 8 Required Fields
+# SDLC 6.0.5 Section 8 Required Fields
 REQUIRED_FIELDS = {
     "sprint_plan": [
         "sprint_id", "title", "status", "tier", "owner",
@@ -159,7 +159,7 @@ def validate_frontmatter(
     file_path: Path
 ) -> List[str]:
     """
-    Validate frontmatter against SDLC 6.0.0 Section 8 requirements.
+    Validate frontmatter against SDLC 6.0.5 Section 8 requirements.
 
     Returns:
         List of error messages (empty if valid)
@@ -278,7 +278,7 @@ def main():
     valid_files = 0
     invalid_files = 0
 
-    print(f"\n{Colors.BOLD}{Colors.CYAN}SDLC 6.0.0 YAML Frontmatter Validator{Colors.RESET}")
+    print(f"\n{Colors.BOLD}{Colors.CYAN}SDLC 6.0.5 YAML Frontmatter Validator{Colors.RESET}")
     print(f"{Colors.CYAN}{'=' * 60}{Colors.RESET}\n")
 
     for file_path in files:

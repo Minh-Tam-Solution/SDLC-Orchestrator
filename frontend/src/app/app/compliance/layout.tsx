@@ -3,7 +3,7 @@
  *
  * @module frontend/src/app/app/compliance/layout
  * @description Sprint 156 - NIST AI RMF GOVERN: Sub-navigation layout for compliance frameworks
- * @sdlc SDLC 6.0.3 Universal Framework
+ * @sdlc SDLC 6.0.5 Universal Framework
  * @status Sprint 156 - NIST AI RMF GOVERN
  */
 

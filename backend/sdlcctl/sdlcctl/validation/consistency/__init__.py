@@ -1,6 +1,6 @@
 """Stage consistency validation module.
 
-SDLC 6.0.1 - SPEC-0021 Stage Consistency Validation.
+SDLC 6.0.5 - SPEC-0021 Stage Consistency Validation.
 
 This module provides cross-stage consistency validation to ensure
 alignment between Planning (Stage 01), Design (Stage 02),

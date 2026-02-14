@@ -219,10 +219,10 @@ SDLC 5.1.0 (Q1 2026) - SASE Integration (THIS PLAN):
   - Status: PLANNED (Q1 2026 execution)
 ```
 
-**Why 5.1.0 (not 6.0.0)?**
+**Why 5.1.0 (not 6.0.5)?**
 - ✅ **Incremental enhancement:** SASE adds agentic capabilities WITHOUT changing core 10-stage structure
 - ✅ **Backward compatible:** Teams using SDLC 5.1.3 can adopt 5.1.0 incrementally (e.g., add BriefingScript only)
-- ✅ **Major version reserved:** SDLC 6.0.0 will be for fundamental lifecycle changes (if any)
+- ✅ **Major version reserved:** SDLC 6.0.5 will be for fundamental lifecycle changes (if any)
 
 ---
 

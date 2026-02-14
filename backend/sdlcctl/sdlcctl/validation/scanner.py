@@ -1,10 +1,10 @@
 """
-SDLC 6.0.0 Folder Scanner.
+SDLC 6.0.5 Folder Scanner.
 
 Scans project directory structure and identifies SDLC stages.
 Optimized for performance: <10s for 1000+ files.
 
-SDLC 6.0.0 Structure:
+SDLC 6.0.5 Structure:
 - 10 stages: 00-09 (Foundation → Govern)
 - 10-archive: at docs root only (not a stage, holds unsorted legacy docs)
 - 99-legacy: within each stage (00-09) AND in backend, frontend, tools
@@ -50,7 +50,7 @@ class ScanResult:
 
 class FolderScanner:
     """
-    Scanner for SDLC 6.0.0 folder structure.
+    Scanner for SDLC 6.0.5 folder structure.
 
     Identifies:
     - SDLC stages (00-09) - exactly 10 stages

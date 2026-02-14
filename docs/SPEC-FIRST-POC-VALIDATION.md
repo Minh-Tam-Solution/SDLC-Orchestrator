@@ -9,7 +9,7 @@
 
 ## 📋 Executive Summary
 
-This report validates that SPEC-0001 (Anti-Vibecoding) and SPEC-0002 (Specification Standard) comply with Framework 6.0.0 Specification Standard requirements.
+This report validates that SPEC-0001 (Anti-Vibecoding) and SPEC-0002 (Specification Standard) comply with Framework 6.0.5 Specification Standard requirements.
 
 **Final Score**: **25/25 (100%)**
 
@@ -87,7 +87,7 @@ $ python3 validate_frontmatter.py SPEC-0002-Specification-Standard.md
 
 Validated fields:
   - spec_id: SPEC-0002
-  - title: Framework 6.0.0 Specification Standard
+  - title: Framework 6.0.5 Specification Standard
   - version: 1.0.0
   - status: APPROVED
   - tier: ['LITE', 'STANDARD', 'PROFESSIONAL', 'ENTERPRISE']
@@ -300,7 +300,7 @@ related_specs:
 **Validation**:
 - ✅ ADR-035: Referenced in governance context → Valid
 - ✅ ADR-041: Referenced for stage dependencies → Valid
-- ✅ SPEC-0002: Current specification (Framework 6.0.0 standard) → Valid
+- ✅ SPEC-0002: Current specification (Framework 6.0.5 standard) → Valid
 - ✅ SPEC-0003: Quality Gates Codegen Specification → Valid (existing spec)
 - ✅ SPEC-0004: Policy Guards Design → Valid (existing spec)
 
@@ -445,7 +445,7 @@ related_specs:
 ```markdown
 ### Decision 2: BDD (GIVEN-WHEN-THEN) Over Traditional "Shall/Should/Must"
 
-**Decision**: Mandate BDD format for all functional requirements in Framework 6.0.0 specifications.
+**Decision**: Mandate BDD format for all functional requirements in Framework 6.0.5 specifications.
 
 **Rationale**:
 1. Testability: Each BDD scenario maps 1:1 to test case
@@ -515,7 +515,7 @@ related_specs:
 
 **Recommendation**: Both SPEC-0001 and SPEC-0002 are ready for:
 1. ✅ Commit to Framework repository (Track 1)
-2. ✅ Use as reference specifications for Framework 6.0.0
+2. ✅ Use as reference specifications for Framework 6.0.5
 3. ✅ Orchestrator automation implementation (Track 2 Phase 3)
 
 ---
@@ -532,7 +532,7 @@ related_specs:
    git commit -m "feat(SDLC 6.0): Add SPEC-0001 and SPEC-0002 (Track 2 Phase 2)
 
    - SPEC-0001: Anti-Vibecoding Quality Assurance System (1,100 LOC)
-   - SPEC-0002: Framework 6.0.0 Specification Standard (930 LOC)
+   - SPEC-0002: Framework 6.0.5 Specification Standard (930 LOC)
 
    Validation: 25/25 (100% compliance)
    - YAML frontmatter validated against spec-frontmatter-schema.json
@@ -561,7 +561,7 @@ related_specs:
 ### Validated Specifications
 
 - **[SPEC-0001: Anti-Vibecoding Quality Assurance System](../02-design/14-Technical-Specs/SPEC-0001-Anti-Vibecoding.md)** - ~1,100 LOC, PROFESSIONAL/ENTERPRISE tiers
-- **[SPEC-0002: Framework 6.0.0 Specification Standard](../02-design/14-Technical-Specs/SPEC-0002-Specification-Standard.md)** - ~930 LOC, ALL tiers
+- **[SPEC-0002: Framework 6.0.5 Specification Standard](../02-design/14-Technical-Specs/SPEC-0002-Specification-Standard.md)** - ~930 LOC, ALL tiers
 
 ### Validation Tools
 
@@ -581,5 +581,5 @@ related_specs:
 
 ---
 
-**SDLC Framework 6.0.0 - Specification-First POC Validation**
+**SDLC Framework 6.0.5 - Specification-First POC Validation**
 *Zero facade tolerance. 100% compliance guaranteed.*

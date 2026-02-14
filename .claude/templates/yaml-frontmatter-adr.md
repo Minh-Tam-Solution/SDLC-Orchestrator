@@ -1,4 +1,4 @@
-# ADR Template (SDLC 6.0.0)
+# ADR Template (SDLC 6.0.5)
 
 **File naming**: `ADR-XXX-[kebab-case-title].md`
 **Location**: `docs/02-design/01-ADRs/`

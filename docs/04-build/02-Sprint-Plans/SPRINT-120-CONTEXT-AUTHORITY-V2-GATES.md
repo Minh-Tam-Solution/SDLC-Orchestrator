@@ -3,7 +3,7 @@
 **Dates**: February 3-14, 2026 (10 working days)
 **Status**: 📋 PLANNED
 **Total Estimated LOC**: ~3,500
-**Framework**: SDLC 6.0 (pending v6.0.0 tag)
+**Framework**: SDLC 6.0 (pending v6.0.5 tag)
 
 ---
 
@@ -24,22 +24,22 @@ SECONDARY: Establish Gates Engine foundation for G0-G4 evaluation
 
 **Date**: February 3, 2026 (Morning)
 **Duration**: 2 hours
-**Status**: ⏳ PENDING (awaiting Framework v6.0.0 tag)
+**Status**: ⏳ PENDING (awaiting Framework v6.0.5 tag)
 
 ### Tasks
 
 | Task | Description | Est. Time |
 |------|-------------|-----------|
-| Check v6.0.0 tag | `cd SDLC-Enterprise-Framework && git fetch --tags` | 5 min |
+| Check v6.0.5 tag | `cd SDLC-Enterprise-Framework && git fetch --tags` | 5 min |
 | Update submodule | `git submodule update --remote --merge` | 10 min |
 | Verify specs | Confirm 20 SPEC files present | 15 min |
-| Update CLAUDE.md | Change 5.3.0 → 6.0.0 references | 30 min |
+| Update CLAUDE.md | Change 5.3.0 → 6.0.5 references | 30 min |
 | Test CLI | `sdlcctl spec validate` against new specs | 30 min |
 | Commit | Submodule pointer update | 10 min |
 
 ### Contingency
 
-If v6.0.0 tag NOT available by Feb 3:
+If v6.0.5 tag NOT available by Feb 3:
 - Proceed with Sprint 120 Track A/B
 - Revisit submodule update Feb 5 or Feb 7
 - No functional impact (Orchestrator already 6.0-ready)
@@ -774,7 +774,7 @@ class GateEvidenceValidator:
 
 ### External
 
-- [ ] Framework v6.0.0 tag - ⏳ Expected Jan 31 - Feb 1
+- [ ] Framework v6.0.5 tag - ⏳ Expected Jan 31 - Feb 1
 
 ---
 

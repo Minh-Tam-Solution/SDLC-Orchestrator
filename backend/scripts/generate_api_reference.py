@@ -127,7 +127,7 @@ def generate_markdown(spec):
     md.append("**Document Status**: ✅ Auto-Generated from OpenAPI Specification")
     md.append(f"**Source**: `docs/03-integrate/02-API-Specifications/openapi.json`")
     md.append("**Generated**: Sprint 145+ - MCP Integration Phase 1")
-    md.append("**Framework**: SDLC 6.0.3 (Stage 03 Integration)")
+    md.append("**Framework**: SDLC 6.0.5 (Stage 03 Integration)")
     md.append("**Date**: February 3, 2026")
     md.append("")
 

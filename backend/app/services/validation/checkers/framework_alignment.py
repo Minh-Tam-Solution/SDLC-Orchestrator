@@ -1,7 +1,7 @@
 """
 Framework Alignment Checker - Sprint 123 (SPEC-0013)
 
-Validates SDLC 6.0.0 7-Pillar Architecture alignment.
+Validates SDLC 6.0.5 7-Pillar Architecture alignment.
 """
 
 from uuid import UUID
@@ -19,7 +19,7 @@ class FrameworkAlignmentChecker(BaseCategoryChecker):
 
     category = ComplianceCategory.FRAMEWORK_ALIGNMENT
 
-    # SDLC 6.0.0 7-Pillar requirements
+    # SDLC 6.0.5 7-Pillar requirements
     PILLARS = [
         ("Pillar 1", "Foundation Governance", ["CLAUDE.md", "AGENTS.md"]),
         ("Pillar 2", "Sprint Planning", ["docs/04-build/02-Sprint-Plans/"]),

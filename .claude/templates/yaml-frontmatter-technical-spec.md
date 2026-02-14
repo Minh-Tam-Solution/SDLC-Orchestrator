@@ -1,4 +1,4 @@
-# Technical Specification Template (SDLC 6.0.0)
+# Technical Specification Template (SDLC 6.0.5)
 
 **File naming**: `SPEC-XXXX-[kebab-case-title].md`
 **Location**: `docs/02-design/14-Technical-Specs/`
@@ -9,7 +9,7 @@
 
 ```yaml
 ---
-# Required Fields (9/9) - SDLC 6.0.0 Section 8
+# Required Fields (9/9) - SDLC 6.0.5 Section 8
 spec_id: SPEC-XXXX
 title: "[Specification Title]"
 version: 1.0.0

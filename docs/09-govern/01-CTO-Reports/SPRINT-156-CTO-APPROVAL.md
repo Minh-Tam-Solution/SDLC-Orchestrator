@@ -54,7 +54,7 @@
 - Migration strategy (Alembic)
 - Performance considerations (query optimization, caching)
 - Security considerations (auth, RBAC, PII protection)
-- SDLC Framework 6.0.4 compliance mapping
+- SDLC Framework 6.0.5 compliance mapping
 - Risks & mitigation (5 major risks documented)
 - Alternatives considered (3 rejected approaches)
 - Success metrics (Sprint 156 + Phase 3)
@@ -117,7 +117,7 @@ evidence_required: [
 
 ---
 
-### Condition 5: Framework 6.0.4 → 6.0.5 Update ⏸️ SPRINT 156 DAY 5
+### Condition 5: Framework 6.0.5 → 6.0.5 Update ⏸️ SPRINT 156 DAY 5
 
 **Requirement**: Add "Compliance Framework Methodology" to Framework  
 **Status**: ⏸️ SCHEDULED for Sprint 156 Day 5  

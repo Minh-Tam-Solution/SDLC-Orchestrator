@@ -7,7 +7,7 @@ Version: 1.0.0
 Date: February 2, 2026
 Status: ACTIVE - Sprint 139 (RFC-SDLC-602)
 Authority: Backend Lead + CTO Approved
-Framework: SDLC 6.0.2 (RFC-SDLC-602 E2E API Testing Enhancement)
+Framework: SDLC 6.0.5 (RFC-SDLC-602 E2E API Testing Enhancement)
 
 Purpose:
 - Validate bidirectional cross-references between Stage 03 and Stage 05

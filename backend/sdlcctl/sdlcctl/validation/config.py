@@ -6,7 +6,7 @@ Supports rule customization, ignore patterns, and validator selection.
 
 Part of Sprint 44 - SDLC Structure Scanner Engine.
 
-Framework: SDLC 6.0.0
+Framework: SDLC 6.0.5
 Epic: EP-04 - SDLC Structure Enforcement
 """
 

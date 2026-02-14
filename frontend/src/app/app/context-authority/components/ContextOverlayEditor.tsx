@@ -7,7 +7,7 @@
  * Date: February 3, 2026
  * Status: ACTIVE - Sprint 152 Implementation
  * Authority: Frontend Lead + Backend Lead Approved
- * Framework: SDLC 6.0.3
+ * Framework: SDLC 6.0.5
  *
  * WYSIWYG-style editor for dynamic context overlays:
  * - Template variable insertion

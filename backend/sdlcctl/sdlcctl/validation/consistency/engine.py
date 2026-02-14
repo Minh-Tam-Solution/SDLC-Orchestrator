@@ -1,6 +1,6 @@
 """Consistency validation engine.
 
-SDLC 6.0.1 - SPEC-0021 Stage Consistency Validation.
+SDLC 6.0.5 - SPEC-0021 Stage Consistency Validation.
 Orchestrates cross-stage consistency validation.
 """
 
@@ -31,7 +31,7 @@ class ConsistencyEngine:
     Reference: SPEC-0021 Stage Consistency Validation
     """
 
-    FRAMEWORK_VERSION = "6.0.1"
+    FRAMEWORK_VERSION = "6.0.5"
 
     def __init__(self, config: ConsistencyConfig):
         """Initialize consistency engine.

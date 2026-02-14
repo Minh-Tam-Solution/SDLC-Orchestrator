@@ -1,7 +1,7 @@
 """
 Code File Naming Checker - Sprint 123 (SPEC-0013)
 
-Validates SDLC 6.0.0 code file naming conventions:
+Validates SDLC 6.0.5 code file naming conventions:
 1. Python: snake_case (max 50 chars)
 2. TypeScript: camelCase for files, PascalCase for components
 3. Alembic migrations: revision_description format (max 60 chars)

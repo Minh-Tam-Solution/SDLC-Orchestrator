@@ -14,7 +14,7 @@
 
 ## 📋 **Document Purpose**
 
-This document defines the REST API specification for automating **SPEC-0001** (Anti-Vibecoding Quality Assurance) and **SPEC-0002** (Framework 6.0.0 Specification Standard) in SDLC Orchestrator.
+This document defines the REST API specification for automating **SPEC-0001** (Anti-Vibecoding Quality Assurance) and **SPEC-0002** (Framework 6.0.5 Specification Standard) in SDLC Orchestrator.
 
 **Deliverable**: D2 from [SPRINT-118-TRACK-2-PLAN.md](../../04-build/02-Sprint-Plans/SPRINT-118-TRACK-2-PLAN.md)
 
@@ -377,7 +377,7 @@ curl -X POST https://api.sdlc-orchestrator.com/api/v1/governance/specs/validate 
       "user_id": "user_uuid",
       "label": "CTO + Quality Lead"
     },
-    "framework_version": "6.0.0",
+    "framework_version": "6.0.5",
     "machine_readable_spec": "https://framework.sdlc.com/spec/controls/anti-vibecoding.yaml",
     "tags": ["anti-vibecoding", "quality-assurance", "governance"],
     "related_adrs": ["ADR-035-Governance-System-Design", "ADR-041-Stage-Dependency-Matrix"],

@@ -7,7 +7,7 @@
 **Authority**: CTO + Backend Lead ✅ APPROVED
 **Foundation**: FRD v3.1.0, Vision v4.0.0, EP-04/05/06 Data Requirements
 **Stage**: Stage 04 (BUILD)
-**Framework**: SDLC 6.0.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.0.5 Complete Lifecycle (10 Stages)
 
 **Changelog**:
 - v3.2.0 (Feb 8, 2026): Added product_events table (Sprint 147 - Product Truth Layer)

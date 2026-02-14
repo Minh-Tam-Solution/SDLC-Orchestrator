@@ -1,7 +1,7 @@
 """
 Duplicate Folder Detector - Sprint 123 (SPEC-0013)
 
-Detects stage folder collisions in SDLC 6.0.0 projects.
+Detects stage folder collisions in SDLC 6.0.5 projects.
 Validates that each stage prefix (00-10) has exactly one folder.
 
 Detection Types:
@@ -25,7 +25,7 @@ from app.schemas.compliance import (
 
 class DuplicateFolderDetector:
     """
-    Detect stage folder collisions in SDLC 6.0.0 projects.
+    Detect stage folder collisions in SDLC 6.0.5 projects.
 
     Validates that each stage prefix (00-10) has exactly one folder.
     Reports collisions, gaps, and extra folders.

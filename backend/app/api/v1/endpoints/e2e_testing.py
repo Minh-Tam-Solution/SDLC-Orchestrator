@@ -7,7 +7,7 @@ Version: 1.1.0
 Date: February 11, 2026
 Status: ACTIVE - Sprint 140 Day 2 (RFC-SDLC-602)
 Authority: Backend Lead + CTO Approved
-Framework: SDLC 6.0.2 (RFC-SDLC-602 E2E API Testing Enhancement)
+Framework: SDLC 6.0.5 (RFC-SDLC-602 E2E API Testing Enhancement)
 
 Purpose:
 - Execute E2E API tests asynchronously

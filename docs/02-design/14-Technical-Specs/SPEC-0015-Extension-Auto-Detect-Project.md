@@ -410,7 +410,7 @@ Authorization: Bearer {token}
 
 ## 10. References
 
-- [SDLC Framework 6.0.0](../../SDLC-Enterprise-Framework/)
+- [SDLC Framework 6.0.5](../../SDLC-Enterprise-Framework/)
 - [ADR-045: Multi-Frontend Alignment](../01-ADRs/ADR-045-Multi-Frontend-Alignment-Strategy.md)
 - [Extension README](../../../vscode-extension/README.md)
 - [Frontend Alignment Matrix](../../01-planning/01-Requirements/Frontend-Alignment-Matrix.md)

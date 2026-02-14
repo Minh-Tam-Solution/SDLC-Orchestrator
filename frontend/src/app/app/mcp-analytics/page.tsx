@@ -6,7 +6,7 @@
  *
  * @module frontend/src/app/app/mcp-analytics/page
  * @description Dashboard for monitoring AI provider health, costs, and performance
- * @sdlc SDLC 6.0.3 Universal Framework
+ * @sdlc SDLC 6.0.5 Universal Framework
  * @status Sprint 150 - MCP Analytics Dashboard MVP
  */
 

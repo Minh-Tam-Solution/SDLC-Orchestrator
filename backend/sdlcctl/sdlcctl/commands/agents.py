@@ -1,6 +1,6 @@
 """
 =========================================================================
-SDLC 6.0.0 AGENTS.md Commands
+SDLC 6.0.5 AGENTS.md Commands
 SDLC Orchestrator - Sprint 80/81/103
 
 Version: 1.2.0
@@ -970,7 +970,7 @@ def agents_validate_context_command(
     """
     Validate per-file context limits in AGENTS.md.
 
-    SDLC 6.0.0 requires that each file's context in AGENTS.md be concise
+    SDLC 6.0.5 requires that each file's context in AGENTS.md be concise
     (default: 60 lines max per file). This command parses AGENTS.md,
     extracts file-specific code blocks, and validates each against the limit.
 
@@ -996,7 +996,7 @@ def agents_validate_context_command(
         Panel(
             "[bold]Per-File Context Validator[/bold]\n\n"
             f"Validates that each file's context in AGENTS.md is ≤{max_lines} lines.\n"
-            "SDLC 6.0.0: Concise context for better AI comprehension.",
+            "SDLC 6.0.5: Concise context for better AI comprehension.",
             title="[bold blue]sdlcctl agents validate-context[/bold blue]",
             border_style="blue",
         )

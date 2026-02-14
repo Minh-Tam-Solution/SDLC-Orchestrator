@@ -5,7 +5,7 @@
 **Date**: February 2, 2026
 **Status**: ✅ COMPLETE (100% P1 + P2 objectives achieved)
 **Engineer**: AI Assistant (Claude Sonnet 4.5)
-**Framework**: SDLC 6.0.3 (RFC-SDLC-604 Parallel AI Development Pattern)
+**Framework**: SDLC 6.0.5 (RFC-SDLC-604 Parallel AI Development Pattern)
 
 ---
 
@@ -437,7 +437,7 @@ $ sdlcctl worktree remove ../test-worktree
 ```yaml
 Design Phase (Track 1 - Sprint 143):
   ✅ RFC-SDLC-604 written (647 LOC)
-  ✅ Framework 6.0.3 released
+  ✅ Framework 6.0.5 released
   ✅ CTO approved
 
 Implementation Phase (Track 2 - Sprint 144):
@@ -664,6 +664,6 @@ Achievement: 342% of target (with 3 days remaining)
 **Report Version**: 1.0
 **Generated**: February 2, 2026
 **Sprint**: 144 - Worktree CLI Commands (Track 2)
-**Framework**: SDLC 6.0.3 (RFC-SDLC-604)
+**Framework**: SDLC 6.0.5 (RFC-SDLC-604)
 
 **Co-Authored-By**: Claude Sonnet 4.5 <noreply@anthropic.com>

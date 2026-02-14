@@ -170,7 +170,7 @@ Sprint 117-118 (Feb 24 - Mar 7):
 
 Sprint 119 (Mar 10-14):
   Track 1 (60%):
-    - Version bump 5.3.0 → 6.0.0
+    - Version bump 5.3.0 → 6.0.5
     - Release documentation
     - Migration guide
     - Announcement

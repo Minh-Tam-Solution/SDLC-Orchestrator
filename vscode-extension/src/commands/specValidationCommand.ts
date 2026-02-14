@@ -2,7 +2,7 @@
  * Specification Validation Command for SDLC Orchestrator VS Code Extension
  *
  * Sprint 126 - S126-06: Add spec validation to Extension
- * Implements SDLC 6.0.0 SPEC-0002 specification validation in IDE.
+ * Implements SDLC 6.0.5 SPEC-0002 specification validation in IDE.
  *
  * Features:
  * - Validate current file against SPEC-0002 standard
@@ -174,7 +174,7 @@ async function executeValidateSpecWithTier(codegenApi: CodegenApiService): Promi
 
     const selected = await vscode.window.showQuickPick(tierOptions, {
         placeHolder: 'Select tier for validation',
-        title: 'SDLC 6.0.0 Tier Selection',
+        title: 'SDLC 6.0.5 Tier Selection',
     });
 
     if (!selected) {
@@ -224,7 +224,7 @@ async function validateDocument(
 
                 if (errorCount === 0 && warningCount === 0) {
                     void vscode.window.showInformationMessage(
-                        `✅ Specification ${result.spec_id} is valid (SDLC 6.0.0)`
+                        `✅ Specification ${result.spec_id} is valid (SDLC 6.0.5)`
                     );
                 } else if (errorCount === 0) {
                     const action = await vscode.window.showWarningMessage(
@@ -345,7 +345,7 @@ function showValidationResultsPanel(result: SpecValidationResult): void {
     outputChannel.clear();
 
     outputChannel.appendLine('═'.repeat(70));
-    outputChannel.appendLine('  SDLC 6.0.0 SPECIFICATION VALIDATION REPORT');
+    outputChannel.appendLine('  SDLC 6.0.5 SPECIFICATION VALIDATION REPORT');
     outputChannel.appendLine('═'.repeat(70));
     outputChannel.appendLine('');
 

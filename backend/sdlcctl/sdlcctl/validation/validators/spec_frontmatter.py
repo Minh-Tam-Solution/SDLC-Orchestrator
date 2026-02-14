@@ -1,7 +1,7 @@
 """
 Specification Frontmatter Validator.
 
-Validates YAML frontmatter in SDLC 6.0.0 specification documents.
+Validates YAML frontmatter in SDLC 6.0.5 specification documents.
 
 Rules:
 - SPC-001: Missing required frontmatter fields
@@ -9,7 +9,7 @@ Rules:
 - SPC-003: Invalid YAML syntax
 - SPC-004: Missing frontmatter block
 
-SDLC 6.0.0 Standard (SPEC-0002):
+SDLC 6.0.5 Standard (SPEC-0002):
 - Required: spec_id, title, version, status, tier, owner, last_updated
 - Optional: pillar, tags, related_adrs, related_specs, author, created, epic, sprint
 - Format: YAML frontmatter enclosed in triple dashes (---)
@@ -53,7 +53,7 @@ class SpecFrontmatterValidator(BaseValidator):
 
     VALIDATOR_ID = "spec-frontmatter"
     VALIDATOR_NAME = "Specification Frontmatter Validator"
-    VALIDATOR_DESCRIPTION = "Validates YAML frontmatter in SDLC 6.0.0 specification documents"
+    VALIDATOR_DESCRIPTION = "Validates YAML frontmatter in SDLC 6.0.5 specification documents"
 
     # YAML frontmatter pattern (matches content between ---)
     YAML_FRONTMATTER = re.compile(

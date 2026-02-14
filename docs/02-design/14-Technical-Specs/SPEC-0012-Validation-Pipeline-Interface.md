@@ -12,7 +12,7 @@ last_updated: "2026-01-31"
 tags: ["validation-pipeline", "ai-safety", "lint", "test", "coverage", "redis-queue", "prometheus", "ep-02", "async-validation"]
 related_specs: ["SPEC-0001", "SPEC-0002", "SPEC-0009", "SPEC-0010", "SPEC-0011"]
 stage: "02-DESIGN"
-framework_version: "6.0.0"
+framework_version: "6.0.5"
 ---
 
 ## 1. Overview

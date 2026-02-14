@@ -152,7 +152,7 @@ class TestStageNames:
             assert "-" in stage_name
 
     def test_specific_stage_names(self):
-        """Test specific stage names (SDLC 6.0.0 naming convention)."""
+        """Test specific stage names (SDLC 6.0.5 naming convention)."""
         assert STAGE_NAMES["00"] == "00-foundation"
         assert STAGE_NAMES["01"] == "01-planning"
         assert STAGE_NAMES["02"] == "02-design"
@@ -251,7 +251,7 @@ class TestTierDetectorStageHelpers:
     """Tests for TierDetector stage helper methods."""
 
     def test_get_stage_name_valid(self):
-        """Test getting stage name for valid stage IDs (SDLC 6.0.0)."""
+        """Test getting stage name for valid stage IDs (SDLC 6.0.5)."""
         assert TierDetector.get_stage_name("00") == "00-foundation"
         assert TierDetector.get_stage_name("01") == "01-planning"
         assert TierDetector.get_stage_name("10") == "10-archive"
@@ -262,7 +262,7 @@ class TestTierDetectorStageHelpers:
         assert TierDetector.get_stage_name("invalid") is None
 
     def test_get_stage_question_valid(self):
-        """Test getting stage question for valid stage IDs (SDLC 6.0.0)."""
+        """Test getting stage question for valid stage IDs (SDLC 6.0.5)."""
         assert TierDetector.get_stage_question("00") == "FOUNDATION"
         assert TierDetector.get_stage_question("01") == "PLANNING"
         assert TierDetector.get_stage_question("02") == "DESIGN"

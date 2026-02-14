@@ -1,7 +1,7 @@
 """
 Compliance Validation CLI Commands - Sprint 123 (SPEC-0013)
 
-SDLC 6.0.0 compliance scoring and folder collision detection.
+SDLC 6.0.5 compliance scoring and folder collision detection.
 
 Version: 1.0.0
 Date: January 30, 2026
@@ -330,7 +330,7 @@ def compliance_score(
     ),
 ) -> None:
     """
-    Calculate SDLC 6.0.0 compliance score.
+    Calculate SDLC 6.0.5 compliance score.
 
     10 categories × 10 points = 100 maximum score.
 
@@ -358,7 +358,7 @@ def compliance_score(
     console.print()
     console.print(Panel(
         f"[bold {color}]{score}/100[/bold {color}]",
-        title="SDLC 6.0.0 Compliance Score",
+        title="SDLC 6.0.5 Compliance Score",
         subtitle=str(path),
     ))
 
@@ -532,7 +532,7 @@ def compliance_report(
         "project_path": str(path),
         "docs_path": str(docs_path),
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "framework_version": "6.0.0",
+        "framework_version": "6.0.5",
         "compliance_score": {
             "overall": score_result["overall_score"],
             "max": 100,
@@ -566,7 +566,7 @@ def compliance_categories() -> None:
     Lists all 10 categories with descriptions and point values.
     """
     console.print()
-    table = Table(title="SDLC 6.0.0 Compliance Categories", show_header=True)
+    table = Table(title="SDLC 6.0.5 Compliance Categories", show_header=True)
     table.add_column("#", style="cyan", width=3)
     table.add_column("Category", width=28)
     table.add_column("Points", justify="center", width=8)

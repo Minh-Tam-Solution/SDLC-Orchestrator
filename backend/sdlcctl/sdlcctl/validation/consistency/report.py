@@ -1,6 +1,6 @@
 """Consistency report formatters.
 
-SDLC 6.0.1 - SPEC-0021 Stage Consistency Validation.
+SDLC 6.0.5 - SPEC-0021 Stage Consistency Validation.
 """
 
 import json

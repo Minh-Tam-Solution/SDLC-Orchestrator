@@ -4,7 +4,7 @@
 **Version**: 1.0.0
 **Dates**: March 10-14, 2026 (5 days)
 **Status**: PLANNED (Pending Sprint 117-118 Completion)
-**Framework**: SDLC 5.3.0 → 6.0.0 (Major Release)
+**Framework**: SDLC 5.3.0 → 6.0.5 (Major Release)
 **Prerequisites**: 20 specs migrated, Section 7 complete
 
 ---
@@ -12,11 +12,11 @@
 ## Executive Summary
 
 Sprint 119 is the **RELEASE SPRINT**:
-- **Track 1 (60%)**: Framework 6.0.0 Official Release
+- **Track 1 (60%)**: Framework 6.0.5 Official Release
 - **Track 2 (40%)**: Orchestrator Alignment + OpenSpec Integration (conditional)
 
 Key outcomes:
-- SDLC Framework 6.0.0 released
+- SDLC Framework 6.0.5 released
 - 20 specifications in new format
 - Migration guide available
 - Orchestrator aligned with Framework 6.0 standards
@@ -45,7 +45,7 @@ If ANY fail → Defer release, extend Sprint 117-118
 ## Track 1: Framework 6.0 Release (60%)
 
 ### Goals
-1. Version bump 5.3.0 → 6.0.0
+1. Version bump 5.3.0 → 6.0.5
 2. Complete release documentation
 3. Create migration guide
 4. Publish announcement
@@ -58,14 +58,14 @@ If ANY fail → Defer release, extend Sprint 117-118
 ```yaml
 Version Update Locations:
   1. SDLC-Enterprise-Framework/VERSION
-     - Update: 5.3.0 → 6.0.0
+     - Update: 5.3.0 → 6.0.5
 
   2. SDLC-Enterprise-Framework/README.md
      - Update version badge
      - Add Framework 6.0 highlights
 
   3. SDLC-Enterprise-Framework/CHANGELOG.md
-     - Add 6.0.0 release notes
+     - Add 6.0.5 release notes
      - Document all changes since 5.3.0
 
   4. All spec files (20 specs)
@@ -73,8 +73,8 @@ Version Update Locations:
      - Ensure consistency
 
   5. Git tag
-     - git tag -a v6.0.0 -m "Framework 6.0.0 Release"
-     - git push origin v6.0.0
+     - git tag -a v6.0.5 -m "Framework 6.0.5 Release"
+     - git push origin v6.0.5
 ```
 
 **Final Review Checklist**:
@@ -100,7 +100,7 @@ Pre-Release Review:
 ```
 
 **Exit Criteria**:
-- [ ] Version bumped to 6.0.0
+- [ ] Version bumped to 6.0.5
 - [ ] Final review passed
 - [ ] CTO sign-off on release readiness
 
@@ -110,11 +110,11 @@ Pre-Release Review:
 ```yaml
 Release Documents:
 
-  1. RELEASE-NOTES-6.0.0.md
+  1. RELEASE-NOTES-6.0.5.md
      Location: SDLC-Enterprise-Framework/docs/releases/
 
      Content:
-       ## SDLC Framework 6.0.0 Release Notes
+       ## SDLC Framework 6.0.5 Release Notes
        Release Date: March 14, 2026
 
        ### Highlights
@@ -140,7 +140,7 @@ Release Documents:
      Location: SDLC-Enterprise-Framework/docs/guides/
 
      Content:
-       ## Migration Guide: SDLC 5.3.0 → 6.0.0
+       ## Migration Guide: SDLC 5.3.0 → 6.0.5
 
        ### Prerequisites
        - Current version: 5.3.0 or higher
@@ -188,10 +188,10 @@ Release Documents:
 
 **Announcement Package**:
 ```markdown
-# SDLC Framework 6.0.0 Released
+# SDLC Framework 6.0.5 Released
 
 **Date**: March 14, 2026
-**Version**: 6.0.0 (Major Release)
+**Version**: 6.0.5 (Major Release)
 
 ## Executive Summary
 
@@ -225,14 +225,14 @@ comprehensive **Quality Assurance System** for AI-governed development.
 
 ## Migration
 
-Projects using SDLC 5.3.0 should migrate to 6.0.0:
+Projects using SDLC 5.3.0 should migrate to 6.0.5:
 - See [Migration Guide](docs/guides/MIGRATION-GUIDE-5.3-to-6.0.md)
 - 20 specifications already migrated as examples
 - Estimated effort: 2-4 hours per project
 
 ## Resources
 
-- [Release Notes](docs/releases/RELEASE-NOTES-6.0.0.md)
+- [Release Notes](docs/releases/RELEASE-NOTES-6.0.5.md)
 - [Migration Guide](docs/guides/MIGRATION-GUIDE-5.3-to-6.0.md)
 - [What's New](docs/WHAT-IS-NEW-6.0.md)
 - [Specification Standard Template](03-Templates/Framework-6.0/)
@@ -253,7 +253,7 @@ Announcement Distribution:
   1. GitHub Release:
      - Create release on GitHub
      - Attach release notes
-     - Tag: v6.0.0
+     - Tag: v6.0.5
 
   2. Internal Communication:
      - Slack/Teams announcement
@@ -324,7 +324,7 @@ Pre-Release Validation:
 Release Day (Mar 14, 2026):
 
   Morning (9:00 AM):
-    [ ] Final git tag created: v6.0.0
+    [ ] Final git tag created: v6.0.5
     [ ] GitHub release published
     [ ] Release notes attached
 
@@ -365,7 +365,7 @@ Week 2-4:
 ```
 
 **Exit Criteria**:
-- [ ] Framework 6.0.0 released
+- [ ] Framework 6.0.5 released
 - [ ] Announcement published
 - [ ] Initial feedback positive
 - [ ] No critical issues
@@ -385,23 +385,23 @@ Week 2-4:
 
 **Submodule Update Tasks**:
 ```bash
-# Update Framework submodule to 6.0.0
+# Update Framework submodule to 6.0.5
 cd SDLC-Orchestrator
 git submodule update --remote SDLC-Enterprise-Framework
 git add SDLC-Enterprise-Framework
-git commit -m "chore: Update Framework submodule to 6.0.0"
+git commit -m "chore: Update Framework submodule to 6.0.5"
 
 # Verify alignment
 # - Check CLAUDE.md references
-# - Update any 5.3.0 mentions to 6.0.0
+# - Update any 5.3.0 mentions to 6.0.5
 # - Verify template paths
 ```
 
 **Alignment Checklist**:
 ```yaml
 Orchestrator Alignment:
-  [ ] Framework submodule at v6.0.0
-  [ ] CLAUDE.md updated (5.3.0 → 6.0.0)
+  [ ] Framework submodule at v6.0.5
+  [ ] CLAUDE.md updated (5.3.0 → 6.0.5)
   [ ] Project documentation aligned
   [ ] API documentation updated
   [ ] Frontend references updated
@@ -540,7 +540,7 @@ Context Authority V2 Planning:
 
 | Metric | Target | Actual |
 |--------|--------|--------|
-| Version bump | 6.0.0 | TBD |
+| Version bump | 6.0.5 | TBD |
 | Release notes | Complete | TBD |
 | Migration guide | Complete | TBD |
 | Announcement | Published | TBD |
@@ -551,8 +551,8 @@ Context Authority V2 Planning:
 
 | Metric | Target | Actual |
 |--------|--------|--------|
-| Submodule updated | 6.0.0 | TBD |
-| CLAUDE.md aligned | 6.0.0 | TBD |
+| Submodule updated | 6.0.5 | TBD |
+| CLAUDE.md aligned | 6.0.5 | TBD |
 | sdlcctl spec validate | Working | TBD |
 | OpenSpec decision | Executed | TBD |
 | No P0/P1 bugs | 0 | TBD |
@@ -634,6 +634,6 @@ Ongoing (Both Paths):
 | **Author** | PM/PJM Team |
 | **Status** | PLANNED |
 | **Sprint** | 119 |
-| **Milestone** | Framework 6.0.0 Release |
+| **Milestone** | Framework 6.0.5 Release |
 | **Dual-Track** | Yes (Track 1: 60%, Track 2: 40%) |
 | **Critical** | Yes (Major Release) |

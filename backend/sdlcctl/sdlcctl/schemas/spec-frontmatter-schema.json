@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://sdlc-orchestrator.dev/schemas/spec-frontmatter.json",
-  "title": "SDLC 6.0.0 Specification Frontmatter Schema",
-  "description": "JSON Schema for validating YAML frontmatter in SDLC 6.0.0 specification documents (SPEC-0002 compliant)",
+  "title": "SDLC 6.0.5 Specification Frontmatter Schema",
+  "description": "JSON Schema for validating YAML frontmatter in SDLC 6.0.5 specification documents (SPEC-0002 compliant)",
   "type": "object",
   "required": [
     "spec_id",

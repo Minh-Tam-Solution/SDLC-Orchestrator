@@ -4,7 +4,7 @@
 **Duration**: February 6-26, 2026 (4 sprints, 20 days)
 **Theme**: Developer Experience - IDE + SDK + Performance
 **Budget**: $90K allocated, ~$80K utilized
-**Framework**: SDLC 6.0.3 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.0.5 (7-Pillar + AI Governance Principles)
 **Status**: COMPLETE
 
 ---

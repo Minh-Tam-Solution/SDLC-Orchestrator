@@ -2,7 +2,7 @@
 
 **Release Version**: v1.5.0
 **Sprint**: 139 - E2E Commands Implementation
-**Framework**: SDLC 6.0.2 (RFC-SDLC-602)
+**Framework**: SDLC 6.0.5 (RFC-SDLC-602)
 **Release Date**: February 2, 2026
 **Status**: GA (General Availability)
 

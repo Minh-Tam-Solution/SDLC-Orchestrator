@@ -6,17 +6,17 @@
 **Status**: ✅ Gate G3 PASSED - Sprint 122 Stabilization
 **Authority**: CTO + Backend Lead + Tech Lead
 **Foundation**: Stage 02 (Design & Architecture) - 24 documents ✅ COMPLETE
-**Framework**: SDLC 6.0.3 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+**Framework**: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 **Previous Stage**: Stage 02 (HOW - Design & Architecture) ✅ COMPLETE (Gate G2 PASSED)
 **Positioning**: Operating System for Software 3.0
 
 **Changelog v3.0.0** (Jan 30, 2026):
-- **SDLC 6.0.0 Migration**: Framework upgraded from 5.1.3 → 6.0.0
+- **SDLC 6.0.5 Migration**: Framework upgraded from 5.1.3 → 6.0.5
 - **Multi-Frontend Alignment**: Sprint 125-127 completed (26.5 SP in 1 day)
   - CLI (sdlcctl): 264 tests passed, 95%+ coverage
   - VS Code Extension: Compilation verified, 34 pre-existing lint warnings
 - **CLI Bug Fixes (Sprint 127)**:
-  - Stage folder naming: `00-Project-Foundation` → `00-foundation` (SDLC 6.0.0 compliant)
+  - Stage folder naming: `00-Project-Foundation` → `00-foundation` (SDLC 6.0.5 compliant)
   - P0 artifact paths updated across all validators
   - Pre-commit hooks module: `sdlcctl.hooks.pre_commit.run_validation()`
   - Fix command: Creates `99-Legacy` folders consistently

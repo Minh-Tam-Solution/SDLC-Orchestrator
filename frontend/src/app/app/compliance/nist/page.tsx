@@ -3,7 +3,7 @@
  *
  * @module frontend/src/app/app/compliance/nist/page
  * @description Sprint 156 - NIST AI RMF GOVERN: Overview of NIST AI RMF functions
- * @sdlc SDLC 6.0.3 Universal Framework
+ * @sdlc SDLC 6.0.5 Universal Framework
  * @status Sprint 156 - NIST AI RMF GOVERN
  */
 

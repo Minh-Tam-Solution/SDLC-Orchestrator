@@ -7,7 +7,7 @@ Version: 1.1.0
 Date: February 3, 2026
 Status: ACTIVE - Sprint 151 SASE Artifacts Enhancement
 Authority: Backend Lead + CTO Approved
-Framework: SDLC 6.0.3 Universal Framework
+Framework: SDLC 6.0.5 Universal Framework
 
 Test Categories:
 - VCR Lifecycle Tests (create, read, update, delete)

@@ -1,5 +1,5 @@
 """
-SDLC 6.0.0 Report Command.
+SDLC 6.0.5 Report Command.
 
 Generate detailed validation reports in various formats.
 
@@ -59,7 +59,7 @@ def report_command(
     ),
 ) -> None:
     """
-    Generate SDLC 6.0.0 compliance report.
+    Generate SDLC 6.0.5 compliance report.
 
     Creates a detailed report of the project's SDLC compliance status
     suitable for documentation or CI/CD integration.
@@ -196,11 +196,11 @@ def _generate_markdown_report(result: ValidationResult) -> str:
 
     recommendations_text = "\n".join(recommendations) if recommendations else "No recommendations - great job!"
 
-    return f"""# SDLC 6.0.0 Compliance Report
+    return f"""# SDLC 6.0.5 Compliance Report
 
 **Generated**: {timestamp}
 **Project**: {result.project_root.name}
-**Framework**: SDLC 6.0.0
+**Framework**: SDLC 6.0.5
 
 ---
 
@@ -311,7 +311,7 @@ def _generate_html_report(result: ValidationResult) -> str:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SDLC 6.0.0 Compliance Report</title>
+    <title>SDLC 6.0.5 Compliance Report</title>
     <style>
         body {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -355,7 +355,7 @@ def _generate_html_report(result: ValidationResult) -> str:
     </style>
 </head>
 <body>
-    <h1>SDLC 6.0.0 Compliance Report</h1>
+    <h1>SDLC 6.0.5 Compliance Report</h1>
     <p><strong>Generated:</strong> {timestamp} | <strong>Project:</strong> {result.project_root.name}</p>
 
     <h2>Summary</h2>

@@ -8,7 +8,7 @@ Date: February 3, 2026
 Status: ACTIVE - Sprint 152 MRP Integration
 Authority: Backend Lead + CTO Approved
 Reference: docs/04-build/02-Sprint-Plans/CURRENT-SPRINT.md
-Reference: SDLC 6.0.3 Framework - SASE Artifacts
+Reference: SDLC 6.0.5 Framework - SASE Artifacts
 
 Purpose:
 - Validate all 5 MRP evidence points against tier policy

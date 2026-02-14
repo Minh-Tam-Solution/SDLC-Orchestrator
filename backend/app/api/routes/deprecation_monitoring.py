@@ -7,7 +7,7 @@ Version: 1.0.0
 Date: February 25, 2026
 Status: ACTIVE
 Authority: CTO Approved
-Framework: SDLC 6.0.3 API Deprecation Policy
+Framework: SDLC 6.0.5 API Deprecation Policy
 
 Purpose:
 Provide visibility into deprecated endpoint usage for migration planning.

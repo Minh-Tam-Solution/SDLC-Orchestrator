@@ -4,7 +4,7 @@
 **Author**: CTO Office
 **Status**: 🎯 **STRATEGIC PLANNING**
 **Scope**: Post-Phase 2 Roadmap (Sprint 155 Complete)
-**Framework**: SDLC 6.0.4
+**Framework**: SDLC 6.0.5
 
 ---
 
@@ -42,7 +42,7 @@
 | **Real-time System** | 100% Complete | WebSocket + push notifications |
 | **Spec Converter** | 90% Complete | 6 components + cross-reference validation |
 | **Test Coverage** | 95%+ | 536 tests Sprint 155, 94% backend coverage |
-| **Documentation** | 95% Complete | Framework 6.0.4 + ADRs + Technical Specs |
+| **Documentation** | 95% Complete | Framework 6.0.5 + ADRs + Technical Specs |
 
 ### Technical Debt Status
 
@@ -1155,7 +1155,7 @@ curl -fsSL https://sdlc.ai/setup.sh | bash
 │  ├─ Sprint 151: SASE Artifacts ────────────────────────── ✅          │
 │  ├─ Sprint 152: Context Authority UI ─────────────────── ✅          │
 │  ├─ Sprint 153: Real-time Notifications ────────────────� ✅          │
-│  ├─ Sprint 154: Spec Standard + Framework 6.0.4 ────────� ✅          │
+│  ├─ Sprint 154: Spec Standard + Framework 6.0.5 ────────� ✅          │
 │  └─ Sprint 155: Visual Editor + Cross-Reference ────────� ✅          │
 │                                                                        │
 │  Phase 3: COMPLIANCE (April 2026) 🎯                                 │
@@ -1223,7 +1223,7 @@ curl -fsSL https://sdlc.ai/setup.sh | bash
 
 - [ROADMAP-147-170.md](../04-build/02-Sprint-Plans/ROADMAP-147-170.md)
 - [SPRINT-150-COMPLETION-REPORT.md](SPRINT-150-COMPLETION-REPORT.md)
-- [SDLC Framework 6.0.4](../../SDLC-Enterprise-Framework/README.md)
+- [SDLC Framework 6.0.5](../../SDLC-Enterprise-Framework/README.md)
 - [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework)
 - [EU AI Act Official Text](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52021PC0206)
 - [ISO 42001:2023 AI Management System](https://www.iso.org/standard/81230.html)

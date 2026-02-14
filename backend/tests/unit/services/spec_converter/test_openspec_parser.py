@@ -2,7 +2,7 @@
 Test Suite: OpenSpec YAML Parser
 Sprint: 154 - Spec Standard Completion
 TDD Phase: 1 (Tests First)
-SDLC: 6.0.3 Principle 4 - Verification-First
+SDLC: 6.0.5 Principle 4 - Verification-First
 
 Expected Tests: 12
 Purpose: Parse OpenSpec YAML specifications to SpecIR

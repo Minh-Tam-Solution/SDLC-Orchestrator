@@ -2,7 +2,7 @@
 Test Suite: User Story Parser
 Sprint: 154 - Spec Standard Completion
 TDD Phase: 1 (Tests First)
-SDLC: 6.0.3 Principle 4 - Verification-First
+SDLC: 6.0.5 Principle 4 - Verification-First
 
 Expected Tests: 8
 Purpose: Parse User Stories to BDD SpecIR with AI assistance

@@ -1,6 +1,6 @@
 """Stage 02 (Design) ↔ Stage 03 (Integrate) consistency checker.
 
-SDLC 6.0.1 - SPEC-0021 Stage Consistency Validation.
+SDLC 6.0.5 - SPEC-0021 Stage Consistency Validation.
 
 Validates:
 - CONS-004: API contracts must match architecture design

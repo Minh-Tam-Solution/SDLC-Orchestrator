@@ -545,7 +545,7 @@ jobs:
 - **ADR-043**: Team Invitation System Architecture (evidence: missing frontend)
 - **ADR-044**: GitHub Integration Strategy (evidence: missing frontend)
 - **SPEC-0013**: Compliance Validation Service (evidence: complete)
-- **SPEC-0014**: CLI Extension SDLC 6.0.0 Upgrade (evidence: partial)
+- **SPEC-0014**: CLI Extension SDLC 6.0.5 Upgrade (evidence: partial)
 - **CURRENT-SPRINT.md**: Sprint 132 Go-Live Preparation
 
 ---

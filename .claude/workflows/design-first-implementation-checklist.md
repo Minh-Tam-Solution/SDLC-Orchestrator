@@ -1,7 +1,7 @@
 # Design-First Implementation Checklist
 
 **Version**: 1.0.0
-**Framework**: SDLC 6.0.0
+**Framework**: SDLC 6.0.5
 **Principle**: "Kiểm tra và cập nhật tài liệu thiết kế và yêu cầu đặc tả TRƯỚC KHI implement"
 **Created**: January 30, 2026
 **Owner**: CTO + Architect
@@ -100,7 +100,7 @@ THEN I MUST be able to answer:
 ❌ Status is DEPRECATED or SUPERSEDED
 ❌ Cross-references are broken
 ❌ No BDD acceptance criteria
-❌ No YAML frontmatter (pre-SDLC 6.0.0 doc)
+❌ No YAML frontmatter (pre-SDLC 6.0.5 doc)
 ```
 
 ---
@@ -427,7 +427,7 @@ THEN I MUST be able to answer:
 - [ADR Template](.claude/templates/yaml-frontmatter-adr.md)
 - [Sprint Plan Template](.claude/templates/yaml-frontmatter-sprint-plan.md)
 
-**SDLC 6.0.0 Framework**:
+**SDLC 6.0.5 Framework**:
 - [Section 8: Specification Standard](../SDLC-Enterprise-Framework/08-Section-8-Specification-Standard.md)
 - [Design-First Principles](../SDLC-Enterprise-Framework/02-Process-Guides/Design-First-Development.md)
 

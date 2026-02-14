@@ -2,7 +2,7 @@
 OpenSpec Renderer
 Sprint 154 Day 2 - TDD Phase 2 (GREEN)
 
-Renders SpecIR to OpenSpec YAML format (SDLC 6.0.3 Section 8).
+Renders SpecIR to OpenSpec YAML format (SDLC 6.0.5 Section 8).
 
 Output Format:
 ---
@@ -49,7 +49,7 @@ class OpenSpecRenderer:
     """
     Render SpecIR to OpenSpec YAML format.
 
-    Produces SDLC 6.0.3 Section 8 compliant specification
+    Produces SDLC 6.0.5 Section 8 compliant specification
     with YAML frontmatter and markdown body.
 
     Example output:

@@ -196,7 +196,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         // Register commands
         registerCommands(context);
 
-        // Register init commands (SDLC 6.0.0 project initialization)
+        // Register init commands (SDLC 6.0.5 project initialization)
         registerInitCommand(context, state.apiClient, state.authService);
 
         // Register App Builder commands (Sprint 53)
@@ -815,10 +815,10 @@ async function checkAndPromptForInit(context: vscode.ExtensionContext): Promise<
     let actions: string[];
 
     if (isEmptyOrMinimal) {
-        message = 'This folder is empty. Would you like to create an SDLC 6.0.0 project structure?';
+        message = 'This folder is empty. Would you like to create an SDLC 6.0.5 project structure?';
         actions = ['Create SDLC Project', 'Not Now', "Don't Ask Again"];
     } else {
-        message = 'This project doesn\'t have an SDLC configuration. Would you like to add SDLC 6.0.0 governance?';
+        message = 'This project doesn\'t have an SDLC configuration. Would you like to add SDLC 6.0.5 governance?';
         actions = ['Run Gap Analysis', 'Initialize', 'Not Now', "Don't Ask Again"];
     }
 

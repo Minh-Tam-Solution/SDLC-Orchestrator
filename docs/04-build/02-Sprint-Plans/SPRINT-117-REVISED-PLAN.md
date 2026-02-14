@@ -48,7 +48,7 @@
 4. ✅ SPEC-0004: Policy Guards Design (~1,100 LOC)
 5. ✅ SPEC-0005: System Architecture Document (~1,050 LOC)
 
-**Total Output**: ~4,650 lines of Framework 6.0.0-compliant specifications
+**Total Output**: ~4,650 lines of Framework 6.0.5-compliant specifications
 **Requirements**: 36 functional requirements in BDD format
 **Acceptance Criteria**: 58 acceptance criteria with test methods
 
@@ -122,7 +122,7 @@
 
 **Day 5 (Feb 7)**:
 2. [ ] Update CONTENT-MAP.md navigation (~300 LOC)
-   - Framework 6.0.0 structure references
+   - Framework 6.0.5 structure references
    - /spec/ directory navigation
    - Cross-references to 20 migrated specs
    - Validate all links (ensure no broken references)
@@ -199,7 +199,7 @@
    - Platform-agnostic definitions only
    - Semantic-only gates (no automation blocks)
 
-   Framework version: 6.0.0 (in development)
+   Framework version: 6.0.5 (in development)
    Validation: 23/25 checks PASS (2 deferred: SPEC-0001/0002 frontmatter)
 
    Co-Authored-By: CTO Approval <cto@nhatquangholding.com>"
@@ -293,14 +293,14 @@
 
 **Rationale for Deferral**:
 - Track 1 must complete first (20/20 specs by Feb 7)
-- Sprint 117 priority is Framework 6.0.0 spec layer
+- Sprint 117 priority is Framework 6.0.5 spec layer
 - Automation belongs to Sprint 118 implementation phase
 - Prevents premature optimization
 - Planning phase (Jan 28 - Feb 9) focuses on design only
 
 **Start Conditions (ALL must be true)**:
 1. ✅ Track 1 completes 20/20 specs
-2. ✅ Framework 6.0.0 spec layer finalized
+2. ✅ Framework 6.0.5 spec layer finalized
 3. ✅ Sprint 117 officially ends (Feb 7)
 4. ✅ Sprint 118 kickoff (Feb 10)
 5. ✅ All 6 design deliverables completed and approved
@@ -400,11 +400,11 @@
 ## Sprint 117 Success Criteria
 
 ### Track 1 (Framework 6.0 Spec Migration)
-- [ ] 20/20 specs migrated to Framework 6.0.0 format (~15,000 LOC)
+- [ ] 20/20 specs migrated to Framework 6.0.5 format (~15,000 LOC)
 - [ ] Section 7 updated with Anti-Vibecoding documentation
 - [ ] CONTENT-MAP.md updated with Framework 6.0 navigation
 - [ ] All cross-references validated (no broken links)
-- [ ] 100% compliance with Framework 6.0.0 standards
+- [ ] 100% compliance with Framework 6.0.5 standards
 
 ### Track 2 (Orchestrator Alignment)
 - [x] 5 POC files committed to Framework repository (✅ Phase 1: 493c830)

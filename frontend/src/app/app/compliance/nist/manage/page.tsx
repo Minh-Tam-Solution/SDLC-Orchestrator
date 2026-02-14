@@ -4,7 +4,7 @@
  * @module frontend/src/app/app/compliance/nist/manage/page
  * @description Sprint 158 - NIST AI RMF MANAGE: Risk response management,
  *   incident tracking, deactivation criteria, and compliance scoring.
- * @sdlc SDLC 6.0.4 Universal Framework
+ * @sdlc SDLC 6.0.5 Universal Framework
  * @status Sprint 158 - NIST AI RMF MANAGE
  */
 

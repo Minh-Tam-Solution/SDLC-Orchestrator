@@ -7,7 +7,7 @@
 **Authority**: CTO + Tech Lead + Backend Lead
 **Foundation**: Stage 01 (Requirements v4.2.0, API Specs v3.1.0, Data Model v3.1.0)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 6.0.0 (Multi-Frontend Aligned)
+**Framework**: SDLC 6.0.5 (Multi-Frontend Aligned)
 **Positioning**: Operating System for Software 3.0
 
 **Changelog v3.2.0** (Jan 30, 2026):
@@ -21,7 +21,7 @@
   - E2E parity tests ensure consistent validation (25 tests)
   - Local validation (no backend required) for CLI/Extension
 - **Feature Parity Targets**: CLI 71%, Extension 89%, Web 100%
-- **SDLC 6.0.0**: All surfaces aligned to Framework 6.0.0
+- **SDLC 6.0.5**: All surfaces aligned to Framework 6.0.5
 
 **Changelog v3.1.0** (Jan 08, 2026):
 - **MinIO Migration**: Migrated to AI-Platform shared service (`ai-platform-minio` on `ai-net` network)

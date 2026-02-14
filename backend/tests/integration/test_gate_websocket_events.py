@@ -7,7 +7,7 @@ Version: 1.0.0
 Date: February 3, 2026
 Status: ACTIVE - Sprint 153 Day 2
 Authority: Backend Lead + CTO Approved
-Framework: SDLC 6.0.3
+Framework: SDLC 6.0.5
 
 Test Coverage:
 - Gate approval WebSocket events

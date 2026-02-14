@@ -7,7 +7,7 @@
  * Reference:
  * - RFC-SDLC-602-E2E-API-TESTING
  * - SPEC-0016 Implementation Evidence Schema
- * - SDLC Framework 6.0.2
+ * - SDLC Framework 6.0.5
  *
  * @version 1.0.0
  * @since Sprint 139
@@ -18,7 +18,7 @@
 // ========================================
 
 /**
- * Evidence type enumeration - SDLC 6.0.2 compliant
+ * Evidence type enumeration - SDLC 6.0.5 compliant
  */
 export enum EvidenceType {
     // Existing types (SPEC-0016)

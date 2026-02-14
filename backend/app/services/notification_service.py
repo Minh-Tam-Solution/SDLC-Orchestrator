@@ -8,7 +8,7 @@ Date: February 3, 2026
 Status: ACTIVE - Sprint 153 (WebSocket Integration)
 Authority: Backend Lead + CTO Approved
 Foundation: Sprint 21 Plan, ADR-007 Approved, Sprint 153 Plan
-Framework: SDLC 6.0.3 Complete Lifecycle
+Framework: SDLC 6.0.5 Complete Lifecycle
 
 Purpose:
 - Send email notifications for compliance violations

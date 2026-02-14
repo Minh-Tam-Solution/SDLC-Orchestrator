@@ -8,7 +8,7 @@ Date: February 3, 2026
 Status: ACTIVE - Sprint 142 (Test Remediation)
 Authority: Backend Lead + CTO Approved
 Foundation: Week 3 Day 1-4 APIs (23 endpoints)
-Framework: SDLC 6.0.2 (RFC-SDLC-602 E2E API Testing)
+Framework: SDLC 6.0.5 (RFC-SDLC-602 E2E API Testing)
 
 Purpose:
 - Shared test fixtures for integration tests

@@ -1,6 +1,6 @@
 """Stage 03 (Integrate) ↔ Stage 04 (Build) consistency checker.
 
-SDLC 6.0.1 - SPEC-0021 Stage Consistency Validation.
+SDLC 6.0.5 - SPEC-0021 Stage Consistency Validation.
 
 Validates:
 - CONS-007: API endpoints must match Stage 03 contracts

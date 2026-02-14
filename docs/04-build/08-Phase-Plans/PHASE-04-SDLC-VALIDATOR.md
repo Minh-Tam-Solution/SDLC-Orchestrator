@@ -124,7 +124,7 @@ P0_Artifacts:
   Stage:
     - Stage README.md (each stage)
 
-# Legacy Handling (SDLC 6.0.3 - RFC-001)
+# Legacy Handling (SDLC 6.0.5 - RFC-001)
 Legacy:
   Location: docs/10-archive/{NN}-Legacy/
   Directive: AI-NEVER-READ

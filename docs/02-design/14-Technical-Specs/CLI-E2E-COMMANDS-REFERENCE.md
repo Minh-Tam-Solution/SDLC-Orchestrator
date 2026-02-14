@@ -2,7 +2,7 @@
 
 **Version**: 1.5.0
 **Sprint**: 140 - CLI Orchestration Upgrade
-**Framework**: SDLC 6.0.2 (RFC-SDLC-602)
+**Framework**: SDLC 6.0.5 (RFC-SDLC-602)
 **Status**: Production Ready
 
 ---
@@ -24,7 +24,7 @@ The `sdlcctl e2e` command group provides E2E API testing capabilities following 
 
 ## Command: `sdlcctl e2e validate`
 
-Validate E2E API test artifacts against SDLC 6.0.2 requirements.
+Validate E2E API test artifacts against SDLC 6.0.5 requirements.
 
 ### Synopsis
 

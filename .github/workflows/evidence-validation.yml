@@ -3,7 +3,7 @@
 # SDLC Orchestrator - Sprint 133
 #
 # Purpose: Enforce implementation evidence completeness in CI/CD
-# Framework: SDLC 6.0.0 Evidence-Based Validation (SPEC-0016)
+# Framework: SDLC 6.0.5 Evidence-Based Validation (SPEC-0016)
 #
 # Triggers:
 # - Push to main/develop branches (evidence files or specs changed)

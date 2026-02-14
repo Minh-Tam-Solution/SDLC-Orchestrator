@@ -7,12 +7,12 @@
 **Date**: January 30, 2026
 **Status**: ✅ COMPLETED - Gate G1 PASSED
 **Authority**: PM + CTO + CPO Approved
-**Framework**: SDLC 6.0.3 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+**Framework**: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 **Positioning**: Operating System for Software 3.0
 
 **Changelog v4.2.1** (Jan 30, 2026):
-- **CLI Test Bug Fixes**: Sprint 127 continuation - validation testing revealed SDLC 6.0.0 migration gaps
-  - **Stage Folder Naming**: Updated from legacy format to SDLC 6.0.0 convention
+- **CLI Test Bug Fixes**: Sprint 127 continuation - validation testing revealed SDLC 6.0.5 migration gaps
+  - **Stage Folder Naming**: Updated from legacy format to SDLC 6.0.5 convention
     - `00-Project-Foundation` → `00-foundation` (lowercase, hyphenated)
     - `01-Planning-Analysis` → `01-planning`
     - Full migration across CLI codebase (tier.py, p0.py, scanner.py)
@@ -28,7 +28,7 @@
   - Frontend Alignment Matrix created (docs/01-planning/01-Requirements/Frontend-Alignment-Matrix.md)
   - CLI parity: 39% → 71% (+32 points)
   - Extension parity: 67% → 89% (+22 points)
-- **SDLC 6.0.0 Framework**: All surfaces aligned to latest framework version
+- **SDLC 6.0.5 Framework**: All surfaces aligned to latest framework version
   - YAML frontmatter validation (SPEC-0002 compliant)
   - BDD requirements validation (GIVEN-WHEN-THEN)
   - Tier-specific sections validation (LITE/STANDARD/PROFESSIONAL/ENTERPRISE)

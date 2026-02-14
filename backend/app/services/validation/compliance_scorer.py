@@ -1,7 +1,7 @@
 """
 Compliance Scorer Service - Sprint 123 (SPEC-0013)
 
-SDLC 6.0.0 Compliance Scoring Engine.
+SDLC 6.0.5 Compliance Scoring Engine.
 10 categories × 10 points = 100 maximum score.
 
 Categories:
@@ -45,7 +45,7 @@ from app.services.validation.checkers.base import CategoryCheckResult
 
 class ComplianceScorerService:
     """
-    SDLC 6.0.0 Compliance Scoring Engine.
+    SDLC 6.0.5 Compliance Scoring Engine.
 
     Calculates compliance score based on 10 categories, each worth 10 points.
     Total possible score: 100 points.
@@ -59,7 +59,7 @@ class ComplianceScorerService:
 
     CACHE_TTL_HOURS = 1
     VALIDATION_VERSION = "1.0.0"
-    FRAMEWORK_VERSION = "6.0.0"
+    FRAMEWORK_VERSION = "6.0.5"
 
     def __init__(self, db: AsyncSession, file_service):
         """

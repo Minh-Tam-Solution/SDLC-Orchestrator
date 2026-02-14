@@ -3,7 +3,7 @@
  *
  * @module frontend/src/app/app/vcr/[id]/page
  * @description Sprint 151 - SASE Artifacts Enhancement: VCR detail view and approval workflow
- * @sdlc SDLC 6.0.3 Universal Framework
+ * @sdlc SDLC 6.0.5 Universal Framework
  * @status Sprint 151 - SASE Artifacts Enhancement
  */
 

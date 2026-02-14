@@ -333,7 +333,7 @@ class TestComplianceScorerService:
         assert result.project_id == test_project.id
         assert 0 <= result.overall_score <= 100
         assert len(result.categories) == 10  # All 10 categories
-        assert result.framework_version == "6.0.0"
+        assert result.framework_version == "6.0.5"
 
     @pytest.mark.asyncio
     async def test_calculate_score_specific_categories(
@@ -512,7 +512,7 @@ class TestComplianceModels:
                 "warning": 3,
                 "info": 1,
             },
-            framework_version="6.0.0",
+            framework_version="6.0.5",
             validation_version="1.0.0",
         )
 
@@ -534,7 +534,7 @@ class TestComplianceModels:
             overall_score=87,
             category_scores={},
             issues_summary={"total": 1, "critical": 1, "warning": 0, "info": 0},
-            framework_version="6.0.0",
+            framework_version="6.0.5",
             validation_version="1.0.0",
         )
         db_session.add(score)
@@ -710,4 +710,4 @@ class TestComplianceIntegration:
 
         assert score is not None
         assert score.overall_score == result.overall_score
-        assert score.framework_version == "6.0.0"
+        assert score.framework_version == "6.0.5"

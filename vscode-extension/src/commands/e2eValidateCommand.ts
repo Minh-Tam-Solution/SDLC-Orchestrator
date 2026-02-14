@@ -5,14 +5,14 @@
  * Implements RFC-SDLC-602 E2E API Testing validation in IDE.
  *
  * Features:
- * - Validate E2E testing compliance (SDLC 6.0.2)
+ * - Validate E2E testing compliance (SDLC 6.0.5)
  * - Calls real CLI `sdlcctl e2e validate` (Zero Mock Policy)
  * - Display results in Output channel and Problems panel
  * - Optional --init for folder structure setup
  *
  * Reference:
  * - RFC-SDLC-602-E2E-API-TESTING
- * - SDLC Framework 6.0.2
+ * - SDLC Framework 6.0.5
  * - Skill: e2e-api-testing (6-phase workflow)
  *
  * CTO Requirements (Non-Negotiable):
@@ -411,7 +411,7 @@ async function executeE2EInit(): Promise<void> {
             try {
                 progress.report({ increment: 20, message: 'Creating folders...' });
 
-                // Create SDLC 6.0.2 E2E folder structure
+                // Create SDLC 6.0.5 E2E folder structure
                 const stage05Base = path.join(workspaceRoot, 'docs', '05-deploy');
                 const e2eFolders = [
                     path.join(stage05Base, '03-E2E-Testing'),
@@ -470,7 +470,7 @@ async function createTemplateFiles(e2eTestingPath: string): Promise<void> {
     if (!fs.existsSync(readmePath)) {
         const readmeContent = `# E2E API Testing
 
-## SDLC 6.0.2 - RFC-SDLC-602 E2E API Testing
+## SDLC 6.0.5 - RFC-SDLC-602 E2E API Testing
 
 This folder contains E2E API testing artifacts following the RFC-SDLC-602 specification.
 
@@ -516,7 +516,7 @@ This folder contains E2E API testing artifacts following the RFC-SDLC-602 specif
     if (!fs.existsSync(scriptPath)) {
         const scriptContent = `#!/usr/bin/env python3
 """
-E2E API Test Script - SDLC 6.0.2
+E2E API Test Script - SDLC 6.0.5
 
 This script tests all API endpoints defined in Stage 03 OpenAPI specification.
 Reference: RFC-SDLC-602-E2E-API-TESTING
@@ -931,7 +931,7 @@ function showE2EResultsPanel(result: E2EValidationResult): void {
     outputChannel.clear();
 
     outputChannel.appendLine('═'.repeat(70));
-    outputChannel.appendLine('  SDLC 6.0.2 E2E API TESTING VALIDATION REPORT');
+    outputChannel.appendLine('  SDLC 6.0.5 E2E API TESTING VALIDATION REPORT');
     outputChannel.appendLine('═'.repeat(70));
     outputChannel.appendLine('');
 

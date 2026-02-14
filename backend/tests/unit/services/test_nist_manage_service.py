@@ -7,7 +7,7 @@ Version: 1.0.0
 Date: February 5, 2026
 Status: ACTIVE
 Authority: CTO Approved
-Framework: SDLC 6.0.4
+Framework: SDLC 6.0.5
 
 Test Categories:
 - MANAGE Evaluation Tests (all pass, partial fail, no risks, OPA fallback,

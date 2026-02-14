@@ -1,7 +1,7 @@
 """
 Specifications Management Checker - Sprint 123 (SPEC-0013)
 
-Validates SDLC 6.0.0 specification management:
+Validates SDLC 6.0.5 specification management:
 1. Specs in correct location (docs/02-design/14-Technical-Specs/)
 2. YAML frontmatter present and valid
 3. SPEC-XXXX ID format

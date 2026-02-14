@@ -6,7 +6,7 @@
 
 ## Description
 
-This document uses OpenSpec format, which is different from SDLC 6.0.0.
+This document uses OpenSpec format, which is different from SDLC 6.0.5.
 
 ## Specification
 
@@ -31,5 +31,5 @@ This document uses OpenSpec format, which is different from SDLC 6.0.0.
 
 ## Notes
 
-This format should be detected as non-SDLC 6.0.0 and can be converted using:
+This format should be detected as non-SDLC 6.0.5 and can be converted using:
 - CLI: `sdlcctl spec convert openspec_format.md`

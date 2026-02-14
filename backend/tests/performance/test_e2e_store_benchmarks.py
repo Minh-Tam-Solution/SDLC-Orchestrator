@@ -1,6 +1,6 @@
 """
 =========================================================================
-E2E Execution Store Performance Benchmarks - SDLC 6.0.2
+E2E Execution Store Performance Benchmarks - SDLC 6.0.5
 SDLC Orchestrator - Sprint 140 (CLI Orchestration Upgrade)
 
 Version: 1.0.0
@@ -8,7 +8,7 @@ Date: February 14, 2026
 Status: ACTIVE - Sprint 140 Day 5 (Performance Testing)
 Authority: Backend Lead + CTO Approved
 Foundation: RFC-SDLC-602 E2E API Testing Enhancement
-Framework: SDLC 6.0.2 Complete Lifecycle
+Framework: SDLC 6.0.5 Complete Lifecycle
 
 Purpose:
 - Performance benchmarking for Redis-backed E2E Execution Store
@@ -798,7 +798,7 @@ async def test_generate_performance_report(store_with_mock_redis, store_in_memor
     print("\n")
     print("=" * 70)
     print("E2E EXECUTION STORE PERFORMANCE REPORT")
-    print("Sprint 140 - SDLC 6.0.2")
+    print("Sprint 140 - SDLC 6.0.5")
     print(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 70)
 

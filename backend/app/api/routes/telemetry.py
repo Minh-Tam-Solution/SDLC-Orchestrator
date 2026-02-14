@@ -7,7 +7,7 @@ Version: 1.0.0
 Date: February 4, 2026
 Status: ACTIVE
 Authority: CTO Approved
-Framework: SDLC 6.0.3 Product Truth Layer
+Framework: SDLC 6.0.5 Product Truth Layer
 
 Endpoints:
 - POST /telemetry/events - Track single event

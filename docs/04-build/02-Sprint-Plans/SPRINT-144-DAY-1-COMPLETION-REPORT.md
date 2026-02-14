@@ -659,6 +659,6 @@ $ python -m sdlcctl.cli worktree list
 
 ---
 
-*SDLC Framework 6.0.3 - Sprint 144 Day 1*
+*SDLC Framework 6.0.5 - Sprint 144 Day 1*
 *RFC-SDLC-604 - Parallel AI Development Pattern*
 *Framework-First Compliance: ✅ VERIFIED*

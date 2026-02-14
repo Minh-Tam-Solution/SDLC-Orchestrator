@@ -13,7 +13,7 @@
 
 ## 📋 **Document Purpose**
 
-This document defines the database schema for automating **SPEC-0001** (Anti-Vibecoding Quality Assurance) and **SPEC-0002** (Framework 6.0.0 Specification Standard) in SDLC Orchestrator.
+This document defines the database schema for automating **SPEC-0001** (Anti-Vibecoding Quality Assurance) and **SPEC-0002** (Framework 6.0.5 Specification Standard) in SDLC Orchestrator.
 
 **Deliverable**: D1 from [SPRINT-118-TRACK-2-PLAN.md](../../04-build/02-Sprint-Plans/SPRINT-118-TRACK-2-PLAN.md)
 
@@ -148,7 +148,7 @@ CREATE TABLE governance_specifications (
   related_specs         TEXT[], -- ['SPEC-0002', 'SPEC-0003']
 
   -- Framework Context
-  framework_version     VARCHAR(20) NOT NULL DEFAULT '6.0.0', -- "SDLC 6.0.0"
+  framework_version     VARCHAR(20) NOT NULL DEFAULT '6.0.5', -- "SDLC 6.0.5"
   machine_readable_spec TEXT, -- URL to YAML control file
 
   -- Content Storage

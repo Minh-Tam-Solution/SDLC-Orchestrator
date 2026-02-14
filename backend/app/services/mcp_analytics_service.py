@@ -7,7 +7,7 @@ Version: 1.0.0
 Date: February 25, 2026
 Status: ACTIVE
 Authority: CTO Approved
-Framework: SDLC 6.0.3 Phase 1 Completion
+Framework: SDLC 6.0.5 Phase 1 Completion
 
 Purpose:
 Provide analytics data for the MCP (Model Context Protocol) dashboard,

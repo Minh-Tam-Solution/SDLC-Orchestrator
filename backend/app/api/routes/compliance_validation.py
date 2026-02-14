@@ -10,7 +10,7 @@ Authority: CTO Approved (A+ Grade, 98/100)
 Reference: SPEC-0013 Compliance Validation Service
 
 Purpose:
-- Calculate SDLC 6.0.0 compliance scores (10 categories × 10 points)
+- Calculate SDLC 6.0.5 compliance scores (10 categories × 10 points)
 - Detect stage folder collisions (duplicate prefixes)
 - Quick score lookup for dashboards/badges
 - Score history for trend analysis
@@ -142,7 +142,7 @@ def get_file_service():
     response_model=ComplianceScoreResponse,
     status_code=status.HTTP_200_OK,
     summary="Calculate compliance score",
-    description="Calculate SDLC 6.0.0 compliance score for a project. "
+    description="Calculate SDLC 6.0.5 compliance score for a project. "
                 "10 categories × 10 points = 100 maximum score.",
 )
 async def validate_compliance(
@@ -303,7 +303,7 @@ async def validate_duplicates(
     """
     Detect duplicate stage folders in project docs.
 
-    Stage folders should follow SDLC 6.0.0 numbering (00-10).
+    Stage folders should follow SDLC 6.0.5 numbering (00-10).
     This endpoint detects:
     - Collisions: Multiple folders with same prefix (e.g., 04-Dev + 04-Test)
     - Gaps: Missing required stage folders (00-09 required)

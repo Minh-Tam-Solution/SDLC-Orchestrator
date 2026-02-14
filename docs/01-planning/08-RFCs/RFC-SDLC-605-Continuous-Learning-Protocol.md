@@ -5,7 +5,7 @@
 **Author**: Framework Architect
 **Sprint**: 143 - Framework-First Track 1
 **Related**: Boris Cherny Tactics Analysis (Partial Gap - CLAUDE.md Maintenance)
-**Framework Version**: SDLC 6.0.3
+**Framework Version**: SDLC 6.0.5
 
 ---
 
@@ -429,7 +429,7 @@ EOF
 
 ### 7.1 Recommendation
 
-**APPROVE** Continuous Learning Protocol for SDLC Framework 6.0.3.
+**APPROVE** Continuous Learning Protocol for SDLC Framework 6.0.5.
 
 **Reasoning**:
 1. ✅ Addresses Partial Gap (CLAUDE.md maintenance automation)
@@ -536,4 +536,4 @@ reviewed_by: [@username]
 
 ---
 
-*SDLC Framework 6.0.3 - Continuous Learning Protocol*
+*SDLC Framework 6.0.5 - Continuous Learning Protocol*

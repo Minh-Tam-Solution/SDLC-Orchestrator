@@ -5,7 +5,7 @@
 **Author**: Framework Architect
 **Sprint**: 143 - Framework-First Track 1
 **Related**: Boris Cherny Tactics Analysis (Partial Gap - Subagents)
-**Framework Version**: SDLC 6.0.3
+**Framework Version**: SDLC 6.0.5
 
 ---
 
@@ -41,7 +41,7 @@ Boris Cherny recommends:
 ### Gap Analysis
 
 **Current State** (SDLC Orchestrator v1.6.0):
-- ✅ Sub-agent patterns documented (SDLC 6.0.2)
+- ✅ Sub-agent patterns documented (SDLC 6.0.5)
 - ✅ Types defined: Explore, Specialist, Proactive
 - ✅ SASE implicitly supports delegation
 - ❌ **No explicit CLI orchestration**
@@ -49,7 +49,7 @@ Boris Cherny recommends:
 
 **From CLAUDE.md v3.2.0** (lines 1141-1159):
 ```markdown
-## Sub-agent Orchestration (SDLC 6.0.2)
+## Sub-agent Orchestration (SDLC 6.0.5)
 
 Sub-agent Types:
   1. Explore Sub-agents: Pattern extraction, codebase research
@@ -425,7 +425,7 @@ sdlcctl plan "Implement user auth" --use-subagents
 
 ### 7.1 Recommendation
 
-**APPROVE** Subagent Delegation Pattern for SDLC Framework 6.0.3.
+**APPROVE** Subagent Delegation Pattern for SDLC Framework 6.0.5.
 
 **Reasoning**:
 1. ✅ 3.3x research speedup (proven in Boris Cherny analysis)
@@ -508,4 +508,4 @@ Subagent Task:
 
 ---
 
-*SDLC Framework 6.0.3 - Subagent Delegation Pattern*
+*SDLC Framework 6.0.5 - Subagent Delegation Pattern*

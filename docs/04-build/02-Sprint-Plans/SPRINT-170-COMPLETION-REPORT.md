@@ -87,7 +87,7 @@ The CLI startup was measured at **114ms** (77% under 500ms target), all 10 cookb
 
 ## Key Discovery
 
-Sprint 170's most significant contribution was the **documentation-alongside-code validation**: Sprint 169 engineers created comprehensive SDK documentation as a natural part of SDK development, eliminating the need for a separate documentation sprint. This validates the SDLC 6.0.3 principle that documentation is a development artifact, not an afterthought.
+Sprint 170's most significant contribution was the **documentation-alongside-code validation**: Sprint 169 engineers created comprehensive SDK documentation as a natural part of SDK development, eliminating the need for a separate documentation sprint. This validates the SDLC 6.0.5 principle that documentation is a development artifact, not an afterthought.
 
 ---
 

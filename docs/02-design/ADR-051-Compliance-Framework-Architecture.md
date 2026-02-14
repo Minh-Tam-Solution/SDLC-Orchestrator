@@ -585,7 +585,7 @@ def downgrade():
 
 ---
 
-## Compliance with SDLC Framework 6.0.4
+## Compliance with SDLC Framework 6.0.5
 
 ### Framework Integration
 

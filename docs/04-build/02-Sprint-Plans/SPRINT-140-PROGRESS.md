@@ -1,7 +1,7 @@
 # Sprint 140 Progress Report
 
 **Sprint**: 140 - CLI Orchestration Upgrade
-**Framework**: SDLC 6.0.2 (RFC-SDLC-602 E2E API Testing Enhancement)
+**Framework**: SDLC 6.0.5 (RFC-SDLC-602 E2E API Testing Enhancement)
 **Duration**: February 10-14, 2026
 **Status**: COMPLETE (Day 5 of 5) - 100% Complete ✅
 **Owner**: Engineering Team
@@ -139,7 +139,7 @@ Sprint 140 transforms the CLI from a post-processor to an orchestrator with OPA 
 **Delivered**:
 1. **CLI README Update** ✅ (`backend/sdlcctl/README.md` updated)
    - Added E2E API Testing section with 4 new commands
-   - Updated version to 1.5.0 and framework to SDLC 6.0.2
+   - Updated version to 1.5.0 and framework to SDLC 6.0.5
    - Added E2E features overview (OPA, Redis, auth automation)
 
 2. **CLI CHANGELOG v1.5.0** ✅ (`backend/sdlcctl/CHANGELOG.md` updated)

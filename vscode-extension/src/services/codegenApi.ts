@@ -371,11 +371,11 @@ export class CodegenApiService {
 
     // ========================================
     // Specification Validation APIs (Sprint 126 - S126-06)
-    // SDLC 6.0.0 Spec Validation
+    // SDLC 6.0.5 Spec Validation
     // ========================================
 
     /**
-     * Validate a specification against SDLC 6.0.0 SPEC-0002 standard
+     * Validate a specification against SDLC 6.0.5 SPEC-0002 standard
      *
      * Validates:
      * - YAML frontmatter (required fields, format)
@@ -605,7 +605,7 @@ export class CodegenApiService {
     }
 
     /**
-     * Get SDLC 6.0.0 specification JSON schema
+     * Get SDLC 6.0.5 specification JSON schema
      *
      * @returns JSON schema for specification frontmatter validation
      */

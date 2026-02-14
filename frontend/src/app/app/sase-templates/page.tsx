@@ -3,7 +3,7 @@
  *
  * @module frontend/src/app/app/sase-templates/page
  * @description SASE artifact templates viewer and generator
- * @sdlc SDLC 6.0.3 Universal Framework - SASE Integration
+ * @sdlc SDLC 6.0.5 Universal Framework - SASE Integration
  * @status Sprint 151 - SASE Artifacts Enhancement
  */
 
@@ -559,7 +559,7 @@ export default function SASETemplatesPage() {
           </p>
         </div>
         <Badge variant="secondary" className="text-sm">
-          SDLC 6.0.3
+          SDLC 6.0.5
         </Badge>
       </div>
 
@@ -725,7 +725,7 @@ export default function SASETemplatesPage() {
                   <pre className="text-sm overflow-x-auto">
                     {`
 ┌─────────────────────────────────────────────────────────────────────┐
-│               SASE WORKFLOW (SDLC 6.0.3)                            │
+│               SASE WORKFLOW (SDLC 6.0.5)                            │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  Human                          Agent                               │

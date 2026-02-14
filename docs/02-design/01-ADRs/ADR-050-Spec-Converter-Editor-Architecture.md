@@ -4,7 +4,7 @@
 **Date**: February 4, 2026
 **Sprint**: Sprint 154 (Spec Standard Completion)
 **Author**: CTO + AI Assistant
-**Framework**: SDLC 6.0.3
+**Framework**: SDLC 6.0.5
 **Related**: [SPEC-0002-Specification-Standard](../14-Technical-Specs/SPEC-0002-Specification-Standard.md), [ADR-040-App-Builder-OpenSpec-Integration](ADR-040-App-Builder-OpenSpec-Integration.md)
 
 ---
@@ -13,7 +13,7 @@
 
 ### Problem Statement
 
-SDLC Framework 6.0.3 defines a Specification Standard (SPEC-0002) with YAML frontmatter and BDD requirements. However, the platform currently lacks:
+SDLC Framework 6.0.5 defines a Specification Standard (SPEC-0002) with YAML frontmatter and BDD requirements. However, the platform currently lacks:
 
 1. **No Format Conversion**: Cannot convert between BDD (Gherkin), OpenSpec YAML, User Stories, and Acceptance Criteria
 2. **No Visual Editor**: Developers must manually write YAML frontmatter and BDD syntax
@@ -391,7 +391,7 @@ AI Capabilities:
 
 ## References
 
-- [SPEC-0002: Framework 6.0.0 Specification Standard](../14-Technical-Specs/SPEC-0002-Specification-Standard.md)
+- [SPEC-0002: Framework 6.0.5 Specification Standard](../14-Technical-Specs/SPEC-0002-Specification-Standard.md)
 - [ADR-040: App Builder OpenSpec Integration](ADR-040-App-Builder-OpenSpec-Integration.md)
 - [Gherkin Syntax Reference](https://cucumber.io/docs/gherkin/reference/)
 - [YAML 1.2 Specification](https://yaml.org/spec/1.2/)

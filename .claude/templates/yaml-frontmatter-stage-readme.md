@@ -1,4 +1,4 @@
-# Stage README Template (SDLC 6.0.0)
+# Stage README Template (SDLC 6.0.5)
 
 **File naming**: `README.md`
 **Location**: `docs/[stage-folder]/README.md`
@@ -13,7 +13,7 @@
 stage_id: "[XX-stage-name]"  # 00-foundation, 01-planning, 02-design, etc.
 title: "Stage [XX]: [Stage Name]"
 stage_name: [FOUNDATION|PLANNING|DESIGN|INTEGRATE|BUILD|TEST|DEPLOY|OPERATE|COLLABORATE|GOVERN]
-framework_version: 6.0.0
+framework_version: 6.0.5
 status: ACTIVE  # ACTIVE | PLANNED | DEPRECATED
 owner: "[Role]"  # e.g., PM, Architect, Backend Lead
 last_updated: YYYY-MM-DD
@@ -260,7 +260,7 @@ THEN the following MUST be true:
 ## References
 
 **SDLC Framework**:
-- [SDLC 6.0.0 Overview](../../SDLC-Enterprise-Framework/README.md)
+- [SDLC 6.0.5 Overview](../../SDLC-Enterprise-Framework/README.md)
 - [Stage Transition Guide](../../SDLC-Enterprise-Framework/02-Process-Guides/)
 
 **Project-Specific**:

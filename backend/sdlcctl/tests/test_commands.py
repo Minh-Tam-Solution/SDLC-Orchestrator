@@ -908,7 +908,7 @@ class TestInitHelperFunctions:
         readme = _generate_main_readme("TestProject", Tier.LITE, requirements)
 
         assert "# TestProject Documentation" in readme
-        assert "SDLC 6.0.0" in readme
+        assert "SDLC 6.0.5" in readme
         assert "LITE" in readme
         assert "00-foundation" in readme
 
@@ -919,9 +919,9 @@ class TestInitHelperFunctions:
         readme = _generate_stage_readme("00", "00-foundation")
 
         assert "Stage 00" in readme
-        assert "foundation" in readme  # SDLC 6.0.0 uses lowercase stage names
+        assert "foundation" in readme  # SDLC 6.0.5 uses lowercase stage names
         assert "WHY" in readme  # Stage 00 is about WHY
-        assert "6.0.0" in readme or "5.0.0" in readme  # Framework version
+        assert "6.0.5" in readme or "5.0.0" in readme  # Framework version
 
     def test_create_stage_folder(self):
         """Test _create_stage_folder creates proper structure."""
@@ -949,8 +949,8 @@ class TestFixHelperFunctions:
         readme = _generate_stage_readme("00", "00-foundation")
 
         assert "Stage 00" in readme
-        assert "foundation" in readme  # SDLC 6.0.0 uses lowercase stage names
-        assert "6.0.0" in readme or "5.0.0" in readme  # Framework version
+        assert "foundation" in readme  # SDLC 6.0.5 uses lowercase stage names
+        assert "6.0.5" in readme or "5.0.0" in readme  # Framework version
 
     def test_should_apply_dry_run(self):
         """Test _should_apply returns True for dry run."""
@@ -1021,7 +1021,7 @@ class TestReportHelperFunctions:
             html_report = _generate_html_report(result)
 
             assert "<!DOCTYPE html>" in html_report
-            assert "SDLC 6.0.0 Compliance Report" in html_report
+            assert "SDLC 6.0.5 Compliance Report" in html_report
             assert "LITE" in html_report
 
     def test_generate_markdown_report(self):
@@ -1046,7 +1046,7 @@ class TestReportHelperFunctions:
 
             md_report = _generate_markdown_report(result)
 
-            assert "# SDLC 6.0.0 Compliance Report" in md_report
+            assert "# SDLC 6.0.5 Compliance Report" in md_report
             assert "LITE" in md_report
 
 

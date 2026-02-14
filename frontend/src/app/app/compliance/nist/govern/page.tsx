@@ -4,7 +4,7 @@
  * @module frontend/src/app/app/compliance/nist/govern/page
  * @description Sprint 156 - NIST AI RMF GOVERN: Governance compliance dashboard
  *   with score card, policy status, risk heatmap, RACI matrix, and risk register.
- * @sdlc SDLC 6.0.3 Universal Framework
+ * @sdlc SDLC 6.0.5 Universal Framework
  * @status Sprint 156 - NIST AI RMF GOVERN
  */
 

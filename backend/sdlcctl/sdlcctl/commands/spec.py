@@ -1,7 +1,7 @@
 """
 SDLC Specification CLI Commands - Sprint 126 Enhancement.
 
-Commands for validating, listing, initializing, and converting SDLC Framework 6.0.0 specifications.
+Commands for validating, listing, initializing, and converting SDLC Framework 6.0.5 specifications.
 
 Usage:
     sdlcctl spec validate [OPTIONS] [PATH]
@@ -11,9 +11,9 @@ Usage:
     sdlcctl spec init [OPTIONS] [PATH]
     sdlcctl spec convert --from openspec [PATH]
 
-Framework: SDLC 6.0.0 Specification Standard
+Framework: SDLC 6.0.5 Specification Standard
 Sprint: 126 - Implementation Alignment (Multi-Frontend)
-Reference: SPEC-0002 Framework 6.0.0 Specification Standard
+Reference: SPEC-0002 Framework 6.0.5 Specification Standard
 
 Changelog:
     - Sprint 119: Initial spec validate/report/list commands
@@ -66,7 +66,7 @@ console = Console()
 
 class SpecificationValidator:
     """
-    Specification validator for SDLC Framework 6.0.0.
+    Specification validator for SDLC Framework 6.0.5.
 
     Validates:
     - YAML frontmatter (required fields, formats)
@@ -75,7 +75,7 @@ class SpecificationValidator:
     - Acceptance criteria tables
     - Cross-references
 
-    Reference: SPEC-0002 Framework 6.0.0 Specification Standard
+    Reference: SPEC-0002 Framework 6.0.5 Specification Standard
     """
 
     # Required YAML frontmatter fields (SPEC-0002 FR-008)
@@ -858,7 +858,7 @@ def validate(
     ),
 ) -> None:
     """
-    Validate SDLC Framework 6.0.0 specifications.
+    Validate SDLC Framework 6.0.5 specifications.
 
     Validates YAML frontmatter, BDD requirements format, tier-specific sections,
     acceptance criteria tables, and cross-references.
@@ -879,7 +879,7 @@ def validate(
     console.print()
     console.print(Panel(
         "[bold cyan]SDLC Specification Validator[/bold cyan]\n"
-        "[dim]Framework 6.0.0 Specification Standard[/dim]",
+        "[dim]Framework 6.0.5 Specification Standard[/dim]",
         border_style="cyan",
     ))
     console.print()
@@ -1132,7 +1132,7 @@ def init_spec(
     ),
 ) -> None:
     """
-    Initialize a new SDLC 6.0.0 specification file.
+    Initialize a new SDLC 6.0.5 specification file.
 
     Creates a specification file with proper YAML frontmatter template.
 
@@ -1317,7 +1317,7 @@ THEN <expected result>
 
 ### B. References
 
-- SDLC 6.0.0 Framework
+- SDLC 6.0.5 Framework
 - SPEC-0002 Specification Standard
 
 ---
@@ -1368,7 +1368,7 @@ def convert_spec(
     ),
 ) -> None:
     """
-    Convert specifications from other formats to SDLC 6.0.0.
+    Convert specifications from other formats to SDLC 6.0.5.
 
     Currently supports converting from OpenSpec (.openspec/proposals/) format.
 
@@ -1410,7 +1410,7 @@ def convert_spec(
                 failed_count += 1
                 continue
 
-            # Generate SDLC 6.0.0 spec
+            # Generate SDLC 6.0.5 spec
             spec_id = openspec_data.get("spec_id", f"SPEC-{converted_count + 1:04d}")
             title = openspec_data.get("title", proposal_file.stem)
             spec_content = _generate_sdlc_spec_from_openspec(openspec_data)
@@ -1519,13 +1519,13 @@ def _extract_sections(content: str) -> Dict[str, str]:
 
 def _generate_sdlc_spec_from_openspec(data: Dict[str, Any]) -> str:
     """
-    Generate SDLC 6.0.0 specification from OpenSpec data.
+    Generate SDLC 6.0.5 specification from OpenSpec data.
 
     Args:
         data: Parsed OpenSpec data
 
     Returns:
-        SDLC 6.0.0 compliant specification content
+        SDLC 6.0.5 compliant specification content
     """
     today = datetime.now().strftime("%Y-%m-%d")
     spec_id = data.get("spec_id", "SPEC-0000")

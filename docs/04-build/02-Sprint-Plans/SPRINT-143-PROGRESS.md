@@ -1,7 +1,7 @@
 # Sprint 143 Progress Report
 
 **Sprint**: 143 - Framework-First Track 1: Boris Cherny Integration Patterns
-**Framework**: SDLC 6.0.2 (Boris Cherny Claude Code Tactics Integration)
+**Framework**: SDLC 6.0.5 (Boris Cherny Claude Code Tactics Integration)
 **Duration**: March 3-7, 2026 (5 working days)
 **Status**: 📋 PLANNED (Ready for CTO approval)
 **Owner**: Framework Architect + Documentation Team
@@ -50,7 +50,7 @@ From the comprehensive analysis completed in early February 2026:
 |--------|--------|---------|--------|
 | RFCs Completed | 5 | 0 | 📋 Planned |
 | Documentation LOC | 3,000 | 0 | 📋 Planned |
-| Framework Version | 6.0.2 → 6.0.3 | 6.0.2 | 📋 Planned |
+| Framework Version | 6.0.5 → 6.0.5 | 6.0.5 | 📋 Planned |
 | Tool-Agnostic | 100% | - | 📋 Target |
 | Code Implementation | 0 LOC | 0 | ✅ Enforced |
 | CTO Approval | Required | Pending | ⏳ |
@@ -354,11 +354,11 @@ From the comprehensive analysis completed in early February 2026:
 ### Day 5 (March 7): Framework Release & CTO Review - 100%
 
 **Deliverables**:
-1. **Update SDLC Framework to 6.0.3**
+1. **Update SDLC Framework to 6.0.5**
    - Add all 5 RFCs to Framework repository
    - Update CHANGELOG.md
    - Update main README.md with new patterns
-   - Tag release: v6.0.3
+   - Tag release: v6.0.5
 
 2. **Create Sprint 143 Completion Report**
    - Summary of 5 RFCs
@@ -401,7 +401,7 @@ From the comprehensive analysis completed in early February 2026:
 
 | File | Changes | LOC |
 |------|---------|-----|
-| `CHANGELOG.md` | v6.0.3 entry | 50 |
+| `CHANGELOG.md` | v6.0.5 entry | 50 |
 | `README.md` | Add Boris Cherny patterns section | 100 |
 | `docs/03-Patterns/` | New directory for RFC patterns | - |
 | **Total** | | **150** |
@@ -432,7 +432,7 @@ From the comprehensive analysis completed in early February 2026:
 | All 5 RFCs complete | 100% | ⏳ |
 | Tool-agnostic compliance | 100% | ⏳ |
 | No code implementation | 0 LOC | ✅ Enforced |
-| Framework version bump | 6.0.3 | ⏳ |
+| Framework version bump | 6.0.5 | ⏳ |
 | CTO approval | Required | ⏳ |
 | Boris Cherny coverage | 5/10 tactics | ⏳ |
 
@@ -458,7 +458,7 @@ From the comprehensive analysis completed in early February 2026:
 
 ### Sprint 144 Prerequisites (Track 2)
 - ⏸️ All 5 RFCs approved by CTO
-- ⏸️ Framework 6.0.3 released
+- ⏸️ Framework 6.0.5 released
 - ⏸️ Sprint 143 completion report reviewed
 
 ---
@@ -479,7 +479,7 @@ From the comprehensive analysis completed in early February 2026:
 
 - [Boris Cherny Implementation Plan](/home/dttai/.claude/plans/parallel-painting-turing.md) - CTO Approved Feb 2, 2026
 - [Sprint 142 Complete](./SPRINT-142-PROGRESS.md)
-- [SDLC Framework 6.0.2](../../../SDLC-Enterprise-Framework/README.md)
+- [SDLC Framework 6.0.5](../../../SDLC-Enterprise-Framework/README.md)
 - [ADR-041: Progressive Routing](../../02-design/03-ADRs/ADR-041-Risk-Based-Planning.md)
 - [CLAUDE.md v3.2.0](/home/nqh/shared/CLAUDE.md)
 
@@ -502,7 +502,7 @@ From the comprehensive analysis completed in early February 2026:
 - [ ] **CTO Sign-off**: Approve Sprint 143 Plan
 - [ ] **Resource Allocation**: Confirm 18 hours (5 days, part-time)
 - [ ] **Budget Approval**: $3,000 (documentation only)
-- [ ] **Framework Version**: Approve 6.0.2 → 6.0.3 bump
+- [ ] **Framework Version**: Approve 6.0.5 → 6.0.5 bump
 - [ ] **Track 2 Conditional**: Approve Sprint 144 dependency
 
 ### CTO Decision Criteria

@@ -12,7 +12,7 @@ last_updated: "2026-01-30"
 tags: ["ir-processor", "ep-06", "scaffold-generation", "fastapi", "sqlalchemy", "vietnamese-sme", "sprint-46"]
 related_specs: ["SPEC-0009", "SPEC-0011", "SPEC-0012", "SPEC-0013"]
 stage: "04-BUILD"
-framework_version: "6.0.0"
+framework_version: "6.0.5"
 ---
 
 ## 1. Overview
@@ -638,7 +638,7 @@ def test_ac_001_1_app_blueprint_validation():
 
 ### Framework Documents
 
-- SDLC 6.0.0 Specification Standard
+- SDLC 6.0.5 Specification Standard
 - Section 7: Quality Assurance System
 - Pillar 4: Build & Implementation
 
@@ -684,5 +684,5 @@ def test_ac_001_1_app_blueprint_validation():
 
 ---
 
-*SDLC Framework 6.0.0 - Specification Standard Compliance*
+*SDLC Framework 6.0.5 - Specification Standard Compliance*
 *Sprint 46 (Jan 20-31, 2026) - EP-06 IR-Based Backend Scaffold Generation*

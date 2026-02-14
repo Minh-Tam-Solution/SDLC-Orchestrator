@@ -1,4 +1,4 @@
-# Sprint Plan Template (SDLC 6.0.0)
+# Sprint Plan Template (SDLC 6.0.5)
 
 **File naming**: `SPRINT-XXX-[kebab-case-title].md`
 **Location**: `docs/04-build/02-Sprint-Plans/`
@@ -17,7 +17,7 @@ tier: STANDARD  # LITE | STANDARD | PROFESSIONAL | ENTERPRISE
 owner: "[Team Lead Name]"
 start_date: YYYY-MM-DD
 end_date: YYYY-MM-DD
-framework_version: 6.0.0
+framework_version: 6.0.5
 
 # Context Management (AGENTS.md 4-Zone Model)
 context_zone: Semi-Static  # Static | Semi-Static | Dynamic | Ephemeral

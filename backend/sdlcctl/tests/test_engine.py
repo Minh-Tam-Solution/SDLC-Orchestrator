@@ -298,7 +298,7 @@ class TestSDLCValidator:
         validator = SDLCValidator(compliant_project, tier=Tier.LITE)
         report = validator.generate_report()
 
-        assert "SDLC 6.0.0 Structure Validation Report" in report
+        assert "SDLC 6.0.5 Structure Validation Report" in report
         assert "Tier:" in report
         assert "Compliant:" in report
 

@@ -1,5 +1,5 @@
 """
-Cross-Reference Validator for SDLC 6.0.0 structure compliance.
+Cross-Reference Validator for SDLC 6.0.5 structure compliance.
 
 Validates:
 - REF-001: Broken internal links (references to non-existent files/folders)

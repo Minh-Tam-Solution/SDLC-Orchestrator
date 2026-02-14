@@ -7,7 +7,7 @@
  * Date: February 3, 2026
  * Status: ACTIVE - Sprint 153 Day 1
  * Authority: Frontend Lead + CTO Approved
- * Framework: SDLC 6.0.3
+ * Framework: SDLC 6.0.5
  *
  * Purpose:
  * - Display notification bell icon with unread count

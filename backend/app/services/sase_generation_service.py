@@ -7,7 +7,7 @@ Version: 1.0.0
 Date: February 3, 2026
 Status: ACTIVE - Day 4 Implementation
 Authority: CTO Approved
-Framework: SDLC 6.0.3 SASE Methodology
+Framework: SDLC 6.0.5 SASE Methodology
 Reference: SPEC-0024, ADR-048
 
 Purpose:

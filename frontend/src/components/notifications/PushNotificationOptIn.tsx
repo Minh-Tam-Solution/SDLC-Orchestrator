@@ -7,7 +7,7 @@
  * Date: February 4, 2026
  * Status: ACTIVE - Sprint 153 Day 4
  * Authority: Frontend Lead + CTO Approved
- * Framework: SDLC 6.0.3
+ * Framework: SDLC 6.0.5
  *
  * Purpose:
  * - Display push notification opt-in banner/card

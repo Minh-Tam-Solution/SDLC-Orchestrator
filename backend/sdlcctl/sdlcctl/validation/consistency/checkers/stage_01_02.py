@@ -1,6 +1,6 @@
 """Stage 01 (Planning) ↔ Stage 02 (Design) consistency checker.
 
-SDLC 6.0.1 - SPEC-0021 Stage Consistency Validation.
+SDLC 6.0.5 - SPEC-0021 Stage Consistency Validation.
 
 Validates:
 - CONS-001: ADRs must reference Stage 01 requirements

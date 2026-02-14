@@ -1,17 +1,17 @@
 # Sprint 119: Revised Track 2 Plan
-## Orchestrator Full Implementation of SDLC Framework 6.0
+## Orchestrator Full Implementation of SDLC Framework 6.0.5
 
 **Version**: 2.0.0
 **Dates**: March 10-14, 2026 (5 days)
 **Status**: 📋 REVISED (Post-Sprint 118 Analysis)
-**Framework**: SDLC 5.3.0 → 6.0.0 (Major Upgrade)
+**Framework**: SDLC 5.3.0 → 6.0.5 (Major Upgrade)
 **Prepared By**: Track 2 Team (Jan 29, 2026)
 
 ---
 
 ## Executive Summary
 
-Sprint 119 Track 2 focuses on **completing the Orchestrator implementation of SDLC Framework 6.0**. This is a continuation of Sprint 118 Phase 6 (deferred) plus Framework 6.0 alignment.
+Sprint 119 Track 2 focuses on **completing the Orchestrator implementation of SDLC Framework 6.0.5**. This is a continuation of Sprint 118 Phase 6 (deferred) plus Framework 6.0.5 alignment.
 
 ### Sprint 118 Status (Pre-requisites ✅)
 
@@ -31,7 +31,7 @@ Sprint 119 Track 2 focuses on **completing the Orchestrator implementation of SD
 
 | Day | Task | Est. LOC | Priority |
 |-----|------|----------|----------|
-| Day 1-2 | Framework Submodule Update (5.3.0 → 6.0.0) | ~200 | P0 |
+| Day 1-2 | Framework Submodule Update (5.3.0 → 6.0.5) | ~200 | P0 |
 | Day 3-4 | `sdlcctl spec validate` CLI (Sprint 118 Phase 6) | ~1,500 | P0 |
 | Day 5 | OpenSpec/Context Authority Decision | ~300-500 | P1 |
 | **TOTAL** | | **~2,000** | |
@@ -61,24 +61,24 @@ Test Fixtures Ready:
 
 ---
 
-## Day 1-2: Framework Submodule Update (5.3.0 → 6.0.0)
+## Day 1-2: Framework Submodule Update (5.3.0 → 6.0.5)
 
 ### Objective
-Align SDLC Orchestrator with Framework 6.0.0 release
+Align SDLC Orchestrator with Framework 6.0.5.0 release
 
 ### Tasks
 
 #### Task 1.1: Submodule Update (Day 1 - 4h)
 
 ```bash
-# Update Framework submodule to 6.0.0
+# Update Framework submodule to 6.0.5
 cd SDLC-Orchestrator
 git submodule update --remote SDLC-Enterprise-Framework
 git add SDLC-Enterprise-Framework
-git commit -m "chore: Update Framework submodule to 6.0.0
+git commit -m "chore: Update Framework submodule to 6.0.5
 
 Updates:
-- 20 specifications in Framework 6.0.0 format
+- 20 specifications in Framework 6.0.5.0 format
 - Section 7: Quality Assurance System
 - spec/controls/anti-vibecoding.yaml (AVC-001/002/003)
 - spec/gates/gates.yaml (G0-G4)
@@ -95,7 +95,7 @@ git push origin main
 ```
 
 **Checklist**:
-- [ ] Framework submodule at v6.0.0 tag
+- [ ] Framework submodule at v6.0.5 tag
 - [ ] All 20 specs accessible from Orchestrator
 - [ ] No broken submodule references
 
@@ -107,14 +107,14 @@ git push origin main
 ```yaml
 Update Locations:
   1. Line ~7: Framework Version
-     BEFORE: SDLC 5.3.0 (7-Pillar + AI Governance + Framework 6.0 Planning)
-     AFTER: SDLC 6.0.0 (7-Pillar + Section 7 Quality Assurance System)
+     BEFORE: SDLC 5.3.0 (7-Pillar + AI Governance + Framework 6.0.5 Planning)
+     AFTER: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance System)
 
   2. Line ~120: Framework Submodule Version
      BEFORE: Version: SDLC 5.3.0
-     AFTER: Version: SDLC 6.0.0
+     AFTER: Version: SDLC 6.0.5
 
-  3. All references to "5.3.0" → "6.0.0"
+  3. All references to "5.3.0" → "6.0.5"
      - Search and replace across file
      - Verify context accuracy
 ```
@@ -128,7 +128,7 @@ Update Locations:
 Documentation Files:
   1. docs/README.md
      - Update framework version references
-     - Add Framework 6.0 highlights
+     - Add Framework 6.0.5 highlights
 
   2. docs/02-design/02-System-Architecture/System-Architecture-Document.md
      - Reference Section 7 Quality Assurance System
@@ -159,25 +159,25 @@ Updates to API-Specification.md:
 
 ### Day 1-2 Exit Criteria
 
-- [ ] Framework submodule updated to v6.0.0
-- [ ] CLAUDE.md references 6.0.0 (no 5.3.0 mentions)
+- [ ] Framework submodule updated to v6.0.5
+- [ ] CLAUDE.md references 6.0.5 (no 5.3.0 mentions)
 - [ ] All documentation aligned
 - [ ] API documentation updated
 - [ ] No broken imports or references
-- [ ] Git commit: `chore: Align Orchestrator with Framework 6.0.0`
+- [ ] Git commit: `chore: Align Orchestrator with Framework 6.0.5.0`
 
 ---
 
 ## Day 3-4: sdlcctl spec validate CLI (Sprint 118 Phase 6)
 
 ### Objective
-Implement CLI commands for spec validation against Framework 6.0.0 format
+Implement CLI commands for spec validation against Framework 6.0.5.0 format
 
 ### CLI Design
 
 ```bash
 # Command: sdlcctl spec validate
-# Purpose: Validate specification files against Framework 6.0.0 format
+# Purpose: Validate specification files against Framework 6.0.5.0 format
 
 Usage:
   sdlcctl spec validate [file|directory]
@@ -209,7 +209,7 @@ Exit Codes:
 ```python
 """
 sdlcctl spec validate - Specification validation CLI
-Validates SPEC-*.md files against Framework 6.0.0 format
+Validates SPEC-*.md files against Framework 6.0.5.0 format
 """
 
 import click
@@ -243,7 +243,7 @@ def validate(
     verbose: bool,
     quiet: bool
 ):
-    """Validate specification files against Framework 6.0.0 format."""
+    """Validate specification files against Framework 6.0.5.0 format."""
 
     spec_service = SpecificationService()
 
@@ -499,7 +499,7 @@ POST /api/v1/specs/generate
 
 ## Overview
 - Build on existing AGENTS.md/CLAUDE.md patterns
-- Align with Framework 6.0 templates
+- Align with Framework 6.0.5 templates
 - Gate-aware context injection
 
 ## Features
@@ -527,7 +527,7 @@ POST /api/v1/specs/generate
 ## Sprint 120 Scope
 - Re-evaluate OpenSpec adoption
 - Build Context Authority V2 (custom)
-- Integrate with Framework 6.0 templates
+- Integrate with Framework 6.0.5 templates
 ```
 
 ### Day 5 Exit Criteria
@@ -543,8 +543,8 @@ POST /api/v1/specs/generate
 
 | Metric | Target | Verification |
 |--------|--------|--------------|
-| Framework submodule | v6.0.0 | `git submodule status` |
-| CLAUDE.md version | 6.0.0 | No 5.3.0 references |
+| Framework submodule | v6.0.5 | `git submodule status` |
+| CLAUDE.md version | 6.0.5 | No 5.3.0 references |
 | CLI command | Working | `sdlcctl spec validate --all` |
 | Validation rules | 6/6 | Unit test coverage |
 | Test coverage | 95%+ | pytest-cov report |
@@ -597,7 +597,7 @@ If Context Authority EXTENDED (Sprint 120):
   - AI-assisted spec generation
 
 Common (Both Paths):
-  - Framework 6.0 maintenance
+  - Framework 6.0.5 maintenance
   - Spec migration support
   - Anti-Vibecoding optimization
   - CEO time tracking (<10h/week target)
@@ -651,7 +651,7 @@ Common (Both Paths):
 
 ### v1.0.0 (January 28, 2026)
 - Initial Sprint 119 Dual-Track plan
-- Framework 6.0 release focus
+- Framework 6.0.5 release focus
 
 ---
 
@@ -661,4 +661,4 @@ Common (Both Paths):
 
 ---
 
-*Sprint 119 Track 2 - Completing Orchestrator Implementation of SDLC Framework 6.0*
+*Sprint 119 Track 2 - Completing Orchestrator Implementation of SDLC Framework 6.0.5*

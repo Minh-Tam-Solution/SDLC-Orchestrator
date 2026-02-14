@@ -18,7 +18,7 @@ related_adrs:
 related_specs:
   - SPEC-0001-Governance-System-Implementation
   - SPEC-0002-Quality-Gates-Codegen-Specification
-framework_version: SDLC 6.0.0
+framework_version: SDLC 6.0.5
 ---
 
 ## 1. Overview
@@ -1164,12 +1164,12 @@ policy_evaluation_total = Counter(
 ---
 
 **Document Control**:
-- **Template**: Framework 6.0.0 Unified Specification Standard
+- **Template**: Framework 6.0.5 Unified Specification Standard
 - **Last Review**: 2026-01-28
 - **Next Review**: Q2 2026 (after Sprint 117 completion)
 - **Related Work**: Sprint 43 (OPA integration delivery)
 
 ---
 
-*SPEC-0004: Policy Guards Design - Framework 6.0.0 Format*
+*SPEC-0004: Policy Guards Design - Framework 6.0.5 Format*
 *SDLC Enterprise Framework - Policy-as-Code Enforcement*

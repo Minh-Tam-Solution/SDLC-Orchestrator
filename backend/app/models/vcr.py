@@ -7,7 +7,7 @@ Version: 1.0.0
 Date: March 4, 2026
 Status: ACTIVE
 Authority: CTO Approved
-Framework: SDLC 6.0.3 SASE Methodology
+Framework: SDLC 6.0.5 SASE Methodology
 
 Purpose:
 VCR captures post-merge documentation for significant changes.

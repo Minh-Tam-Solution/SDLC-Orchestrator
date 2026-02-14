@@ -8,7 +8,7 @@ Authority: CTO Approved (A+ Grade, 98/100)
 Reference: SPEC-0013 Compliance Validation Service
 
 Models:
-1. ComplianceScore - SDLC 6.0.0 compliance scoring results
+1. ComplianceScore - SDLC 6.0.5 compliance scoring results
 2. ComplianceIssue - Individual compliance issues with severity
 3. FolderCollisionCheck - Stage folder collision detection results
 
@@ -53,7 +53,7 @@ class ComplianceCategory(str, Enum):
 
 class ComplianceScore(Base):
     """
-    SDLC 6.0.0 compliance scoring result.
+    SDLC 6.0.5 compliance scoring result.
 
     Stores overall score (0-100) with category breakdown.
     10 categories × 10 points each = 100 maximum.
@@ -157,7 +157,7 @@ class ComplianceScore(Base):
     framework_version: Mapped[str] = mapped_column(
         String(20),
         nullable=False,
-        server_default="6.0.0",
+        server_default="6.0.5",
         comment="SDLC Framework version validated against",
     )
 

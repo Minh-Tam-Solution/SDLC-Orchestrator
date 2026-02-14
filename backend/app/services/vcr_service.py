@@ -7,7 +7,7 @@ Version: 1.0.0
 Date: March 4, 2026
 Status: ACTIVE
 Authority: CTO Approved
-Framework: SDLC 6.0.3 SASE Methodology
+Framework: SDLC 6.0.5 SASE Methodology
 Reference: SPEC-0024, ADR-048
 
 Purpose:
@@ -115,7 +115,7 @@ class VCRService:
         await vcr_service.approve(vcr.id, approver_id)
 
     SASE Compliance:
-        - Implements VCR artifact from SDLC 6.0.3 SASE methodology
+        - Implements VCR artifact from SDLC 6.0.5 SASE methodology
         - Links to Evidence Vault for immutable audit trail
         - Tracks AI tool involvement for governance
     """

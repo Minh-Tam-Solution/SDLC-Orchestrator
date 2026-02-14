@@ -1,7 +1,7 @@
 """
 Unit tests for SpecFrontmatterValidator.
 
-Tests YAML frontmatter validation for SDLC 6.0.0 specifications.
+Tests YAML frontmatter validation for SDLC 6.0.5 specifications.
 Part of Sprint 125 - Multi-Frontend Alignment.
 """
 

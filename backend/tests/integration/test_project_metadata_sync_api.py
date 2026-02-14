@@ -2,7 +2,7 @@
 Integration Tests for POST /projects/{id}/sync API Endpoint
 
 Sprint 172 - Project Metadata Auto-Sync
-Framework: SDLC 6.0.3
+Framework: SDLC 6.0.5
 
 NOTE: These tests require a live PostgreSQL database (sdlc_orchestrator_test).
 They will be SKIPPED when the database is unavailable.
@@ -57,7 +57,7 @@ async def test_sync_project_metadata_success(
         current_sprint = "Sprint 171"
         sprint_status = "✅ 90% COMPLETE"
         sprint_description = "Market Expansion"
-        framework_version = "SDLC 6.0.3"
+        framework_version = "SDLC 6.0.5"
         gate_status = "Gate G3 APPROVED"
         last_commit_date = datetime.utcnow().isoformat()
         last_commit_sha = "deadbeef"
@@ -90,7 +90,7 @@ async def test_sync_project_metadata_success(
     assert body["id"] == str(project_id)
     assert body["name"] == "New Name"
     assert body["description"] == "New desc"
-    assert body["metadata"]["framework_version"] == "SDLC 6.0.3"
+    assert body["metadata"]["framework_version"] == "SDLC 6.0.5"
 
 
 @pytest.mark.asyncio

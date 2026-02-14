@@ -5230,7 +5230,7 @@ Raises:
 
 **Summary**: Calculate compliance score
 
-**Description**: Calculate SDLC 6.0.0 compliance score for a project. 10 categories × 10 points = 100 maximum score.
+**Description**: Calculate SDLC 6.0.5 compliance score for a project. 10 categories × 10 points = 100 maximum score.
 
 ---
 
@@ -5238,7 +5238,7 @@ Raises:
 
 **Summary**: Calculate compliance score
 
-**Description**: Calculate SDLC 6.0.0 compliance score for a project. 10 categories × 10 points = 100 maximum score.
+**Description**: Calculate SDLC 6.0.5 compliance score for a project. 10 categories × 10 points = 100 maximum score.
 
 ---
 
@@ -18099,5 +18099,5 @@ Update the current SDLC context for a project.
 **Document Status**: ✅ Auto-Generated from OpenAPI Specification
 **Source**: `docs/03-integrate/02-API-Specifications/openapi.json`
 **Generated**: Sprint 145+ - MCP Integration Phase 1
-**Framework**: SDLC 6.0.3 (Stage 03 Integration)
+**Framework**: SDLC 6.0.5 (Stage 03 Integration)
 **Date**: February 3, 2026

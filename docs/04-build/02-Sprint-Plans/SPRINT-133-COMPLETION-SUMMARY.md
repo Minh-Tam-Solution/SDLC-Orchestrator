@@ -2,7 +2,7 @@
 ## Evidence Vault + Gates Integration (SPEC-0016)
 
 **Sprint**: 133 (Feb 1, 2026)
-**Framework**: SDLC 6.0.0
+**Framework**: SDLC 6.0.5
 **Status**: ✅ **COMPLETE - ALL DELIVERABLES SHIPPED**
 **Duration**: 1 day (Feb 1, 2026)
 **Team**: Backend Lead + Security Lead + CTO
@@ -588,5 +588,5 @@ sed -i 's/suggestion=/fix_suggestion=/g' evidence_validator.py
 ---
 
 *Generated: February 1, 2026*
-*Framework: SDLC 6.0.0*
+*Framework: SDLC 6.0.5*
 *Status: ✅ PRODUCTION-READY*

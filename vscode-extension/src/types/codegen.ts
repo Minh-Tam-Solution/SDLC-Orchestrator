@@ -333,11 +333,11 @@ export interface OnboardingSession {
 
 // ========================================
 // Specification Validation Types (Sprint 126 - S126-06)
-// SDLC 6.0.0 Spec Validation for VS Code Extension
+// SDLC 6.0.5 Spec Validation for VS Code Extension
 // ========================================
 
 /**
- * SDLC 6.0.0 Tier classification
+ * SDLC 6.0.5 Tier classification
  */
 export type SpecTier = 'LITE' | 'STANDARD' | 'PROFESSIONAL' | 'ENTERPRISE';
 

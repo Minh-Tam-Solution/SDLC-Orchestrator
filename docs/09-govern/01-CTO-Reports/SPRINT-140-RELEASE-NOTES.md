@@ -2,7 +2,7 @@
 
 **Release Version**: CLI v1.5.0
 **Sprint**: 140 - CLI Orchestration Upgrade
-**Framework**: SDLC 6.0.2 (RFC-SDLC-602)
+**Framework**: SDLC 6.0.5 (RFC-SDLC-602)
 **Release Date**: February 14, 2026
 **Status**: GA (General Availability)
 
@@ -176,7 +176,7 @@ pip install --upgrade sdlcctl
 
 # Verify version
 sdlcctl --version
-# Output: sdlcctl v1.5.0 (SDLC 6.0.2)
+# Output: sdlcctl v1.5.0 (SDLC 6.0.5)
 
 # Initialize E2E testing structure
 sdlcctl e2e validate --init

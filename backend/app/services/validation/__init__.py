@@ -8,7 +8,7 @@ Authority: CTO Approved (A+ Grade, 98/100)
 Reference: SPEC-0013 Compliance Validation Service
 
 Services:
-- ComplianceScorerService: SDLC 6.0.0 compliance scoring (10 categories)
+- ComplianceScorerService: SDLC 6.0.5 compliance scoring (10 categories)
 - DuplicateFolderDetector: Stage folder collision detection
 - Category Checkers: 10 specialized compliance checkers
 """

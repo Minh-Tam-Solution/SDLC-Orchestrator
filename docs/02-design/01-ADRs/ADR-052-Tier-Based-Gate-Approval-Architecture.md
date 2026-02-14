@@ -483,7 +483,7 @@ class TierApprovalService:
 **Approved By**: CTO (Acting)
 **Date**: February 6, 2026
 **Score**: 92/100 (Conditional Approval with 3 mandatory adjustments)
-**Authority**: SDLC 6.0.4 Framework
+**Authority**: SDLC 6.0.5 Framework
 
 **Next Review**: Sprint 162 kickoff (May 19, 2026)
 

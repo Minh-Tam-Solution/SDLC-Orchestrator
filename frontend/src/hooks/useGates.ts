@@ -3,7 +3,7 @@
  *
  * @module frontend/landing/src/hooks/useGates
  * @description React Query hooks for Gates API
- * @sdlc SDLC 6.0.3 Universal Framework
+ * @sdlc SDLC 6.0.5 Universal Framework
  * @status Sprint 147 - Telemetry Integration
  */
 

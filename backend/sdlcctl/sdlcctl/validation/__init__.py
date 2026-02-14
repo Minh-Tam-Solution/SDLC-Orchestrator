@@ -1,4 +1,4 @@
-"""SDLC 6.0.1 Validation Engine Components."""
+"""SDLC 6.0.5 Validation Engine Components."""
 
 from .engine import SDLCValidator, ValidationResult
 from .tier import Tier, TierDetector

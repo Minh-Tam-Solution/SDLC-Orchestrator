@@ -2,7 +2,7 @@
 
 **Version**: 1.0.0
 **Status**: ACTIVE
-**Framework**: SDLC 6.0.0
+**Framework**: SDLC 6.0.5
 **Effective Date**: February 2026
 **Owner**: PM
 **Reference**: ADR-045 Multi-Frontend Alignment Strategy

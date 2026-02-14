@@ -1,7 +1,7 @@
 """
-SDLC 6.0.0 Migration Command.
+SDLC 6.0.5 Migration Command.
 
-Migrate projects from SDLC 4.9.x to SDLC 6.0.0 Contract-First structure.
+Migrate projects from SDLC 4.9.x to SDLC 6.0.5 Contract-First structure.
 
 Key Changes in 5.0.0:
 - Stage Restructuring: INTEGRATE moved from Stage 07 → Stage 03
@@ -312,8 +312,8 @@ class SDLCMigrator:
                     content = content.replace(old_name, new_name)
 
                 # Update version references
-                content = re.sub(r"SDLC 4\.9\.\d+", "SDLC 6.0.0", content)
-                content = re.sub(r"SDLC 4\.9\.x", "SDLC 6.0.0", content)
+                content = re.sub(r"SDLC 4\.9\.\d+", "SDLC 6.0.5", content)
+                content = re.sub(r"SDLC 4\.9\.x", "SDLC 6.0.5", content)
 
                 if content != original_content:
                     md_file.write_text(content, encoding="utf-8")
@@ -377,7 +377,7 @@ def migrate_command(
     console.print()
     console.print(
         Panel(
-            "[bold blue]SDLC 6.0.0 Migration Tool[/bold blue]\n"
+            "[bold blue]SDLC 6.0.5 Migration Tool[/bold blue]\n"
             "[dim]Contract-First Stage Restructuring[/dim]",
             expand=False,
         )
@@ -410,7 +410,7 @@ def migrate_command(
 
     if is_migrated and not force:
         console.print(
-            "[yellow]Project appears to already be migrated to SDLC 6.0.0[/yellow]"
+            "[yellow]Project appears to already be migrated to SDLC 6.0.5[/yellow]"
         )
         console.print("[dim]Use --force to migrate anyway[/dim]")
         raise typer.Exit(0)

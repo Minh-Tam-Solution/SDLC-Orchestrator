@@ -1,5 +1,5 @@
 """
-SDLC 6.0.0 Pre-commit hook for validation.
+SDLC 6.0.5 Pre-commit hook for validation.
 
 This module provides pre-commit hook functionality to validate
 SDLC structure compliance before commits.

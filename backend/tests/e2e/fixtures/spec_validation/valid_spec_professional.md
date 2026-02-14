@@ -19,7 +19,7 @@ tags:
 
 # SPEC-0001: Valid Specification - Professional Tier
 
-**Sprint 126 E2E Test Fixture** - This spec follows SDLC 6.0.0 format correctly.
+**Sprint 126 E2E Test Fixture** - This spec follows SDLC 6.0.5 format correctly.
 
 ## 1. Overview
 
@@ -40,7 +40,7 @@ THEN the validation should pass with zero errors
 **FR-002: Cross-Frontend Parity**
 
 ```gherkin
-GIVEN a valid SDLC 6.0.0 specification
+GIVEN a valid SDLC 6.0.5 specification
 WHEN validated by CLI, Web Dashboard, and VS Code Extension
 THEN all three should return identical validation results
 ```

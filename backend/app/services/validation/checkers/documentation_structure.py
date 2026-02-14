@@ -1,7 +1,7 @@
 """
 Documentation Structure Checker - Sprint 123 (SPEC-0013)
 
-Validates SDLC 6.0.0 documentation folder structure:
+Validates SDLC 6.0.5 documentation folder structure:
 1. Stage folders exist (00-10)
 2. No duplicate stage prefixes
 3. Proper folder naming
@@ -32,7 +32,7 @@ class DocumentationStructureChecker(BaseCategoryChecker):
 
     category = ComplianceCategory.DOCUMENTATION_STRUCTURE
 
-    # SDLC 6.0.0 stage definitions
+    # SDLC 6.0.5 stage definitions
     REQUIRED_STAGES = [
         ("00", "discover"),
         ("01", "planning"),

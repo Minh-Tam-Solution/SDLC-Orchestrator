@@ -1,17 +1,17 @@
-# sdlcctl - SDLC 6.0.2 Structure Validator CLI
+# sdlcctl - SDLC 6.0.5 Structure Validator CLI
 
 **Version**: 1.5.0
-**Framework**: SDLC 6.0.2
+**Framework**: SDLC 6.0.5
 **Author**: SDLC Orchestrator Team
 **Sprint**: 140 - CLI Orchestration Upgrade
 
-A command-line tool for validating, fixing, and initializing SDLC 6.0.2 compliant project structures with E2E API testing capabilities.
+A command-line tool for validating, fixing, and initializing SDLC 6.0.5 compliant project structures with E2E API testing capabilities.
 
 ---
 
 ## Features
 
-- **Validate** project folder structure against SDLC 6.0.2 standards
+- **Validate** project folder structure against SDLC 6.0.5 standards
 - **Fix** missing stage folders and P0 artifacts automatically
 - **Initialize** new projects with complete SDLC structure
 - **GitHub Integration** - Connect repositories with `--github` flag
@@ -100,7 +100,7 @@ sdlcctl fix --no-interactive
 
 ### `sdlcctl validate`
 
-Validate SDLC 6.0.0 folder structure compliance.
+Validate SDLC 6.0.5 folder structure compliance.
 
 ```bash
 sdlcctl validate [OPTIONS]
@@ -200,7 +200,7 @@ sdlcctl fix --stages --no-p0
 
 ### `sdlcctl init`
 
-Initialize SDLC 6.0.0 project structure.
+Initialize SDLC 6.0.5 project structure.
 
 ```bash
 sdlcctl init [OPTIONS]
@@ -267,7 +267,7 @@ The `--github` flag supports three repository formats:
 1. Parse and validate repository format
 2. Check if SDLC Orchestrator GitHub App is installed
 3. Clone repository (if `--clone` is enabled and local copy doesn't exist)
-4. Create SDLC 6.0.0 folder structure
+4. Create SDLC 6.0.5 folder structure
 5. Register project with SDLC Orchestrator backend
 
 **Environment Variables:**
@@ -334,7 +334,7 @@ sdlcctl tiers
 **Output:**
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                       SDLC 6.0.0 Tier Classification                    │
+│                       SDLC 6.0.5 Tier Classification                    │
 ├─────────────────┬──────────────┬──────────┬────────────┬────────────────┤
 │ Tier            │    Team Size │   Stages │ P0 Required│ Compliance     │
 ├─────────────────┼──────────────┼──────────┼────────────┼────────────────┤
@@ -349,7 +349,7 @@ sdlcctl tiers
 
 ### `sdlcctl stages`
 
-Display SDLC 6.0.0 stage definitions.
+Display SDLC 6.0.5 stage definitions.
 
 ```bash
 sdlcctl stages
@@ -358,7 +358,7 @@ sdlcctl stages
 **Output:**
 ```
 ┌────────────────────────────────────────────────────────────────────────────────┐
-│                              SDLC 6.0.0 Stages                                 │
+│                              SDLC 6.0.5 Stages                                 │
 ├──────┬─────────────────────────────────┬───────────────────────────────────────┤
 │ ID   │ Stage Name                      │ Question                              │
 ├──────┼─────────────────────────────────┼───────────────────────────────────────┤
@@ -401,7 +401,7 @@ Shows all 15 P0 artifacts with tier requirements:
 
 ### `sdlcctl e2e validate`
 
-Validate E2E API test artifacts against SDLC 6.0.2 requirements.
+Validate E2E API test artifacts against SDLC 6.0.5 requirements.
 
 ```bash
 sdlcctl e2e validate [OPTIONS]
@@ -892,7 +892,7 @@ sdlcctl worktree add ../experiment-v3 experiment/approach-3
 
 ## Integration with SDLC Framework
 
-Worktrees map to **SDLC 6.0.2 stages**:
+Worktrees map to **SDLC 6.0.5 stages**:
 
 | Worktree | SDLC Stage | Purpose |
 |----------|------------|---------|
@@ -1009,7 +1009,7 @@ cd ../worktree && git fetch && git rebase origin/main
 
 ## Tier Classification
 
-SDLC 6.0.2 supports 4 tiers based on team size and compliance needs:
+SDLC 6.0.5 supports 4 tiers based on team size and compliance needs:
 
 | Tier | Team Size | Required Stages | P0 Artifacts | Compliance |
 |------|-----------|-----------------|--------------|------------|
@@ -1161,7 +1161,7 @@ repos:
   - repo: local
     hooks:
       - id: sdlcctl-validate
-        name: SDLC 6.0.0 Validation
+        name: SDLC 6.0.5 Validation
         entry: python -m sdlcctl.hooks.pre_commit
         language: python
         pass_filenames: false
@@ -1280,7 +1280,7 @@ Run `sdlcctl p0` to see all 15 artifacts with tier requirements.
 
 ## Folder Structure
 
-SDLC 6.0.0 compliant project structure:
+SDLC 6.0.5 compliant project structure:
 
 ```
 project/
@@ -1528,7 +1528,7 @@ See [CONTRIBUTING.md](../../CONTRIBUTING.md) for detailed guidelines.
 
 ## Links
 
-- **Documentation**: [SDLC 6.0.0 Framework](https://github.com/your-org/sdlc-framework)
+- **Documentation**: [SDLC 6.0.5 Framework](https://github.com/your-org/sdlc-framework)
 - **Issues**: [GitHub Issues](https://github.com/your-org/sdlc-orchestrator/issues)
 - **Changelog**: [CHANGELOG.md](./CHANGELOG.md)
 

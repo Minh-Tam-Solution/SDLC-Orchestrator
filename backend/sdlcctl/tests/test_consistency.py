@@ -1,6 +1,6 @@
 """Unit tests for stage consistency validation.
 
-SDLC 6.0.1 - SPEC-0021 Stage Consistency Validation.
+SDLC 6.0.5 - SPEC-0021 Stage Consistency Validation.
 Sprint 136 - Validate Consistency Command.
 """
 
@@ -242,7 +242,7 @@ class TestConsistencyEngine:
 
         assert isinstance(result, ConsistencyResult)
         assert result.tier == Tier.STANDARD
-        assert result.framework_version == "6.0.1"
+        assert result.framework_version == "6.0.5"
         assert len(result.stage_pairs) == 4
         assert "stage_01_02" in result.stage_pairs
 
@@ -274,7 +274,7 @@ class TestConsistencyResult:
         result = ConsistencyResult(
             project_name="test",
             tier=Tier.STANDARD,
-            framework_version="6.0.1",
+            framework_version="6.0.5",
             stage_pairs={
                 "stage_01_02": StageConsistencyResult(
                     source_stage="01",
@@ -293,7 +293,7 @@ class TestConsistencyResult:
         result = ConsistencyResult(
             project_name="test",
             tier=Tier.PROFESSIONAL,
-            framework_version="6.0.1",
+            framework_version="6.0.5",
             stage_pairs={
                 "stage_01_02": StageConsistencyResult(
                     source_stage="01",
@@ -320,7 +320,7 @@ class TestConsistencyResult:
         result = ConsistencyResult(
             project_name="test",
             tier=Tier.STANDARD,
-            framework_version="6.0.1",
+            framework_version="6.0.5",
             stage_pairs={},
             execution_time_seconds=1.5,
         )
@@ -329,7 +329,7 @@ class TestConsistencyResult:
 
         assert data["project"] == "test"
         assert data["tier"] == "standard"
-        assert data["framework_version"] == "6.0.1"
+        assert data["framework_version"] == "6.0.5"
         assert "summary" in data
 
 
@@ -342,7 +342,7 @@ class TestConsistencyReportFormatter:
         return ConsistencyResult(
             project_name="test-project",
             tier=Tier.STANDARD,
-            framework_version="6.0.1",
+            framework_version="6.0.5",
             stage_pairs={
                 "stage_01_02": StageConsistencyResult(
                     source_stage="01",

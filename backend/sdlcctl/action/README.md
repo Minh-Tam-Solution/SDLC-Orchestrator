@@ -1,10 +1,10 @@
-# SDLC 6.0.0 Validator Action
+# SDLC 6.0.5 Validator Action
 
-GitHub Action to validate project documentation structure against SDLC 6.0.0 standards.
+GitHub Action to validate project documentation structure against SDLC 6.0.5 standards.
 
 ## Features
 
-- Validate docs/ folder structure against SDLC 6.0.0
+- Validate docs/ folder structure against SDLC 6.0.5
 - Support for 4 tiers: LITE, STANDARD, PROFESSIONAL, ENTERPRISE
 - P0 artifact detection for AI discoverability
 - PR comments with validation results
@@ -177,7 +177,7 @@ After running on main branch, add to README:
 When validation runs on a PR, it posts a comment like:
 
 ```
-## SDLC 6.0.0 Structure Validation Report
+## SDLC 6.0.5 Structure Validation Report
 
 | Metric | Value |
 |--------|-------|
@@ -195,6 +195,6 @@ Apache-2.0
 
 ## Links
 
-- [SDLC 6.0.0 Framework](https://github.com/nqh-org/SDLC-Enterprise-Framework)
+- [SDLC 6.0.5 Framework](https://github.com/nqh-org/SDLC-Enterprise-Framework)
 - [sdlcctl CLI](https://github.com/nqh-org/sdlcctl)
 - [Documentation](https://github.com/nqh-org/sdlcctl/docs)

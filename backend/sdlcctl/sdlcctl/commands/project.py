@@ -1,6 +1,6 @@
 """sdlcctl project commands.
 
-SDLC 6.0.0 - Sprint 136 - SSOT Design Principle.
+SDLC 6.0.5 - Sprint 136 - SSOT Design Principle.
 
 Commands for managing project context (stage, gate, sprint).
 Database is the Single Source of Truth - these commands write to backend API.

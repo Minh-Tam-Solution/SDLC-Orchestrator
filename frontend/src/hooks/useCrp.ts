@@ -4,7 +4,7 @@
  *
  * @module frontend/src/hooks/useCrp
  * @description React Query hooks for CRP API - Sprint 151 SASE Artifacts Enhancement
- * @sdlc SDLC 6.0.3 Universal Framework
+ * @sdlc SDLC 6.0.5 Universal Framework
  * @status Sprint 151 - SASE Artifacts Enhancement (Backend from Sprint 101)
  */
 

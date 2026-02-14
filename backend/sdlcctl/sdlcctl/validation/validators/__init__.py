@@ -1,7 +1,7 @@
 """
 SDLC Structure Validators.
 
-Built-in validators for SDLC 6.0.0 structure compliance.
+Built-in validators for SDLC 6.0.5 structure compliance.
 
 Part of Sprint 44 - SDLC Structure Scanner Engine.
 Updated Sprint 125 - Multi-Frontend Alignment (SpecFrontmatterValidator).

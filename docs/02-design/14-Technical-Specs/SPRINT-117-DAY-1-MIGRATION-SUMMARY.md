@@ -15,7 +15,7 @@
 - **File**: `SPEC-0001-Governance-System-Implementation.md`
 - **Priority**: 95/100 (P0 Critical)
 - **Original**: 551 lines (SDLC 5.3.0 format)
-- **Migrated**: 750+ lines (Framework 6.0.0 format)
+- **Migrated**: 750+ lines (Framework 6.0.5 format)
 - **Status**: ✅ COMPLETE
 
 **Key Changes**:
@@ -35,7 +35,7 @@
 #### 2. SPEC-0002: Quality Gates for Generated Code
 - **File**: `SPEC-0002-Quality-Gates-Codegen-Specification.md`
 - **Original**: 1,122 lines (SDLC 5.1.3 format)
-- **Migrated**: 850+ lines (Framework 6.0.0 format)
+- **Migrated**: 850+ lines (Framework 6.0.5 format)
 - **Status**: ✅ COMPLETE
 
 **Key Changes**:
@@ -69,7 +69,7 @@
 - [x] Set stage (04 - Build)
 - [x] Add related_adrs, related_specs
 - [x] Add owner, reviewers, approver
-- [x] Add framework_version (6.0.0)
+- [x] Add framework_version (6.0.5)
 - [x] Add tags
 
 ### Content Transformation ✅
@@ -85,11 +85,11 @@
 - [x] Verify YAML frontmatter completeness
 - [x] Verify BDD format correctness
 - [x] Verify tier requirements coverage
-- [x] Peer review: Self-reviewed against Framework 6.0.0 standard
+- [x] Peer review: Self-reviewed against Framework 6.0.5 standard
 
 ---
 
-## Framework 6.0.0 Compliance
+## Framework 6.0.5 Compliance
 
 ### ✅ YAML Frontmatter (15+ fields)
 Both specs include complete YAML frontmatter with:
@@ -106,7 +106,7 @@ All requirements converted to GIVEN-WHEN-THEN format:
 - Each requirement includes tier-specific variations
 
 ### ✅ 9-Section Structure
-Both specs follow Framework 6.0.0 template:
+Both specs follow Framework 6.0.5 template:
 1. Overview (Purpose, Context, Goals, Scope)
 2. Context & Background
 3. Requirements (Functional + Non-Functional)
@@ -179,7 +179,7 @@ Migrate 8 P2-P3 specs (21 hours)
 
 ### Day 1 ✅
 - [x] 2 P0 specs migrated (SPEC-0001, SPEC-0002)
-- [x] 100% Framework 6.0.0 compliance
+- [x] 100% Framework 6.0.5 compliance
 - [x] All BDD requirements formatted correctly
 - [x] Tier-specific requirements documented
 - [x] Acceptance criteria tables complete
@@ -195,7 +195,7 @@ Migrate 8 P2-P3 specs (21 hours)
 ## Lessons Learned
 
 ### What Went Well
-1. **YAML Frontmatter Template**: Having the Framework 6.0.0 template made frontmatter consistent
+1. **YAML Frontmatter Template**: Having the Framework 6.0.5 template made frontmatter consistent
 2. **BDD Conversion**: GIVEN-WHEN-THEN format clarified requirements significantly
 3. **Tier Requirements**: 4-tier breakdown ensures specs work for all project sizes
 4. **Acceptance Criteria**: Test method column makes validation concrete
@@ -208,7 +208,7 @@ Migrate 8 P2-P3 specs (21 hours)
 
 ### Risks & Mitigations
 1. **Risk**: sdlcctl spec validate not yet implemented
-   - **Mitigation**: Manual validation against Framework 6.0.0 checklist
+   - **Mitigation**: Manual validation against Framework 6.0.5 checklist
 2. **Risk**: Tier requirements may be too granular
    - **Mitigation**: Focus on PROFESSIONAL tier (target), keep others brief
 3. **Risk**: BDD format may be too verbose
@@ -218,7 +218,7 @@ Migrate 8 P2-P3 specs (21 hours)
 
 ## References
 
-### Framework 6.0.0 Resources
+### Framework 6.0.5 Resources
 - [SDLC-Specification-Standard.md](../../../SDLC-Enterprise-Framework/08-Governance-Compliance/SDLC-Specification-Standard.md)
 - [Example-Spec-PROFESSIONAL.md](../../../SDLC-Enterprise-Framework/05-Templates-Tools/01-Specification-Standard/example_professional.md)
 - [MIGRATION-PLAN-20-SPECS.md](../../../SDLC-Enterprise-Framework/08-Governance-Compliance/MIGRATION-PLAN-20-SPECS.md)

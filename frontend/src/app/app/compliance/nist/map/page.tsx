@@ -4,7 +4,7 @@
  * @module frontend/src/app/app/compliance/nist/map/page
  * @description Sprint 156 - NIST AI RMF MAP: AI system mapping, stakeholder coverage,
  *   dependency tracking, and risk-to-impact compliance dashboard.
- * @sdlc SDLC 6.0.3 Universal Framework
+ * @sdlc SDLC 6.0.5 Universal Framework
  * @status Sprint 156 - NIST AI RMF MAP
  */
 

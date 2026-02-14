@@ -7,7 +7,7 @@ Version: 1.0.0
 Date: April 14, 2026
 Status: ACTIVE
 Authority: CTO Approved
-Framework: SDLC 6.0.4
+Framework: SDLC 6.0.5
 Reference: ADR-051, NIST AI RMF 1.0
 
 Purpose:

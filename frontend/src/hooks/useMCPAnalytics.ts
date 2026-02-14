@@ -3,7 +3,7 @@
  *
  * @module frontend/src/hooks/useMCPAnalytics
  * @description React Query hooks for MCP Analytics API
- * @sdlc SDLC 6.0.3 Universal Framework
+ * @sdlc SDLC 6.0.5 Universal Framework
  * @status Sprint 150 - MCP Analytics Dashboard
  */
 

@@ -4,7 +4,7 @@
  *
  * @module frontend/src/app/app/crp/page
  * @description Sprint 151 - SASE Artifacts Enhancement - CRP Frontend
- * @sdlc SDLC 6.0.3 Universal Framework
+ * @sdlc SDLC 6.0.5 Universal Framework
  * @status Sprint 151 - SASE Artifacts Enhancement
  */
 

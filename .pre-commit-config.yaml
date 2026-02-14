@@ -3,7 +3,7 @@
 # SDLC Orchestrator - Sprint 133
 #
 # Purpose: Enforce code quality, security, and evidence validation
-# Framework: SDLC 6.0.0 Evidence-Based Validation (SPEC-0016)
+# Framework: SDLC 6.0.5 Evidence-Based Validation (SPEC-0016)
 #
 # Hooks:
 # 1. Code formatting (black, prettier)
@@ -59,7 +59,7 @@ repos:
         exclude: ^backend/tests/
 
   # =========================================================================
-  # SDLC 6.0.0: Evidence Validation (SPEC-0016) ⭐ NEW
+  # SDLC 6.0.5: Evidence Validation (SPEC-0016) ⭐ NEW
   # =========================================================================
   - repo: local
     hooks:

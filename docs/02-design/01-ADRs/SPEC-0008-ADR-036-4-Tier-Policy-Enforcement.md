@@ -12,7 +12,7 @@ last_updated: "2026-01-30"
 tags: ["4-tier", "policy-enforcement", "mrp", "graduated-governance", "sprint-102-104", "tier-classification"]
 related_specs: ["SPEC-0001", "SPEC-0002", "SPEC-0004", "SPEC-0009", "SPEC-0010"]
 stage: "02-DESIGN"
-framework_version: "6.0.0"
+framework_version: "6.0.5"
 ---
 
 ## Executive Summary
@@ -737,7 +737,7 @@ THEN the system MUST:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0.0 | 2026-01-30 | Backend Lead + CTO | Initial Framework 6.0.0 migration from ADR-036 |
+| 1.0.0 | 2026-01-30 | Backend Lead + CTO | Initial Framework 6.0.5 migration from ADR-036 |
 
 ---
 
@@ -752,7 +752,7 @@ THEN the system MUST:
 ---
 
 **Document Status**: ✅ APPROVED - Ready for Implementation
-**Framework Compliance**: ✅ Framework 6.0.0 (YAML frontmatter, BDD requirements, tier-specific tables)
+**Framework Compliance**: ✅ Framework 6.0.5 (YAML frontmatter, BDD requirements, tier-specific tables)
 **Spec Migration**: ✅ Complete (ADR-036 → SPEC-0008)
 
 ---

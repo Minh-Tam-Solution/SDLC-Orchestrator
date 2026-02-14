@@ -1,7 +1,7 @@
 {
   "$schema": "../../../backend/sdlcctl/sdlcctl/schemas/spec-evidence-schema.json",
   "spec_id": "SPEC-0002",
-  "spec_title": "Framework 6.0.0 Specification Standard",
+  "spec_title": "Framework 6.0.5 Specification Standard",
   "spec_type": "standard",
   "implementation_date": "2026-01-28",
   "sprint": "Sprint 106",
@@ -48,5 +48,5 @@
     "status": "complete",
     "missing_files": []
   },
-  "notes": "Sprint 106 - Framework 6.0.0 Specification Standard (SPEC-0002). This is a DOCUMENTATION STANDARD, not a code feature. Defines unified format for technical specifications with YAML frontmatter, behavior-driven requirements, and structured acceptance criteria. CLI complete (spec command, spec frontmatter validator). Implementation evidence: (1) All specs in docs/02-design/14-Technical-Specs/ follow this standard (YAML frontmatter, BDD format, tier classification), (2) JSON schema backend/sdlcctl/sdlcctl/schemas/spec-evidence-schema.json enforces structure, (3) CLI validator ensures compliance. All 15+ SPECs use this standard consistently."
+  "notes": "Sprint 106 - Framework 6.0.5 Specification Standard (SPEC-0002). This is a DOCUMENTATION STANDARD, not a code feature. Defines unified format for technical specifications with YAML frontmatter, behavior-driven requirements, and structured acceptance criteria. CLI complete (spec command, spec frontmatter validator). Implementation evidence: (1) All specs in docs/02-design/14-Technical-Specs/ follow this standard (YAML frontmatter, BDD format, tier classification), (2) JSON schema backend/sdlcctl/sdlcctl/schemas/spec-evidence-schema.json enforces structure, (3) CLI validator ensures compliance. All 15+ SPECs use this standard consistently."
 }

@@ -551,7 +551,7 @@ A deliverable is considered "DONE" when:
 
 ### **Specifications**
 - [SPEC-0001-Anti-Vibecoding.md](../../02-design/14-Technical-Specs/SPEC-0001-Anti-Vibecoding.md) - Quality Assurance System
-- [SPEC-0002-Specification-Standard.md](../../02-design/14-Technical-Specs/SPEC-0002-Specification-Standard.md) - Framework 6.0.0 Standard
+- [SPEC-0002-Specification-Standard.md](../../02-design/14-Technical-Specs/SPEC-0002-Specification-Standard.md) - Framework 6.0.5 Standard
 
 ### **Existing Architecture**
 - [System-Architecture-Document.md](../../02-design/02-System-Architecture/System-Architecture-Document.md) - 5-Layer Architecture

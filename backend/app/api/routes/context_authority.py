@@ -8,7 +8,7 @@ Date: February 4, 2026
 Status: DEPRECATED - Use /context-authority/v2 instead
 Sunset Date: March 6, 2026 (30 days)
 Authority: CTO Approved
-Framework: SDLC 6.0.3 API Deprecation Policy
+Framework: SDLC 6.0.5 API Deprecation Policy
 
 DEPRECATION NOTICE:
 All V1 endpoints in this file are deprecated and will be removed on

@@ -14,7 +14,7 @@ Source priority:
 Version: 1.0.0
 Date: February 10, 2026
 Status: ACTIVE - Sprint 172
-Framework: SDLC 6.0.3
+Framework: SDLC 6.0.5
 
 Purpose:
 - Parse .sdlc-config.json for project configuration
@@ -64,7 +64,7 @@ class ProjectMetadata(BaseModel):
     sprint_description: Optional[str] = None
 
     # From CLAUDE.md (lines 1-10)
-    framework_version: Optional[str] = None  # "SDLC 6.0.3"
+    framework_version: Optional[str] = None  # "SDLC 6.0.5"
     gate_status: Optional[str] = None  # "G3 Ship Ready (98.2%)"
 
     # From README.md (first paragraph)
@@ -255,7 +255,7 @@ class ProjectMetadataService:
         Expected format (lines 1-15):
         **Version**: 3.3.0
         **Status**: Gate G3 APPROVED - Ship Ready (98.2%)
-        **Framework**: SDLC 6.0.3 (7-Pillar + Section 7 Quality Assurance)
+        **Framework**: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance)
 
         Returns:
             dict with framework metadata or empty dict if file missing
@@ -276,7 +276,7 @@ class ProjectMetadataService:
             for i in range(min(15, len(lines))):
                 line = lines[i].strip()
 
-                # Match: **Framework**: SDLC 6.0.3
+                # Match: **Framework**: SDLC 6.0.5
                 if "**Framework**:" in line or "**framework**:" in line:
                     match = re.search(r'SDLC\s+([\d.]+)', line, re.IGNORECASE)
                     if match:

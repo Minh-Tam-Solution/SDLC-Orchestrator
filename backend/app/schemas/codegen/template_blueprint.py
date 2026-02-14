@@ -2,7 +2,7 @@
 Template Blueprint Schema - IR for App Builder Integration
 
 SDLC Framework Compliance:
-- Framework: SDLC 6.0.0 (7-Pillar + Section 8 Unified Specification Standard)
+- Framework: SDLC 6.0.5 (7-Pillar + Section 8 Unified Specification Standard)
 - Pillar 2: Design Phase - Architecture & Technical Specifications
 - AI Governance Principle 4: Deterministic Intermediate Representations
 - Methodology: Contract-first design pattern for AI-assisted codegen

@@ -50,11 +50,11 @@ SDLC Orchestrator needs to perform **gap analysis** to compare a project's curre
 - **Performance**: Gap analysis <10s for typical repo (1000 files)
 - **Multi-tier**: Support all 4 tiers with different requirements
 - **Audit trail**: Store historical gap reports (track progress)
-- **Versioned rulesets**: Framework 6.0.0 ruleset can be upgraded to 6.1.0
+- **Versioned rulesets**: Framework 6.0.5 ruleset can be upgraded to 6.1.0
 
 ### Should Have (P1)
 - **Offline support**: Extension/CLI can scan without internet
-- **Stage name mapping**: Map old stage names (4.9 → 6.0.0)
+- **Stage name mapping**: Map old stage names (4.9 → 6.0.5)
 - **Recommendation engine**: Suggest next steps based on gaps
 - **Progress tracking**: Show compliance score over time
 
@@ -249,7 +249,7 @@ class StageRequirement(BaseModel):
     artifacts: list[str]  # Required files/folders
 
 class Ruleset(BaseModel):
-    version: str  # "6.0.0"
+    version: str  # "6.0.5"
     tier: str  # "PROFESSIONAL"
     required_stages: list[StageRequirement]
     stage_mappings: dict[str, str]  # {"00-discover": "00-foundation"}
@@ -262,7 +262,7 @@ async def get_ruleset(tier: str) -> Ruleset:
     Client downloads this ONCE and uses offline.
     """
     ruleset = {
-        "version": "6.0.0",
+        "version": "6.0.5",
         "tier": tier.upper(),
         "required_stages": [
             {
@@ -278,7 +278,7 @@ async def get_ruleset(tier: str) -> Ruleset:
             # ... 10 stages for PROFESSIONAL tier
         ],
         "stage_mappings": {
-            "00-discover": "00-foundation",  # 4.9 → 6.0.0 mapping
+            "00-discover": "00-foundation",  # 4.9 → 6.0.5 mapping
             "01-requirements": "01-planning"
         }
     }
@@ -380,7 +380,7 @@ class GapReportSubmission(BaseModel):
     compliance_score: float  # 0.0 to 1.0
     missing_stages: list[str]  # ["00-foundation", "01-planning"]
     existing_stages: list[str]  # ["02-design", "04-build"]
-    framework_version: str  # "6.0.0"
+    framework_version: str  # "6.0.5"
 
 @router.post("/api/v1/projects/{project_id}/gap-reports")
 async def submit_gap_report(
@@ -439,9 +439,9 @@ async def get_gap_reports(project_id: UUID, db: Session = Depends(get_db)):
 - ✅ **Privacy**: User files NEVER leave client (only folder names submitted)
 - ✅ **Performance**: Client CPU does scanning (backend saves 90% CPU)
 - ✅ **Offline support**: Client can scan without internet (after fetching ruleset once)
-- ✅ **Versioned rulesets**: Backend can upgrade ruleset (6.0.0 → 6.1.0) without client changes
+- ✅ **Versioned rulesets**: Backend can upgrade ruleset (6.0.5 → 6.1.0) without client changes
 - ✅ **Audit trail**: Backend stores gap reports for trending
-- ✅ **Stage name mapping**: Supports old framework versions (4.9 → 6.0.0)
+- ✅ **Stage name mapping**: Supports old framework versions (4.9 → 6.0.5)
 - ✅ **Scalability**: Backend serves lightweight rulesets (not scanning repos)
 
 **Cons**:
@@ -464,7 +464,7 @@ async def get_gap_reports(project_id: UUID, db: Session = Depends(get_db)):
 ```sql
 CREATE TABLE rulesets (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  version VARCHAR(20) NOT NULL,       -- "6.0.0"
+  version VARCHAR(20) NOT NULL,       -- "6.0.5"
   tier tier_type NOT NULL,            -- LITE, STANDARD, PROFESSIONAL, ENTERPRISE
   ruleset_json JSONB NOT NULL,        -- Full ruleset definition
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -478,7 +478,7 @@ CREATE TABLE gap_reports (
   compliance_score FLOAT NOT NULL CHECK (compliance_score >= 0 AND compliance_score <= 1),
   missing_stages TEXT[] NOT NULL,     -- ["00-foundation", "01-planning"]
   existing_stages TEXT[] NOT NULL,    -- ["02-design", "04-build"]
-  framework_version VARCHAR(20) NOT NULL,  -- "6.0.0"
+  framework_version VARCHAR(20) NOT NULL,  -- "6.0.5"
   analyzed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 
   -- Metadata
@@ -494,7 +494,7 @@ CREATE INDEX idx_gap_reports_analyzed_at ON gap_reports(analyzed_at DESC);
 
 **Semantic Versioning**:
 ```yaml
-Version Format: MAJOR.MINOR.PATCH (e.g., 6.0.0)
+Version Format: MAJOR.MINOR.PATCH (e.g., 6.0.5)
 
 MAJOR: Breaking changes (stage rename, removal)
   Example: 5.x → 6.x (10 stages → 11 stages)
@@ -505,17 +505,17 @@ MINOR: Additive changes (new optional stage, new tier)
   Impact: Client can continue (backward compatible)
 
 PATCH: Fixes (typo in stage name, artifact clarification)
-  Example: 6.0.0 → 6.0.1 (fix typo in stage name)
+  Example: 6.0.5 → 6.0.6 (fix typo in stage name)
   Impact: Client can continue (no logic change)
 ```
 
 **Ruleset Migration**:
 ```python
-# Seed initial ruleset (v6.0.0)
+# Seed initial ruleset (v6.0.5)
 def seed_rulesets():
     rulesets = [
         {
-            "version": "6.0.0",
+            "version": "6.0.5",
             "tier": "LITE",
             "ruleset_json": {
                 "required_stages": [
@@ -530,7 +530,7 @@ def seed_rulesets():
             }
         },
         {
-            "version": "6.0.0",
+            "version": "6.0.5",
             "tier": "PROFESSIONAL",
             "ruleset_json": {
                 "required_stages": [
@@ -559,8 +559,8 @@ def seed_rulesets():
 ```json
 {
   "stage_mappings": {
-    "00-discover": "00-foundation",      // 4.9 → 6.0.0
-    "01-requirements": "01-planning",    // 4.9 → 6.0.0
+    "00-discover": "00-foundation",      // 4.9 → 6.0.5
+    "01-requirements": "01-planning",    // 4.9 → 6.0.5
     "02-design-architecture": "02-design"
   }
 }
@@ -693,7 +693,7 @@ Compliance Score Over Time
    - ✅ Scales to 100K teams (backend only stores summaries)
 
 4. **Flexibility**:
-   - ✅ Versioned rulesets (Framework 6.0.0 → 6.1.0 upgrade path)
+   - ✅ Versioned rulesets (Framework 6.0.5 → 6.1.0 upgrade path)
    - ✅ Stage name mapping (support old framework versions)
    - ✅ Audit trail (gap reports stored for trending)
 
@@ -741,7 +741,7 @@ Use File System Access API in web browser to scan filesystem.
 
 ## References
 
-- **SDLC Framework 6.0.0**: Stage definitions and requirements
+- **SDLC Framework 6.0.5**: Stage definitions and requirements
 - **Extension Architecture**: Client-side scanning implementation
 - **ADR-044**: GitHub Integration Strategy (clone-local approach)
 - **ADR-021**: SDLC Scanner (original gap analysis design)
@@ -756,7 +756,7 @@ Use File System Access API in web browser to scan filesystem.
 | Jan 27, 2026 | Explored client scanning | Privacy-safe, but tight coupling |
 | Jan 29, 2026 | Explored hybrid approach | Best privacy + performance trade-off |
 | Jan 30, 2026 | **APPROVED Hybrid** | Backend ruleset + client compute |
-| Jan 30, 2026 | Add stage name mapping | Support framework migrations (4.9 → 6.0.0) |
+| Jan 30, 2026 | Add stage name mapping | Support framework migrations (4.9 → 6.0.5) |
 | Jan 30, 2026 | Add offline support | 24-hour ruleset cache |
 
 ---
@@ -767,10 +767,10 @@ Use File System Access API in web browser to scan filesystem.
 - [ ] Backend API: `GET /api/v1/rulesets/{tier}`
 - [ ] Backend API: `POST /api/v1/projects/{id}/gap-reports`
 - [ ] Backend API: `GET /api/v1/projects/{id}/gap-reports` (trending)
-- [ ] Seed rulesets: LITE, STANDARD, PROFESSIONAL, ENTERPRISE (v6.0.0)
+- [ ] Seed rulesets: LITE, STANDARD, PROFESSIONAL, ENTERPRISE (v6.0.5)
 - [ ] Extension: Ruleset cache (24-hour TTL)
 - [ ] Extension: Gap analysis logic (scan + compare)
-- [ ] Extension: Stage name mapping (4.9 → 6.0.0)
+- [ ] Extension: Stage name mapping (4.9 → 6.0.5)
 - [ ] CLI: Gap analysis command (`sdlcctl gap-analysis`)
 - [ ] Tests: Ruleset API tests
 - [ ] Tests: Gap analysis logic tests

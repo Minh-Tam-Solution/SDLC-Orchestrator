@@ -2,7 +2,7 @@
 Test Suite: Gherkin Parser
 Sprint: 154 - Spec Standard Completion
 TDD Phase: 1 (Tests First)
-SDLC: 6.0.3 Principle 4 - Verification-First
+SDLC: 6.0.5 Principle 4 - Verification-First
 
 Expected Tests: 15
 Purpose: Parse Gherkin (BDD) feature files to SpecIR

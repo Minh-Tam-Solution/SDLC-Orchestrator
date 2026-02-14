@@ -1,7 +1,7 @@
 {
   "$schema": "../../../backend/sdlcctl/sdlcctl/schemas/spec-evidence-schema.json",
   "spec_id": "SPEC-0014",
-  "spec_title": "CLI and Extension SDLC 6.0.0 Upgrade",
+  "spec_title": "CLI and Extension SDLC 6.0.5 Upgrade",
   "spec_type": "upgrade",
   "implementation_date": "2026-01-30",
   "sprint": "Sprint 124",
@@ -81,8 +81,8 @@
       "Extension spec convert command not implemented",
       "Extension validation results panel missing",
       "CLI BDD format validator incomplete",
-      "Extension tests for SDLC 6.0.0 validation missing"
+      "Extension tests for SDLC 6.0.5 validation missing"
     ]
   },
-  "notes": "Sprint 124 - CLI and Extension SDLC 6.0.0 Upgrade (SPEC-0014). Upgrades sdlcctl CLI and VS Code Extension from SDLC 5.0.0/5.3.0 to SDLC 6.0.0. CLI complete (validate + spec commands, spec frontmatter validator). Extension partial (validate command exists, spec convert and validation results panel missing). Supports YAML frontmatter validation, BDD requirements format, Context Authority Methodology, and OpenSpec integration via 'sdlcctl spec convert' command. Framework version alignment complete."
+  "notes": "Sprint 124 - CLI and Extension SDLC 6.0.5 Upgrade (SPEC-0014). Upgrades sdlcctl CLI and VS Code Extension from SDLC 5.0.0/5.3.0 to SDLC 6.0.5. CLI complete (validate + spec commands, spec frontmatter validator). Extension partial (validate command exists, spec convert and validation results panel missing). Supports YAML frontmatter validation, BDD requirements format, Context Authority Methodology, and OpenSpec integration via 'sdlcctl spec convert' command. Framework version alignment complete."
 }

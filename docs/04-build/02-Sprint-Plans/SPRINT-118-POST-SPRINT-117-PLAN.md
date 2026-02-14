@@ -11,10 +11,10 @@
 ## Executive Summary
 
 **Sprint 117 Completion Status** (Feb 7, 2026):
-- **Track 1**: ✅ COMPLETE - All 20 specs migrated to Framework 6.0.0 (~16,250 LOC)
+- **Track 1**: ✅ COMPLETE - All 20 specs migrated to Framework 6.0.5 (~16,250 LOC)
 - **Track 2**: ✅ COMPLETE - POC committed + SPEC-0001/0002 + Basic automation
 
-**Sprint 118+ Focus**: Track 2 **FULL ORCHESTRATOR INTEGRATION** with Framework 6.0.0
+**Sprint 118+ Focus**: Track 2 **FULL ORCHESTRATOR INTEGRATION** with Framework 6.0.5
 
 **Key Objectives**:
 1. Expand spec validation beyond POC (20 specs → Full framework support)

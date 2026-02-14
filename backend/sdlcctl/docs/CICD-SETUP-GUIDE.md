@@ -1,7 +1,7 @@
-# SDLC 6.0.0 CI/CD Setup Guide
+# SDLC 6.0.5 CI/CD Setup Guide
 
 **Version**: 1.0.0
-**Framework**: SDLC 6.0.0 Complete Lifecycle
+**Framework**: SDLC 6.0.5 Complete Lifecycle
 **Last Updated**: December 5, 2025
 
 ---
@@ -31,7 +31,7 @@ Create `.sdlc-config.json` in your repository root:
 Copy `.github/workflows/sdlc-validate.yml` from this repository or create:
 
 ```yaml
-name: SDLC 6.0.0 Validation
+name: SDLC 6.0.5 Validation
 
 on:
   push:
@@ -235,7 +235,7 @@ For monorepos with multiple documentation roots:
 ### Workflow for Monorepo
 
 ```yaml
-name: SDLC 6.0.0 Validation (Monorepo)
+name: SDLC 6.0.5 Validation (Monorepo)
 
 on:
   push:
@@ -314,7 +314,7 @@ Add to workflow after validation step:
         owner: context.repo.owner,
         repo: context.repo.repo,
         title: `SDLC Validation Failed on ${context.sha.substring(0, 7)}`,
-        body: `## SDLC 6.0.0 Validation Failed\n\n` +
+        body: `## SDLC 6.0.5 Validation Failed\n\n` +
               `**Commit**: ${context.sha}\n` +
               `**Author**: @${context.actor}\n` +
               `**Branch**: main\n\n` +
@@ -483,7 +483,7 @@ repos:
   - repo: local
     hooks:
       - id: sdlc-validate
-        name: SDLC 6.0.0 Validation
+        name: SDLC 6.0.5 Validation
         entry: sdlcctl validate --format summary
         language: system
         pass_filenames: false
@@ -496,10 +496,10 @@ repos:
 
 - **Documentation**: [sdlcctl README](../README.md)
 - **Issues**: [GitHub Issues](https://github.com/nqh-org/sdlcctl/issues)
-- **Framework**: [SDLC 6.0.0 Documentation](https://github.com/nqh-org/SDLC-Enterprise-Framework)
+- **Framework**: [SDLC 6.0.5 Documentation](https://github.com/nqh-org/SDLC-Enterprise-Framework)
 
 ---
 
 **Document Status**: Production Ready
-**Compliance**: SDLC 6.0.0 Stage 05
+**Compliance**: SDLC 6.0.5 Stage 05
 **Last Updated**: December 5, 2025

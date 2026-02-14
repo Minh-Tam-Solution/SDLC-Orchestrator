@@ -1,24 +1,24 @@
 # Sprint 120-122: Orchestrator Complete Implementation
-## Full SDLC Framework 6.0 Integration Roadmap
+## Full SDLC Framework 6.0.5 Integration Roadmap
 
 **Version**: 1.0.0
 **Dates**: March 17 - April 11, 2026 (20 days, 3 sprints)
 **Status**: 📋 PLANNED
-**Framework**: SDLC 6.0.0 (Post-Release Integration)
+**Framework**: SDLC 6.0.5 (Post-Release Integration)
 **Prepared By**: Track 2 Team (Jan 29, 2026)
 
 ---
 
 ## Executive Summary
 
-Following Sprint 119 (Framework 6.0 Release + CLI), Sprints 120-122 focus on **complete Orchestrator implementation** of all Framework 6.0 features:
+Following Sprint 119 (Framework 6.0.5 Release + CLI), Sprints 120-122 focus on **complete Orchestrator implementation** of all Framework 6.0.5 features:
 
 1. **Sprint 120**: Gates Integration + Quality Metrics Dashboard
 2. **Sprint 121**: Production Rollout + 5 Pilot Teams
 3. **Sprint 122**: Stabilization + Framework 6.1 Planning
 
 **Total Deliverables**: ~10,000 LOC across 3 sprints
-**End Goal**: Orchestrator fully implements SDLC Framework 6.0.0
+**End Goal**: Orchestrator fully implements SDLC Framework 6.0.5.0
 
 ---
 
@@ -26,8 +26,8 @@ Following Sprint 119 (Framework 6.0 Release + CLI), Sprints 120-122 focus on **c
 
 ```yaml
 Sprint 119 Deliverables (Required):
-  ✅ Framework submodule at v6.0.0
-  ✅ CLAUDE.md aligned with 6.0.0
+  ✅ Framework submodule at v6.0.5
+  ✅ CLAUDE.md aligned with 6.0.5
   ✅ sdlcctl spec validate CLI working
   ✅ OpenSpec/Context Authority decision made
   ✅ All documentation updated
@@ -39,7 +39,7 @@ Sprint 119 Deliverables (Required):
 
 ### Sprint 120 Goals
 
-**Primary Objective**: Integrate Framework 6.0 Gates (G0-G4) into Orchestrator and build quality metrics dashboard
+**Primary Objective**: Integrate Framework 6.0.5 Gates (G0-G4) into Orchestrator and build quality metrics dashboard
 
 **Success Criteria**:
 - [ ] Gates API endpoints complete (evaluate, list, status)
@@ -274,7 +274,7 @@ Pre-Production Checklist:
 
 ```yaml
 Deployment Steps:
-  1. Create release tag (v6.0.0)
+  1. Create release tag (v6.0.5)
   2. Deploy to staging (final validation)
   3. Run smoke tests (15 min)
   4. Deploy to production (rolling update)
@@ -417,7 +417,7 @@ Retrospective:
 
 | Metric | Target | Verification |
 |--------|--------|--------------|
-| Framework 6.0 Features | 100% | Feature checklist |
+| Framework 6.0.5 Features | 100% | Feature checklist |
 | Gate Evaluation Accuracy | >95% | A/B test with manual |
 | API Latency (p95) | <100ms | Prometheus metrics |
 | Test Coverage | >95% | pytest-cov report |
@@ -490,7 +490,7 @@ Retrospective:
 **Document Status**: ✅ **PLANNED & READY**
 **Prerequisite**: Sprint 119 Complete
 **Start Date**: March 17, 2026
-**End Goal**: Orchestrator fully implements SDLC Framework 6.0.0
+**End Goal**: Orchestrator fully implements SDLC Framework 6.0.5.0
 
 ---
 

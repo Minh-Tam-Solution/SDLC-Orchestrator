@@ -7,7 +7,7 @@ Version: 2.1.0
 Date: February 4, 2026
 Status: ACTIVE - Sprint 154 E2E Testing
 Authority: Backend Lead + CTO Approved
-Framework: SDLC 6.0.3 Quality Assurance System
+Framework: SDLC 6.0.5 Quality Assurance System
 
 Purpose:
 - Fixtures for API integration tests

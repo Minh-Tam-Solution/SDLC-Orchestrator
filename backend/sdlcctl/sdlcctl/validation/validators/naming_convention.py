@@ -7,7 +7,7 @@ Rules:
 - NAME-001: Invalid characters in names (spaces, underscores, special chars)
 - NAME-002: Inconsistent casing (UPPERCASE, camelCase, PascalCase)
 
-SDLC 6.0.0 Standard: kebab-case (lowercase with hyphens)
+SDLC 6.0.5 Standard: kebab-case (lowercase with hyphens)
 Example: user-guide.md, api-reference.md, sprint-plan.md
 
 Part of Sprint 44 - SDLC Structure Scanner Engine.
@@ -25,7 +25,7 @@ class NamingConventionValidator(BaseValidator):
     """
     Validates file and folder naming conventions.
 
-    SDLC 6.0.0 Standard:
+    SDLC 6.0.5 Standard:
     - kebab-case (lowercase with hyphens)
     - No spaces, underscores, or special characters
     - Numbers allowed (e.g., sprint-44-plan.md)

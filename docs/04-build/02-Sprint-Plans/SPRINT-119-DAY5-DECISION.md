@@ -72,14 +72,14 @@
 
 | Day | Task | Status | LOC |
 |-----|------|--------|-----|
-| Day 1-2 | Framework Submodule Update | ⏸️ BLOCKED (no v6.0.0 tag) | 0 |
+| Day 1-2 | Framework Submodule Update | ⏸️ BLOCKED (no v6.0.5 tag) | 0 |
 | Day 3-4 | sdlcctl spec validate CLI | ✅ COMPLETE | 1,091 |
 | Day 5 | OpenSpec/Context Authority Decision | ✅ EXECUTED | ~500 |
 | **TOTAL** | | | **~1,591** |
 
 ### Blockers Noted
 
-- **Framework 6.0 not ready**: No v6.0.0 tag in SDLC-Enterprise-Framework submodule
+- **Framework 6.0 not ready**: No v6.0.5 tag in SDLC-Enterprise-Framework submodule
 - **Track 1 in progress**: 20 SPEC files exist but not finalized
 - **Day 1-2 deferred to Sprint 120**: Pending Framework 6.0 release
 
@@ -89,7 +89,7 @@
 
 Based on Day 5 decision:
 
-### If Framework 6.0 Ready (v6.0.0 tag exists):
+### If Framework 6.0 Ready (v6.0.5 tag exists):
 1. Day 1: Framework Submodule Update (from Sprint 119 Day 1-2)
 2. Day 2-3: SPEC-0011 Phase 1 (Database & Models)
 3. Day 4-5: SPEC-0011 Phase 2 (Service Layer)
@@ -113,7 +113,7 @@ Sprint 119 Day 5 Decision: EXTEND (Context Authority V2)
 - Day 5: SPEC-0011 Context Authority V2 specification
 
 ⏸️ Blocked:
-- Day 1-2: Framework Submodule Update (no v6.0.0 tag)
+- Day 1-2: Framework Submodule Update (no v6.0.5 tag)
 
 📋 Sprint 120 Ready:
 - SPEC-0011 implementation plan (~1,700 LOC across 4 phases)

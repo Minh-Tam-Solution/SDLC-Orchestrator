@@ -1,6 +1,6 @@
 """
 =========================================================================
-OPA Client Performance Benchmarks - SDLC 6.0.2
+OPA Client Performance Benchmarks - SDLC 6.0.5
 SDLC Orchestrator - Sprint 140 (CLI Orchestration Upgrade)
 
 Version: 1.0.0
@@ -8,7 +8,7 @@ Date: February 14, 2026
 Status: ACTIVE - Sprint 140 Day 5 (Performance Testing)
 Authority: Backend Lead + CTO Approved
 Foundation: RFC-SDLC-602 E2E API Testing Enhancement
-Framework: SDLC 6.0.2 Complete Lifecycle
+Framework: SDLC 6.0.5 Complete Lifecycle
 
 Purpose:
 - Performance benchmarking for OPA client policy evaluation
@@ -690,7 +690,7 @@ def test_generate_opa_performance_report(client, test_input_e2e_compliance):
     print("\n")
     print("=" * 70)
     print("OPA CLIENT PERFORMANCE REPORT")
-    print("Sprint 140 - SDLC 6.0.2")
+    print("Sprint 140 - SDLC 6.0.5")
     print(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 70)
 

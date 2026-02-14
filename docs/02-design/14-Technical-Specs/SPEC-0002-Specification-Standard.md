@@ -1,6 +1,6 @@
 ---
 spec_id: SPEC-0002
-title: Framework 6.0.0 Specification Standard
+title: Framework 6.0.5 Specification Standard
 version: "1.0.0"
 status: APPROVED
 tier:
@@ -26,7 +26,7 @@ related_specs:
   - SPEC-0003
 ---
 
-# SPEC-0002: Framework 6.0.0 Specification Standard
+# SPEC-0002: Framework 6.0.5 Specification Standard
 
 **Version**: 1.0.0
 **Status**: APPROVED
@@ -54,7 +54,7 @@ related_specs:
 
 ### Purpose
 
-Define the **SDLC Framework 6.0.0 Specification Standard** - a unified format for documenting technical specifications across all tiers (LITE, STANDARD, PROFESSIONAL, ENTERPRISE) with machine-readable frontmatter, behavior-driven requirements, and structured acceptance criteria.
+Define the **SDLC Framework 6.0.5 Specification Standard** - a unified format for documenting technical specifications across all tiers (LITE, STANDARD, PROFESSIONAL, ENTERPRISE) with machine-readable frontmatter, behavior-driven requirements, and structured acceptance criteria.
 
 ### Scope
 
@@ -420,7 +420,7 @@ THEN frontmatter MUST include all required fields:
   - last_updated (YYYY-MM-DD)
   - related_adrs (array, may be empty)
   - related_specs (array, may be empty)
-  - framework_version (e.g., SDLC 6.0.0)
+  - framework_version (e.g., SDLC 6.0.5)
   - machine_readable_spec (path to YAML/JSON, if exists)
   - tags (array of searchable keywords)
 ```
@@ -512,7 +512,7 @@ All acceptance criteria must pass before specification standard is considered AP
 | **AC-008**: Metadata completeness checker | Checker confirms all 15 required frontmatter fields present | YAML parser + field checker | P0 |
 | **AC-009**: Readability score | Flesch-Kincaid score >60 for all specifications | textstat library | P1 |
 | **AC-010**: Performance benchmark | Validation completes <100ms for 100 specs | pytest-benchmark | P1 |
-| **AC-011**: Specification compliance | 100% of Framework 6.0.0 specs pass validation | CI/CD gate (GitHub Actions) | P0 |
+| **AC-011**: Specification compliance | 100% of Framework 6.0.5 specs pass validation | CI/CD gate (GitHub Actions) | P0 |
 | **AC-012**: Developer satisfaction | >90% developers find spec format clear and helpful | Quarterly survey (5-point Likert scale) | P1 |
 
 ### Test Execution Plan
@@ -524,7 +524,7 @@ All acceptance criteria must pass before specification standard is considered AP
 
 **Phase 2: Integration Testing (Week 2)**
 - Integrate validators into CI/CD pipeline
-- Test with 10 real Framework 6.0.0 specifications
+- Test with 10 real Framework 6.0.5 specifications
 - Fix false positives (<5% target)
 
 **Phase 3: Performance Testing (Week 2)**
@@ -651,7 +651,7 @@ All acceptance criteria must pass before specification standard is considered AP
 
 ### Decision 2: BDD (GIVEN-WHEN-THEN) Over Traditional "Shall/Should/Must"
 
-**Decision**: Mandate BDD format for all functional requirements in Framework 6.0.0 specifications.
+**Decision**: Mandate BDD format for all functional requirements in Framework 6.0.5 specifications.
 
 **Rationale**:
 1. **Testability**: Each BDD scenario maps 1:1 to test case
@@ -831,7 +831,7 @@ All acceptance criteria must pass before specification standard is considered AP
 **Duration**: 10 days (Feb 11-22, 2026)
 
 **Deliverables**:
-1. **Migrate existing specs to Framework 6.0.0 format**:
+1. **Migrate existing specs to Framework 6.0.5 format**:
    - SPEC-0002-Quality-Gates-Codegen-Specification.md
    - SPEC-0004-Policy-Guards-Design.md
    - SPEC-0005-Evidence-Vault-Architecture.md
@@ -894,7 +894,7 @@ All acceptance criteria must pass before specification standard is considered AP
 **Success Metrics**:
 - 100% of specification authors attend training
 - >90% satisfaction score on training feedback survey
-- 5+ new specs authored using Framework 6.0.0 format
+- 5+ new specs authored using Framework 6.0.5 format
 
 ---
 
@@ -938,9 +938,9 @@ All acceptance criteria must pass before specification standard is considered AP
 
 ### Related Specifications
 
-- **[SPEC-0001: Anti-Vibecoding](./SPEC-0001-Anti-Vibecoding.md)** - Example specification following Framework 6.0.0 format
-- **[SPEC-0002: Quality Gates Codegen Specification](./SPEC-0002-Quality-Gates-Codegen-Specification.md)** - To be migrated to Framework 6.0.0 format
-- **[SPEC-0004: Policy Guards Design](./SPEC-0004-Policy-Guards-Design.md)** - To be migrated to Framework 6.0.0 format
+- **[SPEC-0001: Anti-Vibecoding](./SPEC-0001-Anti-Vibecoding.md)** - Example specification following Framework 6.0.5 format
+- **[SPEC-0002: Quality Gates Codegen Specification](./SPEC-0002-Quality-Gates-Codegen-Specification.md)** - To be migrated to Framework 6.0.5 format
+- **[SPEC-0004: Policy Guards Design](./SPEC-0004-Policy-Guards-Design.md)** - To be migrated to Framework 6.0.5 format
 
 ### Machine-Readable Specifications
 
@@ -951,7 +951,7 @@ All acceptance criteria must pass before specification standard is considered AP
 - **JSON Schema Draft 2020-12**: [https://json-schema.org/draft/2020-12/schema](https://json-schema.org/draft/2020-12/schema)
 - **BDD (Behavior-Driven Development)**: [https://cucumber.io/docs/bdd/](https://cucumber.io/docs/bdd/)
 - **Semantic Versioning 2.0.0**: [https://semver.org/](https://semver.org/)
-- **RFC 2119 (Requirement Levels)**: [https://www.ietf.org/rfc/rfc2119.txt](https://www.ietf.org/rfc/rfc2119.txt) - **Note**: Framework 6.0.0 uses BDD instead of RFC 2119 keywords
+- **RFC 2119 (Requirement Levels)**: [https://www.ietf.org/rfc/rfc2119.txt](https://www.ietf.org/rfc/rfc2119.txt) - **Note**: Framework 6.0.5 uses BDD instead of RFC 2119 keywords
 
 ### Tools and Libraries
 
@@ -968,13 +968,13 @@ All acceptance criteria must pass before specification standard is considered AP
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0.0 | 2026-01-28 | Framework Architect + CTO | Initial specification standard for Framework 6.0.0 |
+| 1.0.0 | 2026-01-28 | Framework Architect + CTO | Initial specification standard for Framework 6.0.5 |
 
 ### Approval History
 
 | Date | Approver | Role | Approval Status | Comments |
 |------|----------|------|----------------|----------|
-| 2026-01-28 | Tai Dang | CTO | ✅ APPROVED | Specification standard approved for Framework 6.0.0. All specs must comply starting Q1 2026. |
+| 2026-01-28 | Tai Dang | CTO | ✅ APPROVED | Specification standard approved for Framework 6.0.5. All specs must comply starting Q1 2026. |
 | 2026-01-28 | Backend Lead | Framework Architect | ✅ APPROVED | BDD format and tier-specific sections design decisions approved. |
 | 2026-01-28 | QA Lead | Quality Lead | ✅ APPROVED | Acceptance criteria format and validation tooling approved. |
 
@@ -1004,5 +1004,5 @@ Versioning rules follow **Semantic Versioning 2.0.0**:
 
 ---
 
-**SDLC Framework 6.0.0 - Specification Standard**
+**SDLC Framework 6.0.5 - Specification Standard**
 *Machine-readable, tier-aware, behavior-driven specifications for Software 3.0 governance*

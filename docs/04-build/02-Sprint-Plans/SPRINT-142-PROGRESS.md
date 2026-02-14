@@ -1,7 +1,7 @@
 # Sprint 142 Progress Report
 
 **Sprint**: 142 - Test Remediation & SSOT Compliance
-**Framework**: SDLC 6.0.2 (RFC-SDLC-602 E2E API Testing Enhancement)
+**Framework**: SDLC 6.0.5 (RFC-SDLC-602 E2E API Testing Enhancement)
 **Duration**: February 3-7, 2026
 **Status**: ✅ CTO APPROVED (February 2, 2026)
 **Owner**: Engineering Team

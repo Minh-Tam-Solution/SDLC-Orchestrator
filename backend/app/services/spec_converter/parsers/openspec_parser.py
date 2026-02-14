@@ -2,7 +2,7 @@
 OpenSpec YAML Parser
 Sprint 154 - Spec Standard Completion
 
-Parses SDLC 6.0.3 specification format to SpecIR.
+Parses SDLC 6.0.5 specification format to SpecIR.
 
 Supports:
 - YAML frontmatter extraction
@@ -10,7 +10,7 @@ Supports:
 - Acceptance criteria tables
 - Related ADRs/Specs references
 
-Format: SDLC 6.0.3 Section 8 Unified Specification Standard
+Format: SDLC 6.0.5 Section 8 Unified Specification Standard
 """
 
 import re

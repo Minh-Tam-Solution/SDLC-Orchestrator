@@ -130,7 +130,7 @@ class ComplianceScoreResponse(BaseModel):
     summary: IssuesSummary = Field(..., description="Issues summary")
     recommendations: list[str] = Field(default_factory=list, description="Improvement recommendations")
     generated_at: datetime = Field(..., description="Score calculation timestamp")
-    framework_version: str = Field("6.0.0", description="SDLC Framework version")
+    framework_version: str = Field("6.0.5", description="SDLC Framework version")
     validation_version: str = Field("1.0.0", description="Validator version")
     scan_duration_ms: Optional[int] = Field(None, description="Scan duration in milliseconds")
     files_scanned: Optional[int] = Field(None, description="Number of files scanned")
@@ -146,7 +146,7 @@ class QuickScoreResponse(BaseModel):
     score: int = Field(..., ge=0, le=100, description="Overall compliance score")
     last_calculated: datetime = Field(..., description="Last calculation timestamp")
     is_cached: bool = Field(True, description="Whether result is from cache")
-    framework_version: str = Field("6.0.0", description="SDLC Framework version")
+    framework_version: str = Field("6.0.5", description="SDLC Framework version")
 
     model_config = ConfigDict(from_attributes=True)
 

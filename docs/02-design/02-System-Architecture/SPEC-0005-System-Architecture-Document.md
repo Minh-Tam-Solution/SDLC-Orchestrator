@@ -22,7 +22,7 @@ related_specs:
   - SPEC-0002-Quality-Gates-Codegen-Specification
   - SPEC-0003-ADR-007-AI-Context-Engine
   - SPEC-0004-Policy-Guards-Design
-framework_version: SDLC 6.0.0
+framework_version: SDLC 6.0.5
 positioning: Operating System for Software 3.0
 ---
 
@@ -782,7 +782,7 @@ THEN all 5 evidence types MUST be present:
 ---
 
 **Document Control**:
-- **Template**: Framework 6.0.0 Unified Specification Standard
+- **Template**: Framework 6.0.5 Unified Specification Standard
 - **Source**: System-Architecture-Document.md (v3.1.0, 1,084 lines)
 - **Migration**: Focused on architectural requirements and decisions (not implementation details)
 - **Last Review**: 2026-01-28
@@ -790,5 +790,5 @@ THEN all 5 evidence types MUST be present:
 
 ---
 
-*SPEC-0005: System Architecture Document - Framework 6.0.0 Format*
+*SPEC-0005: System Architecture Document - Framework 6.0.5 Format*
 *SDLC Enterprise Framework - 5-Layer Architecture for Software 3.0*

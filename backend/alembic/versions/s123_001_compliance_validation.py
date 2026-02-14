@@ -5,14 +5,14 @@ Revises: s120_001_context_authority_v2
 Create Date: 2026-01-30 10:00:00.000000
 
 Creates tables for Compliance Validation Service (SPEC-0013):
-1. compliance_scores - SDLC 6.0.0 compliance scoring results
+1. compliance_scores - SDLC 6.0.5 compliance scoring results
 2. compliance_issues - Individual compliance issues found
 3. folder_collision_checks - Stage folder collision detection results
 
 Reference:
 - SPEC-0013: Compliance Validation Service
 - Sprint 123 Plan: SPRINT-123-COMPLIANCE-VALIDATION.md
-- Source: PM/PJM Review of NQH-Bot + BFlow SDLC 6.0.0 Migrations
+- Source: PM/PJM Review of NQH-Bot + BFlow SDLC 6.0.5 Migrations
 """
 from alembic import op
 import sqlalchemy as sa
@@ -28,7 +28,7 @@ depends_on = None
 def upgrade():
     # =========================================================================
     # Table 1: compliance_scores
-    # SDLC 6.0.0 compliance scoring with 10-category breakdown
+    # SDLC 6.0.5 compliance scoring with 10-category breakdown
     # =========================================================================
     op.create_table(
         'compliance_scores',
@@ -58,7 +58,7 @@ def upgrade():
                   server_default='1.0.0',
                   comment='Validator version used'),
         sa.Column('framework_version', sa.String(20), nullable=False,
-                  server_default='6.0.0',
+                  server_default='6.0.5',
                   comment='SDLC Framework version validated against'),
         sa.Column('expires_at', sa.DateTime(timezone=True), nullable=True,
                   comment='Cache expiration timestamp'),
@@ -234,7 +234,7 @@ def upgrade():
     # =========================================================================
     op.execute("""
         COMMENT ON TABLE compliance_scores IS
-        'SDLC 6.0.0 compliance scoring results. 10 categories × 10 points = 100 max score. '
+        'SDLC 6.0.5 compliance scoring results. 10 categories × 10 points = 100 max score. '
         'Source: SPEC-0013 Compliance Validation Service (Sprint 123)';
 
         COMMENT ON TABLE compliance_issues IS

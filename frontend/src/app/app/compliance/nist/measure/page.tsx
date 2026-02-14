@@ -4,7 +4,7 @@
  * @module frontend/src/app/app/compliance/nist/measure/page
  * @description Sprint 156 - NIST AI RMF MEASURE: Performance metrics, bias analysis,
  *   trend visualization, and measurement compliance dashboard.
- * @sdlc SDLC 6.0.3 Universal Framework
+ * @sdlc SDLC 6.0.5 Universal Framework
  * @status Sprint 156 - NIST AI RMF MEASURE
  */
 

@@ -7,7 +7,7 @@
 **Authority**: Backend Lead + CTO Review (✅ APPROVED)
 **Foundation**: FRD v3.1.0, Data Model ERD v3.2.0, Roadmap v5.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 6.0.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.0.5 Complete Lifecycle (10 Stages)
 
 **Changelog v3.4.0** (Feb 8, 2026):
 - Added Product Truth Layer telemetry endpoints (Sprint 147):

@@ -158,11 +158,11 @@ export ENVIRONMENT=production
 export NAMESPACE=sdlc-orchestrator
 
 # Pull latest Docker images
-docker pull ghcr.io/minh-tam-solution/sdlc-orchestrator:v6.0.0
+docker pull ghcr.io/minh-tam-solution/sdlc-orchestrator:v6.0.5
 
 # Update Kubernetes deployments
 kubectl set image deployment/governance-service \
-  governance-service=ghcr.io/minh-tam-solution/sdlc-orchestrator:v6.0.0 \
+  governance-service=ghcr.io/minh-tam-solution/sdlc-orchestrator:v6.0.5 \
   -n $NAMESPACE
 
 # Watch rollout status
@@ -198,7 +198,7 @@ alembic upgrade head
 
 # Verify schema version
 alembic current
-# Expected: v6.0.0 (head)
+# Expected: v6.0.5 (head)
 ```
 
 #### Step 2.3: Deploy Frontend (20 minutes)

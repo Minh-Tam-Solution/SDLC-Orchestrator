@@ -7,7 +7,7 @@
 **Author**: Development Team
 **Approver**: CTO
 **Stage**: 02-design (HOW - Architecture & Design)
-**Framework**: SDLC 6.0.3
+**Framework**: SDLC 6.0.5
 
 ---
 
@@ -43,8 +43,8 @@ Database (outdated):
   target: G6 by Week 17
 
 Repository Reality:
-  description: "SDLC 6.0.3 | G3 Ship Ready (98.2%)"
-  framework: 6.0.3
+  description: "SDLC 6.0.5 | G3 Ship Ready (98.2%)"
+  framework: 6.0.5
   status: Sprint 171 (Market Expansion - 90%)
   target: Vietnam SME Pilot Q1 2026
 ```
@@ -319,7 +319,7 @@ class ProjectSyncService:
         Expected format (lines 3-5):
         **Version**: 3.3.0
         **Status**: Gate G3 APPROVED - Ship Ready (98.2%)
-        **Framework**: SDLC 6.0.3
+        **Framework**: SDLC 6.0.5
         """
         claude_path = Path(repo_path) / "CLAUDE.md"
         if not claude_path.exists():
@@ -332,7 +332,7 @@ class ProjectSyncService:
         for i in range(min(10, len(lines))):
             line = lines[i]
             if "**Framework**:" in line:
-                # Parse: **Framework**: SDLC 6.0.3
+                # Parse: **Framework**: SDLC 6.0.5
                 match = re.search(r'SDLC\s+([\d.]+)', line)
                 if match:
                     metadata["framework_version"] = f"SDLC {match.group(1)}"
@@ -567,7 +567,7 @@ class ProjectMetadata(BaseModel):
     sprint_description: Optional[str] = None
 
     # From CLAUDE.md (lines 1-10)
-    framework_version: Optional[str] = None  # "SDLC 6.0.3"
+    framework_version: Optional[str] = None  # "SDLC 6.0.5"
     gate_status: Optional[str] = None        # "G3 Ship Ready (98.2%)"
 
     # From README.md (first paragraph)
@@ -617,10 +617,10 @@ Authorization: Bearer {token}
 {
   "id": "c0000000-0000-0000-0000-000000000003",
   "name": "SDLC-Orchestrator",
-  "description": "Operating System for Software 3.0 | SDLC 6.0.3...",
+  "description": "Operating System for Software 3.0 | SDLC 6.0.5...",
   "tier": "professional",
   "current_sprint": "Sprint 171",
-  "framework_version": "SDLC 6.0.3",
+  "framework_version": "SDLC 6.0.5",
   "gate_status": "G3 Ship Ready (98.2%)",
   "created_at": "2025-11-13T09:00:00Z",
   "updated_at": "2026-02-10T11:24:14Z",
@@ -675,7 +675,7 @@ async def test_parse_claude_md_framework_version():
     service = ProjectSyncService()
     claude_md = await service._parse_claude_md("/path/to/repo")
 
-    assert claude_md["framework_version"] == "SDLC 6.0.3"
+    assert claude_md["framework_version"] == "SDLC 6.0.5"
     assert "G3" in claude_md["gate_status"]
 ```
 
@@ -732,7 +732,7 @@ test('auto-syncs project metadata on page load', async ({ page }) => {
 
   // Verify updated metadata displayed
   await expect(page.locator('h1')).toContainText('SDLC-Orchestrator');
-  await expect(page.locator('text=SDLC 6.0.3')).toBeVisible();
+  await expect(page.locator('text=SDLC 6.0.5')).toBeVisible();
   await expect(page.locator('text=Sprint 171')).toBeVisible();
 });
 ```
@@ -891,7 +891,7 @@ Business KPIs (30 days post-launch):
   "project": {
     "id": "c0000000-0000-0000-0000-000000000003",
     "name": "SDLC-Orchestrator",
-    "description": "First Governance-First Platform on SDLC 6.0.3"
+    "description": "First Governance-First Platform on SDLC 6.0.5"
   },
   "tier": "professional",
   "team_size": 8
@@ -912,7 +912,7 @@ Business KPIs (30 days post-launch):
 ```markdown
 **Version**: 3.3.0
 **Status**: Gate G3 APPROVED - Ship Ready (98.2%)
-**Framework**: SDLC 6.0.3 (7-Pillar + Section 7 Quality Assurance)
+**Framework**: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance)
 ```
 
 ### B. Error Handling Matrix

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SDLC 6.0.0 BDD Format Checker
+SDLC 6.0.5 BDD Format Checker
 
 Validates BDD (Behavior-Driven Development) format compliance in documentation:
 - GIVEN-WHEN-THEN structure in requirements
@@ -51,7 +51,7 @@ BDD_KEYWORDS = {
 
 SCENARIO_PATTERN = r"(?:Scenario|SCENARIO|Feature|FEATURE):\s*(.+)"
 
-# Sections that SHOULD contain BDD format (SDLC 6.0.0 Section 8)
+# Sections that SHOULD contain BDD format (SDLC 6.0.5 Section 8)
 BDD_REQUIRED_SECTIONS = [
     "Acceptance Criteria",
     "Requirements",
@@ -315,7 +315,7 @@ def check_section_bdd_compliance(
                 line=start_line,
                 severity=BDDSeverity.ERROR,
                 rule="BDD-201",
-                message=f"Section '{section_name}' requires BDD format (GIVEN-WHEN-THEN) per SDLC 6.0.0 Section 8",
+                message=f"Section '{section_name}' requires BDD format (GIVEN-WHEN-THEN) per SDLC 6.0.5 Section 8",
                 suggestion="Convert requirements to: 'Given [context], When [action], Then [outcome]'"
             ))
         elif has_any_bdd:
@@ -435,7 +435,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="SDLC 6.0.0 BDD Format Checker",
+        description="SDLC 6.0.5 BDD Format Checker",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -506,7 +506,7 @@ For more information, see: docs/02-design/14-Technical-Specs/SPEC-0002-Specifica
     valid_count = 0
     invalid_count = 0
 
-    print_colored("SDLC 6.0.0 BDD Format Checker", "1;96")
+    print_colored("SDLC 6.0.5 BDD Format Checker", "1;96")
     print_colored("=" * 60, "96")
     print()
 

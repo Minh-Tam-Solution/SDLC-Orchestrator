@@ -64,7 +64,7 @@ This specification defines the technical implementation of the Spec Converter an
 
 **GIVEN** a valid BDD (Gherkin) feature file
 **WHEN** the user requests conversion to OpenSpec YAML
-**THEN** the system produces a valid SDLC 6.0.3 specification with:
+**THEN** the system produces a valid SDLC 6.0.5 specification with:
 - Complete YAML frontmatter
 - BDD requirements in GIVEN-WHEN-THEN format
 - Properly mapped acceptance criteria

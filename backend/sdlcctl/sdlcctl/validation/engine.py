@@ -1,5 +1,5 @@
 """
-SDLC 6.0.0 Validation Engine.
+SDLC 6.0.5 Validation Engine.
 
 Main orchestrator for SDLC structure validation.
 Combines folder scanning, tier detection, and P0 artifact checking.
@@ -99,7 +99,7 @@ class ValidationResult:
 
 class SDLCValidator:
     """
-    Main SDLC 6.0.0 Structure Validator.
+    Main SDLC 6.0.5 Structure Validator.
 
     Orchestrates validation of:
     - Folder structure (10 stages)
@@ -463,7 +463,7 @@ class SDLCValidator:
 
         lines = [
             "=" * 60,
-            "SDLC 6.0.0 Structure Validation Report",
+            "SDLC 6.0.5 Structure Validation Report",
             "=" * 60,
             "",
             f"Project: {result.project_root}",

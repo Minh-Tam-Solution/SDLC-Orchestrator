@@ -9,7 +9,7 @@ TDD Workflow:
 2. Implement renderer to pass tests (GREEN)
 3. Refactor if needed
 
-OpenSpec Format (SDLC 6.0.3 Section 8):
+OpenSpec Format (SDLC 6.0.5 Section 8):
 ---
 spec_id: SPEC-XXX
 title: ...

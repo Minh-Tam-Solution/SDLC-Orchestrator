@@ -7,7 +7,7 @@
 **Date**: January 30, 2026
 **Status**: ✅ COMPLETED - Gate G0.1 + G0.2 PASSED
 **Authority**: PM + CEO + CTO + CPO Approved (9.5/10 Confidence)
-**Framework**: SDLC 6.0.3 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+**Framework**: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 **Positioning**: Operating System for Software 3.0
 
 **Changelog v4.2.0** (Jan 30, 2026):
@@ -18,7 +18,7 @@
   - ADR-045: Multi-Frontend Alignment Strategy documented
   - CLI parity: 39% → 71% (+32 points)
   - Extension parity: 67% → 89% (+22 points)
-- **Framework Upgrade**: SDLC 5.1.3 → 6.0.0 with 7-Pillar Architecture
+- **Framework Upgrade**: SDLC 5.1.3 → 6.0.5 with 7-Pillar Architecture
 - **E2E Parity Tests**: 25 tests ensuring CLI/Web/Extension produce identical validation
 - **Automation**: Framework Update Trigger (GitHub Actions) for version alignment
 
@@ -80,7 +80,7 @@ This stage combines:
 
 ---
 
-## Folder Structure (SDLC 6.0.0 Compliant)
+## Folder Structure (SDLC 6.0.5 Compliant)
 
 ```
 00-foundation/

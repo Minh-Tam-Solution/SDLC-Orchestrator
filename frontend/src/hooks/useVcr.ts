@@ -4,7 +4,7 @@
  *
  * @module frontend/src/hooks/useVcr
  * @description React Query hooks for VCR API - Sprint 151 SASE Artifacts Enhancement
- * @sdlc SDLC 6.0.3 Universal Framework
+ * @sdlc SDLC 6.0.5 Universal Framework
  * @status Sprint 151 - SASE Artifacts Enhancement
  */
 

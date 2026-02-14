@@ -1,5 +1,5 @@
 """
-SDLC 6.0.0 Fix Command.
+SDLC 6.0.5 Fix Command.
 
 Automatically fixes SDLC structure issues.
 """
@@ -153,14 +153,14 @@ def fix_command(
         result = validator.validate()
 
     if result.is_compliant:
-        console.print("[bold green]✓ Project is already SDLC 6.0.0 compliant![/bold green]")
+        console.print("[bold green]✓ Project is already SDLC 6.0.5 compliant![/bold green]")
         return
 
     # Show current status
     console.print()
     console.print(
         Panel(
-            f"[bold]SDLC 6.0.0 Fix Tool[/bold]\n\n"
+            f"[bold]SDLC 6.0.5 Fix Tool[/bold]\n\n"
             f"Project: {path}\n"
             f"Tier: {result.tier.value.upper()}\n"
             f"Mode: {'DRY RUN' if dry_run else 'APPLY CHANGES'}",
@@ -496,7 +496,7 @@ def _generate_stage_readme(stage_id: str, stage_name: str) -> str:
 **Version**: 5.0.0
 **Stage**: {stage_id} - {display_name}
 **Status**: ACTIVE
-**Framework**: SDLC 6.0.0 Complete Lifecycle
+**Framework**: SDLC 6.0.5 Complete Lifecycle
 
 ---
 

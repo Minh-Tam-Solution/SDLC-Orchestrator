@@ -7,7 +7,7 @@ Intermediate Representation (IR) Schema for specifications.
 Architecture: ADR-050 (3-Layer Architecture)
 - Parser Layer → IR → Renderer Layer
 
-SDLC 6.0.3 Section 8: YAML frontmatter + BDD requirements
+SDLC 6.0.5 Section 8: YAML frontmatter + BDD requirements
 """
 
 from datetime import datetime
@@ -30,7 +30,7 @@ class AcceptanceCriterion(BaseModel):
     """
     Acceptance Criterion with BDD format.
 
-    Maps to SDLC 6.0.3 acceptance criteria table format:
+    Maps to SDLC 6.0.5 acceptance criteria table format:
     | ID | Scenario | Tier | Testable |
     """
 
@@ -65,7 +65,7 @@ class SpecRequirement(BaseModel):
     """
     Specification Requirement with BDD format.
 
-    Maps to SDLC 6.0.3 functional requirement format:
+    Maps to SDLC 6.0.5 functional requirement format:
     GIVEN [context]
     WHEN [action]
     THEN [outcome]
@@ -115,7 +115,7 @@ class SpecIR(BaseModel):
     Specification Intermediate Representation.
 
     Central data model for spec conversion between formats.
-    Maps to SDLC 6.0.3 Section 8 YAML frontmatter.
+    Maps to SDLC 6.0.5 Section 8 YAML frontmatter.
 
     Attributes map to SDLC spec template fields:
     - spec_id, title, version, status (required)

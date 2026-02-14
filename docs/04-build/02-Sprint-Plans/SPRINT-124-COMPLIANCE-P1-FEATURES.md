@@ -1,5 +1,5 @@
 ---
-# Required Fields (9/9) - SDLC 6.0.0 Section 8
+# Required Fields (9/9) - SDLC 6.0.5 Section 8
 sprint_id: SPRINT-124
 title: "Compliance P1 Features - Version Validator & Auto-Fix"
 status: PLANNING
@@ -7,7 +7,7 @@ tier: PROFESSIONAL
 owner: "Backend Lead + Frontend Lead"
 start_date: 2026-03-17
 end_date: 2026-03-28
-framework_version: 6.0.0
+framework_version: 6.0.5
 
 # Context Management (AGENTS.md 4-Zone Model)
 context_zone: Semi-Static
@@ -44,7 +44,7 @@ deliverables:
 **Status**: 📋 PLANNED
 **Total Estimated LOC**: ~1,800
 **Estimated Effort**: 40h (20h Version Validator + 12h Auto-Fix + 8h Web Dashboard)
-**Framework**: SDLC 6.0.0
+**Framework**: SDLC 6.0.5
 **Priority**: P1 (Post-P0 Compliance Features)
 **Predecessor**: Sprint 123 (Compliance Validation P0) - ✅ A+ Rating
 
@@ -199,15 +199,15 @@ GET /api/v1/projects/{id}/compliance/versions:
 # Check version consistency
 sdlcctl compliance versions
 # Output:
-# ✅ Primary Version: SDLC 6.0.0 (from CLAUDE.md)
-# ✅ AGENTS.md: SDLC 6.0.0 (consistent)
+# ✅ Primary Version: SDLC 6.0.5 (from CLAUDE.md)
+# ✅ AGENTS.md: SDLC 6.0.5 (consistent)
 # ⚠️ WARNING: docs/04-build/02-Sprint-Plans/SPRINT-41.md
-#    Found: "SDLC 5.3.0", Expected: "SDLC 6.0.0"
+#    Found: "SDLC 5.3.0", Expected: "SDLC 6.0.5"
 #    Line 15: "Framework: SDLC 5.3.0"
-#    Suggestion: Update to "Framework: SDLC 6.0.0"
+#    Suggestion: Update to "Framework: SDLC 6.0.5"
 
 # Check with expected version
-sdlcctl compliance versions --expected 6.0.0
+sdlcctl compliance versions --expected 6.0.5
 
 # Fix suggestions only
 sdlcctl compliance versions --suggestions-only
@@ -261,7 +261,7 @@ Category 3: YAML Frontmatter Migration
   Detection: Sprint 123 (Specifications Checker)
   Auto-Fix Options:
     - Add missing YAML frontmatter
-    - Convert SDLC 5.x format to 6.0.0
+    - Convert SDLC 5.x format to 6.0.5
     - Validate and fix field names
   Implementation:
     - Python script for frontmatter injection
@@ -330,7 +330,7 @@ sdlcctl compliance fix --list
 # Output:
 # Fixable Issues (5):
 #   1. [DUPLICATE] 04-Development + 04-Testing → Archive one
-#   2. [VERSION] AGENTS.md header outdated → Update to 6.0.0
+#   2. [VERSION] AGENTS.md header outdated → Update to 6.0.5
 #   3. [SPEC] SPEC-0301 missing frontmatter → Add YAML block
 #   4. [SPEC] SPEC-0302 missing frontmatter → Add YAML block
 #   5. [FOLDER] Missing 03-integrate/ → Create folder
@@ -602,10 +602,10 @@ CREATE INDEX idx_auto_fixes_status ON auto_fixes(status);
 ```python
 # Version Validator Tests
 def test_version_parser_extracts_semantic_version():
-    """Extract version from 'SDLC 6.0.0' format."""
+    """Extract version from 'SDLC 6.0.5' format."""
 
 def test_version_parser_handles_migration_format():
-    """Extract both versions from '5.3.0 → 6.0.0' format."""
+    """Extract both versions from '5.3.0 → 6.0.5' format."""
 
 def test_version_checker_detects_mismatch():
     """AGENTS.md version different from CLAUDE.md."""
@@ -687,7 +687,7 @@ async def test_compliance_dashboard_data():
 
 ### Dependencies
 ✅ Sprint 123 complete (A+ rating)
-✅ Framework 6.0.0 finalized
+✅ Framework 6.0.5 finalized
 ✅ NQH-Bot lessons documented
 ```
 
@@ -727,7 +727,7 @@ LOC Progress: XXXX / 1,800 (XX%)
 | **Status** | PLANNED |
 | **Predecessor** | Sprint 123 (Compliance Validation P0) - ✅ A+ |
 | **Successor** | Sprint 125 (Gate Readiness Dashboard) |
-| **Framework** | SDLC 6.0.0 |
+| **Framework** | SDLC 6.0.5 |
 | **CTO Approval** | Pending |
 
 ---
@@ -735,7 +735,7 @@ LOC Progress: XXXX / 1,800 (XX%)
 ## References
 
 - [Sprint 123 Plan](./SPRINT-123-COMPLIANCE-VALIDATION.md) - Prerequisite sprint
-- [PM-PJM-REVIEW-SDLC-6.0.0-MIGRATION.md](../../../NQH-Bot-Platform/docs/08-Team-Management/01-SDLC-Compliance/PM-PJM-REVIEW-SDLC-6.0.0-MIGRATION.md) - Source lessons
+- [PM-PJM-REVIEW-SDLC-6.0.5-MIGRATION.md](../../../NQH-Bot-Platform/docs/08-Team-Management/01-SDLC-Compliance/PM-PJM-REVIEW-SDLC-6.0.5-MIGRATION.md) - Source lessons
 - [SPEC-0013-Compliance-Validation-Service.md](../../02-design/14-Technical-Specs/SPEC-0013-Compliance-Validation-Service.md) - Technical spec
 - [SDLC-Implementation-Guide.md](../../../SDLC-Enterprise-Framework/07-Implementation-Guides/SDLC-Implementation-Guide.md) - Framework reference
 

@@ -1,7 +1,7 @@
 """
 SpecificationService - Business logic for Specification Management
 
-SPEC-0002: Specification Standard (Framework 6.0.0)
+SPEC-0002: Specification Standard (Framework 6.0.5)
 - YAML frontmatter validation
 - Version management
 - Cross-reference graph queries

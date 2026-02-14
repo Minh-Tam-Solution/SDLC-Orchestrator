@@ -1,5 +1,5 @@
 """
-SDLC 6.0.0 P0 Artifact Checker.
+SDLC 6.0.5 P0 Artifact Checker.
 
 Validates presence of 15 P0 (Priority 0) artifacts for AI discoverability.
 These are the minimum required documents for AI assistants to understand a project.
@@ -51,7 +51,7 @@ class P0ValidationResult:
     is_compliant: bool = False
 
 
-# 15 P0 Artifacts defined by SDLC 6.0.0
+# 15 P0 Artifacts defined by SDLC 6.0.5
 P0_ARTIFACTS: List[P0Artifact] = [
     # Stage 00: Project Foundation
     P0Artifact(
@@ -206,7 +206,7 @@ P0_ARTIFACTS: List[P0Artifact] = [
 
 class P0ArtifactChecker:
     """
-    Checker for SDLC 6.0.0 P0 (Priority 0) artifacts.
+    Checker for SDLC 6.0.5 P0 (Priority 0) artifacts.
 
     P0 artifacts are the minimum required documents for AI assistants
     to understand and navigate a project effectively.
@@ -454,7 +454,7 @@ class P0ArtifactChecker:
 **Version**: 5.0.0
 **Stage**: {stage_id} - {stage_name}
 **Status**: DRAFT
-**Framework**: SDLC 6.0.0 Complete Lifecycle
+**Framework**: SDLC 6.0.5 Complete Lifecycle
 
 ---
 
@@ -555,7 +555,7 @@ Legacy content archived in `docs/10-archive/{stage_id}-Legacy/` per RFC-001 (SDL
 ---
 
 **Document Status**: P0 Artifact
-**Compliance**: SDLC 6.0.0 Stage 00
+**Compliance**: SDLC 6.0.5 Stage 00
 **Last Updated**: [Date]
 
 """
@@ -621,7 +621,7 @@ Legacy content archived in `docs/10-archive/{stage_id}-Legacy/` per RFC-001 (SDL
 ---
 
 **Document Status**: P0 Artifact
-**Compliance**: SDLC 6.0.0 Stage 01
+**Compliance**: SDLC 6.0.5 Stage 01
 **Last Updated**: [Date]
 
 """
@@ -694,7 +694,7 @@ Legacy content archived in `docs/10-archive/{stage_id}-Legacy/` per RFC-001 (SDL
 ---
 
 **Document Status**: P0 Artifact
-**Compliance**: SDLC 6.0.0 Stage 02
+**Compliance**: SDLC 6.0.5 Stage 02
 **Last Updated**: [Date]
 
 """
@@ -784,7 +784,7 @@ security:
 ---
 
 **Document Status**: P0 Artifact
-**Compliance**: SDLC 6.0.0 Stage {artifact.stage_id}
+**Compliance**: SDLC 6.0.5 Stage {artifact.stage_id}
 **Last Updated**: [Date]
 
 """

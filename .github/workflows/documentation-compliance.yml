@@ -1,4 +1,4 @@
-# SDLC 6.0.0 Documentation Compliance Workflow
+# SDLC 6.0.5 Documentation Compliance Workflow
 # Sprint 131 - Documentation Compliance Automation
 #
 # Validates:
@@ -182,7 +182,7 @@ jobs:
             \`\`\`
 
             ---
-            *SDLC 6.0.0 Section 8 • [Frontmatter Template](.claude/templates/yaml-frontmatter-technical-spec.md)*`;
+            *SDLC 6.0.5 Section 8 • [Frontmatter Template](.claude/templates/yaml-frontmatter-technical-spec.md)*`;
 
             // Find existing comment
             const { data: comments } = await github.rest.issues.listComments({
@@ -375,7 +375,7 @@ jobs:
             \`\`\`
 
             ---
-            *SDLC 6.0.0 Section 8 • [Spec Template](.claude/templates/yaml-frontmatter-technical-spec.md)*`;
+            *SDLC 6.0.5 Section 8 • [Spec Template](.claude/templates/yaml-frontmatter-technical-spec.md)*`;
 
             // Find existing comment
             const { data: comments } = await github.rest.issues.listComments({
@@ -445,7 +445,7 @@ jobs:
 
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "*SDLC 6.0.0 Documentation Compliance • Sprint 131*" >> $GITHUB_STEP_SUMMARY
+          echo "*SDLC 6.0.5 Documentation Compliance • Sprint 131*" >> $GITHUB_STEP_SUMMARY
 
       - name: Update compliance badge
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'

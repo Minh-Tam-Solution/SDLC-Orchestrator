@@ -2,7 +2,7 @@
 Unit Tests for SpecificationService
 
 Sprint 118: Governance System v2.0
-SPEC-0002: Specification Standard (Framework 6.0.0)
+SPEC-0002: Specification Standard (Framework 6.0.5)
 
 Zero Mock Policy: Real database integration tests
 Coverage Target: 95%+

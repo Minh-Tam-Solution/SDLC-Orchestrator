@@ -10,7 +10,7 @@ last_updated: "2026-01-29"
 tags: ["agents-md", "ai-context", "static-generator", "dynamic-overlay", "sprint-80", "ep-07"]
 related_specs: ["SPEC-0003", "SPEC-0004", "SPEC-0009"]
 stage: "02-DESIGN"
-framework_version: "6.0.0"
+framework_version: "6.0.5"
 ---
 
 # SPEC-0007: AGENTS.md Technical Design
@@ -806,7 +806,7 @@ Dynamic context is delivered via PR comments (not in this file).
 
 ---
 
-**SDLC 6.0.0 Framework | Sprint 80 | Stage 02 (DESIGN)**
+**SDLC 6.0.5 Framework | Sprint 80 | Stage 02 (DESIGN)**
 
 *Specification ID: SPEC-0007 | Version 1.0.0*
-*Framework Version: 6.0.0 (In Development)*
+*Framework Version: 6.0.5 (In Development)*

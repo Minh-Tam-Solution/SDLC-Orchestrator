@@ -1,6 +1,6 @@
 """
 =========================================================================
-SDLC 6.0.0 Planning Mode CLI Command
+SDLC 6.0.5 Planning Mode CLI Command
 SDLC Orchestrator - Sprint 98-99 (Planning Sub-agent Implementation)
 
 Version: 2.0.0
@@ -8,7 +8,7 @@ Date: January 23, 2026
 Status: ACTIVE - Sprint 99 Implementation
 Authority: Backend Lead + CTO Approved
 Reference: ADR-034-Planning-Subagent-Orchestration
-Reference: SDLC 6.0.0 AI Agent Best Practices (Planning Mode)
+Reference: SDLC 6.0.5 AI Agent Best Practices (Planning Mode)
 Design: Conformance-Check-Service-Design.md
 
 Purpose:

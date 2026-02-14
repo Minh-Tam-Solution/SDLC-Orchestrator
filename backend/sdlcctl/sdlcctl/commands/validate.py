@@ -86,7 +86,7 @@ def validate_command(
     """
     Validate SDLC docs folder structure.
 
-    Checks project documentation structure against SDLC 6.0.0 standards
+    Checks project documentation structure against SDLC 6.0.5 standards
     including stage folders, naming conventions, and P0 artifacts.
 
     Examples:

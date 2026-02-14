@@ -34,7 +34,7 @@ After comprehensive audit of Sprint 107-116, the SDLC Orchestrator codebase is *
 | **Sprint 114 Track 2** | ✅ COMPLETE | Anti-Vibecoding Dogfooding | 5,082 | 165 | A+ (GO) |
 | **Sprint 115 Track 1** | ✅ COMPLETE | Framework 6.0 Templates (3 templates) | 1,674 | - | A+ |
 | **Sprint 115 Track 2** | ✅ READY | SOFT Mode Enforcement | 2,015 | 23 | Production-ready |
-| **Sprint 116 Track 1** | ✅ COMPLETE | Framework 6.0.0 Release Docs | ~6,700 | - | A+ |
+| **Sprint 116 Track 1** | ✅ COMPLETE | Framework 6.0.5 Release Docs | ~6,700 | - | A+ |
 | **Sprint 116 Track 2** | ✅ READY | FULL Mode Enforcement | 1,230 | 27 | Production-ready |
 | **Sprint 106** | ✅ COMPLETE | App Builder Integration (MVP) | 5,086 | 43 | A+ |
 

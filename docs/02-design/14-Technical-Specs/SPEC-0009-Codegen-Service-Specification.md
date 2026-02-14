@@ -12,7 +12,7 @@ last_updated: "2026-01-30"
 tags: ["codegen", "ep-06", "multi-provider", "ollama", "vietnamese-sme", "ir-based", "sprint-45"]
 related_specs: ["SPEC-0006", "SPEC-0010", "SPEC-0011", "SPEC-0012"]
 stage: "04-BUILD"
-framework_version: "6.0.0"
+framework_version: "6.0.5"
 ---
 
 ## Executive Summary
@@ -1230,7 +1230,7 @@ THEN the system MUST:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0.0 | 2026-01-30 | Backend Lead + Architect | Initial Framework 6.0.0 migration from Codegen Service Specification |
+| 1.0.0 | 2026-01-30 | Backend Lead + Architect | Initial Framework 6.0.5 migration from Codegen Service Specification |
 
 ---
 
@@ -1245,7 +1245,7 @@ THEN the system MUST:
 ---
 
 **Document Status**: ✅ APPROVED - Ready for Implementation (Sprint 45 - Jan 6-17, 2026)
-**Framework Compliance**: ✅ Framework 6.0.0 (YAML frontmatter, BDD requirements, tier-specific tables)
+**Framework Compliance**: ✅ Framework 6.0.5 (YAML frontmatter, BDD requirements, tier-specific tables)
 **Spec Migration**: ✅ Complete (Codegen Service Specification → SPEC-0009)
 
 ---
