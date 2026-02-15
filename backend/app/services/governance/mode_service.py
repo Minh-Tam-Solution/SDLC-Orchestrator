@@ -1,19 +1,26 @@
 """
 =========================================================================
 Governance Mode Service - Enforcement Level Management
-SDLC Orchestrator - Sprint 108 (Governance Foundation)
+SDLC Orchestrator - Sprint 173 (Governance Loop Completion)
 
-Version: 1.0.0
-Date: January 27, 2026
-Status: ACTIVE - Sprint 108 Day 3
+Version: 1.1.0
+Date: February 15, 2026
+Status: ACTIVE
 Authority: CTO + Backend Lead Approved
-Framework: SDLC 5.3.0 Quality Assurance System
+Framework: SDLC 6.0.5 Quality Assurance System
 
 Purpose:
 - Manage governance enforcement levels (OFF, WARNING, SOFT, FULL)
 - Enable gradual rollout with kill switch capability
 - Track enforcement metrics for calibration
 - Support dogfooding on Orchestrator repo
+
+Sprint 173 Updates:
+- Added RollbackResult for structured rollback responses
+- Added state history tracking (get_state_history)
+- Added escalate_mode for post-recovery escalation
+- Fixed manual_rollback to raise ValueError on escalation
+- check_and_rollback_if_needed uses external metrics parameter
 
 Enforcement Levels:
 - OFF: No governance checks (development mode)
@@ -27,6 +34,7 @@ Zero Mock Policy: Real enforcement with feature flags
 
 import asyncio
 import logging
+import types
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
@@ -173,6 +181,37 @@ class GovernanceModeState:
     total_passed: int = 0
     false_positives_reported: int = 0
     ceo_overrides: int = 0
+    _latency_p95_ms: float = 0.0
+
+    @property
+    def total_rejections(self) -> int:
+        """Alias for total_blocked (backward compatibility)."""
+        return self.total_blocked
+
+    @property
+    def latency_p95_ms(self) -> float:
+        """Current P95 latency in milliseconds."""
+        return self._latency_p95_ms
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for API response."""
+        return {
+            "current_mode": self.current_mode.value,
+            "previous_mode": self.previous_mode.value if self.previous_mode else None,
+            "changed_at": self.changed_at.isoformat(),
+            "changed_by": self.changed_by,
+            "reason": self.reason,
+            "is_rollback": self.is_rollback,
+            "auto_rollback_enabled": self.auto_rollback_enabled,
+            "total_evaluations": self.total_evaluations,
+            "total_blocked": self.total_blocked,
+            "total_warned": self.total_warned,
+            "total_passed": self.total_passed,
+            "false_positives_reported": self.false_positives_reported,
+            "ceo_overrides": self.ceo_overrides,
+            "rejection_rate": self.rejection_rate(),
+            "latency_p95_ms": self._latency_p95_ms,
+        }
 
     def rejection_rate(self) -> float:
         """Calculate current rejection rate."""
@@ -198,6 +237,13 @@ class GovernanceModeState:
         if self.current_mode == GovernanceMode.WARNING:
             return False, None  # Already in warning mode
 
+        if self.current_mode == GovernanceMode.OFF:
+            return False, None  # OFF mode is exempt
+
+        # Need minimum sample size for statistical significance
+        if self.total_evaluations < 10:
+            return False, None
+
         if self.rejection_rate() > self.rollback_criteria.max_rejection_rate:
             return True, f"Rejection rate {self.rejection_rate():.1%} > {self.rollback_criteria.max_rejection_rate:.1%}"
 
@@ -205,6 +251,25 @@ class GovernanceModeState:
             return True, f"False positive rate {self.false_positive_rate():.1%} > {self.rollback_criteria.max_false_positive_rate:.1%}"
 
         return False, None
+
+
+@dataclass
+class RollbackResult:
+    """
+    Structured result from rollback operations.
+
+    Always returned by check_and_rollback_if_needed and manual_rollback
+    so callers don't need to handle None.
+    """
+
+    rollback_triggered: bool
+    new_mode: GovernanceMode
+    previous_mode: Optional[GovernanceMode] = None
+    triggered_by: Optional[str] = None
+    trigger_reasons: List[str] = field(default_factory=list)
+    audit_log_entry: Optional[Dict[str, Any]] = None
+    notifications_sent: List[str] = field(default_factory=list)
+    timestamp: datetime = field(default_factory=datetime.utcnow)
 
 
 class GovernanceModeService:
@@ -262,6 +327,9 @@ class GovernanceModeService:
         # Latency tracking for p95 calculation
         self._latencies: List[float] = []
         self._latency_window = 1000  # Keep last 1000 measurements
+
+        # State history for auditing (Sprint 173)
+        self._state_history: List[Dict[str, Any]] = []
 
         logger.info(f"GovernanceModeService initialized with default mode: {default_mode.value}")
 
@@ -375,6 +443,15 @@ class GovernanceModeService:
                 f"Governance mode changed: {old_mode.value} → {mode.value} by {changed_by}: {reason}"
             )
 
+            # Record in state history
+            self._state_history.append({
+                "timestamp": datetime.utcnow().isoformat(),
+                "old_mode": old_mode.value,
+                "mode": mode.value,
+                "changed_by": changed_by,
+                "reason": reason,
+            })
+
             # Notify listeners
             await self._notify_mode_change(old_mode, mode, changed_by, reason)
 
@@ -432,7 +509,7 @@ class GovernanceModeService:
         triggered_by: str,
         reason: str,
         target_mode: Optional[GovernanceMode] = None,
-    ) -> GovernanceModeState:
+    ) -> "RollbackResult":
         """
         Manual rollback by CTO/CEO.
 
@@ -442,19 +519,40 @@ class GovernanceModeService:
             target_mode: Target mode (defaults to WARNING)
 
         Returns:
-            Updated governance mode state
+            RollbackResult with rollback details
+
+        Raises:
+            ValueError: If attempting to escalate via rollback
         """
         target = target_mode or GovernanceMode.WARNING
 
         # Cannot escalate via rollback - only de-escalate
         current = self._state.current_mode
         if self._mode_severity(target) > self._mode_severity(current):
-            logger.warning(
-                f"Manual rollback cannot escalate: {current.value} → {target.value}"
+            raise ValueError(
+                f"Manual rollback cannot escalate: {current.value} → {target.value}. "
+                f"Use escalate_mode() instead."
             )
-            return self._state
 
-        return await self.set_mode(target, triggered_by, f"MANUAL_ROLLBACK: {reason}")
+        old_mode = self._state.current_mode
+        await self.set_mode(target, triggered_by, f"MANUAL_ROLLBACK: {reason}")
+
+        audit_entry = {
+            "old_mode": old_mode.value,
+            "new_mode": target.value,
+            "triggered_by": triggered_by,
+            "trigger_reasons": [f"manual_rollback: {reason}"],
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+
+        return RollbackResult(
+            rollback_triggered=True,
+            new_mode=target,
+            previous_mode=old_mode,
+            triggered_by=triggered_by,
+            trigger_reasons=[f"manual_rollback: {reason}"],
+            audit_log_entry=audit_entry,
+        )
 
     def _mode_severity(self, mode: GovernanceMode) -> int:
         """Get severity level of mode (higher = stricter)."""
@@ -466,30 +564,147 @@ class GovernanceModeService:
         }
         return severity_map.get(mode, 0)
 
+    async def escalate_mode(
+        self,
+        target_mode: GovernanceMode,
+        escalated_by: str,
+        reason: str,
+    ) -> Dict[str, Any]:
+        """
+        Manually escalate governance mode after recovery.
+
+        Unlike set_mode, this validates that escalation is intentional
+        and only moves to a stricter mode.
+
+        Args:
+            target_mode: Target mode to escalate to
+            escalated_by: Who is escalating (must be CTO or CEO)
+            reason: Reason for escalation
+
+        Returns:
+            Dict with success status and mode info
+
+        Raises:
+            ValueError: If trying to de-escalate (use manual_rollback instead)
+        """
+        current = self._state.current_mode
+
+        if self._mode_severity(target_mode) <= self._mode_severity(current):
+            raise ValueError(
+                f"escalate_mode cannot de-escalate: {current.value} → {target_mode.value}. "
+                f"Use manual_rollback() instead."
+            )
+
+        await self.set_mode(target_mode, escalated_by, f"ESCALATION: {reason}")
+
+        return types.SimpleNamespace(
+            success=True,
+            old_mode=current.value,
+            new_mode=target_mode.value,
+            escalated_by=escalated_by,
+            reason=reason,
+        )
+
+    def get_state_history(self) -> List[Dict[str, Any]]:
+        """
+        Get history of all governance mode state changes.
+
+        Returns:
+            List of state change entries with timestamp, mode, changed_by, reason
+        """
+        return list(self._state_history)
+
     async def check_and_rollback_if_needed(
         self,
         metrics: Optional[Dict[str, Any]] = None,
-    ) -> Optional[GovernanceModeState]:
+    ) -> "RollbackResult":
         """
         Check if auto-rollback should trigger and execute if needed.
 
         Args:
-            metrics: Optional metrics dict. If not provided, uses internal state.
+            metrics: Optional metrics dict with keys:
+                - rejection_rate, latency_p95_ms, false_positive_rate,
+                  developer_complaints_today
+                If not provided, uses internal state metrics.
 
         Returns:
-            Updated state if rollback occurred, None otherwise
+            RollbackResult (always, even when no rollback)
         """
-        # Check state's should_auto_rollback
+        current_mode = self._state.current_mode
+
+        # OFF mode is exempt from auto-rollback
+        if current_mode == GovernanceMode.OFF:
+            return RollbackResult(
+                rollback_triggered=False,
+                new_mode=current_mode,
+            )
+
+        # If metrics provided, evaluate against kill switch thresholds
+        if metrics is not None:
+            triggers = self._evaluate_rollback_triggers(metrics)
+            if triggers:
+                trigger_reasons = [t["reason"] for t in triggers]
+                reason_text = "; ".join(t["message"] for t in triggers)
+                logger.warning(f"Auto-rollback triggered by metrics: {reason_text}")
+
+                old_mode = self._state.current_mode
+                await self.rollback_to_warning(
+                    triggered_by="auto_rollback",
+                    reason=reason_text,
+                )
+
+                audit_entry = {
+                    "old_mode": old_mode.value,
+                    "new_mode": GovernanceMode.WARNING.value,
+                    "triggered_by": "auto_rollback",
+                    "trigger_reasons": trigger_reasons,
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+
+                return RollbackResult(
+                    rollback_triggered=old_mode != GovernanceMode.WARNING and old_mode != GovernanceMode.OFF,
+                    new_mode=self._state.current_mode,
+                    previous_mode=old_mode,
+                    triggered_by="auto_rollback",
+                    trigger_reasons=trigger_reasons,
+                    audit_log_entry=audit_entry,
+                    notifications_sent=["CTO", "CEO"],
+                )
+
+        # Fallback: check internal state metrics
         should_rollback, reason = self._state.should_auto_rollback()
 
         if should_rollback and reason:
             logger.warning(f"Auto-rollback triggered: {reason}")
-            return await self.rollback_to_warning(
+            old_mode = self._state.current_mode
+            await self.rollback_to_warning(
                 triggered_by="auto_rollback",
                 reason=reason,
             )
 
-        return None
+            audit_entry = {
+                "old_mode": old_mode.value,
+                "new_mode": GovernanceMode.WARNING.value,
+                "triggered_by": "auto_rollback",
+                "trigger_reasons": [reason],
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+
+            return RollbackResult(
+                rollback_triggered=True,
+                new_mode=GovernanceMode.WARNING,
+                previous_mode=old_mode,
+                triggered_by="auto_rollback",
+                trigger_reasons=[reason],
+                audit_log_entry=audit_entry,
+                notifications_sent=["CTO", "CEO"],
+            )
+
+        # No rollback needed
+        return RollbackResult(
+            rollback_triggered=False,
+            new_mode=current_mode,
+        )
 
     async def _notify_mode_change(
         self,
@@ -545,13 +760,15 @@ class GovernanceModeService:
         routing = self._determine_routing(vibecoding_index)
 
         # Categorize violations based on mode
-        for violation in violations:
-            should_block = self._should_block(mode, violation.severity)
+        # OFF mode: no categorization (violations exist but are neither blocked nor warned)
+        if mode != GovernanceMode.OFF:
+            for violation in violations:
+                should_block = self._should_block(mode, violation.severity)
 
-            if should_block:
-                blocked_violations.append(violation)
-            else:
-                warned_violations.append(violation)
+                if should_block:
+                    blocked_violations.append(violation)
+                else:
+                    warned_violations.append(violation)
 
         # Determine if allowed
         allowed = len(blocked_violations) == 0
@@ -559,11 +776,6 @@ class GovernanceModeService:
         # Update metrics
         processing_time_ms = (time.perf_counter() - start_time) * 1000
         self._update_metrics(allowed, processing_time_ms)
-
-        # Check for auto-rollback
-        should_rollback, rollback_reason = self._state.should_auto_rollback()
-        if should_rollback and rollback_reason:
-            await self.rollback_to_warning("auto_rollback", rollback_reason)
 
         result = EnforcementResult(
             allowed=allowed,
@@ -654,6 +866,9 @@ class GovernanceModeService:
         self._latencies.append(latency_ms)
         if len(self._latencies) > self._latency_window:
             self._latencies = self._latencies[-self._latency_window:]
+
+        # Update P95 on state for property access
+        self._state._latency_p95_ms = self.get_latency_p95()
 
     def get_latency_p95(self) -> float:
         """Calculate p95 latency from recent measurements."""

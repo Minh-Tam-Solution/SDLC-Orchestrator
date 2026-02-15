@@ -3,12 +3,32 @@
 
 **Stage**: 07 - INTEGRATE
 **Question**: How do we connect with others?
-**Version**: 2.3.0
-**Date**: February 3, 2026
-**Status**: ✅ ACTIVE - MCP Integration Phase 1 Complete
+**Version**: 2.4.0
+**Date**: February 15, 2026
+**Status**: ✅ ACTIVE - Governance Loop 3-Client Parity (Sprint 173)
 **Authority**: Backend Lead + CTO Approved
 **Framework**: SDLC 6.0.5 (Framework-First)
 **Positioning**: Operating System for Software 3.0
+
+**Changelog v2.4.0** (Feb 15, 2026):
+- **Sprint 173 Governance Loop Integration**: 3-client parity for gate lifecycle
+  - **CLI Integration**: 7 new gate commands (`sdlcctl gate list/show/evaluate/submit/approve/reject/status`) + evidence submit
+  - **Extension Integration**: 3 new commands (`sdlc.approveGate`, `sdlc.rejectGate`, `sdlc.submitEvidence`) with optimistic UI
+  - **Server-Driven Actions**: All clients call `GET /gates/{id}/actions` — no client-side permission logic
+  - **Idempotency**: All mutation endpoints support `X-Idempotency-Key` header (Redis TTL 24h)
+  - **Evidence Contract**: Server-side SHA256 re-verification + `criteria_snapshot_id` binding
+  - **Auth Scopes**: Separated `governance:write` (evaluate/submit/evidence) vs `governance:approve` (approve/reject)
+- **New API Endpoints** (5):
+  - GET `/gates/{id}/actions` — Capability discovery (SSOT)
+  - POST `/gates/{id}/evaluate` — Evaluate gate criteria
+  - POST `/gates/{id}/submit` — Submit for approval (missing_evidence=[] enforced)
+  - POST `/gates/{id}/approve` — Approve gate
+  - POST `/gates/{id}/reject` — Reject gate (separate endpoint)
+- **Interface Role Matrix Post-Sprint 173**:
+  - CLI: DevOps/CI pipelines (Automated Approval via `governance:write` + `governance:approve`)
+  - Extension: Developer (Fix violations + submit evidence at IDE via `governance:write`)
+  - Web: Manager/Audit (Review + Report via `governance:approve`)
+- **References**: ADR-053, CONTRACT-GOVERNANCE-LOOP.md, SPRINT-173-PLAN.md
 
 **Changelog v2.3.0** (Feb 3, 2026):
 - **Sprint 145 MCP Integration**: Phase 1 complete with 3-adapter architecture
@@ -495,7 +515,7 @@ Success Response:
 
 ---
 
-**Last Updated**: January 30, 2026
+**Last Updated**: February 15, 2026
 **Owner**: Backend Lead + Integration Architect
 **Status**: ✅ ACTIVE
 
@@ -506,11 +526,13 @@ Success Response:
 | Metric | Value |
 |--------|-------|
 | Third-Party Integrations | 7 services |
-| API Endpoints | 64 total |
+| API Endpoints | 80 total |
 | AGPL Components | 2 (MinIO, Grafana) - network-only |
 | EP-06 Codegen Endpoints | 12 new |
+| Governance Loop Endpoints | 5 new (Sprint 173) |
 | Provider Fallback Chain | Ollama → Claude → DeepCode |
-| Sprint Coverage | 43-50 |
+| Client Parity | 3/3 (Web, CLI, Extension) |
+| Sprint Coverage | 43-173 |
 
 ---
 

@@ -1,11 +1,29 @@
 # Functional Requirements Document (FRD) - SDLC Orchestrator
 
-**Version**: 3.1.0
-**Date**: December 23, 2025
-**Status**: ACTIVE - AI Safety + Governance + Codegen Quality Gates
+**Version**: 3.2.0
+**Date**: February 15, 2026
+**Status**: ACTIVE - Governance Loop Completion (Sprint 173)
 **Authority**: PM + CTO + CPO + Full Team Approved
 **Foundation**: Product Vision 4.0.0, BRD 1.2.0, Stage 02 Architecture
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance)
+
+**Changelog v3.2.0** (Feb 15, 2026):
+- **FR1 Enhancement**: Gate Governance Loop State Machine (ADR-053, Sprint 173)
+  - 6-state lifecycle: DRAFT → EVALUATED → SUBMITTED → APPROVED (+ EVALUATED_STALE, REJECTED)
+  - `compute_gate_actions()` shared function — SSOT for all permission checks
+  - Server-driven capability discovery: `GET /gates/{id}/actions`
+  - Separate reject endpoint: `POST /gates/{id}/reject` (CTO Mod 1)
+  - Separated auth scopes: `governance:write` vs `governance:approve`
+  - Redis-based idempotency (TTL 24h, response replay)
+- **FR2 Enhancement**: Evidence Contract with server-side integrity
+  - Server re-computes SHA256 on upload (`sha256_server`)
+  - `criteria_snapshot_id` binds evidence to gate exit_criteria version
+  - `source` field tracks upload origin (cli/extension/web/other)
+  - Evidence upload while EVALUATED → EVALUATED_STALE (forces re-evaluation)
+- **FR1 3-Client Parity**: All gate actions available via Web, CLI (sdlcctl), and VS Code Extension
+  - CLI: 7 gate commands + evidence submit
+  - Extension: approve/reject/evidence commands with optimistic UI
+- References: ADR-053, CONTRACT-GOVERNANCE-LOOP.md, SPRINT-173-PLAN.md
 
 **Changelog v3.1.0** (Dec 23, 2025):
 - Updated FR41-FR45: Codegen Engine with Quality Gates + Validation Loop (CTO 10-point DoD)
@@ -352,6 +370,92 @@ Response (200 OK - Rejection):
 - Approve/Reject buttons (green/red, prominent)
 - Comment textarea (required for rejection)
 - Approval history timeline (show all approvers' decisions)
+
+---
+
+#### Use Case 1.1.4: Gate Capability Discovery (Sprint 173 — ADR-053)
+
+**Actor**: Developer (CLI/Extension), Manager (Web UI)
+**Precondition**: Gate exists, user authenticated with `governance:write` or `governance:approve` scope
+**Trigger**: Client loads gate detail view / before executing gate action
+
+**Main Flow**:
+1. Client calls `GET /gates/{id}/actions`
+2. Server evaluates `compute_gate_actions(gate, user)` — the SSOT function
+3. Server returns available actions based on gate state + user scopes + evidence status
+4. Client renders UI based on server response (buttons enabled/disabled with reasons)
+
+**Postcondition**: Client displays only server-permitted actions. No client-side permission computation.
+
+**SSOT Invariant**: The same `compute_gate_actions()` function is used by this endpoint AND all mutation endpoints (evaluate, submit, approve, reject). What `/actions` reports is exactly what mutations enforce.
+
+**Acceptance Criteria**:
+- AC1: Response includes `can_evaluate`, `can_submit`, `can_approve`, `can_reject`, `can_upload_evidence` booleans
+- AC2: Response includes `reasons` dict explaining why any action is disabled
+- AC3: Response includes `required_evidence`, `submitted_evidence`, `missing_evidence` lists
+- AC4: All 3 clients (Web, CLI, Extension) call this before showing action UI
+- AC5: Response latency <50ms (p95)
+
+**API Contract**: See CONTRACT-GOVERNANCE-LOOP.md Section 3.1
+
+---
+
+#### Use Case 1.1.5: Gate State Machine Transitions (Sprint 173 — ADR-053)
+
+**Actor**: System (server-side enforcement)
+**Precondition**: Gate exists with valid status
+**Trigger**: Any gate mutation (evaluate, submit, approve, reject, evidence upload)
+
+**Gate States**: `DRAFT`, `EVALUATED`, `EVALUATED_STALE`, `SUBMITTED`, `APPROVED`, `REJECTED`
+
+**Transition Rules**:
+- `evaluate`: allowed from DRAFT, EVALUATED, EVALUATED_STALE, REJECTED → EVALUATED
+- `submit`: allowed from EVALUATED only, requires `missing_evidence = []` → SUBMITTED
+- `approve`: allowed from SUBMITTED only, requires `governance:approve` scope → APPROVED
+- `reject`: allowed from SUBMITTED only, requires `governance:approve` scope → REJECTED
+- `evidence_upload`: if gate is EVALUATED → side-effect: set to EVALUATED_STALE
+
+**Auth Scopes**:
+- `governance:write`: evaluate, submit, upload evidence
+- `governance:approve`: approve, reject (separation of duties)
+
+**Idempotency**: All mutations accept `X-Idempotency-Key` header. Duplicate requests return stored response body (Redis TTL 24h).
+
+**Acceptance Criteria**:
+- AC1: Invalid transitions return 409 Conflict with clear error message
+- AC2: `submit` with missing evidence returns 422 with list of missing types
+- AC3: Duplicate requests with same idempotency key return identical response
+- AC4: REJECTED gates can be re-evaluated (iterative improvement path)
+- AC5: Evidence upload while EVALUATED automatically sets EVALUATED_STALE
+
+**API Contract**: See CONTRACT-GOVERNANCE-LOOP.md Sections 3.2-3.5
+
+---
+
+#### Use Case 1.1.6: Reject Gate with Re-evaluation Path (Sprint 173 — CTO Mod 2)
+
+**Actor**: Manager/CTO (Approver)
+**Precondition**: Gate in SUBMITTED status, user has `governance:approve` scope
+**Trigger**: Approver clicks "Reject" with mandatory comment
+
+**Main Flow**:
+1. Approver calls `GET /gates/{id}/actions` — confirms `can_reject: true`
+2. Approver provides rejection comment (required)
+3. Client calls `POST /gates/{id}/reject` (separate endpoint — CTO Mod 1)
+4. Server validates transition: SUBMITTED → REJECTED
+5. Gate status updated, `rejected_at` set, comment stored
+6. Submitter notified of rejection with comment
+7. Submitter can re-evaluate (`POST /evaluate`) from REJECTED status
+8. After fixes, submitter re-submits → approval cycle repeats
+
+**Postcondition**: Gate rejected, submitter can iterate. No need to create a new gate.
+
+**Acceptance Criteria**:
+- AC1: Reject is a separate endpoint from approve (no `decision` field ambiguity)
+- AC2: Comment is mandatory for rejection
+- AC3: CLI uses `click.edit()` to open `$EDITOR` for long rejection comments
+- AC4: Rejected gate can be re-evaluated without creating a new gate
+- AC5: Full audit trail preserved (rejection + re-evaluation + re-approval)
 
 ---
 

@@ -3,18 +3,25 @@ Evidence Validation Commands
 
 CLI commands for validating implementation evidence files.
 Part of SPEC-0016: Implementation Evidence Validation.
+Sprint 173: Evidence submit command (Governance Loop).
 
 Commands:
 - sdlcctl evidence validate: Validate all evidence files
 - sdlcctl evidence create: Create evidence file template
 - sdlcctl evidence check: Check spec-to-code alignment
+- sdlcctl evidence submit: Upload evidence to gate (Sprint 173)
 
 Sprint 132 - Go-Live Preparation
+Sprint 173 - Governance Loop (evidence upload)
 """
 
+import hashlib
 import json
+import mimetypes
+import os
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
+from uuid import uuid4
 
 import typer
 from rich.console import Console
@@ -23,6 +30,12 @@ from rich.panel import Panel
 from rich import box
 
 from ..validation.validators.evidence_validator import validate_evidence
+
+try:
+    import httpx
+    HTTPX_AVAILABLE = True
+except ImportError:
+    HTTPX_AVAILABLE = False
 
 console = Console()
 app = typer.Typer(
@@ -281,6 +294,178 @@ def check_command(
     if output:
         _write_markdown_report(gaps, output, project_root)
         console.print(f"\n[green]✓[/green] Gap analysis written to: {output}")
+
+
+@app.command("submit")
+def submit_command(
+    gate_id: str = typer.Option(
+        ..., "--gate", "-g",
+        help="Gate UUID to attach evidence to",
+    ),
+    evidence_type: str = typer.Option(
+        ..., "--type", "-t",
+        help="Evidence type: test-results, api-docs, design-doc, security-scan, code-review, manual",
+    ),
+    file_paths: List[str] = typer.Option(
+        ..., "--file", "-f",
+        help="File path(s) to upload (can specify multiple --file flags)",
+    ),
+    output_format: str = typer.Option(
+        "text", "--format",
+        help="Output format: text, json",
+    ),
+) -> None:
+    """
+    Upload evidence file(s) to a gate.
+
+    Computes SHA256 client-side, server re-verifies on upload.
+    If gate is EVALUATED, status changes to EVALUATED_STALE.
+    Uses X-Idempotency-Key header for safe retries.
+
+    Evidence types: test-results, api-docs, design-doc,
+    security-scan, code-review, manual.
+
+    Example:
+        sdlcctl evidence submit --gate <id> --type test-results --file ./report.json
+        sdlcctl evidence submit --gate <id> --type security-scan --file ./scan1.json --file ./scan2.json
+    """
+    if not HTTPX_AVAILABLE:
+        console.print("[red]Error:[/red] httpx package required. Install with: pip install httpx")
+        raise typer.Exit(1)
+
+    # Validate evidence type
+    valid_types = {"test-results", "api-docs", "design-doc", "security-scan", "code-review", "manual"}
+    if evidence_type not in valid_types:
+        console.print(f"[red]Error:[/red] Invalid evidence type: {evidence_type}")
+        console.print(f"[dim]Valid types: {', '.join(sorted(valid_types))}[/dim]")
+        raise typer.Exit(1)
+
+    # Validate files exist
+    resolved_files = []
+    for fp in file_paths:
+        p = Path(fp).resolve()
+        if not p.exists():
+            console.print(f"[red]Error:[/red] File not found: {fp}")
+            raise typer.Exit(1)
+        if not p.is_file():
+            console.print(f"[red]Error:[/red] Not a file: {fp}")
+            raise typer.Exit(1)
+        resolved_files.append(p)
+
+    # Get API config
+    from .gate import _get_api_config
+    api_url, _, auth_token = _get_api_config()
+
+    if not auth_token:
+        console.print("[red]Error:[/red] Auth token not found.")
+        console.print("Set via SDLC_AUTH_TOKEN env var or .sdlc/config.json")
+        raise typer.Exit(1)
+
+    results = []
+
+    for file_path in resolved_files:
+        console.print(f"\n[bold]Uploading:[/bold] {file_path.name}")
+
+        # Compute SHA256 client-side
+        sha256_hash = hashlib.sha256()
+        file_size = file_path.stat().st_size
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                sha256_hash.update(chunk)
+        sha256_client = sha256_hash.hexdigest()
+
+        # Detect MIME type
+        mime_type, _ = mimetypes.guess_type(str(file_path))
+        if not mime_type:
+            mime_type = "application/octet-stream"
+
+        console.print(f"  [dim]Size: {file_size:,} bytes | SHA256: {sha256_client[:16]}...[/dim]")
+
+        headers = {
+            "Authorization": f"Bearer {auth_token}",
+            "X-Idempotency-Key": str(uuid4()),
+        }
+
+        try:
+            with httpx.Client(timeout=120) as client:
+                with open(file_path, "rb") as f:
+                    files_payload = {
+                        "file": (file_path.name, f, mime_type),
+                    }
+                    data_payload = {
+                        "evidence_type": evidence_type,
+                        "sha256_client": sha256_client,
+                        "size_bytes": str(file_size),
+                        "mime_type": mime_type,
+                        "source": "cli",
+                    }
+
+                    with console.status(f"  [bold blue]Uploading {file_path.name}...[/bold blue]"):
+                        response = client.post(
+                            f"{api_url}/gates/{gate_id}/evidence",
+                            headers=headers,
+                            files=files_payload,
+                            data=data_payload,
+                        )
+
+            if response.status_code == 200:
+                data = response.json()
+                results.append({"file": file_path.name, "status": "ok", "data": data})
+
+                if output_format != "json":
+                    verified = data.get("integrity_verified", False)
+                    icon = "[green]✓[/green]" if verified else "[yellow]⚠[/yellow]"
+                    console.print(f"  {icon} Uploaded successfully (integrity: {'verified' if verified else 'unverified'})")
+
+                    if data.get("gate_status_changed"):
+                        console.print(f"  [yellow]Note:[/yellow] Gate status changed → EVALUATED_STALE (re-evaluate required)")
+
+            elif response.status_code == 400:
+                detail = ""
+                try:
+                    detail = response.json().get("detail", "")
+                except Exception:
+                    pass
+                console.print(f"  [red]✗[/red] Upload failed: {detail}")
+                if "hash mismatch" in detail.lower() or "sha256" in detail.lower():
+                    console.print("  [dim]File may have been corrupted during transfer.[/dim]")
+                results.append({"file": file_path.name, "status": "error", "error": detail})
+
+            elif response.status_code == 401:
+                console.print("[red]Error:[/red] Unauthorized. Check your auth token.")
+                raise typer.Exit(1)
+
+            elif response.status_code == 403:
+                console.print("[red]Error:[/red] Permission denied.")
+                console.print("[dim]Missing scope: governance:write[/dim]")
+                raise typer.Exit(1)
+
+            elif response.status_code == 404:
+                console.print(f"[red]Error:[/red] Gate {gate_id} not found.")
+                raise typer.Exit(1)
+
+            else:
+                console.print(f"  [red]✗[/red] Upload failed: HTTP {response.status_code}")
+                try:
+                    detail = response.json().get("detail", response.text[:200])
+                except Exception:
+                    detail = response.text[:200]
+                results.append({"file": file_path.name, "status": "error", "error": str(detail)})
+
+        except httpx.RequestError as e:
+            console.print(f"  [red]✗[/red] Connection error: {e}")
+            results.append({"file": file_path.name, "status": "error", "error": str(e)})
+
+    # Summary
+    if output_format == "json":
+        console.print_json(json.dumps(results, indent=2))
+    else:
+        ok_count = sum(1 for r in results if r["status"] == "ok")
+        err_count = sum(1 for r in results if r["status"] == "error")
+        console.print(f"\n[bold]Results:[/bold] {ok_count} uploaded, {err_count} failed")
+
+        if err_count > 0:
+            raise typer.Exit(1)
 
 
 def _display_summary(summary: dict, violations: list) -> None:

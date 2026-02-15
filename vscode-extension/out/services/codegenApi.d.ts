@@ -133,7 +133,7 @@ export declare class CodegenApiService {
      */
     getDomainTemplate(domainId: string): Promise<AppBlueprint>;
     /**
-     * Validate a specification against SDLC 6.0.0 SPEC-0002 standard
+     * Validate a specification against SDLC 6.0.5 SPEC-0002 standard
      *
      * Validates:
      * - YAML frontmatter (required fields, format)
@@ -165,7 +165,7 @@ export declare class CodegenApiService {
      */
     listSpecifications(projectId?: string, tier?: SpecTier): Promise<SpecListResponse>;
     /**
-     * Get SDLC 6.0.0 specification JSON schema
+     * Get SDLC 6.0.5 specification JSON schema
      *
      * @returns JSON schema for specification frontmatter validation
      */

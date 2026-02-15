@@ -223,6 +223,74 @@ export declare class ApiClient {
      */
     getCurrentProjectGates(): Promise<Gate[]>;
     /**
+     * Gets available actions for a gate (server-driven capability discovery).
+     * All 3 clients (Web, CLI, Extension) use this to determine what to show.
+     * No client-side permission computation.
+     *
+     * @param gateId - Gate UUID
+     * @returns Actions with reasons, evidence status
+     */
+    getGateActions(gateId: string): Promise<{
+        gate_id: string;
+        status: string;
+        actions: {
+            can_evaluate: boolean;
+            can_submit: boolean;
+            can_approve: boolean;
+            can_reject: boolean;
+            can_upload_evidence: boolean;
+        };
+        reasons: Record<string, string>;
+        required_evidence: string[];
+        submitted_evidence: string[];
+        missing_evidence: string[];
+    }>;
+    /**
+     * Approve a gate (separate endpoint per CTO Mod 1).
+     * Requires governance:approve scope (CTO/CPO/CEO roles).
+     *
+     * @param gateId - Gate UUID
+     * @param comment - Mandatory approval comment
+     * @returns Updated gate
+     */
+    approveGate(gateId: string, comment: string): Promise<Gate>;
+    /**
+     * Reject a gate (separate endpoint per CTO Mod 1).
+     * Requires governance:approve scope (CTO/CPO/CEO roles).
+     *
+     * @param gateId - Gate UUID
+     * @param comment - Mandatory rejection comment
+     * @returns Updated gate
+     */
+    rejectGate(gateId: string, comment: string): Promise<Gate>;
+    /**
+     * Submit evidence file to a gate.
+     * Server re-computes SHA256 and verifies against client hash.
+     * If gate is EVALUATED, status changes to EVALUATED_STALE.
+     *
+     * Uses multipart/form-data via manual boundary construction
+     * (no form-data dependency needed).
+     *
+     * @param gateId - Gate UUID
+     * @param evidenceType - Evidence type (test-results, security-scan, etc.)
+     * @param fileData - File buffer, name, and client-computed SHA256
+     * @returns Upload result with integrity verification
+     */
+    submitEvidence(gateId: string, evidenceType: string, fileData: {
+        buffer: Buffer;
+        name: string;
+        mimeType: string;
+        sha256Client: string;
+        sizeBytes: number;
+    }): Promise<{
+        evidence_id: string;
+        sha256_client: string;
+        sha256_server: string;
+        integrity_verified: boolean;
+        gate_status_changed: boolean;
+        criteria_snapshot_id?: string;
+    }>;
+    /**
      * Gets violations for a project
      */
     getViolations(projectId: string, status?: string, severity?: string): Promise<Violation[]>;

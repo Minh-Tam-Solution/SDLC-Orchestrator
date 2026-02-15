@@ -30,7 +30,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import uuid4
 
-from sqlalchemy import BigInteger, Boolean, Column, DateTime, ForeignKey, String, Text
+from sqlalchemy import BigInteger, Boolean, Column, DateTime, ForeignKey, Index, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -124,8 +124,17 @@ class GateEvidence(Base):
     s3_key = Column(String(512), nullable=False, unique=True)
     s3_bucket = Column(String(100), nullable=False, default="sdlc-evidence")
 
-    # Integrity
-    sha256_hash = Column(String(64), nullable=False, index=True)  # SHA-256 hash
+    # Integrity (Sprint 173 Evidence Contract — ADR-053)
+    sha256_hash = Column(String(64), nullable=True, index=True)  # Client-side SHA256 (legacy alias)
+    sha256_server = Column(String(64), nullable=True)  # Server re-computed SHA256
+
+    # Evidence binding (Sprint 173)
+    criteria_snapshot_id = Column(
+        UUID(as_uuid=True), nullable=True, index=True
+    )  # Binds to gate exit_criteria_version
+    source = Column(
+        String(20), nullable=False, default="web", index=True
+    )  # 'cli', 'extension', 'web', 'other'
 
     # Description
     description = Column(Text, nullable=True)

@@ -26,10 +26,49 @@ Zero Mock Policy: Production-ready Pydantic models
 """
 
 from datetime import datetime
+from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
+
+
+# =========================================================================
+# Sprint 173: Gate State Machine (ADR-053)
+# =========================================================================
+
+
+class GateStatus(str, Enum):
+    """Valid gate status values (Sprint 173 State Machine — ADR-053)."""
+
+    DRAFT = "DRAFT"
+    EVALUATED = "EVALUATED"
+    EVALUATED_STALE = "EVALUATED_STALE"
+    SUBMITTED = "SUBMITTED"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    ARCHIVED = "ARCHIVED"
+
+
+# Transition guards: action -> (allowed_from_statuses)
+VALID_TRANSITIONS: Dict[str, Dict[str, Any]] = {
+    "evaluate": {
+        "allowed_from": {GateStatus.DRAFT, GateStatus.EVALUATED, GateStatus.EVALUATED_STALE, GateStatus.REJECTED},
+        "target": GateStatus.EVALUATED,
+    },
+    "submit": {
+        "allowed_from": {GateStatus.EVALUATED},
+        "target": GateStatus.SUBMITTED,
+    },
+    "approve": {
+        "allowed_from": {GateStatus.SUBMITTED},
+        "target": GateStatus.APPROVED,
+    },
+    "reject": {
+        "allowed_from": {GateStatus.SUBMITTED},
+        "target": GateStatus.REJECTED,
+    },
+}
 
 
 # =========================================================================
@@ -173,38 +212,135 @@ class GateListResponse(BaseModel):
 
 
 # =========================================================================
+# Sprint 173: Gate Actions Response (ADR-053 — Server-Driven Capability)
+# =========================================================================
+
+
+class GateActionsResponse(BaseModel):
+    """
+    Server-driven capability discovery response (Sprint 173 — ADR-053).
+
+    SSOT Invariant: This response is computed by compute_gate_actions(),
+    the same function used by all mutation endpoints. No permission drift.
+
+    Response Body:
+        {
+            "gate_id": "550e8400-e29b-41d4-a716-446655440000",
+            "status": "SUBMITTED",
+            "actions": {
+                "can_evaluate": false,
+                "can_submit": false,
+                "can_approve": true,
+                "can_reject": true,
+                "can_upload_evidence": true
+            },
+            "reasons": {
+                "can_evaluate": "Cannot evaluate from status: SUBMITTED",
+                "can_submit": "Gate must be EVALUATED to submit (current: SUBMITTED)"
+            },
+            "required_evidence": ["test-results", "security-scan", "design-doc"],
+            "submitted_evidence": ["test-results", "design-doc"],
+            "missing_evidence": ["security-scan"]
+        }
+    """
+
+    gate_id: UUID = Field(..., description="Gate UUID")
+    status: str = Field(..., description="Current gate status")
+    actions: Dict[str, bool] = Field(..., description="Available actions for current user + state")
+    reasons: Dict[str, str] = Field(default_factory=dict, description="Reasons for disabled actions")
+    required_evidence: List[str] = Field(default_factory=list, description="Evidence types required for this gate")
+    submitted_evidence: List[str] = Field(default_factory=list, description="Evidence types already submitted")
+    missing_evidence: List[str] = Field(default_factory=list, description="Evidence types still needed")
+
+
+class GateEvaluateResponse(BaseModel):
+    """
+    Gate evaluation result response (Sprint 173 — ADR-053).
+
+    Response Body:
+        {
+            "gate_id": "550e8400-e29b-41d4-a716-446655440000",
+            "status": "EVALUATED",
+            "evaluated_at": "2026-02-15T10:30:00Z",
+            "exit_criteria": [...],
+            "summary": {
+                "total": 3,
+                "met": 2,
+                "unmet": 1,
+                "pass_rate": 66.7
+            }
+        }
+    """
+
+    gate_id: UUID = Field(..., description="Gate UUID")
+    status: str = Field(..., description="New gate status (EVALUATED)")
+    evaluated_at: datetime = Field(..., description="Evaluation timestamp")
+    exit_criteria: List[Dict[str, Any]] = Field(..., description="Exit criteria with evaluation results")
+    summary: Dict[str, Any] = Field(..., description="Evaluation summary (total, met, unmet, pass_rate)")
+
+
+# =========================================================================
 # Gate Approval Workflow Schemas
 # =========================================================================
 
 
 class GateSubmitRequest(BaseModel):
     """
-    Submit gate for approval request.
+    Submit gate for approval request (Sprint 173 — ADR-053).
 
     Request Body:
         {
             "message": "Submitting G2 for CTO/CPO approval. All exit criteria met."
         }
 
-    Workflow:
-        1. Gate status: DRAFT → PENDING_APPROVAL
-        2. Policy evaluation triggered (OPA)
-        3. If policies pass: CTO/CPO/CEO notified
-        4. If policies fail: Gate rejected with violations
+    Workflow (Sprint 173 State Machine):
+        1. Precondition: Gate status must be EVALUATED
+        2. Precondition: missing_evidence must be empty
+        3. Gate status: EVALUATED → SUBMITTED
+        4. CTO/CPO/CEO notified
     """
 
     message: Optional[str] = Field(None, max_length=1000, description="Submission message")
 
 
-class GateApprovalRequest(BaseModel):
+class GateApproveRequest(BaseModel):
     """
-    Approve gate request (CTO, CPO, or CEO).
+    Approve gate request (Sprint 173 — CTO Mod 1: separate endpoint).
 
     Request Body:
         {
-            "approved": true,
-            "comments": "All exit criteria validated. Security scan passed. Approved for production deployment."
+            "comment": "All exit criteria validated. Security scan passed."
         }
+
+    Validation:
+        - comment: Required (governance:approve scope)
+        - Gate must be in SUBMITTED status
+    """
+
+    comment: str = Field(..., min_length=1, max_length=2000, description="Approval comment (required)")
+
+
+class GateRejectRequest(BaseModel):
+    """
+    Reject gate request (Sprint 173 — CTO Mod 1: separate endpoint).
+
+    Request Body:
+        {
+            "comment": "Security scan shows 2 HIGH vulnerabilities. Fix CVE-2026-1234."
+        }
+
+    Validation:
+        - comment: Required (governance:approve scope)
+        - Gate must be in SUBMITTED status
+        - After rejection, gate can be re-evaluated (REJECTED → EVALUATED)
+    """
+
+    comment: str = Field(..., min_length=1, max_length=2000, description="Rejection comment (required)")
+
+
+class GateApprovalRequest(BaseModel):
+    """
+    Legacy approve/reject gate request (kept for backward compatibility).
 
     Validation:
         - approved: Boolean (true = approve, false = reject)
@@ -305,6 +441,37 @@ class GateEvidenceResponse(BaseModel):
     uploaded_by: UUID = Field(..., description="Uploader user UUID")
     uploaded_at: datetime = Field(..., description="Upload timestamp")
     model_config = ConfigDict(from_attributes=True)
+
+
+class EvidenceUploadResponse(BaseModel):
+    """
+    Evidence upload response with integrity verification (Sprint 173 — ADR-053).
+
+    Response Body:
+        {
+            "evidence_id": "uuid",
+            "gate_id": "uuid",
+            "sha256_client": "a1b2c3d4...",
+            "sha256_server": "a1b2c3d4...",
+            "integrity_verified": true,
+            "criteria_snapshot_id": "exit-criteria-version-uuid",
+            "gate_status_changed": true,
+            "new_gate_status": "EVALUATED_STALE"
+        }
+    """
+
+    evidence_id: UUID = Field(..., description="Evidence record UUID")
+    gate_id: UUID = Field(..., description="Gate UUID")
+    file_name: str = Field(..., description="Original file name")
+    file_size: int = Field(..., description="File size in bytes")
+    evidence_type: str = Field(..., description="Evidence type")
+    sha256_client: Optional[str] = Field(None, description="Client-computed SHA256 hash")
+    sha256_server: str = Field(..., description="Server-computed SHA256 hash")
+    integrity_verified: bool = Field(..., description="True if client hash matches server hash")
+    criteria_snapshot_id: Optional[UUID] = Field(None, description="Gate exit_criteria_version at upload time")
+    source: str = Field(..., description="Upload source (cli, extension, web, other)")
+    gate_status_changed: bool = Field(default=False, description="True if gate status changed due to upload")
+    new_gate_status: Optional[str] = Field(None, description="New gate status if changed (e.g., EVALUATED_STALE)")
 
 
 # =========================================================================

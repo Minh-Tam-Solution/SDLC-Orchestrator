@@ -1,11 +1,17 @@
 # Database Architecture (PostgreSQL 15.5)
 
-**Version**: v1.0
-**Date**: November 13, 2025
+**Version**: v1.1
+**Date**: February 15, 2026
 **Owner**: Tech Lead, Database Architect
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.0.5
 **Status**: ✅ APPROVED
+
+**Changelog v1.1** (Feb 15, 2026):
+- Sprint 173 Governance Loop schema changes (ADR-053):
+  - `gates` table: Added `evaluated_at`, `exit_criteria_version` columns; status values updated (PENDING_APPROVAL→SUBMITTED, added EVALUATED/EVALUATED_STALE)
+  - `gate_evidence` table: Renamed `sha256_hash`→`sha256_client`; added `sha256_server`, `criteria_snapshot_id`, `source` columns
+  - Alembic migration required for data migration (status value rename)
 
 ---
 
@@ -206,25 +212,36 @@ CREATE INDEX idx_projects_status ON projects(status);
 ```sql
 CREATE TABLE gates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  gate_id VARCHAR(10) NOT NULL,  -- G0.1, G0.2, G1, G2, ..., G9
-  name VARCHAR(255) NOT NULL,  -- "Legal + Market Validation"
+  gate_name VARCHAR(255) NOT NULL,
+  gate_type VARCHAR(50) NOT NULL,  -- 'G1_DESIGN_READY', 'G2_SHIP_READY', etc.
+  stage VARCHAR(20) NOT NULL,  -- 'WHY', 'WHAT', 'BUILD', 'TEST', etc.
   description TEXT,
   project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  status VARCHAR(20) NOT NULL,  -- PENDING, PASS, FAIL, WAIVED, BLOCKED
-  required_approvals INT DEFAULT 2,  -- Minimum approvals needed
-  waiver_reason TEXT,  -- If status=WAIVED
-  waiver_expires_at TIMESTAMP,
+  created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+  -- Sprint 173 State Machine (ADR-053):
+  -- Valid: DRAFT, EVALUATED, EVALUATED_STALE, SUBMITTED, APPROVED, REJECTED, ARCHIVED
+  status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+  exit_criteria JSONB NOT NULL DEFAULT '[]',
+  exit_criteria_version UUID DEFAULT gen_random_uuid(),  -- Sprint 173: snapshot binding
+  evaluated_at TIMESTAMP,  -- Sprint 173: last evaluation timestamp
+  approved_at TIMESTAMP,
+  rejected_at TIMESTAMP,
+  archived_at TIMESTAMP,
 
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  deleted_at TIMESTAMP,  -- Soft delete
 
-  UNIQUE(project_id, gate_id)
+  UNIQUE(project_id, gate_type)
 );
 
 -- Indexes
 CREATE INDEX idx_gates_project_id ON gates(project_id);
 CREATE INDEX idx_gates_status ON gates(status);
-CREATE INDEX idx_gates_gate_id ON gates(gate_id);
+CREATE INDEX idx_gates_gate_type ON gates(gate_type);
+CREATE INDEX idx_gates_stage ON gates(stage);
+CREATE INDEX idx_gates_created_by ON gates(created_by);
+CREATE INDEX idx_gates_created_at ON gates(created_at);
 ```
 
 **Scale**: 1.1M gates (100K projects × 11 gates)

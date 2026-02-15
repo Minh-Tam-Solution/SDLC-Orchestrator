@@ -8,7 +8,7 @@
  * Reference:
  * - RFC-SDLC-602-E2E-API-TESTING
  * - SPEC-0016 Implementation Evidence Schema
- * - SDLC Framework 6.0.2
+ * - SDLC Framework 6.0.5
  *
  * @version 1.0.0
  * @since Sprint 139
@@ -19,7 +19,7 @@ exports.EvidenceType = void 0;
 // Base Evidence Types (SPEC-0016)
 // ========================================
 /**
- * Evidence type enumeration - SDLC 6.0.2 compliant
+ * Evidence type enumeration - SDLC 6.0.5 compliant
  */
 var EvidenceType;
 (function (EvidenceType) {

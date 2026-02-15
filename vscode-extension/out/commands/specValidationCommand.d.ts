@@ -2,7 +2,7 @@
  * Specification Validation Command for SDLC Orchestrator VS Code Extension
  *
  * Sprint 126 - S126-06: Add spec validation to Extension
- * Implements SDLC 6.0.0 SPEC-0002 specification validation in IDE.
+ * Implements SDLC 6.0.5 SPEC-0002 specification validation in IDE.
  *
  * Features:
  * - Validate current file against SPEC-0002 standard

@@ -352,6 +352,24 @@
         "title": "SDLC: Fix SSOT Violations",
         "category": "SDLC",
         "icon": "$(wrench)"
+      },
+      {
+        "command": "sdlc.approveGate",
+        "title": "SDLC: Approve Gate",
+        "category": "SDLC",
+        "icon": "$(thumbsup)"
+      },
+      {
+        "command": "sdlc.rejectGate",
+        "title": "SDLC: Reject Gate",
+        "category": "SDLC",
+        "icon": "$(thumbsdown)"
+      },
+      {
+        "command": "sdlc.submitEvidence",
+        "title": "SDLC: Submit Evidence",
+        "category": "SDLC",
+        "icon": "$(cloud-upload)"
       }
     ],
     "menus": {
@@ -392,6 +410,21 @@
           "command": "sdlc.openGate",
           "when": "view == sdlc-gate-status && viewItem == gate",
           "group": "inline"
+        },
+        {
+          "command": "sdlc.approveGate",
+          "when": "view == sdlc-gate-status && viewItem == gate",
+          "group": "1_gate_actions"
+        },
+        {
+          "command": "sdlc.rejectGate",
+          "when": "view == sdlc-gate-status && viewItem == gate",
+          "group": "1_gate_actions"
+        },
+        {
+          "command": "sdlc.submitEvidence",
+          "when": "view == sdlc-gate-status && viewItem == gate",
+          "group": "2_gate_evidence"
         },
         {
           "command": "sdlc.fixViolation",
@@ -450,6 +483,18 @@
         },
         {
           "command": "sdlc.scanGithubRepo",
+          "when": "sdlc.isAuthenticated"
+        },
+        {
+          "command": "sdlc.approveGate",
+          "when": "sdlc.isAuthenticated"
+        },
+        {
+          "command": "sdlc.rejectGate",
+          "when": "sdlc.isAuthenticated"
+        },
+        {
+          "command": "sdlc.submitEvidence",
           "when": "sdlc.isAuthenticated"
         }
       ]

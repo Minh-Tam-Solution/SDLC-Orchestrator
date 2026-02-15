@@ -5,14 +5,14 @@
  * Implements RFC-SDLC-602 E2E API Testing validation in IDE.
  *
  * Features:
- * - Validate E2E testing compliance (SDLC 6.0.2)
+ * - Validate E2E testing compliance (SDLC 6.0.5)
  * - Calls real CLI `sdlcctl e2e validate` (Zero Mock Policy)
  * - Display results in Output channel and Problems panel
  * - Optional --init for folder structure setup
  *
  * Reference:
  * - RFC-SDLC-602-E2E-API-TESTING
- * - SDLC Framework 6.0.2
+ * - SDLC Framework 6.0.5
  * - Skill: e2e-api-testing (6-phase workflow)
  *
  * CTO Requirements (Non-Negotiable):

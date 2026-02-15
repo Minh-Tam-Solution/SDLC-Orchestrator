@@ -41,8 +41,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.gate import Gate
+from app.models.gate_evidence import GateEvidence
 from app.models.project import Project
 from app.models.user import User
+from app.schemas.gate import GateStatus, VALID_TRANSITIONS
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +72,188 @@ class InvalidGateCodeError(GateServiceError):
 class GateValidationError(GateServiceError):
     """Exception raised when gate validation fails."""
     pass
+
+
+class InvalidTransitionError(GateServiceError):
+    """Exception raised when a gate state transition is not allowed (Sprint 173 — ADR-053)."""
+
+    def __init__(self, action: str, current_status: str, allowed_from: set):
+        self.action = action
+        self.current_status = current_status
+        self.allowed_from = allowed_from
+        super().__init__(
+            f"Cannot {action} gate from status: {current_status}. "
+            f"Allowed from: {', '.join(s.value if hasattr(s, 'value') else str(s) for s in allowed_from)}"
+        )
+
+
+# ============================================================================
+# Sprint 173: Shared Gate Actions Computation (ADR-053 — SSOT Invariant)
+# ============================================================================
+
+
+# Roles that map to governance:approve scope
+APPROVER_ROLES = {"cto", "cpo", "ceo", "CTO", "CPO", "CEO"}
+
+
+def _user_has_approve_scope(user: User) -> bool:
+    """Check if user has governance:approve scope (mapped to RBAC roles)."""
+    if not hasattr(user, "roles") or not user.roles:
+        return False
+    user_role_names = {r.name.lower() for r in user.roles}
+    return bool(user_role_names & {r.lower() for r in APPROVER_ROLES})
+
+
+async def compute_gate_actions(
+    gate: Gate,
+    user: User,
+    db: AsyncSession,
+) -> Dict[str, Any]:
+    """
+    Compute available gate actions for a user (Sprint 173 — ADR-053).
+
+    SSOT Invariant: This function is used by BOTH GET /gates/{id}/actions
+    AND all mutation endpoints. What this function reports is exactly what
+    mutations enforce.
+
+    Args:
+        gate: Gate model instance
+        user: Current authenticated user
+        db: Database session
+
+    Returns:
+        Dict with actions, reasons, evidence status
+    """
+    current_status = gate.status
+    actions = {
+        "can_evaluate": False,
+        "can_submit": False,
+        "can_approve": False,
+        "can_reject": False,
+        "can_upload_evidence": False,
+    }
+    reasons: Dict[str, str] = {}
+
+    has_approve_scope = _user_has_approve_scope(user)
+
+    # --- evaluate ---
+    evaluate_rule = VALID_TRANSITIONS["evaluate"]
+    if current_status in {s.value for s in evaluate_rule["allowed_from"]}:
+        actions["can_evaluate"] = True
+    else:
+        reasons["can_evaluate"] = f"Cannot evaluate from status: {current_status}"
+
+    # --- submit ---
+    submit_rule = VALID_TRANSITIONS["submit"]
+    if current_status in {s.value for s in submit_rule["allowed_from"]}:
+        actions["can_submit"] = True
+    else:
+        reasons["can_submit"] = (
+            f"Gate must be EVALUATED to submit (current: {current_status})"
+        )
+
+    # --- approve ---
+    approve_rule = VALID_TRANSITIONS["approve"]
+    if current_status in {s.value for s in approve_rule["allowed_from"]} and has_approve_scope:
+        actions["can_approve"] = True
+    else:
+        if not has_approve_scope:
+            reasons["can_approve"] = "Missing required scope: governance:approve"
+        else:
+            reasons["can_approve"] = (
+                f"Gate must be SUBMITTED to approve (current: {current_status})"
+            )
+
+    # --- reject ---
+    reject_rule = VALID_TRANSITIONS["reject"]
+    if current_status in {s.value for s in reject_rule["allowed_from"]} and has_approve_scope:
+        actions["can_reject"] = True
+    else:
+        if not has_approve_scope:
+            reasons["can_reject"] = "Missing required scope: governance:approve"
+        else:
+            reasons["can_reject"] = (
+                f"Gate must be SUBMITTED to reject (current: {current_status})"
+            )
+
+    # --- evidence upload ---
+    # Allowed from any status except APPROVED and ARCHIVED
+    if current_status not in (GateStatus.APPROVED.value, GateStatus.ARCHIVED.value):
+        actions["can_upload_evidence"] = True
+    else:
+        reasons["can_upload_evidence"] = (
+            f"Cannot upload evidence for {current_status} gate"
+        )
+
+    # --- evidence status ---
+    required_evidence: List[str] = []
+    submitted_evidence_types: List[str] = []
+
+    # Extract required evidence types from exit criteria
+    if gate.exit_criteria:
+        for criterion in gate.exit_criteria:
+            if isinstance(criterion, dict):
+                ev_type = criterion.get("evidence_type") or criterion.get("id", "")
+                if ev_type:
+                    required_evidence.append(ev_type)
+
+    # Query submitted evidence types
+    if required_evidence:
+        result = await db.execute(
+            select(GateEvidence.evidence_type)
+            .where(
+                GateEvidence.gate_id == gate.id,
+                GateEvidence.deleted_at.is_(None),
+            )
+            .distinct()
+        )
+        submitted_evidence_types = [row[0] for row in result.all()]
+
+    missing_evidence = [
+        e for e in required_evidence if e not in submitted_evidence_types
+    ]
+
+    # Block submit if missing evidence (SDLC Expert v2 fix)
+    if actions["can_submit"] and missing_evidence:
+        actions["can_submit"] = False
+        reasons["can_submit"] = (
+            f"Cannot submit: missing required evidence: {', '.join(missing_evidence)}"
+        )
+
+    return {
+        "gate_id": gate.id,
+        "status": current_status,
+        "actions": actions,
+        "reasons": reasons,
+        "required_evidence": required_evidence,
+        "submitted_evidence": submitted_evidence_types,
+        "missing_evidence": missing_evidence,
+    }
+
+
+def validate_transition(action: str, current_status: str) -> str:
+    """
+    Validate a gate state transition and return target status (Sprint 173).
+
+    Args:
+        action: Transition action (evaluate, submit, approve, reject)
+        current_status: Current gate status string
+
+    Returns:
+        Target status value
+
+    Raises:
+        InvalidTransitionError: If transition is not allowed
+    """
+    rule = VALID_TRANSITIONS.get(action)
+    if not rule:
+        raise GateServiceError(f"Unknown action: {action}")
+
+    allowed_values = {s.value for s in rule["allowed_from"]}
+    if current_status not in allowed_values:
+        raise InvalidTransitionError(action, current_status, rule["allowed_from"])
+
+    return rule["target"].value
 
 
 # ============================================================================

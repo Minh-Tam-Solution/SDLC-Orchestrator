@@ -288,6 +288,11 @@ class SystemHealthSnapshot:
     alerts_active: int
     last_incident: Optional[datetime]
 
+    @property
+    def governance_mode(self) -> str:
+        """Alias for kill_switch_status for backward compatibility."""
+        return self.kill_switch_status
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for API response."""
         return {
@@ -794,6 +799,10 @@ class CEODashboardService:
         overrides.sort(key=lambda x: x.override_at, reverse=True)
 
         return overrides[:10]  # Top 10 for dashboard
+
+    async def get_system_health(self) -> SystemHealthSnapshot:
+        """Public accessor for system health snapshot."""
+        return await self._get_system_health()
 
     async def _get_system_health(self) -> SystemHealthSnapshot:
         """

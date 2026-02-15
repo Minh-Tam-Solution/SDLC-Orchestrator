@@ -44,6 +44,7 @@ from app.services.governance.mode_service import (
     ViolationSeverity,
     EnforcementResult,
     RollbackCriteria,
+    RollbackResult,
     create_governance_mode_service,
     get_governance_mode_service,
     initialize_governance_mode_service,
@@ -78,7 +79,7 @@ from app.services.governance.stage_gating import (
     get_stage_gating_service,
 )
 
-from app.services.governance.context_authority import (
+from app.services.governance.context_authority_v2 import (
     ContextAuthorityEngineV1,
     ContextViolationType,
     ViolationSeverity as ContextViolationSeverity,
@@ -157,6 +158,7 @@ __all__ = [
     "ViolationSeverity",
     "EnforcementResult",
     "RollbackCriteria",
+    "RollbackResult",
     # Mode Service Factory Functions
     "create_governance_mode_service",
     "get_governance_mode_service",

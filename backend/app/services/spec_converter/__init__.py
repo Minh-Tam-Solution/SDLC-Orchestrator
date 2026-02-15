@@ -1,3 +1,10 @@
+# =========================================================================
+# STATUS: FROZEN (Sprint 173, Feb 2026)
+# TIER: Deferred
+# REASON: Non-core for current phase. Working code preserved.
+# REACTIVATION: CPO approval required.
+# DO NOT: Delete, refactor, or add features without CTO approval.
+# =========================================================================
 """
 Spec Converter Service
 Sprint 154 - Spec Standard Completion

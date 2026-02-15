@@ -13,12 +13,12 @@ Usage:
     sdlcctl spec validate [--tier TIER] [--strict]
     sdlcctl spec convert --from openspec --path .openspec/
 
-Version: 1.2.0
+Version: 1.7.0
 Framework: SDLC 6.0.5
-Sprint: 125 - Multi-Frontend Alignment
+Sprint: 172 - SDLC 6.0.5 Enhancement
 """
 
-__version__ = "1.5.0"
+__version__ = "1.7.0"
 __author__ = "SDLC Orchestrator Team"
 __framework__ = "SDLC 6.0.5"
 

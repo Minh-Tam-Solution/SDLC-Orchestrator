@@ -13,7 +13,7 @@
  *
  * Reference:
  * - RFC-SDLC-602-E2E-API-TESTING
- * - SDLC Framework 6.0.2
+ * - SDLC Framework 6.0.5
  * - Skill: e2e-api-testing (6-phase workflow)
  *
  * CTO Requirements (Non-Negotiable):

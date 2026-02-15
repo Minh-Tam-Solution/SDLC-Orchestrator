@@ -1,3 +1,10 @@
+# =========================================================================
+# STATUS: FROZEN (Sprint 173, Feb 2026)
+# TIER: Deferred (Q2 2026 extraction)
+# REASON: Non-core for current phase. Working code preserved.
+# REACTIVATION: CPO approval required.
+# DO NOT: Delete, refactor, or add features without CTO approval.
+# =========================================================================
 """
 SDLC Orchestrator - Codegen Service Package.
 

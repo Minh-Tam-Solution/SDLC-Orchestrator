@@ -1,13 +1,25 @@
 # API Specification (OpenAPI 3.0)
 ## Complete REST + GraphQL Endpoints
 
-**Version**: 3.4.0
-**Date**: February 8, 2026
-**Status**: ACTIVE - Product Truth Layer (Sprint 147)
+**Version**: 3.5.0
+**Date**: February 15, 2026
+**Status**: ACTIVE - Governance Loop Completion (Sprint 173)
 **Authority**: Backend Lead + CTO Review (✅ APPROVED)
-**Foundation**: FRD v3.1.0, Data Model ERD v3.2.0, Roadmap v5.0.0
+**Foundation**: FRD v3.2.0, Data Model ERD v3.3.0, Roadmap v5.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
 **Framework**: SDLC 6.0.5 Complete Lifecycle (10 Stages)
+
+**Changelog v3.5.0** (Feb 15, 2026):
+- **Governance Loop Endpoints** (Sprint 173 — ADR-053):
+  - GET /gates/{id}/actions — Server-driven capability discovery (SSOT)
+  - POST /gates/{id}/evaluate — Evaluate gate criteria
+  - POST /gates/{id}/reject — Reject gate (separate endpoint, CTO Mod 1)
+  - Updated POST /gates/{id}/submit — Enforces missing_evidence=[] precondition
+  - Updated POST /gates/{id}/evidence — Server-side SHA256 + criteria_snapshot_id + EVALUATED_STALE
+- All mutation endpoints support X-Idempotency-Key header (Redis TTL 24h)
+- Separated auth scopes: governance:write vs governance:approve
+- Reference: ADR-053, CONTRACT-GOVERNANCE-LOOP.md
+- Total endpoints: 75 → 80 endpoints
 
 **Changelog v3.4.0** (Feb 8, 2026):
 - Added Product Truth Layer telemetry endpoints (Sprint 147):
@@ -1510,19 +1522,27 @@ security:
 | PUT | `/projects/{id}` | Update project | EM, PM, Admin |
 | DELETE | `/projects/{id}` | Delete project | EM, Admin |
 
-### Gates (4 endpoints)
-| Method | Path | Description | Role Required |
-|--------|------|-------------|---------------|
+### Gates (9 endpoints — Sprint 173 Governance Loop)
+| Method | Path | Description | Scope Required |
+|--------|------|-------------|----------------|
 | GET | `/projects/{id}/gates` | List gates | Any |
 | GET | `/projects/{id}/gates/{code}` | Get gate | Any |
-| POST | `/projects/{id}/gates/{code}/evaluate` | Evaluate gate | Any |
-| POST | `/projects/{id}/gates/{code}/approvals` | Submit approval | Role-specific |
+| GET | `/gates/{id}/actions` | **Server-driven capability discovery (SSOT)** | `governance:write` OR `governance:approve` |
+| POST | `/gates/{id}/evaluate` | **Evaluate gate criteria** | `governance:write` |
+| POST | `/gates/{id}/submit` | **Submit for approval (requires missing_evidence=[])** | `governance:write` |
+| POST | `/gates/{id}/approve` | **Approve gate** | `governance:approve` |
+| POST | `/gates/{id}/reject` | **Reject gate (separate endpoint)** | `governance:approve` |
+| POST | `/projects/{id}/gates/{code}/evaluate` | Evaluate gate (legacy) | Any |
+| POST | `/projects/{id}/gates/{code}/approvals` | Submit approval (legacy) | Role-specific |
 
-### Evidence (4 endpoints)
-| Method | Path | Description | Role Required |
-|--------|------|-------------|---------------|
+> **Sprint 173 Note**: New endpoints use `/gates/{id}/` prefix (gate UUID). Legacy endpoints under `/projects/{id}/gates/{code}/` preserved for backward compatibility. All new endpoints support `X-Idempotency-Key` header. See CONTRACT-GOVERNANCE-LOOP.md for full API contract.
+
+### Evidence (5 endpoints — Sprint 173 Evidence Contract)
+| Method | Path | Description | Scope Required |
+|--------|------|-------------|----------------|
 | GET | `/projects/{id}/evidence` | List evidence | Any |
-| POST | `/projects/{id}/evidence` | Upload evidence | Any |
+| POST | `/gates/{id}/evidence` | **Upload evidence (server SHA256 + criteria_snapshot_id)** | `governance:write` |
+| POST | `/projects/{id}/evidence` | Upload evidence (legacy) | Any |
 | GET | `/projects/{id}/evidence/{id}` | Get evidence | Any |
 | DELETE | `/projects/{id}/evidence/{id}` | Delete evidence | EM, Admin |
 

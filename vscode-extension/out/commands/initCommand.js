@@ -2,14 +2,14 @@
 /**
  * SDLC Init Command Handler
  *
- * Implements the /init command for creating SDLC 6.0.0 compliant project structures.
+ * Implements the /init command for creating SDLC 6.0.5 compliant project structures.
  * Similar to Claude Code's /init command but for SDLC governance.
  *
- * SDLC 6.0.0 Rules:
+ * SDLC 6.0.5 Rules:
  * - Only /docs folders are mapped to stages (00-09)
  * - Code folders (src, backend, frontend, tests) are NOT stage-mapped
  *
- * Sprint 53 - SDLC 6.0.0 Compliance
+ * Sprint 53 - SDLC 6.0.5 Compliance
  * @version 1.0.0
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -151,7 +151,7 @@ class InitCommandHandler {
         // Step 4: Generate structure with progress
         const result = await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
-            title: 'Creating SDLC 6.0.0 structure...',
+            title: 'Creating SDLC 6.0.5 structure...',
             cancellable: false,
         }, async (progress) => {
             progress.report({ increment: 0, message: 'Preparing...' });
@@ -287,7 +287,7 @@ class InitCommandHandler {
      */
     async showGapAnalysisResults(analysis, tier) {
         // Create markdown content for webview
-        const panel = vscode.window.createWebviewPanel('sdlc.gapAnalysis', 'SDLC 6.0.0 Gap Analysis', vscode.ViewColumn.One, { enableScripts: true });
+        const panel = vscode.window.createWebviewPanel('sdlc.gapAnalysis', 'SDLC 6.0.5 Gap Analysis', vscode.ViewColumn.One, { enableScripts: true });
         panel.webview.html = this.generateGapAnalysisHtml(analysis, tier);
         // Show quick pick for action
         const action = await vscode.window.showQuickPick([
@@ -325,7 +325,7 @@ class InitCommandHandler {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SDLC 6.0.0 Gap Analysis</title>
+    <title>SDLC 6.0.5 Gap Analysis</title>
     <style>
         body {
             font-family: var(--vscode-font-family);
@@ -377,7 +377,7 @@ class InitCommandHandler {
     </style>
 </head>
 <body>
-    <h1>SDLC 6.0.0 Gap Analysis</h1>
+    <h1>SDLC 6.0.5 Gap Analysis</h1>
     <p>Target Tier: <span class="tier-badge">${tier}</span></p>
 
     <div class="section">
@@ -428,7 +428,7 @@ class InitCommandHandler {
      * Show success message with summary
      */
     async showSuccessMessage(folders, files, tier) {
-        const message = `SDLC 6.0.0 project initialized! (${tier} tier)\n` +
+        const message = `SDLC 6.0.5 project initialized! (${tier} tier)\n` +
             `Created ${folders.length} folders and ${files.length} files.`;
         const action = await vscode.window.showInformationMessage(message, 'Open Getting Started', 'View Gate Status');
         if (action === 'View Gate Status') {

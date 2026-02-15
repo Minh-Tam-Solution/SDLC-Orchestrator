@@ -9,6 +9,7 @@
  */
 
 import * as vscode from 'vscode';
+import * as crypto from 'crypto';
 import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
 import { AuthService } from './authService';
 import { Logger } from '../utils/logger';
@@ -468,6 +469,136 @@ export class ApiClient {
             return [];
         }
         return this.getGates(projectId);
+    }
+
+    // ============================================
+    // Gate Governance APIs (Sprint 173 - ADR-053)
+    // ============================================
+
+    /**
+     * Gets available actions for a gate (server-driven capability discovery).
+     * All 3 clients (Web, CLI, Extension) use this to determine what to show.
+     * No client-side permission computation.
+     *
+     * @param gateId - Gate UUID
+     * @returns Actions with reasons, evidence status
+     */
+    async getGateActions(gateId: string): Promise<{
+        gate_id: string;
+        status: string;
+        actions: {
+            can_evaluate: boolean;
+            can_submit: boolean;
+            can_approve: boolean;
+            can_reject: boolean;
+            can_upload_evidence: boolean;
+        };
+        reasons: Record<string, string>;
+        required_evidence: string[];
+        submitted_evidence: string[];
+        missing_evidence: string[];
+    }> {
+        return this.get(`/api/v1/gates/${gateId}/actions`);
+    }
+
+    /**
+     * Approve a gate (separate endpoint per CTO Mod 1).
+     * Requires governance:approve scope (CTO/CPO/CEO roles).
+     *
+     * @param gateId - Gate UUID
+     * @param comment - Mandatory approval comment
+     * @returns Updated gate
+     */
+    async approveGate(gateId: string, comment: string): Promise<Gate> {
+        return this.post<Gate>(`/api/v1/gates/${gateId}/approve`, {
+            comment,
+        }, {
+            headers: { 'X-Idempotency-Key': crypto.randomUUID() },
+        });
+    }
+
+    /**
+     * Reject a gate (separate endpoint per CTO Mod 1).
+     * Requires governance:approve scope (CTO/CPO/CEO roles).
+     *
+     * @param gateId - Gate UUID
+     * @param comment - Mandatory rejection comment
+     * @returns Updated gate
+     */
+    async rejectGate(gateId: string, comment: string): Promise<Gate> {
+        return this.post<Gate>(`/api/v1/gates/${gateId}/reject`, {
+            comment,
+        }, {
+            headers: { 'X-Idempotency-Key': crypto.randomUUID() },
+        });
+    }
+
+    /**
+     * Submit evidence file to a gate.
+     * Server re-computes SHA256 and verifies against client hash.
+     * If gate is EVALUATED, status changes to EVALUATED_STALE.
+     *
+     * Uses multipart/form-data via manual boundary construction
+     * (no form-data dependency needed).
+     *
+     * @param gateId - Gate UUID
+     * @param evidenceType - Evidence type (test-results, security-scan, etc.)
+     * @param fileData - File buffer, name, and client-computed SHA256
+     * @returns Upload result with integrity verification
+     */
+    async submitEvidence(
+        gateId: string,
+        evidenceType: string,
+        fileData: {
+            buffer: Buffer;
+            name: string;
+            mimeType: string;
+            sha256Client: string;
+            sizeBytes: number;
+        }
+    ): Promise<{
+        evidence_id: string;
+        sha256_client: string;
+        sha256_server: string;
+        integrity_verified: boolean;
+        gate_status_changed: boolean;
+        criteria_snapshot_id?: string;
+    }> {
+        const boundary = `----SDLCEvidence${Date.now()}`;
+        const parts: Buffer[] = [];
+
+        const addField = (name: string, value: string): void => {
+            parts.push(Buffer.from(
+                `--${boundary}\r\n` +
+                `Content-Disposition: form-data; name="${name}"\r\n\r\n` +
+                `${value}\r\n`
+            ));
+        };
+
+        addField('evidence_type', evidenceType);
+        addField('sha256_client', fileData.sha256Client);
+        addField('size_bytes', String(fileData.sizeBytes));
+        addField('mime_type', fileData.mimeType);
+        addField('source', 'extension');
+
+        parts.push(Buffer.from(
+            `--${boundary}\r\n` +
+            `Content-Disposition: form-data; name="file"; filename="${fileData.name}"\r\n` +
+            `Content-Type: ${fileData.mimeType}\r\n\r\n`
+        ));
+        parts.push(fileData.buffer);
+        parts.push(Buffer.from('\r\n'));
+        parts.push(Buffer.from(`--${boundary}--\r\n`));
+
+        const body = Buffer.concat(parts);
+
+        return this.post(`/api/v1/gates/${gateId}/evidence`, body, {
+            headers: {
+                'Content-Type': `multipart/form-data; boundary=${boundary}`,
+                'X-Idempotency-Key': crypto.randomUUID(),
+            },
+            timeout: 120000,
+        });
     }
 
     // ============================================

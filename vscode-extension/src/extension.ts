@@ -41,6 +41,8 @@ import { BlueprintProvider, registerBlueprintCommands } from './providers/bluepr
 import { AppBuilderPanel } from './panels/appBuilderPanel';
 import { registerGenerationPanelCommand } from './panels/generationPanel';
 import { ProjectDetector } from './services/projectDetector';
+import { registerGateApprovalCommands } from './commands/gateApprovalCommand';
+import { registerEvidenceSubmissionCommand } from './commands/evidenceSubmissionCommand';
 
 /**
  * Extension state management
@@ -219,6 +221,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
         // Register SSOT Validation commands (Sprint 141 - RFC-SDLC-602)
         state.ssotValidator = registerSSOTCommands(context);
+
+        // Register Gate Governance commands (Sprint 173 - ADR-053 Governance Loop)
+        registerGateApprovalCommands(context, state.apiClient);
+        registerEvidenceSubmissionCommand(context, state.apiClient);
 
         // Register Blueprint commands (Sprint 53 Day 2)
         registerBlueprintCommands(context, state.blueprintProvider);

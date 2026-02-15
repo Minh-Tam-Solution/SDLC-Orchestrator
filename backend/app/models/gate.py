@@ -21,13 +21,14 @@ Design References:
 - Data Dictionary: docs/01-planning/03-Data-Model/Data-Dictionary.md
 - FR1: docs/01-planning/01-Requirements/Functional-Requirements-Document.md
 
-Gate Status Values (UPPERCASE - Source of Truth):
-- DRAFT: Gate created, not yet submitted
-- PENDING_APPROVAL: Submitted, awaiting reviewer approval
-- IN_PROGRESS: Under review/evaluation
+Gate Status Values (UPPERCASE - Source of Truth, Sprint 173 ADR-053):
+- DRAFT: Gate created, no evaluation yet
+- EVALUATED: Exit criteria evaluated against evidence
+- EVALUATED_STALE: Evaluation invalidated by new evidence upload
+- SUBMITTED: Submitted for approval review (was PENDING_APPROVAL)
 - APPROVED: Passed all criteria
-- REJECTED: Did not meet criteria
-- ARCHIVED: No longer active
+- REJECTED: Did not meet criteria (re-evaluate allowed)
+- ARCHIVED: No longer active (lifecycle, not governance state)
 
 SDLC 5.1.3 Gates:
 - G0.1: Foundation Ready (WHY stage)
@@ -156,23 +157,30 @@ class Gate(Base):
         index=True,
     )
 
-    # Gate Status
+    # Gate Status (Sprint 173 State Machine — ADR-053)
+    # Valid: DRAFT, EVALUATED, EVALUATED_STALE, SUBMITTED, APPROVED, REJECTED, ARCHIVED
     status = Column(
         String(20),
         nullable=False,
         default="DRAFT",
         index=True,
-    )  # 'DRAFT', 'PENDING_APPROVAL', 'APPROVED', 'REJECTED', 'ARCHIVED'
+    )
 
     # Exit Criteria (JSONB)
     exit_criteria = Column(
         JSONB, nullable=False, default=list
     )  # [{"id": "...", "description": "...", "met": false}]
 
+    # Sprint 173: Exit criteria version for evidence snapshot binding
+    exit_criteria_version = Column(
+        UUID(as_uuid=True), default=uuid4, nullable=True
+    )
+
     # Description
     description = Column(Text, nullable=True)
 
     # Status Timestamps
+    evaluated_at = Column(DateTime, nullable=True)  # Sprint 173: Last evaluation timestamp
     approved_at = Column(DateTime, nullable=True)
     rejected_at = Column(DateTime, nullable=True)
     archived_at = Column(DateTime, nullable=True)
@@ -213,18 +221,33 @@ class Gate(Base):
 
     @property
     def is_approved(self) -> bool:
-        """Check if gate is approved"""
+        """Check if gate is approved."""
         return self.status == "APPROVED"
 
     @property
     def is_pending(self) -> bool:
-        """Check if gate is pending approval"""
-        return self.status == "PENDING_APPROVAL"
+        """Check if gate is pending approval (SUBMITTED status, Sprint 173)."""
+        return self.status == "SUBMITTED"
 
     @property
     def is_draft(self) -> bool:
-        """Check if gate is still in draft"""
+        """Check if gate is still in draft."""
         return self.status == "DRAFT"
+
+    @property
+    def is_evaluated(self) -> bool:
+        """Check if gate has been evaluated (Sprint 173)."""
+        return self.status == "EVALUATED"
+
+    @property
+    def is_evaluated_stale(self) -> bool:
+        """Check if evaluation is stale due to new evidence (Sprint 173)."""
+        return self.status == "EVALUATED_STALE"
+
+    @property
+    def is_rejected(self) -> bool:
+        """Check if gate was rejected (re-evaluate allowed, Sprint 173)."""
+        return self.status == "REJECTED"
 
     @property
     def all_criteria_met(self) -> bool:

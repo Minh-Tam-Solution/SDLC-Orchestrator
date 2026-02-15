@@ -41,7 +41,7 @@ import logging
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -55,14 +55,27 @@ from app.models.policy import PolicyEvaluation
 from app.models.project import Project, ProjectMember
 from app.models.user import User, Role
 from app.schemas.gate import (
+    EvidenceUploadResponse,
+    GateActionsResponse,
     GateApprovalRequest,
     GateApprovalResponse,
+    GateApproveRequest,
     GateCreateRequest,
+    GateEvaluateResponse,
     GateListResponse,
+    GateRejectRequest,
     GateResponse,
     GateSubmitRequest,
+    GateStatus,
     GateUpdateRequest,
+    VALID_TRANSITIONS,
 )
+from app.services.gate_service import (
+    compute_gate_actions,
+    validate_transition,
+    InvalidTransitionError,
+)
+from app.middleware.idempotency import check_idempotency, store_idempotency
 
 logger = logging.getLogger(__name__)
 
@@ -819,7 +832,173 @@ async def delete_gate(
 
 
 # =========================================================================
-# Approval Workflow Endpoints
+# Sprint 173: Governance Loop Endpoints (ADR-053)
+# =========================================================================
+
+
+@router.get("/{gate_id}/actions", response_model=GateActionsResponse, status_code=status.HTTP_200_OK)
+async def get_gate_actions(
+    gate_id: UUID,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> GateActionsResponse:
+    """
+    Server-driven capability discovery (Sprint 173 — ADR-053).
+
+    SSOT Invariant: Uses compute_gate_actions() — the same function
+    used by all mutation endpoints. No permission drift.
+
+    All 3 clients (Web, CLI, Extension) MUST call this endpoint before
+    showing action buttons/options. No client-side permission computation.
+
+    Response (200 OK):
+        {
+            "gate_id": "uuid",
+            "status": "SUBMITTED",
+            "actions": {"can_evaluate": false, "can_approve": true, ...},
+            "reasons": {"can_evaluate": "Cannot evaluate from status: SUBMITTED"},
+            "missing_evidence": ["security-scan"]
+        }
+    """
+    gate = await get_gate_or_404(gate_id, db)
+
+    # Verify user is project member
+    is_member = await check_project_membership(gate.project_id, current_user, db)
+    if not is_member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You must be a project member to view gate actions",
+        )
+
+    result = await compute_gate_actions(gate, current_user, db)
+
+    return GateActionsResponse(
+        gate_id=result["gate_id"],
+        status=result["status"],
+        actions=result["actions"],
+        reasons=result["reasons"],
+        required_evidence=result["required_evidence"],
+        submitted_evidence=result["submitted_evidence"],
+        missing_evidence=result["missing_evidence"],
+    )
+
+
+@router.post("/{gate_id}/evaluate", response_model=GateEvaluateResponse, status_code=status.HTTP_200_OK)
+async def evaluate_gate(
+    gate_id: UUID,
+    request: Request = None,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> GateEvaluateResponse:
+    """
+    Evaluate gate exit criteria (Sprint 173 — ADR-053).
+
+    Transition: DRAFT/EVALUATED/EVALUATED_STALE/REJECTED → EVALUATED
+
+    Response (200 OK):
+        {
+            "gate_id": "uuid",
+            "status": "EVALUATED",
+            "evaluated_at": "2026-02-15T10:30:00Z",
+            "exit_criteria": [...],
+            "summary": {"total": 3, "met": 2, "unmet": 1, "pass_rate": 66.7}
+        }
+
+    Errors:
+        - 409 Conflict: Invalid state transition
+    """
+    gate = await get_gate_or_404(gate_id, db)
+
+    # Verify project membership
+    is_member = await check_project_membership(gate.project_id, current_user, db)
+    if not is_member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You must be a project member to evaluate this gate",
+        )
+
+    # Check idempotency
+    if request:
+        cached = await check_idempotency(request, current_user.id, str(gate_id), "evaluate")
+        if cached:
+            return GateEvaluateResponse(**cached)
+
+    # Validate state transition (SSOT — uses same VALID_TRANSITIONS)
+    try:
+        target_status = validate_transition("evaluate", gate.status)
+    except InvalidTransitionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
+        )
+
+    # Evaluate exit criteria against evidence
+    exit_criteria = gate.exit_criteria or []
+    evaluated_criteria = []
+    met_count = 0
+
+    for criterion in exit_criteria:
+        if isinstance(criterion, dict):
+            criterion_copy = dict(criterion)
+            # Check if evidence exists for this criterion
+            evidence_type = criterion.get("evidence_type") or criterion.get("id", "")
+            if evidence_type:
+                result = await db.execute(
+                    select(func.count())
+                    .select_from(GateEvidence)
+                    .where(
+                        GateEvidence.gate_id == gate.id,
+                        GateEvidence.evidence_type == evidence_type,
+                        GateEvidence.deleted_at.is_(None),
+                    )
+                )
+                has_evidence = (result.scalar() or 0) > 0
+                criterion_copy["met"] = has_evidence
+            else:
+                criterion_copy["met"] = criterion.get("met", False)
+
+            if criterion_copy.get("met", False):
+                met_count += 1
+            evaluated_criteria.append(criterion_copy)
+        else:
+            evaluated_criteria.append(criterion)
+
+    total = len(evaluated_criteria)
+    unmet = total - met_count
+    pass_rate = round((met_count / total * 100), 1) if total > 0 else 0.0
+
+    # Update gate
+    now = datetime.utcnow()
+    gate.status = target_status
+    gate.exit_criteria = evaluated_criteria
+    gate.evaluated_at = now
+    gate.updated_at = now
+
+    await db.commit()
+    await db.refresh(gate)
+
+    response_data = {
+        "gate_id": gate.id,
+        "status": gate.status,
+        "evaluated_at": now,
+        "exit_criteria": evaluated_criteria,
+        "summary": {
+            "total": total,
+            "met": met_count,
+            "unmet": unmet,
+            "pass_rate": pass_rate,
+        },
+    }
+
+    # Store idempotency
+    if request:
+        await store_idempotency(request, current_user.id, str(gate_id), "evaluate", response_data)
+
+    return GateEvaluateResponse(**response_data)
+
+
+# =========================================================================
+# Approval Workflow Endpoints (Sprint 173 — Updated)
 # =========================================================================
 
 
@@ -827,40 +1006,22 @@ async def delete_gate(
 async def submit_gate(
     gate_id: UUID,
     submit_data: GateSubmitRequest,
+    request: Request = None,
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ) -> GateResponse:
     """
-    Submit gate for approval (CTO/CPO/CEO review).
+    Submit gate for approval (Sprint 173 — ADR-053).
 
-    Path Parameters:
-        - gate_id: Gate UUID
-
-    Request Body:
-        {
-            "message": "Submitting G2 for approval. All exit criteria met."
-        }
+    Transition: EVALUATED → SUBMITTED
+    Precondition: missing_evidence must be empty (SDLC Expert v2)
 
     Response (200 OK):
-        {
-            "id": "...",
-            "status": "PENDING_APPROVAL",
-            ...
-        }
+        {"id": "...", "status": "SUBMITTED", ...}
 
     Errors:
-        - 401 Unauthorized: Invalid token
-        - 403 Forbidden: User not project member or gate already submitted
-        - 404 Not Found: Gate not found
-
-    Flow:
-        1. Fetch gate by ID
-        2. Verify user is project member
-        3. Verify gate status is DRAFT
-        4. Change status: DRAFT → PENDING_APPROVAL
-        5. Trigger policy evaluation (OPA) - TODO
-        6. Send notifications to CTO/CPO/CEO - TODO
-        7. Return updated gate
+        - 409 Conflict: Invalid state transition
+        - 422 Unprocessable Entity: Missing required evidence
     """
     gate = await get_gate_or_404(gate_id, db)
 
@@ -872,18 +1033,45 @@ async def submit_gate(
             detail="You must be a project member to submit this gate",
         )
 
-    # Verify gate status is DRAFT
-    if gate.status != "DRAFT":
+    # Check idempotency
+    if request:
+        cached = await check_idempotency(request, current_user.id, str(gate_id), "submit")
+        if cached:
+            return GateResponse(**cached)
+
+    # Use compute_gate_actions for SSOT validation (same function as /actions)
+    gate_actions = await compute_gate_actions(gate, current_user, db)
+
+    if not gate_actions["actions"]["can_submit"]:
+        reason = gate_actions["reasons"].get("can_submit", "Cannot submit gate")
+
+        # Distinguish between state transition error and missing evidence
+        if gate_actions["missing_evidence"]:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=reason,
+            )
+
+        # State transition error
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Cannot submit gate with status '{gate.status}' (must be DRAFT)",
+            status_code=status.HTTP_409_CONFLICT,
+            detail=reason,
         )
 
-    # Change status to PENDING_APPROVAL
-    gate.status = "PENDING_APPROVAL"
+    # Validate state transition
+    try:
+        target_status = validate_transition("submit", gate.status)
+    except InvalidTransitionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
+        )
+
+    # Update gate status
+    gate.status = target_status
     gate.updated_at = datetime.utcnow()
 
-    # TD-03: Trigger OPA policy evaluation on gate submit
+    # Trigger OPA policy evaluation
     policy_violations = await evaluate_gate_policies(gate, db)
 
     # Send notifications to CTO/CPO/CEO
@@ -906,16 +1094,14 @@ async def submit_gate(
                 f"for gate {gate.gate_name}"
             )
     except Exception as e:
-        # Don't block gate submission if notifications fail
         logger.error(f"Failed to send gate approval notifications: {e}")
 
     await db.commit()
     await db.refresh(gate)
 
-    # Get real evidence count (TD-04+05)
     evidence_count = await get_evidence_count(gate_id, db)
 
-    return GateResponse(
+    response = GateResponse(
         id=gate.id,
         project_id=gate.project_id,
         gate_name=gate.gate_name,
@@ -934,55 +1120,53 @@ async def submit_gate(
         policy_violations=policy_violations,
     )
 
+    # Store idempotency
+    if request:
+        await store_idempotency(
+            request, current_user.id, str(gate_id), "submit",
+            response.model_dump(),
+        )
+
+    return response
+
 
 @router.post("/{gate_id}/approve", response_model=GateResponse, status_code=status.HTTP_200_OK)
 async def approve_gate(
     gate_id: UUID,
-    approval_data: GateApprovalRequest,
+    approval_data: GateApproveRequest,
+    request: Request = None,
     current_user: User = Depends(require_roles(["CTO", "CPO", "CEO"])),
     db: AsyncSession = Depends(get_db),
 ) -> GateResponse:
     """
-    Approve or reject gate (CTO, CPO, CEO only).
+    Approve gate (Sprint 173 — CTO Mod 1: separate endpoint).
 
-    Path Parameters:
-        - gate_id: Gate UUID
-
-    Request Body:
-        {
-            "approved": true,
-            "comments": "All exit criteria validated. Approved for production."
-        }
+    Transition: SUBMITTED → APPROVED
+    Requires: governance:approve scope (CTO/CPO/CEO roles)
+    Comment: Required
 
     Response (200 OK):
-        {
-            "id": "...",
-            "status": "APPROVED",
-            "approved_at": "2025-11-28T10:30:00Z",
-            ...
-        }
+        {"id": "...", "status": "APPROVED", "approved_at": "...", ...}
 
     Errors:
-        - 401 Unauthorized: Invalid token
-        - 403 Forbidden: User not CTO/CPO/CEO or gate not pending approval
-        - 404 Not Found: Gate not found
-
-    Flow:
-        1. Fetch gate by ID
-        2. Verify user is CTO/CPO/CEO (require_roles dependency)
-        3. Verify gate status is PENDING_APPROVAL
-        4. Create approval record
-        5. If approved: Change status → APPROVED, set approved_at
-        6. If rejected: Change status → REJECTED
-        7. Return updated gate
+        - 403 Forbidden: User not CTO/CPO/CEO
+        - 409 Conflict: Gate not in SUBMITTED status
     """
     gate = await get_gate_or_404(gate_id, db)
 
-    # Verify gate status is PENDING_APPROVAL
-    if gate.status != "PENDING_APPROVAL":
+    # Check idempotency
+    if request:
+        cached = await check_idempotency(request, current_user.id, str(gate_id), "approve")
+        if cached:
+            return GateResponse(**cached)
+
+    # Validate state transition (SSOT — same VALID_TRANSITIONS)
+    try:
+        target_status = validate_transition("approve", gate.status)
+    except InvalidTransitionError as e:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Cannot approve gate with status '{gate.status}' (must be PENDING_APPROVAL)",
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
         )
 
     # Create approval record
@@ -990,77 +1174,45 @@ async def approve_gate(
         gate_id=gate.id,
         approver_id=current_user.id,
     )
-    # Use helper methods instead of setting is_approved directly
-    if approval_data.approved:
-        approval.approve(comments=approval_data.comments)
-    else:
-        approval.reject(comments=approval_data.comments or "Rejected")
+    approval.approve(comments=approval_data.comment)
     db.add(approval)
 
     # Update gate status
-    if approval_data.approved:
-        gate.status = "APPROVED"
-        gate.approved_at = datetime.utcnow()
-    else:
-        gate.status = "REJECTED"
-
-    gate.updated_at = datetime.utcnow()
+    now = datetime.utcnow()
+    gate.status = target_status
+    gate.approved_at = now
+    gate.updated_at = now
 
     await db.commit()
     await db.refresh(gate)
     await db.refresh(approval)
 
-    # Get real evidence count and policy violations (TD-04+05) - BEFORE notifications
     evidence_count = await get_evidence_count(gate_id, db)
     policy_violations = await get_policy_violations(gate_id, db)
 
-    # OPTIMIZED: Send notifications in background (don't block response)
-    # This reduces approval response time from ~10s to <1s
+    # Background notifications
     import asyncio
-    
-    async def send_notifications_background():
-        """Background task to send notifications without blocking API response."""
+
+    async def _notify():
         try:
             from app.services.notification_service import create_notification_service
-
             notification_service = create_notification_service(db)
             stakeholders = await get_gate_stakeholders(gate, db)
-
             if stakeholders:
-                if approval_data.approved:
-                    await notification_service.send_gate_approved_notification(
-                        project=gate.project,
-                        gate_name=gate.gate_name,
-                        gate_code=gate.gate_type or gate.gate_name,
-                        approved_by=current_user,
-                        comments=approval_data.comments,
-                        recipients=stakeholders,
-                    )
-                    logger.info(
-                        f"Sent gate approval notification to {len(stakeholders)} stakeholders "
-                        f"for gate {gate.gate_name}"
-                    )
-                else:
-                    await notification_service.send_gate_rejected_notification(
-                        project=gate.project,
-                        gate_name=gate.gate_name,
-                        gate_code=gate.gate_type or gate.gate_name,
-                        rejected_by=current_user,
-                        comments=approval_data.comments,
-                        recipients=stakeholders,
-                    )
-                    logger.info(
-                        f"Sent gate rejection notification to {len(stakeholders)} stakeholders "
-                        f"for gate {gate.gate_name}"
-                    )
+                await notification_service.send_gate_approved_notification(
+                    project=gate.project,
+                    gate_name=gate.gate_name,
+                    gate_code=gate.gate_type or gate.gate_name,
+                    approved_by=current_user,
+                    comments=approval_data.comment,
+                    recipients=stakeholders,
+                )
         except Exception as e:
-            # Don't block approval response if notifications fail
-            logger.error(f"Failed to send gate approval/rejection notifications: {e}")
-    
-    # Fire and forget - don't await
-    asyncio.create_task(send_notifications_background())
+            logger.error(f"Failed to send gate approval notifications: {e}")
 
-    return GateResponse(
+    asyncio.create_task(_notify())
+
+    response = GateResponse(
         id=gate.id,
         project_id=gate.project_id,
         gate_name=gate.gate_name,
@@ -1074,18 +1226,335 @@ async def approve_gate(
         updated_at=gate.updated_at,
         approved_at=gate.approved_at,
         deleted_at=gate.deleted_at,
-        approvals=[
-            {
-                "id": str(approval.id),
-                "approved_by": str(approval.approver_id),
-                "is_approved": approval.is_approved,
-                "comments": approval.comments,
-                "approved_at": approval.approved_at.isoformat(),
-            }
-        ],
+        approvals=[{
+            "id": str(approval.id),
+            "approved_by": str(approval.approver_id),
+            "is_approved": approval.is_approved,
+            "comments": approval.comments,
+            "approved_at": approval.approved_at.isoformat(),
+        }],
         evidence_count=evidence_count,
         policy_violations=policy_violations,
     )
+
+    if request:
+        await store_idempotency(
+            request, current_user.id, str(gate_id), "approve",
+            response.model_dump(),
+        )
+
+    return response
+
+
+@router.post("/{gate_id}/reject", response_model=GateResponse, status_code=status.HTTP_200_OK)
+async def reject_gate(
+    gate_id: UUID,
+    reject_data: GateRejectRequest,
+    request: Request = None,
+    current_user: User = Depends(require_roles(["CTO", "CPO", "CEO"])),
+    db: AsyncSession = Depends(get_db),
+) -> GateResponse:
+    """
+    Reject gate (Sprint 173 — CTO Mod 1: separate endpoint, ADR-053).
+
+    Transition: SUBMITTED → REJECTED
+    Requires: governance:approve scope (CTO/CPO/CEO roles)
+    Comment: Required
+    After rejection: Gate can be re-evaluated (REJECTED → EVALUATED)
+
+    Response (200 OK):
+        {"id": "...", "status": "REJECTED", "rejected_at": "...", ...}
+
+    Errors:
+        - 403 Forbidden: User not CTO/CPO/CEO
+        - 409 Conflict: Gate not in SUBMITTED status
+    """
+    gate = await get_gate_or_404(gate_id, db)
+
+    # Check idempotency
+    if request:
+        cached = await check_idempotency(request, current_user.id, str(gate_id), "reject")
+        if cached:
+            return GateResponse(**cached)
+
+    # Validate state transition
+    try:
+        target_status = validate_transition("reject", gate.status)
+    except InvalidTransitionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
+        )
+
+    # Create rejection record
+    approval = GateApproval(
+        gate_id=gate.id,
+        approver_id=current_user.id,
+    )
+    approval.reject(comments=reject_data.comment)
+    db.add(approval)
+
+    # Update gate status
+    now = datetime.utcnow()
+    gate.status = target_status
+    gate.rejected_at = now
+    gate.updated_at = now
+
+    await db.commit()
+    await db.refresh(gate)
+    await db.refresh(approval)
+
+    evidence_count = await get_evidence_count(gate_id, db)
+    policy_violations = await get_policy_violations(gate_id, db)
+
+    # Background notifications
+    import asyncio
+
+    async def _notify():
+        try:
+            from app.services.notification_service import create_notification_service
+            notification_service = create_notification_service(db)
+            stakeholders = await get_gate_stakeholders(gate, db)
+            if stakeholders:
+                await notification_service.send_gate_rejected_notification(
+                    project=gate.project,
+                    gate_name=gate.gate_name,
+                    gate_code=gate.gate_type or gate.gate_name,
+                    rejected_by=current_user,
+                    comments=reject_data.comment,
+                    recipients=stakeholders,
+                )
+        except Exception as e:
+            logger.error(f"Failed to send gate rejection notifications: {e}")
+
+    asyncio.create_task(_notify())
+
+    response = GateResponse(
+        id=gate.id,
+        project_id=gate.project_id,
+        gate_name=gate.gate_name,
+        gate_type=gate.gate_type,
+        stage=gate.stage,
+        status=gate.status,
+        description=gate.description,
+        exit_criteria=gate.exit_criteria,
+        created_by=gate.created_by,
+        created_at=gate.created_at,
+        updated_at=gate.updated_at,
+        approved_at=gate.approved_at,
+        deleted_at=gate.deleted_at,
+        approvals=[{
+            "id": str(approval.id),
+            "approved_by": str(approval.approver_id),
+            "is_approved": approval.is_approved,
+            "comments": approval.comments,
+            "approved_at": approval.approved_at.isoformat(),
+        }],
+        evidence_count=evidence_count,
+        policy_violations=policy_violations,
+    )
+
+    if request:
+        await store_idempotency(
+            request, current_user.id, str(gate_id), "reject",
+            response.model_dump(),
+        )
+
+    return response
+
+
+# =========================================================================
+# Sprint 173: Evidence Upload Endpoint (ADR-053 — Evidence Contract)
+# =========================================================================
+
+
+@router.post("/{gate_id}/evidence", response_model=EvidenceUploadResponse, status_code=status.HTTP_201_CREATED)
+async def upload_evidence(
+    gate_id: UUID,
+    request: Request = None,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> EvidenceUploadResponse:
+    """
+    Upload evidence for a gate (Sprint 173 — ADR-053 Evidence Contract).
+
+    Content-Type: multipart/form-data
+
+    Form Fields:
+        - file: Binary file data (required)
+        - evidence_type: Evidence type string (required)
+        - description: Evidence description (optional)
+        - sha256_client: Client-computed SHA256 hash (required for cli/extension/web, optional for other)
+        - source: Upload source — cli, extension, web, other (default: web)
+
+    Side Effects:
+        - If gate status is EVALUATED → automatically set to EVALUATED_STALE
+        - Server re-computes SHA256 and compares with client hash
+        - Evidence bound to gate's exit_criteria_version via criteria_snapshot_id
+
+    Response (201 Created):
+        {
+            "evidence_id": "uuid",
+            "sha256_client": "a1b2c3d4...",
+            "sha256_server": "a1b2c3d4...",
+            "integrity_verified": true,
+            "gate_status_changed": true,
+            "new_gate_status": "EVALUATED_STALE"
+        }
+
+    Errors:
+        - 400 Bad Request: SHA256 hash mismatch (corruption/tampering)
+        - 403 Forbidden: Gate is APPROVED or ARCHIVED
+    """
+    import hashlib
+    from fastapi import Form, UploadFile, File
+    gate = await get_gate_or_404(gate_id, db)
+
+    # Verify project membership
+    is_member = await check_project_membership(gate.project_id, current_user, db)
+    if not is_member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You must be a project member to upload evidence",
+        )
+
+    # Check if evidence upload is allowed for this gate status
+    if gate.status in (GateStatus.APPROVED.value, GateStatus.ARCHIVED.value):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Cannot upload evidence for {gate.status} gate",
+        )
+
+    # Parse multipart form data
+    form = await request.form()
+    file = form.get("file")
+    evidence_type = form.get("evidence_type", "")
+    description = form.get("description")
+    sha256_client = form.get("sha256_client")
+    source = form.get("source", "web")
+
+    if not file or not hasattr(file, "read"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File is required",
+        )
+
+    if not evidence_type:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="evidence_type is required",
+        )
+
+    # Validate source
+    valid_sources = {"cli", "extension", "web", "other"}
+    if source not in valid_sources:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid source: {source}. Must be one of: {', '.join(valid_sources)}",
+        )
+
+    # Read file content and compute server-side SHA256
+    file_content = await file.read()
+    file_size = len(file_content)
+    sha256_server = hashlib.sha256(file_content).hexdigest()
+
+    # Verify integrity: client hash vs server hash
+    integrity_verified = True
+    if sha256_client:
+        if sha256_client != sha256_server:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="SHA256 hash mismatch: file may be corrupted or tampered",
+            )
+    else:
+        # No client hash provided
+        if source != "other":
+            logger.warning(
+                f"Evidence upload without sha256_client from source={source} "
+                f"gate={gate_id} user={current_user.id}"
+            )
+        integrity_verified = False
+
+    # Upload to MinIO via S3 API (network-only, AGPL-safe)
+    file_name = getattr(file, "filename", "evidence_file")
+    s3_key = f"evidence/{gate_id}/{file_name}"
+
+    try:
+        import requests as http_requests
+        from app.core.config import settings
+
+        minio_url = getattr(settings, "MINIO_URL", "http://minio:9000")
+        minio_bucket = getattr(settings, "MINIO_BUCKET", "sdlc-evidence")
+
+        upload_response = http_requests.put(
+            f"{minio_url}/{minio_bucket}/{s3_key}",
+            data=file_content,
+            headers={"Content-Type": getattr(file, "content_type", "application/octet-stream")},
+            timeout=120,
+        )
+        upload_response.raise_for_status()
+    except Exception as e:
+        logger.error(f"MinIO upload failed for gate {gate_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Evidence storage failed: {str(e)}",
+        )
+
+    # Create evidence record
+    evidence = GateEvidence(
+        gate_id=gate.id,
+        file_name=file_name,
+        file_size=file_size,
+        file_type=getattr(file, "content_type", "application/octet-stream"),
+        evidence_type=evidence_type,
+        s3_key=s3_key,
+        s3_bucket=getattr(settings, "MINIO_BUCKET", "sdlc-evidence"),
+        sha256_hash=sha256_client,
+        sha256_server=sha256_server,
+        criteria_snapshot_id=gate.exit_criteria_version,
+        source=source,
+        description=description,
+        uploaded_by=current_user.id,
+        uploaded_at=datetime.utcnow(),
+    )
+    db.add(evidence)
+
+    # Side effect: EVALUATED → EVALUATED_STALE (ADR-053)
+    gate_status_changed = False
+    new_gate_status = None
+
+    if gate.status == GateStatus.EVALUATED.value:
+        gate.status = GateStatus.EVALUATED_STALE.value
+        gate.updated_at = datetime.utcnow()
+        gate_status_changed = True
+        new_gate_status = GateStatus.EVALUATED_STALE.value
+        logger.info(
+            f"Gate {gate_id} status changed: EVALUATED → EVALUATED_STALE "
+            f"(evidence upload by user {current_user.id})"
+        )
+
+    await db.commit()
+    await db.refresh(evidence)
+
+    return EvidenceUploadResponse(
+        evidence_id=evidence.id,
+        gate_id=gate.id,
+        file_name=file_name,
+        file_size=file_size,
+        evidence_type=evidence_type,
+        sha256_client=sha256_client,
+        sha256_server=sha256_server,
+        integrity_verified=integrity_verified,
+        criteria_snapshot_id=gate.exit_criteria_version,
+        source=source,
+        gate_status_changed=gate_status_changed,
+        new_gate_status=new_gate_status,
+    )
+
+
+# =========================================================================
+# Approval History Endpoint
+# =========================================================================
 
 
 @router.get("/{gate_id}/approvals", response_model=List[GateApprovalResponse], status_code=status.HTTP_200_OK)

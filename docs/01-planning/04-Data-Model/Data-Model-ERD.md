@@ -1,15 +1,22 @@
 # Data Model & Entity-Relationship Diagram
 ## Database Schema and Relationships
 
-**Version**: 3.2.0
-**Date**: February 8, 2026
-**Status**: IMPLEMENTED - Product Truth Layer (Sprint 147)
+**Version**: 3.3.0
+**Date**: February 15, 2026
+**Status**: IMPLEMENTED - Governance Loop State Machine (Sprint 173)
 **Authority**: CTO + Backend Lead ✅ APPROVED
-**Foundation**: FRD v3.1.0, Vision v4.0.0, EP-04/05/06 Data Requirements
+**Foundation**: FRD v3.2.0, Vision v4.0.0, EP-04/05/06 Data Requirements
 **Stage**: Stage 04 (BUILD)
 **Framework**: SDLC 6.0.5 Complete Lifecycle (10 Stages)
 
 **Changelog**:
+- v3.3.0 (Feb 15, 2026): Sprint 173 Governance Loop schema changes (ADR-053):
+  - `gates` table: Added `evaluated_at` (TIMESTAMP), `exit_criteria_version` (UUID) columns
+  - `gates` table: Status values changed: PENDING_APPROVAL → SUBMITTED, IN_PROGRESS removed, EVALUATED + EVALUATED_STALE added
+  - `gate_evidence` table: Renamed `sha256_hash` → `sha256_client`
+  - `gate_evidence` table: Added `sha256_server` (VARCHAR 64), `criteria_snapshot_id` (UUID), `source` (VARCHAR 20) columns
+  - New indexes: `idx_gate_evidence_criteria_snapshot`, `idx_gate_evidence_source`
+  - Reference: ADR-053-Governance-Loop-State-Machine.md, CONTRACT-GOVERNANCE-LOOP.md
 - v3.2.0 (Feb 8, 2026): Added product_events table (Sprint 147 - Product Truth Layer)
 - v3.1.0 (Dec 23, 2025): Added EP-06 Codegen tables (codegen_evidence, codegen_attempts, codegen_escalations)
 - v3.0.0 (Dec 21, 2025): SDLC 5.1.3 update, EP-04/05/06 entities added
@@ -320,25 +327,41 @@ CREATE INDEX idx_projects_owner_id ON projects(owner_id);
 
 ## Table 4: gates
 
-**Purpose**: Gate definitions and current status.
+**Purpose**: Gate definitions, current status, and governance lifecycle.
 
-**Schema**:
+**Schema** (Updated Sprint 173 — ADR-053):
 ```sql
 CREATE TABLE gates (
-  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  project_id        UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  gate_code         VARCHAR(20) NOT NULL, -- G0.1, G0.2, G1, G2, etc.
-  gate_name         VARCHAR(255) NOT NULL, -- "Problem Definition", etc.
-  stage             VARCHAR(20) NOT NULL, -- stage-00, stage-01, etc.
-  status            VARCHAR(20) NOT NULL DEFAULT 'not_evaluated' CHECK (status IN ('not_evaluated', 'blocked', 'pending', 'passed')),
-  is_blocking       BOOLEAN NOT NULL DEFAULT TRUE,
-  last_evaluated_at TIMESTAMP,
-  passed_at         TIMESTAMP,
-  override_by       UUID REFERENCES users(id),
-  override_reason   TEXT,
-  override_expires  TIMESTAMP,
-  created_at        TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at        TIMESTAMP NOT NULL DEFAULT NOW(),
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id            UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  gate_code             VARCHAR(20) NOT NULL, -- G0.1, G0.2, G1, G2, etc.
+  gate_name             VARCHAR(255) NOT NULL, -- "Problem Definition", etc.
+  gate_type             VARCHAR(50) NOT NULL, -- 'G1_DESIGN_READY', 'G2_SHIP_READY', etc.
+  stage                 VARCHAR(20) NOT NULL, -- 'WHY', 'WHAT', 'BUILD', 'TEST', etc.
+  status                VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+  -- Valid status values (Sprint 173 State Machine):
+  --   DRAFT: Gate created, no evaluation yet
+  --   EVALUATED: Exit criteria evaluated against evidence
+  --   EVALUATED_STALE: Evaluation invalidated by new evidence upload
+  --   SUBMITTED: Submitted for approval review (was PENDING_APPROVAL pre-Sprint 173)
+  --   APPROVED: Passed all criteria
+  --   REJECTED: Did not meet criteria (re-evaluate allowed)
+  --   ARCHIVED: No longer active (lifecycle, not governance state)
+  description           TEXT,
+  exit_criteria         JSONB NOT NULL DEFAULT '[]', -- [{"id": "...", "description": "...", "met": false}]
+  exit_criteria_version UUID DEFAULT gen_random_uuid(), -- Snapshot binding for evidence (Sprint 173)
+  is_blocking           BOOLEAN NOT NULL DEFAULT TRUE,
+  created_by            UUID REFERENCES users(id) ON DELETE SET NULL,
+  evaluated_at          TIMESTAMP, -- Sprint 173: Last evaluation timestamp
+  approved_at           TIMESTAMP,
+  rejected_at           TIMESTAMP,
+  archived_at           TIMESTAMP,
+  override_by           UUID REFERENCES users(id),
+  override_reason       TEXT,
+  override_expires      TIMESTAMP,
+  created_at            TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at            TIMESTAMP NOT NULL DEFAULT NOW(),
+  deleted_at            TIMESTAMP, -- Soft delete
 
   UNIQUE(project_id, gate_code)
 );
@@ -346,15 +369,24 @@ CREATE TABLE gates (
 CREATE INDEX idx_gates_project_id ON gates(project_id);
 CREATE INDEX idx_gates_status ON gates(status);
 CREATE INDEX idx_gates_stage ON gates(stage);
+CREATE INDEX idx_gates_gate_type ON gates(gate_type);
+CREATE INDEX idx_gates_created_by ON gates(created_by);
+CREATE INDEX idx_gates_created_at ON gates(created_at);
 ```
 
 **Relationships**:
 - N:1 with projects (many gates belong to one project)
 - 1:N with gate_evaluations (one gate has many evaluations)
-- 1:N with evidence (one gate has many evidence items)
+- 1:N with gate_evidence (one gate has many evidence items)
+- N:1 with users (created_by)
+- 1:N with gate_approvals, gate_decisions, policy_evaluations, stage_transitions
 
-**Business Rules**:
-- Gate status: not_evaluated → pending → passed/blocked
+**Business Rules** (Sprint 173 State Machine — ADR-053):
+- Transitions: DRAFT → evaluate → EVALUATED → submit → SUBMITTED → approve/reject → APPROVED/REJECTED
+- EVALUATED → evidence_upload side-effect → EVALUATED_STALE → re-evaluate → EVALUATED
+- REJECTED → re-evaluate → EVALUATED (iterative improvement)
+- submit precondition: missing_evidence = [] (all required evidence uploaded)
+- Auth scopes: `governance:write` (evaluate, submit, evidence) vs `governance:approve` (approve, reject)
 - Override expires after 7 days (NFR, automated job)
 - Override requires CTO role (RBAC check)
 
@@ -495,49 +527,58 @@ CREATE INDEX idx_policies_is_pre_built ON policies(is_pre_built);
 
 ---
 
-## Table 7: evidence
+## Table 7: gate_evidence (Evidence Vault)
 
-**Purpose**: Evidence files and metadata.
+**Purpose**: Evidence files, metadata, and integrity verification (FR2).
 
-**Schema**:
+**Schema** (Updated Sprint 173 — ADR-053 Evidence Contract):
 ```sql
-CREATE TABLE evidence (
-  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  project_id        UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  gate_id           UUID REFERENCES gates(id),
-  evidence_type     VARCHAR(50) NOT NULL CHECK (type IN ('manual_upload', 'slack_message', 'github_pr', 'github_issue', 'figma_file', 'zoom_transcript')),
-  file_path         VARCHAR(500), -- MinIO S3 path
-  file_size_bytes   BIGINT,
-  file_mime_type    VARCHAR(100),
-  source_url        VARCHAR(500), -- Original URL (Slack, GitHub, etc.)
-  content_preview   TEXT, -- First 1000 chars for search
-  uploaded_by       UUID REFERENCES users(id),
-  created_at        TIMESTAMP NOT NULL DEFAULT NOW(),
-  indexed_at        TIMESTAMP -- Full-text search index timestamp
+CREATE TABLE gate_evidence (
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  gate_id               UUID NOT NULL REFERENCES gates(id) ON DELETE CASCADE,
+  file_name             VARCHAR(255) NOT NULL,
+  file_size             BIGINT NOT NULL, -- Bytes
+  file_type             VARCHAR(100) NOT NULL, -- MIME type
+  evidence_type         VARCHAR(50) NOT NULL, -- 'DESIGN_DOCUMENT', 'TEST_RESULTS', 'CODE_REVIEW', etc.
+  s3_key                VARCHAR(512) NOT NULL UNIQUE, -- MinIO S3 object key
+  s3_bucket             VARCHAR(100) NOT NULL DEFAULT 'sdlc-evidence',
+  -- Integrity (Sprint 173 Evidence Contract — ADR-053):
+  sha256_client         VARCHAR(64), -- Client-computed SHA256 (optional if source='other')
+  sha256_server         VARCHAR(64), -- Server re-computed SHA256 (always set)
+  -- Evidence binding (Sprint 173):
+  criteria_snapshot_id  UUID NOT NULL DEFAULT gen_random_uuid(), -- Binds to gate exit_criteria version
+  source                VARCHAR(20) NOT NULL DEFAULT 'web', -- 'cli', 'extension', 'web', 'other'
+  description           TEXT,
+  uploaded_by           UUID REFERENCES users(id) ON DELETE SET NULL,
+  uploaded_at           TIMESTAMP NOT NULL DEFAULT NOW(),
+  created_at            TIMESTAMP NOT NULL DEFAULT NOW(),
+  deleted_at            TIMESTAMP -- Soft delete only (evidence never hard-deleted)
 );
 
-CREATE INDEX idx_evidence_project_id ON evidence(project_id);
-CREATE INDEX idx_evidence_gate_id ON evidence(gate_id);
-CREATE INDEX idx_evidence_type ON evidence(evidence_type);
-CREATE INDEX idx_evidence_created_at ON evidence(created_at DESC);
-
--- Full-text search index (PostgreSQL pg_trgm)
-CREATE INDEX idx_evidence_content_search ON evidence USING gin(to_tsvector('english', content_preview));
+CREATE INDEX idx_gate_evidence_gate_id ON gate_evidence(gate_id);
+CREATE INDEX idx_gate_evidence_uploaded_by ON gate_evidence(uploaded_by);
+CREATE INDEX idx_gate_evidence_sha256_client ON gate_evidence(sha256_client);
+CREATE INDEX idx_gate_evidence_evidence_type ON gate_evidence(evidence_type);
+CREATE INDEX idx_gate_evidence_criteria_snapshot ON gate_evidence(criteria_snapshot_id);
+CREATE INDEX idx_gate_evidence_source ON gate_evidence(source);
 ```
 
 **Relationships**:
-- N:1 with projects (many evidence belong to one project)
-- N:1 with gates (many evidence belong to one gate, optional)
+- N:1 with gates (many evidence belong to one gate)
 - N:1 with users (uploaded_by)
+- 1:N with evidence_integrity_checks (periodic tamper detection)
 
 **Storage**:
-- Files stored in MinIO (S3-compatible)
-- file_path format: `evidence-vault/{team_id}/{project_id}/{gate_id}/{filename}`
+- Files stored in MinIO (S3-compatible, AGPL-safe network-only access)
+- s3_key format: `evidence/{gate_id}/{evidence_id}/{filename}`
 - Max file size: 10MB (enforced in application layer)
 
-**Performance**:
-- Full-text search using PostgreSQL pg_trgm (trigram matching)
-- Search query: `WHERE to_tsvector('english', content_preview) @@ plainto_tsquery('user interview')`
+**Evidence Contract** (Sprint 173 — ADR-053):
+- `sha256_client`: Client computes before upload (required for cli/extension/web, optional for other)
+- `sha256_server`: Server re-computes on upload — reject if mismatch (corruption/tampering)
+- `criteria_snapshot_id`: Binds evidence to specific gate exit_criteria version
+- `source`: Tracks upload origin (cli, extension, web, other)
+- **Side-effect**: Evidence upload while gate is EVALUATED → gate status set to EVALUATED_STALE
 
 ---
 

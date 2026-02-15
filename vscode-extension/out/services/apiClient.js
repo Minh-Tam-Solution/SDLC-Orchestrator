@@ -47,6 +47,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ApiClient = exports.ApiError = void 0;
 const vscode = __importStar(require("vscode"));
+const crypto = __importStar(require("crypto"));
 const axios_1 = __importDefault(require("axios"));
 const logger_1 = require("../utils/logger");
 const config_1 = require("../utils/config");
@@ -317,6 +318,91 @@ class ApiClient {
         return this.getGates(projectId);
     }
     // ============================================
+    // Gate Governance APIs (Sprint 173 - ADR-053)
+    // ============================================
+    /**
+     * Gets available actions for a gate (server-driven capability discovery).
+     * All 3 clients (Web, CLI, Extension) use this to determine what to show.
+     * No client-side permission computation.
+     *
+     * @param gateId - Gate UUID
+     * @returns Actions with reasons, evidence status
+     */
+    async getGateActions(gateId) {
+        return this.get(`/api/v1/gates/${gateId}/actions`);
+    }
+    /**
+     * Approve a gate (separate endpoint per CTO Mod 1).
+     * Requires governance:approve scope (CTO/CPO/CEO roles).
+     *
+     * @param gateId - Gate UUID
+     * @param comment - Mandatory approval comment
+     * @returns Updated gate
+     */
+    async approveGate(gateId, comment) {
+        return this.post(`/api/v1/gates/${gateId}/approve`, {
+            comment,
+        }, {
+            headers: { 'X-Idempotency-Key': crypto.randomUUID() },
+        });
+    }
+    /**
+     * Reject a gate (separate endpoint per CTO Mod 1).
+     * Requires governance:approve scope (CTO/CPO/CEO roles).
+     *
+     * @param gateId - Gate UUID
+     * @param comment - Mandatory rejection comment
+     * @returns Updated gate
+     */
+    async rejectGate(gateId, comment) {
+        return this.post(`/api/v1/gates/${gateId}/reject`, {
+            comment,
+        }, {
+            headers: { 'X-Idempotency-Key': crypto.randomUUID() },
+        });
+    }
+    /**
+     * Submit evidence file to a gate.
+     * Server re-computes SHA256 and verifies against client hash.
+     * If gate is EVALUATED, status changes to EVALUATED_STALE.
+     *
+     * Uses multipart/form-data via manual boundary construction
+     * (no form-data dependency needed).
+     *
+     * @param gateId - Gate UUID
+     * @param evidenceType - Evidence type (test-results, security-scan, etc.)
+     * @param fileData - File buffer, name, and client-computed SHA256
+     * @returns Upload result with integrity verification
+     */
+    async submitEvidence(gateId, evidenceType, fileData) {
+        const boundary = `----SDLCEvidence${Date.now()}`;
+        const parts = [];
+        const addField = (name, value) => {
+            parts.push(Buffer.from(`--${boundary}\r\n` +
+                `Content-Disposition: form-data; name="${name}"\r\n\r\n` +
+                `${value}\r\n`));
+        };
+        addField('evidence_type', evidenceType);
+        addField('sha256_client', fileData.sha256Client);
+        addField('size_bytes', String(fileData.sizeBytes));
+        addField('mime_type', fileData.mimeType);
+        addField('source', 'extension');
+        parts.push(Buffer.from(`--${boundary}\r\n` +
+            `Content-Disposition: form-data; name="file"; filename="${fileData.name}"\r\n` +
+            `Content-Type: ${fileData.mimeType}\r\n\r\n`));
+        parts.push(fileData.buffer);
+        parts.push(Buffer.from('\r\n'));
+        parts.push(Buffer.from(`--${boundary}--\r\n`));
+        const body = Buffer.concat(parts);
+        return this.post(`/api/v1/gates/${gateId}/evidence`, body, {
+            headers: {
+                'Content-Type': `multipart/form-data; boundary=${boundary}`,
+                'X-Idempotency-Key': crypto.randomUUID(),
+            },
+            timeout: 120000,
+        });
+    }
+    // ============================================
     // Violation APIs
     // ============================================
     /**
@@ -463,7 +549,7 @@ class ApiClient {
      * Get SDLC structure template for a tier
      */
     async getSDLCTemplate(tier) {
-        return this.get(`/api/v1/templates/sdlc-structure?tier=${tier}&version=6.0.0`);
+        return this.get(`/api/v1/templates/sdlc-structure?tier=${tier}&version=6.0.5`);
     }
     // ============================================
     // AGENTS.md Context Overlay APIs (Sprint 81)

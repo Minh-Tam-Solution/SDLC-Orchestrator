@@ -151,13 +151,13 @@ class TestEnforcementLogic:
         self,
         sample_violation: GovernanceViolation,
     ):
-        """OFF mode should allow all violations."""
+        """OFF mode should allow all violations without categorization."""
         service = GovernanceModeService(default_mode=GovernanceMode.OFF)
         result = await service.enforce(violations=[sample_violation])
 
         assert result.allowed is True
         assert len(result.blocked_violations) == 0
-        assert len(result.warned_violations) == 1
+        assert len(result.warned_violations) == 0
 
     @pytest.mark.asyncio
     async def test_enforce_002_warning_mode_allows_all(
@@ -437,7 +437,7 @@ class TestMetricsAndAutoRollback:
 
     @pytest.mark.asyncio
     async def test_metrics_004_auto_rollback_on_high_rejection(self):
-        """Auto-rollback should trigger on >80% rejection rate."""
+        """Auto-rollback should trigger on >80% rejection rate via check_and_rollback_if_needed."""
         service = GovernanceModeService(default_mode=GovernanceMode.FULL)
         service._state.auto_rollback_enabled = True
 
@@ -453,10 +453,14 @@ class TestMetricsAndAutoRollback:
             service._state.total_evaluations += 1
             service._state.total_blocked += 1
 
-        # This evaluation should trigger auto-rollback check
+        # One more enforcement to push evaluations to 10 (minimum sample size)
         await service.enforce(violations=[violation])
 
+        # Explicitly trigger rollback check (enforce is pure — no side effects)
+        result = await service.check_and_rollback_if_needed()
+
         # Should have rolled back to WARNING
+        assert result.rollback_triggered is True
         assert service.get_mode() == GovernanceMode.WARNING
 
     @pytest.mark.asyncio

@@ -276,3 +276,69 @@ jobs:
           name: governance-metrics-pr-${{ steps.pr-details.outputs.pr_number }}
           path: /tmp/governance_metrics.json
           retention-days: 30
+
+  # Sprint 173: Frozen module enforcement (CTO Mod 6 + Expert v2)
+  frozen-module-check:
+    name: Check Frozen Modules
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check frozen modules not modified
+        id: frozen-check
+        run: |
+          # CTO Mod 6: Use merge-base diff, not origin/main diff
+          FROZEN_PATHS=(
+            "backend/app/services/nist_govern_service.py"
+            "backend/app/services/nist_manage_service.py"
+            "backend/app/services/nist_map_service.py"
+            "backend/app/services/nist_measure_service.py"
+            "backend/app/services/ai_council_service.py"
+            "backend/app/services/feedback_learning_service.py"
+            "backend/app/services/sop_generator_service.py"
+            "backend/app/services/agentic_maturity_service.py"
+            "backend/app/services/sase_generation_service.py"
+            "backend/app/services/codegen/"
+            "backend/app/services/spec_converter/"
+          )
+
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.sha }}"
+          CHANGED=$(git diff --name-only "${BASE_SHA}...${HEAD_SHA}")
+
+          VIOLATIONS=""
+          for path in "${FROZEN_PATHS[@]}"; do
+            MATCHED=$(echo "$CHANGED" | grep "^$path" || true)
+            if [ -n "$MATCHED" ]; then
+              VIOLATIONS="$VIOLATIONS\n  - $MATCHED"
+            fi
+          done
+
+          if [ -n "$VIOLATIONS" ]; then
+            echo "frozen_violated=true" >> $GITHUB_OUTPUT
+            echo "::error::Frozen module(s) modified:$VIOLATIONS"
+            echo "Add label 'CTO-OVERRIDE' to bypass this check."
+          else
+            echo "frozen_violated=false" >> $GITHUB_OUTPUT
+            echo "No frozen modules modified."
+          fi
+
+      - name: Check CTO-OVERRIDE bypass
+        if: steps.frozen-check.outputs.frozen_violated == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels -q '.labels[].name' 2>/dev/null || echo "")
+          if echo "$LABELS" | grep -q "CTO-OVERRIDE"; then
+            echo "CTO-OVERRIDE label found. Bypass allowed."
+            exit 0
+          fi
+          echo "::error::Frozen module modified without CTO-OVERRIDE label."
+          echo "These modules are frozen per Sprint 173 policy."
+          echo "Add the 'CTO-OVERRIDE' label to bypass."
+          exit 1
