@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sdlcctl"
-version = "1.7.0"
-description = "SDLC 6.0.6 CLI Orchestrator with E2E API Testing and OPA Integration"
+version = "1.8.0"
+description = "SDLC 6.0.6 CLI Orchestrator with E2E API Testing, OPA Integration, and Context Cache"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 authors = [
