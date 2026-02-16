@@ -1,5 +1,5 @@
 ---
-sdlc_version: "6.0.5"
+sdlc_version: "6.0.6"
 document_type: "Sprint Plan"
 stage: "04 - BUILD"
 sprint: "132"

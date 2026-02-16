@@ -460,5 +460,5 @@ For projects spanning multiple repositories:
 ---
 
 **Document Status**: P0 Integration Guide
-**Compliance**: SDLC 6.0.5 Stage 03 (RFC-001)
+**Compliance**: SDLC 6.0.6 Stage 03 (RFC-001)
 **Owner**: Backend Team

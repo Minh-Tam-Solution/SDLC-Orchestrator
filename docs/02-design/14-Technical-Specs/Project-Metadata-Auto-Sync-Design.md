@@ -7,7 +7,7 @@
 **Author**: Development Team
 **Approver**: CTO
 **Stage**: 02-design (HOW - Architecture & Design)
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.0.6
 
 ---
 

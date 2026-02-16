@@ -4,7 +4,7 @@
 **Date**: February 5, 2026
 **Sprint**: Sprint 156 (Phase 3: COMPLIANCE - NIST AI RMF GOVERN)
 **Author**: CTO Office + AI Assistant
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.0.6
 **Related**: [ADR-048 SASE VCR/CRP](ADR-048-SASE-VCR-CRP-Architecture.md), [SPEC-0024 VCR/CRP Technical Specification](../14-Technical-Specs/SPEC-0024-VCR-CRP-Technical-Specification.md)
 
 ---

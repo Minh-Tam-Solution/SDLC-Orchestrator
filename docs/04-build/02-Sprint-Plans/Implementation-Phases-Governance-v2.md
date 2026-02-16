@@ -7,7 +7,7 @@
 **Created**: 2026-01-28
 **Sprint**: 118 Track 2 - D5
 **Related Specs**: SPEC-0001 (Anti-Vibecoding), SPEC-0002 (Specification Standard)
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.0.6
 **Team Size**: 8.5 FTE (Backend: 2, Frontend: 2, QA: 2, DevOps: 1, EM: 0.5, Tech Lead: 1)
 
 ---

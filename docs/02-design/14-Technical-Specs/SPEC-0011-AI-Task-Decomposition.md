@@ -26,7 +26,7 @@ related_specs:
   - SPEC-0006
   - SPEC-0009
 stage: 02-DESIGN
-framework_version: 6.0.5
+framework_version: 6.0.6
 ---
 
 # SPEC-0011: AI Task Decomposition Service - CEO-Quality Task Generation
@@ -35,7 +35,7 @@ framework_version: 6.0.5
 **Date**: December 3, 2025
 **Decision Makers**: CTO, CPO (joint review)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.0.6
 
 ---
 

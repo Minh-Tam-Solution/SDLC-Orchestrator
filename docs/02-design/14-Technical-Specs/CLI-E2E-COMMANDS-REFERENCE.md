@@ -2,7 +2,7 @@
 
 **Version**: 1.5.0
 **Sprint**: 140 - CLI Orchestration Upgrade
-**Framework**: SDLC 6.0.5 (RFC-SDLC-602)
+**Framework**: SDLC 6.0.6 (RFC-SDLC-602)
 **Status**: Production Ready
 
 ---

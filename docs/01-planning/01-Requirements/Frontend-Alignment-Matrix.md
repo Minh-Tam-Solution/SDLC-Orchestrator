@@ -2,7 +2,7 @@
 
 **Version**: 1.4.0
 **Status**: ACTIVE
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.0.6
 **Last Updated**: 2026-01-30 (Sprint 126 Complete - E2E Tests)
 **Owner**: PM + Architect
 

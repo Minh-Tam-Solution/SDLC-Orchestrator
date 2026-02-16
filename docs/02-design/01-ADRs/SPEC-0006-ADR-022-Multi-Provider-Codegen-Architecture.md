@@ -10,7 +10,7 @@ last_updated: "2026-01-29"
 tags: ["codegen", "multi-provider", "ep-06", "ir-based", "ollama", "vietnam-sme", "architecture-decision"]
 related_specs: ["SPEC-0003", "SPEC-0004", "SPEC-0009", "SPEC-0010"]
 stage: "02-DESIGN"
-framework_version: "6.0.5"
+framework_version: "6.0.6"
 ---
 
 # SPEC-0006: Multi-Provider Codegen Architecture (ADR-022)
@@ -20,7 +20,7 @@ framework_version: "6.0.5"
 **Decision Date**: December 23, 2025
 **Decision Makers**: CTO, CEO (joint review)
 **Sprint**: Sprint 45 (Jan 6-17, 2026)
-**Framework**: SDLC 6.0.5 + SASE Level 2
+**Framework**: SDLC 6.0.6 + SASE Level 2
 
 ---
 

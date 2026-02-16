@@ -5,7 +5,7 @@
 **Date**: January 30, 2026
 **Decision Makers**: CTO, PM, Backend Lead, Frontend Lead
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.0.6
 **Sprint**: Sprint 127 (Jan 30 - Feb 7, 2026)
 **Priority**: P0 - Prevents framework version drift across delivery surfaces
 

@@ -7,7 +7,7 @@
 **Authority**: CTO + Backend Lead ✅ APPROVED
 **Foundation**: FRD v3.2.0, Vision v4.0.0, EP-04/05/06 Data Requirements
 **Stage**: Stage 04 (BUILD)
-**Framework**: SDLC 6.0.5 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.0.6 Complete Lifecycle (10 Stages)
 
 **Changelog**:
 - v3.3.0 (Feb 15, 2026): Sprint 173 Governance Loop schema changes (ADR-053):

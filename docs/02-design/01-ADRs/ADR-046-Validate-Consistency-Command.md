@@ -4,7 +4,7 @@
 **Status**: APPROVED
 **Created**: February 1, 2026
 **Sprint**: Sprint 136
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.0.6
 **Decision Makers**: CTO, Backend Lead
 **Related Requirements**: FR-036 Validate Consistency Command
 **Related Spec**: SPEC-0021 Stage Consistency Validation

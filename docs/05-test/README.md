@@ -3,7 +3,7 @@
 **Stage**: 05 - TEST
 **Question**: Does it work correctly?
 **Status**: ✅ **ACTIVE - TDD Strategy Complete**
-**Framework**: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+**Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 **Version**: 4.0.0 (January 27, 2026)
 
 ---
@@ -274,7 +274,7 @@ Legacy test documents (pre-2026) migrated to `docs/10-archive/05-Legacy/` per RF
 
 **Last Updated**: January 27, 2026
 **Owner**: QA Lead + CTO + Backend Lead
-**Framework**: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+**Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 
 ---
 

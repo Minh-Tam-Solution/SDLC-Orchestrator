@@ -5230,7 +5230,7 @@ Raises:
 
 **Summary**: Calculate compliance score
 
-**Description**: Calculate SDLC 6.0.5 compliance score for a project. 10 categories × 10 points = 100 maximum score.
+**Description**: Calculate SDLC 6.0.6 compliance score for a project. 10 categories × 10 points = 100 maximum score.
 
 ---
 
@@ -5238,7 +5238,7 @@ Raises:
 
 **Summary**: Calculate compliance score
 
-**Description**: Calculate SDLC 6.0.5 compliance score for a project. 10 categories × 10 points = 100 maximum score.
+**Description**: Calculate SDLC 6.0.6 compliance score for a project. 10 categories × 10 points = 100 maximum score.
 
 ---
 
@@ -14479,7 +14479,7 @@ Sprint 23 Day 2 Optimization:
 
 **Summary**: Initialize SDLC project
 
-**Description**: Initialize a new SDLC 6.0.5 project. Creates project in database and returns configuration for .sdlc-config.json. Per RFC-001, creates 10-archive/ folder (no 99-Legacy/ in active stages 00-09).
+**Description**: Initialize a new SDLC 6.0.6 project. Creates project in database and returns configuration for .sdlc-config.json. Per RFC-001, creates 10-archive/ folder (no 99-Legacy/ in active stages 00-09).
 
 ---
 
@@ -14541,9 +14541,9 @@ Update the current SDLC context for a project.
 
 ### 🟢 POST `/api/v1/projects/{project_id}/migrate-stages`
 
-**Summary**: Migrate project stages to SDLC 6.0.5
+**Summary**: Migrate project stages to SDLC 6.0.6
 
-**Description**: Migrate project from old stage structure to SDLC 6.0.5. Includes RFC-001 legacy archive migration (99-Legacy/ → 10-archive/{NN}-Legacy/). Moves INTEGRATE from stage 07 to stage 03.
+**Description**: Migrate project from old stage structure to SDLC 6.0.6. Includes RFC-001 legacy archive migration (99-Legacy/ → 10-archive/{NN}-Legacy/). Moves INTEGRATE from stage 07 to stage 03.
 
 ---
 
@@ -17860,7 +17860,7 @@ Sprint 23 Day 2 Optimization:
 
 **Summary**: Initialize SDLC project
 
-**Description**: Initialize a new SDLC 6.0.5 project. Creates project in database and returns configuration for .sdlc-config.json. Per RFC-001, creates 10-archive/ folder (no 99-Legacy/ in active stages 00-09).
+**Description**: Initialize a new SDLC 6.0.6 project. Creates project in database and returns configuration for .sdlc-config.json. Per RFC-001, creates 10-archive/ folder (no 99-Legacy/ in active stages 00-09).
 
 ---
 
@@ -17922,9 +17922,9 @@ Update the current SDLC context for a project.
 
 ### 🟢 POST `/api/v1/projects/{project_id}/migrate-stages`
 
-**Summary**: Migrate project stages to SDLC 6.0.5
+**Summary**: Migrate project stages to SDLC 6.0.6
 
-**Description**: Migrate project from old stage structure to SDLC 6.0.5. Includes RFC-001 legacy archive migration (99-Legacy/ → 10-archive/{NN}-Legacy/). Moves INTEGRATE from stage 07 to stage 03.
+**Description**: Migrate project from old stage structure to SDLC 6.0.6. Includes RFC-001 legacy archive migration (99-Legacy/ → 10-archive/{NN}-Legacy/). Moves INTEGRATE from stage 07 to stage 03.
 
 ---
 
@@ -18099,5 +18099,5 @@ Update the current SDLC context for a project.
 **Document Status**: ✅ Auto-Generated from OpenAPI Specification
 **Source**: `docs/03-integrate/02-API-Specifications/openapi.json`
 **Generated**: Sprint 145+ - MCP Integration Phase 1
-**Framework**: SDLC 6.0.5 (Stage 03 Integration)
+**Framework**: SDLC 6.0.6 (Stage 03 Integration)
 **Date**: February 3, 2026

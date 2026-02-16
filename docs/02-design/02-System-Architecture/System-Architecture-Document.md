@@ -7,7 +7,7 @@
 **Authority**: CTO + Tech Lead + Backend Lead
 **Foundation**: Stage 01 (Requirements v4.2.0, API Specs v3.1.0, Data Model v3.1.0)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 6.0.5 (Multi-Frontend Aligned)
+**Framework**: SDLC 6.0.6 (Multi-Frontend Aligned)
 **Positioning**: Operating System for Software 3.0
 
 **Changelog v3.2.0** (Jan 30, 2026):

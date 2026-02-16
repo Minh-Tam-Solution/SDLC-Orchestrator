@@ -4,7 +4,7 @@
 **Date**: December 3, 2025
 **Decision Makers**: CTO, CPO (joint review)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 6.0.5 (RFC-001 Legacy Document Organization)
+**Framework**: SDLC 6.0.6 (RFC-001 Legacy Document Organization)
 
 ---
 

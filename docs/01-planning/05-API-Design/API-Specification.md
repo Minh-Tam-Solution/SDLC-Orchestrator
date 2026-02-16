@@ -7,7 +7,7 @@
 **Authority**: Backend Lead + CTO Review (✅ APPROVED)
 **Foundation**: FRD v3.2.0, Data Model ERD v3.3.0, Roadmap v5.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 6.0.5 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.0.6 Complete Lifecycle (10 Stages)
 
 **Changelog v3.5.0** (Feb 15, 2026):
 - **Governance Loop Endpoints** (Sprint 173 — ADR-053):

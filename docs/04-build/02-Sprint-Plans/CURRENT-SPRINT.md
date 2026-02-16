@@ -4,7 +4,7 @@
 **Sprint Goal**: TBD - Awaiting CTO direction
 **Status**: PLANNING
 **Priority**: TBD
-**Framework**: SDLC 6.0.5 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.0.6 (7-Pillar + AI Governance Principles)
 **Previous Sprint**: [Sprint 174 COMPLETE - Anthropic Best Practices](SPRINT-174-COMPLETION-REPORT.md)
 
 ---
@@ -44,7 +44,7 @@
 **Sprint Goal**: Integrate Anthropic team patterns with Framework-First compliance
 **Status**: ✅ COMPLETE (February 28, 2026)
 **Priority**: P0 (Framework Standards + Cost Optimization + Strategic Positioning)
-**Framework**: SDLC 6.0.5 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.0.6 (7-Pillar + AI Governance Principles)
 **Value**: $76K (CLAUDE.md + Prompt Caching + MCP + Autonomous Codegen + Browser Agent)
 **Previous Sprint**: [Sprint 173 COMPLETE - Governance Loop](SPRINT-173-COMPLETION-REPORT.md)
 
@@ -54,7 +54,7 @@
 
 CTO analysis of Anthropic's internal Claude Code practices (PDF + claude-quickstarts + BFlow notification) identified 12 patterns. Sprint 174 implements the highest-ROI patterns following the **Framework-First corrected sequence**.
 
-**Critical Correction**: Original plan violated SDLC 6.0.5 Section 3.2 ("Every capability in Orchestrator must first exist as documented pattern in Framework"). CTO resequenced: Methodology (Days 1-3) -> Tool (Days 4-5) -> Documentation (Day 6) -> Infrastructure (Days 7-8) -> Integration (Day 9) -> Expansion (Day 10).
+**Critical Correction**: Original plan violated SDLC 6.0.6 Section 3.2 ("Every capability in Orchestrator must first exist as documented pattern in Framework"). CTO resequenced: Methodology (Days 1-3) -> Tool (Days 4-5) -> Documentation (Day 6) -> Infrastructure (Days 7-8) -> Integration (Day 9) -> Expansion (Day 10).
 
 **References**:
 - [CTO Anthropic Analysis](CTO-ANTHROPIC-ANALYSIS-SPRINT-174.md) — 552 lines, 10 teams + 5 quickstarts analyzed

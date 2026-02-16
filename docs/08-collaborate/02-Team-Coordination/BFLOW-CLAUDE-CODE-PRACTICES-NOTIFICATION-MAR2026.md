@@ -1,5 +1,5 @@
 ---
-sdlc_version: "6.0.5"
+sdlc_version: "6.0.6"
 document_type: "Cross-Team Notification"
 stage: "01 - PLANNING & ANALYSIS"
 sprint: "147"

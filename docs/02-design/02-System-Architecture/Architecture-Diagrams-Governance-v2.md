@@ -7,7 +7,7 @@
 **Created**: 2026-01-28
 **Sprint**: 118 Track 2 - D6
 **Related Specs**: SPEC-0001 (Anti-Vibecoding), SPEC-0002 (Specification Standard)
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.0.6
 
 ---
 

@@ -3,7 +3,7 @@
 **Stage**: 05 - DEPLOY
 **Question**: How do we ship it safely?
 **Status**: Planned
-**Framework**: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+**Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 
 ---
 
@@ -94,7 +94,7 @@ Legacy deployment docs migrated to `docs/10-archive/06-Legacy/` per RFC-001.
 
 **Last Updated**: December 5, 2025
 **Owner**: DevOps Lead + CTO
-**Framework**: SDLC 6.0.5 Stage 06
+**Framework**: SDLC 6.0.6 Stage 06
 
 ---
 

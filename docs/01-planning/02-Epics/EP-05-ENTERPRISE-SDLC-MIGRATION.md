@@ -1,5 +1,5 @@
 # EP-05: Enterprise SDLC Migration Automation
-## Automated Migration from SDLC 4.x/5.x → 6.0.5 for Large Codebases
+## Automated Migration from SDLC 4.x/5.x → 6.0.6 for Large Codebases
 
 **Epic ID**: EP-05
 **Version**: 1.1.0
@@ -8,7 +8,7 @@
 **Status**: PROPOSED - Ready for CTO Review
 **Tier**: PROFESSIONAL + ENTERPRISE (NOT for LITE/STANDARD)
 **Sprint Target**: Sprint 47-49 (Q2 2026)
-**Framework**: SDLC 6.0.5 (7-Pillar + RFC-001 Legacy Document Organization)
+**Framework**: SDLC 6.0.6 (7-Pillar + RFC-001 Legacy Document Organization)
 
 ---
 

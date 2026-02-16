@@ -5,7 +5,7 @@
 **Status**: ACTIVE - Governance Loop Completion (Sprint 173)
 **Authority**: PM + CTO + CPO + Full Team Approved
 **Foundation**: Product Vision 4.0.0, BRD 1.2.0, Stage 02 Architecture
-**Framework**: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance)
+**Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance)
 
 **Changelog v3.2.0** (Feb 15, 2026):
 - **FR1 Enhancement**: Gate Governance Loop State Machine (ADR-053, Sprint 173)
