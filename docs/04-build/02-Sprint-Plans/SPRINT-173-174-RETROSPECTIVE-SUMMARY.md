@@ -3,7 +3,7 @@
 **Review Date**: February 28, 2026 (Sprint 174 completion)
 **Reviewed Sprints**: Sprint 173 (Governance Loop) + Sprint 174 (Anthropic Patterns)
 **Reviewer**: CTO Nguyen Quoc Huy
-**Framework**: SDLC 6.0.5 (7-Pillar + AI Governance)
+**Framework**: SDLC 6.0.6 (7-Pillar + AI Governance)
 
 ---
 

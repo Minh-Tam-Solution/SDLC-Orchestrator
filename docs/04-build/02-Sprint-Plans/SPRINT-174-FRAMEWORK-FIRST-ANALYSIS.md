@@ -3,7 +3,7 @@
 
 ---
 
-## 🚨 CRITICAL ISSUE: Original Plan Violates SDLC 6.0.5 Core Principle
+## 🚨 CRITICAL ISSUE: Original Plan Violates SDLC 6.0.6 Core Principle
 
 ### The Problem
 

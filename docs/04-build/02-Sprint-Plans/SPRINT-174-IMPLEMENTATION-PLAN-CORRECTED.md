@@ -1,5 +1,5 @@
 # Sprint 174: Anthropic Best Practices Integration — CORRECTED Implementation Plan
-## Methodology First, Tool Second (SDLC 6.0.5 Compliance)
+## Methodology First, Tool Second (SDLC 6.0.6 Compliance)
 
 **Date**: February 16, 2026  
 **Sprint**: 174 (Feb 17-28, 2026)  
@@ -14,7 +14,7 @@
 
 **Consequence**: Tool-driven development instead of methodology-driven development.
 
-**Framework-First Principle** (SDLC 6.0.5 Section 3.2):
+**Framework-First Principle** (SDLC 6.0.6 Section 3.2):
 > "Every capability in SDLC Orchestrator must first exist as a documented pattern in SDLC Enterprise Framework. The Framework is the source of truth; the Orchestrator is the automation layer."
 
 ---
