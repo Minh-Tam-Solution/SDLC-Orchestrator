@@ -67,16 +67,49 @@
 
 ---
 
-## Sprint 176 Lookahead
+## Sprint 176 — "Autonomous Codegen & Pilot Prep" (Mar 17-28)
 
-**Recommended Focus Areas** (deferred from Sprint 175):
-1. **SASE Templates Backend API**: Create persistence endpoints (8+ days)
-2. **Tier 2 Anthropic Patterns**: Test generation workflow + MRP automation
-3. **Vietnamese SME Pilot Preparation**: Use CLAUDE.md PRO tier for onboarding
-4. **ADR-055 Implementation Decision**: Proceed (Sprint 176-178) or defer to post-pilot
-5. **Mobile Responsive**: Make 6 pages responsive for tablet/mobile
+**Status**: PLANNED
+**Detailed Plan**: [SPRINT-176-AUTONOMOUS-CODEGEN-PILOT-PREP.md](SPRINT-176-AUTONOMOUS-CODEGEN-PILOT-PREP.md)
 
-**Gate G3 Readiness**: 98.2% → Target 99% (final polish sprint)
+**Sprint Goal**: Implement ADR-055 Phase 1 (Initializer Agent + Gate G1), close SASE Templates backend gap, add E2E tests for Sprint 175 pages, prepare Vietnamese SME pilot onboarding.
+
+**Dual-Track Execution**:
+
+| Day | Track A (Backend) | Track B (Frontend + Docs) |
+|-----|-------------------|--------------------------|
+| 1-3 | Initializer Agent service | E2E test setup + CEO/MCP/Planning tests |
+| 4-5 | Gate G1 integration (OPA) | E2E tests: Plan Review/Learnings/SASE |
+| 6 | SASE Templates static API | SASE Templates — connect frontend to API |
+| 7 | Browser Agent hardening | Pilot onboarding runbook (Vietnamese) |
+| 8-9 | Integration + regression tests | Cross-track testing + demo prep |
+| 10 | CLAUDE.md update + docs | Final QA + sprint report |
+
+**Key Deliverables**:
+- Initializer Agent: spec → `feature_list.json` (ADR-055 Phase 1)
+- Gate G1: OPA policy blocks coding if spec incomplete
+- SASE Templates: Backend API (static, 2 days) + frontend connected
+- E2E Tests: 6 new Playwright tests for Sprint 175 pages
+- Browser Agent: Retry logic, screenshot-on-failure, evidence capture
+- Pilot Runbook: Vietnamese SME onboarding (<30 min TTFV)
+
+---
+
+## Sprint 177-178 Lookahead
+
+**Sprint 177** (Apr 7-18): Coding Agent Loop + Gates G2/G3 (ADR-055 Phase 2)
+- Coding Agent iterates `feature_list.json` → generates code per feature
+- Gate G2 (Security): Semgrep SAST scan per feature
+- Gate G3 (Tests): Automated test execution via Browser Agent
+- Retry logic: max_retries=3 with deterministic feedback
+
+**Sprint 178** (Apr 21-May 2): Full E2E Autonomous Codegen Pilot
+- End-to-end pilot with SDLC Orchestrator project (dogfooding)
+- Evidence State Machine integration (8-state lifecycle)
+- Vietnamese SME pilot launch (5 founding customers)
+- Mobile responsive for 6 Sprint 175 pages
+
+**Gate G3 Readiness**: 98.2% → Target 99% (final polish)
 
 ---
 
