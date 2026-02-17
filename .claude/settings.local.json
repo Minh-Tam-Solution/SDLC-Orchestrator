@@ -573,7 +573,8 @@
       "Bash(npx @vscode/vsce publish:*)",
       "WebFetch(domain:pypi.org)",
       "Bash(sed:*)",
-      "Bash(tr:*)"
+      "Bash(tr:*)",
+      "Bash(npx next build:*)"
     ],
     "deny": [],
     "ask": []

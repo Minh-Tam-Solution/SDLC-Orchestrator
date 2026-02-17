@@ -1,7 +1,7 @@
 /**
  * =========================================================================
  * CEO Dashboard Page - Executive Governance Intelligence
- * SDLC Orchestrator - Sprint 110 (CEO Dashboard & Observability)
+ * SDLC Orchestrator - Sprint 175 (Frontend Feature Completion)
  *
  * Version: 1.0.0
  * Date: January 28, 2026
@@ -25,6 +25,11 @@ import {
   useCEOTimeSavedTrend,
   useCEOSystemHealth,
   useResolveCEODecision,
+  useCEOVibecodingTrend,
+  useCEOTopRejections,
+  useCEOOverrides,
+  useCEORoutingBreakdown,
+  useRecordCEOOverride,
 } from "@/hooks/useCEODashboard";
 import type {
   TimeRange,
@@ -32,6 +37,10 @@ import type {
   IndexCategory,
   HealthStatus,
   KillSwitchStatus,
+  TopRejection,
+  CEOOverride,
+  VibecodingTrendPoint,
+  RoutingBreakdown,
 } from "@/lib/types/ceo-dashboard";
 
 // =============================================================================
@@ -269,9 +278,11 @@ function VibecodingGauge({ value, category }: { value: number; category: IndexCa
 function PendingDecisionCard({
   decision,
   onResolve,
+  onOverride,
 }: {
   decision: PendingDecision;
   onResolve: (id: string, action: "approved" | "rejected") => void;
+  onOverride?: (decision: PendingDecision) => void;
 }) {
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 hover:shadow-md transition-shadow">
@@ -292,7 +303,12 @@ function PendingDecisionCard({
           <h4 className="mt-2 font-medium text-gray-900 line-clamp-1">
             #{decision.pr_number}: {decision.pr_title}
           </h4>
-          <p className="mt-1 text-sm text-gray-500">{decision.project_name}</p>
+          <Link
+            href={`/app/projects/${decision.project_id}`}
+            className="mt-1 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+          >
+            {decision.project_name}
+          </Link>
           <p className="mt-1 text-xs text-gray-400">
             Submitted by {decision.submitter} - Waiting {decision.waiting_hours.toFixed(1)}h
           </p>
@@ -330,6 +346,15 @@ function PendingDecisionCard({
         >
           Reject
         </button>
+        {onOverride && (
+          <button
+            onClick={() => onOverride(decision)}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            title="Override routing decision"
+          >
+            Override
+          </button>
+        )}
       </div>
     </div>
   );
@@ -471,6 +496,183 @@ function TimeSavedChart({
 }
 
 // =============================================================================
+// Routing Breakdown Component (Sprint 175)
+// =============================================================================
+
+function RoutingBreakdownCard({ data }: { data: RoutingBreakdown }) {
+  const categories = [
+    { label: "Auto-Approved", value: data.auto_approved, color: "bg-green-500" },
+    { label: "Tech Lead Review", value: data.tech_lead_review, color: "bg-blue-500" },
+    { label: "CEO Should Review", value: data.ceo_should_review, color: "bg-yellow-500" },
+    { label: "CEO Must Review", value: data.ceo_must_review, color: "bg-red-500" },
+  ];
+  const total = data.total_prs || 1;
+
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">PR Routing Breakdown</h3>
+      <div className="space-y-3">
+        {categories.map((cat) => (
+          <div key={cat.label}>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-gray-600">{cat.label}</span>
+              <span className="text-sm font-medium text-gray-900">
+                {cat.value} ({((cat.value / total) * 100).toFixed(0)}%)
+              </span>
+            </div>
+            <div className="h-2 rounded-full bg-gray-100">
+              <div
+                className={`h-full rounded-full ${cat.color} transition-all`}
+                style={{ width: `${(cat.value / total) * 100}%` }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+        <span className="text-sm text-gray-500">Total PRs: {data.total_prs}</span>
+        <span className="text-xs text-gray-400">{data.trend}</span>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// Vibecoding 7-Day Trend Component (Sprint 175)
+// =============================================================================
+
+function VibecodingTrendChart({ data }: { data: VibecodingTrendPoint[] }) {
+  const maxValue = Math.max(...data.map((d) => d.average_index), 100);
+
+  return (
+    <div className="mt-4 pt-4 border-t border-gray-100">
+      <h4 className="text-sm font-medium text-gray-600 mb-3">7-Day Trend</h4>
+      <div className="flex items-end gap-1 h-20">
+        {data.map((point, i) => {
+          const height = (point.average_index / maxValue) * 100;
+          const category: IndexCategory =
+            point.average_index <= 30 ? "green" :
+            point.average_index <= 60 ? "yellow" :
+            point.average_index <= 80 ? "orange" : "red";
+          const barColor =
+            category === "green" ? "bg-green-400" :
+            category === "yellow" ? "bg-yellow-400" :
+            category === "orange" ? "bg-orange-400" : "bg-red-400";
+          return (
+            <div key={i} className="flex-1 flex flex-col items-center">
+              <div
+                className={`w-full rounded-t ${barColor} transition-all`}
+                style={{ height: `${height}%` }}
+                title={`${point.day_name}: ${point.average_index.toFixed(0)} (${point.count} PRs)`}
+              />
+              <span className="mt-1 text-[10px] text-gray-400">{point.day_name.slice(0, 2)}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// Top Rejections Table Component (Sprint 175)
+// =============================================================================
+
+function TopRejectionsTable({ rejections }: { rejections: TopRejection[] }) {
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Rejection Reasons</h3>
+      {rejections.length === 0 ? (
+        <div className="py-8 text-center text-gray-400">No rejections recorded</div>
+      ) : (
+        <div className="space-y-3">
+          {rejections.slice(0, 5).map((r, i) => (
+            <div key={i} className="flex items-start gap-3 py-2 border-b border-gray-50 last:border-0">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-medium text-red-700">
+                {r.count}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">{r.reason}</p>
+                {r.actionable_fix && (
+                  <p className="text-xs text-blue-600 mt-0.5">{r.actionable_fix}</p>
+                )}
+              </div>
+              <div className="text-right shrink-0">
+                <span className="text-sm font-medium text-gray-700">{r.percentage.toFixed(0)}%</span>
+                <p className="text-xs text-gray-400">{r.trend}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =============================================================================
+// CEO Overrides Section Component (Sprint 175)
+// =============================================================================
+
+function OverridesSection({ overrides }: { overrides: CEOOverride[] }) {
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">Recent Overrides</h3>
+        <span className="text-sm text-gray-400">{overrides.length} this week</span>
+      </div>
+      {overrides.length === 0 ? (
+        <div className="py-6 text-center text-gray-400 text-sm">No overrides this week</div>
+      ) : (
+        <div className="space-y-3">
+          {overrides.slice(0, 5).map((o) => (
+            <div key={o.id} className="flex items-start gap-3 rounded-lg border border-gray-100 p-3">
+              <span
+                className={`mt-0.5 rounded-full px-2 py-0.5 text-xs font-medium ${
+                  o.override_type === "agrees"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+              >
+                {o.override_type === "agrees" ? "Agrees" : "Disagrees"}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  #{o.pr_number}: {o.pr_title}
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {o.project_name} &middot; Index: {o.vibecoding_index.toFixed(0)}
+                </p>
+                {o.reason && (
+                  <p className="text-xs text-gray-400 mt-1 italic">&ldquo;{o.reason}&rdquo;</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =============================================================================
+// Export Utility (Sprint 175)
+// =============================================================================
+
+function exportDashboardData(summary: Record<string, unknown> | null | undefined, format: "csv" | "json") {
+  if (!summary) return;
+  const data = format === "json"
+    ? JSON.stringify(summary, null, 2)
+    : Object.entries(summary).map(([k, v]) => `${k},${JSON.stringify(v)}`).join("\n");
+  const blob = new Blob([data], { type: format === "json" ? "application/json" : "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `ceo-dashboard-${new Date().toISOString().split("T")[0]}.${format}`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// =============================================================================
 // Loading Skeleton
 // =============================================================================
 
@@ -520,13 +722,35 @@ export default function CEODashboardPage() {
   const { data: timeSavedTrend } = useCEOTimeSavedTrend();
   const { data: systemHealth } = useCEOSystemHealth();
 
-  // Mutation for resolving decisions
+  // Sprint 175: Additional hooks for enhanced sections
+  const { data: vibecodingTrend } = useCEOVibecodingTrend();
+  const { data: topRejections } = useCEOTopRejections({ timeRange });
+  const { data: overrides } = useCEOOverrides();
+  const { data: routingBreakdown } = useCEORoutingBreakdown({ timeRange });
+
+  // Mutations for resolving decisions and recording overrides
   const resolveDecision = useResolveCEODecision();
+  const recordOverride = useRecordCEOOverride();
 
   const handleResolveDecision = (submissionId: string, decision: "approved" | "rejected") => {
     resolveDecision.mutate({
       submissionId,
       request: { decision },
+    });
+  };
+
+  const handleOverride = (decision: PendingDecision) => {
+    recordOverride.mutate({
+      submissionId: decision.id,
+      request: {
+        override_type: "disagrees",
+        reason: "CEO override via dashboard",
+        pr_number: decision.pr_number,
+        pr_title: decision.pr_title,
+        project_name: decision.project_name,
+        vibecoding_index: decision.vibecoding_index,
+        original_routing: decision.routing,
+      },
     });
   };
 
@@ -581,6 +805,12 @@ export default function CEODashboardPage() {
             <option value="last_7_days">Last 7 Days</option>
             <option value="last_30_days">Last 30 Days</option>
           </select>
+          <button
+            onClick={() => exportDashboardData(summary as Record<string, unknown> | null | undefined, "json")}
+            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Export
+          </button>
           <Link
             href="/app/gates"
             className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
@@ -648,18 +878,23 @@ export default function CEODashboardPage() {
             Vibecoding Index
           </h3>
           {weekly ? (
-            <VibecodingGauge
-              value={weekly.vibecoding_index_avg}
-              category={
-                weekly.vibecoding_index_avg <= 30
-                  ? "green"
-                  : weekly.vibecoding_index_avg <= 60
-                  ? "yellow"
-                  : weekly.vibecoding_index_avg <= 80
-                  ? "orange"
-                  : "red"
-              }
-            />
+            <>
+              <VibecodingGauge
+                value={weekly.vibecoding_index_avg}
+                category={
+                  weekly.vibecoding_index_avg <= 30
+                    ? "green"
+                    : weekly.vibecoding_index_avg <= 60
+                    ? "yellow"
+                    : weekly.vibecoding_index_avg <= 80
+                    ? "orange"
+                    : "red"
+                }
+              />
+              {vibecodingTrend && vibecodingTrend.length > 0 && (
+                <VibecodingTrendChart data={vibecodingTrend} />
+              )}
+            </>
           ) : (
             <div className="h-40 flex items-center justify-center text-gray-400">
               No data
@@ -697,6 +932,7 @@ export default function CEODashboardPage() {
                     key={decision.id}
                     decision={decision}
                     onResolve={handleResolveDecision}
+                    onOverride={handleOverride}
                   />
                 ))}
               </div>
@@ -758,6 +994,15 @@ export default function CEODashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Sprint 175: Routing Breakdown + Top Rejections */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {routingBreakdown && <RoutingBreakdownCard data={routingBreakdown} />}
+        {topRejections && <TopRejectionsTable rejections={topRejections} />}
+      </div>
+
+      {/* Sprint 175: Recent Overrides */}
+      {overrides && overrides.length > 0 && <OverridesSection overrides={overrides} />}
     </div>
   );
 }

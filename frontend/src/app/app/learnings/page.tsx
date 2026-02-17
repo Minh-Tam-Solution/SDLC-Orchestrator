@@ -3,8 +3,8 @@
  *
  * @module frontend/src/app/app/learnings/page
  * @description EP-11 Feedback Learning dashboard for PR review insights
- * @sdlc SDLC 6.0.6 Framework - Sprint 100 (Feedback Learning Service)
- * @status Sprint 100 - EP-11 Implementation
+ * @sdlc SDLC 6.0.6 Framework - Sprint 175 (Frontend Feature Completion)
+ * @status Sprint 175 - Tabs + Hook Wiring
  */
 
 "use client";
@@ -17,8 +17,15 @@ import {
   useLearningStats,
   useDeleteLearning,
   useApplyLearning,
+  useHints,
+  useVerifyHint,
+  useAggregations,
+  useApplyAggregation,
+  useRejectAggregation,
   type LearningFilterParams,
   type PRLearning,
+  type DecompositionHint,
+  type LearningAggregation,
 } from "@/hooks/useLearnings";
 
 // =============================================================================
@@ -317,11 +324,153 @@ function LearningCard({
 }
 
 // =============================================================================
+// Hint Card Component (Sprint 175)
+// =============================================================================
+
+function HintCard({
+  hint,
+  onVerify,
+}: {
+  hint: DecompositionHint;
+  onVerify: (id: string) => void;
+}) {
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className={`px-2 py-1 rounded text-xs font-medium ${
+            hint.status === "active" ? "bg-green-100 text-green-700" :
+            hint.status === "deprecated" ? "bg-red-100 text-red-700" :
+            hint.status === "merged" ? "bg-blue-100 text-blue-700" :
+            "bg-gray-100 text-gray-700"
+          }`}>
+            {hint.status}
+          </span>
+          <span className="text-xs text-gray-500">
+            {Math.round(hint.confidence * 100)}% confidence
+          </span>
+        </div>
+        <span className="text-xs text-gray-400">{hint.category}</span>
+      </div>
+      <h4 className="text-sm font-medium text-gray-900 mb-1">{hint.title}</h4>
+      <p className="text-sm text-gray-600 line-clamp-2 mb-3">{hint.description}</p>
+      {hint.applies_to && hint.applies_to.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-3">
+          {hint.applies_to.slice(0, 4).map((tag, i) => (
+            <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">{tag}</span>
+          ))}
+        </div>
+      )}
+      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+        <span className="text-xs text-gray-400">
+          Used {hint.usage_count} times &middot; {hint.prevented_errors} errors prevented
+        </span>
+        {!hint.human_verified && (
+          <button
+            onClick={() => onVerify(hint.id)}
+            className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-50 rounded hover:bg-blue-100"
+          >
+            Verify
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// Aggregation Card Component (Sprint 175)
+// =============================================================================
+
+function AggregationCard({
+  aggregation,
+  onApply,
+  onReject,
+}: {
+  aggregation: LearningAggregation;
+  onApply: (id: string) => void;
+  onReject: (id: string, reason: string) => void;
+}) {
+  const periodLabel = `${aggregation.period_type}: ${new Date(aggregation.period_start).toLocaleDateString()} - ${new Date(aggregation.period_end).toLocaleDateString()}`;
+
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className={`px-2 py-1 rounded text-xs font-medium ${
+            aggregation.status === "applied" ? "bg-green-100 text-green-700" :
+            aggregation.status === "rejected" ? "bg-red-100 text-red-700" :
+            aggregation.status === "pending" ? "bg-yellow-100 text-yellow-700" :
+            "bg-gray-100 text-gray-700"
+          }`}>
+            {aggregation.status}
+          </span>
+          <span className="text-xs text-gray-500">{aggregation.period_type}</span>
+        </div>
+        <span className="text-xs text-gray-400">
+          {aggregation.total_learnings} learnings
+        </span>
+      </div>
+      <h4 className="text-sm font-medium text-gray-900 mb-1 line-clamp-1">{periodLabel}</h4>
+      {aggregation.top_patterns && aggregation.top_patterns.length > 0 && (
+        <div className="mb-3">
+          <p className="text-xs text-gray-500 mb-1">Top Patterns:</p>
+          <ul className="text-xs text-gray-600 space-y-1">
+            {aggregation.top_patterns.slice(0, 3).map((p, i) => (
+              <li key={i} className="flex items-start gap-1">
+                <span className="text-gray-400 mt-0.5">-</span>
+                <span className="line-clamp-1">{p.pattern} ({p.count}x, {p.severity})</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {aggregation.claude_md_suggestions && aggregation.claude_md_suggestions.length > 0 && (
+        <div className="mb-3">
+          <p className="text-xs text-gray-500 mb-1">CLAUDE.md Suggestions:</p>
+          <ul className="text-xs text-gray-600 space-y-1">
+            {aggregation.claude_md_suggestions.slice(0, 2).map((s, i) => (
+              <li key={i} className="flex items-start gap-1">
+                <span className="text-gray-400 mt-0.5">-</span>
+                <span className="line-clamp-1">[{s.section}] {s.content}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {aggregation.status === "pending" && (
+        <div className="flex gap-2 pt-2 border-t border-gray-100">
+          <button
+            onClick={() => onApply(aggregation.id)}
+            className="flex-1 px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded hover:bg-green-100"
+          >
+            Apply
+          </button>
+          <button
+            onClick={() => onReject(aggregation.id, "Not applicable")}
+            className="flex-1 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 rounded hover:bg-red-100"
+          >
+            Reject
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =============================================================================
+// Tab Types (Sprint 175)
+// =============================================================================
+
+type LearningsTab = "learnings" | "hints" | "aggregations";
+
+// =============================================================================
 // Main Page Component
 // =============================================================================
 
 export default function LearningsPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<LearningsTab>("learnings");
   const [filters, setFilters] = useState<LearningFilterParams>({
     page: 1,
     per_page: 20,
@@ -340,6 +489,19 @@ export default function LearningsPage() {
     filters
   );
   const { data: stats } = useLearningStats(effectiveProjectId);
+
+  // Sprint 175: Hints tab data
+  const { data: hintsData, isLoading: hintsLoading } = useHints(
+    activeTab === "hints" ? effectiveProjectId : undefined
+  );
+  const verifyHintMutation = useVerifyHint(effectiveProjectId || "");
+
+  // Sprint 175: Aggregations tab data
+  const { data: aggregationsData, isLoading: aggregationsLoading } = useAggregations(
+    activeTab === "aggregations" ? effectiveProjectId : undefined
+  );
+  const applyAggregationMutation = useApplyAggregation(effectiveProjectId || "");
+  const rejectAggregationMutation = useRejectAggregation(effectiveProjectId || "");
 
   // Mutations
   const applyMutation = useApplyLearning(effectiveProjectId || "");
@@ -411,19 +573,14 @@ export default function LearningsPage() {
                 ))}
               </select>
 
-              {/* Quick Links */}
-              <Link
-                href="/app/learnings/hints"
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
+              {/* Refresh */}
+              <button
+                onClick={() => refetch()}
+                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                title="Refresh"
               >
-                View Hints
-              </Link>
-              <Link
-                href="/app/learnings/aggregations"
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-medium"
-              >
-                Aggregations
-              </Link>
+                <ArrowPathIcon className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </div>
@@ -460,6 +617,31 @@ export default function LearningsPage() {
           </div>
         )}
 
+        {/* Tab Navigation (Sprint 175) */}
+        <div className="flex gap-1 bg-white rounded-lg border border-gray-200 p-1 mb-6">
+          {([
+            { key: "learnings" as const, label: "Learnings", icon: BookOpenIcon },
+            { key: "hints" as const, label: "Hints", icon: LightBulbIcon },
+            { key: "aggregations" as const, label: "Aggregations", icon: ChartPieIcon },
+          ]).map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                activeTab === tab.key
+                  ? "bg-purple-600 text-white"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Learnings Tab Content */}
+        {activeTab === "learnings" && (
+          <>
         {/* Filters */}
         <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
           <div className="flex flex-wrap gap-4">
@@ -620,6 +802,69 @@ export default function LearningsPage() {
               </div>
             )}
           </div>
+        )}
+          </>
+        )}
+
+        {/* Hints Tab Content (Sprint 175) */}
+        {activeTab === "hints" && (
+          <>
+            {hintsLoading ? (
+              <div className="text-center py-12">
+                <ArrowPathIcon className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-4" />
+                <p className="text-gray-500">Loading hints...</p>
+              </div>
+            ) : !hintsData?.items || hintsData.items.length === 0 ? (
+              <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+                <LightBulbIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No hints found</h3>
+                <p className="text-gray-500 max-w-md mx-auto">
+                  Hints are generated from learning patterns to improve AI task decomposition.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {hintsData.items.map((hint: DecompositionHint) => (
+                  <HintCard
+                    key={hint.id}
+                    hint={hint}
+                    onVerify={(id) => verifyHintMutation.mutate(id)}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Aggregations Tab Content (Sprint 175) */}
+        {activeTab === "aggregations" && (
+          <>
+            {aggregationsLoading ? (
+              <div className="text-center py-12">
+                <ArrowPathIcon className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-4" />
+                <p className="text-gray-500">Loading aggregations...</p>
+              </div>
+            ) : !aggregationsData?.items || aggregationsData.items.length === 0 ? (
+              <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+                <ChartPieIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No aggregations found</h3>
+                <p className="text-gray-500 max-w-md mx-auto">
+                  Aggregations synthesize learnings into actionable improvement suggestions.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {aggregationsData.items.map((agg: LearningAggregation) => (
+                  <AggregationCard
+                    key={agg.id}
+                    aggregation={agg}
+                    onApply={(id) => applyAggregationMutation.mutate(id)}
+                    onReject={(id, reason) => rejectAggregationMutation.mutate({ aggregationId: id, reason })}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>

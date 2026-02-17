@@ -7,14 +7,16 @@
  * @module frontend/src/app/app/mcp-analytics/page
  * @description Dashboard for monitoring AI provider health, costs, and performance
  * @sdlc SDLC 6.0.6 Universal Framework
- * @status Sprint 150 - MCP Analytics Dashboard MVP
+ * @status Sprint 175 - Full hook wiring + time range selector
  */
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   useMCPDashboard,
   useMCPProviderHealth,
   useMCPLatencyMetrics,
+  useMCPCostTracking,
+  useMCPContextUsage,
 } from "@/hooks/useMCPAnalytics";
 import {
   BarChart,
@@ -336,22 +338,34 @@ function LatencyChartSection({
 }
 
 function CostBreakdownSection({
+  costData,
   totalCost,
   costTrend,
   budgetUsage,
   topProvider,
+  isLoading,
 }: {
+  costData: Array<{ provider_name: string; total_cost_usd: number; request_count: number }> | null;
   totalCost: number;
   costTrend: number;
   budgetUsage: number | null;
   topProvider: string;
+  isLoading: boolean;
 }) {
-  // Mock cost breakdown for visualization
-  const costData = [
-    { name: "Ollama", cost: 0, percentage: 0 },
-    { name: "Claude", cost: totalCost * 0.85, percentage: 85 },
-    { name: "OpenAI", cost: totalCost * 0.15, percentage: 15 },
-  ];
+  const chartData = useMemo(() => {
+    if (!costData || costData.length === 0) {
+      return [
+        { name: "Ollama", cost: 0 },
+        { name: "Claude", cost: totalCost * 0.85 },
+        { name: "OpenAI", cost: totalCost * 0.15 },
+      ];
+    }
+    return costData.map((item) => ({
+      name: item.provider_name.charAt(0).toUpperCase() + item.provider_name.slice(1),
+      cost: item.total_cost_usd,
+      requests: item.request_count,
+    }));
+  }, [costData, totalCost]);
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white">
@@ -369,22 +383,28 @@ function CostBreakdownSection({
         </p>
       </div>
       <div className="p-6">
-        <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={costData} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis type="number" tick={{ fontSize: 12 }} />
-            <YAxis dataKey="name" type="category" tick={{ fontSize: 12 }} width={80} />
-            <Tooltip
-              formatter={(value: number) => `$${value.toFixed(2)}`}
-              contentStyle={{
-                backgroundColor: "#fff",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-              }}
-            />
-            <Bar dataKey="cost" fill="#3b82f6" radius={[0, 4, 4, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        {isLoading ? (
+          <div className="flex h-[200px] items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={chartData} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis type="number" tick={{ fontSize: 12 }} />
+              <YAxis dataKey="name" type="category" tick={{ fontSize: 12 }} width={80} />
+              <Tooltip
+                formatter={(value: number) => `$${value.toFixed(2)}`}
+                contentStyle={{
+                  backgroundColor: "#fff",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "8px",
+                }}
+              />
+              <Bar dataKey="cost" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
 
         <div className="mt-4 rounded-lg bg-blue-50 p-4">
           <p className="text-sm text-blue-800">
@@ -402,10 +422,43 @@ function CostBreakdownSection({
 // Main Page Component
 // ============================================================================
 
+// Time range options for filtering
+const TIME_RANGES = [
+  { label: "24h", days: 1 },
+  { label: "7d", days: 7 },
+  { label: "30d", days: 30 },
+  { label: "90d", days: 90 },
+] as const;
+
+function getDateRange(days: number) {
+  const end = new Date();
+  const start = new Date();
+  start.setDate(start.getDate() - days);
+  return {
+    startDate: start.toISOString().split("T")[0],
+    endDate: end.toISOString().split("T")[0],
+  };
+}
+
 export default function MCPAnalyticsPage() {
+  const [selectedRange, setSelectedRange] = useState<number>(7);
+  const dateRange = useMemo(() => getDateRange(selectedRange), [selectedRange]);
+
   const dashboardQuery = useMCPDashboard();
   const healthQuery = useMCPProviderHealth();
-  const latencyQuery = useMCPLatencyMetrics();
+  const latencyQuery = useMCPLatencyMetrics({
+    startDate: dateRange.startDate,
+    endDate: dateRange.endDate,
+    granularity: selectedRange <= 1 ? "hour" : selectedRange <= 7 ? "day" : "week",
+  });
+  const costQuery = useMCPCostTracking({
+    startDate: dateRange.startDate,
+    endDate: dateRange.endDate,
+  });
+  const contextQuery = useMCPContextUsage({
+    startDate: dateRange.startDate,
+    endDate: dateRange.endDate,
+  });
 
   if (dashboardQuery.isLoading || healthQuery.isLoading) {
     return (
@@ -418,7 +471,15 @@ export default function MCPAnalyticsPage() {
   if (dashboardQuery.isError) {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
-        <ErrorState />
+        <ErrorState message={dashboardQuery.error?.message} />
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => dashboardQuery.refetch()}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -426,6 +487,8 @@ export default function MCPAnalyticsPage() {
   const dashboard = dashboardQuery.data;
   const health = healthQuery.data;
   const latency = latencyQuery.data;
+  const costDetails = costQuery.data;
+  const contextDetails = contextQuery.data;
 
   // Fallback data if API returns null
   const safeData = {
@@ -455,11 +518,29 @@ export default function MCPAnalyticsPage() {
               Monitor AI provider health, costs, and performance metrics
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">Last updated:</span>
-            <span className="text-sm font-medium text-gray-900">
-              {new Date(dashboard?.generated_at || Date.now()).toLocaleTimeString()}
-            </span>
+          <div className="flex items-center gap-4">
+            {/* Time Range Selector */}
+            <div className="flex items-center rounded-lg border border-gray-200 bg-white">
+              {TIME_RANGES.map(({ label, days }) => (
+                <button
+                  key={label}
+                  onClick={() => setSelectedRange(days)}
+                  className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                    selectedRange === days
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-600 hover:bg-gray-50"
+                  } ${days === 1 ? "rounded-l-lg" : ""} ${days === 90 ? "rounded-r-lg" : ""}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">Last updated:</span>
+              <span className="text-sm font-medium text-gray-900">
+                {new Date(dashboard?.generated_at || Date.now()).toLocaleTimeString()}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -476,8 +557,8 @@ export default function MCPAnalyticsPage() {
             color={safeData.overall_health === "healthy" ? "green" : "yellow"}
           />
           <MetricCard
-            title="Total Cost (7d)"
-            value={`$${safeData.total_cost_usd_7d.toFixed(2)}`}
+            title={`Total Cost (${TIME_RANGES.find(r => r.days === selectedRange)?.label || "7d"})`}
+            value={`$${(costDetails?.total_cost_usd ?? safeData.total_cost_usd_7d).toFixed(2)}`}
             subtitle="Estimated spend"
             trend={safeData.cost_trend_percent}
             icon={DollarSign}
@@ -491,7 +572,7 @@ export default function MCPAnalyticsPage() {
             color="purple"
           />
           <MetricCard
-            title="Total Requests (7d)"
+            title={`Total Requests (${TIME_RANGES.find(r => r.days === selectedRange)?.label || "7d"})`}
             value={safeData.total_requests_7d.toLocaleString()}
             subtitle={`Top: ${safeData.top_provider}`}
             trend={safeData.requests_trend_percent}
@@ -505,12 +586,14 @@ export default function MCPAnalyticsPage() {
           {/* Provider Health */}
           {health && <ProviderHealthSection data={health} />}
 
-          {/* Cost Analysis */}
+          {/* Cost Analysis - now with real data */}
           <CostBreakdownSection
-            totalCost={safeData.total_cost_usd_7d}
+            costData={costDetails?.providers || null}
+            totalCost={costDetails?.total_cost_usd ?? safeData.total_cost_usd_7d}
             costTrend={safeData.cost_trend_percent}
             budgetUsage={dashboard?.budget_usage_percent || null}
             topProvider={safeData.top_provider}
+            isLoading={costQuery.isLoading}
           />
         </div>
 
@@ -519,37 +602,73 @@ export default function MCPAnalyticsPage() {
           {latency && <LatencyChartSection data={latency} />}
         </div>
 
-        {/* Context Usage Summary */}
+        {/* Context Usage Summary - now with real data */}
         <div className="mt-8 rounded-xl border border-gray-200 bg-white p-6">
           <div className="flex items-center gap-2 mb-4">
             <Server className="h-5 w-5 text-gray-400" />
             <h3 className="text-lg font-semibold text-gray-900">Context Provider Usage</h3>
           </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <div className="rounded-lg bg-gray-50 p-4">
-              <p className="text-sm text-gray-500">Total Invocations</p>
-              <p className="mt-1 text-2xl font-bold text-gray-900">
-                {safeData.context_invocations_7d.toLocaleString()}
-              </p>
+          {contextQuery.isLoading ? (
+            <div className="flex h-32 items-center justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
             </div>
-            <div className="rounded-lg bg-gray-50 p-4">
-              <p className="text-sm text-gray-500">Top Provider</p>
-              <p className="mt-1 text-2xl font-bold text-gray-900 capitalize">
-                {safeData.top_context_provider}
-              </p>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              <div className="rounded-lg bg-gray-50 p-4">
+                <p className="text-sm text-gray-500">Total Invocations</p>
+                <p className="mt-1 text-2xl font-bold text-gray-900">
+                  {(contextDetails?.total_invocations ?? safeData.context_invocations_7d).toLocaleString()}
+                </p>
+              </div>
+              <div className="rounded-lg bg-gray-50 p-4">
+                <p className="text-sm text-gray-500">Top Provider</p>
+                <p className="mt-1 text-2xl font-bold text-gray-900 capitalize">
+                  {contextDetails?.top_provider ?? safeData.top_context_provider}
+                </p>
+              </div>
+              <div className="rounded-lg bg-gray-50 p-4">
+                <p className="text-sm text-gray-500">SLA Compliance</p>
+                <p className="mt-1 text-2xl font-bold text-green-600">
+                  {safeData.sla_compliance_percent.toFixed(0)}%
+                </p>
+              </div>
+              <div className="rounded-lg bg-gray-50 p-4">
+                <p className="text-sm text-gray-500">Cost Savings</p>
+                <p className="mt-1 text-2xl font-bold text-green-600">
+                  {costDetails?.savings_percent != null
+                    ? `${costDetails.savings_percent.toFixed(0)}%`
+                    : "~95%"}
+                </p>
+                <p className="text-xs text-gray-500">vs cloud-only</p>
+              </div>
             </div>
-            <div className="rounded-lg bg-gray-50 p-4">
-              <p className="text-sm text-gray-500">SLA Compliance</p>
-              <p className="mt-1 text-2xl font-bold text-green-600">
-                {safeData.sla_compliance_percent.toFixed(0)}%
-              </p>
+          )}
+          {/* Context Provider Breakdown */}
+          {contextDetails?.providers && contextDetails.providers.length > 0 && (
+            <div className="mt-4">
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Provider Breakdown</h4>
+              <div className="space-y-2">
+                {contextDetails.providers.map((provider: { provider_name: string; invocation_count: number; avg_latency_ms: number }) => (
+                  <div
+                    key={provider.provider_name}
+                    className="flex items-center justify-between rounded-lg bg-gray-50 px-4 py-2"
+                  >
+                    <span className="text-sm font-medium text-gray-900 capitalize">
+                      {provider.provider_name}
+                    </span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm text-gray-500">
+                        {provider.invocation_count.toLocaleString()} calls
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {provider.avg_latency_ms?.toFixed(0) ?? "—"}ms avg
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="rounded-lg bg-gray-50 p-4">
-              <p className="text-sm text-gray-500">Cost Savings</p>
-              <p className="mt-1 text-2xl font-bold text-green-600">~95%</p>
-              <p className="text-xs text-gray-500">vs cloud-only</p>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

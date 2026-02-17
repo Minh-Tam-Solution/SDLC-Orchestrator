@@ -3,7 +3,7 @@
  *
  * @module frontend/src/app/app/plan-review/page
  * @description Planning session list with conformance scores and approval workflow
- * @sdlc SDLC 6.0.6 Framework - Sprint 99 (Planning Sub-agent Part 2)
+ * @sdlc SDLC 6.0.6 Framework - Sprint 175 (Frontend Feature Completion)
  * @reference ADR-034 Planning Sub-agent Orchestration
  * @status Sprint 99 - Implementation
  */
@@ -15,6 +15,9 @@ import { useRouter } from "next/navigation";
 import {
   usePlanningSessions,
   useCreatePlanningSession,
+  useApprovePlanningSession,
+  useRejectPlanningSession,
+  usePlanningSubagentHealth,
 } from "@/hooks/usePlanningReview";
 import {
   ConformanceScoreBadge,
@@ -119,6 +122,42 @@ function ExclamationTriangleIcon({ className }: { className?: string }) {
   );
 }
 
+function CheckIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4.5 12.75l6 6 9-13.5"
+      />
+    </svg>
+  );
+}
+
+function XMarkIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6 18L18 6M6 6l12 12"
+      />
+    </svg>
+  );
+}
+
 // =============================================================================
 // STATUS FILTER OPTIONS
 // =============================================================================
@@ -174,9 +213,23 @@ function StatsCards({ total, pending, approved, rejected }: StatsCardsProps) {
 interface SessionListItemProps {
   session: PlanningSessionSummary;
   onClick: () => void;
+  onApprove?: (sessionId: string) => void;
+  onReject?: (sessionId: string, notes: string) => void;
+  isApproving?: boolean;
+  isRejecting?: boolean;
 }
 
-function SessionListItem({ session, onClick }: SessionListItemProps) {
+function SessionListItem({
+  session,
+  onClick,
+  onApprove,
+  onReject,
+  isApproving,
+  isRejecting,
+}: SessionListItemProps) {
+  const [rejectNotes, setRejectNotes] = useState("");
+  const [showRejectInput, setShowRejectInput] = useState(false);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -188,16 +241,17 @@ function SessionListItem({ session, onClick }: SessionListItemProps) {
     });
   };
 
+  const isPending = session.status === "pending_approval";
+
   return (
     <div
-      onClick={onClick}
-      className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+      className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
     >
       <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 cursor-pointer" onClick={onClick}>
           <div className="flex items-center gap-3 mb-2">
             <PlanningStatusBadge status={session.status} />
-            {session.requires_approval && session.status === "pending_approval" && (
+            {session.requires_approval && isPending && (
               <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">
                 Needs Review
               </span>
@@ -221,6 +275,76 @@ function SessionListItem({ session, onClick }: SessionListItemProps) {
           </span>
         </div>
       </div>
+
+      {/* Inline approve/reject actions for pending sessions */}
+      {isPending && onApprove && onReject && (
+        <div className="mt-3 pt-3 border-t">
+          {showRejectInput ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={rejectNotes}
+                onChange={(e) => setRejectNotes(e.target.value)}
+                placeholder="Rejection reason..."
+                className="flex-1 px-3 py-1.5 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (rejectNotes.trim()) {
+                    onReject(session.id, rejectNotes.trim());
+                    setShowRejectInput(false);
+                    setRejectNotes("");
+                  }
+                }}
+                disabled={isRejecting || !rejectNotes.trim()}
+                className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md disabled:opacity-50"
+              >
+                {isRejecting ? "Rejecting..." : "Confirm"}
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowRejectInput(false);
+                  setRejectNotes("");
+                }}
+                className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onApprove(session.id);
+                }}
+                disabled={isApproving}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 rounded-md disabled:opacity-50"
+              >
+                <CheckIcon className="h-4 w-4" />
+                {isApproving ? "Approving..." : "Approve"}
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowRejectInput(true);
+                }}
+                disabled={isRejecting}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md disabled:opacity-50"
+              >
+                <XMarkIcon className="h-4 w-4" />
+                Reject
+              </button>
+              <span className="text-xs text-gray-400 ml-auto">
+                Click row to view full plan
+              </span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -397,8 +521,36 @@ export default function PlanReviewPage() {
     statusFilter === "all" ? undefined : { status: statusFilter }
   );
 
-  // Create session mutation
+  // Mutations
   const createSessionMutation = useCreatePlanningSession();
+  const approveMutation = useApprovePlanningSession();
+  const rejectMutation = useRejectPlanningSession();
+
+  // Service health
+  const { data: healthData } = usePlanningSubagentHealth();
+  const isServiceHealthy = healthData?.status === "healthy";
+
+  const handleApproveSession = useCallback(
+    async (sessionId: string) => {
+      try {
+        await approveMutation.mutateAsync({ sessionId });
+      } catch (err) {
+        console.error("Failed to approve session:", err);
+      }
+    },
+    [approveMutation]
+  );
+
+  const handleRejectSession = useCallback(
+    async (sessionId: string, notes: string) => {
+      try {
+        await rejectMutation.mutateAsync({ sessionId, notes });
+      } catch (err) {
+        console.error("Failed to reject session:", err);
+      }
+    },
+    [rejectMutation]
+  );
 
   const handleSelectSession = useCallback(
     (sessionId: string) => {
@@ -435,7 +587,26 @@ export default function PlanReviewPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Plan Review</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-gray-900">Plan Review</h1>
+            {healthData && (
+              <span
+                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium rounded-full ${
+                  isServiceHealthy
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+                title={`Planning sub-agent: ${healthData.status}${healthData.version ? ` v${healthData.version}` : ""}`}
+              >
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    isServiceHealthy ? "bg-green-500" : "bg-red-500"
+                  }`}
+                />
+                {isServiceHealthy ? "Service Online" : "Service Offline"}
+              </span>
+            )}
+          </div>
           <p className="text-sm text-gray-500 mt-1">
             ADR-034: Planning Sub-agent sessions and conformance review
           </p>
@@ -510,6 +681,10 @@ export default function PlanReviewPage() {
                   key={session.id}
                   session={session}
                   onClick={() => handleSelectSession(session.id)}
+                  onApprove={handleApproveSession}
+                  onReject={handleRejectSession}
+                  isApproving={approveMutation.isPending}
+                  isRejecting={rejectMutation.isPending}
                 />
               ))}
             </div>

@@ -4,7 +4,7 @@
  * @module frontend/src/app/app/sase-templates/page
  * @description SASE artifact templates viewer and generator
  * @sdlc SDLC 6.0.6 Universal Framework - SASE Integration
- * @status Sprint 151 - SASE Artifacts Enhancement
+ * @status Sprint 175 - Frontend Feature Completion
  */
 
 "use client";

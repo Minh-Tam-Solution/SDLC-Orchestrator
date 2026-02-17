@@ -3,9 +3,9 @@
  *
  * @module frontend/src/app/app/planning/page
  * @description Full Planning Hierarchy visualization (Roadmap → Phase → Sprint)
- * @sdlc SDLC 6.0.6 Framework - Sprint 92 (Planning Hierarchy CRUD)
+ * @sdlc SDLC 6.0.6 Framework - Sprint 175 (Frontend Feature Completion)
  * @reference SDLC 6.0.6 Pillar 2: Sprint Planning Governance
- * @status Sprint 92 - Roadmap & Phase CRUD Implementation
+ * @status Sprint 175 - Hook Wiring + Active Sprint Dashboard
  */
 
 "use client";
@@ -16,8 +16,12 @@ import { useProjects } from "@/hooks/useProjects";
 import {
   usePlanningHierarchy,
   useSprints,
+  useActiveSprint,
+  useActiveSprintDashboard,
+  useBacklogItems,
   useDeleteRoadmap,
   useDeletePhase,
+  useDeleteSprint,
 } from "@/hooks/usePlanningHierarchy";
 import { PlanningHierarchyTree, SprintTimeline } from "@/app/app/sprints/components";
 import { RoadmapModal, PhaseModal } from "./components";
@@ -30,7 +34,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import type { Roadmap, Phase } from "@/lib/types/planning";
+import type { Roadmap, Phase, BacklogItem } from "@/lib/types/planning";
 
 // =============================================================================
 // ICONS
@@ -241,6 +245,143 @@ function LoadingSkeleton() {
 }
 
 // =============================================================================
+// ACTIVE SPRINT PROGRESS PANEL
+// =============================================================================
+
+function ActiveSprintProgress({
+  itemsByStatus,
+}: {
+  itemsByStatus: {
+    todo: number;
+    in_progress: number;
+    review: number;
+    done: number;
+    carried_over: number;
+  };
+}) {
+  const total =
+    itemsByStatus.todo +
+    itemsByStatus.in_progress +
+    itemsByStatus.review +
+    itemsByStatus.done +
+    itemsByStatus.carried_over;
+
+  if (total === 0) return null;
+
+  const segments = [
+    { label: "Done", count: itemsByStatus.done, color: "bg-green-500" },
+    { label: "Review", count: itemsByStatus.review, color: "bg-blue-500" },
+    { label: "In Progress", count: itemsByStatus.in_progress, color: "bg-yellow-500" },
+    { label: "To Do", count: itemsByStatus.todo, color: "bg-gray-300" },
+    { label: "Carried Over", count: itemsByStatus.carried_over, color: "bg-red-300" },
+  ];
+
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white p-4">
+      <h3 className="text-sm font-medium text-gray-700 mb-3">Sprint Progress</h3>
+      {/* Progress bar */}
+      <div className="flex h-3 rounded-full overflow-hidden mb-3">
+        {segments.map(
+          (seg) =>
+            seg.count > 0 && (
+              <div
+                key={seg.label}
+                className={`${seg.color}`}
+                style={{ width: `${(seg.count / total) * 100}%` }}
+                title={`${seg.label}: ${seg.count}`}
+              />
+            )
+        )}
+      </div>
+      {/* Legend */}
+      <div className="flex flex-wrap gap-3 text-xs text-gray-600">
+        {segments
+          .filter((s) => s.count > 0)
+          .map((seg) => (
+            <span key={seg.label} className="flex items-center gap-1">
+              <span className={`h-2 w-2 rounded-full ${seg.color}`} />
+              {seg.label}: {seg.count}
+            </span>
+          ))}
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// BACKLOG ITEMS PANEL
+// =============================================================================
+
+const PRIORITY_COLORS: Record<string, string> = {
+  p0: "bg-red-100 text-red-700",
+  p1: "bg-orange-100 text-orange-700",
+  p2: "bg-yellow-100 text-yellow-700",
+  p3: "bg-gray-100 text-gray-600",
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  todo: "bg-gray-100 text-gray-700",
+  in_progress: "bg-blue-100 text-blue-700",
+  review: "bg-purple-100 text-purple-700",
+  done: "bg-green-100 text-green-700",
+  carried_over: "bg-red-100 text-red-700",
+};
+
+function BacklogPanel({ items }: { items: BacklogItem[] }) {
+  if (items.length === 0) {
+    return (
+      <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
+        No backlog items in this sprint yet.
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white">
+      <div className="px-4 py-3 border-b border-gray-100">
+        <h3 className="text-sm font-medium text-gray-700">
+          Backlog Items ({items.length})
+        </h3>
+      </div>
+      <div className="divide-y divide-gray-100">
+        {items.slice(0, 10).map((item) => (
+          <div key={item.id} className="px-4 py-3 flex items-center gap-3">
+            <span
+              className={`px-1.5 py-0.5 text-[10px] font-semibold uppercase rounded ${PRIORITY_COLORS[item.priority] || "bg-gray-100"}`}
+            >
+              {item.priority}
+            </span>
+            <span className="flex-1 text-sm text-gray-900 truncate">
+              {item.title}
+            </span>
+            <span
+              className={`px-2 py-0.5 text-xs rounded-full ${STATUS_COLORS[item.status] || "bg-gray-100"}`}
+            >
+              {item.status.replace("_", " ")}
+            </span>
+            {item.story_points != null && (
+              <span className="text-xs text-gray-400 font-mono">
+                {item.story_points}sp
+              </span>
+            )}
+            {item.assignee_name && (
+              <span className="text-xs text-gray-500 truncate max-w-[100px]">
+                {item.assignee_name}
+              </span>
+            )}
+          </div>
+        ))}
+        {items.length > 10 && (
+          <div className="px-4 py-2 text-center text-xs text-gray-400">
+            +{items.length - 10} more items
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
 // MAIN COMPONENT
 // =============================================================================
 
@@ -275,6 +416,7 @@ export default function PlanningPage() {
   // Delete mutations
   const deleteRoadmapMutation = useDeleteRoadmap();
   const deletePhaseMutation = useDeletePhase();
+  const deleteSprintMutation = useDeleteSprint();
 
   // Get planning hierarchy
   const {
@@ -286,6 +428,15 @@ export default function PlanningPage() {
   // Get sprints for timeline view
   const { data: sprintsData, isLoading: isLoadingSprints } = useSprints({
     projectId: firstProject?.id,
+  });
+
+  // Active sprint details + dashboard
+  const { data: activeSprint } = useActiveSprint(firstProject?.id || "");
+  const { data: sprintDashboard } = useActiveSprintDashboard(firstProject?.id || "");
+
+  // Backlog items for active sprint
+  const { data: backlogData } = useBacklogItems({
+    sprintId: activeSprint?.id,
   });
 
   const isLoading = isLoadingProjects || isLoadingHierarchy || isLoadingSprints;
@@ -412,9 +563,20 @@ export default function PlanningPage() {
   };
 
   const handleAddSprint = (phaseId: string, phaseName: string) => {
-    // Navigate to sprint creation page or open sprint modal
-    // For now, navigate to sprints page with phase context
+    // Navigate to sprint creation page with phase context
     window.location.href = `/app/sprints?phaseId=${phaseId}&phaseName=${encodeURIComponent(phaseName)}`;
+  };
+
+  const handleDeleteSprint = async (sprintId: string) => {
+    if (!firstProject?.id) return;
+    try {
+      await deleteSprintMutation.mutateAsync({
+        id: sprintId,
+        projectId: firstProject.id,
+      });
+    } catch (error) {
+      console.error("Failed to delete sprint:", error);
+    }
   };
 
   return (
@@ -457,11 +619,7 @@ export default function PlanningPage() {
           totalRoadmaps={hierarchy?.total_roadmaps || 0}
           totalPhases={hierarchy?.total_phases || 0}
           totalSprints={hierarchy?.total_sprints || 0}
-          activeSprintName={
-            hierarchy?.active_sprint_id
-              ? sprintsData?.sprints?.find((s) => s.id === hierarchy.active_sprint_id)?.name
-              : undefined
-          }
+          activeSprintName={activeSprint?.name}
         />
       </div>
 
@@ -484,6 +642,17 @@ export default function PlanningPage() {
           sprints={sprintsForTimeline}
           activeSprintId={hierarchy?.active_sprint_id}
         />
+      )}
+
+      {/* Active Sprint Dashboard */}
+      {sprintDashboard && (
+        <div className="mt-6 space-y-4">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Active Sprint: {sprintDashboard.sprint.name}
+          </h2>
+          <ActiveSprintProgress itemsByStatus={sprintDashboard.items_by_status} />
+          {backlogData && <BacklogPanel items={backlogData.items} />}
+        </div>
       )}
 
       {/* Help Text */}
