@@ -289,7 +289,7 @@ class ConversationCreate(BaseModel):
 class ConversationResponse(BaseModel):
     """Full conversation response with snapshotted fields."""
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
     id: UUID
     project_id: UUID
@@ -300,6 +300,7 @@ class ConversationResponse(BaseModel):
     initiator_id: str
     channel: ChannelType
     session_scope: SessionScope      # Snapshotted from definition
+    queue_mode: QueueMode              # Snapshotted from definition
     status: ConversationStatus
     total_messages: int
     max_messages: int                # Snapshotted from definition
@@ -310,7 +311,7 @@ class ConversationResponse(BaseModel):
     total_tokens: int
     current_cost_cents: int
     max_budget_cents: int            # Snapshotted from definition
-    metadata: dict[str, Any]
+    metadata: dict[str, Any] = Field(default_factory=dict, validation_alias="metadata_")
     started_at: datetime
     completed_at: datetime | None
 

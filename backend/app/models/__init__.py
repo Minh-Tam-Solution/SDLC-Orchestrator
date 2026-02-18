@@ -256,6 +256,11 @@ from app.models.nist_manage import (
 # Note: ProjectFunctionRole imported earlier (before Project) to resolve relationship
 from app.models.gate_decision import GateDecision
 
+# Multi-Agent Team Engine (Sprint 176 - ADR-056/EP-07) - 3 models
+from app.models.agent_definition import AgentDefinition
+from app.models.agent_conversation import AgentConversation
+from app.models.agent_message import AgentMessage
+
 # Note: ComplianceScore, ComplianceIssue, FolderCollisionCheck imported earlier
 # (before Project) to resolve forward references
 
@@ -445,4 +450,8 @@ __all__ = [
     # Tier-Based Gate Approval - Sprint 161 Phase 4 (2 models)
     "ProjectFunctionRole",
     "GateDecision",
+    # Multi-Agent Team Engine - Sprint 176 ADR-056/EP-07 (3 models)
+    "AgentDefinition",
+    "AgentConversation",
+    "AgentMessage",
 ]

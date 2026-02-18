@@ -253,6 +253,10 @@ class Project(Base):
     function_roles = relationship(
         "ProjectFunctionRole", back_populates="project", cascade="all, delete-orphan"
     )
+    # Multi-Agent Team Engine (Sprint 176 - ADR-056)
+    agent_definitions = relationship(
+        "AgentDefinition", back_populates="project", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Project(id={self.id}, name={self.name}, slug={self.slug})>"
