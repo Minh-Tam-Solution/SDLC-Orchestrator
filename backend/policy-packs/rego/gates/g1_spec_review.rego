@@ -139,21 +139,26 @@ g1_spec_review := result if {
     complexity_check := complexity_reasonable
     mode_check := production_checks
 
-    all_passed := error_check.allowed == true
-    all_passed_2 := complete_check.allowed == true
-    all_passed_3 := feature_check.allowed == true
-
-    # Gate passes if no blocking errors, spec is complete, and has features
+    # Gate passes if ALL three blocking checks pass:
+    # 1. No blocking errors
+    # 2. Spec is complete
+    # 3. Has at least one feature
     # Complexity and production checks generate warnings but don't block
-    gate_passed := all_passed
-    gate_passed_2 := all_passed_2
-    gate_passed_3 := all_passed_3
-    final_passed := gate_passed
-    final_passed_2 := gate_passed_2
-    final_passed_3 := gate_passed_3
+    no_errors := error_check.allowed
+    is_complete := complete_check.allowed
+    has_feats := feature_check.allowed
+
+    # AND all three: gate passes only when ALL blocking checks pass
+    blocking_results := [no_errors, is_complete, has_feats]
+    all_pass := count([p | some p in blocking_results; p == true]) == count(blocking_results)
 
     result := {
-        "allowed": final_passed,
+        "allowed": all_pass,
+        "details": {
+            "no_errors": no_errors,
+            "spec_complete": is_complete,
+            "has_features": has_feats
+        },
         "gate": "G1_SPEC_REVIEW",
         "checks": {
             "spec_has_no_errors": error_check,
@@ -163,7 +168,7 @@ g1_spec_review := result if {
             "production_checks": mode_check
         },
         "summary": sprintf("G1 Spec Review: %s — %d features, %d errors, %d warnings", [
-            "PASS" if final_passed else "FAIL" if true,
+            "PASS" if all_pass else "FAIL" if true,
             input.total_features,
             count(input.errors),
             count(input.warnings)
