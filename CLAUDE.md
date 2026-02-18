@@ -1,15 +1,16 @@
 # CLAUDE AI PROJECT CONTEXT - SDLC ORCHESTRATOR
 ## AI Assistant Configuration for Software 3.0 Operating System
 
-**Version**: 3.5.0
+**Version**: 3.6.0
 **Status**: Gate G3 APPROVED - Ship Ready (98.2%)
-**Current Sprint**: Sprint 174 - Anthropic Best Practices Integration
-**Effective Date**: February 17, 2026
+**Current Sprint**: Sprint 176 - ADR-056 Multi-Agent Foundation
+**Effective Date**: February 18, 2026
 **Project**: SDLC Orchestrator - Operating System for Software 3.0
 **Authority**: CTO + CPO + CEO Approved
 **Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 **SE 3.0 Status**: Track 1 APPROVED - SASE Integration Complete
 **EP-06 Status**: IR-Based Codegen Engine - Sprint 45-50 (~$50K investment)
+**EP-07 Status**: Multi-Agent Team Engine - Sprint 176-178 (ADR-056, 14 non-negotiables)
 
 ---
 
@@ -35,7 +36,7 @@ SDLC Orchestrator is the **Operating System for Software 3.0** - a control plane
 
 ```yaml
 Current Stage: Stage 04 (BUILD - Development & Implementation)
-Current Sprint: Sprint 174 - Anthropic Best Practices Integration
+Current Sprint: Sprint 176 - ADR-056 Multi-Agent Foundation
 Gate G3 Readiness: 98.2% (EXCEEDS 95% threshold)
 Timeline: 90 days MVP + 6 sprints EP-06 extension
 Budget: $564K (8.5 FTE team) + $50K EP-06 investment
@@ -74,8 +75,13 @@ Gate G3 Metrics (Dec 12, 2025):
   ✅ Test Coverage: 94% (target: 90%)
   ✅ P0/P1 Bugs: 0 (target: 0)
 
+EP-07 Multi-Agent Team Engine (Sprint 176-178):
+  Sprint 176: ADR-056 Foundation + DB migration (3 tables) + service accounts
+  Sprint 177: 12 service files + 5 P0 endpoints + lane-based queue + failover
+  Sprint 178: Team orchestrator + OTT Gateway (Telegram MVP) + SME pilot
+
 MVP v1.0.0 Status: COMPLETE (Dec 1, 2025)
-  ✅ Backend: 64 API endpoints (FastAPI, PostgreSQL, Redis)
+  ✅ Backend: 91 API endpoints (FastAPI, PostgreSQL, Redis) — 64 core + 11 Multi-Agent + 16 other
   ✅ Frontend: React Dashboard (shadcn/ui, TanStack Query)
   ✅ Security: JWT + OAuth + MFA, RBAC (13 roles), OWASP ASVS L2 (98.4%)
   ✅ Evidence Vault: MinIO S3, SHA256 integrity, 8-state lifecycle
@@ -162,6 +168,7 @@ Framework Submodule:
   URL: https://github.com/Minh-Tam-Solution/SDLC-Enterprise-Framework
   Location: /home/nqh/shared/SDLC-Orchestrator/SDLC-Enterprise-Framework/
   Type: Git submodule
+  Visibility: PRIVATE (not yet published as OSS — team access required)
   Version: SDLC 6.0.6 (7-Pillar + AI Governance Principles)
   Purpose: Methodology layer, templates, best practices
 ```
@@ -263,7 +270,7 @@ git push origin main
 │  • OPA 0.58.0 (Apache-2.0) - Policy evaluation engine           │
 │  • MinIO (AGPL v3) - Evidence storage (network-only, AGPL-safe) │
 │  • Grafana 10.2 (AGPL v3) - Dashboards (iframe embed only)     │
-│  • PostgreSQL 15.5 (PostgreSQL License) - 30 tables             │
+│  • PostgreSQL 15.5 (PostgreSQL License) - 33 tables             │
 │  • Redis 7.2 (BSD 3-Clause) - Caching + sessions               │
 │  • Semgrep (LGPL) - SAST scanning (CLI subprocess)             │
 └─────────────────────────────────────────────────────────────────┘
@@ -973,34 +980,38 @@ ADR-014: SDLC Structure Validator
 
 ```
 /docs/
-├── 00-discover/        # Stage 00: WHY - Design Thinking
+├── 00-foundation/      # Stage 00: WHY - Design Thinking
+│   └── 02-Business-Case/
+│       └── Multi-Agent-Team-Engine-Business-Case.md (BC-056)
 ├── 01-planning/        # Stage 01: WHAT - Requirements & API Design
+│   ├── 02-Epics/
+│   │   └── EP-07-Multi-Agent-Team-Engine.md
 │   ├── 03-Functional-Requirements/
-│   ├── 04-Data-Model/Data-Model-ERD.md (30 tables)
-│   └── 05-API-Design/API-Specification.md (64 endpoints)
+│   │   ├── FR-037 to FR-041 (Multi-Agent BDD requirements)
+│   │   └── ... (existing FRs)
+│   ├── 04-Data-Model/Data-Model-ERD.md (33 tables, v3.4.0)
+│   └── 05-API-Design/API-Specification.md (91 endpoints, v3.6.0)
 ├── 02-design/          # Stage 02: HOW - Architecture & Design
 │   ├── 02-System-Architecture/
-│   │   └── System-Architecture-Document.md (v3.0.0 - 5-Layer)
-│   ├── 03-ADRs/ (22 ADRs)
-│   │   ├── ADR-001 to ADR-019 (Existing decisions)
-│   │   ├── ADR-020-EP-04-VCR-Workflow.md
-│   │   ├── ADR-021-EP-05-SDLC-Scanner.md
-│   │   └── ADR-022-EP-06-IR-Codegen.md ⭐ NEW
-│   └── 14-Technical-Specs/ (15 specs)
-│       ├── Quality-Gates-Codegen-Specification.md
-│       └── Policy-Guards-Design.md
-├── 03-integrate/       # Stage 07: Integration & APIs
-│   ├── 01-api-contracts/
-│   ├── 02-third-party/ (7 integrations)
-│   └── 03-integration-guides/
-├── 04-build/           # Stage 03: BUILD - Development
+│   ├── 03-ADRs/
+│   │   ├── ADR-056-Multi-Agent-Team-Engine.md ⭐ NEW
+│   │   └── ... (ADR-001 to ADR-055)
+│   ├── Multi-Agent-Security-Threat-Model.md (STM-056)
+│   ├── Multi-Agent-Test-Plan.md (TP-056, 87 test cases)
+│   └── 14-Technical-Specs/
+├── 03-integrate/       # Stage 03: Integration & APIs
+│   └── 03-Integration-Guides/
+│       └── Multi-Agent-Provider-Integration.md (IG-056)
+├── 04-build/           # Stage 04: BUILD - Development
 │   └── 02-Sprint-Plans/
-│       ├── SPRINT-43-OPA-SAST.md ✅
-│       ├── SPRINT-44-CROSS-REFERENCE.md ✅
-│       ├── SPRINT-45-AUTO-FIX-ENGINE.md 🔄
-│       └── CURRENT-SPRINT.md
-└── 09-govern/          # Stage 09: GOVERN - Compliance & Reports
-    └── 01-CTO-Reports/
+│       ├── SPRINT-176-AUTONOMOUS-CODEGEN-PILOT-PREP.md 🔄 (+ ADR-056)
+│       ├── SPRINT-177-CODING-AGENT-LOOP.md ⏳ (+ Multi-Agent Core)
+│       └── SPRINT-178-AUTONOMOUS-CODEGEN-PILOT.md ⏳ (+ OTT Gateway)
+├── 09-govern/          # Stage 09: GOVERN - Compliance & Reports
+│   └── 01-CTO-Reports/
+└── 10-archive/         # Archived pre-update versions
+    ├── 01-Legacy/ (ERD v3.3.0, API v3.5.0)
+    └── 04-Legacy/ (Sprint Plans pre-MATE)
 ```
 
 ### **Critical Documents (Must Read Before Coding)**
@@ -1008,18 +1019,23 @@ ADR-014: SDLC Structure Validator
 **Foundation Documents**:
 1. **[PROJECT-KICKOFF.md](PROJECT-KICKOFF.md)** - CEO approval, 90-day plan, $564K budget
 2. **[System-Architecture-Document.md](docs/02-design/02-System-Architecture/System-Architecture-Document.md)** - 5-layer architecture (v3.0.0)
-3. **[API-Specification.md](docs/01-planning/05-API-Design/API-Specification.md)** - 64 endpoints (v3.1.0)
-4. **[Data-Model-ERD.md](docs/01-planning/04-Data-Model/Data-Model-ERD.md)** - 30 tables (v3.0.0)
+3. **[API-Specification.md](docs/01-planning/05-API-Design/API-Specification.md)** - 91 endpoints (v3.6.0)
+4. **[Data-Model-ERD.md](docs/01-planning/04-Data-Model/Data-Model-ERD.md)** - 33 tables (v3.4.0)
 
-**EP-06 Codegen Documents** ⭐ NEW:
-5. **[Quality-Gates-Codegen-Specification.md](docs/02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)** - 4-Gate Pipeline
-6. **[ADR-022-EP-06-IR-Codegen.md](docs/02-design/03-ADRs/)** - IR-based codegen architecture
-7. **[Stage 03 Integration README](docs/03-integrate/README.md)** - 7 third-party integrations
+**Multi-Agent Team Engine (EP-07)** — Sprint 176-178:
+5. **[EP-07-Multi-Agent-Team-Engine.md](docs/01-planning/02-Epics/EP-07-Multi-Agent-Team-Engine.md)** - Epic scope, 14 non-negotiables
+6. **[ADR-056-Multi-Agent-Team-Engine.md](docs/02-design/ADR-056-Multi-Agent-Team-Engine.md)** - 4 locked decisions
+7. **[FR-037 to FR-041](docs/01-planning/03-Functional-Requirements/)** - BDD functional requirements (5 FRs)
+8. **[Multi-Agent-Provider-Integration.md](docs/03-integrate/03-Integration-Guides/Multi-Agent-Provider-Integration.md)** - Provider failover + OTT gateway
+
+**EP-06 Codegen Documents**:
+9. **[Quality-Gates-Codegen-Specification.md](docs/02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)** - 4-Gate Pipeline
+10. **[ADR-022-EP-06-IR-Codegen.md](docs/02-design/03-ADRs/)** - IR-based codegen architecture
 
 **Sprint Plans**:
-8. **[SPRINT-43-OPA-SAST.md](docs/04-build/02-Sprint-Plans/)** - OPA Policy Guards + Semgrep
-9. **[SPRINT-44-CROSS-REFERENCE.md](docs/04-build/02-Sprint-Plans/)** - CrossReferenceValidator
-10. **[SPRINT-45-AUTO-FIX-ENGINE.md](docs/04-build/02-Sprint-Plans/)** - Auto-Fix Engine
+11. **[SPRINT-176](docs/04-build/02-Sprint-Plans/SPRINT-176-AUTONOMOUS-CODEGEN-PILOT-PREP.md)** - ADR-056 Foundation (current)
+12. **[SPRINT-177](docs/04-build/02-Sprint-Plans/SPRINT-177-CODING-AGENT-LOOP.md)** - Multi-Agent Core Services
+13. **[SPRINT-178](docs/04-build/02-Sprint-Plans/SPRINT-178-AUTONOMOUS-CODEGEN-PILOT.md)** - Integration + OTT + Pilot
 
 ---
 
@@ -1064,13 +1080,23 @@ As Claude AI working on SDLC Orchestrator, you MUST:
 - Enforce **SDLC 6.0.6 folder structure** (10 stages: 00-10, 4-Tier Classification)
 - Reference **ADR-011 to ADR-014** for AI Governance decisions
 
-### **7. EP-06 Codegen Awareness (Sprint 45-50 - NEW)**
+### **7. EP-06 Codegen Awareness (Sprint 45-50)**
 - Understand **5-layer architecture** (AI Coders → EP-06 → Business → Integration → Infra)
 - Apply **4-Gate Quality Pipeline** (Syntax → Security → Context → Tests)
 - Follow **8-state Evidence lifecycle** (generated → validating → merged/aborted)
-- Use **Multi-Provider fallback** (Ollama → Claude → DeepCode)
+- Use **Multi-Provider fallback** (Ollama → Claude → Rule-based)
 - Reference **ADR-022** for IR-based codegen decisions
 - Enforce **max_retries=3** validation loop with deterministic feedback
+
+### **8. EP-07 Multi-Agent Awareness (Sprint 176-178)**
+- Reference **ADR-056** for Multi-Agent Team Engine architecture (4 locked decisions)
+- Follow **14 non-negotiables** (Security 6 + Architecture 5 + Observability 3)
+- Enforce **snapshot precedence** (definition → conversation snapshot, immutable after)
+- Use **lane-based queue** (SKIP LOCKED + Redis pub/sub, DB is truth)
+- Apply **6-reason failover classification** (auth/format/rate_limit/billing/timeout/unknown)
+- Enforce **delegation depth limits** (prevent infinite agent chains, Nanobot N2)
+- Apply **input sanitization** (12 injection patterns for OTT external content)
+- Reference **EP-07, FR-037 to FR-041, IG-056** for complete Multi-Agent scope
 
 ---
 
@@ -1645,6 +1671,65 @@ python -m pytest backend/tests/unit/ -k "sast or semgrep" -v
 
 ---
 
+### **Module 7: Multi-Agent Team Engine** (EP-07, Sprint 176-178)
+
+**Purpose**: Lane-based multi-agent collaboration engine with provider failover, OTT gateway, and budget circuit breakers. Enables AI agent teams (Initializer → Coder → Reviewer) to collaborate on SDLC tasks with parent-child session inheritance.
+
+**Key Files**:
+- `backend/app/services/agent_team/agent_registry.py` — Agent definition CRUD + session scoping (2 P0 modes)
+- `backend/app/services/agent_team/message_queue.py` — Lane-based concurrency (SKIP LOCKED + Redis notify)
+- `backend/app/services/agent_team/mention_parser.py` — TinyClaw @mention routing
+- `backend/app/services/agent_team/conversation_tracker.py` — Parent-child inheritance + 6 loop guards + budget
+- `backend/app/services/agent_team/agent_invoker.py` — FailoverError (6 reasons) + cooldowns + error-as-string
+- `backend/app/services/agent_team/failover_classifier.py` — Error classification (auth/format/rate_limit/billing/timeout/unknown)
+- `backend/app/services/agent_team/input_sanitizer.py` — 12 injection regex patterns for OTT content
+- `backend/app/services/agent_team/shell_guard.py` — 8 deny regex patterns + path traversal detection
+- `backend/app/services/agent_team/tool_context.py` — Tool permissions + workspace restriction (Nanobot N2)
+- `backend/app/services/agent_team/reflect_step.py` — Reflect-after-tools + self-correction loop
+- `backend/app/services/agent_team/team_orchestrator.py` — Queue modes (P0: queue/steer/interrupt)
+- `backend/app/services/agent_team/evidence_collector.py` — Auto-capture with correlation_id
+- `backend/app/schemas/agent_team.py` — Pydantic v2 schemas (all endpoints)
+
+**Database Tables** (3 P0 tables — ERD v3.4.0):
+- `agent_definitions` — Agent config (22 columns: tool permissions, system prompt, provider, SDLC role)
+- `agent_conversations` — Conversation lifecycle (19 columns: parent-child, budget tracking, session scope)
+- `agent_messages` — Message queue (22 columns: lane contract, dead-letter, failover reason, dedupe)
+
+**4 Locked Decisions** (ADR-056):
+1. **Snapshot Precedence**: Definition → snapshot into conversation on creation, immutable after
+2. **Lane Contract**: DB is truth, Redis is notify-only. SKIP LOCKED + dead-letter + dedupe
+3. **Provider Profile Key**: `{provider}:{account}:{region}:{model_family}` + abort matrix (6 rows)
+4. **Canonical Protocol Owner**: Orchestrator defines message protocol; TinySDLC/OTT are clients
+
+**14 Non-Negotiables**: Security(6) + Architecture(5) + Observability(3)
+
+**Common Tasks**:
+1. **Create agent definition**: `POST /api/v1/agent-team/definitions`
+2. **Start conversation**: `POST /api/v1/agent-team/conversations`
+3. **Send message**: `POST /api/v1/agent-team/conversations/{id}/messages`
+4. **Interrupt agent**: `POST /api/v1/agent-team/conversations/{id}/interrupt`
+5. **View conversation**: `GET /api/v1/agent-team/conversations/{id}`
+
+**Tests**:
+```bash
+# Multi-agent unit tests
+DATABASE_URL="postgresql://test:test@localhost:15432/sdlc_test" \
+  python -m pytest backend/tests/unit/test_agent_team.py -v
+
+# Failover classifier tests
+python -m pytest backend/tests/unit/ -k "failover" -v
+
+# Lane-based queue tests
+python -m pytest backend/tests/unit/ -k "lane or queue" -v
+```
+
+**Dependencies**:
+- **Upstream**: PostgreSQL (3 tables), Redis (cooldowns + pub/sub), Ollama/Claude (provider chain)
+- **Downstream**: Evidence Vault (agent output capture), Gate Engine (gate-triggered conversations), OTT Gateway (Telegram/Discord)
+- **Pattern Sources**: OpenClaw (lane queue, failover, session scoping), TinyClaw (@mention, loop guards), Nanobot (tool context, shell guard, reflect step)
+
+---
+
 ### **Integration Map**
 
 ```
@@ -1676,6 +1761,18 @@ python -m pytest backend/tests/unit/ -k "sast or semgrep" -v
 │   Ollama     │     │  Evidence    │     │   Semgrep    │
 │ (port 11434) │     │  Vault API   │     │   (CLI)      │
 └──────────────┘     └──────────────┘     └──────────────┘
+
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│ Multi-Agent  │────>│  AI Context  │     │ OTT Gateway  │
+│ Team Engine  │     │   Engine     │     │  (Telegram)  │
+│  (EP-07)     │     │ (Failover)   │     │  (Sprint 178)│
+└──────────────┘     └──────────────┘     └──────────────┘
+       │                                         │
+       v                                         v
+┌──────────────┐                          ┌──────────────┐
+│  Evidence    │                          │   Input      │
+│  Vault API   │                          │  Sanitizer   │
+└──────────────┘                          └──────────────┘
 ```
 
 ---
@@ -1766,15 +1863,26 @@ You are successful if:
 
 ---
 
-**Last Updated**: February 16, 2026
+**Last Updated**: February 18, 2026
 **Owner**: CTO + CPO + CEO
 **Status**: ✅ Gate G3 APPROVED - Ship Ready (98.2%)
-**Current Sprint**: Sprint 174 - Anthropic Best Practices Integration
+**Current Sprint**: Sprint 176 - ADR-056 Multi-Agent Foundation
 **Next Review**: Weekly CEO Review (Every Friday 3pm)
 
 ---
 
 ## 📋 **CHANGELOG**
+
+### v3.6.0 (February 18, 2026)
+- **EP-07 Multi-Agent Team Engine** - Sprint 176-178 scope added
+- **Module 7 Added** - Multi-Agent Team Engine module zone (12 service files, 3 tables, 14 non-negotiables)
+- **Documentation Structure Updated** - Reflects BC-056, EP-07, FR-037 to FR-041, ADR-056, STM-056, TP-056, IG-056
+- **Critical Documents Updated** - 13 must-read docs (added EP-07 section with 4 documents)
+- **API Spec v3.6.0** - 91 endpoints (was 64), includes 11 Multi-Agent endpoints
+- **Data Model ERD v3.4.0** - 33 tables (was 30), includes 3 Multi-Agent tables
+- **Integration Map Updated** - Multi-Agent Team Engine + OTT Gateway added
+- **Framework Visibility** - SDLC Enterprise Framework noted as private repo (not yet OSS)
+- **Sprint 176 Active** - ADR-056 Multi-Agent Foundation
 
 ### v3.5.0 (February 16, 2026)
 - **SDLC 6.0.6 Upgrade** - All framework references updated from 6.0.5 to 6.0.6

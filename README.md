@@ -1,6 +1,6 @@
 # SDLC Orchestrator
 
-**Operating System for Software 3.0** - The control plane that governs AI coders (Cursor, Claude Code, Copilot), combining Design Thinking validation, SDLC 6.0.5 governance, IR-based codegen, and multi-provider AI - built on battle-tested OSS infrastructure.
+**Operating System for Software 3.0** - The control plane that governs AI coders (Cursor, Claude Code, Copilot), combining Design Thinking validation, SDLC 6.0.6 governance, Multi-Agent Team orchestration, IR-based codegen, and multi-provider AI - built on battle-tested OSS infrastructure.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
@@ -8,7 +8,8 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.5-blue.svg)](https://www.postgresql.org/)
 [![OPA](https://img.shields.io/badge/OPA-0.58-orange.svg)](https://www.openpolicyagent.org/)
-[![Sprint](https://img.shields.io/badge/Sprint-147-brightgreen.svg)](docs/04-build/02-Sprint-Plans/CURRENT-SPRINT.md)
+[![Sprint](https://img.shields.io/badge/Sprint-176-brightgreen.svg)](docs/04-build/02-Sprint-Plans/SPRINT-176-AUTONOMOUS-CODEGEN-PILOT-PREP.md)
+[![SDLC](https://img.shields.io/badge/SDLC-6.0.6-purple.svg)](SDLC-Enterprise-Framework/)
 
 ---
 
@@ -36,6 +37,7 @@
 │ LAYER 3: BUSINESS LOGIC (Our Core)                              │
 │  • Gate Engine (OPA-powered Policy-as-Code)                     │
 │  • Evidence Vault (Immutable audit trail)                       │
+│  • Multi-Agent Team Engine (ADR-056, lane-based queue)          │
 │  • AI Context Engine (Stage-aware prompts)                      │
 ├─────────────────────────────────────────────────────────────────┤
 │ LAYER 2: INTEGRATION (Thin Adapters)                            │
@@ -64,7 +66,8 @@ The **ONLY platform** combining:
 | **EP-06 Codegen** | IR-based code generation | Vietnamese SME templates |
 | **4-Gate Pipeline** | Syntax → Security → Context → Tests | 95%+ validation pass rate |
 | **Evidence Vault** | Immutable audit trail | 100% compliance traceability |
-| **AI Orchestration** | Multi-provider fallback | Ollama → Claude → DeepCode |
+| **Multi-Agent Team** | AI agent collaboration | Lane-based queue, failover, OTT gateway |
+| **AI Orchestration** | Multi-provider fallback | Ollama → Claude → Rule-based |
 
 ---
 
@@ -80,9 +83,11 @@ The **ONLY platform** combining:
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/your-org/sdlc-orchestrator.git
-cd sdlc-orchestrator
+git clone --recurse-submodules https://github.com/Minh-Tam-Solution/SDLC-Orchestrator.git
+cd SDLC-Orchestrator
 ```
+
+> **Note**: The `--recurse-submodules` flag initializes the SDLC Enterprise Framework submodule (private repository — team access required).
 
 ### 2. Environment Setup
 
@@ -158,7 +163,7 @@ SDLC Orchestrator supports GitHub integration for automatic project creation:
      - Analyzes repository structure
      - Detects project type
      - Recommends policy pack
-     - Maps folders to SDLC 4.9 stages
+     - Maps folders to SDLC 6.0.6 stages
      - Creates project with initial gates
 
 3. **Webhook Setup** (Optional):
@@ -173,11 +178,11 @@ SDLC Orchestrator supports GitHub integration for automatic project creation:
 
 ### Quick Links
 
-- **[Product Vision](docs/00-Project-Foundation/01-Vision/Product-Vision.md)** - Vision, market opportunity, success metrics
-- **[Product Roadmap](docs/00-Project-Foundation/04-Roadmap/Product-Roadmap.md)** - 90-day timeline (Nov 14 - Feb 10, 2026)
-- **[Functional Requirements](docs/01-Planning-Analysis/Functional-Requirements/Functional-Requirements-Document.md)** - FR1-FR5 detailed specs
-- **[AGPL Containment Legal Brief](docs/01-Planning-Analysis/Legal-Review/AGPL-Containment-Legal-Brief.md)** - AGPL strategy
-- **[Zero Mock Policy](docs/03-Development-Implementation/01-Development-Standards/ZERO-MOCK-POLICY.md)** - Mandatory code standards
+- **[Data Model ERD](docs/01-planning/04-Data-Model/Data-Model-ERD.md)** - 33 tables (v3.4.0, includes Multi-Agent)
+- **[API Specification](docs/01-planning/05-API-Design/API-Specification.md)** - 91 endpoints (v3.6.0)
+- **[EP-07 Multi-Agent Epic](docs/01-planning/02-Epics/EP-07-Multi-Agent-Team-Engine.md)** - Multi-Agent Team Engine scope
+- **[ADR-056 Multi-Agent](docs/02-design/ADR-056-Multi-Agent-Team-Engine.md)** - Architecture decision
+- **[Provider Integration](docs/03-integrate/03-Integration-Guides/Multi-Agent-Provider-Integration.md)** - Ollama/Claude failover
 
 ### Architecture
 
@@ -205,7 +210,8 @@ SDLC Orchestrator supports GitHub integration for automatic project creation:
 - **AGPL Containment**: MinIO & Grafana accessed via network API only (no code linking)
 - **Policy-as-Code**: OPA (Apache-2.0) for governance automation
 - **Bridge-First**: Read GitHub Issues/PRs (no native board until v2)
-- **Multi-Provider AI**: Claude (reasoning), GPT-4o (code), Gemini (bulk)
+- **Multi-Provider AI**: Ollama (primary, $50/mo), Claude (fallback), Rule-based (final)
+- **Multi-Agent Team Engine**: Lane-based queue, provider failover, OTT gateway (ADR-056)
 
 ---
 
@@ -427,27 +433,19 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ## 📊 Project Status
 
-**Current Stage**: Stage 03 (BUILD - Development & Implementation)
-**Current Sprint**: Sprint 45 - Auto-Fix Engine
-**Framework**: SDLC 6.0.5 Complete Lifecycle (10 Stages)
+**Current Stage**: Stage 04 (BUILD - Development & Implementation)
+**Current Sprint**: Sprint 176 - ADR-056 Multi-Agent Foundation
+**Framework**: SDLC 6.0.6 Complete Lifecycle (10 Stages + 4-Tier Classification)
 **Positioning**: Operating System for Software 3.0
 **Investment**: $564K total budget (90-day MVP) + $50K EP-06 extension
 
-### Current Sprint: Sprint 45 - Auto-Fix Engine
-
-| Focus | Status | Description |
-|-------|--------|-------------|
-| **Auto-Fix Service** | 🔄 In Progress | LLM-based code fix generation |
-| **Fix Template System** | 🔄 In Progress | Deterministic fix patterns |
-| **Evidence Integration** | 🔄 In Progress | Fix tracking in Evidence Vault |
-| **Dashboard UI** | 🔄 In Progress | Fix suggestion interface |
-
-### Recent Sprints (Sprint 43-44)
+### Current Sprint Arc: Sprint 176-178 — Multi-Agent Team Engine
 
 | Sprint | Focus | Status | Key Deliverables |
 |--------|-------|--------|------------------|
-| **Sprint 44** | CrossReferenceValidator | ✅ Complete | File reference validation, import path checks |
-| **Sprint 43** | OPA + SAST Integration | ✅ Complete | Policy Guards, Semgrep Validator, Override Queue |
+| **Sprint 176** | ADR-056 Foundation | 🔄 In Progress | ADR-056, DB migration (3 tables), service account auth |
+| **Sprint 177** | Multi-Agent Core Services | ⏳ Planned | 12 service files, 5 P0 endpoints, lane-based queue |
+| **Sprint 178** | Multi-Agent Integration + OTT | ⏳ Planned | Team orchestrator, Telegram notify MVP, Vietnamese SME pilot |
 
 ### Gate G3: Ship Ready - APPROVED (Dec 12, 2025)
 
@@ -476,7 +474,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ### MVP v1.0.0 Complete (Dec 1, 2025)
 
-- ✅ **Backend**: 64 API endpoints, FastAPI, PostgreSQL, Redis
+- ✅ **Backend**: 91 API endpoints (FastAPI, PostgreSQL, Redis) — 64 core + 11 Multi-Agent + 16 other
 - ✅ **Frontend**: React Dashboard, shadcn/ui, TanStack Query
 - ✅ **Security**: JWT + OAuth + MFA, RBAC (13 roles), OWASP ASVS Level 2 (98.4%)
 - ✅ **Evidence Vault**: MinIO S3, SHA256 integrity, 8-state lifecycle
@@ -484,22 +482,15 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 - ✅ **AI Context Engine**: Multi-provider (Ollama, Claude, GPT-4o)
 - ✅ **SAST Integration**: Semgrep with AI-specific security rules
 - ✅ **Operations**: Prometheus metrics, Grafana dashboards
+- 🔄 **Multi-Agent Team Engine**: Lane-based queue, provider failover, OTT gateway (Sprint 176-178)
 
 ### Quick Start
 
 ```bash
-# 1. Clone and setup
-git clone https://github.com/your-org/sdlc-orchestrator.git
-cd sdlc-orchestrator
+# 1. Clone and setup (--recurse-submodules for Framework, private repo)
+git clone --recurse-submodules https://github.com/Minh-Tam-Solution/SDLC-Orchestrator.git
+cd SDLC-Orchestrator
 cp .env.example .env
-
-# OAuth (Sprint 59)
-# Backend reads these from environment (see backend/app/core/config.py)
-export GITHUB_CLIENT_ID=your_github_client_id
-export GITHUB_CLIENT_SECRET=your_github_client_secret
-export GOOGLE_CLIENT_ID=your_google_client_id
-export GOOGLE_CLIENT_SECRET=your_google_client_secret
-export OAUTH_REDIRECT_URL=http://localhost:3000/auth/callback
 
 # 2. Start all services
 docker-compose up -d
@@ -510,23 +501,20 @@ python3 -m alembic upgrade head
 uvicorn app.main:app --reload --port 8000
 
 # 4. Run frontend
-cd frontend/web && npm install && npm run dev
+cd frontend/landing && npm install && npm run dev
 
 # 5. Access application
 # Frontend: http://localhost:5173
 # Backend API: http://localhost:8000
 # API Docs: http://localhost:8000/docs
-# Grafana: http://localhost:3000
 ```
 
 ### Upcoming Milestones
 
 - ✅ **Gate G3 (Ship Ready)**: APPROVED (Dec 12, 2025) - 98.2% readiness
-- ✅ **Sprint 43-44**: OPA + SAST + CrossReferenceValidator (Dec 22, 2025)
-- 🔄 **Sprint 45**: Auto-Fix Engine (Dec 23-27, 2025)
-- 🎯 **Sprint 46-48**: EP-06 Codegen Pipeline (Q1 2026)
-- 🎯 **Sprint 49**: Vietnam SME Pilot (Q1 2026)
-- 🎯 **Sprint 50**: GA Launch (Q1 2026)
+- 🔄 **Sprint 176**: ADR-056 Multi-Agent Foundation (Mar 17-28, 2026)
+- ⏳ **Sprint 177**: Multi-Agent Core Services (Mar 31 - Apr 11, 2026)
+- ⏳ **Sprint 178**: Multi-Agent Integration + OTT + Vietnamese SME Pilot (Apr 14-25, 2026)
 
 ---
 
@@ -566,8 +554,17 @@ cd frontend/web && npm install && npm run dev
 - **Override Management**: Tiered approval (Lead → Senior → CTO)
 - **Evidence Linking**: Security findings attached to code artifacts
 
-### 7. Policy Pack Library
-- **110+ Pre-Built Policies**: All 10 SDLC 6.0.5 stages covered
+### 7. Multi-Agent Team Engine (EP-07, Sprint 176-178)
+- **Lane-Based Queue**: Per-agent lanes with SKIP LOCKED + Redis pub/sub notify
+- **Provider Failover**: 6-reason classification (auth/format/rate_limit/billing/timeout/unknown) with cooldowns
+- **Agent Hierarchy**: Parent-child sessions with delegation depth limits (Nanobot N2 pattern)
+- **Loop Guards**: 6 limits (max_messages, max_tokens, max_tool_calls, timeout, max_diff_size, max_retries)
+- **Input Sanitizer**: 12 injection regex patterns for OTT external content
+- **OTT Gateway**: Plugin-based architecture (Telegram MVP Sprint 178, Discord/Zalo planned)
+- **Budget Circuit Breaker**: Token tracking + cost limits per conversation
+
+### 8. Policy Pack Library
+- **110+ Pre-Built Policies**: All 10 SDLC 6.0.6 stages covered
 - **Customizable**: Parameters (min_reviewers, test_coverage, etc.)
 - **Versioned**: Semantic versioning (v1.0, v1.1, etc.)
 
@@ -617,8 +614,8 @@ Layer 1: SDLC Framework                    ← Methodology foundation
 
 **Unique Value**:
 - ✅ **FIRST** Operating System for Software 3.0 (10-stage complete lifecycle)
-- ✅ **ONLY** platform combining Design Thinking + Quality Gates + IR Codegen
-- ✅ **Experience Moat**: 6-12 months to understand SDLC 6.0.5 nuances
+- ✅ **ONLY** platform combining Design Thinking + Quality Gates + Multi-Agent + IR Codegen
+- ✅ **Experience Moat**: 6-12 months to understand SDLC 6.0.6 nuances
 - ✅ **Knowledge Moat**: 110+ pre-built policies, Vietnamese SME templates
 - ✅ **Cost Moat**: Ollama-first = 95% cost reduction vs external APIs
 
@@ -628,25 +625,21 @@ Layer 1: SDLC Framework                    ← Methodology foundation
 
 ### 2025 Q4: MVP + Gate G3 (Complete)
 - ✅ **Gate G3**: Ship Ready APPROVED (Dec 12, 2025) - 98.2%
-- ✅ **Sprint 43**: OPA Policy Guards + Semgrep SAST (Dec 20, 2025)
-- ✅ **Sprint 44**: CrossReferenceValidator (Dec 22, 2025)
-- 🔄 **Sprint 45**: Auto-Fix Engine (Dec 23-27, 2025)
+- ✅ **Sprint 43-44**: OPA Policy Guards, Semgrep SAST, CrossReferenceValidator
+- ✅ **Sprint 45-50**: EP-06 Codegen Pipeline (Multi-Provider, IR Processor, Quality Pipeline)
 
-### 2026 Q1: EP-06 Codegen Engine (Sprint 45-50)
+### 2026 Q1: Multi-Agent Team Engine (Sprint 176-178)
 | Sprint | Focus | Target |
 |--------|-------|--------|
-| 45 | Multi-Provider Architecture | Ollama → Claude → DeepCode |
-| 46 | IR Processor Backend | Spec → IR transformation |
-| 47 | Vietnamese Domain Templates | E-commerce, HRM, CRM |
-| 48 | 4-Gate Quality Pipeline | 95%+ validation pass rate |
-| 49 | Vietnam SME Pilot | 5 founding customers |
-| 50 | Productization + GA | Public launch, pricing |
+| 176 | ADR-056 Foundation | DB migration (3 tables), service accounts, feature flags |
+| 177 | Multi-Agent Core Services | 12 service files, lane-based queue, failover classifier |
+| 178 | Integration + OTT Notify | Team orchestrator, Telegram MVP, Vietnamese SME pilot |
 
-### 2026 Q2: Scale
+### 2026 Q2: OTT Expansion + Scale
+- OTT approval with identity verification (Sprint 179+)
+- Discord, WhatsApp, Zalo channel plugins
 - Multi-VCS support (GitLab, Bitbucket)
-- Advanced RBAC (custom roles)
 - Enterprise SSO (SAML 2.0)
-- API v2 (GraphQL)
 
 ### 2026 Q3-Q4: Enterprise Ready
 - SOC 2 Type II certification
@@ -659,9 +652,7 @@ Layer 1: SDLC Framework                    ← Methodology foundation
 ## 📞 Support
 
 - **Documentation**: [docs/](docs/)
-- **GitHub Issues**: [Issues](https://github.com/your-org/sdlc-orchestrator/issues)
-- **Slack Community**: [Join Slack](https://sdlc-orchestrator.slack.com)
-- **Email Support**: support@sdlc-orchestrator.com
+- **GitHub Issues**: [Issues](https://github.com/Minh-Tam-Solution/SDLC-Orchestrator/issues)
 
 ---
 
@@ -673,25 +664,23 @@ This project is licensed under the **Apache License 2.0** - see the [LICENSE](LI
 - **MinIO** (AGPL-3.0): S3-compatible storage (accessed via boto3 S3 API)
 - **Grafana** (AGPL-3.0): Metrics visualization (accessed via HTTP API)
 
-**Legal Position**: Network-only access does NOT trigger AGPL copyleft obligations (see [Legal Brief](docs/01-Planning-Analysis/Legal-Review/AGPL-Containment-Legal-Brief.md)).
+**Legal Position**: Network-only access does NOT trigger AGPL copyleft obligations.
+
+**SDLC Enterprise Framework** (Git submodule):
+- **Repository**: `https://github.com/Minh-Tam-Solution/SDLC-Enterprise-Framework` (private — team access required)
+- **Version**: SDLC 6.0.6 (7-Pillar + AI Governance Principles)
+- **Status**: Private repository, not yet published as OSS
 
 ---
 
 ## 🙏 Acknowledgments
 
-- **SDLC 6.0.5 Framework**: Inspired by industry best practices (CMMI, ITIL, Agile)
+- **SDLC 6.0.6 Framework**: Inspired by industry best practices (CMMI, ITIL, Agile) — private repository
 - **OPA**: Policy-as-Code foundation (CNCF graduated project)
 - **FastAPI**: Lightning-fast Python web framework
 - **React**: Industry-standard UI library
 
 ---
-
-## 📊 Statistics
-
-![GitHub Stars](https://img.shields.io/github/stars/your-org/sdlc-orchestrator)
-![GitHub Forks](https://img.shields.io/github/forks/your-org/sdlc-orchestrator)
-![GitHub Issues](https://img.shields.io/github/issues/your-org/sdlc-orchestrator)
-![GitHub Contributors](https://img.shields.io/github/contributors/your-org/sdlc-orchestrator)
 
 ---
 
@@ -699,11 +688,7 @@ This project is licensed under the **Apache License 2.0** - see the [LICENSE](LI
 
 **Status**: ✅ Gate G3 APPROVED - Ship Ready (98.2%)
 **Version**: 1.0.0 (Beta Pilot Ready)
-**Current Sprint**: Sprint 45 - Auto-Fix Engine
-**Framework**: SDLC 6.0.5 Complete Lifecycle (10 Stages)
+**Current Sprint**: Sprint 176 - ADR-056 Multi-Agent Foundation
+**Framework**: SDLC 6.0.6 Complete Lifecycle (10 Stages + 4-Tier Classification)
 **Positioning**: Operating System for Software 3.0
-**Last Updated**: February 3, 2026
-
----
-
-**Questions?** Open an issue or join our [Slack community](https://sdlc-orchestrator.slack.com)!
+**Last Updated**: February 18, 2026
