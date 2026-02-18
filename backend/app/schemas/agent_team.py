@@ -47,9 +47,11 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class SDLCRole(str, Enum):
-    """SDLC role templates from TinyClaw (6 roles)."""
+    """SDLC role templates per SDLC 6.0.6 (8 roles)."""
 
+    RESEARCHER = "researcher"
     PM = "pm"
+    PJM = "pjm"
     ARCHITECT = "architect"
     CODER = "coder"
     REVIEWER = "reviewer"
