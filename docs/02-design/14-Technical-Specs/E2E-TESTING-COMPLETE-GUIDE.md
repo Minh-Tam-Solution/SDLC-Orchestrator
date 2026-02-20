@@ -2,7 +2,7 @@
 
 **Version**: 1.0.0
 **Sprint**: 141 - Full Workflow Integration
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 **RFC**: RFC-SDLC-602 E2E API Testing Enhancement
 **Status**: GA (General Availability)
 
@@ -306,7 +306,7 @@ sdlcctl e2e generate-report --results results.json --openapi docs/03-Integration
 
 **Project**: SDLC Orchestrator
 **Date**: 2026-02-17 14:30:00
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 **Stage**: 05-Testing-Quality
 
 ---

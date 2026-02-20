@@ -4,7 +4,7 @@
 **Date**: December 23, 2025
 **Owner**: CPO, PM, UX Lead
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 5.1.3 (4-Tier Classification)
+**Framework**: SDLC 6.1.0
 **Status**: ✅ APPROVED
 
 ---
@@ -77,7 +77,7 @@ Scenario Matrix:
     Trigger: User clicks "New Project" → "Create New"
     Flow: Name + Description + Tier Selection → Orchestrator creates folder structure
     Entry Point: /projects/new/create
-    Output: New folder with SDLC 5.1.3 structure created
+    Output: New folder with SDLC 6.1.0 structure created
     Use Case: Starting a brand new project
 
   Scenario B - Import from Local (Git repo or folder):
@@ -123,7 +123,7 @@ graph TD
 
 **Key Points:**
 - User provides project name, description, and selects governance tier
-- Orchestrator creates new folder with SDLC 5.1.3 structure:
+- Orchestrator creates new folder with SDLC 6.1.0 structure:
   ```
   project-name/
   ├── .sdlc/                    # SDLC config (managed by Orchestrator)
@@ -347,7 +347,7 @@ New API Endpoints:
 
 ```yaml
 sdlcctl init Command:
-  Purpose: Initialize SDLC 5.1.3 project structure from command line
+  Purpose: Initialize SDLC 6.1.0 project structure from command line
   Location: backend/sdlcctl/commands/init.py
 
   Usage Examples:
@@ -677,7 +677,7 @@ Key Concept - Governance Appetite:
   A 50-person team in rapid prototyping may choose LITE tier.
   The AI recommends, but the human decides.
 
-4-Tier Classification (SDLC 5.1.3):
+4-Tier Classification (SDLC 6.1.0):
   LITE: Solo devs, MVPs, hackathons (1-2 people mindset)
     - Gates: G0.1, G1, G3, G5
     - Requirements: README + basic docs
@@ -923,7 +923,7 @@ Success Factors:
   - Quick edit capability
   - Skip option (use defaults)
 
-Mapping Logic (SDLC 5.1.3):
+Mapping Logic (SDLC 6.1.0):
   /docs/00-foundation → Stage 00 (FOUNDATION - WHY?)
   /docs/01-planning → Stage 01 (PLANNING - WHAT?)
   /docs/02-design → Stage 02 (DESIGN - HOW?)
@@ -956,7 +956,7 @@ export const StageMapping: React.FC = () => {
     setMappings(response.data.mappings);
   };
 
-  // SDLC 5.1.3 Stage Definitions (10 Stages: 00-09 + Archive folder)
+  // SDLC 6.1.0 Stage Definitions (10 Stages: 00-09 + Archive folder)
   const stages = [
     { id: 'stage_00', name: 'FOUNDATION', description: 'Strategic Discovery & Validation', question: 'WHY?' },
     { id: 'stage_01', name: 'PLANNING', description: 'Requirements & User Stories', question: 'WHAT?' },
@@ -1182,7 +1182,7 @@ Level 3 (Power User - Month 1+):
 
 ---
 
-### 5.2 Smart Defaults (v2.0 - SDLC 5.1.3)
+### 5.2 Smart Defaults (v2.0 - SDLC 6.1.0)
 
 ```yaml
 Repository Analysis (Codebase Metrics):
@@ -1221,7 +1221,7 @@ Tier Recommendation Algorithm (Weighted Scoring):
     - 55-75: PROFESSIONAL
     - >75: ENTERPRISE
 
-4-Tier Policy Defaults (SDLC 5.1.3):
+4-Tier Policy Defaults (SDLC 6.1.0):
   LITE (Governance Appetite: Low):
     - Gates: G0.1, G1, G3, G5 (4 essential gates)
     - Timing: Relaxed (async validation)
@@ -1611,7 +1611,7 @@ Weekly Metrics:
 **Status**: ✅ ACCEPTED - Critical for user activation
 **Priority**: **IMPORTANT** - 70% of SaaS failure is poor onboarding
 **Success Metric**: TTFGE <30 minutes, Activation rate >70%
-**Framework**: SDLC 5.1.3 (4-Tier Classification)
+**Framework**: SDLC 6.1.0
 
 ---
 

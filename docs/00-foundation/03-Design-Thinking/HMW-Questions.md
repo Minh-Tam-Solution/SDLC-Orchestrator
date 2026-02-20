@@ -1,13 +1,19 @@
 # SDLC Orchestrator - HMW Questions
 ## How Might We Questions (Design Thinking: DEFINE → IDEATE)
 
-**Version**: 1.1.0
-**Date**: December 21, 2025
+**Version**: 2.0.0
+**Date**: February 19, 2026
 **Status**: ACTIVE - 47 QUESTIONS GENERATED
 **Authority**: CPO + PM + Design Lead Approved
-**Foundation**: POV Statement 1.1.0, Problem Statement 2.1.0
+**Foundation**: POV Statement 2.0.0, Problem Statement 3.0.0
 **Stage**: Stage 00 (WHY) - Design Thinking DEFINE → IDEATE Transition
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0 (7-Pillar + AI Governance)
+
+**Changelog v2.0.0** (February 19, 2026) — Enterprise-First Alignment:
+- **FRAMEWORK**: SDLC 5.1.3 → 6.1.0 (7-Pillar + AI Governance)
+- **STRATEGY**: Dual Wedge → Enterprise-First (ADR-059)
+- **PRICING**: 6-tier model (LITE → ENTERPRISE, ADR-059)
+- Year 1: 45-70 teams / $160K-$350K ARR
 
 **Changelog v1.1.0** (Dec 21, 2025):
 - Updated framework to SDLC 5.1.3
@@ -602,9 +608,9 @@ Based on:
 ---
 
 **Document**: SDLC-Orchestrator-HMW-Questions
-**Framework**: SDLC 5.1.3 Stage 00 (WHY) - Design Thinking DEFINE → IDEATE
+**Framework**: SDLC 6.1.0 Stage 00 (WHY) - Design Thinking DEFINE → IDEATE
 **Component**: Problem Reframing (47 HMW Questions, Top 10 Prioritized)
 **Review**: Monthly (generate new HMW questions as we learn)
-**Last Updated**: December 21, 2025
+**Last Updated**: February 19, 2026
 
 *"Reframe problems as opportunities for solutions"* 💡

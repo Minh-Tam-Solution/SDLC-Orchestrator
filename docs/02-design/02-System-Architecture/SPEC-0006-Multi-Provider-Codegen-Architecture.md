@@ -341,7 +341,7 @@ codegen:
     ollama:
       enabled: true
       base_url: "https://api.nhatquangholding.com"
-      model: "qwen2.5-coder:14b"    # Vietnamese-optimized
+      model: "qwen3-coder:30b"    # Vietnamese-optimized
       timeout_seconds: 60
       max_retries: 3
 
@@ -523,7 +523,7 @@ async def generate_with_retry(spec: CodegenSpec) -> CodegenResult:
       "backend/app/api/routes/users.py": "..."
     },
     "metadata": {
-      "model": "qwen2.5-coder:14b",
+      "model": "qwen3-coder:30b",
       "prompt_tokens": 450,
       "completion_tokens": 1250
     },

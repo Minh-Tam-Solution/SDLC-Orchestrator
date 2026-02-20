@@ -64,7 +64,7 @@ Migrate the SDLC Orchestrator Dashboard from React 18 + Vite to Next.js 14+ App 
 │                              ▼                                  │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │              FastAPI Backend (Port 8300)                 │  │
-│  │         64 API Endpoints | PostgreSQL | Redis            │  │
+│  │         91 API Endpoints | PostgreSQL | Redis            │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘

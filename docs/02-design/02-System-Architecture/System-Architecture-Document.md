@@ -7,7 +7,7 @@
 **Authority**: CTO + Tech Lead + Backend Lead
 **Foundation**: Stage 01 (Requirements v4.2.0, API Specs v3.1.0, Data Model v3.1.0)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 6.0.6 (Multi-Frontend Aligned)
+**Framework**: SDLC 6.1.0
 **Positioning**: Operating System for Software 3.0
 
 **Changelog v3.2.0** (Jan 30, 2026):
@@ -36,8 +36,8 @@
 - Added Validation Loop Orchestration (max_retries=3)
 - Added Evidence State Machine (8 states)
 - Added Multi-Provider Fallback (Ollama → Claude → DeepCode)
-- Updated table count: 24 → 30 tables (EP-06 Codegen tables)
-- Updated API endpoints: 52 → 64 endpoints
+- Updated table count: 24 → 33 tables (EP-06 Codegen + Multi-Agent tables)
+- Updated API endpoints: 52 → 91 endpoints
 
 **Changelog v2.0.0** (Dec 3, 2025):
 - Added AI Governance Layer (Section 11)
@@ -847,7 +847,7 @@ class ProviderGateway:
     """
 
     PROVIDER_CHAIN = [
-        ("ollama", "qwen2.5-coder:32b", 15),   # Primary, <15s latency
+        ("ollama", "qwen3-coder:30b", 15),   # Primary, <15s latency
         ("claude", "claude-sonnet-4-5-20250929", 25),  # Fallback 1, <25s
         ("deepcode", "deepcode-v1", None),     # Fallback 2, Q2 2026
     ]

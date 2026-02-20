@@ -632,3 +632,47 @@ def get_user_organization_filter(
 
     # Platform admin or regular user: only their organization
     return current_user.organization_id
+
+
+# ============================================================================
+# Enterprise Tier Gate (Sprint 181 — ADR-059)
+# ============================================================================
+
+async def require_enterprise_tier(
+    current_user: User = Depends(get_current_user),
+) -> None:
+    """
+    FastAPI dependency — enforces ENTERPRISE tier access.
+
+    Raises HTTP 402 Payment Required for LITE, STANDARD, and PROFESSIONAL
+    tier users. Only 'enterprise' tier passes through.
+
+    ADR-059 HTTP code semantics:
+      - 401: no auth (handled by get_current_user)
+      - 403: wrong role/scope
+      - 402: tier blocked (this gate)
+      - 404: not found
+
+    Usage:
+        @router.get("/enterprise/audit")
+        async def list_audit_logs(
+            _tier: None = Depends(require_enterprise_tier),
+            db: AsyncSession = Depends(get_db),
+        ):
+            ...
+
+    Or at include_router level (applies to all routes in router):
+        app.include_router(
+            nist_govern.router,
+            dependencies=[Depends(require_enterprise_tier)],
+        )
+    """
+    if current_user.effective_tier != "enterprise":
+        raise HTTPException(
+            status_code=402,
+            detail={
+                "error": "ENTERPRISE tier required",
+                "current_tier": current_user.effective_tier,
+                "upgrade_url": "/billing/upgrade",
+            },
+        )

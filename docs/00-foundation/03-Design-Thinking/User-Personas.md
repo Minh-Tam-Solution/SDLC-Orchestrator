@@ -1,20 +1,22 @@
 # SDLC Orchestrator - User Personas
 ## Evidence-Based Persona Development (Design Thinking: EMPATHIZE)
 
-**Version**: 1.1.0
-**Date**: December 21, 2025
-**Status**: ACTIVE - VALIDATED WITH 10+ INTERVIEWS
+**Version**: 2.0.0
+**Date**: February 19, 2026
+**Status**: ACTIVE - VALIDATED WITH 10+ INTERVIEWS (Enterprise-First Update)
 **Authority**: CPO + PM Approved
-**Foundation**: Product Vision 3.1.0, BRD 1.2.0
+**Foundation**: Product Vision v5.0.0, BRD v3.0.0
 **Stage**: Stage 00 (WHY) - Design Thinking EMPATHIZE Phase
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0 (7-Pillar + AI Governance)
 
-**Changelog v1.1.0** (Dec 21, 2025):
-- Updated framework to SDLC 5.1.3
-- Updated foundation references
-- Added EP-04/05/06 strategic context to persona needs
-- Added NQH AI Platform as technology context
-- Added AI Safety Layer governance needs
+**Changelog v2.0.0** (Feb 19, 2026):
+- Enterprise-First pivot: ICP updated to EM 15-50 engineers (was 6-50)
+- Added Enterprise IT Director / CTO persona (50-500 engineers)
+- Vietnam SME Founder moved to FOUNDER_LEGACY (grandfathered, sunset after S188)
+- Updated pricing: 6-tier model (LITE/STD/GROWTH/PRO/ENTERPRISE/FOUNDER_LEGACY)
+- Added OTT channel preferences per persona (Teams, Slack, Telegram, Zalo)
+- Framework: SDLC 5.1.3 → 6.1.0
+- Foundation: BRD v1.2 → v3.0.0, Vision v3.1.0 → v5.0.0
 
 ---
 
@@ -60,8 +62,8 @@ This document defines **WHO** our users are through evidence-based personas deve
 - **Name** (Archetype): Alex Chen
 - **Age**: 32-45 years old
 - **Role**: Engineering Manager, VP Engineering, Team Lead
-- **Team Size**: 6-50 engineers (sweet spot: 15-25)
-- **Company Size**: 20-500 employees (Series A-C startups, SMBs)
+- **Team Size**: 15-50 engineers (sweet spot: 20-35)
+- **Company Size**: 50-500 employees (Series A-C startups, SMBs)
 - **Industry**: SaaS, B2B software, cloud-native products
 - **Location**: US (40%), UK (20%), Australia (15%), Canada (15%), Other (10%)
 - **Reports To**: CTO or CEO
@@ -354,7 +356,7 @@ This document defines **WHO** our users are through evidence-based personas deve
   - ROI: Must save 20+ hours/month (>$5K/month value)
   - Ease of use: <2 weeks onboarding
   - Developer-friendly: Minimal workflow disruption
-  - Pricing: $99-$999/month acceptable
+  - Pricing: $299-$499/month acceptable (STD_GROWTH to PROFESSIONAL tier)
 
 **Demo Phase** (1 week):
 - **What Alex wants to see**:
@@ -402,7 +404,7 @@ This document defines **WHO** our users are through evidence-based personas deve
 - Feature adoption: Increased from 30% → 70%+
 - Time saved: 20+ hours/month (PRD generation, audit prep)
 - Team NPS: >8.0/10 (developers love it, not hate it)
-- ROI: $300/month subscription saves $5K+/month (17x ROI)
+- ROI: $299-$499/month subscription saves $5K+/month (10-17x ROI)
 
 ---
 
@@ -473,7 +475,7 @@ This document defines **WHO** our users are through evidence-based personas deve
    - Current: Each team has own process (chaos at scale)
    - Target: Single SDLC framework for 10+ teams
    - Why: "Can't scale without standardization"
-   - Success: All teams follow SDLC 4.8, gate pass rate >90%
+   - Success: All teams follow SDLC 6.1.0, gate pass rate >90%
 
 2. **Automated Compliance** (Second Priority)
    - Current: $150K/year on SOC 2 + ISO 27001 audits
@@ -566,7 +568,7 @@ This document defines **WHO** our users are through evidence-based personas deve
 - Career risk: "Board asks 'Why can't you scale engineering org?'"
 
 **Desired State**:
-- ✅ Single SDLC framework: SDLC 4.8 enforced across all teams
+- ✅ Single SDLC framework: SDLC 6.1.0 enforced across all teams
 - ✅ Consistent gates: All teams pass G0.1-G6
 - ✅ Benchmarking: Compare gate pass rate across teams
 
@@ -577,7 +579,7 @@ This document defines **WHO** our users are through evidence-based personas deve
 **RFP Phase** (2-4 weeks):
 - **Trigger**: Board mandate, compliance deadline
 - **Requirements**:
-  - Enterprise features: SSO, RBAC, white-label, API access
+  - Enterprise features: SSO (SAML/OIDC), RBAC, audit logs, API access
   - Compliance: SOC 2 Type 2, ISO 27001, GDPR-ready
   - Scalability: Support 50-500 engineers
   - Vendor stability: 3+ year roadmap, <10% churn
@@ -614,8 +616,8 @@ This document defines **WHO** our users are through evidence-based personas deve
 **Success Metrics** (What makes Rebecca renew):
 - Compliance cost: Reduced from $150K → $50K/year (66% reduction)
 - Visibility: Real-time dashboard (board impressed)
-- Standardization: All 10 teams follow SDLC 4.8
-- ROI: $100K/year subscription saves $100K+/year (break-even, worth it for visibility)
+- Standardization: All 10 teams follow SDLC 6.1.0
+- ROI: $80/seat/month subscription saves $100K+/year (break-even, worth it for visibility + compliance)
 
 ---
 
@@ -708,7 +710,7 @@ This document defines **WHO** our users are through evidence-based personas deve
 ---
 
 **Document**: SDLC-Orchestrator-User-Personas
-**Framework**: SDLC 5.1.3 Stage 00 (WHY) - Design Thinking EMPATHIZE
+**Framework**: SDLC 6.1.0 Stage 00 (WHY) - Design Thinking EMPATHIZE
 **Component**: User Research & Persona Development
 **Review**: Monthly with CPO (validate personas remain accurate)
 **Last Updated**: December 21, 2025

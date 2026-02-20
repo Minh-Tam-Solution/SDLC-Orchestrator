@@ -5,7 +5,7 @@
 **Date**: January 17, 2026
 **Decision Makers**: CTO, CEO
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 **Sprint**: Sprint 70 (Jan 20 - Feb 3, 2026)
 **Priority**: P0 - BLOCKS PLATFORM VALUE PROPOSITION
 

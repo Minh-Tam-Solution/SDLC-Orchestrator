@@ -1,11 +1,20 @@
 # Functional Requirements Document (FRD) - SDLC Orchestrator
 
-**Version**: 3.2.0
-**Date**: February 15, 2026
-**Status**: ACTIVE - Governance Loop Completion (Sprint 173)
+**Version**: 3.3.0
+**Date**: February 20, 2026
+**Status**: ACTIVE - Enterprise-First Alignment (Sprint 179+)
 **Authority**: PM + CTO + CPO + Full Team Approved
-**Foundation**: Product Vision 4.0.0, BRD 1.2.0, Stage 02 Architecture
-**Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance)
+**Foundation**: Product Vision 5.0.0, BRD 3.0.0, Stage 02 Architecture
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+
+**Changelog v3.3.0** (Feb 20, 2026):
+- **Enterprise-First Alignment** (Sprint 179+ / ADR-059):
+  - Framework: SDLC 6.0.6 → 6.1.0 (System Thinking + Multi-Agent Patterns)
+  - All body SDLC 5.1.3 refs → 6.1.0 (historical changelog preserved)
+  - AI model refs: qwen2.5-coder:32b → qwen3-coder:30b (256K context, Model Strategy v3.0)
+  - Policy packs: 100+ → 110+ (OPA policy growth)
+  - BRD reference: v1.2 → v3.0.0
+  - Foundation: Product Vision 4.0.0 → 5.0.0
 
 **Changelog v3.2.0** (Feb 15, 2026):
 - **FR1 Enhancement**: Gate Governance Loop State Machine (ADR-053, Sprint 173)
@@ -63,7 +72,7 @@
 2. **FR2: Evidence Vault** - Permanent audit trail with SHA256 integrity
 3. **FR3: AI Context Engine** - Multi-provider stage-aware assistance
 4. **FR4: Real-Time Dashboard** - Live gate status visualization
-5. **FR5: Policy Pack Library** - Pre-built SDLC 5.1.3 policies
+5. **FR5: Policy Pack Library** - Pre-built SDLC 6.1.0 policies
 6. **FR6: Context-Aware Stage Requirements** - Dynamic MANDATORY/RECOMMENDED/OPTIONAL *(v2.0)*
 7. **FR7: AI Task Decomposition** - User story → Tasks with CEO-level quality *(v2.0)*
 8. **FR8: 4-Level Planning Hierarchy** - Roadmap → Phase → Sprint → Backlog *(v2.0)*
@@ -87,7 +96,7 @@
 
 ### Overview
 
-**Capability**: Automated enforcement of SDLC 5.1.3 quality gates using Policy-as-Code (OPA).
+**Capability**: Automated enforcement of SDLC 6.1.0 quality gates using Policy-as-Code (OPA).
 
 **Business Value**: Prevent 70% feature waste by validating BEFORE building (Design Thinking gates).
 
@@ -123,7 +132,7 @@
 **Acceptance Criteria**:
 - AC1: User can create gate in <5 seconds
 - AC2: System validates required fields (name, stage, approvers)
-- AC3: System auto-populates exit criteria from SDLC 5.1.3 policy pack
+- AC3: System auto-populates exit criteria from SDLC 6.1.0 policy pack
 - AC4: System supports all 10 SDLC stages (WHY → GOVERN)
 - AC5: System supports role-based approver selection (CEO, CTO, CPO, CIO, CFO)
 
@@ -1083,7 +1092,7 @@ Response (200 OK):
 5. User clicks "Generate Tests"
 6. System prepares AI prompt (stage-aware template):
    ```
-   You are an expert software engineer following SDLC 5.1.3 Complete Lifecycle.
+   You are an expert software engineer following SDLC 6.1.0 Complete Lifecycle.
 
    CURRENT STAGE: WHAT (Design & Planning)
    GATE: G1 Design Ready
@@ -1602,7 +1611,7 @@ Response (200 OK):
 
 ### Overview
 
-**Capability**: Pre-built SDLC 5.1.3 policies for all 10 stages (100+ policies out-of-the-box).
+**Capability**: Pre-built SDLC 6.1.0 policies for all 10 stages (110+ policies out-of-the-box).
 
 **Business Value**: Zero policy authoring for 90% of teams (instant governance).
 
@@ -1653,12 +1662,12 @@ Response (200 OK):
      }
      ```
    - Test cases: 5 test scenarios (pass/fail examples)
-   - Documentation: Link to SDLC 5.1.3 rationale
+   - Documentation: Link to SDLC 6.1.0 rationale
 
 **Postcondition**: User understands available policies.
 
 **Acceptance Criteria**:
-- AC1: Catalog contains 100+ pre-built policies (all 10 stages)
+- AC1: Catalog contains 110+ pre-built policies (all 10 stages)
 - AC2: Each policy has description, Rego code, test cases, docs
 - AC3: Policies are versioned (v1.0, v1.1, etc.)
 - AC4: Policies support customization (parameters: min_reviewers = 2)
@@ -2197,7 +2206,7 @@ Response (400 Bad Request - Regression Tests Failed):
 
 ### Overview
 
-**Capability**: Automated enforcement of SDLC 5.1.3.1 folder structure.
+**Capability**: Automated enforcement of SDLC 6.1.0 folder structure.
 
 **Business Value**: Consistent project structure across all repositories.
 
@@ -2293,7 +2302,7 @@ Response (400 Bad Request - Regression Tests Failed):
 **Main Flow**:
 1. User selects IR module(s) for code generation
 2. System routes request through Multi-Provider Gateway:
-   - **Provider 1**: Ollama (qwen2.5-coder:32b) - Local, fast, cost-effective
+   - **Provider 1**: Ollama (qwen3-coder:30b) - Local, fast, cost-effective (256K context)
    - **Provider 2**: Claude (Anthropic) - Fallback for complex logic
    - **Provider 3**: DeepCode - Q2 2026 decision gate
 3. System builds context-aware prompt:
@@ -2729,7 +2738,7 @@ sum(rate(codegen_gate_failures_total[1h])) by (gate)
 ## References
 
 - [Product Vision](../../docs/00-Project-Foundation/01-Vision/Product-Vision.md) - North star metrics
-- [BRD v1.2](../../BRD-v1.2.md) - Business requirements
+- [BRD v3.0.0](../../docs/00-foundation/02-Business-Case/Business-Requirements-Document.md) - Business requirements
 - [Product Roadmap](../../docs/00-Project-Foundation/04-Roadmap/Product-Roadmap.md) - 90-day timeline
 - [Week-02-Kickoff-Brief](../../docs/08-Team-Management/02-Team-Coordination/Week-02-Kickoff-Brief.md) - Week 2 plan
 

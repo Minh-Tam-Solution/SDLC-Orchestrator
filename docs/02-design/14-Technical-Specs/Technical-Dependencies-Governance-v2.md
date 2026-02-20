@@ -7,7 +7,7 @@
 **Created**: 2026-01-28
 **Sprint**: 118 Track 2 - D3
 **Related Specs**: SPEC-0001, SPEC-0002
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -2028,7 +2028,7 @@ Alerts:
 
 **Phase 1: Schema Creation (Week 1 Day 1-2)**
 ```yaml
-Goal: Create 14 new tables without disrupting existing 30 tables
+Goal: Create 14 new tables without disrupting existing 33 tables
 
 Steps:
   1. Generate Alembic migration (Phase 1):

@@ -4,7 +4,7 @@
 **Date**: December 3, 2025
 **Owner**: Tech Lead, System Architect
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 5.1.3.1
+**Framework**: SDLC 6.1.0
 **Status**: ✅ APPROVED
 
 **Changelog v2.0** (Dec 3, 2025):
@@ -1171,7 +1171,7 @@ sequenceDiagram
     Context-->>Service: Rich context
 
     Service->>AI: complete(prompt, context)
-    AI->>Ollama: Try primary (qwen2.5:14b)
+    AI->>Ollama: Try primary (qwen3:32b)
 
     alt Ollama Success
         Ollama-->>AI: JSON task list

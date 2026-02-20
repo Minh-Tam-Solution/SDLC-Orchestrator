@@ -6,7 +6,7 @@
 **Approved By**: CTO (Jan 19, 2026), CEO (Jan 19, 2026)
 **Decision Makers**: CTO, CEO
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 **Sprint**: Sprint 80 (Feb 3 - Feb 14, 2026)
 **Priority**: P1 - DIFFERENTIATOR
 

@@ -4,7 +4,7 @@
 **Date**: December 3, 2025
 **Decision Makers**: CTO, CPO (joint review)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 5.1.3.1
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -43,7 +43,7 @@ Implement **AI Task Decomposition Service** với:
    - Include SDLC stage requirements
 
 3. AI Decomposition:
-   - Primary: Ollama (qwen2.5:14b) for Vietnamese context
+   - Primary: Ollama (qwen3:32b) for Vietnamese context
    - Fallback: Claude for complex technical stories
    - Output: JSON structured task list
 

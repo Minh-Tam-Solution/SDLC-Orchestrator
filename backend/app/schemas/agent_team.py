@@ -38,7 +38,7 @@ from enum import Enum
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator
 
 
 # =========================================================================
@@ -47,8 +47,16 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class SDLCRole(str, Enum):
-    """SDLC role templates per SDLC 6.0.6 (8 roles)."""
+    """SDLC role templates per SDLC 6.1.0 Enterprise tier (12 roles, 3 types).
 
+    SE4A (8): Autonomous AI agents in Agent Execution Environment (AEE).
+    SE4H (3): Agent Coaches — humans with AI advisory support (ACE).
+    Router (1): Guides users to correct agent/workflow.
+
+    Reference: ADR-056 §12.5 SASE Role Classification (arXiv:2509.06216v2)
+    """
+
+    # SE4A — autonomous AI agents (AEE: Agent Execution Environment)
     RESEARCHER = "researcher"
     PM = "pm"
     PJM = "pjm"
@@ -57,6 +65,17 @@ class SDLCRole(str, Enum):
     REVIEWER = "reviewer"
     TESTER = "tester"
     DEVOPS = "devops"
+    # SE4H — Agent Coaches: human + AI advisory support (ACE: Agent Command Environment)
+    CEO = "ceo"
+    CPO = "cpo"
+    CTO = "cto"
+    # Router — guides users to correct agent/workflow
+    ASSISTANT = "assistant"
+
+
+SE4H_ROLES: frozenset[SDLCRole] = frozenset({SDLCRole.CEO, SDLCRole.CPO, SDLCRole.CTO})
+ROUTER_ROLES: frozenset[SDLCRole] = frozenset({SDLCRole.ASSISTANT})
+SE4A_ROLES: frozenset[SDLCRole] = frozenset(set(SDLCRole) - SE4H_ROLES - ROUTER_ROLES)
 
 
 class QueueMode(str, Enum):
@@ -236,7 +255,7 @@ class AgentDefinitionUpdate(BaseModel):
 
 
 class AgentDefinitionResponse(BaseModel):
-    """Full agent definition response."""
+    """Full agent definition response with SASE role type classification."""
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -263,6 +282,20 @@ class AgentDefinitionResponse(BaseModel):
     config: dict[str, Any]
     created_at: datetime
     updated_at: datetime
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def role_type(self) -> str:
+        """SASE classification: se4a (autonomous agent), se4h (human + AI), router.
+
+        Derived from sdlc_role — no extra DB column needed.
+        Reference: ADR-056 §12.5
+        """
+        if self.sdlc_role in SE4H_ROLES:
+            return "se4h"
+        if self.sdlc_role in ROUTER_ROLES:
+            return "router"
+        return "se4a"
 
 
 # =========================================================================

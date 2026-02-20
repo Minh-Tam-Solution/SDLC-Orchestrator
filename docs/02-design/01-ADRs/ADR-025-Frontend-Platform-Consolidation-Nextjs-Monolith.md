@@ -5,7 +5,7 @@
 **Date**: January 03, 2026 (Original) | January 19, 2026 (Re-enforced)  
 **Decision Makers**: CEO (directive) + CTO (implementation approval)  
 **Stage**: Stage 02 (HOW - Design & Architecture)  
-**Framework**: SDLC 5.1.3 Universal Framework
+**Framework**: SDLC 6.1.0
 
 ---
 

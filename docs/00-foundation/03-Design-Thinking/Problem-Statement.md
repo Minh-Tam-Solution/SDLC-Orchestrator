@@ -1,20 +1,22 @@
 # SDLC Orchestrator - Problem Statement
 ## Validated Problem Definition (Design Thinking: DEFINE)
 
-**Version**: 3.0.0
-**Date**: December 23, 2025
-**Status**: ACTIVE - VALIDATED (Gate G0.1 PASSED) + Software 3.0 Extension
+**Version**: 4.0.0
+**Date**: February 19, 2026
+**Status**: ACTIVE - VALIDATED (Gate G0.1 PASSED) + Enterprise-First Strategy
 **Authority**: CEO + CPO + PM + CTO Approved
-**Foundation**: User Personas 1.0.0, User Research (10+ interviews)
+**Foundation**: User Personas v2.0.0, User Research (10+ interviews)
 **Stage**: Stage 00 (WHY) - Design Thinking DEFINE Phase
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0 (7-Pillar + AI Governance)
 
-**Changelog v3.0.0** (Dec 23, 2025):
-- **SOFTWARE 3.0 PIVOT**: Added Vietnam SME problem segment
-- Added Root Cause 7: SME Digitalization Gap
-- Added EP-06 IR-Based Codegen as solution
-- Added Founder Plan positioning ($99/team/month)
-- Added Dual Wedge Strategy (Vietnam SME + Global EM)
+**Changelog v4.0.0** (Feb 19, 2026):
+- **ENTERPRISE-FIRST**: Added "Enterprise Governance Gap" as Root Cause 8
+- Updated Dual Wedge → Enterprise-First strategy (ADR-059)
+- Framework: SDLC 5.1.3 → 6.1.0
+- Foundation: User Personas v1.0.0 → v2.0.0
+- Added EP-07 Multi-Agent as solution for enterprise automation
+- Added Enterprise SSO/SOC2/GDPR compliance gap evidence
+- Year 1 target: 30-50 teams → 45-70 teams / $160K-$350K ARR
 
 **Changelog v2.1.0** (Dec 21, 2025):
 - Updated framework to SDLC 5.1.3
@@ -84,17 +86,22 @@ This results in:
 - **Pain level**: 7/10
 - **Quote**: *"Engineer asks 'Did you validate?' I can't prove it. They lose trust."*
 
-**Market Size (Dual Wedge)**:
+**Market Size (Enterprise-First Strategy, ADR-059)**:
 
-**Segment 1: Vietnam SME (40% of Year 1)**
+**Segment 1: Global EM — PRIMARY ICP (60% of Year 1)**
+- **TAM**: 3.4 million engineering teams globally
+- **SAM**: 840,000 teams (English-speaking, cloud-native, 15-50 engineers)
+- **SOM Year 1**: 25-40 teams (STD_GROWTH $299/mo + PROFESSIONAL $499/mo)
+
+**Segment 2: Enterprise IT Directors (25% of Year 1)**
+- **TAM**: 500,000+ IT departments globally
+- **SAM**: 50,000 departments (50-500 engineers, SSO/RBAC required)
+- **SOM Year 1**: 5-10 organizations ($80/seat × 25+ seats)
+
+**Segment 3: Vietnam SME (15% of Year 1)**
 - **TAM**: 800,000+ Vietnam SMEs
 - **SAM**: 100,000 SMEs (F&B, Hotel, Retail, actively seeking digitalization)
-- **SOM Year 1**: 18-30 teams (Founder Plan $99/team/month)
-
-**Segment 2: Global EM (40% of Year 1)**
-- **TAM**: 3.4 million engineering teams globally
-- **SAM**: 840,000 teams (English-speaking, cloud-native)
-- **SOM Year 1**: 9-15 teams (Standard Plan $30/user/month)
+- **SOM Year 1**: 15-20 teams (FOUNDER_LEGACY $399/mo, no new sales after Sprint 188)
 
 **Segment 3: Enterprise (20% of Year 1)**
 - **SOM Year 1**: 3-5 teams (Custom pricing)
@@ -379,7 +386,7 @@ This results in:
 - ✅ Questionnaire → IR → Generated app (no coding required)
 - ✅ Vietnamese language throughout
 - ✅ 3 domain templates: F&B, Hotel, Retail (local practices built-in)
-- ✅ $99/team/month (~2.5M VND) - affordable for SME budget
+- ✅ FOUNDER_LEGACY $399/mo (~10M VND) — grandfathered pricing for early adopters
 - ✅ TTFV <30 minutes (from signup to working app)
 
 ---
@@ -516,7 +523,7 @@ This results in:
 ---
 
 **Document**: SDLC-Orchestrator-Problem-Statement
-**Framework**: SDLC 5.1.3 Stage 00 (WHY) - Design Thinking DEFINE
+**Framework**: SDLC 6.1.0 Stage 00 (WHY) - Design Thinking DEFINE
 **Component**: Problem Validation (Gate G0.1) + AI Governance Extension (v2.1.0)
 **Review**: Quarterly (validate problem remains relevant)
 **Last Updated**: December 23, 2025
@@ -534,9 +541,10 @@ This results in:
 **EP-04**: SDLC Structure Enforcement - Prevent AI codex structure violations
 **EP-05**: Enterprise Migration Engine - .sdlc-config.json (1KB vs 700KB) [Deprioritized]
 
-**Year 1 Target (Realistic)**:
-- 30-50 teams total
-- $86K-$144K ARR
+**Year 1 Target (Enterprise-First)**:
+- 45-70 teams total
+- $160K-$350K ARR
+- Enterprise SSO/RBAC live (Sprint 182-183)
 - Vietnam SME pilot validated with 8/10 satisfaction
 
 *"Define the RIGHT problem before building the RIGHT solution"* 🎯

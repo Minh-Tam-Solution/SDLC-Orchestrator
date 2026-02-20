@@ -12,6 +12,9 @@ Security Features:
 - Audit trail (IP, user agent, timestamps)
 
 Reference: ADR-043-Team-Invitation-System-Architecture.md
+Sprint 182: Full async migration (C-182-CF-02) — Session → AsyncSession + SQLAlchemy 2.0.
+  All seven service functions converted from `def`+Session to `async def`+AsyncSession.
+  Token/rate-limit helpers remain sync (no I/O; Redis calls are sub-ms blocking).
 """
 import hashlib
 import hmac
@@ -21,8 +24,8 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from sqlalchemy import and_
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.models.team_invitation import TeamInvitation, InvitationStatus
@@ -42,7 +45,7 @@ from app.core.redis import redis_client
 
 
 # ============================================================================
-# Token Security Functions
+# Token Security Functions (sync — pure computation, no I/O)
 # ============================================================================
 
 def generate_invitation_token() -> str:
@@ -104,7 +107,7 @@ def verify_token(provided_token: str, stored_hash: str) -> bool:
 
 
 # ============================================================================
-# Rate Limiting Functions
+# Rate Limiting Functions (sync — Redis calls are sub-ms, safe in async ctx)
 # ============================================================================
 
 def check_team_rate_limit(team_id: UUID) -> None:
@@ -172,14 +175,14 @@ def check_email_rate_limit(email: str) -> None:
 
 
 # ============================================================================
-# Invitation Service Functions
+# Invitation Service Functions (async — SQLAlchemy 2.0 + AsyncSession)
 # ============================================================================
 
-def send_invitation(
+async def send_invitation(
     team_id: UUID,
     data: InvitationCreate,
     invited_by_user_id: UUID,
-    db: Session,
+    db: AsyncSession,
     ip_address: Optional[str] = None,
     user_agent: Optional[str] = None
 ) -> tuple[InvitationResponse, str]:
@@ -196,7 +199,7 @@ def send_invitation(
         team_id: Team UUID
         data: Invitation creation data
         invited_by_user_id: User who is sending invitation
-        db: Database session
+        db: Async database session
         ip_address: IP address of inviter (optional)
         user_agent: User agent of inviter (optional)
 
@@ -209,12 +212,13 @@ def send_invitation(
         HTTPException(409): If pending invitation already exists
         HTTPException(429): If rate limit exceeded
     """
-    # 1. Rate limiting
+    # 1. Rate limiting (sync helpers — sub-ms Redis calls)
     check_team_rate_limit(team_id)
     check_email_rate_limit(data.email)
 
     # 2. Verify team exists
-    team = db.query(Team).filter(Team.id == team_id).first()
+    result = await db.execute(select(Team).where(Team.id == team_id))
+    team = result.scalar_one_or_none()
     if not team:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -222,13 +226,14 @@ def send_invitation(
         )
 
     # 3. Check if pending invitation already exists
-    existing = db.query(TeamInvitation).filter(
-        and_(
+    existing_result = await db.execute(
+        select(TeamInvitation).where(
             TeamInvitation.team_id == team_id,
             TeamInvitation.invited_email == data.email,
-            TeamInvitation.status == InvitationStatus.PENDING
+            TeamInvitation.status == InvitationStatus.PENDING,
         )
-    ).first()
+    )
+    existing = existing_result.scalar_one_or_none()
 
     if existing:
         raise HTTPException(
@@ -258,11 +263,12 @@ def send_invitation(
     )
 
     db.add(invitation)
-    db.commit()
-    db.refresh(invitation)
+    await db.commit()
+    await db.refresh(invitation)
 
     # 6. Prepare response
-    inviter = db.query(User).filter(User.id == invited_by_user_id).first()
+    inviter_result = await db.execute(select(User).where(User.id == invited_by_user_id))
+    inviter = inviter_result.scalar_one_or_none()
 
     response = InvitationResponse(
         invitation_id=invitation.id,
@@ -282,13 +288,13 @@ def send_invitation(
     return response, raw_token
 
 
-def get_invitation_by_token(token: str, db: Session) -> InvitationDetails:
+async def get_invitation_by_token(token: str, db: AsyncSession) -> InvitationDetails:
     """
     Get invitation details by token (public endpoint, no auth).
 
     Args:
         token: Raw invitation token from URL
-        db: Database session
+        db: Async database session
 
     Returns:
         InvitationDetails
@@ -301,9 +307,10 @@ def get_invitation_by_token(token: str, db: Session) -> InvitationDetails:
     token_hash = hash_token(token)
 
     # Find invitation by hash
-    invitation = db.query(TeamInvitation).filter(
-        TeamInvitation.invitation_token_hash == token_hash
-    ).first()
+    result = await db.execute(
+        select(TeamInvitation).where(TeamInvitation.invitation_token_hash == token_hash)
+    )
+    invitation = result.scalar_one_or_none()
 
     if not invitation:
         raise HTTPException(
@@ -327,7 +334,7 @@ def get_invitation_by_token(token: str, db: Session) -> InvitationDetails:
     # Check if expired
     if invitation.is_expired:
         invitation.mark_expired()
-        db.commit()
+        await db.commit()
 
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -338,8 +345,11 @@ def get_invitation_by_token(token: str, db: Session) -> InvitationDetails:
         )
 
     # Build response
-    team = db.query(Team).filter(Team.id == invitation.team_id).first()
-    inviter = db.query(User).filter(User.id == invitation.invited_by).first()
+    team_result = await db.execute(select(Team).where(Team.id == invitation.team_id))
+    team = team_result.scalar_one_or_none()
+
+    inviter_result = await db.execute(select(User).where(User.id == invitation.invited_by))
+    inviter = inviter_result.scalar_one_or_none()
 
     return InvitationDetails(
         team={
@@ -359,11 +369,11 @@ def get_invitation_by_token(token: str, db: Session) -> InvitationDetails:
     )
 
 
-def accept_invitation(
+async def accept_invitation(
     token: str,
     user_id: UUID,
     user_email: str,
-    db: Session
+    db: AsyncSession
 ) -> InvitationAccepted:
     """
     Accept invitation and create team membership.
@@ -379,7 +389,7 @@ def accept_invitation(
         token: Raw invitation token
         user_id: Authenticated user ID
         user_email: Authenticated user email
-        db: Database session
+        db: Async database session
 
     Returns:
         InvitationAccepted
@@ -394,12 +404,13 @@ def accept_invitation(
     token_hash = hash_token(token)
 
     # Find invitation
-    invitation = db.query(TeamInvitation).filter(
-        and_(
+    result = await db.execute(
+        select(TeamInvitation).where(
             TeamInvitation.invitation_token_hash == token_hash,
-            TeamInvitation.status == InvitationStatus.PENDING
+            TeamInvitation.status == InvitationStatus.PENDING,
         )
-    ).first()
+    )
+    invitation = result.scalar_one_or_none()
 
     if not invitation:
         raise HTTPException(
@@ -429,11 +440,14 @@ def accept_invitation(
         )
 
     # Check if already a team member
-    existing_member = db.query(TeamMember).filter(
-        TeamMember.team_id == invitation.team_id,
-        TeamMember.user_id == user_id,
-        TeamMember.deleted_at.is_(None)  # Active members only
-    ).first()
+    existing_result = await db.execute(
+        select(TeamMember).where(
+            TeamMember.team_id == invitation.team_id,
+            TeamMember.user_id == user_id,
+            TeamMember.deleted_at.is_(None),  # Active members only
+        )
+    )
+    existing_member = existing_result.scalar_one_or_none()
 
     if existing_member:
         raise HTTPException(
@@ -450,7 +464,8 @@ def accept_invitation(
     invitation.accept(user_id)
 
     # Get team info
-    team = db.query(Team).filter(Team.id == invitation.team_id).first()
+    team_result = await db.execute(select(Team).where(Team.id == invitation.team_id))
+    team = team_result.scalar_one_or_none()
 
     # Create team membership record (P1 fix - Sprint 128)
     team_member = TeamMember(
@@ -460,7 +475,7 @@ def accept_invitation(
         member_type="human"  # Invitations are for human users
     )
     db.add(team_member)
-    db.commit()
+    await db.commit()
 
     return InvitationAccepted(
         status="accepted",
@@ -472,13 +487,13 @@ def accept_invitation(
     )
 
 
-def decline_invitation(token: str, db: Session) -> InvitationDeclined:
+async def decline_invitation(token: str, db: AsyncSession) -> InvitationDeclined:
     """
     Decline invitation (polite rejection).
 
     Args:
         token: Raw invitation token
-        db: Database session
+        db: Async database session
 
     Returns:
         InvitationDeclined
@@ -491,9 +506,10 @@ def decline_invitation(token: str, db: Session) -> InvitationDeclined:
     token_hash = hash_token(token)
 
     # Find invitation
-    invitation = db.query(TeamInvitation).filter(
-        TeamInvitation.invitation_token_hash == token_hash
-    ).first()
+    result = await db.execute(
+        select(TeamInvitation).where(TeamInvitation.invitation_token_hash == token_hash)
+    )
+    invitation = result.scalar_one_or_none()
 
     if not invitation:
         raise HTTPException(
@@ -513,7 +529,7 @@ def decline_invitation(token: str, db: Session) -> InvitationDeclined:
 
     # Decline invitation
     invitation.decline()
-    db.commit()
+    await db.commit()
 
     return InvitationDeclined(
         status="declined",
@@ -522,9 +538,9 @@ def decline_invitation(token: str, db: Session) -> InvitationDeclined:
     )
 
 
-def resend_invitation(
+async def resend_invitation(
     invitation_id: UUID,
-    db: Session
+    db: AsyncSession
 ) -> tuple[InvitationResent, str]:
     """
     Resend invitation email.
@@ -535,7 +551,7 @@ def resend_invitation(
 
     Args:
         invitation_id: Invitation UUID
-        db: Database session
+        db: Async database session
 
     Returns:
         Tuple of (InvitationResent, raw_token)
@@ -546,9 +562,10 @@ def resend_invitation(
         HTTPException(429): If resend limit exceeded
     """
     # Find invitation
-    invitation = db.query(TeamInvitation).filter(
-        TeamInvitation.id == invitation_id
-    ).first()
+    result = await db.execute(
+        select(TeamInvitation).where(TeamInvitation.id == invitation_id)
+    )
+    invitation = result.scalar_one_or_none()
 
     if not invitation:
         raise HTTPException(
@@ -601,8 +618,8 @@ def resend_invitation(
     # Update invitation
     invitation.invitation_token_hash = token_hash
     invitation.increment_resend_count()
-    db.commit()
-    db.refresh(invitation)
+    await db.commit()
+    await db.refresh(invitation)
 
     return InvitationResent(
         invitation_id=invitation.id,
@@ -614,9 +631,9 @@ def resend_invitation(
     ), raw_token
 
 
-def list_team_invitations(
+async def list_team_invitations(
     team_id: UUID,
-    db: Session,
+    db: AsyncSession,
     status_filter: Optional[str] = None,
     email_filter: Optional[str] = None,
     limit: int = 50,
@@ -629,7 +646,7 @@ def list_team_invitations(
 
     Args:
         team_id: Team UUID
-        db: Database session
+        db: Async database session
         status_filter: Filter by invitation status (optional)
         email_filter: Filter by invited email (optional)
         limit: Max results per page (default: 50)
@@ -642,7 +659,8 @@ def list_team_invitations(
         HTTPException(404): If team not found
     """
     # Verify team exists
-    team = db.query(Team).filter(Team.id == team_id).first()
+    team_result = await db.execute(select(Team).where(Team.id == team_id))
+    team = team_result.scalar_one_or_none()
     if not team:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -650,13 +668,13 @@ def list_team_invitations(
         )
 
     # Build query
-    query = db.query(TeamInvitation).filter(TeamInvitation.team_id == team_id)
+    stmt = select(TeamInvitation).where(TeamInvitation.team_id == team_id)
 
     # Apply status filter
     if status_filter:
         try:
             status_enum = InvitationStatus(status_filter)
-            query = query.filter(TeamInvitation.status == status_enum)
+            stmt = stmt.where(TeamInvitation.status == status_enum)
         except ValueError:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -665,23 +683,20 @@ def list_team_invitations(
 
     # Apply email filter
     if email_filter:
-        query = query.filter(
-            TeamInvitation.invited_email.ilike(f"%{email_filter}%")
-        )
+        stmt = stmt.where(TeamInvitation.invited_email.ilike(f"%{email_filter}%"))
 
-    # Order by created_at descending (newest first)
-    query = query.order_by(TeamInvitation.created_at.desc())
-
-    # Apply pagination
-    query = query.offset(offset).limit(limit)
+    # Order by created_at descending (newest first), then paginate
+    stmt = stmt.order_by(TeamInvitation.created_at.desc()).offset(offset).limit(limit)
 
     # Execute query
-    invitations = query.all()
+    invitations_result = await db.execute(stmt)
+    invitations = invitations_result.scalars().all()
 
     # Build response list
     responses = []
     for invitation in invitations:
-        inviter = db.query(User).filter(User.id == invitation.invited_by).first()
+        inviter_result = await db.execute(select(User).where(User.id == invitation.invited_by))
+        inviter = inviter_result.scalar_one_or_none()
 
         responses.append(InvitationResponse(
             invitation_id=invitation.id,
@@ -701,10 +716,10 @@ def list_team_invitations(
     return responses
 
 
-def cancel_invitation(
+async def cancel_invitation(
     invitation_id: UUID,
     cancelled_by_user_id: UUID,
-    db: Session
+    db: AsyncSession
 ) -> None:
     """
     Cancel a pending invitation (admin action).
@@ -714,16 +729,17 @@ def cancel_invitation(
     Args:
         invitation_id: Invitation UUID
         cancelled_by_user_id: User performing the cancellation
-        db: Database session
+        db: Async database session
 
     Raises:
         HTTPException(400): If invitation cannot be cancelled
         HTTPException(404): If invitation not found
     """
     # Find invitation
-    invitation = db.query(TeamInvitation).filter(
-        TeamInvitation.id == invitation_id
-    ).first()
+    result = await db.execute(
+        select(TeamInvitation).where(TeamInvitation.id == invitation_id)
+    )
+    invitation = result.scalar_one_or_none()
 
     if not invitation:
         raise HTTPException(
@@ -761,4 +777,4 @@ def cancel_invitation(
 
     # Cancel the invitation
     invitation.status = InvitationStatus.CANCELLED
-    db.commit()
+    await db.commit()

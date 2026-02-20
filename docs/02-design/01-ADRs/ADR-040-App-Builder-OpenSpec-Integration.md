@@ -5,7 +5,7 @@
 **Date**: January 28, 2026
 **Deciders**: CTO, Backend Lead, Architect
 **Sprint**: Sprint 106 - App Builder Integration (MVP)
-**Framework**: SDLC 6.0 (Section 8 - Unified Specification Standard)
+**Framework**: SDLC 6.1.0
 
 ---
 

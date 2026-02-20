@@ -4,7 +4,7 @@
 **Date**: February 15, 2026
 **Owner**: Tech Lead, Database Architect
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 **Status**: ✅ APPROVED
 
 **Changelog v1.1** (Feb 15, 2026):

@@ -4,7 +4,7 @@
 **Date**: November 27, 2025
 **Status**: ACTIVE - Week 12 Hardening
 **Authority**: Security Lead + CTO + CPO Approved
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Standard**: SOC 2 Type I (Trust Services Criteria)
 
 ---

@@ -7,7 +7,7 @@
 **Author**: Development Team
 **Approver**: CTO
 **Stage**: 02-design (HOW - Architecture & Design)
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -43,8 +43,8 @@ Database (outdated):
   target: G6 by Week 17
 
 Repository Reality:
-  description: "SDLC 6.0.5 | G3 Ship Ready (98.2%)"
-  framework: 6.0.5
+  description: "SDLC 6.1.0 | G3 Ship Ready (98.2%)"
+  framework: 6.1.0
   status: Sprint 171 (Market Expansion - 90%)
   target: Vietnam SME Pilot Q1 2026
 ```
@@ -567,7 +567,7 @@ class ProjectMetadata(BaseModel):
     sprint_description: Optional[str] = None
 
     # From CLAUDE.md (lines 1-10)
-    framework_version: Optional[str] = None  # "SDLC 6.0.5"
+    framework_version: Optional[str] = None  # "SDLC 6.1.0"
     gate_status: Optional[str] = None        # "G3 Ship Ready (98.2%)"
 
     # From README.md (first paragraph)
@@ -617,10 +617,10 @@ Authorization: Bearer {token}
 {
   "id": "c0000000-0000-0000-0000-000000000003",
   "name": "SDLC-Orchestrator",
-  "description": "Operating System for Software 3.0 | SDLC 6.0.5...",
+  "description": "Operating System for Software 3.0 | SDLC 6.1.0...",
   "tier": "professional",
   "current_sprint": "Sprint 171",
-  "framework_version": "SDLC 6.0.5",
+  "framework_version": "SDLC 6.1.0",
   "gate_status": "G3 Ship Ready (98.2%)",
   "created_at": "2025-11-13T09:00:00Z",
   "updated_at": "2026-02-10T11:24:14Z",
@@ -675,7 +675,7 @@ async def test_parse_claude_md_framework_version():
     service = ProjectSyncService()
     claude_md = await service._parse_claude_md("/path/to/repo")
 
-    assert claude_md["framework_version"] == "SDLC 6.0.5"
+    assert claude_md["framework_version"] == "SDLC 6.1.0"
     assert "G3" in claude_md["gate_status"]
 ```
 
@@ -732,7 +732,7 @@ test('auto-syncs project metadata on page load', async ({ page }) => {
 
   // Verify updated metadata displayed
   await expect(page.locator('h1')).toContainText('SDLC-Orchestrator');
-  await expect(page.locator('text=SDLC 6.0.5')).toBeVisible();
+  await expect(page.locator('text=SDLC 6.1.0')).toBeVisible();
   await expect(page.locator('text=Sprint 171')).toBeVisible();
 });
 ```
@@ -891,7 +891,7 @@ Business KPIs (30 days post-launch):
   "project": {
     "id": "c0000000-0000-0000-0000-000000000003",
     "name": "SDLC-Orchestrator",
-    "description": "First Governance-First Platform on SDLC 6.0.5"
+    "description": "First Governance-First Platform on SDLC 6.1.0"
   },
   "tier": "professional",
   "team_size": 8
@@ -912,7 +912,7 @@ Business KPIs (30 days post-launch):
 ```markdown
 **Version**: 3.3.0
 **Status**: Gate G3 APPROVED - Ship Ready (98.2%)
-**Framework**: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance)
+**Framework**: SDLC 6.1.0
 ```
 
 ### B. Error Handling Matrix

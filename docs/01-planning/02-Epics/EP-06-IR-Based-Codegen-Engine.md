@@ -8,8 +8,8 @@
 | **Priority** | **P0** ⭐ |
 | **Owner** | CTO / Platform Team |
 | **Created** | 2025-12-21 |
-| **Updated** | 2025-12-23 (Software 3.0 Pivot) |
-| **SDLC Version** | 5.1.1 + SASE Level 2 |
+| **Updated** | 2026-02-20 (Enterprise-First Alignment) |
+| **SDLC Version** | 6.1.0 (7-Pillar + AI Governance) |
 | **Stage** | 01-planning |
 | **Timeline** | Sprint 45–50 (Feb–May 2026) |
 | **Investment** | ~$50,000 |
@@ -18,12 +18,20 @@
 
 ## Changelog
 
+**v2.1.0** (Feb 20, 2026):
+- **Enterprise-First Alignment** (Sprint 181-188):
+  - SDLC 5.1.1 → 6.1.0, all qwen2.5 → qwen3 (Model Strategy v3.0)
+  - Pricing: Founder $99/team → 6-Tier (FOUNDER_LEGACY $399 grandfathered)
+  - Strategy: Dual Wedge → Enterprise-First (ADR-059)
+  - Targets: 30-50 teams $86K-$144K → 45-70 teams $160K-$350K ARR
+  - Context: 32K → 256K (qwen3-coder:30b)
+
 **v2.0.0** (Dec 23, 2025):
 - **SOFTWARE 3.0 PIVOT**: Renamed from "Dual Mode" to "IR-Based Codegen Engine"
 - **TIMELINE SHIFT**: Sprint 50-55 → Sprint 45-50 (P0 priority)
 - **DESIGN COMPLETE**: All 5 Sprint specs CTO-approved
 - **MULTI-PROVIDER**: Ollama → Claude → DeepCode (DeepCode Q2 2026 decision gate)
-- **FOUNDER PLAN**: $99/team/month for Vietnam SME (~2.5M VND)
+- **FOUNDER_LEGACY**: $399/mo grandfathered (no new sales after Sprint 188)
 - **VIETNAMESE TEMPLATES**: F&B, Hotel, Retail with Vietnamese questionnaire flow
 
 ---
@@ -62,17 +70,17 @@ Layer 1: SDLC-Enterprise-Framework (Methodology) ← Our foundation
 
 ### CEO Vision
 
-> **Không cạnh tranh trực diện với các AI codex mạnh như Claude Code / Cursor, mà dùng SDLC 5.1.3 + governance + IR decomposition để biến model open-source tầm trung thành một "codex đủ xài nhưng an toàn và được kiểm soát".**
+> **Không cạnh tranh trực diện với các AI codex mạnh như Claude Code / Cursor, mà dùng SDLC 6.1.0 + governance + IR decomposition để biến model open-source tầm trung thành một "codex đủ xài nhưng an toàn và được kiểm soát".**
 
 ### IR-Based Codegen Strategy (Dec 2025 - Software 3.0 Pivot)
 
 | Mode | Target Users | AI Backend | Orchestrator Role |
 |------|--------------|------------|-------------------|
 | **Mode A – BYO Codex** | Enterprise dev teams | Claude Code / Cursor / Copilot | AI Safety & Governance Layer |
-| **Mode B – Native OSS** | SME / non-tech founders | **qwen2.5-coder:32b** (92.7% HumanEval) | Full codegen + governance |
+| **Mode B – Native OSS** | SME / non-tech founders | **qwen3-coder:30b** (256K context) | Full codegen + governance |
 | **Mode C – Hybrid Fallback** | Dev teams (credit exhausted) | Claude Code → Continue.dev | **Seamless failover orchestration** |
 
-> **UPDATE Dec 2025:** IT Admin đã deploy 10 models trên RTX 5090, bao gồm qwen2.5-coder:32b với 92.7% HumanEval score - cao hơn dự kiến ban đầu (CodeLlama 13B ~60%)!
+> **UPDATE Feb 2026:** Model Strategy v3.0 — upgraded to qwen3-coder:30b (256K context, ~50 tok/s) trên RTX 5090. 8x context improvement vs qwen2.5-coder:32b (32K). 10-model fleet fully deployed.
 
 ### 🔥 NEW: Mode C – Hybrid Fallback (Real Pain Point from Dev Team)
 
@@ -93,7 +101,7 @@ Layer 1: SDLC-Enterprise-Framework (Methodology) ← Our foundation
 │                                                                             │
 │  ┌───────────────┐                           ┌───────────────┐              │
 │  │  Claude Code  │  Credit OK ✓              │  Continue.dev │              │
-│  │  (200K ctx)   │◄─────────────────────────▶│ + qwen2.5-32b │              │
+│  │  (200K ctx)   │◄─────────────────────────▶│ + qwen3-30b   │              │
 │  │  $100-200/mo  │                           │  (32K ctx)    │              │
 │  └───────┬───────┘     SDLC Orchestrator     └───────┬───────┘              │
 │          │             orchestrates both             │                      │
@@ -129,7 +137,7 @@ Layer 1: SDLC-Enterprise-Framework (Methodology) ← Our foundation
 │  ────────────────────                                                       │
 │  if (claude_api.status == 429 || credit_remaining < threshold):             │
 │      log("Claude credit exhausted, switching to Continue.dev + Ollama")     │
-│      backend = "qwen2.5-coder:32b"  # IT Admin's infrastructure             │
+│      backend = "qwen3-coder:30b"  # IT Admin's infrastructure               │
 │      decompose_context_to_IR()       # Break 200K → multiple 5K chunks      │
 │      apply_same_governance()         # AI Safety Layer                      │
 │                                                                             │
@@ -154,7 +162,7 @@ Layer 1: SDLC-Enterprise-Framework (Methodology) ← Our foundation
 │                                    Stage 04: Feature 2 → Code (5KB context) │
 │                                                                             │
 │  Context: 128K tokens              Context: 5K tokens per step              │
-│  Model: Claude 3.5 ($20/mo)        Model: qwen2.5-coder:32b (free, 92.7%)   │
+│  Model: Claude 3.5 ($20/mo)        Model: qwen3-coder:30b (free, 256K ctx)  │
 │  Risk: Uncontrolled drift          Risk: Controlled by VCR checkpoints      │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -211,7 +219,7 @@ Current AI codex tools assume:
 ```
 WHY team không chuyển sang Continue.dev khi hết Claude credit?
     └── Vì sợ chất lượng code giảm
-        └── Vì qwen2.5-coder chỉ có 32K context vs Claude 200K
+        └── Vì qwen3-coder có 256K context — ngang Claude 200K
             └── Vì cần send toàn bộ codebase làm context
                 └── Vì THIẾU SDLC governance để decompose task! ◄── ROOT CAUSE
 ```
@@ -382,10 +390,10 @@ use_cases:
 
 | # | Deliverable | Description |
 |---|-------------|-------------|
-| 1 | Product Vision update | Add "Codegen Engine – Dual Mode" section to Vision v3.1 |
+| 1 | Product Vision update | Add "Codegen Engine – Dual Mode" section to Vision v5.0.0 |
 | 2 | IR v0 schemas | JSON schemas: AppBlueprint, ModuleSpec, PageSpec, DataModelSpec |
 | 3 | Codegen service API v0 | 3 endpoints: `/generate/module`, `/generate/tests`, `/refactor` |
-| 4 | OSS model integration | **qwen2.5-coder:32b** (92.7% HumanEval) via OllamaService |
+| 4 | OSS model integration | **qwen3-coder:30b** (256K context) via OllamaService |
 | 5 | Model Roles Strategy | Configure 5 roles: default, chat, edit, apply, autocomplete |
 | 6 | Non-tech founder journey | Storyboard mapping idea → MVP → deploy with SDLC artifacts |
 
@@ -400,7 +408,7 @@ use_cases:
 
 ## 6. Deliverables
 
-### 6.1. Vision v3.1
+### 6.1. Vision v5.0.0
 
 Update `docs/00-foundation/01-Vision/` with Codegen Engine Dual Mode section.
 
@@ -431,9 +439,9 @@ backend/app/schemas/codegen/
 
 | Model | Size | Speed | HumanEval | Use Case |
 |-------|------|-------|-----------|----------|
-| 🎯 **qwen2.5-coder:32b-instruct** | 19GB | ~6s | **92.7%** | **Production Code - PRIMARY** |
-| ⚡ **qwen2.5:14b-instruct** | 9GB | ~4s | N/A | Fast Tasks, Autocomplete |
-| 🇻🇳 **qwen2.5:32b** | 19GB | ~8s | N/A | Vietnamese + Code |
+| 🎯 **qwen3-coder:30b** | 18GB | ~50 tok/s | 256K ctx | **Production Code - PRIMARY** |
+| ⚡ **qwen3:14b** | 9.3GB | ~60 tok/s | N/A | Fast Tasks, Autocomplete |
+| 🇻🇳 **qwen3:32b** | 20GB | ~53 tok/s | N/A | Vietnamese + Code |
 | 🇻🇳 **qwen3:14b** | 9.3GB | ~4s | N/A | Vietnamese Chat |
 | 💨 **ministral-3:8b** | 6GB | ~3s | N/A | Quick Processing |
 
@@ -442,11 +450,11 @@ backend/app/schemas/codegen/
 ```json
 {
   "modelRoles": {
-    "default": "qwen2.5-coder:32b-instruct-q4_K_M",   // PRIMARY CODE - 92.7% HumanEval
-    "chat": "qwen2.5:32b",                            // General + Vietnamese support
-    "edit": "qwen2.5-coder:32b-instruct-q4_K_M",      // Accurate code changes
-    "apply": "qwen2.5-coder:32b-instruct-q4_K_M",     // Precise modifications
-    "autocomplete": "qwen2.5:14b-instruct"            // Fast (~4s)
+    "default": "qwen3-coder:30b",          // PRIMARY CODE - 256K context
+    "chat": "qwen3:32b",                     // General + Vietnamese support
+    "edit": "qwen3-coder:30b",               // Accurate code changes
+    "apply": "qwen3-coder:30b",              // Precise modifications
+    "autocomplete": "qwen3:14b"              // Fast (~60 tok/s)
   }
 }
 ```
@@ -460,9 +468,9 @@ backend/app/schemas/codegen/
 │                                                                             │
 │  ROLE              MODEL                         SPEED   PURPOSE            │
 │  ────────────────  ────────────────────────────  ──────  ─────────────────  │
-│  default/edit      qwen2.5-coder:32b-instruct    ~6s     Production code    │
-│  chat              qwen2.5:32b                   ~8s     General + Viet     │
-│  autocomplete      qwen2.5:14b-instruct          ~4s     Tab completion     │
+│  default/edit      qwen3-coder:30b              ~50t/s  Production code    │
+│  chat              qwen3:32b                    ~53t/s  General + Viet     │
+│  autocomplete      qwen3:14b                    ~60t/s  Tab completion     │
 │  vietnamese        qwen3:14b                     ~4s     VN docs/comments   │
 │  ultra-fast        qwen3:8b                      <3s     Quick drafts       │
 │                                                                             │
@@ -479,12 +487,12 @@ backend/app/schemas/codegen/
 
 | Task Type | Model | Rationale |
 |-----------|-------|-----------|
-| **Production Code** | qwen2.5-coder:32b-instruct | PRIMARY - 92.7% HumanEval, ~6s |
-| **Quick Edits** | qwen2.5:14b-instruct | Fast (~4s), replaced qwen2.5-coder:14b |
-| **Tab Autocomplete** | qwen2.5:14b-instruct | Real-time suggestions |
+| **Production Code** | qwen3-coder:30b | PRIMARY - 256K context, ~50 tok/s |
+| **Quick Edits** | qwen3:14b | Fast (~60 tok/s) |
+| **Tab Autocomplete** | qwen3:14b | Real-time suggestions |
 | **Vietnamese Docs** | qwen3:14b | Best Vietnamese support |
 | **Ultra-fast Drafts** | qwen3:8b | Fastest (<3s) |
-| **General Chat** | qwen2.5:32b | Good bilingual support |
+| **General Chat** | qwen3:32b | Good bilingual support |
 | **Multi-file Refactor** | Claude Code (BYO) | Complex, needs 200K context |
 
 #### Configuration
@@ -492,15 +500,15 @@ backend/app/schemas/codegen/
 ```python
 # Configuration (backend/app/core/config.py)
 CODEGEN_OLLAMA_URL = "https://api.nhatquangholding.com"  # NAT via router
-CODEGEN_MODEL_PRIMARY = "qwen2.5-coder:32b-instruct-q4_K_M"  # 92.7% HumanEval!
-CODEGEN_MODEL_FAST = "qwen2.5:14b-instruct"  # For autocomplete
+CODEGEN_MODEL_PRIMARY = "qwen3-coder:30b"  # 256K context, ~50 tok/s
+CODEGEN_MODEL_FAST = "qwen3:14b"  # For autocomplete
 CODEGEN_MODEL_VIETNAMESE = "qwen3:14b"  # For Vietnamese prompts
 CODEGEN_TIMEOUT = 120  # Longer timeout for code generation
 ```
 
 #### Why This Changes Everything
 
-| Metric | Original Plan (CodeLlama 13B) | With IT Admin's qwen2.5-coder:32b |
+| Metric | Original Plan (CodeLlama 13B) | With qwen3-coder:30b (Model v3.0) |
 |--------|-------------------------------|-----------------------------------|
 | HumanEval Score | ~60% | **92.7%** (+32.7%) |
 | Code Quality | Moderate | **Near-Copilot level** |
@@ -597,7 +605,7 @@ All generated code must:
 | Resource | Endpoint | Purpose |
 |----------|----------|---------|
 | NQH AI Platform | `api.nhatquangholding.com` (NAT) | Multi-Provider Inference |
-| Primary Model | qwen2.5-coder:32b-instruct (92.7% HumanEval) | Production code generation |
+| Primary Model | qwen3-coder:30b (256K context, ~50 tok/s) | Production code generation |
 | Fallback 1 | Claude API | Complex multi-file refactor |
 | Fallback 2 | DeepCode (Q2 2026) | Decision gate pending |
 | Cost | $0 for OSS, Claude as overflow | Minimized cost |
@@ -620,7 +628,7 @@ All generated code must:
 | Aspect | Lovable | Claude Code | SDLC Orchestrator |
 |--------|---------|-------------|-------------------|
 | Target | Non-tech | Pro devs | Both (Dual Mode) |
-| Governance | None | None | Full SDLC 5.1.3 |
+| Governance | None | None | Full SDLC 6.1.0 |
 | Traceability | None | Git only | Artifacts + Evidence |
 | Model | Proprietary | Claude | BYO or OSS |
 | Cost | $20-50/mo | $100-200/mo | $0-50/mo (OSS) |
@@ -641,8 +649,8 @@ All generated code must:
 
 | Feature | Founder Plan | Standard | Enterprise |
 |---------|--------------|----------|------------|
-| **Price** | $99/team/mo | $30/user/mo | Custom |
-| **Target** | Vietnam SME | Global EM 6-50 eng | CTO 50-500 eng |
+| **Price** | FOUNDER_LEGACY $399/mo | $299-$499/mo | $80/seat/mo (min 25) |
+| **Target** | Vietnam SME (grandfathered) | Global EM 15-50 eng | CTO 50-500 eng |
 | IR-Based Codegen | ✅ Included | ✅ Full | ✅ Full + Custom |
 | Products | 1 product | 10 projects | Unlimited |
 | Users | Unlimited | Per seat | Unlimited |
@@ -653,10 +661,11 @@ All generated code must:
 
 | Tier | % Mix | Teams | Revenue |
 |------|-------|-------|---------|
-| Founder Plan (60%) | 60% | 18-30 | $21K-$36K |
-| Standard (30%) | 30% | 9-15 | $32K-$54K |
-| Enterprise (10%) | 10% | 3-5 | $33K-$54K |
-| **Total** | 100% | **30-50** | **$86K-$144K ARR** |
+| Founder Legacy (25%) | 25% | 11-18 | $53K-$86K |
+| Standard (35%) | 35% | 16-25 | $38K-$90K |
+| Professional (25%) | 25% | 11-18 | $66K-$108K |
+| Enterprise (15%) | 15% | 7-9 | $17K-$86K |
+| **Total** | 100% | **45-70** | **$160K-$350K ARR** |
 
 ---
 
@@ -691,7 +700,7 @@ Lovable's success factors for non-tech users:
 ---
 
 *Document created: 2025-12-21*
-*Last updated: 2025-12-23*
-*Version: 2.0.0 (Software 3.0 Pivot)*
+*Last updated: 2026-02-20*
+*Version: 2.1.0 (Enterprise-First Alignment)*
 *Author: CTO / Platform Team*
 *Status: ✅ CTO APPROVED - Sprint 45-50 Design Complete*

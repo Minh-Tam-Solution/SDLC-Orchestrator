@@ -1,12 +1,25 @@
 # SDLC Orchestrator - Product Vision
 ## Operating System for Software 3.0
 
-**Version**: 4.1.0
-**Date**: January 19, 2026
-**Status**: ✅ CTO APPROVED - Software 3.0 Pivot
+**Version**: 5.0.0
+**Date**: February 19, 2026
+**Status**: ✅ CTO APPROVED - Enterprise-First Strategy (ADR-059)
 **Authority**: CEO + CPO + CTO Approved
-**Foundation**: SDLC 5.1.3 + SASE Level 2
-**Positioning**: Control Plane for AI Coders + IR-Based Codegen Engine
+**Foundation**: SDLC 6.1.0 + SASE Level 2 + Enterprise-First (ADR-059)
+**Positioning**: Control Plane for AI Coders + Enterprise Governance — Two-Product Ecosystem
+
+**Changelog v5.0.0** (Feb 19, 2026) — Enterprise-First Refocus:
+- **ENTERPRISE-FIRST STRATEGY**: ADR-059 approved — PROFESSIONAL+ gets new features, LITE/STANDARD maintenance only
+- **TWO-PRODUCT ECOSYSTEM**: TinySDLC (OSS, free) + Orchestrator (commercial, LITE→ENTERPRISE)
+- **NEW TIER MODEL**: LITE free / STD_STARTER $99 / STD_GROWTH $299 / PROFESSIONAL $499 / ENTERPRISE $80/seat
+- **ICP REVISED**: Primary ICP = EM 15-50 engineers ($299-$499/mo); was 6-50 at $30/user
+- **YEAR 1 REVISED**: $160K-$350K ARR (45-70 teams); was $86K-$144K (30-50 teams)
+- **SPRINT 181-188**: Enterprise Completion Roadmap (OTT, SSO, SOC2, GDPR, GA Launch)
+- **EP-07**: Multi-Agent Team Engine (Sprint 176-179, ADR-056/058)
+- **OTT CHANNELS**: Telegram, Zalo, Teams, Slack as first-class interfaces
+- **ENTERPRISE SSO**: SAML 2.0 + Azure AD (ADR-061, Sprint 182-183)
+- **COMPLIANCE**: SOC2, HIPAA, NIST AI RMF, ISO 27001 evidence automation (Sprint 183-185)
+- **FRAMEWORK 6.1.0**: System Thinking, Multi-Agent Patterns, Crisis-to-Pattern Methodology
 
 **Changelog v4.1.0** (Jan 19, 2026):
 - **Sprint 78 Complete**: Sprint Analytics Foundation + Cross-Project Coordination (36/36 SP)
@@ -57,7 +70,7 @@ Alternative: *"The control plane that keeps Claude Code/Cursor/Copilot compliant
 - **Orchestrate AI Coders** - Claude, Cursor, Copilot all governed through one control plane
 - **Generate Compliant Code** - IR-based codegen with built-in quality gates
 - **Ensure Evidence Trail** - 100% audit trail for AI code decisions
-- **Operate with Excellence** - SDLC 5.x quality gates + SASE integration
+- **Operate with Excellence** - SDLC 6.1.0 quality gates + SASE integration
 
 **Core Positioning**: We are the **CONTROL PLANE** that sits ABOVE AI coders (Cursor, Copilot, Claude Code), not alongside them. We orchestrate, validate, and govern - they generate.
 
@@ -118,7 +131,7 @@ We envision a world where:
 ### Governance-First Positioning (NOT Project Management)
 
 **What We Are**:
-- **Governance Layer**: Enforces SDLC 5.1.3 quality gates across your existing tools
+- **Governance Layer**: Enforces SDLC 6.1.0 quality gates across your existing tools
 - **Policy Engine**: Automated validation using Policy-as-Code (OPA)
 - **Evidence Vault**: Permanent audit trail for compliance (SOC 2, ISO 27001)
 - **Gate Orchestrator**: Multi-approval workflow (CEO, CTO, CPO, CIO, CFO)
@@ -174,14 +187,14 @@ We envision a world where:
 ```
 
 **Competitive Moat**: Competitors can copy OSS in 1 week, but need:
-- **6-12 months** to understand SDLC 5.1.3 nuances (experience moat - 10-stage lifecycle)
+- **6-12 months** to understand SDLC 6.1.0 nuances (experience moat - 10-stage lifecycle)
 - **1-2 years** to build equivalent policy packs (knowledge moat - 100+ pre-built policies)
 - **3+ years** to validate with real teams (trust moat - evidence-based)
 
 **Category Differentiation**:
 - **Jira/Linear**: Task execution tools (track WHAT, not WHY/HOW/WHO)
 - **GitLab/Azure DevOps**: CI/CD platforms (4-stage pipeline, not 10-stage governance)
-- **SDLC Orchestrator**: **FIRST governance platform on SDLC 5.1.3** (complete lifecycle)
+- **SDLC Orchestrator**: **FIRST governance platform on SDLC 6.1.0** (complete lifecycle + Enterprise SSO/SOC2/GDPR)
 
 ---
 
@@ -259,7 +272,7 @@ We envision a world where:
 │    - DeepCode Q2 decision gate                                  │
 │                                                                 │
 │    Multi-Provider Fallback: Ollama → Claude → DeepCode (Q2)    │
-│    NQH AI Platform: qwen2.5-coder:14b/32b ready                │
+│    NQH AI Platform: qwen3-coder:30b (256K context, Model v3.0) │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -269,7 +282,7 @@ We envision a world where:
 - **CEO Knowledge Encoding**: 3-5 years of NQH CEO AI usage patterns captured
 - **Context-Aware Classification**: Hundreds of rules based on real project experience
 - **4-Level Planning Hierarchy**: Proven across Bflow, NQH-Bot, MTEP, AI-Platform
-- **SDLC 5.1.3.1 Deep Integration**: 10-stage lifecycle with AI assistance at every stage
+- **SDLC 6.1.0 Deep Integration**: 10-stage lifecycle with AI assistance at every stage
 
 **Business Impact**:
 - PM productivity: 10x improvement (CEO-level outputs without CEO involvement)
@@ -281,80 +294,80 @@ We envision a world where:
 
 ## Target Market
 
-### Dual Wedge Strategy (2026)
+### Enterprise-First Strategy (ADR-059, Sprint 180+)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    TARGET MARKET SEGMENTS                        │
+│                TARGET MARKET (ENTERPRISE-FIRST)                │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌────────────┐  │
-│  │ VIETNAM SME     │    │ GLOBAL EM       │    │ ENTERPRISE │  │
-│  │ (40%)           │    │ (40%)           │    │ (20%)      │  │
-│  │                 │    │                 │    │            │  │
-│  │ • Non-tech      │    │ • Tech-savvy    │    │ • CTO/VP   │  │
-│  │   founders      │    │ • 6-50 engineers│    │ • 50-500   │  │
-│  │ • F&B, Hotel,   │    │ • Global SaaS   │    │   engineers│  │
-│  │   Retail        │    │ • Compliance    │    │ • SSO/RBAC │  │
-│  │ • IR Codegen    │    │   focused       │    │ • Self-host│  │
-│  │                 │    │                 │    │            │  │
-│  │ $99/team/mo     │    │ $30/user/mo     │    │ Custom     │  │
-│  │ Founder Plan    │    │ Standard Plan   │    │ Enterprise │  │
-│  └─────────────────┘    └─────────────────┘    └────────────┘  │
+│  TWO-PRODUCT ECOSYSTEM (ADR-059):                                │
 │                                                                  │
-│  Year 1 Target: 30-50 teams → $86K-$144K ARR                    │
+│  ┌─────────────────┐    ┌──────────────────────────────┐  │
+│  │    TinySDLC      │    │     SDLC Orchestrator         │  │
+│  │   (OSS, Free)    │    │   (Commercial Enterprise)     │  │
+│  │                  │    │                               │  │
+│  │ MIT / Apache     │    │ LITE ($0) → PRO ($499)       │  │
+│  │ Individual dev   │ 10%│ ENTERPRISE ($80/seat)        │  │
+│  │ Local / self-host│───>│ 15-50+ engineer teams        │  │
+│  │ Telegram/Zalo    │    │ Teams/Slack, SSO, SOC2       │  │
+│  └─────────────────┘    └──────────────────────────────┘  │
+│                                                                  │
+│  Year 1 Target: 45-70 teams → $160K-$350K ARR                    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Primary Personas (ICP - Ideal Customer Profile)
 
-#### 1. Vietnam SME Founder (NEW - Founder Plan)
+#### 1. Engineering Manager (PRIMARY ICP — PROFESSIONAL Tier)
+**Profile**:
+- Team size: 15-50 engineers
+- Pain: 60-70% feature waste, no compliance automation
+- Budget authority: $10K-$100K/year
+- Decision timeline: 30-60 days
+- OTT preference: Teams (enterprise), Slack (global)
+
+**Use Case**: Ensure team builds RIGHT features, reduce rework, meet compliance requirements
+
+**Success Metrics**:
+- Feature adoption: 32% → 70%+ (2x improvement)
+- Rework rate: 18% → <5% (4x reduction)
+- Compliance audit time: 40 hours → 4 hours (10x faster)
+
+**Pricing**: $299-$499/month (STD_GROWTH or PROFESSIONAL tier)
+
+#### 2. Enterprise IT Director / CTO (ENTERPRISE Tier)
+**Profile**:
+- Company size: 50-500 engineers
+- Pain: Lack of compliance evidence, SSO requirement, data residency (GDPR)
+- Budget authority: $100K-$500K/year
+- Decision timeline: 90-180 days
+- Requirements: SAML SSO (Azure AD), SOC2 evidence pack, HIPAA audit trail, immutable audit log
+
+**Use Case**: Enterprise governance, compliance automation, multi-region data residency
+
+**Success Metrics**:
+- SOC 2 audit: Manual evidence → Automated (100% coverage)
+- SSO onboarding: <2 hours (JIT provisioning via ADR-061)
+- Production incidents: 12 P1/quarter → <3 P1/quarter
+
+**Pricing**: $80/seat/month (min 25 seats = $2,000/mo)
+
+#### 3. Vietnam SME Founder (FOUNDER_LEGACY — Grandfathered)
 **Profile**:
 - Background: Non-tech founder (F&B, Hotel, Retail)
 - Team size: 0-5 (often solo or with 1-2 staff)
 - Budget authority: $50-200/month
 - Decision timeline: Immediate (if demo works)
+- OTT preference: Telegram, Zalo
 
 **Use Case**: Generate working business app from questionnaire (IR-based codegen)
 
 **Success Metrics**:
-- TTFV (Time to First Value): <30 minutes
+- TTFV: <30 minutes
 - Satisfaction: 8/10 average
-- Generated app usability: Works for daily operations
 
-**Pricing**: $99/team/month (~2.5M VND) - Founder Plan
-
-#### 2. Engineering Manager (Global - Standard Plan)
-**Profile**:
-- Team size: 6-50 engineers
-- Pain: 60-70% feature waste, low adoption
-- Budget authority: $10K-$100K/year
-- Decision timeline: 30-60 days
-
-**Use Case**: Ensure team builds RIGHT features, reduce rework, improve morale
-
-**Success Metrics**:
-- Feature adoption: 32% → 70%+ (2x improvement)
-- Rework rate: 18% → <5% (4x reduction)
-- Time to value: 87 days → <45 days (2x faster)
-
-**Pricing**: $30/user/month - Standard Plan
-
-#### 3. CTO (Enterprise Buyer)
-**Profile**:
-- Company size: 50-500 engineers
-- Pain: Lack of compliance evidence (failed SOC 2 audit)
-- Budget authority: $100K-$500K/year
-- Decision timeline: 90-180 days
-
-**Use Case**: Enterprise governance, compliance automation, audit trail
-
-**Success Metrics**:
-- SOC 2 audit: Manual evidence → Automated (100% coverage)
-- Production incidents: 12 P1/quarter → <3 P1/quarter
-- Engineering velocity: No slowdown despite governance
-
-**Pricing**: Custom - Enterprise Plan
+**Pricing**: $399/month FOUNDER_LEGACY (grandfathered, no new sales after Sprint 188)
 
 #### 4. Product Manager (Power User)
 **Profile**:
@@ -394,26 +407,30 @@ We envision a world where:
 
 ### SOM (Serviceable Obtainable Market) - Realistic Targets
 
-**Year 1 (2026) - Founder-Led Sales** (realistic):
-- **30-50 teams** (conservative, founder-led)
-- Breakdown:
-  - Founder Plan (60%): 18-30 teams × $99/mo × 12 = $21K - $36K
-  - Standard Plan (30%): 9-15 teams × $30/user × 10 users × 12 = $32K - $54K
-  - Enterprise (10%): 3-5 teams × custom = $33K - $54K
-- **Total Year 1 ARR: $86K - $144K**
+**Year 1 (2026) - Enterprise-First Sales** (realistic):
+- **45-70 teams** (enterprise-led, founder-assisted)
+- Breakdown (6-tier model):
+  - LITE (free, 20%): ~10-15 teams × $0 = $0 (conversion funnel)
+  - STD_STARTER (10%): ~5-7 teams × $99/mo × 12 = $6K - $8.4K
+  - STD_GROWTH (25%): ~12-18 teams × $299/mo × 12 = $43K - $64.5K
+  - PROFESSIONAL (25%): ~12-18 teams × $499/mo × 12 = $71.9K - $107.8K
+  - ENTERPRISE (15%): ~7-10 teams × $80/seat × 30 seats × 12 = $201.6K - $288K
+  - FOUNDER_LEGACY (5%): ~3-4 teams × $399/mo × 12 = $14.4K - $19.2K
+- **Total Year 1 ARR: $160K - $350K** (Financial Model v2.0.0)
 
 **Year 2 (2027) - Scale with Team**:
-- 150-300 teams (5x growth)
-- **ARR: $432K - $864K**
+- 200-400 teams (4x growth)
+- **ARR: $800K - $1.5M**
 
 **Year 3 (2028) - Category Leadership**:
-- 500-1,000 teams
-- **ARR: $1.4M - $2.9M**
+- 600-1,200 teams
+- **ARR: $2.5M - $5M**
 
 **Why Realistic Targets Matter**:
 - 8.5 FTE team cannot support 100+ teams in Year 1
-- Founder-led sales capacity: ~3-5 new teams/month
-- Quality > Quantity: 30 happy teams > 100 churning teams
+- Enterprise sales cycle: 90-180 days (start early)
+- Quality > Quantity: 45 happy enterprise teams > 200 churning SME teams
+- LTV:CAC 6.6:1, gross margin 78%, break-even Month 16
 
 ---
 
@@ -513,75 +530,90 @@ We envision a world where:
 
 ## 3-Year Vision
 
-### Year 1 (2026): Prove the Model - Realistic Targets
-**Goal**: 30-50 paying teams, 90%+ retention, Founder Plan validated
+### Year 1 (2026): Prove the Enterprise Model
+**Goal**: 45-70 paying teams, 90%+ retention, Enterprise-First validated
 
 **Milestones**:
 - ✅ MVP launch (Week 13, Jan 2026)
 - ✅ Bflow pilot: 90%+ daily active use
-- ⏳ EP-04: SDLC Structure Enforcement (Sprint 41-46, Q1-Q2)
-- ⏳ **EP-06: IR-Based Codegen (Sprint 45-50, Q1-Q2)** ← P0 PRIORITY
-- ⏳ Sprint 49: Vietnam SME Pilot (10 founders)
-- ⏳ Sprint 50: Founder Plan GA ($99/team/month)
-- 🎯 30-50 teams by Dec 2026 (realistic, founder-led sales)
-- 🎯 $86K-$144K ARR
+- ✅ Gate G3 APPROVED (Dec 12, 2025, 98.2% readiness)
+- ✅ EP-07: Multi-Agent Team Engine (Sprint 176-179)
+- ✅ Enterprise-First Pivot (Sprint 180, ADR-059)
+- 🔄 Sprint 181-188: Enterprise Completion Roadmap (current)
+  - S181: OTT Gateway (Telegram/Zalo) + FREE tier elimination
+  - S182: Teams Normalizer + Enterprise SSO Foundation (ADR-061)
+  - S183: Slack Normalizer + SSO SAML (Azure AD)
+  - S184: Budget Circuit Breakers + Audit Immutability
+  - S185: SOC 2 Evidence Pack Auto-Generation
+  - S186: RBAC v2 + Data Residency
+  - S187: Compliance Dashboard + Executive Reporting
+  - S188: GA Polish + FOUNDER_LEGACY Sunset
+- ⏳ EP-06: IR-Based Codegen (Sprint 45-50, Q2)
+- 🎯 45-70 teams by Dec 2026 (enterprise-led sales)
+- 🎯 $160K-$350K ARR
 - 🎯 8/10 NPS, TTFV <30min
 
 **Revenue Breakdown (Year 1)**:
-- Founder Plan (60%): $21K - $36K ARR
-- Standard Plan (30%): $32K - $54K ARR
-- Enterprise (10%): $33K - $54K ARR
-- **Total Year 1 ARR: $86K - $144K**
+- STD_GROWTH + PROFESSIONAL (50%): $115K - $172K ARR
+- ENTERPRISE (15%): $201K - $288K ARR
+- LITE + STD_STARTER + FOUNDER_LEGACY (35%): $20K - $28K ARR
+- **Total Year 1 ARR: $160K - $350K** (Financial Model v2.0.0)
 
-**EP-06 Success Gate (End of Q1 2026)**:
-- 10 pilot founders complete onboarding
-- TTFV <30 minutes (median)
-- Satisfaction ≥8/10
+**Enterprise Success Gate (End of Q2 2026)**:
+- 5+ enterprise customers (50+ engineers) on SSO
+- SOC 2 evidence pack used in 3+ audits
+- Teams/Slack OTT integration active
 - Quality gate pass rate ≥95%
 
-**Evidence of Success**: Vietnam SME founders using generated apps for daily operations
+**Evidence of Success**: Enterprise teams using SSO + compliance automation daily
 
 ### Year 2 (2027): Scale the Platform
-**Goal**: 150-300 paying teams, multi-VCS support, sales team hired
+**Goal**: 200-400 paying teams, multi-VCS support, sales team hired
 
 **Milestones**:
 - ⏳ GitLab/Bitbucket support (multi-VCS)
-- ⏳ Enterprise features (SSO, RBAC, audit logs)
+- ⏳ HIPAA compliance pack
 - ⏳ DeepCode integration (if Q2 decision gate passes)
-- ⏳ 150-300 teams
-- ⏳ $432K-$864K ARR
-- ⏳ First enterprise customers (50+ engineer teams)
-- ⏳ Hire 2-3 sales/success team members
+- ⏳ Multi-region data residency (EU, APAC)
+- ⏳ 200-400 teams
+- ⏳ $800K-$1.5M ARR
+- ⏳ 20+ enterprise customers (self-serve onboarding)
+- ⏳ Hire 3-5 sales/success team members
 
-**Evidence of Success**: Sales team contribution > founder-led sales
+**Evidence of Success**: Enterprise pipeline > 3x current ARR, sales team contribution > founder-led
 
 ### Year 3 (2028): Become the Standard
-**Goal**: 500-1,000 paying teams, recognized category leader
+**Goal**: 600-1,200 paying teams, recognized category leader
 
 **Milestones**:
-- ⏳ 500-1,000 teams globally
-- ⏳ $1.4M-$2.9M ARR
+- ⏳ 600-1,200 teams globally
+- ⏳ $2.5M-$5M ARR
 - ⏳ Gartner recognition (Cool Vendor or Magic Quadrant)
-- ⏳ Community: 10,000+ developers, 100+ policy pack contributors
+- ⏳ Community: 10,000+ developers (TinySDLC OSS), 100+ policy pack contributors
 - ⏳ Industry thought leadership (conferences, case studies)
-- ⏳ Vietnam SME market leadership (>50% of digitizing SMEs use SDLC Orchestrator)
+- ⏳ Vietnam + SEA enterprise market leadership
 
-**Evidence of Success**: "SDLC Orchestrator" becomes the default for AI governance in Vietnam/SEA
+**Evidence of Success**: "SDLC Orchestrator" becomes the default for AI governance in enterprise Vietnam/SEA
 
 ---
 
 ## References
 
-- [Product Roadmap](../04-Roadmap/Product-Roadmap.md) - 90-day execution plan
+- [Product Roadmap v8.0.0](../04-Roadmap/Product-Roadmap.md) - Sprint 181-188 Enterprise Completion Roadmap
 - [Problem Statement](../03-Design-Thinking/Problem-Statement.md) - User validation
 - [Market Analysis](../05-Market-Analysis/Competitive-Landscape.md) - Competitive positioning
-- [BRD v1.2](../../BRD-v1.2.md) - Business requirements
+- [BRD v3.0.0](../02-Business-Case/BRD-Business-Requirements.md) - Business requirements (two-product, Enterprise-First)
+- [Financial Model v2.0.0](../02-Business-Case/Financial-Model.md) - Revenue projections, LTV:CAC 6.6:1
+- [ADR-059 Enterprise-First Strategy](../../02-design/03-ADRs/ADR-059-Enterprise-First-Strategy.md) - 6 strategic invariants
+- [ADR-061 Enterprise SSO](../../02-design/03-ADRs/ADR-061-Enterprise-SSO-Foundation.md) - 5 locked SSO decisions
+- [EP-07 Multi-Agent Team Engine](../../01-planning/02-Epics/EP-07-Multi-Agent-Team-Engine.md) - Multi-agent architecture
 
 ---
 
-**Last Updated**: 2025-12-23
+**Last Updated**: 2026-02-19
 **Owner**: CEO + CPO + CTO
-**Status**: ✅ CTO APPROVED - Software 3.0 Pivot (v4.0.0)
+**Status**: ✅ CTO APPROVED - Enterprise-First Strategy (v5.0.0)
 **CTO Approval**: [Q1Q2-2026-ROADMAP-CTO-APPROVED.md](../../09-govern/04-Strategic-Updates/2025-12-20-Q1Q2-2026-ROADMAP-CTO-APPROVED.md)
+**Enterprise-First**: [ADR-059](../../02-design/03-ADRs/ADR-059-Enterprise-First-Strategy.md)
 **EP-06 Design**: [Sprint 45-50 Technical Specs](../../02-design/14-Technical-Specs/)
-**Session Log**: [SESSION-2025-12-23-Stage00-Foundation-Update.md](../../01-planning/99-Session-Logs/SESSION-2025-12-23-Stage00-Foundation-Update.md)
+**EP-07 Design**: [ADR-056 Multi-Agent Team Engine](../../02-design/ADR-056-Multi-Agent-Team-Engine.md)

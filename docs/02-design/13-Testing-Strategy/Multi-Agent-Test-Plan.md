@@ -1,8 +1,8 @@
 ---
-sdlc_version: "6.0.6"
+sdlc_version: "6.1.0"
 document_type: "Test Plan"
 status: "PROPOSED"
-sprint: "176"
+sprint: "176-179"
 spec_id: "TP-056"
 tier: "PROFESSIONAL"
 stage: "02 - Design"
@@ -10,11 +10,11 @@ stage: "02 - Design"
 
 # Multi-Agent Team Engine — Test Plan
 
-**Status**: PROPOSED (Sprint 176, companion to ADR-056)
+**Status**: PROPOSED (Sprint 176-179, companion to ADR-056 + ADR-058)
 **Date**: February 2026
 **Author**: CTO Nguyen Quoc Huy
-**Framework**: SDLC 6.0.6 (pytest + pytest-asyncio, 95%+ coverage target)
-**References**: ADR-056 (4 locked decisions + 14 non-negotiables), STM-056 (10 threat surfaces)
+**Framework**: SDLC 6.1.0 (pytest + pytest-asyncio, 95%+ coverage target)
+**References**: ADR-056 (4 locked decisions + 14 non-negotiables), ADR-058 (ZeroClaw patterns), STM-056 (13 threat surfaces)
 
 ---
 
@@ -30,6 +30,10 @@ stage: "02 - Design"
 | Unit: ReflectStep | 100% | 177 | `test_reflect_step.py` |
 | Integration: Lane Queue | 95% | 177 | `test_lane_queue_integration.py` |
 | Integration: Multi-Agent | 90% | 178 | `test_multi_agent_e2e.py` |
+| Unit: OutputScrubber | 100% | 179 | `test_output_scrubber.py` |
+| Unit: EnvScrubber | 100% | 179 | `test_env_scrubber.py` |
+| Unit: HistoryCompactor | 100% | 179 | `test_history_compactor.py` |
+| Unit: QueryClassifier | 100% | 179 | `test_query_classifier.py` |
 
 ---
 
@@ -200,7 +204,69 @@ stage: "02 - Design"
 
 ---
 
-## 10. Verification Commands
+## 10. Unit Tests — OutputScrubber (Sprint 179, ADR-058 Pattern A)
+
+| # | Test Case | Input | Expected | Reference |
+|---|-----------|-------|----------|-----------|
+| CS-01 | Token pattern scrubbed | `"token=sk-abc123xyz"` | `"token=sk-a****[REDACTED]"` | FR-042 §2.1 |
+| CS-02 | API key pattern scrubbed | `"API_KEY: ghp_1234567890"` | `"API_KEY: ghp_****[REDACTED]"` | FR-042 §2.1 |
+| CS-03 | Password pattern scrubbed | `"password=hunter2"` | `"password=hunt****[REDACTED]"` | FR-042 §2.1 |
+| CS-04 | Bearer token scrubbed | `"Authorization: Bearer eyJhb..."` | `"Authorization: Bearer eyJh****[REDACTED]"` | FR-042 §2.1 |
+| CS-05 | Secret pattern scrubbed | `"SECRET_KEY=mysecretvalue"` | `"SECRET_KEY=myse****[REDACTED]"` | FR-042 §2.1 |
+| CS-06 | Clean output unchanged | `"Hello, build succeeded."` | Same as input, no scrubs | FR-042 §2.3 |
+| CS-07 | Multiple matches all scrubbed | `"token=abc api_key=def"` | Both redacted | FR-042 §2.1 |
+| CS-08 | Short value handling | `"token=ab"` | `"token=ab****[REDACTED]"` | FR-042 §2.4 |
+| CS-09 | Invoker integration | Post-invocation content | Content scrubbed before return | FR-042 §2.2 |
+| CS-10 | Evidence integration | Capture message flow | Scrub → hash → store order | FR-042 §2.2 |
+
+---
+
+## 11. Unit Tests — EnvScrubber (Sprint 179, ADR-058 Pattern C)
+
+| # | Test Case | Input | Expected | Reference |
+|---|-----------|-------|----------|-----------|
+| ES-01 | Only safe vars returned | Full host env (20+ vars) | Exactly 9 safe vars max | FR-043 §2.1 |
+| ES-02 | Secrets excluded | Host has `API_KEY`, `SECRET` | Not in returned dict | FR-043 §2.1 |
+| ES-03 | LC_ALL included | Host has `LC_ALL=vi_VN.UTF-8` | Present in returned dict | FR-043 §2.1 |
+| ES-04 | Missing var omitted | Host lacks `TMPDIR` | Key absent (not empty string) | FR-043 §2.3 |
+| ES-05 | PATH preserved exactly | Host `PATH=/usr/bin:/usr/local/bin` | Exact value preserved | FR-043 §2.1 |
+| ES-06 | Empty env returns empty | No env vars set | Empty dict | FR-043 §2.1 |
+
+---
+
+## 12. Unit Tests — HistoryCompactor (Sprint 179, ADR-058 Pattern B)
+
+| # | Test Case | Input | Expected | Reference |
+|---|-----------|-------|----------|-----------|
+| HC-01 | Trigger at 80% capacity | 40 msgs, max=50 | `should_compact=True` | FR-044 §2.1 |
+| HC-02 | No trigger under threshold | 39 msgs, max=50 | `should_compact=False` | FR-044 §2.1 |
+| HC-03 | Keep last 40% messages | 50 msgs, compact | 20 recent msgs preserved | FR-044 §2.2 |
+| HC-04 | Summary ≤2000 chars | 30 msgs summarized | Summary length ≤ 2000 | FR-044 §2.2 |
+| HC-05 | Summary preserves decisions | Msgs with "decided to use X" | Summary contains decision | FR-044 §2.3 |
+| HC-06 | Deterministic fallback | LLM summarize fails | Truncation only, no exception | FR-044 §2.5 |
+| HC-07 | Summary injected first | Build context after compact | Summary is messages[0] | FR-044 §2.4 |
+| HC-08 | metadata_ JSONB updated | After compaction | `compaction_summary` key present | FR-044 §2.6 |
+| HC-09 | last_compacted_at set | After compaction | ISO timestamp in metadata_ | FR-044 §2.6 |
+| HC-10 | Disabled when max=0 | max_messages=0 | `should_compact=False` | FR-044 §2.1 |
+
+---
+
+## 13. Unit Tests — QueryClassifier (Sprint 179, ADR-058 Pattern E)
+
+| # | Test Case | Input | Expected | Reference |
+|---|-----------|-------|----------|-----------|
+| QC-01 | Code hint matched | `"implement the login form"` | `hint="code"` | ADR-058 §2.4 |
+| QC-02 | Reasoning hint matched | `"explain why this architecture..."` | `hint="reasoning"` | ADR-058 §2.4 |
+| QC-03 | Fast hint matched | `"yes"` | `hint="fast"` | ADR-058 §2.4 |
+| QC-04 | No match returns None | `"Tell me about the weather"` | `None` | ADR-058 §2.4 |
+| QC-05 | Priority ordering | `"implement and explain"` | Higher priority wins | ADR-058 §2.4 |
+| QC-06 | Case insensitive | `"IMPLEMENT the form"` | `hint="code"` | ADR-058 §2.4 |
+| QC-07 | Min length filter | Short msg, min_length=50 | Rule skipped | ADR-058 §2.4 |
+| QC-08 | Max length filter | Long msg, max_length=20 | Rule skipped | ADR-058 §2.4 |
+
+---
+
+## 14. Verification Commands
 
 ```bash
 # Unit tests (all agent_team contracts)
@@ -229,11 +295,20 @@ python -m pytest backend/tests/ -k "agent_team" --cov=backend/app/services/agent
 # Regression
 python -m pytest backend/tests/ -v --tb=short
 cd frontend/landing && npx tsc --noEmit
+
+# Sprint 179 — ZeroClaw pattern tests
+python -m pytest backend/tests/unit/ -k "output_scrubber" -v
+python -m pytest backend/tests/unit/ -k "env_scrubber" -v
+python -m pytest backend/tests/unit/ -k "history_compactor" -v
+python -m pytest backend/tests/unit/ -k "query_classifier" -v
+
+# Sprint 179 — All new tests
+python -m pytest backend/tests/unit/ -k "scrubber or compactor or classifier" -v
 ```
 
 ---
 
-## 11. Exit Criteria
+## 15. Exit Criteria
 
 | Criterion | Target | Measurement |
 |-----------|--------|-------------|
@@ -246,4 +321,8 @@ cd frontend/landing && npx tsc --noEmit
 | All RS tests pass | 7/7 | ReflectStep test suite |
 | Lane queue integration | 8/8 | LQ test suite |
 | Multi-agent E2E | 6/6 | MA test suite (Sprint 178) |
+| All CS tests pass | 10/10 | OutputScrubber test suite (Sprint 179) |
+| All ES tests pass | 6/6 | EnvScrubber test suite (Sprint 179) |
+| All HC tests pass | 10/10 | HistoryCompactor test suite (Sprint 179) |
+| All QC tests pass | 8/8 | QueryClassifier test suite (Sprint 179) |
 | Zero P0 bugs | 0 | No test failures in CI |

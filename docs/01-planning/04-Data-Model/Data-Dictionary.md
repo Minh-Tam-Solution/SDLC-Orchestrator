@@ -1,15 +1,16 @@
 # Data Dictionary
 ## Complete Field Definitions (25 Tables)
 
-**Version**: 2.1.0
-**Date**: December 16, 2025
-**Status**: ACTIVE - Gate Status Normalization
+**Version**: 2.2.0
+**Date**: February 20, 2026
+**Status**: ACTIVE - Enterprise-First Alignment
 **Authority**: Backend Lead + CTO Review (APPROVED)
-**Foundation**: Data Model ERD v2.0, Database Schema v2.1
+**Foundation**: Data Model ERD v3.5.0, Database Schema v2.2
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 
 **Changelog**:
+- v2.2.0 (Feb 20, 2026): Enterprise-First alignment — SDLC 5.1.3→6.1.0, 100+→110+ policies, ERD ref v3.5.0
 - v2.1.0 (Dec 16, 2025): Gate status normalized to UPPERCASE, added Source of Truth references
 - v1.0.0 (Jan 13, 2025): Initial data dictionary
 
@@ -56,7 +57,7 @@ This document defines **WHAT each database field means** with data types, constr
 
 ---
 
-## Table 3: gate_approvals (SDLC 5.1.3 - 10 Stages)
+## Table 3: gate_approvals (SDLC 6.1.0 - 10 Stages)
 
 | Field | Type | Required | Constraints | Description | Example |
 |-------|------|----------|-------------|-------------|---------|
@@ -69,7 +70,7 @@ This document defines **WHAT each database field means** with data types, constr
 | approved_at | TIMESTAMP | No | - | Timestamp of approval/rejection decision | `2025-01-13 15:30:00` |
 | created_at | TIMESTAMP | Yes | NOT NULL, DEFAULT NOW() | Approval request created | `2025-01-13 14:00:00` |
 
-**Business Rules (SDLC 5.1.3 Gate Matrix)**:
+**Business Rules (SDLC 6.1.0 Gate Matrix)**:
 - G0.1 (Problem Foundation): CPO + EM (2 approvals)
 - G0.2 (Business Case): CEO + CPO (2 approvals)
 - G1 (Requirements & Planning): CTO + CPO (2 approvals)
@@ -136,9 +137,9 @@ This document defines **WHAT each database field means** with data types, constr
 |-------|------|----------|-------------|-------------|---------|
 | policy_code | VARCHAR(100) | Yes | UNIQUE, NOT NULL | Unique policy identifier (kebab-case) | `policy-pack-user-interviews` |
 | rego_code | TEXT | Yes | NOT NULL | Rego policy logic (OPA syntax) | `package policy_pack_user_interviews\ndefault allow = false\n...` |
-| stage | VARCHAR(20) | Yes | NOT NULL | SDLC 5.1.3 stage (stage-00 to stage-09) | `stage-00`, `stage-01` |
+| stage | VARCHAR(20) | Yes | NOT NULL | SDLC 6.1.0 stage (stage-00 to stage-09) | `stage-00`, `stage-01` |
 | category | VARCHAR(50) | No | - | Policy category (validation, security, performance, etc.) | `validation`, `security` |
-| is_pre_built | BOOLEAN | Yes | NOT NULL, DEFAULT FALSE | Pre-built vs custom policy (pre-built cannot be deleted) | `true` (100+ pre-built), `false` (custom) |
+| is_pre_built | BOOLEAN | Yes | NOT NULL, DEFAULT FALSE | Pre-built vs custom policy (pre-built cannot be deleted) | `true` (110+ pre-built), `false` (custom) |
 | current_version | VARCHAR(20) | Yes | NOT NULL, DEFAULT 1.0.0 | Semantic versioning (1.0.0, 1.1.0, 2.0.0) | `1.0.0` |
 
 ---

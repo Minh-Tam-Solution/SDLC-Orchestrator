@@ -5,7 +5,7 @@
 **Date**: January 28, 2026
 **Author**: Backend Lead
 **Approvers**: CEO, CTO, CPO
-**Framework**: SDLC 5.3.0 → 6.0
+**Framework**: SDLC 6.1.0
 
 ---
 

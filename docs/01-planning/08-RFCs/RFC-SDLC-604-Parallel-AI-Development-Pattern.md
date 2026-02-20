@@ -5,7 +5,7 @@
 **Author**: Framework Architect
 **Sprint**: 143 - Framework-First Track 1
 **Related**: Boris Cherny Tactics Analysis (Gap #2 - Git Worktrees)
-**Framework Version**: SDLC 6.0.5
+**Framework Version**: SDLC 6.1.0
 
 ---
 

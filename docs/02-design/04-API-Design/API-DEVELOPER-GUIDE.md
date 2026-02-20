@@ -6,7 +6,7 @@
 **Status**: ACTIVE - Week 4 Day 1 (Architecture Documentation)
 **Authority**: Backend Lead + CTO Approved
 **Foundation**: Week 3 Day 1-4 Implementation (23 Endpoints)
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 

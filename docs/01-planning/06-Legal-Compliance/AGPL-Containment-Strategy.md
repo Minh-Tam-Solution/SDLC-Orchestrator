@@ -7,7 +7,7 @@
 **Authority**: CTO + Legal Counsel + Backend Lead (✅ APPROVED)
 **Foundation**: Legal Review Report v2.0.0, Vision v3.1.0, Roadmap v4.1.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 **Implementation**: Stage 02 (HOW - Architecture) + Stage 04 (BUILD)
 
 **Changelog**:

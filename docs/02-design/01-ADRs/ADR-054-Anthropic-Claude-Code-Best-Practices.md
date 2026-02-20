@@ -4,7 +4,7 @@
 **Date**: February 16, 2026 (Created) / February 20, 2026 (Revised)
 **Author**: CTO Nguyen Quoc Huy
 **Context**: Sprint 174 — Anthropic Best Practices Integration (Framework-First)
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 **Revision**: 2.0 — Added Source Analysis, Framework cross-references, attribution clarity
 
 ---

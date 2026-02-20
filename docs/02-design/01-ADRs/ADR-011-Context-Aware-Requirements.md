@@ -4,7 +4,7 @@
 **Date**: December 3, 2025
 **Decision Makers**: CTO, CPO (joint review)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 5.1.3.1
+**Framework**: SDLC 6.1.0
 
 ---
 

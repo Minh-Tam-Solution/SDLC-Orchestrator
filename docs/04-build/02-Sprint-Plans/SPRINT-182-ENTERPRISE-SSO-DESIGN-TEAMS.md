@@ -60,7 +60,7 @@ Two parallel tracks:
 **Goal**: Lock 5 SSO decisions to unblock Sprint 183 implementation
 
 **Tasks**:
-1. Write `docs/02-design/ADR-061-Enterprise-SSO.md`:
+1. Write `docs/02-design/01-ADRs/ADR-061-Enterprise-SSO.md`:
    - Decision 1: **Protocol selection** — SAML 2.0 SP-initiated + Azure AD OAuth 2.0 PKCE (NOT Okta SDK, NOT social OAuth)
    - Decision 2: **ACS URL pattern** — `https://{domain}/api/v1/enterprise/sso/{provider}/callback`
    - Decision 3: **JIT provisioning** — Auto-create user on first SSO login; map IdP groups → RBAC roles via `role_mapping` JSONB
@@ -76,7 +76,7 @@ Two parallel tracks:
 **Verification**:
 ```bash
 # ADR file exists
-ls docs/02-design/ADR-061-Enterprise-SSO.md
+ls docs/02-design/01-ADRs/ADR-061-Enterprise-SSO.md
 ```
 
 **Exit Criteria**: ADR-061 has all 5 decisions locked, no TBDs, CTO sign-off required
@@ -182,7 +182,7 @@ python -m pytest backend/tests/unit/test_teams_normalizer.py -v
 **Goal**: Draft compliance evidence types ADR + wire Teams into gateway
 
 **Tasks**:
-1. Write `docs/02-design/ADR-062-Compliance-Evidence-Types.md` (DRAFT — finalized Sprint 183):
+1. Write `docs/02-design/01-ADRs/ADR-062-Compliance-Evidence-Types.md` (DRAFT — finalized Sprint 183):
    - Problem: EvidenceType enum only has general types (DESIGN_DOCUMENT, TEST_RESULTS, CODE_REVIEW, etc.) — no compliance-specific types
    - Decision (DRAFT): Extend enum with: `SOC2_CONTROL`, `HIPAA_AUDIT`, `NIST_AI_RMF`, `ISO27001`
    - Impact: `backend/app/models/evidence.py` EvidenceType enum + Alembic migration `s183_002`
@@ -272,7 +272,7 @@ python -m pytest backend/tests/unit/ --cov=backend/app/services/agent_bridge \
 | Sprint 181 regression clean | 20/20 | PA-01 to PA-20 |
 | Migration round-trip clean | Pass | alembic upgrade + downgrade + upgrade |
 | agent_bridge/ coverage | 95%+ | --cov-report=term-missing |
-| ADR-062 draft committed | Draft | File exists in docs/02-design/ |
+| ADR-062 draft committed | Draft | File exists in docs/02-design/01-ADRs/ |
 | Zero P0 bugs | 0 | No test failures in CI |
 
 ---

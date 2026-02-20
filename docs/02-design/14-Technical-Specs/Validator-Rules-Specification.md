@@ -6,7 +6,7 @@
 **Version**: 1.0.0
 **Date**: December 22, 2025
 **Status**: APPROVED
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 
 ---
 

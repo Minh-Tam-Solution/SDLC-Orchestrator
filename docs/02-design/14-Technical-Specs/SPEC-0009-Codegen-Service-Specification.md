@@ -30,7 +30,7 @@ framework_version: "6.0.5"
 - **ProviderRegistry**: Dynamic provider registration + automatic fallback routing
 - **CodegenService**: Orchestrator coordinating providers + quality validation
 - **4 API Endpoints**: `/providers`, `/generate`, `/validate`, `/estimate`
-- **Ollama Integration**: Primary provider with qwen2.5-coder:14b model (<60s generation target)
+- **Ollama Integration**: Primary provider with qwen3-coder:30b model (<60s generation target)
 
 **Business Value**:
 - **Vietnam SME Wedge**: Enable non-technical founders to generate enterprise-grade code
@@ -328,7 +328,7 @@ VALIDATION_RULES = {
     "tokens_used": 2500,
     "generation_time_ms": 3200,
     "metadata": {
-      "model": "qwen2.5-coder:14b",
+      "model": "qwen3-coder:30b",
       "prompt_tokens": 800,
       "completion_tokens": 1700
     }
@@ -407,7 +407,7 @@ THEN the service MUST:
 **Provider Pricing** (as of Jan 2026):
 ```yaml
 Ollama:
-  model: qwen2.5-coder:14b
+  model: qwen3-coder:30b
   cost_per_1k_tokens: $0.001
   estimated_tokens: 5000 (typical SME app)
   estimated_cost: $0.005
@@ -450,7 +450,7 @@ THEN the provider MUST:
 2. is_available property: Check Ollama API reachability (GET /api/tags)
 3. generate() method:
    - Format Vietnamese-optimized prompt template
-   - POST to /api/generate with model=qwen2.5-coder:14b
+   - POST to /api/generate with model=qwen3-coder:30b
    - Parse response into GeneratedFile objects
    - Extract tokens_used and generation_time_ms
    - Return CodegenResult
@@ -504,7 +504,7 @@ Hãy bắt đầu tạo code:
 # backend/app/core/config.py
 class Settings(BaseSettings):
     OLLAMA_API_URL: str = "https://api.nhatquangholding.com"
-    OLLAMA_CODEGEN_MODEL: str = "qwen2.5-coder:14b"
+    OLLAMA_CODEGEN_MODEL: str = "qwen3-coder:30b"
     OLLAMA_TIMEOUT_SECONDS: int = 60
     OLLAMA_MAX_RETRIES: int = 3
 ```
@@ -742,7 +742,7 @@ GIVEN the Codegen Service configuration
 WHEN loading settings from environment variables
 THEN the service MUST read:
 1. OLLAMA_API_URL: Ollama server URL (default: https://api.nhatquangholding.com)
-2. OLLAMA_CODEGEN_MODEL: Model name (default: qwen2.5-coder:14b)
+2. OLLAMA_CODEGEN_MODEL: Model name (default: qwen3-coder:30b)
 3. OLLAMA_TIMEOUT_SECONDS: Request timeout (default: 60)
 4. OLLAMA_MAX_RETRIES: Retry attempts (default: 3)
 5. ANTHROPIC_API_KEY: Claude API key (optional, for fallback)
@@ -760,7 +760,7 @@ class Settings(BaseSettings):
 
     # Codegen - Ollama (Primary)
     OLLAMA_API_URL: str = "https://api.nhatquangholding.com"
-    OLLAMA_CODEGEN_MODEL: str = "qwen2.5-coder:14b"
+    OLLAMA_CODEGEN_MODEL: str = "qwen3-coder:30b"
     OLLAMA_TIMEOUT_SECONDS: int = 60
     OLLAMA_MAX_RETRIES: int = 3
 
@@ -780,7 +780,7 @@ class Settings(BaseSettings):
 ```bash
 # Codegen - Ollama (Primary)
 OLLAMA_API_URL=https://api.nhatquangholding.com
-OLLAMA_CODEGEN_MODEL=qwen2.5-coder:14b
+OLLAMA_CODEGEN_MODEL=qwen3-coder:30b
 OLLAMA_TIMEOUT_SECONDS=60
 OLLAMA_MAX_RETRIES=3
 
@@ -900,7 +900,7 @@ Logs:
   "user_id": "uuid-here",
   "project_id": "uuid-here",
   "trace_id": "abc123",
-  "model": "qwen2.5-coder:14b"
+  "model": "qwen3-coder:30b"
 }
 ```
 

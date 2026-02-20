@@ -1,13 +1,20 @@
 # Non-Functional Requirements (NFR)
 ## Quality Attributes and System Constraints
 
-**Version**: 3.1.0
-**Date**: December 23, 2025
-**Status**: ACTIVE - AI Safety + Governance + Codegen Quality Gates
+**Version**: 3.2.0
+**Date**: February 20, 2026
+**Status**: ACTIVE - Enterprise-First Alignment (Sprint 179+)
 **Authority**: CTO + DevOps Lead Review (APPROVED)
-**Foundation**: FRD v3.1.0, Product Vision 4.0.0
+**Foundation**: FRD v3.3.0, Product Vision 5.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+
+**Changelog v3.2.0** (Feb 20, 2026):
+- **Enterprise-First Alignment** (Sprint 179+ / ADR-059):
+  - Framework: SDLC 5.1.3 → 6.1.0 (System Thinking + Multi-Agent Patterns)
+  - AI model refs: qwen2.5-coder:32b → qwen3-coder:30b (256K context, Model Strategy v3.0)
+  - Foundation: FRD v3.1.0 → v3.3.0, Product Vision 4.0.0 → 5.0.0
+  - Historical changelog refs preserved per convention
 
 **Changelog v3.1.0** (Dec 23, 2025):
 - Added NFR29-NFR35: EP-06 Codegen Quality Gates performance requirements
@@ -232,7 +239,7 @@ And decryption only with valid user authentication
 | **Admin** |
 | Admin | All | ✅ | ✅ | ✅ | ✅ | ✅ (All Gates) |
 
-**Gate Approval Matrix (SDLC 5.1.3 Complete Lifecycle - 10 Stages)**:
+**Gate Approval Matrix (SDLC 6.1.0 Complete Lifecycle - 10 Stages)**:
 | Gate | Stage | Approver(s) Required | Rationale |
 |------|-------|---------------------|-----------|
 | G0.1 | Stage 00 (WHY - Problem Foundation) | CPO + EM | Problem validated (5+ users) |
@@ -591,7 +598,7 @@ And cost tracked per generation
 **Provider Latency Targets**:
 | Provider | Target Latency | Fallback Order |
 |----------|---------------|----------------|
-| Ollama (qwen2.5-coder:32b) | <15 seconds | Primary |
+| Ollama (qwen3-coder:30b) | <15 seconds | Primary |
 | Claude (Anthropic) | <25 seconds | Secondary |
 | DeepCode (Q2 2026) | TBD | Tertiary |
 
@@ -854,6 +861,7 @@ And audit trail includes reasoning
 ## Document Control
 
 **Version History**:
+- v3.2.0 (February 20, 2026): Enterprise-First alignment, SDLC 6.1.0, qwen3-coder:30b
 - v3.1.0 (December 23, 2025): Added NFR29-NFR35 for EP-06 Codegen Quality Gates (28 requirements total)
 - v3.0.0 (December 21, 2025): SDLC 5.1.3 update, EP-02/04/05/06 NFRs added
 - v2.0.0 (December 3, 2025): Added NFR18-NFR21 for AI Governance (21 requirements total)
@@ -865,7 +873,7 @@ And audit trail includes reasoning
 - Security Review: Week 2 ✅ APPROVED
 
 **Related Documents**:
-- [Functional Requirements Document](./Functional-Requirements-Document.md) (v3.1.0)
+- [Functional Requirements Document](./Functional-Requirements-Document.md) (v3.3.0)
 - [Product Roadmap](../../00-foundation/04-Roadmap/Product-Roadmap.md) (v5.0.0)
 - [Product Vision](../../00-foundation/01-Vision/Product-Vision.md) (v4.0.0)
 - [EP-04 SDLC Structure Enforcement](../02-Epics/EP-04-SDLC-Structure-Enforcement.md)
@@ -876,9 +884,9 @@ And audit trail includes reasoning
 ---
 
 **Document**: SDLC-Orchestrator-Non-Functional-Requirements
-**Framework**: SDLC 5.1.3 Stage 01 (WHAT) - Planning & Analysis
+**Framework**: SDLC 6.1.0 Stage 01 (WHAT) - Planning & Analysis
 **Component**: Quality Attributes and System Constraints
 **Review**: Quarterly with CTO + DevOps Lead
-**Last Updated**: December 23, 2025
+**Last Updated**: February 20, 2026
 
 *"Define quality before you build quality."*

@@ -5,7 +5,7 @@
 **Status**: ACTIVE - Week 4 Day 1 Architecture Documentation
 **Authority**: Solutions Architect + CTO Approved
 **Foundation**: Week 3 Complete (23 APIs, 21 tables, 28 tests)
-**Framework**: SDLC 5.1.3 Complete Lifecycle + C4 Model
+**Framework**: SDLC 6.1.0
 
 ---
 

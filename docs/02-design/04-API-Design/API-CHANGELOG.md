@@ -6,7 +6,7 @@
 **Status**: ACTIVE - Week 5 Day 4 (API Documentation Finalization)
 **Authority**: Backend Lead + CTO Approved
 **Foundation**: Week 3-5 Implementation (23 Endpoints)
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 

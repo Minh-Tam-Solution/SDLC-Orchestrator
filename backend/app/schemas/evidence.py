@@ -80,6 +80,11 @@ class EvidenceUploadRequest(BaseModel):
             "API_DOCUMENTATION_REFERENCE",
             "SECURITY_TESTING_RESULTS",
             "STAGE_CROSS_REFERENCE",
+            # Sprint 183 — ADR-062: Compliance-Specific Evidence Types
+            "SOC2_CONTROL",    # SOC2 Trust Service Criteria (Security/Availability/Confidentiality)
+            "HIPAA_AUDIT",     # PHI access audit records (HIPAA minimum necessary)
+            "NIST_AI_RMF",     # NIST AI Risk Management Framework controls
+            "ISO27001",        # ISO 27001 Annex A controls mapping
         }
         if v.upper() not in allowed_types:
             raise ValueError(

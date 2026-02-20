@@ -6,7 +6,7 @@
 **Date**: December 24, 2025
 **Author**: Frontend Lead + Backend Lead
 **Sprint**: Sprint 50 - Productization Baseline
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 **Depends On**: [Codegen-Service-Specification.md](./Codegen-Service-Specification.md)
 
 ---

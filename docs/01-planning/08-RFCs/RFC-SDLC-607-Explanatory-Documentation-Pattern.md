@@ -5,7 +5,7 @@
 **Author**: Framework Architect + Documentation Team
 **Sprint**: 143 - Framework-First Track 1
 **Related**: Boris Cherny Tactics Analysis (Partial Gap - Learn with Claude)
-**Framework Version**: SDLC 6.0.5
+**Framework Version**: SDLC 6.1.0
 
 ---
 

@@ -75,20 +75,20 @@ tags:
   - name: AI Council
     description: AI Council Service - Multi-LLM deliberation for compliance recommendations
   - name: SDLC Structure Validation
-    description: SDLC 5.1.3.0 folder structure validation - 11 stages, 4-tier classification
+    description: SDLC 6.1.0 folder structure validation - 11 stages, 4-tier classification
   - name: Codegen
     description: EP-06 IR-Based Code Generation - Multi-provider architecture (Ollama, Claude, DeepCode)
   - name: Planning
     description: |
       Sprint 74/75 - Planning Hierarchy Implementation
-      SDLC 5.1.3 Sprint Planning Governance:
+      SDLC 6.1.0 Sprint Planning Governance:
       - Roadmaps: Strategic planning (12-month vision)
       - Phases: 4-8 week themes
       - Sprints: 5-10 day commitments with G-Sprint/G-Sprint-Close gates
       - Backlog: Stories, tasks, bugs with P0/P1/P2 priorities (Rule #8)
   - name: Sprint Gates
     description: |
-      G-Sprint and G-Sprint-Close gate evaluations per SDLC 5.1.3:
+      G-Sprint and G-Sprint-Close gate evaluations per SDLC 6.1.0:
       - G-Sprint: Sprint planning approval gate (requires SE4H Coach)
       - G-Sprint-Close: Sprint completion gate with 24h documentation deadline
       - Team role authorization: Only owner/admin can approve gates
@@ -884,15 +884,15 @@ paths:
           description: Project deleted
 
   # ============================================================
-  # SDLC 5.1.3.0 STRUCTURE VALIDATION
+  # SDLC 6.1.0 STRUCTURE VALIDATION
   # ============================================================
 
   /projects/{project_id}/validate-structure:
     post:
       tags: [SDLC Structure Validation]
-      summary: Validate SDLC 5.1.3.0 folder structure
+      summary: Validate SDLC 6.1.0 folder structure
       description: |
-        Validate project documentation folder structure against SDLC 5.1.3.0 framework.
+        Validate project documentation folder structure against SDLC 6.1.0 framework.
 
         **4-Tier Classification**:
         - **Lite** (🌱): 5 required stages - minimal for small projects
@@ -3641,7 +3641,7 @@ paths:
                   tokens_used: 2500
                   generation_time_ms: 3200
                   metadata:
-                    model: qwen2.5-coder:14b
+                    model: qwen3-coder:30b
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -3988,7 +3988,7 @@ paths:
       tags: [Planning]
       summary: Create sprint
       description: |
-        Create a new sprint. Sprint numbers are immutable per SDLC 5.1.3 Rule #1.
+        Create a new sprint. Sprint numbers are immutable per SDLC 6.1.0 Rule #1.
         Auto-increments if number not provided.
       operationId: createSprint
       requestBody:
@@ -4147,7 +4147,7 @@ paths:
       description: |
         Submit gate evaluation for final approval.
 
-        **SDLC 5.1.3 Sprint Planning Governance (Sprint 75)**:
+        **SDLC 6.1.0 Sprint Planning Governance (Sprint 75)**:
         - Only team owner/admin (SE4H Coach) can approve sprint gates
         - AI agents (SE4A) cannot approve gates
         - Enforces human oversight for sprint governance
@@ -4235,7 +4235,7 @@ paths:
       description: |
         Create a new backlog item (story, task, bug, spike).
 
-        **Priority (SDLC 5.1.3 Rule #8)**:
+        **Priority (SDLC 6.1.0 Rule #8)**:
         - P0: Must Have (cannot defer without CEO approval)
         - P1: Should Have (can defer with CTO approval)
         - P2: Could Have (can defer freely)
@@ -4898,7 +4898,7 @@ components:
           additionalProperties: true
           description: Additional provider-specific metadata
           example:
-            model: qwen2.5-coder:14b
+            model: qwen3-coder:30b
             prompt_tokens: 800
             completion_tokens: 1700
 
@@ -5049,14 +5049,14 @@ components:
               confidence: 0.8
 
     # ============================================================
-    # SDLC 5.1.3.0 STRUCTURE VALIDATION (Sprint 30)
+    # SDLC 6.1.0 STRUCTURE VALIDATION (Sprint 30)
     # ============================================================
 
     SDLCTier:
       type: string
       enum: [lite, standard, professional, enterprise]
       description: |
-        SDLC 5.1.3.0 tier classification:
+        SDLC 6.1.0 tier classification:
         - lite: 5 required stages (small projects)
         - standard: 8 required stages (mid-size projects)
         - professional: 10 required stages (enterprise projects)
@@ -6510,7 +6510,7 @@ components:
           type: integer
         team_size:
           type: integer
-      description: Note - sprint number cannot be changed (SDLC 5.1.3 Rule #1)
+      description: Note - sprint number cannot be changed (SDLC 6.1.0 Rule #1)
 
     SprintResponse:
       type: object
@@ -6653,7 +6653,7 @@ components:
           type: string
           enum: [P0, P1, P2]
           default: P2
-          description: "SDLC 5.1.3 Rule #8: P0=Must, P1=Should, P2=Could"
+          description: "SDLC 6.1.0 Rule #8: P0=Must, P1=Should, P2=Could"
         story_points:
           type: integer
 

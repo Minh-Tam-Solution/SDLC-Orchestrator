@@ -1,8 +1,8 @@
 ---
-sdlc_version: "6.0.6"
+sdlc_version: "6.1.0"
 document_type: "Business Case"
 status: "PROPOSED"
-sprint: "176"
+sprint: "176-179"
 spec_id: "BC-056"
 tier: "PROFESSIONAL"
 stage: "00 - Foundation"
@@ -10,12 +10,12 @@ stage: "00 - Foundation"
 
 # Multi-Agent Team Engine — Business Case
 
-**Status**: PROPOSED (Sprint 176)
+**Status**: PROPOSED (Sprint 176-179)
 **Date**: February 2026
 **Author**: CTO Nguyen Quoc Huy
-**Framework**: SDLC 6.0.6 (PROFESSIONAL tier)
+**Framework**: SDLC 6.1.0 (PROFESSIONAL tier)
 **Gate**: G0.1 Foundation Ready
-**References**: ADR-056, EP-07, Product Roadmap v7.0.0
+**References**: ADR-056, ADR-058, EP-07, Product Roadmap v7.0.0
 
 ---
 
@@ -60,8 +60,11 @@ Build the **Multi-Agent Team Engine (MATE)** as a foundational service layer in 
 | OpenClaw (36 channels, Node.js) | Lane queue, failover classification, session scoping | 7 patterns |
 | TinyClaw (file-based queue, Python) | @mention routing, loop guards, SDLC roles | 7 patterns |
 | Nanobot (~3,663 LOC, Python) | Tool context, shell guard, reflect step, error-as-string | 5 patterns |
+| ZeroClaw (Rust, 12.5K stars, MIT) | Credential scrubbing, env scrubbing, history compaction, query classification | 4 patterns |
 
 **Architecture Decision**: Option C (Hybrid) — absorb *patterns* (not code) into Python backend. Approved by dual expert review (A+ rating, 92% confidence).
+
+**Sprint 179 Extension** (ADR-058): Research identified 4 additional ZeroClaw patterns for security hardening and operational optimization. CTO approved A (credential scrub), C (env scrub), B (history compaction), E (query classification). Deferred D (tool dispatch) and G (approval flow) to ADR-057.
 
 ---
 
@@ -106,7 +109,8 @@ Build the **Multi-Agent Team Engine (MATE)** as a foundational service layer in 
 | Integration tests (14 test cases) | 12 hrs | $960 |
 | OTT Gateway scaffold (P1) | 20 hrs | $1,600 |
 | Documentation (SDLC compliance) | 12 hrs | $960 |
-| **Total** | **132 hrs** | **$10,560** |
+| Sprint 179: ZeroClaw patterns (4 patterns, ~440 LOC) | 48 hrs | $3,840 |
+| **Total** | **180 hrs** | **$14,400** |
 
 ### 4.2 Ongoing Cost
 
@@ -119,10 +123,10 @@ Build the **Multi-Agent Team Engine (MATE)** as a foundational service layer in 
 
 ### 4.3 ROI Calculation
 
-- **Investment**: $10,560 (one-time) + $600/yr (Ollama)
+- **Investment**: $14,400 (one-time) + $600/yr (Ollama)
 - **Returns**: Unblocks $50K EP-06 investment + $19,800/mo MRR potential (Vietnamese SME)
 - **Payback Period**: < 1 month after Vietnamese SME pilot launch
-- **3-Year ROI**: >50x
+- **3-Year ROI**: >40x
 
 ---
 
@@ -143,9 +147,9 @@ Build the **Multi-Agent Team Engine (MATE)** as a foundational service layer in 
 | Criterion | Target | Measurement |
 |-----------|--------|-------------|
 | ADR-056 approved | CTO sign-off | ADR document status |
-| Security threat model complete | 10 surfaces covered | STM-056 review |
-| Test plan complete | 87+ test cases | TP-056 review |
-| Sprint plans updated | 176-178 scope locked | Sprint plan review |
+| Security threat model complete | 13 surfaces covered | STM-056 review |
+| Test plan complete | 121+ test cases | TP-056 review |
+| Sprint plans updated | 176-179 scope locked | Sprint plan review |
 | Stakeholder alignment | CTO + CPO + CEO | Business case approval |
 
 ---
@@ -157,6 +161,7 @@ Build the **Multi-Agent Team Engine (MATE)** as a foundational service layer in 
 | 176 | Foundation + Design | ADR-056, schemas, threat model, test plan, SDLC docs |
 | 177 | Core Services | 12 service files, 3 DB tables, 5 P0 endpoints, unit tests |
 | 178 | Integration + Pilot | OTT gateway scaffold, E2E tests, Vietnamese SME demo |
+| 179 | ZeroClaw Hardening | Credential scrubbing (A+C), history compaction (B), query classification (E) |
 
 ---
 

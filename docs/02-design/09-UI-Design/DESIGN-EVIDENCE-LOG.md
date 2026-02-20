@@ -5,7 +5,7 @@
 **Status**: ACTIVE - STAGE 02 (DESIGN) / STAGE 03 (BUILD)
 **Date**: December 17, 2025
 **Authority**: Frontend Lead + UX Lead + CPO Approved
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 

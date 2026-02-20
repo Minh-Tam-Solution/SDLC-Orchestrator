@@ -1,6 +1,6 @@
 # Support Page Design Document
 
-**Framework**: SDLC 5.1.3 Complete Lifecycle  
+**Framework**: SDLC 6.1.0  
 **Stage**: 02 - DESIGN  
 **Sub-Stage**: 11 - UI/UX Design  
 **Feature**: User Support Page  

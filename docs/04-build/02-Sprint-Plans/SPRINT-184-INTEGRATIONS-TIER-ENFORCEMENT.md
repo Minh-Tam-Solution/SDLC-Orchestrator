@@ -105,7 +105,7 @@ ROUTE_TIER_TABLE: dict[str, int] = {
     "/api/v1/ceo-dashboard":     3,
     "/api/v1/crp":               3,
     "/api/v1/mrp":               3,
-    "/api/v1/channels":          3,  # OTT gateway (Sprint 181)
+    "/api/v1/channels":          2,  # OTT gateway (Sprint 181) — STANDARD: Telegram+Zalo per ADR-060 D-060-03; per-channel sub-routing (Teams→PROFESSIONAL, Slack→ENTERPRISE) enforced inside ott_gateway.py
     "/api/v1/jira":              3,  # Jira integration (Sprint 184)
     # ENTERPRISE = 4
     "/api/v1/admin":             4,
@@ -176,7 +176,7 @@ class TierGateMiddleware:
 ```python
 # backend/app/main.py
 from app.middleware.tier_gate import TierGateMiddleware
-app.add_middleware(TierGateMiddleware)  # Added BEFORE AuthMiddleware
+app.add_middleware(TierGateMiddleware)  # Added AFTER AuthMiddleware — reads user_tier from scope["state"] set by AuthMiddleware
 ```
 
 **Test Cases (TG-01 to TG-40)**:

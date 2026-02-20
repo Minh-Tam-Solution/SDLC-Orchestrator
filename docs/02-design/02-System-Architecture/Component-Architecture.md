@@ -427,7 +427,7 @@ export class AIContextEngineComponent {
       this.providers = new Map([
         ['ollama', new OllamaProvider({
           baseUrl: 'https://api.nhatquangholding.com',
-          model: 'qwen2.5:14b'
+          model: 'qwen3:32b'
         })],
         ['claude', new ClaudeProvider({
           apiKey: process.env.CLAUDE_API_KEY,

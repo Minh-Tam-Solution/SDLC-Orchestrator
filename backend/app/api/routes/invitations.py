@@ -12,14 +12,20 @@ Security Features:
 
 Reference: ADR-043-Team-Invitation-System-Architecture.md
 API Spec: docs/01-planning/05-API-Design/Team-Invitation-API-Spec.md
+
+Sprint 181: Async fix — registered route + AsyncSession (ADR-059 ENTERPRISE activation).
+Sprint 182: C-182-CF-02 — invitation_service.py fully migrated to async def + AsyncSession.
+  All sync bridge calls removed. Service called directly with await.
 """
 from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import get_current_user, get_db
+from app.api.dependencies import get_current_user
+from app.db.session import get_db
 from app.models.user import User
 from app.models.team import Team
 from app.models.team_member import TeamMember
@@ -71,7 +77,7 @@ async def send_invitation(
     data: InvitationCreate,
     request: Request,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ) -> InvitationResponse:
     """
     Send team invitation with secure token.
@@ -81,7 +87,7 @@ async def send_invitation(
         data: Invitation creation data
         request: FastAPI request (for IP/user agent)
         current_user: Authenticated user sending invitation
-        db: Database session
+        db: Database session (AsyncSession)
 
     Returns:
         InvitationResponse with invitation_id, email, status, expires_at
@@ -91,13 +97,16 @@ async def send_invitation(
         HTTPException(409): If pending invitation exists
         HTTPException(429): If rate limit exceeded
     """
-    # P2 Fix: RBAC enforcement - check user permission to invite
-    membership = db.query(TeamMember).filter(
-        TeamMember.team_id == team_id,
-        TeamMember.user_id == current_user.id,
-        TeamMember.deleted_at.is_(None),
-        TeamMember.role.in_(["owner", "admin"])
-    ).first()
+    # RBAC enforcement — check user permission to invite
+    result = await db.execute(
+        select(TeamMember).where(
+            TeamMember.team_id == team_id,
+            TeamMember.user_id == current_user.id,
+            TeamMember.deleted_at.is_(None),
+            TeamMember.role.in_(["owner", "admin"]),
+        )
+    )
+    membership = result.scalar_one_or_none()
 
     if not membership:
         raise HTTPException(
@@ -108,8 +117,9 @@ async def send_invitation(
             }
         )
 
-    # P2 Fix: Fetch team for team_name
-    team = db.query(Team).filter(Team.id == team_id).first()
+    # Fetch team for email (service also checks existence; this avoids second 404 path)
+    team_result = await db.execute(select(Team).where(Team.id == team_id))
+    team = team_result.scalar_one_or_none()
     if not team:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -120,8 +130,8 @@ async def send_invitation(
     ip_address = request.client.host if request.client else None
     user_agent = request.headers.get("User-Agent")
 
-    # Send invitation (returns response + raw token for email)
-    response, raw_token = invitation_service.send_invitation(
+    # Send invitation via async service (C-182-CF-02: no more db.run_sync bridge)
+    response, raw_token = await invitation_service.send_invitation(
         team_id=team_id,
         data=data,
         invited_by_user_id=current_user.id,
@@ -136,7 +146,7 @@ async def send_invitation(
         send_invitation_email(
             to_email=response.invited_email,
             invitation_token=raw_token,
-            team_name=team.name,  # P2 Fix: Use actual team name
+            team_name=team.name,
             inviter_name=response.invited_by["display_name"],
             expires_at=response.expires_at,
             message=data.message,
@@ -174,7 +184,7 @@ async def send_invitation(
 async def resend_invitation(
     invitation_id: UUID,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ) -> InvitationResent:
     """
     Resend invitation email with new token.
@@ -182,7 +192,7 @@ async def resend_invitation(
     Args:
         invitation_id: Invitation UUID
         current_user: Authenticated user (must be team admin/owner)
-        db: Database session
+        db: Database session (AsyncSession)
 
     Returns:
         InvitationResent with resend_count, last_resent_at
@@ -192,10 +202,11 @@ async def resend_invitation(
         HTTPException(404): If invitation not found
         HTTPException(429): If rate limit exceeded
     """
-    # P2 Fix: Fetch invitation with team and inviter relationships
-    invitation = db.query(TeamInvitation).filter(
-        TeamInvitation.id == invitation_id
-    ).first()
+    # Fetch invitation for RBAC check
+    inv_result = await db.execute(
+        select(TeamInvitation).where(TeamInvitation.id == invitation_id)
+    )
+    invitation = inv_result.scalar_one_or_none()
 
     if not invitation:
         raise HTTPException(
@@ -203,13 +214,16 @@ async def resend_invitation(
             detail={"error": "invitation_not_found", "message": "Invitation not found"}
         )
 
-    # P2 Fix: RBAC enforcement - check user permission to resend
-    membership = db.query(TeamMember).filter(
-        TeamMember.team_id == invitation.team_id,
-        TeamMember.user_id == current_user.id,
-        TeamMember.deleted_at.is_(None),
-        TeamMember.role.in_(["owner", "admin"])
-    ).first()
+    # RBAC enforcement — check user permission to resend
+    membership_result = await db.execute(
+        select(TeamMember).where(
+            TeamMember.team_id == invitation.team_id,
+            TeamMember.user_id == current_user.id,
+            TeamMember.deleted_at.is_(None),
+            TeamMember.role.in_(["owner", "admin"]),
+        )
+    )
+    membership = membership_result.scalar_one_or_none()
 
     if not membership:
         raise HTTPException(
@@ -220,19 +234,23 @@ async def resend_invitation(
             }
         )
 
-    # Resend invitation (returns response + new raw token)
-    response, raw_token = invitation_service.resend_invitation(
+    # Resend invitation — async service (C-182-CF-02: no more db.run_sync bridge)
+    response, raw_token = await invitation_service.resend_invitation(
         invitation_id=invitation_id,
         db=db,
     )
 
-    # P2 Fix: Fetch fresh invitation with relationships for email
-    invitation = db.query(TeamInvitation).filter(
-        TeamInvitation.id == invitation_id
-    ).first()
+    # Fetch relationships for email (session committed in service; fresh reads)
+    fresh_inv_result = await db.execute(
+        select(TeamInvitation).where(TeamInvitation.id == invitation_id)
+    )
+    invitation = fresh_inv_result.scalar_one_or_none()
 
-    team = db.query(Team).filter(Team.id == invitation.team_id).first()
-    inviter = db.query(User).filter(User.id == invitation.invited_by).first()
+    team_result = await db.execute(select(Team).where(Team.id == invitation.team_id))
+    team = team_result.scalar_one_or_none()
+
+    inviter_result = await db.execute(select(User).where(User.id == invitation.invited_by))
+    inviter = inviter_result.scalar_one_or_none()
 
     # Send invitation email with new token
     try:
@@ -279,14 +297,14 @@ async def resend_invitation(
 )
 async def get_invitation_by_token(
     token: str,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ) -> InvitationDetails:
     """
     Get invitation details by token (public endpoint).
 
     Args:
         token: Raw invitation token from URL
-        db: Database session
+        db: Database session (AsyncSession)
 
     Returns:
         InvitationDetails with team info, role, inviter, expiry
@@ -295,7 +313,7 @@ async def get_invitation_by_token(
         HTTPException(404): If invitation not found or expired
         HTTPException(410): If invitation already used
     """
-    return invitation_service.get_invitation_by_token(token=token, db=db)
+    return await invitation_service.get_invitation_by_token(token=token, db=db)
 
 
 @router.post(
@@ -326,7 +344,7 @@ async def get_invitation_by_token(
 async def accept_invitation(
     token: str,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ) -> InvitationAccepted:
     """
     Accept invitation and create team membership.
@@ -334,7 +352,7 @@ async def accept_invitation(
     Args:
         token: Raw invitation token from URL
         current_user: Authenticated user accepting invitation
-        db: Database session
+        db: Database session (AsyncSession)
 
     Returns:
         InvitationAccepted with team_id, role, redirect_url
@@ -345,7 +363,7 @@ async def accept_invitation(
         HTTPException(404): If invitation not found
         HTTPException(409): If already member
     """
-    return invitation_service.accept_invitation(
+    return await invitation_service.accept_invitation(
         token=token,
         user_id=current_user.id,
         user_email=current_user.email,
@@ -375,14 +393,14 @@ async def accept_invitation(
 )
 async def decline_invitation(
     token: str,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ) -> InvitationDeclined:
     """
     Decline invitation (polite rejection).
 
     Args:
         token: Raw invitation token from URL
-        db: Database session
+        db: Database session (AsyncSession)
 
     Returns:
         InvitationDeclined with declined_at timestamp
@@ -391,7 +409,7 @@ async def decline_invitation(
         HTTPException(400): If cannot decline
         HTTPException(404): If invitation not found
     """
-    return invitation_service.decline_invitation(token=token, db=db)
+    return await invitation_service.decline_invitation(token=token, db=db)
 
 
 # ============================================================================
@@ -419,24 +437,24 @@ async def decline_invitation(
 )
 async def list_team_invitations(
     team_id: UUID,
-    status: Optional[str] = None,
+    invitation_status: Optional[str] = None,
     email: Optional[str] = None,
     limit: int = 50,
     offset: int = 0,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ) -> list[InvitationResponse]:
     """
     List team invitations with optional filters.
 
     Args:
         team_id: Team UUID
-        status: Filter by invitation status (optional)
+        invitation_status: Filter by invitation status (optional)
         email: Filter by invited email (optional)
         limit: Max results per page
         offset: Skip N results
         current_user: Authenticated user (must be team admin/owner)
-        db: Database session
+        db: Database session (AsyncSession)
 
     Returns:
         List of InvitationResponse
@@ -444,13 +462,15 @@ async def list_team_invitations(
     Raises:
         HTTPException(403): If user not authorized
     """
-    # Sprint 132 P0 Fix: Implement list team invitations
-    # Check user is team admin/owner
-    team_member = db.query(TeamMember).filter(
-        TeamMember.team_id == team_id,
-        TeamMember.user_id == current_user.id,
-        TeamMember.deleted_at.is_(None)
-    ).first()
+    # RBAC enforcement — check user is team admin/owner
+    member_result = await db.execute(
+        select(TeamMember).where(
+            TeamMember.team_id == team_id,
+            TeamMember.user_id == current_user.id,
+            TeamMember.deleted_at.is_(None),
+        )
+    )
+    team_member = member_result.scalar_one_or_none()
 
     if not team_member or team_member.role not in ("owner", "admin"):
         raise HTTPException(
@@ -458,13 +478,14 @@ async def list_team_invitations(
             detail="Only team owners and admins can view invitations"
         )
 
-    return invitation_service.list_team_invitations(
+    # List invitations — async service (C-182-CF-02: no more db.run_sync bridge)
+    return await invitation_service.list_team_invitations(
         team_id=team_id,
         db=db,
-        status_filter=status,
+        status_filter=invitation_status,
         email_filter=email,
         limit=limit,
-        offset=offset
+        offset=offset,
     )
 
 
@@ -492,7 +513,7 @@ async def list_team_invitations(
 async def cancel_invitation(
     invitation_id: UUID,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ) -> None:
     """
     Cancel pending invitation (admin action).
@@ -500,18 +521,18 @@ async def cancel_invitation(
     Args:
         invitation_id: Invitation UUID
         current_user: Authenticated user (must be team admin/owner)
-        db: Database session
+        db: Database session (AsyncSession)
 
     Raises:
         HTTPException(400): If cannot cancel
         HTTPException(403): If user not authorized
         HTTPException(404): If invitation not found
     """
-    # Sprint 132 P0 Fix: Implement cancel invitation
-    # First get the invitation to check team membership
-    invitation = db.query(TeamInvitation).filter(
-        TeamInvitation.id == invitation_id
-    ).first()
+    # Fetch invitation for RBAC check
+    inv_result = await db.execute(
+        select(TeamInvitation).where(TeamInvitation.id == invitation_id)
+    )
+    invitation = inv_result.scalar_one_or_none()
 
     if not invitation:
         raise HTTPException(
@@ -519,12 +540,15 @@ async def cancel_invitation(
             detail="Invitation not found"
         )
 
-    # Check user is team admin/owner
-    team_member = db.query(TeamMember).filter(
-        TeamMember.team_id == invitation.team_id,
-        TeamMember.user_id == current_user.id,
-        TeamMember.deleted_at.is_(None)
-    ).first()
+    # RBAC enforcement — check user is team admin/owner
+    member_result = await db.execute(
+        select(TeamMember).where(
+            TeamMember.team_id == invitation.team_id,
+            TeamMember.user_id == current_user.id,
+            TeamMember.deleted_at.is_(None),
+        )
+    )
+    team_member = member_result.scalar_one_or_none()
 
     if not team_member or team_member.role not in ("owner", "admin"):
         raise HTTPException(
@@ -532,8 +556,9 @@ async def cancel_invitation(
             detail="Only team owners and admins can cancel invitations"
         )
 
-    invitation_service.cancel_invitation(
+    # Cancel invitation — async service (C-182-CF-02: no more db.run_sync bridge)
+    await invitation_service.cancel_invitation(
         invitation_id=invitation_id,
         cancelled_by_user_id=current_user.id,
-        db=db
+        db=db,
     )

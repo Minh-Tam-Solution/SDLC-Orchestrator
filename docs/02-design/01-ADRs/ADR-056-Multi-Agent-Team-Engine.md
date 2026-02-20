@@ -14,7 +14,7 @@ stage: "02 - Design"
 **Date**: February 2026
 **Author**: CTO Nguyen Quoc Huy
 **Sprint**: Sprint 176 — Multi-Agent Foundation
-**Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance)
+**Framework**: SDLC 6.1.0
 **Supersedes**: None (new capability)
 **References**: ADR-055 (Autonomous Codegen), ADR-022 (Multi-Provider Architecture)
 **Review History**: Expert Synthesis v2 FINAL, CTO Review (Feb 17), Nanobot 3-Expert Synthesis
@@ -217,7 +217,7 @@ CREATE TABLE agent_definitions (
     project_id UUID NOT NULL REFERENCES projects(id),
     team_id UUID REFERENCES teams(id),
     agent_name VARCHAR(50) NOT NULL,
-    sdlc_role VARCHAR(20) NOT NULL,              -- pm/architect/coder/reviewer/tester/devops
+    sdlc_role VARCHAR(20) NOT NULL,              -- 12 roles: researcher/pm/pjm/architect/coder/reviewer/tester/devops/ceo/cpo/cto/assistant (see Section 12.5 SASE Classification)
     provider VARCHAR(20) NOT NULL,               -- ollama/anthropic/openai
     model VARCHAR(100) NOT NULL,
     system_prompt TEXT,
@@ -636,6 +636,93 @@ def inject_reflection(messages: list[dict], tool_results: list[dict]) -> list[di
 - Days 3-5: Human-in-the-Loop interrupt + external identity + G4 policy
 - Days 6-7: OTT Gateway scaffold + Telegram plugin (NOTIFY-ONLY)
 - Days 8-10: Vietnamese SME Pilot + demo
+
+---
+
+## 12.5 SASE Role Classification (SDLC 6.0.6 Enterprise Tier)
+
+> **Added**: Sprint 176 design review. Expands `sdlc_role` from 8 → 12 values.
+> **Authority**: CTO Approved (5 amendments applied).
+> **Reference**: SASE Framework (arXiv:2509.06216v2), SDLC 6.0.6 Section 7.
+
+### 12.5.1 Role Progression
+
+The `sdlc_role` field in `agent_definitions` has evolved across sprints:
+
+| Sprint | Count | Roles Added | Trigger |
+|--------|-------|-------------|---------|
+| 176 (initial) | 6 | pm, architect, coder, reviewer, tester, devops | ADR-056 Phase 1 |
+| 176 (P0 fix) | 8 | + researcher, pjm | TinySDLC 6.0.6 compatibility (s176_002 migration) |
+| 177 (planned) | 12 | + ceo, cpo, cto, assistant | SASE Enterprise tier (this section, s177_001 migration) |
+
+### 12.5.2 Three-Type Taxonomy
+
+All 12 roles are classified into 3 types. The type is **derivable from the role value** — no extra column needed.
+
+| Type | Roles | SASE Reference | Environment | Authority |
+|------|-------|---------------|-------------|-----------|
+| **SE4A** | researcher, pm, pjm, architect, coder, reviewer, tester, devops | arXiv:2509.06216v2 | AEE (Agent Execution) | Delegated by SE4H |
+| **SE4H** | ceo, cpo, cto | arXiv:2509.06216v2 | ACE (Agent Command) | VCR authority, final approval |
+| **Router** | assistant | Orchestrator-specific | Both | No authority, guidance only |
+
+**Derivation logic** (no DB column, computed in application):
+```python
+SE4H_ROLES = {"ceo", "cpo", "cto"}
+ROUTER_ROLES = {"assistant"}
+# All other roles → SE4A (default)
+```
+
+### 12.5.3 SE4H Role Definition (CTO Amendment #1)
+
+SE4H entries in `agent_definitions` are **AI advisors that SUPPORT human SE4H decision-makers** — they are NOT the humans themselves. Since `agent_definitions` is an agent configuration table, SE4H rows represent AI assistants configured to serve the CEO, CPO, or CTO roles:
+
+- **ceo**: AI advisor for strategic decisions, roadmap synthesis, market analysis
+- **cpo**: AI advisor for product decisions, user research summaries, prioritization drafts
+- **cto**: AI advisor for architectural decisions, security analysis, technical debt assessment
+
+The actual human CEO/CPO/CTO retains:
+- Final decision authority (VCR — Verify, Correct, Ratify)
+- Approval of all shipped code
+- Accountability for all agent outputs
+
+### 12.5.4 SE4H Behavioral Constraints (CTO Amendment #5)
+
+SE4H agent definitions MUST enforce stricter safety controls than SE4A agents:
+
+| Constraint | SE4H Value | SE4A Default | Rationale |
+|-----------|-----------|-------------|-----------|
+| `max_delegation_depth` | `0` | `1` | SE4H agents do not delegate to sub-agents |
+| `can_spawn_subagent` | `false` | `false` | No autonomous spawning |
+| `allowed_tools` | Read-only subset | `["*"]` | Advisory output only — no write operations |
+| `queue_mode` | `queue` | `queue` | No interrupt/steer for advisory agents |
+| Output format | Analysis/summary/draft | Executable code/actions | SE4H output requires human review before action |
+
+**Enforcement**: Application-layer validation in `agent_registry.py` (Sprint 177). When `sdlc_role ∈ SE4H_ROLES`:
+- Reject `max_delegation_depth > 0`
+- Reject `can_spawn_subagent = true`
+- Warn if `allowed_tools` contains write operations
+
+### 12.5.5 Router Role Definition
+
+The `assistant` role is a **routing agent** that:
+- Guides users unfamiliar with SDLC Framework to the correct agent or workflow
+- Explains available SDLC stages, gates, and agent capabilities
+- Has no decision authority — purely informational/navigational
+- Uses a fast, low-cost model (local inference preferred)
+
+### 12.5.6 Model Routing Recommendations (CTO Amendment #4)
+
+Model assignments use **abstract capability tiers** rather than version-pinned strings. Concrete model IDs are configured at deployment time, not hardcoded in schemas.
+
+| Tier | Capability | Example Models (Feb 2026) | Used By |
+|------|-----------|--------------------------|---------|
+| **Tier 1: Deep Reasoning** | Strategic analysis, architecture review | claude-opus-4, deepseek-r1:32b | ceo, cto, architect, reviewer |
+| **Tier 2: Fast Reasoning** | Product analysis, code generation, synthesis | claude-sonnet-4, qwen3:32b, qwen3-coder:30b | cpo, researcher, pm, coder, tester |
+| **Tier 3: Fast Execution** | Coordination, routing, simple tasks | qwen3:14b, qwen3:8b | pjm, devops, assistant |
+
+**Implementation**: `ROLE_MODEL_DEFAULTS` mapping lives in `backend/app/services/agent_team/config.py` (Sprint 177), NOT in `schemas/agent_team.py`. Schemas define data shape; model routing is business logic (CTO Amendment #2).
+
+**SE4H model preference**: SE4H roles (ceo, cpo, cto) default to cloud providers (Anthropic) for best reasoning quality. SE4A roles default to local Ollama for cost efficiency ($50/month). This is a **recommendation**, not a constraint — all roles can use any configured provider.
 
 ---
 

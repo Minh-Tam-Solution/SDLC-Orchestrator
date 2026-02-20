@@ -1,16 +1,16 @@
 # CLAUDE AI PROJECT CONTEXT - SDLC ORCHESTRATOR
 ## AI Assistant Configuration for Software 3.0 Operating System
 
-**Version**: 3.6.0
+**Version**: 3.8.0
 **Status**: Gate G3 APPROVED - Ship Ready (98.2%)
-**Current Sprint**: Sprint 176 - ADR-056 Multi-Agent Foundation
-**Effective Date**: February 18, 2026
+**Current Sprint**: Sprint 179 - ZeroClaw Security Hardening
+**Effective Date**: February 19, 2026
 **Project**: SDLC Orchestrator - Operating System for Software 3.0
 **Authority**: CTO + CPO + CEO Approved
-**Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 **SE 3.0 Status**: Track 1 APPROVED - SASE Integration Complete
 **EP-06 Status**: IR-Based Codegen Engine - Sprint 45-50 (~$50K investment)
-**EP-07 Status**: Multi-Agent Team Engine - Sprint 176-178 (ADR-056, 14 non-negotiables)
+**EP-07 Status**: Multi-Agent Team Engine - Sprint 176-179 (ADR-056 + ADR-058, 14 non-negotiables)
 
 ---
 
@@ -36,14 +36,14 @@ SDLC Orchestrator is the **Operating System for Software 3.0** - a control plane
 
 ```yaml
 Current Stage: Stage 04 (BUILD - Development & Implementation)
-Current Sprint: Sprint 176 - ADR-056 Multi-Agent Foundation
+Current Sprint: Sprint 179 - ZeroClaw Security Hardening
 Gate G3 Readiness: 98.2% (EXCEEDS 95% threshold)
 Timeline: 90 days MVP + 6 sprints EP-06 extension
 Budget: $564K (8.5 FTE team) + $50K EP-06 investment
 Target: Vietnam SME Pilot (5 founding customers)
-Framework: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+Framework: SDLC 6.1.0 (7-Pillar + Section 7 QA + Section 8 Spec + Multi-Agent Patterns + System Thinking)
 
-SDLC 6.0.6 Key Features:
+SDLC 6.1.0 Key Features:
   ✅ 7-Pillar Architecture + Section 7 (Quality Assurance System)
   ✅ Stage Dependency Matrix (ADR-041) - Explicit stage prerequisites
   ✅ Stage Exit Criteria - Documentation, evidence, signoff per tier
@@ -59,6 +59,12 @@ SDLC 6.0.6 Key Features:
   ✅ Risk-Based Planning Mode (replaces LOC-based triggers)
   ✅ Concentric Circles Model (Core → Governance → Outer Ring)
   ✅ SASE Artifacts Simplified (CRP, MRP, VCR + AGENTS.md standard)
+  ✅ 6.1.0 — Ring 1 Monolith Slim (Design Thinking 2K→364 lines, 82% reduction)
+  ✅ 6.1.0 — System Thinking Foundation: dedicated doc for core concept (since SDLC 4.0)
+  ✅ 6.1.0 — Crisis-to-Pattern Methodology: extracted from Design Thinking (Mental Model #5)
+  ✅ 6.1.0 — Multi-Agent Patterns: NEW doc #12 with 10 collaboration patterns
+  ✅ 6.1.0 — Agentic docs reorganized to 03-AI-GOVERNANCE (#12, #13, #14)
+  ✅ 6.1.0 — BRS/MTS/LPS deprecated → AGENTS.md (industry standard)
 
 EP-06 IR-Based Codegen Engine (Sprint 45-50):
   Sprint 45: Multi-Provider Architecture (Ollama → Claude → DeepCode)
@@ -75,10 +81,11 @@ Gate G3 Metrics (Dec 12, 2025):
   ✅ Test Coverage: 94% (target: 90%)
   ✅ P0/P1 Bugs: 0 (target: 0)
 
-EP-07 Multi-Agent Team Engine (Sprint 176-178):
+EP-07 Multi-Agent Team Engine (Sprint 176-179):
   Sprint 176: ADR-056 Foundation + DB migration (3 tables) + service accounts
   Sprint 177: 12 service files + 5 P0 endpoints + lane-based queue + failover
   Sprint 178: Team orchestrator + OTT Gateway (Telegram MVP) + SME pilot
+  Sprint 179: ZeroClaw hardening — credential scrubbing (A+C), history compaction (B), query classification (E)
 
 MVP v1.0.0 Status: COMPLETE (Dec 1, 2025)
   ✅ Backend: 91 API endpoints (FastAPI, PostgreSQL, Redis) — 64 core + 11 Multi-Agent + 16 other
@@ -105,13 +112,13 @@ Next Gate:
 
 ## 🤖 **YOUR ROLE AS AI ASSISTANT**
 
-You are an **AI Development Partner** working with the SDLC Orchestrator team to build the **first governance platform** on SDLC 6.0.6. Your primary responsibilities:
+You are an **AI Development Partner** working with the SDLC Orchestrator team to build the **first governance platform** on SDLC 6.1.0. Your primary responsibilities:
 
 ### **1. Code Generation & Implementation**
 - Generate **production-ready code** (Python FastAPI, React TypeScript, PostgreSQL)
 - Follow **Zero Mock Policy** (no `// TODO`, no placeholders, real implementations only)
 - Integrate with **OSS components** (OPA, MinIO, Grafana, Redis) via adapter pattern
-- Apply **SDLC 6.0.6 patterns** with 7-Pillar Architecture, AI Governance Principles, and Risk-Based Planning
+- Apply **SDLC 6.1.0 patterns** with 7-Pillar Architecture, AI Governance Principles, and Risk-Based Planning
 - Follow **Code File Naming Standards** (snake_case for Python ≤50 chars, camelCase/PascalCase for TypeScript)
 
 ### **2. Architecture & Design Review**
@@ -169,7 +176,7 @@ Framework Submodule:
   Location: /home/nqh/shared/SDLC-Orchestrator/SDLC-Enterprise-Framework/
   Type: Git submodule
   Visibility: PRIVATE (not yet published as OSS — team access required)
-  Version: SDLC 6.0.6 (7-Pillar + AI Governance Principles)
+  Version: SDLC 6.1.0 (7-Pillar + AI Governance Principles)
   Purpose: Methodology layer, templates, best practices
 ```
 
@@ -201,7 +208,7 @@ mkdir -p 03-Templates-Tools/SASE-Artifacts
 
 # Commit to Framework repo
 git add .
-git commit -m "feat(SDLC 6.0.6): Add SASE artifact templates"
+git commit -m "feat(SDLC 6.1.0): Add SASE artifact templates"
 git push origin main
 
 # Update Orchestrator submodule pointer
@@ -417,7 +424,7 @@ Core Capabilities (ADR-011 to ADR-014):
      - CLI tool: sdlcctl validate/fix/init/report
      - Pre-commit hook (block non-compliant commits)
      - CI/CD gate (GitHub Actions integration)
-     - 100% SDLC 6.0.6 folder structure enforcement
+     - 100% SDLC 6.1.0 folder structure enforcement
 ```
 
 ---
@@ -565,7 +572,7 @@ Frontend:
   Component render: <100ms
 ```
 
-### **4. Code File Naming Standards (SDLC 6.0.6 - MANDATORY)**
+### **4. Code File Naming Standards (SDLC 6.1.0 - MANDATORY)**
 
 ```yaml
 Python Files:
@@ -791,7 +798,7 @@ Code Quality:
   - Pre-commit: Linting (ruff, ESLint) + formatting (black, Prettier)
   - CI/CD: Tests (95%+ coverage), security scan (Semgrep), SBOM (Syft)
   - Code review: 2+ approvers required (Tech Lead + Backend Lead)
-  - File naming: SDLC 6.0.6 Code File Naming Standards enforced
+  - File naming: SDLC 6.1.0 Code File Naming Standards enforced
 
 Performance:
   - Load test: 100K concurrent users (Locust)
@@ -923,7 +930,7 @@ PHASE-04: SDLC Validator (Sprint 29-30 - Jan 2026)
     - Web UI compliance report
   Success Criteria:
     - Validation <10s (1000+ files)
-    - 100% accuracy on SDLC 6.0.6
+    - 100% accuracy on SDLC 6.1.0
     - Pre-commit <2s
   Reference: docs/03-Development-Implementation/04-Phase-Plans/PHASE-04-SDLC-VALIDATOR.md
 ```
@@ -969,7 +976,7 @@ ADR-013: 4-Level Planning Hierarchy
 ADR-014: SDLC Structure Validator
   - Problem: 5 NQH projects have inconsistent folder structures
   - Decision: CLI + pre-commit + CI/CD enforcement
-  - Consequences: 100% SDLC 6.0.6 compliance across portfolio
+  - Consequences: 100% SDLC 6.1.0 compliance across portfolio
 ```
 
 ---
@@ -988,6 +995,7 @@ ADR-014: SDLC Structure Validator
 │   │   └── EP-07-Multi-Agent-Team-Engine.md
 │   ├── 03-Functional-Requirements/
 │   │   ├── FR-037 to FR-041 (Multi-Agent BDD requirements)
+│   │   ├── FR-042 to FR-044 (ZeroClaw security hardening requirements)
 │   │   └── ... (existing FRs)
 │   ├── 04-Data-Model/Data-Model-ERD.md (33 tables, v3.4.0)
 │   └── 05-API-Design/API-Specification.md (91 endpoints, v3.6.0)
@@ -995,6 +1003,7 @@ ADR-014: SDLC Structure Validator
 │   ├── 02-System-Architecture/
 │   ├── 03-ADRs/
 │   │   ├── ADR-056-Multi-Agent-Team-Engine.md ⭐ NEW
+│   │   ├── ADR-058-ZeroClaw-Best-Practice-Adoption.md ⭐ Sprint 179
 │   │   └── ... (ADR-001 to ADR-055)
 │   ├── Multi-Agent-Security-Threat-Model.md (STM-056)
 │   ├── Multi-Agent-Test-Plan.md (TP-056, 87 test cases)
@@ -1006,7 +1015,8 @@ ADR-014: SDLC Structure Validator
 │   └── 02-Sprint-Plans/
 │       ├── SPRINT-176-AUTONOMOUS-CODEGEN-PILOT-PREP.md 🔄 (+ ADR-056)
 │       ├── SPRINT-177-CODING-AGENT-LOOP.md ⏳ (+ Multi-Agent Core)
-│       └── SPRINT-178-AUTONOMOUS-CODEGEN-PILOT.md ⏳ (+ OTT Gateway)
+│       ├── SPRINT-178-AUTONOMOUS-CODEGEN-PILOT.md ⏳ (+ OTT Gateway)
+│       └── SPRINT-179-ZEROCLAW-HARDENING.md 🔄 (ADR-058, ZeroClaw patterns)
 ├── 09-govern/          # Stage 09: GOVERN - Compliance & Reports
 │   └── 01-CTO-Reports/
 └── 10-archive/         # Archived pre-update versions
@@ -1025,7 +1035,7 @@ ADR-014: SDLC Structure Validator
 **Multi-Agent Team Engine (EP-07)** — Sprint 176-178:
 5. **[EP-07-Multi-Agent-Team-Engine.md](docs/01-planning/02-Epics/EP-07-Multi-Agent-Team-Engine.md)** - Epic scope, 14 non-negotiables
 6. **[ADR-056-Multi-Agent-Team-Engine.md](docs/02-design/ADR-056-Multi-Agent-Team-Engine.md)** - 4 locked decisions
-7. **[FR-037 to FR-041](docs/01-planning/03-Functional-Requirements/)** - BDD functional requirements (5 FRs)
+7. **[FR-037 to FR-044](docs/01-planning/03-Functional-Requirements/)** - BDD functional requirements (8 FRs: 5 core + 3 ZeroClaw)
 8. **[Multi-Agent-Provider-Integration.md](docs/03-integrate/03-Integration-Guides/Multi-Agent-Provider-Integration.md)** - Provider failover + OTT gateway
 
 **EP-06 Codegen Documents**:
@@ -1036,6 +1046,7 @@ ADR-014: SDLC Structure Validator
 11. **[SPRINT-176](docs/04-build/02-Sprint-Plans/SPRINT-176-AUTONOMOUS-CODEGEN-PILOT-PREP.md)** - ADR-056 Foundation (current)
 12. **[SPRINT-177](docs/04-build/02-Sprint-Plans/SPRINT-177-CODING-AGENT-LOOP.md)** - Multi-Agent Core Services
 13. **[SPRINT-178](docs/04-build/02-Sprint-Plans/SPRINT-178-AUTONOMOUS-CODEGEN-PILOT.md)** - Integration + OTT + Pilot
+14. **[SPRINT-179](docs/04-build/02-Sprint-Plans/SPRINT-179-ZEROCLAW-HARDENING.md)** - ZeroClaw Security Hardening (ADR-058)
 
 ---
 
@@ -1077,7 +1088,7 @@ As Claude AI working on SDLC Orchestrator, you MUST:
 - Understand **4-Phase implementation** (Sprint 26-30)
 - Apply **Context-Aware Requirements** (MANDATORY/RECOMMENDED/OPTIONAL)
 - Follow **4-Level Planning Hierarchy** (Roadmap → Phase → Sprint → Backlog)
-- Enforce **SDLC 6.0.6 folder structure** (10 stages: 00-10, 4-Tier Classification)
+- Enforce **SDLC 6.1.0 folder structure** (10 stages: 00-10, 4-Tier Classification)
 - Reference **ADR-011 to ADR-014** for AI Governance decisions
 
 ### **7. EP-06 Codegen Awareness (Sprint 45-50)**
@@ -1096,7 +1107,7 @@ As Claude AI working on SDLC Orchestrator, you MUST:
 - Apply **6-reason failover classification** (auth/format/rate_limit/billing/timeout/unknown)
 - Enforce **delegation depth limits** (prevent infinite agent chains, Nanobot N2)
 - Apply **input sanitization** (12 injection patterns for OTT external content)
-- Reference **EP-07, FR-037 to FR-041, IG-056** for complete Multi-Agent scope
+- Reference **EP-07, FR-037 to FR-044, ADR-058, IG-056** for complete Multi-Agent scope
 
 ---
 
@@ -1104,7 +1115,7 @@ As Claude AI working on SDLC Orchestrator, you MUST:
 
 Based on expert workflow analysis (Jan 2026), these practices maximize AI-assisted development effectiveness.
 
-### **1. Planning Mode (SDLC 6.0.6 - RISK-BASED TRIGGERS)**
+### **1. Planning Mode (SDLC 6.1.0 - RISK-BASED TRIGGERS)**
 
 ```yaml
 When to Use Planning Mode (MANDATORY - Risk-Based):
@@ -1274,7 +1285,7 @@ Continuous Improvement:
 
 ## 🏗️ **MODULE ZONES** (PRO Tier — Sprint 174)
 
-*Following SDLC 6.0.6 CLAUDE.md Standard (Framework: 03-AI-GOVERNANCE/10-CLAUDE-MD-STANDARD.md)*
+*Following SDLC 6.1.0 CLAUDE.md Standard (Framework: 03-AI-GOVERNANCE/10-CLAUDE-MD-STANDARD.md)*
 
 ### **Module 1: Gate Engine API**
 
@@ -1301,7 +1312,7 @@ DRAFT ──evaluate──> EVALUATED ──submit──> SUBMITTED ──approv
 All terminal states ──archive──> ARCHIVED
 ```
 
-**Gate Types** (SDLC 6.0.6):
+**Gate Types** (SDLC 6.1.0):
 - G0.1: Foundation Ready (WHY stage)
 - G0.2: Solution Diversity (WHY stage)
 - G1: Design Ready / Consultation (WHAT stage)
@@ -1688,6 +1699,9 @@ python -m pytest backend/tests/unit/ -k "sast or semgrep" -v
 - `backend/app/services/agent_team/reflect_step.py` — Reflect-after-tools + self-correction loop
 - `backend/app/services/agent_team/team_orchestrator.py` — Queue modes (P0: queue/steer/interrupt)
 - `backend/app/services/agent_team/evidence_collector.py` — Auto-capture with correlation_id
+- `backend/app/services/agent_team/output_scrubber.py` — Credential scrubbing (6 patterns, ADR-058 Pattern A)
+- `backend/app/services/agent_team/history_compactor.py` — Auto-summarize at 80% capacity (ADR-058 Pattern B)
+- `backend/app/services/agent_team/query_classifier.py` — Model routing hints: code/reasoning/fast (ADR-058 Pattern E)
 - `backend/app/schemas/agent_team.py` — Pydantic v2 schemas (all endpoints)
 
 **Database Tables** (3 P0 tables — ERD v3.4.0):
@@ -1847,31 +1861,50 @@ You are successful if:
 - ✅ **Test Coverage**: 95%+ (unit + integration)
 - ✅ **CTO Approval**: Code review pass (2+ approvers)
 - ✅ **Gate G3 Pass**: Ship Ready APPROVED (Dec 12, 2025, 98.2%)
-- ✅ **SDLC 6.0.6 Compliance**: Code File Naming Standards + 4-Tier Classification + Risk-Based Planning enforced
+- ✅ **SDLC 6.1.0 Compliance**: Code File Naming Standards + 4-Tier Classification + Risk-Based Planning enforced
 
 ---
 
 **Template Status**: ✅ **SDLC ORCHESTRATOR AI CONTEXT COMPLETE**
-**Framework**: ✅ **SDLC 6.0.6 (7-PILLAR + AI GOVERNANCE PRINCIPLES)**
+**Framework**: ✅ **SDLC 6.1.0 (7-PILLAR + AI GOVERNANCE PRINCIPLES)**
 **Authorization**: ✅ **CTO + CPO + CEO APPROVED**
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 6.0.6. Zero facade tolerance. Battle-tested patterns. Production excellence.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0. Zero facade tolerance. Battle-tested patterns. Production excellence.*
 
 **"Quality over quantity. Real implementations over mocks. Let's build with discipline."** - CTO
 
 ---
 
-**Last Updated**: February 18, 2026
+**Last Updated**: February 19, 2026
 **Owner**: CTO + CPO + CEO
 **Status**: ✅ Gate G3 APPROVED - Ship Ready (98.2%)
-**Current Sprint**: Sprint 176 - ADR-056 Multi-Agent Foundation
+**Current Sprint**: Sprint 179 - ZeroClaw Security Hardening
 **Next Review**: Weekly CEO Review (Every Friday 3pm)
 
 ---
 
 ## 📋 **CHANGELOG**
+
+### v3.8.0 (February 19, 2026)
+- **Sprint 179 — ZeroClaw Security Hardening** - ADR-058 with 4 locked micro-decisions
+- **4 ZeroClaw Patterns Adopted**: Output credential scrubbing (A), env scrubbing (C), history compaction (B), query classification (E)
+- **3 New FRs**: FR-042 (Output Credential Scrubbing), FR-043 (Env Variable Scrubbing), FR-044 (History Compaction)
+- **STM-056 Updated**: 10 → 13 threat surfaces (T11 credential leakage, T12 env exposure, T13 history overflow)
+- **TP-056 Updated**: 87 → 121 test cases (4 new test suites: CS/ES/HC/QC)
+- **BC-056 Updated**: Investment $10,560 → $14,400 (Sprint 179 cost added), ZeroClaw as 4th pattern source
+- **EP-07 Updated**: Timeline 176-178 → 176-179, new P1.5 ZeroClaw scope section, P2 shifted to Sprint 180+
+- **Module 7 Updated**: Added output_scrubber.py, history_compactor.py, query_classifier.py to key files
+- **All EP-07 docs upgraded**: sdlc_version 6.0.6 → 6.1.0 across 9 documents
+
+### v3.7.0 (February 18, 2026)
+- **SDLC 6.1.0 Full Alignment** - Framework consolidation release integration
+- **6.1.0 Key Features Added** - System Thinking Foundation, Crisis-to-Pattern Methodology, Multi-Agent Patterns (10 from ADR-056)
+- **Ring 1 Slim Reflected** - Design Thinking 2K→364 lines, Agentic docs moved to 03-AI-GOVERNANCE
+- **Terminology Cleanup** - BRS/MTS/LPS deprecated → AGENTS.md (industry standard)
+- **Framework Submodule Audit** - 01-09 directories checked, ~80 version refs fixed to 6.1.0
+- **CHANGELOG.md Updated** - Added 6.1.0 entry to Framework changelog
 
 ### v3.6.0 (February 18, 2026)
 - **EP-07 Multi-Agent Team Engine** - Sprint 176-178 scope added

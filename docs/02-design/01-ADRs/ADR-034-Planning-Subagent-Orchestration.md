@@ -6,7 +6,7 @@
 **Approved**: January 23, 2026
 **Decision Makers**: CTO, CPO
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 **Sprint**: Sprint 97-100 (January - February 2026)
 **Priority**: P1 - KEY DIFFERENTIATOR
 **Reference**: Expert Workflow Analysis (Jan 2026)

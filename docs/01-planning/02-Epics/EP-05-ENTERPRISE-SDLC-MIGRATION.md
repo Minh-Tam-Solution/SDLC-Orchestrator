@@ -1,5 +1,5 @@
 # EP-05: Enterprise SDLC Migration Automation
-## Automated Migration from SDLC 4.x/5.x → 6.0.6 for Large Codebases
+## Automated Migration from SDLC 4.x/5.x → 6.1.0 for Large Codebases
 
 **Epic ID**: EP-05
 **Version**: 1.1.0
@@ -8,7 +8,7 @@
 **Status**: PROPOSED - Ready for CTO Review
 **Tier**: PROFESSIONAL + ENTERPRISE (NOT for LITE/STANDARD)
 **Sprint Target**: Sprint 47-49 (Q2 2026)
-**Framework**: SDLC 6.0.6 (7-Pillar + RFC-001 Legacy Document Organization)
+**Framework**: SDLC 6.1.0 (7-Pillar + RFC-001 Legacy Document Organization)
 
 ---
 
@@ -86,7 +86,7 @@
 
 **Phase 3: Self-Contained Documentation Generator** (Sprint 49 - May 5-16, 2026)
 - [ ] Generate `/docs/08-collaborate/03-SDLC-Compliance/` folder
-- [ ] Copy SDLC 6.0.5 methodology docs (84KB)
+- [ ] Copy SDLC 6.1.0 methodology docs (84KB)
 - [ ] Copy SASE artifacts (70KB)
 - [ ] Generate project-specific Quick Reference (cheatsheets)
 - [ ] Generate Situation-Specific Guides (When-Starting-Feature.md, etc.)
@@ -258,7 +258,7 @@ CREATE TABLE migration_compliance_docs (
     project_id UUID NOT NULL REFERENCES projects(id),
 
     -- Generation config
-    sdlc_version VARCHAR(20) NOT NULL, -- "6.0.5"
+    sdlc_version VARCHAR(20) NOT NULL, -- "6.1.0"
     tier VARCHAR(20) NOT NULL, -- "professional", "enterprise"
 
     -- Generated artifacts
@@ -328,7 +328,7 @@ SDLC Orchestrator auto-generates `/docs/08-collaborate/03-SDLC-Compliance/` with
 03-SDLC-Compliance/ (~700KB self-contained)
 ├── README.md (Navigation hub - "I want to..." guide)
 │
-├── Core-Methodology/ (What is SDLC 6.0.5?)
+├── Core-Methodology/ (What is SDLC 6.1.0?)
 │   ├── SDLC-Core-Methodology.md (84KB)
 │   ├── SDLC-Agentic-Core-Principles.md (43KB)
 │   ├── SDLC-Agentic-Maturity-Model.md (29KB)

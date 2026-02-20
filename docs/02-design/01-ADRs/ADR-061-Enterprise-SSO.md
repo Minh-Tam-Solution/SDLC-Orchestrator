@@ -392,7 +392,7 @@ def downgrade():
 
 ## Non-Goals
 
-- **LITE/STANDARD SSO**: SSO is ENTERPRISE-only (ADR-059 INV-03 tier invariant)
+- **LITE/STANDARD SSO**: SSO is ENTERPRISE-only (ADR-059 D1 tier feature matrix)
 - **MFA via Orchestrator**: Delegate MFA to IdP (enterprise already enforces it via SAML)
 - **Social OAuth (GitHub/Google)**: Already implemented in existing auth flow; SSO is separate path
 - **SCIM 2.0**: Deferred (D-4) — JIT covers Sprint 183-184 needs

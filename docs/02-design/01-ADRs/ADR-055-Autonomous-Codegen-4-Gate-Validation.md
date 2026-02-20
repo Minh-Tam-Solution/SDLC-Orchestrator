@@ -14,7 +14,7 @@ stage: "02 - Design"
 **Date**: February 2026
 **Author**: CTO Nguyen Quoc Huy
 **Sprint**: Sprint 174 — Anthropic Patterns Integration
-**Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance)
+**Framework**: SDLC 6.1.0
 **Supersedes**: None (new capability)
 **References**: ADR-022 (Multi-Provider Codegen Architecture), ADR-054 (Anthropic Claude Code Best Practices)
 

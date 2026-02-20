@@ -1,8 +1,8 @@
 ---
-sdlc_version: "6.0.6"
+sdlc_version: "6.1.0"
 document_type: "Security Threat Model"
 status: "PROPOSED"
-sprint: "176"
+sprint: "176-179"
 spec_id: "STM-056"
 tier: "PROFESSIONAL"
 stage: "02 - Design"
@@ -10,17 +10,17 @@ stage: "02 - Design"
 
 # Multi-Agent Team Engine — Security Threat Model
 
-**Status**: PROPOSED (Sprint 176, companion to ADR-056)
+**Status**: PROPOSED (Sprint 176-179, companion to ADR-056 + ADR-058)
 **Date**: February 2026
 **Author**: CTO Nguyen Quoc Huy
-**Framework**: SDLC 6.0.6, OWASP ASVS Level 2
-**References**: ADR-056, OpenClaw security audit (Pattern 8), Nanobot shell guard (Pattern N6)
+**Framework**: SDLC 6.1.0, OWASP ASVS Level 2
+**References**: ADR-056, ADR-058, OpenClaw security audit (Pattern 8), Nanobot shell guard (Pattern N6), ZeroClaw `scrub_credentials()` + `env_clear()`
 
 ---
 
 ## 1. Attack Surface Summary
 
-The Multi-Agent Team Engine introduces 10 attack surfaces not present in the current Orchestrator:
+The Multi-Agent Team Engine introduces 13 attack surfaces not present in the current Orchestrator:
 
 | # | Surface | Entry Point | Risk Level |
 |---|---------|------------|------------|
@@ -34,6 +34,9 @@ The Multi-Agent Team Engine introduces 10 attack surfaces not present in the cur
 | T8 | Cooldown Poisoning | Fake provider errors to trigger cooldowns | MEDIUM |
 | T9 | Shell Command Injection | Agent tool execution | **CRITICAL** |
 | T10 | Infinite Delegation Chain | Agent spawning sub-agents recursively | **HIGH** |
+| T11 | Credential Leakage in Tool Output | Agent runs `env`/`printenv` → secrets in agent_messages | **HIGH** |
+| T12 | Environment Variable Exposure | Shell tool inherits host env vars (API keys, secrets) | **HIGH** |
+| T13 | History Context Overflow | Long conversations exceed LLM context window → degraded output | MEDIUM |
 
 ---
 
@@ -182,6 +185,45 @@ The Multi-Agent Team Engine introduces 10 attack surfaces not present in the cur
 
 **Residual Risk**: LOW with depth limit + explicit spawn permission
 
+### T11: Credential Leakage in Tool Output (Sprint 179 — ADR-058 Pattern A)
+
+**Threat**: Agent executes `env`, `printenv`, or `cat .env` via shell tool. Output contains API keys, tokens, passwords which are stored in `agent_messages` table and fed back into LLM context (credential echo amplification, CWE-200).
+
+**Mitigation** (ADR-058, FR-042):
+- `OutputScrubber` with 6 credential regex patterns: `token`, `api_key/apikey`, `password/passwd`, `secret`, `bearer`, `credential`
+- Redaction preserves first 4 chars + `****[REDACTED]` for debugging
+- Dual integration: scrub in `AgentInvoker.invoke()` AND `EvidenceCollector.capture_message()`
+- Evidence order: scrub → SHA256 hash → store (never hash unscrubbed content)
+- Security audit log: scrubbed pattern names logged for monitoring
+
+**Residual Risk**: LOW with regex scrubbing + dual integration points
+
+### T12: Environment Variable Exposure (Sprint 179 — ADR-058 Pattern C)
+
+**Threat**: Agent shell execution inherits full host environment. Attacker crafts prompt to `echo $API_KEY` or `env | grep SECRET`, bypassing ShellGuard command deny patterns (ShellGuard blocks dangerous commands but not env leakage).
+
+**Mitigation** (ADR-058, FR-043):
+- `ShellGuard.scrub_environment()` clears env, returns only 9 safe variables:
+  `PATH`, `HOME`, `LANG`, `LC_ALL`, `TZ`, `TERM`, `USER`, `SHELL`, `TMPDIR`
+- Callers pass safe env dict to `subprocess.Popen(env=safe_env)`
+- Missing variables omitted (not set to empty string)
+- `LC_ALL` included for Vietnamese UTF-8 content handling
+
+**Residual Risk**: LOW with explicit allowlist (defense-in-depth with T11)
+
+### T13: History Context Overflow (Sprint 179 — ADR-058 Pattern B)
+
+**Threat**: Long-running agent conversations accumulate 50+ messages, exceeding LLM context window. Results in degraded output quality, truncated context, or provider errors (context_too_long).
+
+**Mitigation** (ADR-058, FR-044):
+- `HistoryCompactor` triggers at `max_messages * 0.8` (40 messages for default 50)
+- Summarize oldest 60% of messages using fast model (`qwen3:8b`)
+- Keep last 40% of messages + 2000-char summary as first context message
+- Deterministic fallback: if LLM summarization fails, truncate to last 40% (no exception)
+- Summary stored in `agent_conversations.metadata_` JSONB (no new DB migration)
+
+**Residual Risk**: LOW with auto-compaction + deterministic fallback
+
 ---
 
 ## 3. Risk Matrix
@@ -198,6 +240,9 @@ The Multi-Agent Team Engine introduces 10 attack surfaces not present in the cur
 | T8: Cooldown Poisoning | Low | Medium | MEDIUM | Decision 3 (short TTL + auto-expiry) |
 | T9: Shell Injection | Medium | Critical | **CRITICAL** | #5 Shell Guard (8 patterns) |
 | T10: Infinite Delegation | Medium | High | **HIGH** | #6 Tool Restriction + depth limit |
+| T11: Credential Leakage | High | High | **HIGH** | ADR-058 OutputScrubber (6 patterns) |
+| T12: Env Variable Exposure | Medium | High | **HIGH** | ADR-058 ShellGuard.scrub_environment() |
+| T13: History Overflow | Medium | Medium | MEDIUM | ADR-058 HistoryCompactor (auto-summarize) |
 
 ---
 
@@ -207,9 +252,10 @@ The Multi-Agent Team Engine introduces 10 attack surfaces not present in the cur
 |------------------------|----------------|------------|
 | V2.1 Password Security | T1 | External identity verification |
 | V4.1 Access Control | T1, T6 | Scope-based auth, admin-only replay |
-| V5.1 Input Validation | T4, T9 | InputSanitizer + ShellGuard |
+| V5.1 Input Validation | T4, T9, T11 | InputSanitizer + ShellGuard + OutputScrubber |
 | V8.1 Data Protection | T3 | Budget circuit breaker (financial data) |
 | V11.1 Business Logic | T2, T10 | Loop guards + delegation depth |
+| V5.5 Output Encoding | T11, T12 | OutputScrubber + env scrubbing (CWE-200) |
 | V13.1 API Security | T5, T7 | Rate limiting + dedupe design |
 
 ---
@@ -228,6 +274,8 @@ The Multi-Agent Team Engine introduces 10 attack surfaces not present in the cur
 | Delegation depth limit hit | `tool_context.py` | WARNING |
 | Unknown failover reason | `failover_classifier.py` | WARNING (needs investigation) |
 | OTT unverified sender | `agent_registry.py` | INFO (queue for pairing) |
+| Credential scrubbed from output | `output_scrubber.py` | WARNING (log pattern names) |
+| History compaction triggered | `history_compactor.py` | INFO (conversation approaching limit) |
 
 ### 3 Minimum Viable Traces (Non-Negotiable)
 

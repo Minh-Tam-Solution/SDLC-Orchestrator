@@ -33,7 +33,7 @@ Three parallel tracks:
 | `azure_ad_service.py` (msal MIT, PKCE S256) | P0 | ~150 | 1.5 |
 | `enterprise_sso.py` routes (6 endpoints) | P0 | ~250 | 1.5 |
 | SSO tests (30 tests: SS-01..15 + AD-01..15) | P0 | ~300 | 1 |
-| `s183_001_enterprise_sso.py` Alembic (already designed) | P0 | ~80 | 0.5 |
+| `s182_001_enterprise_sso.py` (applied in Sprint 182) | -- | already applied | -- |
 | ADR-062 finalized + EvidenceType enum extension | P0 | ~100 code + 200 doc | 1 |
 | `s183_002_compliance_evidence_types.py` migration | P0 | ~40 | 0.5 |
 | `slack_normalizer.py` + 15 tests (PA-36..50) | P1 | ~200 + 200 | 2 |
@@ -209,7 +209,7 @@ async def sso_logout(current_user: User = Depends(get_current_user), db: AsyncSe
 
 2. HTTP status codes:
    - `401 Unauthorized`: Missing/invalid JWT
-   - `403 Forbidden`: Not ENTERPRISE tier
+   - `402 Payment Required`: ENTERPRISE tier required
    - `409 Conflict`: SSO config already exists for this org + provider
    - `422 Unprocessable Entity`: Invalid SAML response
 
@@ -268,7 +268,7 @@ python -m pytest backend/tests/unit/test_saml_service.py \
 **Goal**: Extend EvidenceType enum with 4 compliance-specific values
 
 **Tasks**:
-1. Finalize `docs/02-design/ADR-062-Compliance-Evidence-Types.md`:
+1. Finalize `docs/02-design/01-ADRs/ADR-062-Compliance-Evidence-Types.md`:
    - 4 locked decisions
    - Implementation: `s183_002_compliance_evidence_types.py`
 
@@ -392,7 +392,7 @@ python -m pytest backend/tests/unit/test_slack_normalizer.py -v
 
 ### Day 8: Integration + Regression + Sprint Close
 
-**Goal**: All 80 OTT tests pass + SSO tests pass + Sprint close
+**Goal**: All 50 OTT tests pass + SSO tests pass + Sprint close
 
 **Tasks**:
 1. Run full OTT regression (PA-01..50):
@@ -421,7 +421,7 @@ python -m pytest backend/tests/unit/test_slack_normalizer.py -v
      --cov-report=term-missing -v
    ```
 
-**Exit Criteria**: All 80 OTT tests (PA-01..50) + 30 SSO tests (SS-01..30) pass
+**Exit Criteria**: All 50 OTT tests (PA-01..50) + 30 SSO tests (SS-01..15 + AD-01..15) pass
 
 ---
 

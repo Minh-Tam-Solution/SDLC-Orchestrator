@@ -6,7 +6,7 @@
 **Date**: December 23, 2025
 **Author**: Backend Lead + QA Lead
 **Sprint**: Sprint 48 (Feb 17-28, 2026)
-**Framework**: SDLC 5.1.3 + SASE Level 2
+**Framework**: SDLC 6.1.0
 **Dependency**: Sprint 46-47 (IR Processors + Templates)
 
 ---

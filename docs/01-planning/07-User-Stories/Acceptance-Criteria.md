@@ -1,15 +1,16 @@
 # Acceptance Criteria
 ## Detailed Test Scenarios for User Stories
 
-**Version**: 2.0.0
-**Date**: December 21, 2025
-**Status**: ACTIVE - EP-04/05/06 EXTENDED
+**Version**: 2.1.0
+**Date**: February 20, 2026
+**Status**: ACTIVE - Enterprise-First Alignment
 **Authority**: QA Lead + PM Review (✅ APPROVED)
-**Foundation**: User Stories v2.0.0, FRD v3.0.0, Roadmap v4.1.0
+**Foundation**: User Stories v2.1.0, FRD v3.3.0, Roadmap v5.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 
 **Changelog**:
+- v2.1.0 (Feb 20, 2026): Enterprise-First alignment — SDLC 5.1.3→6.1.0
 - v2.0.0 (Dec 21, 2025): SDLC 5.1.3 update, added E9-E20 acceptance criteria
 - v1.0.0 (Jan 13, 2025): Initial acceptance criteria (46 stories, 100+ scenarios)
 
@@ -817,9 +818,9 @@ Scenario: Dev Lead bypasses gate check (force push)
 ---
 
 **Document**: SDLC-Orchestrator-Acceptance-Criteria
-**Framework**: SDLC 5.1.3 Stage 01 (WHAT) - Planning & Analysis
+**Framework**: SDLC 6.1.0 Stage 01 (WHAT) - Planning & Analysis
 **Component**: Test Scenarios and Acceptance Criteria
 **Review**: Sprint planning sessions with QA Lead
-**Last Updated**: December 21, 2025
+**Last Updated**: February 20, 2026
 
 *"Acceptance criteria define what 'done' means."* ✅

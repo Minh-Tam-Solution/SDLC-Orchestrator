@@ -7,7 +7,7 @@
 **Author**: Frontend Lead
 **Reference**: ADR-028-Teams-Feature-Architecture
 **Sprint**: Sprint 72 (Feb 3 - Feb 17, 2026)
-**Framework**: SDLC 5.1.2 (Stage 08: COLLABORATE)
+**Framework**: SDLC 6.1.0
 
 **Changelog v1.1.0** (Jan 25, 2026):
 - Added `member_type` field to AddMemberInput interface

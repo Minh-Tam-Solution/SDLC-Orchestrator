@@ -31,7 +31,7 @@ Three tracks:
 |-------------|----------|---------|------|
 | `audit_trail.py` routes + model | P0 | ~250 | 2 |
 | PostgreSQL append-only trigger | P0 | ~30 SQL | 0.5 |
-| `s185_001_audit_trail_immutable.py` migration | P0 | ~80 | 0.5 |
+| `s185_001_audit_trail.py` migration | P0 | ~80 | 0.5 |
 | Audit trail tests (AT-01..20) | P0 | ~250 | 1 |
 | `soc2_pack_service.py` | P0 | ~300 | 2 |
 | SOC2 PDF generation (weasyprint Apache 2.0) | P0 | ~100 | 0.5 |
@@ -69,21 +69,19 @@ Three tracks:
 1. Create `backend/alembic/versions/s185_001_audit_trail.py`:
 
 ```sql
--- audit_logs table (append-only via PostgreSQL trigger)
-CREATE TABLE audit_logs (
-    id              BIGSERIAL PRIMARY KEY,        -- 64-bit for long-running systems
-    event_type      VARCHAR(50) NOT NULL,          -- 'gate_action', 'evidence_access', etc.
-    actor_user_id   INTEGER REFERENCES users(id),  -- NULL for system events
-    resource_type   VARCHAR(50) NOT NULL,           -- 'gate', 'evidence', 'user', 'tier'
-    resource_id     VARCHAR(100) NOT NULL,          -- FK value as string (generic)
-    action          VARCHAR(50) NOT NULL,           -- 'create', 'read', 'update', 'delete'
-    old_value       JSONB,                          -- Before state (NULL for creates)
-    new_value       JSONB,                          -- After state (NULL for deletes)
-    ip_address      INET,
-    user_agent      TEXT,
-    tier_at_time    VARCHAR(20),                    -- Tier snapshot at audit event time
-    created_at      TIMESTAMP NOT NULL DEFAULT NOW()
-);
+-- audit_logs table already exists (ERD v3.5.0: id UUID PK, user_id UUID, created_at, etc.)
+-- Sprint 185: extend with compliance audit columns + append-only enforcement trigger
+ALTER TABLE audit_logs
+    ADD COLUMN IF NOT EXISTS event_type     VARCHAR(50),          -- 'gate_action', 'evidence_access', etc.
+    ADD COLUMN IF NOT EXISTS actor_user_id  UUID REFERENCES users(id),     -- NULL for system events
+    ADD COLUMN IF NOT EXISTS resource_type  VARCHAR(50),          -- 'gate', 'evidence', 'user', 'tier'
+    ADD COLUMN IF NOT EXISTS resource_id    VARCHAR(100),         -- FK value as string (generic)
+    ADD COLUMN IF NOT EXISTS action         VARCHAR(50),          -- 'create', 'read', 'update', 'delete'
+    ADD COLUMN IF NOT EXISTS old_value      JSONB,                -- Before state (NULL for creates)
+    ADD COLUMN IF NOT EXISTS new_value      JSONB,                -- After state (NULL for deletes)
+    ADD COLUMN IF NOT EXISTS ip_address     INET,
+    ADD COLUMN IF NOT EXISTS user_agent     TEXT,
+    ADD COLUMN IF NOT EXISTS tier_at_time   VARCHAR(20);          -- Tier snapshot at audit event time
 
 -- Append-only enforcement: block UPDATE and DELETE on audit_logs
 CREATE OR REPLACE FUNCTION prevent_audit_modification()
@@ -134,7 +132,7 @@ router = APIRouter(prefix="/api/v1/enterprise/audit", tags=["Audit Trail"])
 @router.get("")
 async def list_audit_logs(
     event_type: str | None = None,
-    actor_user_id: int | None = None,
+    actor_user_id: UUID | None = None,
     resource_type: str | None = None,
     start_date: datetime | None = None,
     end_date: datetime | None = None,
@@ -177,7 +175,7 @@ AT-06: GET /enterprise/audit filters by actor_user_id
 AT-07: GET /enterprise/audit filters by resource_type + resource_id
 AT-08: GET /enterprise/audit filters by date range
 AT-09: GET /enterprise/audit page_size=100 max enforced
-AT-10: GET /enterprise/audit returns 403 for non-ENTERPRISE user (TierGateMiddleware)
+AT-10: GET /enterprise/audit returns 402 for non-ENTERPRISE user (TierGateMiddleware)
 AT-11: POST /enterprise/audit/export produces valid CSV
 AT-12: POST /enterprise/audit/export max 90-day window enforced
 AT-13: Audit log records SSO login events (event_type="sso_login")

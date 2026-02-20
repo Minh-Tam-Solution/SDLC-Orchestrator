@@ -1,13 +1,16 @@
 # User Stories & Epics
 ## User Journeys and Acceptance Criteria
 
-**Version**: 2.0.0
-**Date**: December 21, 2025
-**Status**: ACTIVE - EP-04/05/06 Stories Added
+**Version**: 2.1.0
+**Date**: February 20, 2026
+**Status**: ACTIVE - Enterprise-First Alignment
 **Authority**: PM + Product Owner Review (APPROVED)
-**Foundation**: FRD v3.0.0, User Personas 1.1.0, Product Vision 3.1.0
+**Foundation**: FRD v3.3.0, User Personas 1.1.0, Product Vision 5.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+
+**Changelog v2.1.0** (Feb 20, 2026):
+- Enterprise-First alignment — SDLC 5.1.3→6.1.0, FRD v3.3.0, Vision v5.0.0
 
 **Changelog v2.0.0** (Dec 21, 2025):
 - Updated framework to SDLC 5.1.3
@@ -248,7 +251,7 @@ This document defines user stories (WHO + WHAT + WHY) mapped to epics and functi
 ## E3: Policy Packs (6 Stories)
 
 ### US3.1: Browse Pre-Built Policy Library
-**Story**: As an Admin, I want to browse 100+ pre-built SDLC 4.8 policies, so that I can quickly configure gates without writing Rego code.
+**Story**: As an Admin, I want to browse 110+ pre-built SDLC 6.1.0 policies, so that I can quickly configure gates without writing Rego code.
 
 **Acceptance Criteria**:
 - [ ] Policy library organized by stage (Stage 00-06)
@@ -296,7 +299,7 @@ This document defines user stories (WHO + WHAT + WHY) mapped to epics and functi
 ---
 
 ### US3.5: Clone Pre-Built Policy
-**Story**: As an Admin, I want to clone pre-built policy and customize, so that I can tweak SDLC 4.8 policies for our process.
+**Story**: As an Admin, I want to clone pre-built policy and customize, so that I can tweak SDLC 6.1.0 policies for our process.
 
 **Acceptance Criteria**:
 - [ ] "Clone" button on pre-built policy
@@ -335,7 +338,7 @@ This document defines user stories (WHO + WHAT + WHY) mapped to epics and functi
 ---
 
 ### US4.2: AI Design Review
-**Story**: As an Engineer, I want AI to review my design doc for SDLC 4.8 compliance, so that I catch missing elements before CTO review.
+**Story**: As an Engineer, I want AI to review my design doc for SDLC 6.1.0 compliance, so that I catch missing elements before CTO review.
 
 **Acceptance Criteria**:
 - [ ] Upload design doc (PDF, Markdown, Figma URL)
@@ -581,9 +584,9 @@ US1.2: Evaluate gate G0.1 (Problem Definition)
 ---
 
 **Document**: SDLC-Orchestrator-User-Stories-Epics
-**Framework**: SDLC 5.1.3 Stage 01 (WHAT) - Planning & Analysis
+**Framework**: SDLC 6.1.0 Stage 01 (WHAT) - Planning & Analysis
 **Component**: User Stories and Epic Breakdown
 **Review**: Sprint planning sessions
-**Last Updated**: December 21, 2025
+**Last Updated**: February 20, 2026
 
 *"User stories bridge the gap between vision and implementation."* 📝

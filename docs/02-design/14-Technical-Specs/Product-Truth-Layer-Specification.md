@@ -6,7 +6,7 @@
 **Authority**: CTO + Backend Lead
 **Sprint**: Sprint 147 "Spring Cleaning"
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 
 ---
 

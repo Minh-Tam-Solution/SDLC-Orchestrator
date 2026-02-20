@@ -5,7 +5,7 @@
 **Status**: DRAFT - Awaiting CTO Approval
 **Sprint**: 114 - Dogfooding (WARNING Mode)
 **Dependencies**: Sprint 113 Complete (Auto-Generation + Kill Switch UI)
-**Framework**: SDLC 5.3.0 Quality Assurance System
+**Framework**: SDLC 6.1.0
 
 ---
 

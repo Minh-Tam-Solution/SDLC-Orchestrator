@@ -42,16 +42,20 @@ from app.db.base_class import Base
 
 class SubscriptionPlan(str, enum.Enum):
     """
-    Subscription plan tiers per Plan v2.2 Section 2.1.
+    Subscription plan tiers per ADR-059 4-Tier Classification (Sprint 181).
 
-    Pricing:
-    - FREE: 0 VND, 1 project, 5 gates
-    - FOUNDER: 2.5M VND/team/month (~$99)
-    - STANDARD: $30/user/month (manual billing in V1)
-    - ENTERPRISE: Custom pricing
+    Pricing (CPO decisions BM-01 to BM-05):
+    - LITE:       $0, free cloud gateway (was FREE — renamed Sprint 181)
+    - FOUNDER:    2.5M VND/team/month (~$150) — legacy billing SKU, grandfathered
+    - STANDARD:   $99-$299/mo, 15-30 members
+    - ENTERPRISE: Custom ($80/seat), unlimited + SSO + SLA
+
+    Note: FOUNDER plan name stays within STANDARD tier billing.
+    Note: The PostgreSQL enum value was renamed 'free' → 'lite' via
+          migration s181_001_tier_naming_lite.py.
     """
 
-    FREE = "free"
+    LITE = "lite"
     FOUNDER = "founder"
     STANDARD = "standard"
     ENTERPRISE = "enterprise"
@@ -90,7 +94,7 @@ class Subscription(Base):
     Attributes:
         id: Primary key
         user_id: Foreign key to users
-        plan: Subscription plan (free, founder, standard, enterprise)
+        plan: Subscription plan (lite, founder, standard, enterprise)
         status: Subscription status (active, canceled, past_due)
         current_period_start: Start of current billing period
         current_period_end: End of current billing period
@@ -120,7 +124,7 @@ class Subscription(Base):
     plan: Mapped[str] = mapped_column(
         Enum(SubscriptionPlan, name="subscription_plan_enum", create_constraint=True),
         nullable=False,
-        default=SubscriptionPlan.FREE,
+        default=SubscriptionPlan.LITE,
         comment="Subscription plan tier",
     )
 

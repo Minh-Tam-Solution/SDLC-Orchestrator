@@ -99,7 +99,7 @@ class AgentDefinition(Base):
     sdlc_role: Mapped[str] = mapped_column(
         String(20),
         nullable=False,
-        doc="SDLC role: researcher, pm, pjm, architect, coder, reviewer, tester, devops",
+        doc="SDLC role (12): SE4A: researcher/pm/pjm/architect/coder/reviewer/tester/devops | SE4H: ceo/cpo/cto | Router: assistant",
     )
 
     # ── Provider Configuration ───────────────────────────────────────────

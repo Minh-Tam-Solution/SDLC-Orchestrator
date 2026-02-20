@@ -55,7 +55,7 @@ SDLC Orchestrator requires AI capabilities for:
 
 **Internal Resources**:
 - Ollama at `https://api.nhatquangholding.com/`
-- Model: qwen2.5:14b with 96.4% Vietnamese accuracy
+- Model: qwen3:32b with 96.4% Vietnamese accuracy
 - AI-Platform heritage from BFlow/NQH-Bot/MTEP (86% test coverage, Zero Mock Policy)
 
 **Cloud Providers**:
@@ -98,7 +98,7 @@ THEN the gateway routes to optimal provider
 
 ```gherkin
 GIVEN Ollama is available at api.nhatquangholding.com
-  AND model is qwen2.5:14b
+  AND model is qwen3:32b
 WHEN 80% of AI requests are processed
 THEN Ollama handles them successfully
   AND average cost is <$0.001 per 1K tokens
@@ -373,7 +373,7 @@ class AIGateway:
 
 **Ollama Provider**:
 - **Endpoint**: `https://api.nhatquangholding.com/api/generate`
-- **Model**: qwen2.5:14b
+- **Model**: qwen3:32b
 - **Timeout**: 30s
 - **Retry**: 3 attempts with exponential backoff
 - **Cost**: $0.001 per 1K tokens (infrastructure only)

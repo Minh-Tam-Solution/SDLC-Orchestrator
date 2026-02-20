@@ -4,7 +4,7 @@
 **Date**: February 2, 2026
 **Sprint**: 139 (Feb 3-7, 2026)
 **Status**: ✅ DESIGN COMPLETE
-**Framework**: SDLC 6.0.6 (RFC-SDLC-602)
+**Framework**: SDLC 6.1.0
 
 ---
 

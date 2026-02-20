@@ -4,7 +4,7 @@
 **Date**: November 13, 2025
 **Decision Makers**: Tech Lead, Backend Lead, SRE Lead
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 
 ---
 

@@ -10,7 +10,7 @@ last_updated: "2026-01-29"
 tags: ["codegen", "multi-provider", "ep-06", "ir-based", "ollama", "vietnam-sme", "architecture-decision"]
 related_specs: ["SPEC-0003", "SPEC-0004", "SPEC-0009", "SPEC-0010"]
 stage: "02-DESIGN"
-framework_version: "6.0.6"
+framework_version: "6.1.0"
 ---
 
 # SPEC-0006: Multi-Provider Codegen Architecture (ADR-022)
@@ -20,7 +20,7 @@ framework_version: "6.0.6"
 **Decision Date**: December 23, 2025
 **Decision Makers**: CTO, CEO (joint review)
 **Sprint**: Sprint 45 (Jan 6-17, 2026)
-**Framework**: SDLC 6.0.6 + SASE Level 2
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -339,7 +339,7 @@ codegen:
     ollama:
       enabled: true
       base_url: "https://api.nhatquangholding.com"
-      model: "qwen2.5-coder:14b"    # Vietnamese-optimized
+      model: "qwen3-coder:30b"    # Vietnamese-optimized
       timeout_seconds: 60
       max_retries: 3
 
@@ -521,7 +521,7 @@ async def generate_with_retry(spec: CodegenSpec) -> CodegenResult:
       "backend/app/api/routes/users.py": "..."
     },
     "metadata": {
-      "model": "qwen2.5-coder:14b",
+      "model": "qwen3-coder:30b",
       "prompt_tokens": 450,
       "completion_tokens": 1250
     },

@@ -7,7 +7,7 @@
 **Sprint**: 77 (February 3-7, 2026)
 **Author**: Backend Lead
 **Reviewers**: CTO, Tech Lead
-**Framework**: SDLC 5.1.3 P2 (Sprint Planning) + P5 (SASE Integration)
+**Framework**: SDLC 6.1.0
 **Prerequisite**: Sprint 76 ✅ COMPLETE (P0 Rate Limiting Fixed)
 
 ---

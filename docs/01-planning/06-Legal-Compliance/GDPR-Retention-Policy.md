@@ -4,7 +4,7 @@
 **Date:** January 19, 2026
 **Status:** ACTIVE - Sprint 82 (Pre-Launch Hardening)
 **Authority:** Legal + CTO Approved
-**Framework:** SDLC 5.1.3 P7 (Documentation Permanence)
+**Framework:** SDLC 6.1.0 P7 (Documentation Permanence)
 **Compliance:** GDPR, CCPA, SOC 2
 
 ---

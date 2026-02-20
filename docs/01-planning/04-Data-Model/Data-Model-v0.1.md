@@ -1,11 +1,13 @@
 # Data Model v0.1 - PostgreSQL Schema Design
 
+> **⚠️ SUPERSEDED**: This is the original v0.1 data model (24 tables). The current canonical data model is [Data-Model-ERD.md](Data-Model-ERD.md) (v3.4.0, 33 tables). Retained for historical reference only.
+
 **Version**: 2.0.0
 **Date**: December 21, 2025
-**Status**: IMPLEMENTED - Production Ready
+**Status**: ~~IMPLEMENTED~~ SUPERSEDED by Data-Model-ERD v3.4.0
 **Authority**: Backend Lead + CTO + Database Architect (✅ APPROVED)
-**Foundation**: FRD v3.0.0, Vision v3.1.0, Roadmap v4.1.0
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Foundation**: FRD v3.3.0, Vision v5.0.0, Roadmap v5.0.0
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 
 **Changelog**:
 - v2.0.0 (Dec 21, 2025): SDLC 5.1.3 update, EP-04/05/06 table schemas added
