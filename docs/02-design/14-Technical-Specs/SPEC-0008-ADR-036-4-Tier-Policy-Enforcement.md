@@ -690,7 +690,7 @@ THEN the system MUST:
 
 ### Framework Documents
 - **SDLC 5.2.0 - Section 02-GOVERN**: 4-Tier Classification methodology
-- **SDLC 5.3.0 - Section 7**: Quality Assurance System with tier-specific requirements
+- **SDLC 6.1.0 - Section 7**: Quality Assurance System with tier-specific requirements
 
 ### Implementation Files
 - `backend/app/services/policy_enforcement_service.py`: PolicyEnforcementService implementation

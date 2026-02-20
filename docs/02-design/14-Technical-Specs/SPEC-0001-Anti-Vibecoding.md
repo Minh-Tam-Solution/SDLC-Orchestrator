@@ -33,7 +33,7 @@ related_specs:
 **Owner**: CTO + Quality Lead
 **Created**: 2026-01-28
 **Last Updated**: 2026-01-29
-**Framework Version**: SDLC 6.0.5
+**Framework Version**: SDLC 6.1.0
 **Machine-Readable Spec**: [spec/controls/anti-vibecoding.yaml](../../../SDLC-Enterprise-Framework/spec/controls/anti-vibecoding.yaml)
 
 ## 1. Overview

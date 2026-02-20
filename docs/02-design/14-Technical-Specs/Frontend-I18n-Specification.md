@@ -10,7 +10,7 @@
 | Date | December 27, 2025 |
 | Depends On | Landing-Page-Design-Specification v1.1.0 |
 | Gate | G2 (Design Ready) |
-| Framework | SDLC 5.1.2 Universal Framework |
+| Framework | SDLC 6.1.0 Universal Framework |
 
 ---
 

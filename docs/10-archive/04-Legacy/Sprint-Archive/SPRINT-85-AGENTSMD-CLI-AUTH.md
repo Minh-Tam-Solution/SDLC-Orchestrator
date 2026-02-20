@@ -5,7 +5,7 @@
 **Duration:** 10 days (February 1 - February 11, 2026)
 **Goal:** Implement AGENTS.md frontend (TRUE MOAT) + CLI authentication foundation
 **Story Points:** 55 SP
-**Framework Reference:** SDLC 5.1.3 P2 (Sprint Planning Governance)
+**Framework Reference:** SDLC 6.1.0 P2 (Sprint Planning Governance)
 **Prerequisite:** Sprint 84 ✅ Teams & Organizations UI
 **Target:** AGENTS.md Differentiator + CLI Foundation
 

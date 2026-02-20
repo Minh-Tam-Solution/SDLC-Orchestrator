@@ -5,7 +5,7 @@
 **Date**: January 30, 2026
 **Decision Makers**: CTO, PM, Backend Lead, Frontend Lead
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 **Sprint**: Sprint 127 (Jan 30 - Feb 7, 2026)
 **Priority**: P0 - Prevents framework version drift across delivery surfaces
 
@@ -42,7 +42,7 @@ SDLC Orchestrator = Implementation of SDLC Framework
 **"Nhà bác sĩ phải tự uống thuốc" (Doctor must take own medicine)**
 
 SDLC Orchestrator implements SDLC Framework, so it MUST:
-1. Follow all SDLC 6.0.5 documentation standards
+1. Follow all SDLC 6.1.0 documentation standards
 2. Keep Stage 00-03 (Foundation → Planning → Design → Integrate) docs updated
 3. Maintain feature parity matrix for all delivery surfaces
 4. Update ALL frontends when Framework version changes
@@ -142,7 +142,7 @@ All three frontends MUST pass the same validation rules:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│           SDLC 6.0.5 Spec Validation Pipeline               │
+│           SDLC 6.1.0 Spec Validation Pipeline               │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐       │
@@ -202,8 +202,8 @@ All three frontends MUST pass the same validation rules:
 ### Phase 1: Foundation (Sprint 125) ✅ COMPLETE
 
 - [x] Create Frontend Alignment Matrix v1.0.0
-- [x] Update CLI to SDLC 6.0.5 (35 files)
-- [x] Update Extension to SDLC 6.0.5 (5 files)
+- [x] Update CLI to SDLC 6.1.0 (35 files)
+- [x] Update Extension to SDLC 6.1.0 (5 files)
 - [x] Implement SpecFrontmatterValidator in CLI
 - [x] Publish CLI v1.2.0 to PyPI
 - [x] Publish Extension v1.2.0 to VS Code Marketplace

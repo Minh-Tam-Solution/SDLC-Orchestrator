@@ -25,7 +25,7 @@ from uuid import UUID
 from fastapi import Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.support import AuditLog
+from app.models.support import LegacyAuditLog as AuditLog
 
 
 class AuditAction(str, Enum):

@@ -5,7 +5,7 @@
 **Status**: ACTIVE - CEO DECISION  
 **Authority**: CEO Approval (Strategic Pivot)  
 **Foundation**: Product Roadmap v1.1.0, Stage 00 Foundation Complete  
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0
 
 ---
 

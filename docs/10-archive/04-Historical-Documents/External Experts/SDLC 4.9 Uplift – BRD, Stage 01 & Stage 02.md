@@ -1,7 +1,7 @@
-# SDLC 5.1.3 Uplift – BRD, Stage 01 & Stage 02 (Patch Pack v1.0)
+# SDLC 6.1.0 Uplift – BRD, Stage 01 & Stage 02 (Patch Pack v1.0)
 
 **Date:** 16/11/2025
-**Scope:** Đồng bộ BRD + Stage 01 + Stage 02 lên **SDLC 5.1.3** theo khuôn đã áp dụng cho **Stage 00** (Policy Pack, Evidence Schema, Deploy Readiness, PR Checks).
+**Scope:** Đồng bộ BRD + Stage 01 + Stage 02 lên **SDLC 6.1.0** theo khuôn đã áp dụng cho **Stage 00** (Policy Pack, Evidence Schema, Deploy Readiness, PR Checks).
 **How to use:** Mỗi khối dưới đây là **PATCH** (thêm/mở rộng) – copy vào đúng mục tương ứng trong canvas hiện tại.
 
 ---
@@ -15,7 +15,7 @@
 
 ### A.2 Thêm mục mới sau “8. Tích hợp (Integrations)”
 
-**Heading:** `8.B SDLC 5.1.3 – Gate Map & PR Checks`
+**Heading:** `8.B SDLC 6.1.0 – Gate Map & PR Checks`
 
 ```
 **G0.1 – Problem Defined (WHY):** problem_statement, success_metrics, ≥5 interviews; Approvals: Product Lead.  

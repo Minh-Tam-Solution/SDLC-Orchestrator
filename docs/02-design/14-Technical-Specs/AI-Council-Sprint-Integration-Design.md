@@ -832,10 +832,10 @@ test.describe('Sprint Analytics', () => {
 - [Sprint 76 P0 Resolution](../../../docs/09-govern/01-CTO-Reports/SPRINT-76-P0-RESOLUTION.md) ✅
 - [Sprint 77 Plan](../../../docs/04-build/02-Sprint-Plans/SPRINT-77-AI-COUNCIL-SPRINT-INTEGRATION.md)
 - [ADR-013 Planning Hierarchy](../03-ADRs/ADR-013-Planning-Hierarchy.md)
-- [SDLC 5.1.3 P2 Sprint Planning Governance](../../../SDLC-Enterprise-Framework/02-Core-Methodology/Governance-Compliance/SDLC-Sprint-Planning-Governance.md)
+- [SDLC 6.1.0 P2 Sprint Planning Governance](../../../SDLC-Enterprise-Framework/02-Core-Methodology/Governance-Compliance/SDLC-Sprint-Planning-Governance.md)
 
 ---
 
-**SDLC 5.1.3 | Sprint 77 Technical Design | Status: PENDING CTO APPROVAL**
+**SDLC 6.1.0 | Sprint 77 Technical Design | Status: PENDING CTO APPROVAL**
 
 *G-Sprint Gate Required Before Implementation*

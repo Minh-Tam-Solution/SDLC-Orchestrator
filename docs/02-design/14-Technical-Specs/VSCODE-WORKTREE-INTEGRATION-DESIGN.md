@@ -694,7 +694,7 @@ suite('Worktree Extension Tests', () => {
 
 **Framework-First Compliance**: ✅ VERIFIED
 - VSCode extension is tool-specific (not Framework-level)
-- Design follows SDLC 6.0.5 principles
+- Design follows SDLC 6.1.0 principles
 - Integrates with Framework artifacts (AGENTS.md, stage detection)
 
 **Boris Cherny Alignment**: ✅ VERIFIED

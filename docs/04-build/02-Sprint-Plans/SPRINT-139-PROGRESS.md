@@ -1,7 +1,7 @@
 # Sprint 139 Progress Report
 
 **Sprint**: 139 - Extension E2E Commands Implementation
-**Framework**: SDLC 6.0.5 (RFC-SDLC-602 E2E API Testing Enhancement)
+**Framework**: SDLC 6.1.0
 **Duration**: February 2-7, 2026
 **Status**: IN PROGRESS (Day 3 of 5)
 **Owner**: Engineering Team
@@ -11,7 +11,7 @@
 
 ## Executive Summary
 
-Sprint 139 focuses on closing the 85% Extension feature gap identified in the SDLC 6.0.5 Reality Check. This sprint implements 5 new E2E Testing commands in the VS Code Extension with real CLI integration (Zero Mock Policy).
+Sprint 139 focuses on closing the 85% Extension feature gap identified in the SDLC 6.1.0 Reality Check. This sprint implements 5 new E2E Testing commands in the VS Code Extension with real CLI integration (Zero Mock Policy).
 
 ### Key Metrics
 

@@ -171,7 +171,7 @@ except ImportError:
 
 ### P0 — Day 5: ADR-062 Finalized + s183_002 Migration
 
-**File**: `docs/02-design/ADR-062-Compliance-Evidence-Types.md` (FINALIZED from DRAFT)
+**File**: `docs/02-design/01-ADRs/ADR-062-Compliance-Evidence-Types.md` (FINALIZED from DRAFT)
 
 **4 Locked Decisions**:
 

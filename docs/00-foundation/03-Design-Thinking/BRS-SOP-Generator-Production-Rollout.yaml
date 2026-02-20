@@ -427,7 +427,7 @@ functional_requirements:
       user_story: "As a platform operator, I want automatic AI fallback so that SOP generation never fails even if Ollama is down."
 
       fallback_chain:
-        - provider: "Ollama (qwen2.5:14b-instruct)"
+        - provider: "Ollama (qwen3:32b)"
           priority: 1
           cost: "$50/month"
           latency: "~6s"

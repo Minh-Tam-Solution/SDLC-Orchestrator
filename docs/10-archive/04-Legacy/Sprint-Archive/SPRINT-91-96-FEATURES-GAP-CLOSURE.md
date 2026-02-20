@@ -2,7 +2,7 @@
 
 **Planning Date:** January 22, 2026  
 **Status:** 📋 PLANNED (91-96) + CTO APPROVED (97-100)  
-**Framework:** SDLC 5.1.3 (7-Pillar Architecture)  
+**Framework:** SDLC 6.1.0 (7-Pillar Architecture)  
 **CTO Approval:** ✅ Approved (Jan 22, 2026)
 
 ---
@@ -31,7 +31,7 @@ Based on comprehensive FEATURES-MATRIX.md analysis (v1.1.0), identified **70+ fe
 | Feature Area | Framework Status | Orchestrator Status | Aligned? |
 |--------------|------------------|---------------------|----------|
 | **AGENTS.md** | ADR-029 (Jan 22) | Sprint 80-81 (Jan 19) | ⚠️ Tool led Framework |
-| **Planning Hierarchy** | Pillar 2 (SDLC 5.1.3) | Sprint 74-77, 87, 92 | ✅ Framework First |
+| **Planning Hierarchy** | Pillar 2 (SDLC 6.1.0) | Sprint 74-77, 87, 92 | ✅ Framework First |
 | **SASE Artifacts** | SASE-Artifacts README | Sprint 82-83 | ✅ Framework First |
 | **Evidence Manifest** | TDS-082-001 | Sprint 82 | ✅ Framework First |
 | **Teams/Orgs** | Pillar 3 (Roles) | Sprint 84, 91 | ✅ Framework First |
@@ -240,7 +240,7 @@ Implement Roadmap and Phase management - **STATUS: ✅ 100% COMPLETE (Jan 22, 20
 
 **Day 1 Features:**
 1. RoadmapModal: Create + Edit, duration display (months), validation
-2. PhaseModal: Theme suggestions, SDLC 5.1.3 duration (4-8 weeks), validation
+2. PhaseModal: Theme suggestions, SDLC 6.1.0 duration (4-8 weeks), validation
 3. Planning page: Modal state management, "New Roadmap" button
 4. Bug fix: WorkspaceContext (orgsData.items, teamsData.items)
 

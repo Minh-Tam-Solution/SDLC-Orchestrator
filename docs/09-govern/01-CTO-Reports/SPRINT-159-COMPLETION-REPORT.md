@@ -478,7 +478,7 @@ Sprint 159 successfully **eliminated critical security vulnerabilities** and **u
 **Report Generated**: February 7, 2026  
 **Author**: SDLC Orchestrator Team  
 **Reviewer**: CTO  
-**Framework**: SDLC 6.0.5  
+**Framework**: SDLC 6.1.0
 **Authority**: CTO Approved  
 **Next Sprint**: Sprint 160 (EU AI Act Compliance)  
 

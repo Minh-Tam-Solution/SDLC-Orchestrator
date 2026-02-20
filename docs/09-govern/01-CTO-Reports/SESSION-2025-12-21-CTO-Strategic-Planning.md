@@ -180,16 +180,16 @@
 
 ### 3. Tri-Mode Codegen (EP-06)
 - **Mode A (BYO):** Enterprise use external AI + Orchestrator governance
-- **Mode B (Native OSS):** SME use qwen2.5-coder:32b (company GPU)
+- **Mode B (Native OSS):** SME use qwen3-coder:30b (company GPU)
 - **Mode C (Hybrid Fallback):** Seamless Claude → Continue.dev failover
 - $0 infrastructure cost (IT Admin's RTX 5090 ready!)
 
 ### 4. Model Roles Strategy (IT Admin Dec 2025)
 ```json
 {
-  "default": "qwen2.5-coder:32b-instruct",   // 92.7% HumanEval
-  "chat": "qwen2.5:32b",                     // Vietnamese support
-  "autocomplete": "qwen2.5:14b-instruct",    // Fast (~4s)
+  "default": "qwen3-coder:30b",   // 92.7% HumanEval
+  "chat": "qwen3:32b",                     // Vietnamese support
+  "autocomplete": "qwen3:32b",    // Fast (~4s)
   "vietnamese": "qwen3:14b",                 // Best VN
   "ultrafast": "qwen3:8b"                    // <3s drafts
 }

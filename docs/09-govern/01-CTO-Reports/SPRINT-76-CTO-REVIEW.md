@@ -162,7 +162,7 @@
 2. **Policy documentation sparse**
    - **Found:** No inline comments explaining business rules
    - **Impact:** Low - Policies are readable, but context missing
-   - **Action:** Add SDLC 5.1.3 rule references in comments
+   - **Action:** Add SDLC 6.1.0 rule references in comments
 
 3. **No policy versioning strategy**
    - **Issue:** Policies are deployed in-place, no rollback mechanism
@@ -367,7 +367,7 @@
 2. `SprintContextProvider` loads all team members (could be 100+)
    - **Recommendation:** Add pagination or limit to active members only
 
-### 6. SDLC 5.1.3 Compliance ✅ Excellent
+### 6. SDLC 6.1.0 Compliance ✅ Excellent
 
 | Pillar | Requirement | Implementation | Status |
 |--------|-------------|----------------|--------|
@@ -539,6 +539,6 @@
 
 ---
 
-**SDLC 5.1.3 | Sprint 76 CTO Review**
+**SDLC 6.1.0 | Sprint 76 CTO Review**
 
 *"Outstanding technical execution. Team demonstrated mastery of SASE integration, OPA policies, and AI service foundation. Rate limiting is the only blocker for production. Once resolved, this is a reference implementation for future sprints."*

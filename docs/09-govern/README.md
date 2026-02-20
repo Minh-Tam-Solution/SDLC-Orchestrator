@@ -3,7 +3,7 @@
 **Stage**: 09 - GOVERN
 **Question**: Are we on track and compliant?
 **Status**: Active
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -44,7 +44,7 @@ This stage manages executive-level reporting, governance decisions, and strategi
 
 | Date | Report | Focus |
 |------|--------|-------|
-| Dec 5, 2025 | Framework Upgrade | SDLC 5.1.3 Review |
+| Dec 5, 2025 | Framework Upgrade | SDLC 6.1.0 Review |
 | Dec 4, 2025 | UX Review | Dashboard patterns |
 
 **Location**: [02-CPO-Reports/](02-CPO-Reports/)
@@ -125,7 +125,7 @@ Legacy reports and old formats migrated to `docs/10-archive/09-Legacy/` per RFC-
 
 **Last Updated**: December 5, 2025
 **Owner**: CEO + CTO + CPO
-**Framework**: SDLC 5.1.3 Stage 09
+**Framework**: SDLC 6.1.0
 
 ---
 

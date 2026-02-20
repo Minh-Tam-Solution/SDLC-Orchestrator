@@ -13,7 +13,7 @@
 | **Status** | PLANNED ⏳ |
 | **Priority** | P1 Should Have |
 | **Dependencies** | Sprint 53 complete |
-| **Framework** | SDLC 5.1.2 Universal Framework |
+| **Framework** | SDLC 6.1.0 Universal Framework |
 
 ---
 

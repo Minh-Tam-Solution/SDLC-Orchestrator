@@ -260,16 +260,16 @@ All components pass `tsc --noEmit --skipLibCheck`:
 
 ---
 
-## SDLC 5.1.3 Compliance
+## SDLC 6.1.0 Compliance
 
 - **Rule #1**: Sprint number S77 immutable
 - **Rule #2**: Documentation within 24h
 - **G-Sprint-Close**: Ready for evaluation
-- **Framework**: SDLC 5.1.3 P2 Sprint Planning Governance
+- **Framework**: SDLC 6.1.0 P2 Sprint Planning Governance
 
 ---
 
 **Approved By**: Frontend Lead + Backend Lead
-**Framework**: SDLC 5.1.3 P2 (Sprint Planning Governance)
+**Framework**: SDLC 6.1.0
 **Reference**: Sprint 77 Technical Design
 **Status**: SPRINT COMPLETE - Ready for G-Sprint-Close

@@ -3,7 +3,7 @@
 **Version**: 1.0.0
 **Last Updated**: January 29, 2026
 **Owner**: DevOps Team
-**Framework**: SDLC 5.3.0
+**Framework**: SDLC 6.1.0
 
 ---
 

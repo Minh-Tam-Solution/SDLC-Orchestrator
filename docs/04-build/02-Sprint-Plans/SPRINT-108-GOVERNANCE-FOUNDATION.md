@@ -4,7 +4,7 @@
 **Date**: January 28 - February 4, 2026 (7 days)
 **Status**: ✅ **90% COMPLETE** (Backend Done, Tests Pending)
 **Epic**: GOVERNANCE SYSTEM v1.0 - Anti-Vibecoding Implementation
-**Framework**: SDLC 5.3.0 (Quality Assurance System)
+**Framework**: SDLC 6.1.0
 **Prerequisites**: Sprint 107 (TDD Foundation), Phase 0 (48-hour deliverables)
 
 ---

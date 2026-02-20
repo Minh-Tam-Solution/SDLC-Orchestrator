@@ -591,7 +591,22 @@
       "Bash(/home/nqh/shared/SDLC-Orchestrator/backend/app/models/jira_connection.py:*)",
       "Read(//home/nqh/shared/**)",
       "Bash(This is about redesigning how teams work with AI.\" \\(EN+VI\\)\n\nFacebook:\n- Strengthen photo recommendation to STRONGLY RECOMMENDED \\(visual platform\\)\n\nStrategy:\n- Reddit distribution spread across 3 weeks \\(was 2 weeks\\)\n- X/Twitter thread added to Week 2 \\(missing channel identified by expert\\)\n- Week 4 added for sustained engagement\n- Content Assets table updated \\(#8 Post-X-Thread.md\\)\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(head -20 grep -rn \"asyncio_mode\\\\|asyncio_mode\" /home/nqh/shared/SDLC-Orchestrator/backend/pytest.ini /home/nqh/shared/SDLC-Orchestrator/backend/pyproject.toml /home/nqh/shared/SDLC-Orchestrator/backend/setup.cfg)",
+      "Bash(# Verify one more thing: how tests bypass TierGateMiddleware in existing tests find /home/nqh/shared/SDLC-Orchestrator/backend/tests -name \"\"*.py\"\" | xargs grep -l \"\"TierGate\\\\|tier_gate\\\\|user_tier\\\\|ENTERPRISE\"\")",
+      "Bash(# The dependency_overrides ARE set — the test passes status_code 200. But the # body is the OPA mock response. This means the route is hitting OPA somewhere. # Let me look at the gates_engine middleware or any middleware that processes the route: grep -n \"\"gates_engine\\\\|g1_spec_review\\\\|/enterprise/audit\"\" /home/nqh/shared/SDLC-Orchestrator/backend/app/middleware/*.py)",
+      "Bash(python3 -c \"\nimport os\nos.environ.setdefault\\(''TIER_GATE_ADMIN_SECRET'', ''test-bypass''\\)\nimport httpx\n# Simulate what happens when ASGITransport makes a request\n# The ''url'' parameter to request\\(\\) is the full URL including base_url\nprint\\(''Testing URL construction...''\\)\nprint\\(httpx.URL\\(''http://testserver/api/v1/enterprise/audit''\\)\\)\nprint\\(''testserver'' in str\\(httpx.URL\\(''http://testserver/api/v1/enterprise/audit''\\)\\)\\)\n\")",
+      "Bash(/home/nqh/shared/SDLC-Orchestrator/docs/01-planning/03-Functional-Requirements/FR-045-GDPR-Art20-Data-Portability.md:*)",
+      "Bash(/home/nqh/shared/SDLC-Orchestrator/docs/02-design/ADR-063-Multi-Region-Deployment-Strategy.md:*)",
+      "Bash(__NEW_LINE_63561b3d462a1f4e__ echo \"=== F-01: verify _STAT_KEYS covers all G4_THRESHOLDS keys ===\")",
+      "Bash(__NEW_LINE_63561b3d462a1f4e__ echo \"\")",
+      "Bash(__NEW_LINE_be54629773bd8735__ echo \"=== F-03: targeted check — v_hash assignment line ===\")",
+      "Bash(__NEW_LINE_be54629773bd8735__ echo \"\")",
+      "Bash(/home/nqh/shared/SDLC-Orchestrator/backend/app/services/usage_service.py:*)",
+      "Bash(/home/nqh/shared/SDLC-Orchestrator/backend/app/middleware/usage_limits.py:*)",
+      "Bash(/home/nqh/shared/SDLC-Orchestrator/backend/tests/unit/test_usage_limits.py:*)",
+      "Bash(__NEW_LINE_871ebdf83229eb67__ python3:*)",
+      "Bash(/home/nqh/shared/SDLC-Orchestrator/backend/app/services/usage_alert_service.py:*)"
     ],
     "deny": [],
     "ask": []

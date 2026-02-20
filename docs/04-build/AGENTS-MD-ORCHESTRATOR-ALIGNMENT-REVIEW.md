@@ -3,7 +3,7 @@
 **Date**: January 22, 2026  
 **Reviewer**: CTO  
 **Status**: ✅ **ALIGNED** - No breaking changes required  
-**Framework Version**: SDLC 5.1.3 (AGENTS.md Migration - ADR-029)
+**Framework Version**: SDLC 6.1.0 (AGENTS.md Migration - ADR-029)
 
 ---
 
@@ -44,7 +44,7 @@ The SDLC Orchestrator tool layer is **100% aligned** with the AGENTS.md migratio
 
 ```python
 """
-SDLC 5.1.3 AGENTS.md Commands
+SDLC 6.1.0 AGENTS.md Commands
 Reference: ADR-029-AGENTS-MD-Integration-Strategy  # ← Already references ADR-029!
 
 Commands:
@@ -73,7 +73,7 @@ Commands:
 
 **Updated (Jan 22, 2026):**
 ```python
-# SDLC 5.1.3 Alignment:
+# SDLC 6.1.0 Alignment:
 # - Organizations coordinate AI+Human teams
 # - Settings support SASE artifacts (AGENTS.md, CRP/MRP/VCR)
 # - Note: BriefingScript/MentorScript deprecated (ADR-029)
@@ -83,7 +83,7 @@ Commands:
 
 **Updated (Jan 22, 2026):**
 ```python
-# SDLC 5.1.3 Alignment:
+# SDLC 6.1.0 Alignment:
 # - Teams coordinate SE4H (Agent Coach) and SE4A (Agent Executor)
 # - agents_md_config: AGENTS.md configuration (NEW)
 # - mentor_scripts, briefing_templates: DEPRECATED (ADR-029), retained for Sprint 78 pilot data

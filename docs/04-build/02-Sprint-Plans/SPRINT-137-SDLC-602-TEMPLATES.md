@@ -1,11 +1,11 @@
-# Sprint 137: SDLC 6.0.5 Templates & Orchestrator Integration
+# Sprint 137: SDLC 6.1.0 Templates & Orchestrator Integration
 
 **Sprint ID**: SPRINT-137
 **Duration**: February 8-21, 2026 (2 weeks)
 **Theme**: RFC-SDLC-602 Implementation - E2E API Testing Templates
 **Priority**: P0 (Blocks March Launch)
 **Team**: BFlow Platform Team + SDLC Orchestrator Team
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.1.0
 
 ---
 

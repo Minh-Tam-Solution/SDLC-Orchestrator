@@ -5,7 +5,7 @@
 **Status**: ✅ **COMPLETE** (100% deliverables + Framework-First compliance verified)
 **Completion Date**: February 28, 2026
 **Previous Sprint**: [Sprint 173 COMPLETE - Governance Loop](SPRINT-173-COMPLETION-REPORT.md)
-**Framework**: SDLC 6.0.6 (7-Pillar + AI Governance)
+**Framework**: SDLC 6.1.0
 **Budget**: $7K (prompt caching) + marketing hours
 **Cost Savings**: $14,850/year at full adoption (212% ROI)
 
@@ -13,7 +13,7 @@
 
 ## Executive Summary
 
-Sprint 174 successfully integrated **Tier 1 Anthropic patterns** into SDLC 6.0.5 with full **Framework-First compliance**. All 10 days delivered on schedule:
+Sprint 174 successfully integrated **Tier 1 Anthropic patterns** into SDLC 6.1.0 with full **Framework-First compliance**. All 10 days delivered on schedule:
 
 - **Days 1-3**: Framework standards created (CLAUDE.md Standard, Autonomous Codegen, MRP Template)
 - **Days 4-7**: Orchestrator implementation (CLAUDE.md PRO tier, Context Cache L1+L2)
@@ -72,14 +72,14 @@ Sprint 174 successfully integrated **Tier 1 Anthropic patterns** into SDLC 6.0.5
 **Key Sections Added** (Days 1-3 Framework → Day 4 Implementation):
 - Architecture Deep Dive (Software 3.0 5-layer stack)
 - EP-06 IR-Based Codegen (4-Gate Quality Pipeline)
-- SDLC 6.0.5 Framework integration (7-Pillar structure)
+- SDLC 6.1.0 Framework integration (7-Pillar structure)
 - Vietnamese SME Market positioning
 - Cost breakdown + ROI models
 
 **Framework Reference Verification**:
 ```bash
 $ grep "10-CLAUDE-MD-STANDARD" CLAUDE.md
-Line 1251: *Following SDLC 6.0.5 CLAUDE.md Standard (Framework: 03-AI-GOVERNANCE/10-CLAUDE-MD-STANDARD.md)*
+Line 1251: *Following SDLC 6.1.0 CLAUDE.md Standard (Framework: 03-AI-GOVERNANCE/10-CLAUDE-MD-STANDARD.md)*
 Line 1790: - **Framework-First Compliance**: Follows 10-CLAUDE-MD-STANDARD.md from Framework
 ```
 
@@ -134,7 +134,7 @@ Average cost:      $0.002 per request (8x reduction)
 
 | File | Lines | Status | Change |
 |------|-------|--------|--------|
-| `docs/02-design/ADR-054-Anthropic-Claude-Code-Best-Practices.md` | 727 | ✅ REVISED | Added source analysis, Framework cross-references |
+| `docs/02-design/01-ADRs/ADR-054-Anthropic-Claude-Code-Best-Practices.md` | 727 | ✅ REVISED | Added source analysis, Framework cross-references |
 
 **Key Revisions**:
 1. **Source Analysis Table**: 10 Anthropic teams + 5 GitHub quickstarts + 9 BFlow items
@@ -177,12 +177,12 @@ class MCPClientService:
 
 | File | Lines | Status | Purpose |
 |------|-------|--------|---------|
-| `docs/02-design/ADR-055-Autonomous-Codegen-4-Gate-Validation.md` | **558** | ✅ DONE | Two-agent pattern with 4-Gate Quality Pipeline |
+| `docs/02-design/01-ADRs/ADR-055-Autonomous-Codegen-4-Gate-Validation.md` | **558** | ✅ DONE | Two-agent pattern with 4-Gate Quality Pipeline |
 | `backend/app/services/browser_agent_service.py` | ~250 | ✅ DONE | Playwright browser automation prototype |
 
 #### ADR-055: Governed Autonomous Codegen
 
-**Core Innovation**: Enhance Anthropic's two-agent pattern with SDLC 6.0.5 governance:
+**Core Innovation**: Enhance Anthropic's two-agent pattern with SDLC 6.1.0 governance:
 
 | Component | Anthropic (upstream) | SDLC Orchestrator (enhanced) |
 |-----------|---------------------|------------------------------|
@@ -206,7 +206,7 @@ Line 550: - Framework: `SDLC-Enterprise-Framework/.../11-AUTONOMOUS-CODEGEN-PATT
 
 ## Framework-First Compliance Assessment
 
-**SDLC 6.0.5 Principle**: Framework (methodology) updates **BEFORE** Orchestrator (automation) implementation.
+**SDLC 6.1.0 Principle**: Framework (methodology) updates **BEFORE** Orchestrator (automation) implementation.
 
 ### Dependency Verification
 
@@ -219,7 +219,7 @@ Sprint 174 Plan (corrected version from earlier conversation) required:
 #### ✅ Compliance Check 1: CLAUDE.md → 10-CLAUDE-MD-STANDARD
 ```bash
 $ grep "10-CLAUDE-MD-STANDARD" CLAUDE.md
-Line 1251: *Following SDLC 6.0.5 CLAUDE.md Standard (Framework: 03-AI-GOVERNANCE/10-CLAUDE-MD-STANDARD.md)*
+Line 1251: *Following SDLC 6.1.0 CLAUDE.md Standard (Framework: 03-AI-GOVERNANCE/10-CLAUDE-MD-STANDARD.md)*
 Line 1790: - **Framework-First Compliance**: Follows 10-CLAUDE-MD-STANDARD.md from Framework
 ```
 ✅ **PASS**: CLAUDE.md (Day 4) **references** Framework standard (Day 1)
@@ -235,7 +235,7 @@ Line 550: - Framework: `.../11-AUTONOMOUS-CODEGEN-PATTERNS.md`
 #### ✅ Compliance Check 3: context_cache_service.py → 10-CLAUDE-MD-STANDARD
 ```python
 # Line 15 of context_cache_service.py
-Framework: SDLC 6.0.5 (10-CLAUDE-MD-STANDARD.md, Section 3.2)
+Framework: SDLC 6.1.0 (10-CLAUDE-MD-STANDARD.md, Section 3.2)
 ```
 ✅ **PASS**: Cache service (Day 7) **references** Framework standard (Day 1)
 

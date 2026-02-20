@@ -5,7 +5,7 @@
 **Theme**: E2E Testing + Production Fixes
 **Priority**: P0 (Critical Bug Fix)
 **Team**: Backend Lead + Frontend Lead
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.1.0
 
 ---
 

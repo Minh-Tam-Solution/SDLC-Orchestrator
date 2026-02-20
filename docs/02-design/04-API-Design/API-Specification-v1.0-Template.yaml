@@ -540,7 +540,7 @@ paths:
       description: |
         Retrieve list of policy packs (pre-built + custom).
 
-        **Pre-built**: 110+ SDLC 5.1.3 policies (all 10 stages)
+        **Pre-built**: 110+ SDLC 6.1.0 policies (all 10 stages)
         **Custom**: Project-specific policies
       operationId: listPolicies
       security:

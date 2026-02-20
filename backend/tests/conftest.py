@@ -77,6 +77,11 @@ patch("app.core.redis.get_redis_client", lambda: _mock_redis_client).start()
 
 from app.core.config import settings
 from app.db.base_class import Base
+# Sprint 185: Pre-import the new AuditLog (app/models/audit_log.py) BEFORE
+# importing app.models, which loads the legacy AuditLog from support.py.
+# Without this ordering, SQLAlchemy raises "Table 'audit_logs' is already
+# defined" when app.main later imports audit_trail.py.
+import app.models.audit_log  # noqa: F401
 # Import all models FIRST to ensure SQLAlchemy configures all relationships
 # before app.main imports modules that reference models
 import app.models  # noqa: F401

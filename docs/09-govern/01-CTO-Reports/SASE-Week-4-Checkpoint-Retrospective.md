@@ -41,7 +41,7 @@
 
 **Action if triggered**: PAUSE Phase 2, conduct root cause analysis, decide:
 - **Option A**: Adjust scope (reduce to 3 artifacts: BRS, MRP, VCR only)
-- **Option B**: Abort SASE integration (revert to SDLC 5.1.3)
+- **Option B**: Abort SASE integration (revert to SDLC 6.1.0)
 - **Option C**: Continue with mitigation plan
 
 ---
@@ -437,5 +437,5 @@ End Date: April 18, 2026                                [+1 week]
 
 ---
 
-*This retrospective is part of Track 1 SASE (Q1 2026 P0) - SDLC 5.1.0 Framework Enhancement*
+*This retrospective is part of Track 1 SASE (Q1 2026 P0) - SDLC 6.1.0 Framework Enhancement*
 *Reference: SE 3.0 SASE Integration Plan (Week 4 Kill-Switch Criteria)*

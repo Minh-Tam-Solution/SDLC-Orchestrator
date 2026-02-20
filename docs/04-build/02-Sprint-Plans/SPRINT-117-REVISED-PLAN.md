@@ -186,7 +186,7 @@
    ```bash
    cd /home/nqh/shared/SDLC-Orchestrator/SDLC-Enterprise-Framework
    git add spec/ docs/SPEC-FIRST-POC-VALIDATION.md
-   git commit -m "feat(SDLC 6.0): Add spec-first POC (5 files, zero code)
+   git commit -m "feat(SDLC 6.1.0): Add spec-first POC (5 files, zero code)
 
    - spec/evidence/spec-frontmatter-schema.json (v1.0.0)
    - spec/controls/anti-vibecoding.yaml (AVC-001/002/003)

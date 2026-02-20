@@ -15,7 +15,7 @@
 | **Team** | 1 Backend + 1 Frontend + 0.5 DevOps |
 | **Story Points** | TBD (scope approved after Sprint 48 demo) |
 | **Budget** | TBD |
-| **Framework** | SDLC 5.1.3 + SASE Level 2 |
+| **Framework** | SDLC 6.1.0 + SASE Level 2 |
 | **Strategic Context** | [Expert Feedback Integration](../../09-govern/05-Knowledge-Transfer/02-Expert-Response/FINAL-EXECUTIVE-SUMMARY.md) |
 
 ---

@@ -14,7 +14,7 @@ update_frequency: "Daily"
 
 **Sprint Duration**: January 31 - February 1, 2026 (1 day critical path)
 **Sprint Goal**: Resolve all P0 blockers for production launch
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.1.0
 **Authority**: CTO APPROVED (Jan 31, 2026, 10:45 AM)
 
 ---
@@ -269,7 +269,7 @@ python scripts/sdlc-validation/batch-add-frontmatter.py \
 - [Go-Live Plan v4.0](../../../.claude/plans/twinkly-waddling-dewdrop.md)
 - [FIX-CONTEXT-OVERLAY-ERROR.md](../../../FIX-CONTEXT-OVERLAY-ERROR.md)
 - [Sprint 131 Completion](./SPRINT-131-DOCUMENTATION-COMPLIANCE.md)
-- [SDLC 6.0.5 Framework](../../../SDLC-Enterprise-Framework/)
+- [SDLC 6.1.0 Framework](../../../SDLC-Enterprise-Framework/)
 
 ---
 

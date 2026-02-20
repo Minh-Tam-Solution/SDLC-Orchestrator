@@ -10,7 +10,7 @@
 
 ## Context
 
-SDLC 5.1.3.1 Framework định nghĩa 10 stages với nhiều requirements cho mỗi stage. Tuy nhiên, không phải tất cả requirements đều phù hợp cho mọi loại dự án:
+SDLC 6.1.0 Framework định nghĩa 10 stages với nhiều requirements cho mỗi stage. Tuy nhiên, không phải tất cả requirements đều phù hợp cho mọi loại dự án:
 
 1. **Startup nhỏ (2-5 người)**: Cần lightweight process, skip enterprise gates
 2. **Enterprise (50+ người)**: Cần full compliance, audit trails, security gates

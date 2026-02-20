@@ -18,7 +18,7 @@ related_adrs:
 related_specs:
   - SPEC-0001-Governance-System-Implementation
   - SPEC-0002-Quality-Gates-Codegen-Specification
-framework_version: SDLC 6.0.5
+framework_version: SDLC 6.1.0
 ---
 
 ## 1. Overview

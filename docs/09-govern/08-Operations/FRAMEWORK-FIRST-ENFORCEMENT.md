@@ -156,7 +156,7 @@ EOF
 
 # Commit to Framework repo
 git add .
-git commit -m "feat(SDLC 5.1.0): Add BriefingScript (BRS) template
+git commit -m "feat(SDLC 6.1.0): Add BriefingScript (BRS) template
 
 Tools-agnostic SASE artifact template.
 Works with any AI tool (Claude, GPT-4, Gemini, Ollama).
@@ -211,13 +211,13 @@ async def generate_briefing_script(request: BRSRequest):
 
 ### **Violation 2: SDLC Structure Validation Logic in Orchestrator**
 
-**Scenario:** Developer adds new SDLC 5.1.0 folder requirement directly in Orchestrator validation logic.
+**Scenario:** Developer adds new SDLC 6.1.0 folder requirement directly in Orchestrator validation logic.
 
 **Violating Code:**
 ```python
 # ❌ VIOLATION - backend/app/services/sdlc_validator.py
 def validate_sdlc_structure(project_path: Path) -> ValidationResult:
-    """Validate SDLC 5.1.0 structure."""
+    """Validate SDLC 6.1.0 structure."""
 
     # VIOLATION: Hard-coded SASE folder requirement
     required_folders = [
@@ -243,8 +243,8 @@ def validate_sdlc_structure(project_path: Path) -> ValidationResult:
 ```
 
 **Why Violates Framework-First:**
-- SDLC 5.1.0 structure change NOT documented in Framework first
-- Framework still shows SDLC 5.1.3 (10 stages: 00-09, no `10-SASE-Artifacts`)
+- SDLC 6.1.0 structure change NOT documented in Framework first
+- Framework still shows SDLC 6.1.0 (10 stages: 00-09, no `10-SASE-Artifacts`)
 - Other projects cannot discover this new requirement
 - Validation logic diverges from Framework methodology
 
@@ -257,7 +257,7 @@ cd /home/nqh/shared/SDLC-Orchestrator/SDLC-Enterprise-Framework
 # Update SDLC structure documentation
 cat >> 01-Overview/SDLC-Structure-Guide.md << 'EOF'
 
-## SDLC 5.1.0 Structure (SASE-Enabled)
+## SDLC 6.1.0 Structure (SASE-Enabled)
 
 **New in 5.1.0:**
 - Optional `SASE-Artifacts/` folder for projects using Software Engineering 3.0 agentic workflows
@@ -290,15 +290,15 @@ SASE-Artifacts/
 ```
 
 **Backward Compatibility:**
-- SDLC 5.1.3 projects (no SASE) remain valid (no `SASE-Artifacts/` required)
-- SDLC 5.1.0 projects using SASE MUST include `SASE-Artifacts/` with 3 MANDATORY files
+- SDLC 6.1.0 projects (no SASE) remain valid (no `SASE-Artifacts/` required)
+- SDLC 6.1.0 projects using SASE MUST include `SASE-Artifacts/` with 3 MANDATORY files
 
 EOF
 
 git add .
-git commit -m "docs(SDLC 5.1.0): Add SASE-Artifacts/ folder to structure guide
+git commit -m "docs(SDLC 6.1.0): Add SASE-Artifacts/ folder to structure guide
 
-Backward compatible with SDLC 5.1.3.
+Backward compatible with SDLC 6.1.0.
 SASE folder optional unless project uses SE 3.0 workflows.
 
 Related: SE 3.0 Track 1 - Framework Enhancement"
@@ -503,7 +503,7 @@ Output in markdown format following this exact structure.
 EOF
 
 git add .
-git commit -m "feat(SDLC 5.1.0): Add BRS generation prompt template
+git commit -m "feat(SDLC 6.1.0): Add BRS generation prompt template
 
 Tools-agnostic prompt for any LLM (Claude, GPT-4, Gemini, Ollama).
 Supports SE 3.0 agentic task decomposition.

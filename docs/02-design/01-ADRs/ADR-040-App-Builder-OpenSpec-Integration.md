@@ -41,7 +41,7 @@ Generated Project/
 **Integrate SDLC Specification Standard v6.0 (OpenSpec) into App Builder.**
 
 Every generated project will include:
-1. **SPEC-{id}-{project}.md** - SDLC 6.0 compliant specification
+1. **SPEC-{id}-{project}.md** - SDLC 6.1.0 compliant specification
 2. **YAML Frontmatter** - Machine-parseable metadata
 3. **BDD Requirements** - GIVEN-WHEN-THEN format
 4. **Tier-Specific Quality Requirements** - LITE/STANDARD/PROFESSIONAL/ENTERPRISE
@@ -50,7 +50,7 @@ Every generated project will include:
 ```
 Generated Project/
 ├── docs/
-│   └── SPEC-1001-my-app.md    # NEW: SDLC 6.0 Specification
+│   └── SPEC-1001-my-app.md    # NEW: SDLC 6.1.0 Specification
 ├── src/
 ├── package.json
 ├── README.md
@@ -166,7 +166,7 @@ def scaffold(self, blueprint: TemplateBlueprint) -> List[GeneratedFile]:
     # Step 2: Collect all files
     files: List[GeneratedFile] = []
 
-    # Step 3: Generate SDLC 6.0 Specification (NEW)
+    # Step 3: Generate SDLC 6.1.0 Specification (NEW)
     spec_file = self.generate_spec_file(blueprint)
     files.append(spec_file)
 
@@ -196,7 +196,7 @@ def scaffold(self, blueprint: TemplateBlueprint) -> List[GeneratedFile]:
 
 ### Neutral
 
-1. **Learning Curve**: Developers must understand SDLC 6.0 spec format
+1. **Learning Curve**: Developers must understand SDLC 6.1.0 spec format
 2. **Maintenance**: Spec template may need updates with Framework changes
 
 ---
@@ -253,8 +253,8 @@ def scaffold(self, blueprint: TemplateBlueprint) -> List[GeneratedFile]:
 $ python3 -m pytest tests/integration/test_intent_router_integration.py -v
 
 # Sample output showing spec generation:
-INFO: Generated SDLC 6.0 spec: docs/SPEC-F6D6440A-instapic.md
-INFO: Scaffold complete: 16 files generated (including SDLC 6.0 spec)
+INFO: Generated SDLC 6.1.0 spec: docs/SPEC-F6D6440A-instapic.md
+INFO: Scaffold complete: 16 files generated (including SDLC 6.1.0 spec)
 
 ============================= 19 passed in 5.92s ==============================
 ```
@@ -331,4 +331,4 @@ Project Tier: **STANDARD**
 | **Author** | Backend Lead |
 | **Status** | APPROVED |
 | **Sprint** | Sprint 106 |
-| **Framework** | SDLC 6.0 |
+| **Framework** | SDLC 6.1.0 |

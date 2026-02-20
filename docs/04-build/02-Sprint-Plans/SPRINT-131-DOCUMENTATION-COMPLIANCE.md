@@ -5,7 +5,7 @@
 **Theme**: Documentation Debt Remediation (Post-Launch Stabilization)
 **Priority**: P1 (Technical Debt)
 **Team**: Full Team (Backend Lead coordinates)
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -25,7 +25,7 @@
 | Overall Compliance Score | 82/100 | 88/100 | +6 points |
 
 ### Sprint Goal
-**Backfill 200+ high-traffic process documents** with SDLC 6.0.5 compliant metadata to achieve 70%+ documentation coverage.
+**Backfill 200+ high-traffic process documents** with SDLC 6.1.0 compliant metadata to achieve 70%+ documentation coverage.
 
 ---
 
@@ -280,7 +280,7 @@ THEN all acceptance criteria MUST pass validation
 
 **Target ADRs** (High Priority):
 1. ADR-041: Framework 6.0 Governance System Design
-2. ADR-042: SDLC 6.0.5 Migration Strategy
+2. ADR-042: SDLC 6.1.0 Migration Strategy
 3. ADR-043: Context Authority V2 Design
 4. ADR-044: Compliance Validation Service
 5. ADR-045: Multi-Frontend Alignment Strategy
@@ -744,7 +744,7 @@ THEN [recommendation]
 - 90%+ YAML frontmatter coverage
 - 70%+ BDD format usage
 - 95/100 overall compliance score
-- Full SDLC 6.0.5 alignment
+- Full SDLC 6.1.0 alignment
 
 ---
 
@@ -753,11 +753,11 @@ THEN [recommendation]
 ### Related Documents
 - [SPEC-0002: Specification Standard](../../02-design/14-Technical-Specs/SPEC-0002-Specification-Standard.md)
 - [ADR-041: Framework 6.0 Governance System](../../02-design/01-ADRs/ADR-041-Framework-6.0-Governance-System.md)
-- [SDLC 6.0.5 Compliance Assessment Report](../../09-govern/05-Operations/SDLC-60-Compliance-Assessment-2026-01-30.md)
+- [SDLC 6.1.0 Compliance Assessment Report](../../09-govern/05-Operations/SDLC-60-Compliance-Assessment-2026-01-30.md)
 - [Sprint 130: Onboarding Flow Complete](SPRINT-130-ONBOARDING-FLOW.md)
 
 ### External References
-- [SDLC 6.0.5 Framework](../../SDLC-Enterprise-Framework/README.md)
+- [SDLC 6.1.0 Framework](../../SDLC-Enterprise-Framework/README.md)
 - [BDD Format Examples](../../SDLC-Enterprise-Framework/03-Templates-Tools/BDD-Examples.md)
 - [YAML Frontmatter Specification](../../SDLC-Enterprise-Framework/08-Section-8-Specification-Standard.md)
 

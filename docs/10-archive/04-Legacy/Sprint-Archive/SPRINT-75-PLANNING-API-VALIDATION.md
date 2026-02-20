@@ -5,7 +5,7 @@
 **Duration:** 5 days (January 20-24, 2026)
 **Goal:** Complete Team Role Authorization for Sprint Gates + Planning API Testing
 **Story Points:** 34 SP
-**Framework Reference:** SDLC 5.1.3 Sprint Planning Governance
+**Framework Reference:** SDLC 6.1.0 Sprint Planning Governance
 **Prerequisite:** Sprint 74 ✅ (Planning Hierarchy Migration Complete)
 
 ---
@@ -55,7 +55,7 @@
 | `test_planning_backlog.py` | 34 | P0/P1/P2, status |
 | **Total** | **88** | **+144% over original target (36)** |
 
-**SDLC 5.1.3 Rules Tested:**
+**SDLC 6.1.0 Rules Tested:**
 - ✅ Rule #1 - Sprint numbers immutable: `test_update_sprint_number_immutable`, `test_create_sprint_duplicate_number_fails`
 - ✅ Rule #2 - 24h documentation: `test_g_sprint_close_requires_24h_documentation`
 - ✅ SE4H Coach Rule - Team admin gate approval: `test_submit_g_sprint_gate_admin_success`, `test_submit_g_sprint_gate_member_rejected`
@@ -225,7 +225,7 @@ paths:
       description: |
         Submit G-Sprint or G-Sprint-Close gate evaluation.
         **Team Role Required**: admin or owner
-        **SDLC 5.1.3 Rule #3**: Sprint planning requires approval
+        **SDLC 6.1.0 Rule #3**: Sprint planning requires approval
 ```
 
 ### Day 4: Sprint Dashboard UI Foundation (6 SP) ✅ COMPLETE (Jan 18, 2026)
@@ -266,7 +266,7 @@ frontend/web/src/
     └── usePlanning.ts            # TanStack Query hooks ✅
 ```
 
-**SDLC 5.1.3 UI Compliance:**
+**SDLC 6.1.0 UI Compliance:**
 - ✅ Sprint numbers displayed as immutable (Rule #1)
 - ✅ P0/P1/P2 priority badges (Rule #8)
 - ✅ G-Sprint/G-Sprint-Close gate panels with checklists
@@ -361,7 +361,7 @@ frontend/web/src/
 |------------|--------|-------|
 | Sprint 74 Migration | ✅ Complete | Backend |
 | Teams Feature (Sprint 70-73) | ✅ Complete | Backend |
-| SDLC 5.1.3 Compliance Guide | ✅ Complete | PM |
+| SDLC 6.1.0 Compliance Guide | ✅ Complete | PM |
 
 ### Risks
 
@@ -373,7 +373,7 @@ frontend/web/src/
 
 ---
 
-## 📝 SDLC 5.1.3 Compliance Checklist
+## 📝 SDLC 6.1.0 Compliance Checklist
 
 | Rule | Implementation | Sprint 75 |
 |------|---------------|-----------|
@@ -401,6 +401,6 @@ frontend/web/src/
 
 ---
 
-**SDLC 5.1.3 | Sprint 75 | Stage 04 (BUILD)**
+**SDLC 6.1.0 | Sprint 75 | Stage 04 (BUILD)**
 
 *G-Sprint Approval Required Before Sprint Start*

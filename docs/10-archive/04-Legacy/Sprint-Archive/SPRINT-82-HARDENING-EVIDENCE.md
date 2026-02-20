@@ -5,7 +5,7 @@
 **Duration:** 10 days (March 3-14, 2026)
 **Goal:** Implement tamper-evident Evidence Vault + Complete GitHub App setup + MinIO Object Lock
 **Story Points:** 38 SP
-**Framework Reference:** SDLC 5.1.3 P4 (Quality Gates) + P7 (Documentation Permanence)
+**Framework Reference:** SDLC 6.1.0 P4 (Quality Gates) + P7 (Documentation Permanence)
 **Prerequisite:** Sprint 81 ✅ COMPLETE
 **Launch Gate:** Go/No-Go Review Feb 28, 2026
 
@@ -750,6 +750,6 @@ CREATE POLICY team_member_access ON teams
 
 ---
 
-**SDLC 5.1.3 | Sprint 82 | Stage 04 (BUILD)**
+**SDLC 6.1.0 | Sprint 82 | Stage 04 (BUILD)**
 
 *Pre-Launch Hardening - "Credibility is our most valuable asset. We cannot afford to lose it on day one." - CTO*

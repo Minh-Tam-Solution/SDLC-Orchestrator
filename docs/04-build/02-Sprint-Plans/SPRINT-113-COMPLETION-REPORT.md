@@ -2,14 +2,14 @@
 
 **Sprint**: 113 - Governance UI (Auto-Generation + Kill Switch)
 **Duration**: January 28 - February 2, 2026 (5 days)
-**Framework**: SDLC 5.3.0 Quality Assurance System
+**Framework**: SDLC 6.1.0
 **ADR Reference**: ADR-041
 
 ---
 
 ## Executive Summary
 
-Sprint 113 delivered the complete **Governance UI Layer** for the SDLC 6.0 Quality Assurance System. This sprint exceeded estimates by **313%**, delivering 7,884 LOC vs the original 2,517 LOC estimate.
+Sprint 113 delivered the complete **Governance UI Layer** for the SDLC 6.1.0 Quality Assurance System. This sprint exceeded estimates by **313%**, delivering 7,884 LOC vs the original 2,517 LOC estimate.
 
 ### Key Achievement
 

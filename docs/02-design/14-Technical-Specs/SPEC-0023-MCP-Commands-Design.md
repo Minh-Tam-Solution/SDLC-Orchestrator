@@ -1351,7 +1351,7 @@ time sdlcctl mcp disconnect --slack
 1. **[RFC-SDLC-603: MCP Integration Pattern](/home/nqh/shared/SDLC-Orchestrator/docs/01-planning/08-RFCs/RFC-SDLC-603-MCP-Integration-Pattern.md)** - Methodology (Track 1)
 2. **[Boris Cherny Implementation Plan](/home/dttai/.claude/plans/parallel-painting-turing.md)** - Tactics analysis
 3. **[SPEC-0002: Specification Standard](/home/nqh/shared/SDLC-Orchestrator/docs/02-design/14-Technical-Specs/SPEC-0002-Specification-Standard.md)** - This document format
-4. **[SPEC-0014: CLI Extension SDLC 6.0.5 Upgrade](/home/nqh/shared/SDLC-Orchestrator/docs/02-design/14-Technical-Specs/SPEC-0014-CLI-Extension-SDLC-6.0.0-Upgrade.md)** - CLI patterns
+4. **[SPEC-0014: CLI Extension SDLC 6.1.0 Upgrade](/home/nqh/shared/SDLC-Orchestrator/docs/02-design/14-Technical-Specs/SPEC-0014-CLI-Extension-SDLC-6.0.0-Upgrade.md)** - CLI patterns
 
 ### External API Documentation
 

@@ -179,7 +179,7 @@ erDiagram
         string version "X.Y.Z semantic"
         enum status "DRAFT | APPROVED | DEPRECATED"
         array tier "LITE/STANDARD/PROFESSIONAL/ENTERPRISE"
-        int pillar "1-7 (SDLC 6.0 pillars)"
+        int pillar "1-7 (SDLC 6.1.0 pillars)"
         string owner
         timestamp created_at
         timestamp updated_at

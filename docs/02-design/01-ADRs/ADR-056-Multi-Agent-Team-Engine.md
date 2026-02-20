@@ -639,11 +639,11 @@ def inject_reflection(messages: list[dict], tool_results: list[dict]) -> list[di
 
 ---
 
-## 12.5 SASE Role Classification (SDLC 6.0.6 Enterprise Tier)
+## 12.5 SASE Role Classification (SDLC 6.1.0 Enterprise Tier)
 
 > **Added**: Sprint 176 design review. Expands `sdlc_role` from 8 → 12 values.
 > **Authority**: CTO Approved (5 amendments applied).
-> **Reference**: SASE Framework (arXiv:2509.06216v2), SDLC 6.0.6 Section 7.
+> **Reference**: SASE Framework (arXiv:2509.06216v2), SDLC 6.1.0 Section 7.
 
 ### 12.5.1 Role Progression
 
@@ -652,7 +652,7 @@ The `sdlc_role` field in `agent_definitions` has evolved across sprints:
 | Sprint | Count | Roles Added | Trigger |
 |--------|-------|-------------|---------|
 | 176 (initial) | 6 | pm, architect, coder, reviewer, tester, devops | ADR-056 Phase 1 |
-| 176 (P0 fix) | 8 | + researcher, pjm | TinySDLC 6.0.6 compatibility (s176_002 migration) |
+| 176 (P0 fix) | 8 | + researcher, pjm | TinySDLC 6.1.0 compatibility (s176_002 migration) |
 | 177 (planned) | 12 | + ceo, cpo, cto, assistant | SASE Enterprise tier (this section, s177_001 migration) |
 
 ### 12.5.2 Three-Type Taxonomy

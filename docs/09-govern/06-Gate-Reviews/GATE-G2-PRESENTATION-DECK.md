@@ -5,14 +5,14 @@
 **Presented By**: CPO + CTO
 **Audience**: CTO, CPO, CEO, Security Lead, Backend Lead, QA Lead
 **Duration**: 2 hours (10:00 AM - 12:00 PM)
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
 # SLIDE 1: Title Slide
 
 ## GATE G2: DESIGN READY
-### SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3
+### SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0
 
 **Review Date**: December 10, 2025
 
@@ -215,7 +215,7 @@ def upload_to_minio(file_path: str) -> str:
 
 **OPA Policy Engine**:
 - Integration: ✅ REST API calls to OPA service (port 8181)
-- Policies: ✅ 110 pre-built policies (all 10 SDLC 5.1.3 stages)
+- Policies: ✅ 110 pre-built policies (all 10 SDLC 6.1.0 stages)
 - Evaluation: ✅ Real Rego execution (<50ms p95)
 - Testing: ✅ Policy test framework (5+ tests per policy)
 
@@ -597,7 +597,7 @@ def upload_to_minio(file_path: str) -> str:
 ---
 
 **Presentation Status**: ✅ **READY**
-**Framework**: ✅ **SDLC 5.1.3 COMPLETE LIFECYCLE**
+**Framework**: ✅ **SDLC 6.1.0 COMPLETE LIFECYCLE**
 **Authorization**: ✅ **CTO + CPO + CEO APPROVED**
 
 ---

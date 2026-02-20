@@ -189,7 +189,7 @@ conn.execute(sa.text("""
 
 **Corrected**: Moved Beta Pilot docs from `08-Team-Management` to `05-Deployment-Release/05-Beta-Pilot/`
 
-Per SDLC 5.1.3.1:
+Per SDLC 6.1.0:
 - Stage 05 = Deployment & Release
 - Training materials belong to release preparation phase
 
@@ -237,7 +237,7 @@ Tomorrow focuses on:
 - [x] Feedback system production-ready
 - [x] Support channels documented
 - [x] Training materials actionable
-- [x] SDLC 5.1.3.1 folder structure compliant
+- [x] SDLC 6.1.0 folder structure compliant
 - [x] Migration applied successfully
 - [x] No technical debt introduced
 

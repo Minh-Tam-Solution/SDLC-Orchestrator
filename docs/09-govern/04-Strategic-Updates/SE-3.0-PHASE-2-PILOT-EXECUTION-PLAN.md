@@ -495,4 +495,4 @@ For each SOP generated, an MRP will be created with:
 
 **Document Status:** ✅ **CTO APPROVED**
 **Next Milestone:** Phase 2-Pilot Kickoff (Dec 23, 2025)
-**Framework Version:** SDLC 5.1.0
+**Framework Version:** SDLC 6.1.0

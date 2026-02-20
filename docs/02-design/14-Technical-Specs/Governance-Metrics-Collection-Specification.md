@@ -5,7 +5,7 @@
 **Date:** February 3-7, 2026  
 **Status:** DRAFT → APPROVED  
 **SDLC Stage:** 02-Design (Technical Specification)  
-**Framework:** SDLC 6.0 Governance System  
+**Framework:** SDLC 6.1.0 Governance System  
 **ADR Reference:** ADR-041  
 
 ---

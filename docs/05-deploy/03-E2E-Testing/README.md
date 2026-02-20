@@ -1,6 +1,6 @@
 # E2E API Testing
 
-## SDLC 6.0.5 - RFC-SDLC-602 E2E API Testing
+## SDLC 6.1.0 - RFC-SDLC-602 E2E API Testing
 
 This folder contains E2E API testing artifacts following the RFC-SDLC-602 specification.
 

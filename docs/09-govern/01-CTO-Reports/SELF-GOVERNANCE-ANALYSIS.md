@@ -50,7 +50,7 @@
 - Current sprint: Sprint 78
 - Gap: **48 sprints without phase coordination**
 
-**Root Cause:** No enforcement of "Sprint → Phase → Roadmap" hierarchy per SDLC 5.1.3 P2.
+**Root Cause:** No enforcement of "Sprint → Phase → Roadmap" hierarchy per SDLC 6.1.0 P2.
 
 ### 4. AI Agent Contribution to Chaos
 
@@ -631,6 +631,6 @@ REQUIRED ACTIONS:
 
 ---
 
-**SDLC 5.1.3 | Self-Governance Analysis | CTO Report**
+**SDLC 6.1.0 | Self-Governance Analysis | CTO Report**
 
 *"A governance platform that cannot govern itself cannot be trusted to govern others."*

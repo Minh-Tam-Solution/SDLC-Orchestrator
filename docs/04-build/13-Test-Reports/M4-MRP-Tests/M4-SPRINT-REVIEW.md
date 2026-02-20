@@ -165,7 +165,7 @@ Week 4 delivered the complete MRP (Merge-Readiness Pack) integration with SOP Hi
 │ 📊 MRP Overview               │ ⚡ Generation Metrics                │
 │ ───────────────────────────── │ ──────────────────────────────────── │
 │ MRP ID: MRP-PILOT-20250113... │ AI Provider: ollama                  │
-│ BRS Reference: BRS-PILOT-001  │ AI Model: qwen2.5:14b-instruct       │
+│ BRS Reference: BRS-PILOT-001  │ AI Model: qwen3:32b       │
 │ Created: Jan 13, 2025         │ Generation Time: 6.5s ✓ NFR1         │
 │ Status: approved              │ Template: Deployment SOP             │
 ├───────────────────────────────┼──────────────────────────────────────┤

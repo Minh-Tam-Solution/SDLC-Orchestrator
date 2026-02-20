@@ -11,7 +11,7 @@
 
 ### Problem Statement
 
-**Critical Discovery**: All 8 system settings in Admin Panel are **MOCK implementations** that violate SDLC 5.1.2 Zero Mock Policy:
+**Critical Discovery**: All 8 system settings in Admin Panel are **MOCK implementations** that violate SDLC 6.1.0 Zero Mock Policy:
 
 | Setting | Current State | Impact |
 |---------|---------------|--------|
@@ -28,7 +28,7 @@
 - **Framework Integrity**: SDLC Orchestrator (tool enforcing SDLC) violates its own Zero Mock Policy
 - **Security Risk**: Admin believes they can enforce security policies, but changes have no effect
 - **Compliance Risk**: Settings appear to control behavior but don't - audit trail is misleading
-- **Credibility Risk**: Cannot enforce SDLC 5.1.2 on teams while violating it ourselves
+- **Credibility Risk**: Cannot enforce SDLC 6.1.0 on teams while violating it ourselves
 
 ### Why This Happened
 
@@ -45,7 +45,7 @@ This is a classic "UI-first, logic-later" anti-pattern that violates our own pri
 
 ### Guiding Principles
 
-1. **Framework Integrity First**: SDLC Orchestrator MUST comply with SDLC 5.1.2
+1. **Framework Integrity First**: SDLC Orchestrator MUST comply with SDLC 6.1.0
 2. **Zero Mock Policy**: No setting can exist without real enforcement
 3. **Security by Default**: Auth/security settings are P0
 4. **Phased Approach**: Fix critical settings immediately, plan others systematically
@@ -372,7 +372,7 @@ Manual checklist for each Phase 1 setting:
 ### Overall Success (All Phases)
 
 - ✅ 8/8 settings fully functional (no mocks)
-- ✅ SDLC Orchestrator complies with SDLC 5.1.2
+- ✅ SDLC Orchestrator complies with SDLC 6.1.0
 - ✅ Framework credibility restored
 - ✅ Security posture improved (MFA enforcement, lockout, session timeout)
 
@@ -448,7 +448,7 @@ Manual checklist for each Phase 1 setting:
 
 ## References
 
-- **SDLC 5.1.2 Zero Mock Policy**: `/SDLC-Enterprise-Framework/02-Core-Methodology/03-Quality-Standards.md`
+- **SDLC 6.1.0 Zero Mock Policy**: `/SDLC-Enterprise-Framework/02-Core-Methodology/03-Quality-Standards.md`
 - **Current Implementation**: `backend/app/models/settings.py`, `backend/app/api/routes/settings.py`
 - **Auth Logic**: `backend/app/core/security.py`
 - **Related**: ADR-028 (API Key Management - TBD)

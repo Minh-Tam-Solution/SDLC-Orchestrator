@@ -213,7 +213,7 @@ Layer 1: Infrastructure (OPA, MinIO, Grafana, PostgreSQL, Redis)
 - [x] `owner:` assigned (CTO, Backend Lead, Tech Lead)
 - [x] `related_adrs:` linked (14 unique ADRs)
 - [x] `related_specs:` linked (cross-references)
-- [x] `framework_version: SDLC 6.0.5` declared
+- [x] `framework_version: SDLC 6.1.0` declared
 
 ### BDD Requirements Format (3/3 specs)
 - [x] All functional requirements use GIVEN-WHEN-THEN format
@@ -435,7 +435,7 @@ failure_consequence: "blocking"
 ### Version Correction
 
 **Framework Version**: 6.0.5 (In Development)
-- User feedback: "chúng ta vẫn giữ phiên bản SDLC 6.0 nhé, chưa lên 6.1"
+- User feedback: "chúng ta vẫn giữ phiên bản SDLC 6.1.0 nhé, chưa lên 6.1"
 - Translation: "we still keep SDLC version 6.0, not upgrading to 6.1 yet"
 - Rationale: Framework 6.0 still in development, not officially released
 - **Corrected files**: spec/controls/anti-vibecoding.yaml, spec/gates/gates.yaml, spec/VERSIONING.md
@@ -464,7 +464,7 @@ failure_consequence: "blocking"
 
 **Week 1 Day 3 (Jan 29)**:
 - [ ] Commit 5 POC files to Framework repository
-- [ ] Commit message: "feat(SDLC 6.0): Add spec-first POC (5 files, zero code)"
+- [ ] Commit message: "feat(SDLC 6.1.0): Add spec-first POC (5 files, zero code)"
 - [ ] Create SPEC-0001 and SPEC-0002 with proper YAML frontmatter
 - [ ] Execute deferred frontmatter validation
 

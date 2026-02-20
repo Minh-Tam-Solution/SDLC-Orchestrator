@@ -131,7 +131,7 @@ Anthropic's internal use of Claude Code reveals **7 patterns that validate our s
 ### Our Focus
 - **Product**: Governance layer (Quality Gates + Evidence Vault)
 - **Market**: Enterprises needing compliance (OWASP, SOC2, GDPR)
-- **Moat**: Domain expertise (SDLC 6.0.5 framework)
+- **Moat**: Domain expertise (SDLC 6.1.0 framework)
 
 **Why They Won't Compete**:
 1. Anthropic sells **models**, we sell **governance**
@@ -147,7 +147,7 @@ Anthropic's internal use of Claude Code reveals **7 patterns that validate our s
 ### Risk 1: Anthropic builds governance into Claude Code
 **Probability**: Low (they're model-focused, not governance-focused)  
 **Mitigation**: 
-- Our moat = domain expertise (SDLC 6.0.5 framework, 9-stage methodology)
+- Our moat = domain expertise (SDLC 6.1.0 framework, 9-stage methodology)
 - We support **all AI coders** (not just Claude) → broader market
 
 ### Risk 2: Prompt caching doesn't deliver 8x cost reduction

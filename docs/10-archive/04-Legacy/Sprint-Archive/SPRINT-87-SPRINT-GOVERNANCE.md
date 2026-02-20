@@ -1,11 +1,11 @@
-# Sprint 87: Sprint Governance UI + P0 Blockers (SDLC 5.1.3 Pillar 2)
+# Sprint 87: Sprint Governance UI + P0 Blockers (SDLC 6.1.0 Pillar 2)
 
 **Sprint ID:** S87
 **Status:** ✅ **CTO APPROVED** (January 20, 2026) - **CRITICAL PRIORITY**
 **Duration:** 10 days (February 23 - March 5, 2026)
 **Goal:** Implement Sprint Planning Governance UI + P0 Blockers (GitHub Check Run, Evidence Hash Chain)
 **Story Points:** 58 SP (42 SP Governance + 16 SP P0 Blockers)
-**Framework Reference:** SDLC 5.1.3 P2 (Sprint Planning Governance)
+**Framework Reference:** SDLC 6.1.0 P2 (Sprint Planning Governance)
 **Prerequisite:** Sprint 86 ✅ System Settings Implementation
 **Target:** Full Sprint Governance visibility and control + P0 Blocker Resolution
 
@@ -15,7 +15,7 @@
 
 ### Strategic Importance
 
-SDLC 5.1.3's defining feature is **Sprint Planning Governance** (Pillar 2). As the Orchestrator platform that **enforces** this framework, we MUST implement this feature excellently. This is "eating our own dog food."
+SDLC 6.1.0's defining feature is **Sprint Planning Governance** (Pillar 2). As the Orchestrator platform that **enforces** this framework, we MUST implement this feature excellently. This is "eating our own dog food."
 
 Additionally, this sprint addresses **P0 Blockers** from the Expert Feedback Response plan that are critical for launch.
 
@@ -85,7 +85,7 @@ Additionally, this sprint addresses **P0 Blockers** from the Expert Feedback Res
 - MinIO Object Lock for immutability
 - Evidence manifest API endpoints
 
-### SDLC 5.1.3 Pillar 2 Requirements
+### SDLC 6.1.0 Pillar 2 Requirements
 
 ```yaml
 Pillar 2: Sprint Planning Governance
@@ -298,7 +298,7 @@ G-Sprint Gate (/app/sprints/[id]/start-gate):
 │ Sprint Start Checklist                           Overall: 5/6 ✅        │
 │ ─────────────────────────────────────────────────────────────────────── │
 │ ☑️ Sprint Goal Defined                                       ✅ PASS    │
-│    "Implement Sprint Governance UI - SDLC 5.1.3 Pillar 2"               │
+│    "Implement Sprint Governance UI - SDLC 6.1.0 Pillar 2"               │
 │                                                                         │
 │ ☑️ Backlog Items Estimated                                   ✅ PASS    │
 │    42 story points across 18 items                                      │
@@ -714,7 +714,7 @@ During testing of Teams/Organizations pages, discovered missing timestamp fields
 
 ## 🔗 Framework Compliance
 
-### SDLC 5.1.3 Pillar 2 Checklist
+### SDLC 6.1.0 Pillar 2 Checklist
 
 | Requirement | Implementation | Status |
 |-------------|---------------|--------|
@@ -733,9 +733,9 @@ During testing of Teams/Organizations pages, discovered missing timestamp fields
 
 ## Approval
 
-- [ ] **CTO Approval**: This is core SDLC 5.1.3 feature - must be excellent
+- [ ] **CTO Approval**: This is core SDLC 6.1.0 feature - must be excellent
 - [ ] **CPO Approval**: UX/UI specifications
-- [ ] **Framework Lead Approval**: SDLC 5.1.3 compliance verification
+- [ ] **Framework Lead Approval**: SDLC 6.1.0 compliance verification
 - [ ] **Frontend Lead Approval**: Implementation approach
 
 ---
@@ -763,6 +763,6 @@ During testing of Teams/Organizations pages, discovered missing timestamp fields
 
 ## 💡 CTO Note
 
-> "SDLC 5.1.3 được nâng cấp chính là Sprint Governance. Bản thân SDLC Orchestrator phải làm tốt được việc này. Đây là 'eating our own dog food' - nếu chúng ta không thể quản lý sprint của chính mình bằng công cụ của mình, làm sao khách hàng tin tưởng?"
+> "SDLC 6.1.0 được nâng cấp chính là Sprint Governance. Bản thân SDLC Orchestrator phải làm tốt được việc này. Đây là 'eating our own dog food' - nếu chúng ta không thể quản lý sprint của chính mình bằng công cụ của mình, làm sao khách hàng tin tưởng?"
 
 This sprint is critical for framework credibility. Execute with excellence.

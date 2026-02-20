@@ -4,7 +4,7 @@
 **Date**: November 27, 2025
 **Status**: ACTIVE - Week 13 Production Launch
 **Authority**: DevOps Lead + CTO
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Type**: Blue-Green Deployment
 
 ---
@@ -342,7 +342,7 @@ kubectl exec -it deployment/redis -n sdlc-orchestrator -- redis-cli -a PASSWORD 
 
 ---
 
-*This document is part of the SDLC 5.1.3 Complete Lifecycle documentation.*
+*This document is part of the SDLC 6.1.0 Complete Lifecycle documentation.*
 
 **Generated**: November 27, 2025
 **Version**: 1.0.0

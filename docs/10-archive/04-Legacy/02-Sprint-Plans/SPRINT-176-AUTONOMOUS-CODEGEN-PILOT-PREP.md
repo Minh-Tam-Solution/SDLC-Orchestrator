@@ -3,7 +3,7 @@
 **Sprint Duration**: March 17-28, 2026 (10 working days)
 **Status**: PLANNED
 **Phase**: Stage 04 (BUILD) — Autonomous Codegen Implementation + Pilot Preparation
-**Framework**: SDLC 6.0.6 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.1.0
 **Priority**: P0 (ADR-055 Implementation + Vietnamese SME Pilot Readiness)
 **Previous Sprint**: [Sprint 175 — Frontend Feature Completion](SPRINT-175-FRONTEND-COMPLETION.md)
 **ADR Reference**: [ADR-055 — Autonomous Codegen with 4-Gate Validation](../../02-design/ADR-055-Autonomous-Codegen-4-Gate-Validation.md)

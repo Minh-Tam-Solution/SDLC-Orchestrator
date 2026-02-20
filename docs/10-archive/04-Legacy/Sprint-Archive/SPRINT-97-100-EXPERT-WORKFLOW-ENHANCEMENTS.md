@@ -2,7 +2,7 @@
 
 **Planning Date:** January 22, 2026  
 **CTO Approval:** ✅ Approved (Jan 22, 2026)  
-**Framework:** SDLC 5.1.3 (7-Pillar Architecture)  
+**Framework:** SDLC 6.1.0 (7-Pillar Architecture)  
 **Source:** Expert AI Coding Workflow Analysis (2026)  
 **Status:** 📋 PLANNED (Post Go/No-Go)
 

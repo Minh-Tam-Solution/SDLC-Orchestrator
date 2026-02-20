@@ -18,7 +18,7 @@ end_date: "2026-02-24"
 **Sprint Goal**: Strategic architecture review — ADR-059 Enterprise-First Refocus + Sprint 179 formal close
 **Epic**: EP-07 Multi-Agent Team Engine (strategic pivot)
 **ADR**: ADR-059 (Enterprise-First Refocus Strategy — 5 locked decisions)
-**Framework**: SDLC 6.1.0 (7-Pillar + AI Governance)
+**Framework**: SDLC 6.1.0
 **Budget**: $2,560 (32 hrs at $80/hr)
 **Previous Sprint**: Sprint 179 — ZeroClaw Security Hardening
 **Next Sprint**: Sprint 181 — OTT Foundation + Route Activation
@@ -130,7 +130,7 @@ print('AC-0.6: MODEL_ROUTE_HINTS — PASS')
 
 ### ✅ Deliverable 3 — ADR-059 Enterprise-First Refocus Strategy (P0, Days 1–3)
 
-**File**: `docs/02-design/ADR-059-Enterprise-First-Refocus.md`
+**File**: `docs/02-design/01-ADRs/ADR-059-Enterprise-First-Refocus.md`
 
 **5 Locked Decisions**:
 

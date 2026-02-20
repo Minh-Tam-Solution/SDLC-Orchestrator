@@ -231,7 +231,7 @@ Week 2 (Day 6-10):
 | **Stage Folder** | 5 | 3/5 | STAGE-001: Invalid naming (1-planning → 01-planning) |
 | **Numbering** | 3 | 2/3 | NUM-001: Duplicate numbers (01-x, 01-y detected) |
 | **Naming** | 2 | 1/2 | NAME-001: Invalid characters (use-kebab-case) |
-| **Header** | 2 | 1/2 | HDR-001: Missing metadata (Framework: SDLC 5.1.3) |
+| **Header** | 2 | 1/2 | HDR-001: Missing metadata (Framework: SDLC 6.1.0) |
 | **Reference** | 2 | 0/2 | REF-001: Broken internal links |
 | **Scanner** | 1 | 0/1 | SCANNER-001: Internal errors |
 

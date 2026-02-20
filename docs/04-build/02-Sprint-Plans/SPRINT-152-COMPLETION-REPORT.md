@@ -4,7 +4,7 @@
 **Sprint Goal**: Context Authority SSOT Dashboard (50% → 85% completion)
 **Status**: ✅ **COMPLETE**
 **Priority**: P0 (Feature Completion)
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.1.0
 **Total LOC**: ~4,500 LOC
 **Tech Spec**: [SPEC-0011-Context-Authority-V2](../../02-design/14-Technical-Specs/SPEC-0011-Context-Authority-V2.md)
 **Related ADR**: [ADR-041-Framework-6.0-Governance-System](../../02-design/01-ADRs/ADR-041-Framework-6.0-Governance-System.md)

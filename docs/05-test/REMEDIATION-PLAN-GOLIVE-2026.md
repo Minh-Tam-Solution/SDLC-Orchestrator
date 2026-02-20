@@ -2,7 +2,7 @@
 
 **Date**: January 27, 2026
 **Status**: ✅ **ACTIVE - Execution Ready**
-**Framework**: SDLC 5.2.0 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.1.0
 **Owner**: QA Lead + Backend Lead + CTO
 **Target Go-Live**: February 28, 2026 (30 days)
 
@@ -16,7 +16,7 @@ This document provides a **detailed remediation plan** to bring SDLC Orchestrato
 1. ❌ No TDD enforcement (code written before tests)
 2. ❌ No test factories (hardcoded test data)
 3. ❌ Unit coverage <50% (target: 95%+)
-4. ❌ No framework compliance tests (SDLC 5.2.0 alignment)
+4. ❌ No framework compliance tests (SDLC 6.1.0 alignment)
 5. ⚠️ Integration tests incomplete (GitHub/MinIO only)
 6. ⚠️ No Playwright E2E tests (Bruno API tests exist)
 7. ⚠️ No load testing (target: 100K concurrent users)
@@ -44,7 +44,7 @@ This document provides a **detailed remediation plan** to bring SDLC Orchestrato
 | **E2E Tests** | ⚠️ Bruno only | Playwright 10 paths | 10 tests | P1 |
 | **Load Tests** | ❌ None | 100K users | 1 test suite | P2 |
 | **Security Audit** | ❌ None | OWASP ASVS L2 | 1 audit report | P2 |
-| **Framework Compliance** | ❌ None | SDLC 5.2.0 | 20+ tests | P1 |
+| **Framework Compliance** | ❌ None | SDLC 6.1.0 | 20+ tests | P1 |
 | **CI/CD Enforcement** | ⚠️ No coverage check | 95% threshold | Update pipeline | P0 |
 
 ---
@@ -977,7 +977,7 @@ class TestGateAPI:
 
 #### D3: Framework Compliance Tests (Day 5)
 
-**Purpose**: Verify Orchestrator implements SDLC 5.2.0 correctly
+**Purpose**: Verify Orchestrator implements SDLC 6.1.0 correctly
 
 ```python
 # backend/tests/compliance/test_framework_compliance.py
@@ -989,7 +989,7 @@ import yaml
 
 class TestSDLC520Compliance:
     """
-    Verify SDLC Orchestrator implements SDLC 5.2.0 framework correctly.
+    Verify SDLC Orchestrator implements SDLC 6.1.0 framework correctly.
 
     Framework Location: SDLC-Enterprise-Framework/ (submodule)
     """
@@ -1455,7 +1455,7 @@ class TestProductionSmoke:
 
 **Framework**:
 - [SDLC-Enterprise-Framework](../../SDLC-Enterprise-Framework/) (submodule)
-- [SDLC 5.2.0 Documentation](../../SDLC-Enterprise-Framework/CONTENT-MAP.md)
+- [SDLC 6.1.0 Documentation](../../SDLC-Enterprise-Framework/CONTENT-MAP.md)
 
 **Test Strategy**:
 - [00-TEST-STRATEGY-2026.md](00-TEST-STRATEGY-2026.md)

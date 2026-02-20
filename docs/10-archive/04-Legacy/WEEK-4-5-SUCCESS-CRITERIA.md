@@ -6,7 +6,7 @@
 **Effective Date**: December 3, 2025
 **Project**: SDLC Orchestrator - Backend API Implementation
 **Authority**: Backend Lead + CTO + Tech Lead
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -1109,7 +1109,7 @@ Gate G3 Progress:
 ---
 
 **Template Status**: ✅ **WEEK 4-5 SUCCESS CRITERIA COMPLETE**
-**Framework**: ✅ **SDLC 5.1.3 COMPLETE LIFECYCLE**
+**Framework**: SDLC 6.1.0
 **Authorization**: ✅ **BACKEND LEAD + CTO + TECH LEAD APPROVED**
 
 ---

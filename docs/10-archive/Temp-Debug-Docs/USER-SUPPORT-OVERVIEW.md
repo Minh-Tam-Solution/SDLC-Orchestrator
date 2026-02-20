@@ -1,6 +1,6 @@
 # SDLC Orchestrator - User Support Documentation
 
-**Framework**: SDLC 5.1.3 Complete Lifecycle  
+**Framework**: SDLC 6.1.0
 **Stage**: 07 - OPERATE  
 **Location**: `/docs/07-operate/03-User Support/`  
 **Last Updated**: December 20, 2025
@@ -9,7 +9,7 @@
 
 ## 📚 Documentation Overview
 
-Comprehensive user support documentation for **SDLC Orchestrator** - the AI-native platform that implements **SDLC 5.1.3 Enterprise Framework** governance policy.
+Comprehensive user support documentation for **SDLC Orchestrator** - the AI-native platform that implements **SDLC 6.1.0 Enterprise Framework** governance policy.
 
 ### 🎯 Purpose
 
@@ -37,7 +37,7 @@ Real-world proven results:
 
 ### Framework Understanding
 **[02-SDLC-Framework-Overview.md](docs/07-operate/03-User%20Support/02-SDLC-Framework-Overview.md)**
-- SDLC 5.1.3 complete explanation
+- SDLC 6.1.0 complete explanation
 - 10-stage lifecycle walkthrough
 - Quality gates system
 - 4-tier classification
@@ -212,7 +212,7 @@ Location: /SDLC-Enterprise-Framework/
 ## 💡 Key Highlights
 
 ### Framework Connection
-Every document explicitly links SDLC Orchestrator capabilities to SDLC 5.1.3 Framework principles:
+Every document explicitly links SDLC Orchestrator capabilities to SDLC 6.1.0 Framework principles:
 - **Framework** = Governance policy (what to do)
 - **Orchestrator** = Enforcement platform (how to do it)
 
@@ -266,7 +266,7 @@ All guidance based on battle-tested projects:
 ## ✨ Summary
 
 **SDLC Orchestrator User Support Documentation** provides everything users need to:
-1. ✅ **Understand** the SDLC 5.1.3 Framework methodology
+1. ✅ **Understand** the SDLC 6.1.0 Framework methodology
 2. ✅ **Use** SDLC Orchestrator platform effectively
 3. ✅ **Succeed** with proven best practices
 4. ✅ **Get Help** when needed (multiple channels)
@@ -278,7 +278,7 @@ All guidance based on battle-tested projects:
 
 **Questions?** Start with [Getting Started](docs/07-operate/03-User%20Support/01-Getting-Started.md) or check [FAQ](docs/07-operate/03-User%20Support/07-FAQ.md)
 
-**Framework**: SDLC 5.1.3 Complete Lifecycle  
+**Framework**: SDLC 6.1.0
 **Platform**: SDLC Orchestrator v1.2.0  
 **Documentation**: v1.0 (Dec 20, 2025)  
 **Author**: Mr. Tai (taidt@mtsolution.com.vn, +84 939 116 006)

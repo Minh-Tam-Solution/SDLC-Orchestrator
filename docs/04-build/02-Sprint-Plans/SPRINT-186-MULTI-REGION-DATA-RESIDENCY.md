@@ -37,7 +37,14 @@ Sprint 186 delivers **storage-level data residency only** (MinIO/S3 bucket per r
 | GDPR routes (4 endpoints) | P0 | ~150 | 1 |
 | `s186_002_gdpr_tables.py` migration | P0 | ~60 | 0.5 |
 | GDPR tests (GD-01..20) | P0 | ~200 | 1 |
-| **Total** | | **~1,400** | **10** |
+| **`?compliance_type=` filter on GET /api/v1/evidence** | **P1 ⚠️** | ~60 | 0.5 |
+| **Fernet key rotation runbook** | **P1 ⚠️** | ~80 doc | 0.5 |
+| SP-14: SOC2 pack idempotency test | P2 | ~30 | 0.25 |
+| **Total** | | **~1,570** | **10** |
+
+> ⚠️ **CTO P1 mandates from Sprint 185 review** — must ship before Sprint 186 close:
+> - `?compliance_type=` filter: ADR-062 D-3, outstanding since Sprint 183, 3 sprints overdue.
+> - Fernet key rotation runbook: F-03 SHA-256 migration breaks existing tokens; required before any ENTERPRISE customer onboards.
 
 ---
 
@@ -292,6 +299,57 @@ GD-20: User export available until scheduled_purge_at (30-day grace period)
 
 ---
 
+### Day 4 (P1): CTO Mandates — compliance_type Filter + Fernet Runbook
+
+#### P1-01: `?compliance_type=` filter on GET /api/v1/evidence
+
+**Status**: 4 sprints overdue (ADR-062 D-3, Sprint 183). **Cannot slip again** (CTO).
+
+**File**: `backend/app/api/routes/evidence.py`
+
+```python
+# Add compliance_type as an optional Query parameter
+@router.get("")
+async def list_evidence(
+    ...
+    compliance_type: str | None = Query(
+        None,
+        description="Filter by compliance evidence type: SOC2_CONTROL | HIPAA_AUDIT | NIST_AI_RMF | ISO27001",
+    ),
+    ...
+):
+    # Add to WHERE clause when present:
+    if compliance_type:
+        conditions.append(GateEvidence.evidence_type == compliance_type.upper())
+```
+
+**Test**: CT-01..CT-05 (evidence filter tests):
+```
+CT-01: GET /evidence?compliance_type=SOC2_CONTROL returns only SOC2_CONTROL records
+CT-02: GET /evidence?compliance_type=HIPAA_AUDIT returns only HIPAA_AUDIT records
+CT-03: GET /evidence?compliance_type=INVALID returns 422 (Pydantic validation)
+CT-04: GET /evidence?compliance_type=soc2_control (lowercase) normalizes and returns SOC2_CONTROL records
+CT-05: GET /evidence (no filter) returns all evidence types (unaffected by this change)
+```
+
+---
+
+#### P1-02: Fernet Key Rotation Runbook
+
+**Status**: P1 blocker — no ENTERPRISE customer onboarding until runbook exists.
+
+**File**: `docs/09-govern/02-Runbooks/FERNET-KEY-ROTATION.md`
+
+**Runbook covers**:
+1. **Detection**: `SELECT COUNT(*) FROM jira_connections WHERE encrypted_api_token IS NOT NULL` — confirm which tokens exist
+2. **Pre-flight**: Backup `jira_connections.encrypted_api_token` column
+3. **Re-encrypt**: Decrypt with OLD key (zero-padded) → re-encrypt with NEW key (SHA-256)
+4. **Verify**: Spot-check 5 tokens decrypt correctly with new key
+5. **Cut-over**: Deploy `F-03 SHA-256 jira_connection.py` (already shipped Sprint 185)
+6. **Rollback**: Restore from backup if decryption errors > 1%
+
+---
+
 ### Day 9-10: Integration + Sprint Close
 
 **Tasks**:
@@ -360,10 +418,16 @@ GD-20: User export available until scheduled_purge_at (30-day grace period)
 - [ ] 20 GDPR tests (GD-01..20) passing
 - [ ] All Sprint 181-185 tests still passing (regression)
 - [ ] Legal note in ADR-063: DB metadata in VN covered by DPA
+- [ ] **P1: `?compliance_type=` filter on GET /api/v1/evidence (CT-01..05 passing)** — cannot slip
+- [ ] **P1: Fernet key rotation runbook (`docs/09-govern/02-Runbooks/FERNET-KEY-ROTATION.md`)** — ENTERPRISE onboarding blocked without this
+- [ ] SP-14: SOC2 pack idempotency test (same period → same control coverage)
+- [ ] F-04 tech debt: partition-based audit log TTL note in ADR-063 appendix
 - [ ] Zero P0 bugs
 - [ ] SPRINT-186-CLOSE.md written
 
 ---
+
+**CTO P1 Gate**: Sprint 186 cannot close without `?compliance_type=` filter AND Fernet runbook. Both are blocking ENTERPRISE onboarding.
 
 **Approval Required**: CTO + Legal sign-off on GDPR process
 **Budget**: ~$6,400 (10 days × 8 hrs × $80/hr)

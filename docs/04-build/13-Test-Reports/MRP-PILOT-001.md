@@ -18,7 +18,7 @@
 | **Effective Date** | January 30, 2025 |
 | **Owner** | AI Development Partner |
 | **Approver** | CTO |
-| **Framework** | SDLC 5.1.0 Complete Lifecycle |
+| **Framework** | SDLC 6.1.0 Complete Lifecycle |
 
 ---
 
@@ -184,7 +184,7 @@
 **Backend Settings**:
 ```yaml
 OLLAMA_URL: http://api.nhatquangholding.com:11434
-OLLAMA_MODEL: qwen2.5:14b-instruct
+OLLAMA_MODEL: qwen3:32b
 DATABASE_URL: postgresql://user:pass@localhost:5432/sdlc
 REDIS_URL: redis://localhost:6379
 ```

@@ -45,7 +45,7 @@ Success = CEO works FASTER + Team works BETTER
 
 ## Decision
 
-Implement a **Quality Assurance System** (Pillar 7 in SDLC 5.3.0) with 6 key components:
+Implement a **Quality Assurance System** (Pillar 7 in SDLC 6.1.0) with 6 key components:
 
 ### Component 1: Auto-Generation Layer
 
@@ -289,7 +289,7 @@ escalation_log            -- Escalation history
   - AUTO-GENERATION-FAIL-SAFE-POLICY.md (Signed Jan 27, 2026)
   - VIBECODING-INDEX-EXPLAINABILITY-SPEC.md (Signed Jan 27, 2026)
 - Expert Reviews: Product Review (Expert 1), Technical Review (Expert 2)
-- Framework: SDLC 5.3.0 Section 7 (Quality Assurance System)
+- Framework: SDLC 6.1.0 Section 7 (Quality Assurance System)
 
 ---
 

@@ -564,4 +564,4 @@ def downgrade():
 
 ---
 
-*ADR Version: 1.0.0 | Created: January 6, 2026 | Framework: SDLC 5.1.3*
+*ADR Version: 1.0.0 | Created: January 6, 2026 | Framework: SDLC 6.1.0*

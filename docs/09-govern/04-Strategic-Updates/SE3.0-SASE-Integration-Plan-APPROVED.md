@@ -16,13 +16,13 @@ This plan outlines the integration of **Structured Agentic Software Engineering 
 
 ### Strategic Vision
 
-- Transform SDLC 5.1.3 → **SDLC 5.1.0** with Agentic Enterprise capabilities
+- Transform SDLC 6.1.0 → **SDLC 6.1.0** with Agentic Enterprise capabilities
 - Foundation for **Software 3.0** initiative ($360K investment, $830K Year 1 target)
 - **Framework-first, tool-second** approach (methodology before automation)
 
 ### Approval Status
 
-- ✅ **Track 1 APPROVED:** SDLC 5.1.0 Framework Enhancement ($50K, 14 weeks)
+- ✅ **Track 1 APPROVED:** SDLC 6.1.0 Framework Enhancement ($50K, 14 weeks)
 - ⏳ **Track 2 DEFERRED:** SDLC Orchestrator Tool Enhancement (Q2 2026, pending Track 1 success)
 
 ### Key Principle (CTO Decision)
@@ -35,7 +35,7 @@ This plan outlines the integration of **Structured Agentic Software Engineering 
 I have reviewed the comprehensive SE 3.0 SASE Integration Plan and **fully approve the strategic direction**. This plan aligns exceptionally well with:
 
 1. **Software 3.0 Strategic Plan v2** (approved earlier today)
-2. **SDLC 5.1.3 Contract-First** principles (Dec 5, 2025)
+2. **SDLC 6.1.0 Contract-First** principles (Dec 5, 2025)
 3. **Sequential execution** principle (Framework → Tool)
 4. **Budget constraints** ($369K remaining, Track 1 fits within budget)
 
@@ -78,7 +78,7 @@ I have reviewed the comprehensive SE 3.0 SASE Integration Plan and **fully appro
 
 ### SE 3.0 SASE Compliance
 
-- ✅ **Track 1**: SASE artifacts added to Framework **first** (SDLC 5.1.0)
+- ✅ **Track 1**: SASE artifacts added to Framework **first** (SDLC 6.1.0)
 - ⏳ **Track 2**: Orchestrator automation **deferred** (Q2 2026, conditional)
 - ✅ **Decoupled**: Teams can use SASE manually without Orchestrator
 
@@ -88,7 +88,7 @@ I have reviewed the comprehensive SE 3.0 SASE Integration Plan and **fully appro
 Framework Repo (Git Submodule):
   URL: https://github.com/Minh-Tam-Solution/SDLC-Enterprise-Framework
   Location: SDLC-Orchestrator/SDLC-Enterprise-Framework/ (submodule)
-  Version: SDLC 5.1.3 → 5.1.0 (SASE-enabled)
+  Version: SDLC 6.1.0 → 5.1.0 (SASE-enabled)
   Workflow: Work directly on main branch
 
 Tool Repo (Main):
@@ -124,7 +124,7 @@ mkdir -p 03-Templates-Tools/SASE-Artifacts
 
 # Commit to Framework repo
 git add .
-git commit -m "feat(SDLC 5.1.0): Add SASE artifact templates"
+git commit -m "feat(SDLC 6.1.0): Add SASE artifact templates"
 git push origin main
 
 # Update main Orchestrator repo (submodule pointer)
@@ -198,11 +198,11 @@ Phase 2 (Q2-Q3 2026): Software 3.0 Mode Toggle ($130K)
 
 **Version History:**
 ```yaml
-SDLC 5.1.3.1 (Nov 29, 2025):
+SDLC 6.1.0 (Nov 29, 2025):
   - 10 Stages: 00-WHY → 01-WHAT → 02-HOW → 03-BUILD → 04-TEST → 05-DEPLOY → 06-OPERATE → 07-INTEGRATE → 08-COLLABORATE → 09-GOVERN
   - Stage 03 (INTEGRATE) (after operations)
 
-SDLC 5.1.3 (Dec 5, 2025) - Contract-First Restructuring:
+SDLC 6.1.0 (Dec 5, 2025) - Contract-First Restructuring:
   - 10 Stages: 00-foundation → 01-planning → 02-design → 03-integration → 04-build → 05-test → 06-deploy → 07-operate → 08-collaborate → 09-govern
   - KEY CHANGE: Stage 03 = integration (API Design BEFORE coding) - Contract-First principle
   - Stage 07 = operate (operations, formerly Stage 06)
@@ -210,8 +210,8 @@ SDLC 5.1.3 (Dec 5, 2025) - Contract-First Restructuring:
   - ISO/IEC 12207:2017 alignment
   - Status: PRODUCTION READY (proven on BFlow, NQH-Bot, MTEP)
 
-SDLC 5.1.0 (Q1 2026) - SASE Integration (THIS PLAN):
-  - Base: SDLC 5.1.3 (all Contract-First + 4-Tier features retained)
+SDLC 6.1.0 (Q1 2026) - SASE Integration (THIS PLAN):
+  - Base: SDLC 6.1.0 (all Contract-First + 4-Tier features retained)
   - NEW: SE4H vs SE4A distinction across all 10 stages
   - NEW: 6 Agentic Artifacts (BriefingScript, LoopScript, MentorScript, CRP, MRP, VCR)
   - NEW: ACE/AEE Reference Architecture
@@ -221,14 +221,14 @@ SDLC 5.1.0 (Q1 2026) - SASE Integration (THIS PLAN):
 
 **Why 5.1.0 (not 6.0.5)?**
 - ✅ **Incremental enhancement:** SASE adds agentic capabilities WITHOUT changing core 10-stage structure
-- ✅ **Backward compatible:** Teams using SDLC 5.1.3 can adopt 5.1.0 incrementally (e.g., add BriefingScript only)
-- ✅ **Major version reserved:** SDLC 6.0.5 will be for fundamental lifecycle changes (if any)
+- ✅ **Backward compatible:** Teams using SDLC 6.1.0 can adopt 5.1.0 incrementally (e.g., add BriefingScript only)
+- ✅ **Major version reserved:** SDLC 6.1.0 will be for fundamental lifecycle changes (if any)
 
 ---
 
 ## 2. APPROVED EXECUTION PLAN
 
-### 2.1 TRACK 1: SDLC 5.1.0 Framework Enhancement
+### 2.1 TRACK 1: SDLC 6.1.0 Framework Enhancement
 
 **Status:** ✅ **APPROVED - START WEEK 1 (Dec 9, 2025)**
 
@@ -258,7 +258,7 @@ Rationale for +25% Buffer:
 ```yaml
 Deliverables:
   1. SDLC-Agentic-Core-Principles.md
-     - SE4H vs SE4A table for all 10 SDLC 5.1.3 stages
+     - SE4H vs SE4A table for all 10 SDLC 6.1.0 stages
      - 7 Agentic Principles (Brief-First, Evidence-Based MRP, Human Accountability, etc.)
      - Mapping SASE disciplines to 10 stages
 
@@ -391,7 +391,7 @@ Success Criteria:
 
 **Action:** PAUSE Phase 2, conduct root cause analysis, decide:
 - **Option A:** Adjust scope (reduce to 3 artifacts: BRS, MRP, VCR only)
-- **Option B:** Abort SASE integration (revert to SDLC 5.1.3)
+- **Option B:** Abort SASE integration (revert to SDLC 6.1.0)
 - **Option C:** Continue with mitigation plan
 
 **Approval Required:** CTO + PM/PO (joint decision, documented in VCR)
@@ -528,7 +528,7 @@ Week 10 (Rollout): Bflow Webhook Integration
 
 ## 4. SUCCESS METRICS & KPIs
 
-### 4.1 Track 1: SDLC 5.1.0 Framework
+### 4.1 Track 1: SDLC 6.1.0 Framework
 
 | Metric | Baseline | Target (Q2/2026) | Measurement |
 |--------|----------|------------------|-------------|
@@ -695,7 +695,7 @@ Status: ✅ AUTHORIZED
 
 Tasks:
   1. Update docs/00-Project-Foundation/04-Roadmap/Product-Roadmap.md:
-     - Add Track 1 (SDLC 5.1.0 Framework Enhancement) as Q1 2026 milestone
+     - Add Track 1 (SDLC 6.1.0 Framework Enhancement) as Q1 2026 milestone
      - Move Track 2 (SDLC Orchestrator Tool) to Q2-Q3 2026
      - Link to Software 3.0 Strategic Plan v2
 
@@ -722,7 +722,7 @@ Tasks:
 ```yaml
 Approved Budget: $50K (Track 1 only, Track 2 deferred)
 Approved Timeline: 14 weeks (Dec 9, 2025 - Apr 11, 2026)
-Approved Scope: SDLC 5.1.0 Framework Enhancement (SE4H/SE4A, 6 Agentic Artifacts, ACE/AEE)
+Approved Scope: SDLC 6.1.0 Framework Enhancement (SE4H/SE4A, 6 Agentic Artifacts, ACE/AEE)
 Approved Team: PM/PO + Architect (Track 1), Engineering team on standby (Track 2)
 
 Key Adjustments:

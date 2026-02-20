@@ -32,7 +32,7 @@ The SOP Generator is an AI-assisted tool that creates Standard Operating Procedu
 
 - **5 SOP Types**: Deployment, Incident, Change, Backup, Security
 - **5 Mandatory Sections**: Purpose, Scope, Procedure, Roles, Quality Criteria
-- **AI-Powered**: Uses Ollama (qwen2.5:14b-instruct) for generation
+- **AI-Powered**: Uses Ollama (qwen3:32b) for generation
 - **MRP Evidence**: Automatic evidence collection with SHA256 integrity
 - **VCR Workflow**: Human review and approval process
 
@@ -137,7 +137,7 @@ Located below the generation form, displays:
 | **Generation Time** | How long AI took (NFR1: <30s target) |
 | **Completeness** | Percentage of sections present (100% = 5/5) |
 | **SHA256 Hash** | Content integrity verification |
-| **AI Model** | Model used (e.g., qwen2.5:14b-instruct) |
+| **AI Model** | Model used (e.g., qwen3:32b) |
 | **Status** | pending_review, approved, rejected |
 
 ### Viewing Full MRP
@@ -299,7 +299,7 @@ Response (201 Created):
   "markdown_content": "# SOP: ...",
   "sha256_hash": "abc123...",
   "generation_time_ms": 6500.0,
-  "ai_model": "qwen2.5:14b-instruct",
+  "ai_model": "qwen3:32b",
   "mrp_id": "MRP-PILOT-20250120-xyz98765",
   "completeness_score": 100.0
 }
@@ -379,7 +379,7 @@ curl http://localhost:8000/api/v1/sop/health
 Response should show:
 - `status: "healthy"`
 - `ollama.status: "healthy"`
-- `ollama.model: "qwen2.5:14b-instruct"`
+- `ollama.model: "qwen3:32b"`
 
 ### Contact Support
 

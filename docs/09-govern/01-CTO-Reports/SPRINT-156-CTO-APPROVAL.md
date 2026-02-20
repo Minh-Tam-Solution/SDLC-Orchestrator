@@ -41,7 +41,7 @@
 
 **Requirement**: Draft ADR-051 Compliance Framework Architecture  
 **Status**: ✅ DELIVERED  
-**Location**: `docs/02-design/ADR-051-Compliance-Framework-Architecture.md`  
+**Location**: `docs/02-design/01-ADRs/ADR-051-Compliance-Framework-Architecture.md`  
 **Size**: 22KB, comprehensive architecture document  
 **Content Coverage**:
 - Database schema (5 tables with full SQL)

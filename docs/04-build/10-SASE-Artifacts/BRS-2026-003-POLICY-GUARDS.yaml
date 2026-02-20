@@ -1,6 +1,6 @@
 # BriefingScript: Policy Guards & Evidence UI
 # SASE Level 2 - Sprint 43
-# Framework: SDLC 5.1.3
+# Framework: SDLC 6.1.0
 
 ---
 briefing_script:
@@ -9,7 +9,7 @@ briefing_script:
   status: APPROVED
   created: 2025-12-22
   author: CTO Office
-  framework: SDLC 5.1.3 + SASE Level 2
+  framework: SDLC 6.1.0 + SASE Level 2
 
 # ============================================================================
 # SECTION 1: CONTEXT & OBJECTIVES

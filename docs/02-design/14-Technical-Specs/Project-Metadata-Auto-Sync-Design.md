@@ -319,7 +319,7 @@ class ProjectSyncService:
         Expected format (lines 3-5):
         **Version**: 3.3.0
         **Status**: Gate G3 APPROVED - Ship Ready (98.2%)
-        **Framework**: SDLC 6.0.5
+        **Framework**: SDLC 6.1.0
         """
         claude_path = Path(repo_path) / "CLAUDE.md"
         if not claude_path.exists():
@@ -332,7 +332,7 @@ class ProjectSyncService:
         for i in range(min(10, len(lines))):
             line = lines[i]
             if "**Framework**:" in line:
-                # Parse: **Framework**: SDLC 6.0.5
+                # Parse: **Framework**: SDLC 6.1.0
                 match = re.search(r'SDLC\s+([\d.]+)', line)
                 if match:
                     metadata["framework_version"] = f"SDLC {match.group(1)}"

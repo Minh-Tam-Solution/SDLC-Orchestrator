@@ -106,12 +106,12 @@ All documents moved to: `docs/99-archive/OpenCode-Evaluation-Aborted-Jan12-2026/
 
 ### Immediate (Week 5: Jan 13-17)
 - [ ] SASE artifact templates (Week 5 deliverables)
-- [ ] Framework documentation updates (SDLC 5.1.0)
+- [ ] Framework documentation updates (SDLC 6.1.0)
 - [ ] Vibecode CLI planning ($90K reallocated budget)
 - [ ] Weekly SASE progress review (Friday standup)
 
 ### Q1 2026 Priorities
-1. **Track 1 SASE** (P0) - SDLC 5.1.0 Framework Enhancement
+1. **Track 1 SASE** (P0) - SDLC 6.1.0 Framework Enhancement
 2. **Vibecode CLI** - IR-based codegen for Vietnamese SME
 3. **EP-06** - IR Processor + Quality Gates (Sprint 45-50)
 

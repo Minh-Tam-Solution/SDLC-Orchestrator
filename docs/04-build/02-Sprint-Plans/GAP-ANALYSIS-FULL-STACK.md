@@ -297,7 +297,7 @@ Legend: ██████ = 100%  ███░░░ = 50%  █░░░░░ 
 | **P0** | AGENTS.md UI | Web, VSCode | TRUE MOAT differentiator |
 | **P0** | CLI Authentication | CLI | CI/CD integration |
 | **P0** | Evidence Upload | CLI, VSCode | Developer workflow |
-| **P1** | Planning Hierarchy | Web, VSCode | Sprint Governance (SDLC 5.1.3) |
+| **P1** | Planning Hierarchy | Web, VSCode | Sprint Governance (SDLC 6.1.0) |
 | **P1** | Gate Evaluation CLI | CLI | CI/CD gate checks |
 | **P1** | Analytics Dashboard | Web | Metrics visibility |
 | **P2** | AI Decomposition | VSCode | Developer productivity |

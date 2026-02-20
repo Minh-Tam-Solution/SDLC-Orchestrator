@@ -5,7 +5,7 @@
 **Status**: ✅ **COMPLETE**  
 **Authority**: Frontend Lead + QA Lead  
 **Foundation**: Sprint 15 Day 5, User-Onboarding-Flow-Architecture.md  
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -369,7 +369,7 @@ When onboarding flow changes:
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced. Battle-tested patterns applied.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0. Zero Mock Policy enforced. Battle-tested patterns applied.*
 
 **"Onboarding E2E Tests: 35 test cases. 100% coverage. All 6 steps. OAuth callback. Navigation. Responsiveness. Accessibility. Production-ready."** ⚔️ - QA Lead
 

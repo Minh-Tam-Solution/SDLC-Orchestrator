@@ -1180,8 +1180,8 @@ THEN the system MUST:
 - **[SPEC-0012](./SPEC-0012-Validation-Pipeline-Interface.md)**: Validation Pipeline Interface (4-Gate quality checks)
 
 ### Framework Documents
-- **SDLC 5.1.3 - Section 04-BUILD**: Build & Implementation guidelines
-- **SDLC 5.3.0 - Section 7**: Quality Assurance System (Zero Mock Policy)
+- **SDLC 6.1.0 - Section 04-BUILD**: Build & Implementation guidelines
+- **SDLC 6.1.0 - Section 7**: Quality Assurance System (Zero Mock Policy)
 
 ### Implementation Files
 - `backend/app/services/codegen/base_provider.py`: CodegenProvider abstract base class

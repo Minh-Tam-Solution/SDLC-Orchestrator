@@ -150,7 +150,7 @@ async def evaluate_with_extended_thinking(
     """
     thinking_result = await llm_extended_thinking(
         prompt=f"""
-        Analyze this change against SDLC 6.0.5:
+        Analyze this change against SDLC 6.1.0:
         - Gate: {gate.gate_type}
         - Context: {code_context.summary}
         - Framework: {load_sdlc_framework()}
@@ -271,7 +271,7 @@ sdlcctl migrate framework --from 6.0.5 --to 6.1.0 --dry-run
 
 # Output:
 # ✅ Will update 47 files:
-#   - 12 ADR references (SDLC 6.0.5 → 6.1.0)
+#   - 12 ADR references (SDLC 6.1.0 → 6.1.0)
 #   - 8 API endpoints (old gate schema → new)
 #   - 15 imports (deprecated services → new)
 #   - 12 config files (.sdlc-config.json format v3)
@@ -668,7 +668,7 @@ const GateApprovalPanel = ({ gate }) => {
 
 ### Sprint 175 (Mar 3-14, 2026) — Migration Toolkit
 - [ ] Build `sdlcctl migrate framework` command
-- [ ] Test migration: SDLC 6.0.5 → 6.1.0
+- [ ] Test migration: SDLC 6.1.0 → 6.1.0
 - [ ] Document rollback procedures
 
 ### Sprint 176-177 (Mar 17-Apr 11, 2026) — UX Enhancements

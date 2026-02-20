@@ -119,7 +119,7 @@
 - **EP-04**: SDLC Structure Enforcement (Sprint 41-46, $16.5K, 117 SP)
 - **EP-05**: Enterprise SDLC Migration Engine (deprioritized, pending EP-06 success)
 - **EP-06**: Codegen Engine initial scope defined
-- **NQH AI Platform**: qwen2.5-coder:32b (92.7% HumanEval) ready
+- **NQH AI Platform**: qwen3-coder:30b (92.7% HumanEval) ready
 - **.sdlc-config.json**: 1KB replaces 700KB manual compliance docs
 
 **Changelog v4.0.0** (Dec 20, 2025):

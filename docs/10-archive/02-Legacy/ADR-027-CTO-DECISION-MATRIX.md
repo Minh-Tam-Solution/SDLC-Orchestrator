@@ -2,7 +2,7 @@
 
 **Status**: 🔴 **CRITICAL - Awaiting Approval**  
 **Discovered**: 2026-01-14  
-**Issue**: All 8 system settings are mock (violates SDLC 5.1.2 Zero Mock Policy)
+**Issue**: All 8 system settings are mock (violates SDLC 6.1.0 Zero Mock Policy)
 
 ---
 
@@ -14,7 +14,7 @@
 | **8/8 settings are mock** | Admin changes have zero effect - database only |
 | **Framework violation** | SDLC Orchestrator violates its own Zero Mock Policy |
 | **Security risk** | MFA/lockout/session settings don't work but appear to |
-| **Credibility risk** | Cannot enforce SDLC 5.1.2 on teams while violating it |
+| **Credibility risk** | Cannot enforce SDLC 6.1.0 on teams while violating it |
 
 ---
 
@@ -114,7 +114,7 @@
 
 ### Final Success (After Phase 3)
 - [ ] 8/8 settings fully functional
-- [ ] SDLC Orchestrator complies with SDLC 5.1.2
+- [ ] SDLC Orchestrator complies with SDLC 6.1.0
 - [ ] Framework credibility restored
 - [ ] Security posture demonstrably improved
 

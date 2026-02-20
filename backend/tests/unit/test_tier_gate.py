@@ -1,9 +1,9 @@
 """
-test_tier_gate.py — Sprint 184 TG-01..40
+test_tier_gate.py — Sprint 184-185 TG-01..41
 
 Unit tests for TierGateMiddleware (pure ASGI, ADR-059 INV-03).
 
-Test IDs: TG-01 to TG-40 (40 tests)
+Test IDs: TG-01 to TG-41 (41 tests)
 
 Coverage:
   TG-01..09  Tier level access control (LITE/STANDARD/PROFESSIONAL/ENTERPRISE)
@@ -13,11 +13,12 @@ Coverage:
   TG-18..20  Prefix matching edge cases
   TG-21..22  Admin bypass header
   TG-23..25  Prefix matching semantics
-  TG-26..27  Performance and completeness
+  TG-26..27  Performance and completeness (TG-27: dynamic, no hardcoded count)
   TG-28..29  STANDARD tier routes
   TG-30..34  State resolution and response format
   TG-35..37  ENTERPRISE sub-routes
   TG-38..40  Edge cases and performance
+  TG-41      CI route coverage — all FastAPI prefixes in ROUTE_TIER_TABLE (Sprint 185)
 
 Framework: pytest + pytest-asyncio
 """
@@ -443,17 +444,29 @@ def test_tg_26_tier_check_under_1ms():
 
 
 def test_tg_27_route_tier_table_covers_expected_routes():
-    """TG-27: ROUTE_TIER_TABLE covers all expected route prefixes (not less than 30)."""
-    # We expect at least 30 entries (sprint plan targets 78 routes)
-    assert len(ROUTE_TIER_TABLE) >= 30, (
-        f"ROUTE_TIER_TABLE has only {len(ROUTE_TIER_TABLE)} entries"
-    )
+    """TG-27: ROUTE_TIER_TABLE is populated and covers all 4 tier levels.
+
+    Sprint 185 CTO action item #3: removed hardcoded >= 79 in favour of a
+    dynamic minimum (3 routes per tier) so the test does not need updating
+    when new routes are added.  The precise coverage check is in TG-41.
+    """
+    actual_count = len(ROUTE_TIER_TABLE)
+    assert actual_count > 0, "ROUTE_TIER_TABLE is empty"
+
     # All 4 tier levels must be represented
     tiers_present = set(ROUTE_TIER_TABLE.values())
     assert 1 in tiers_present, "No LITE routes in ROUTE_TIER_TABLE"
     assert 2 in tiers_present, "No STANDARD routes in ROUTE_TIER_TABLE"
     assert 3 in tiers_present, "No PROFESSIONAL routes in ROUTE_TIER_TABLE"
     assert 4 in tiers_present, "No ENTERPRISE routes in ROUTE_TIER_TABLE"
+
+    # Sanity floor: at least 3 entries per tier avoids accidental wipeout
+    min_expected = len(tiers_present) * 3
+    assert actual_count >= min_expected, (
+        f"ROUTE_TIER_TABLE only has {actual_count} entries — "
+        f"expected at least {min_expected} (3 per tier minimum). "
+        f"See TG-41 for full CI route-coverage check."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -692,3 +705,42 @@ def test_tier_values_legacy_names():
     assert TIER_VALUES["founder"] == 2
     assert TIER_VALUES["pro"] == 3
     assert TIER_VALUES["enterprise"] == 4
+
+
+# ---------------------------------------------------------------------------
+# TG-41: CI route coverage check (CTO Sprint 185 action item #2)
+# ---------------------------------------------------------------------------
+
+def test_tg_41_all_fastapi_routes_in_tier_table():
+    """TG-41 (CI coverage): every FastAPI route prefix registered in main.py
+    must appear in ROUTE_TIER_TABLE.
+
+    Fails fast when a developer adds a new router in main.py without adding a
+    corresponding entry in tier_gate.ROUTE_TIER_TABLE.  This is the mandatory
+    gate that prevents ungated routes from reaching production
+    (CTO Sprint 185 action item #2).
+
+    FastAPI meta-routes (/openapi.json, /redoc, /docs, /favicon.ico) are
+    excluded because TierGateMiddleware already has a pass-through for paths
+    that do not start with /api/v1/.
+    """
+    from app.main import app  # pragma: no cover
+
+    # Collect all /api/v1/<module> prefixes from registered FastAPI routes
+    registered_prefixes: set[str] = set()
+    for route in app.routes:
+        path: str = getattr(route, "path", "") or ""
+        # Match any path of the form /api/v1/<module>/...
+        stripped = path.lstrip("/")
+        parts = stripped.split("/")
+        if len(parts) >= 3 and parts[0] == "api" and parts[1] == "v1" and parts[2]:
+            registered_prefixes.add(f"/api/v1/{parts[2]}")
+
+    # Every registered prefix must have a tier entry
+    ungated = registered_prefixes - set(ROUTE_TIER_TABLE.keys())
+    assert not ungated, (
+        f"Found {len(ungated)} FastAPI route prefix(es) NOT in ROUTE_TIER_TABLE.\n"
+        f"Add the following to backend/app/middleware/tier_gate.py ROUTE_TIER_TABLE "
+        f"before Sprint 186 (CTO mandatory, Sprint 185 review):\n"
+        + "\n".join(f'    "{p}": <tier>,  # TODO: set correct tier' for p in sorted(ungated))
+    )

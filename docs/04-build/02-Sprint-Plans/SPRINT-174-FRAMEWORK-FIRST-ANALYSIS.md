@@ -3,7 +3,7 @@
 
 ---
 
-## 🚨 CRITICAL ISSUE: Original Plan Violates SDLC 6.0.6 Core Principle
+## 🚨 CRITICAL ISSUE: Original Plan Violates SDLC 6.1.0 Core Principle
 
 ### The Problem
 
@@ -52,7 +52,7 @@ Day 10:    ADRs + Prototypes (Both)                  ✅ EXPANSION SIXTH
 
 ## Why This Matters
 
-### Framework-First Principle (SDLC 6.0.5 Section 3.2)
+### Framework-First Principle (SDLC 6.1.0 Section 3.2)
 
 > **"Every capability in SDLC Orchestrator must first exist as a documented pattern in SDLC Enterprise Framework. The Framework is the source of truth; the Orchestrator is the automation layer."**
 
@@ -69,7 +69,7 @@ Day 10:    ADRs + Prototypes (Both)                  ✅ EXPANSION SIXTH
 1. ✅ **Standardization**: Days 1-3 create Framework standards → Days 4-5 implement in Orchestrator
 2. ✅ **Reusability**: External teams can use SDLC Framework templates immediately
 3. ✅ **Validation**: ADR-055 references proven methodology from Day 2
-4. ✅ **Multiplier Effect**: Every line of Framework docs benefits **all** SDLC 6.0.5 adopters
+4. ✅ **Multiplier Effect**: Every line of Framework docs benefits **all** SDLC 6.1.0 adopters
 5. ✅ **Low Rework Risk**: Framework standards reviewed early (Days 1-3) → smooth implementation (Days 4-10)
 
 ---
@@ -167,7 +167,7 @@ Day 10:    ADRs + Prototypes (Both)                  ✅ EXPANSION SIXTH
 ### CTO Decision: **APPROVE CORRECTED PLAN**
 
 **Rationale**:
-1. ✅ **Framework-First Compliance**: Follows SDLC 6.0.5 core principle
+1. ✅ **Framework-First Compliance**: Follows SDLC 6.1.0 core principle
 2. ✅ **Lower Risk**: 3 mitigatable risks vs 5 high-impact risks
 3. ✅ **Higher Quality**: Framework-guided patterns vs ad-hoc patterns
 4. ✅ **Better Long-Term Velocity**: +10% average velocity over 3 sprints
@@ -202,12 +202,12 @@ Day 10:    ADRs + Prototypes (Both)                  ✅ EXPANSION SIXTH
 
 ### For Reviewers (Pre-Sprint 174)
 - [ ] Block calendar for Days 1-3 Framework reviews
-- [ ] Review SDLC 6.0.5 standards (Framework knowledge)
+- [ ] Review SDLC 6.1.0 standards (Framework knowledge)
 - [ ] Understand Anthropic best practices (CTO analysis)
 
 ---
 
-## Appendix: Key Quotes from SDLC 6.0.5
+## Appendix: Key Quotes from SDLC 6.1.0
 
 ### Framework-First Principle (Section 3.2)
 

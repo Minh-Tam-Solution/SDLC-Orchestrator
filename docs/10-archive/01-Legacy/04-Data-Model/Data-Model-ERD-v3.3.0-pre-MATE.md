@@ -7,7 +7,7 @@
 **Authority**: CTO + Backend Lead ✅ APPROVED
 **Foundation**: FRD v3.2.0, Vision v4.0.0, EP-04/05/06 Data Requirements
 **Stage**: Stage 04 (BUILD)
-**Framework**: SDLC 6.0.6 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0
 
 **Changelog**:
 - v3.3.0 (Feb 15, 2026): Sprint 173 Governance Loop schema changes (ADR-053):
@@ -19,7 +19,7 @@
   - Reference: ADR-053-Governance-Loop-State-Machine.md, CONTRACT-GOVERNANCE-LOOP.md
 - v3.2.0 (Feb 8, 2026): Added product_events table (Sprint 147 - Product Truth Layer)
 - v3.1.0 (Dec 23, 2025): Added EP-06 Codegen tables (codegen_evidence, codegen_attempts, codegen_escalations)
-- v3.0.0 (Dec 21, 2025): SDLC 5.1.3 update, EP-04/05/06 entities added
+- v3.0.0 (Dec 21, 2025): SDLC 6.1.0 update, EP-04/05/06 entities added
 - v2.0.0 (Nov 29, 2025): ERD updated to reflect implemented 24-table schema
 
 > **UPDATE (Nov 29, 2025)**: ERD updated to reflect implemented 24-table schema.
@@ -449,7 +449,7 @@ CREATE INDEX idx_gate_approvals_status ON gate_approvals(approval_status);
 - N:1 with gates (many approvals belong to one gate)
 - N:1 with users (many approvals by one user)
 
-**Business Rules** (SDLC 5.1.3 Complete Lifecycle - 10 Stages):
+**Business Rules** (SDLC 6.1.0 Complete Lifecycle - 10 Stages):
 - **G0.1** (Problem Foundation): CPO + EM (2 approvals required)
 - **G0.2** (Business Case): CEO + CPO (2 approvals required)
 - **G1** (Requirements & Planning): CTO + CPO (2 approvals required)

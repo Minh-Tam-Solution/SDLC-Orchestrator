@@ -117,9 +117,9 @@ docs/
 | **Auto-fixable** | Yes |
 | **Category** | Stage Folder |
 
-**Description**: Stage folders should use the canonical SDLC 5.1.3 names.
+**Description**: Stage folders should use the canonical SDLC 6.1.0 names.
 
-**SDLC 5.1.3 Canonical Names**:
+**SDLC 6.1.0 Canonical Names**:
 | Stage | Canonical Name |
 |-------|---------------|
 | 00 | foundation |

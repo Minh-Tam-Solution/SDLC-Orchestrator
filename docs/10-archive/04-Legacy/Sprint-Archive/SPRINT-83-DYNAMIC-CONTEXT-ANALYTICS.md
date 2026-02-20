@@ -5,7 +5,7 @@
 **Duration:** 10 days (March 17-28, 2026)
 **Goal:** Implement gate-triggered AGENTS.md updates + Multi-repo management + Usage analytics
 **Story Points:** 34 SP
-**Framework Reference:** SDLC 5.1.3 P5 (SASE Integration) + P6 (Observability)
+**Framework Reference:** SDLC 6.1.0 P5 (SASE Integration) + P6 (Observability)
 **Prerequisite:** Sprint 82 ✅ Evidence Hash Chain Complete
 **Target:** Soft Launch Ready (March 1 → Extended to March 15 with buffer)
 
@@ -829,6 +829,6 @@ CREATE POLICY gates_project_access ON gates
 
 ---
 
-**SDLC 5.1.3 | Sprint 83 | Stage 04 (BUILD)**
+**SDLC 6.1.0 | Sprint 83 | Stage 04 (BUILD)**
 
 *Dynamic AGENTS.md - "60,000 projects use AGENTS.md. Zero have enforcement. Until now." - Positioning*

@@ -72,7 +72,7 @@ Teams can follow SDLC-Enterprise-Framework manually with spreadsheets and any to
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    SDLC 5.1.3 - 10 STAGES                           │
+│                    SDLC 6.1.0 - 10 STAGES                           │
 ├─────────────────────────────────────────────────────────────────────┤
 │  00 FOUNDATION  (WHY?)      Strategic Discovery & Validation        │
 │  01 PLANNING    (WHAT?)     Requirements & User Stories             │
@@ -106,7 +106,7 @@ Teams can follow SDLC-Enterprise-Framework manually with spreadsheets and any to
 
 Traditional CI/CD focuses on 4 stages: Build → Test → Deploy → Operate
 
-**SDLC 5.1.3 adds 6 critical stages**:
+**SDLC 6.1.0 adds 6 critical stages**:
 
 | Added Stage | Why It Matters |
 |-------------|----------------|
@@ -121,7 +121,7 @@ Traditional CI/CD focuses on 4 stages: Build → Test → Deploy → Operate
 
 ## 3. 4-Tier Classification System
 
-Not all projects need the same rigor. SDLC 5.1.3 scales with team size:
+Not all projects need the same rigor. SDLC 6.1.0 scales with team size:
 
 | Tier | Team Size | Required Stages | Documentation Level | Example |
 |------|-----------|-----------------|---------------------|---------|
@@ -157,7 +157,7 @@ Quality gates are checkpoints that block progression until criteria are met:
 
 **"Block early, fail fast"**
 
-| Traditional Approach | SDLC 5.1.3 Approach |
+| Traditional Approach | SDLC 6.1.0 Approach |
 |---------------------|---------------------|
 | Validate in production | Validate at Gate G0.1 (before code) |
 | Fix bugs after release | Catch issues at Gate G3 (before deploy) |
@@ -200,7 +200,7 @@ Quality gates are checkpoints that block progression until criteria are met:
 
 ---
 
-## 6. 7-Pillar Architecture (SDLC 5.1.3)
+## 6. 7-Pillar Architecture (SDLC 6.1.0)
 
 ### Pillar 0: Design Thinking Foundation
 
@@ -287,7 +287,7 @@ EMPATHIZE → DEFINE → IDEATE → PROTOTYPE → TEST
 
 ## 8. Industry Standards Alignment
 
-SDLC 5.1.3 maps to established industry standards:
+SDLC 6.1.0 maps to established industry standards:
 
 | Standard | Alignment |
 |----------|-----------|
@@ -307,15 +307,15 @@ SDLC 5.1.3 maps to established industry standards:
 SDLC 1.0 (Jun 2025)  → Initial AI+Human collaboration
 SDLC 4.7 (Sep 2025)  → Battle-tested 5 pillars
 SDLC 4.8 (Nov 2025)  → Design Thinking enhancement
-SDLC 5.0.0 (Nov 2025) → 10-Stage Complete Lifecycle
-SDLC 5.0.0 (Dec 2025) → 4-Tier Classification + Governance
-SDLC 5.1.0 (Dec 2025) → SASE Integration + Stage Restructure
+SDLC 6.1.0 (Nov 2025) → 10-Stage Complete Lifecycle
+SDLC 6.1.0 (Dec 2025) → 4-Tier Classification + Governance
+SDLC 6.1.0 (Dec 2025) → SASE Integration + Stage Restructure
 SDLC 5.1.1 (Dec 2025) → Legacy/Archive + Stage Consistency
-SDLC 5.1.2 (Jan 2026) → Team Management + Personal/Organization teams
-SDLC 5.1.3 (Jan 2026) → 7-Pillar Architecture + Sprint Planning Governance (Current)
+SDLC 6.1.0 (Jan 2026) → Team Management + Personal/Organization teams
+SDLC 6.1.0 (Jan 2026) → 7-Pillar Architecture + Sprint Planning Governance (Current)
 ```
 
-**SDLC 5.1.3 Key Additions**:
+**SDLC 6.1.0 Key Additions**:
 - **Pillar 1: Sprint Planning Governance** - G-Sprint/G-Sprint-Close gates
 - **Planning Hierarchy**: Roadmap → Phase → Sprint → Backlog
 - **Dual-Track Quality Gates**: Feature Gates + Sprint Gates

@@ -24,7 +24,7 @@ The `sdlcctl e2e` command group provides E2E API testing capabilities following 
 
 ## Command: `sdlcctl e2e validate`
 
-Validate E2E API test artifacts against SDLC 6.0.5 requirements.
+Validate E2E API test artifacts against SDLC 6.1.0 requirements.
 
 ### Synopsis
 

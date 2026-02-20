@@ -191,7 +191,7 @@ class Settings(BaseSettings):
     # EP-06 Codegen Engine - OSS Model Configuration
     # Mode B: Native OSS codegen using NQH AI Platform (IT Admin infrastructure)
     # RTX 5090 32GB with 10 production models - December 2025
-    # Updated: Dec 24, 2025 - qwen3-coder:30b replaces qwen2.5-coder:32b (1.8x faster, 256K context)
+    # Updated: Dec 24, 2025 - qwen3-coder:30b replaces qwen3-coder:30b (1.8x faster, 256K context)
     # Docs: /home/nqh/shared/models/core/docs/admin/MODEL_LINEUP_STRATEGY.md
     #
     # NOTE: Set via CODEGEN_OLLAMA_URL env var based on deployment environment

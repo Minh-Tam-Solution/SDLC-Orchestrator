@@ -13,7 +13,7 @@
 | **Status** | COMPLETE ✅ (Dec 26, 2025) |
 | **Priority** | P0 Must Have |
 | **Quality Score** | G2 CONDITIONAL PASS |
-| **Framework** | SDLC 5.1.2 Universal Framework |
+| **Framework** | SDLC 6.1.0 Universal Framework |
 
 ---
 

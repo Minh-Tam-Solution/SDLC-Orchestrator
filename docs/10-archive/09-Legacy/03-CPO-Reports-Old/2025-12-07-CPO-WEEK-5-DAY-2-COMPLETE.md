@@ -74,7 +74,7 @@ Policies Management (10% of traffic):
   - PUT /api/v1/policies/{id} (1%)
 ```
 
-**Performance Targets** (SDLC 5.1.3):
+**Performance Targets** (SDLC 6.1.0):
 ```yaml
 ✅ p50 latency: <50ms
 ✅ p95 latency: <100ms ⭐ CRITICAL
@@ -317,7 +317,7 @@ locust -f tests/load/locustfile.py \
   --html=reports/full_100k_users.html
 ```
 
-**Success Criteria** (SDLC 5.1.3):
+**Success Criteria** (SDLC 6.1.0):
 ```yaml
 ✅ p50 latency: <50ms
 ✅ p95 latency: <100ms ⭐ CRITICAL
@@ -688,7 +688,7 @@ Week 5 Day 2 delivered **complete performance testing infrastructure** with **pr
 
 ---
 
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0
 **Current Stage**: Stage 03 (BUILD - Development & Implementation)
 **Authority**: Backend Lead + DevOps + CPO
 **Quality**: Zero Mock Policy enforced, Production-ready only

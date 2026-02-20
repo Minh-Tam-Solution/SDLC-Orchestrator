@@ -14,7 +14,7 @@
 | **Team** | 2 Backend + 1 Frontend + 1 QA |
 | **Story Points** | 18 SP |
 | **Budget** | $2,500 |
-| **Framework** | SDLC 5.1.3 + SASE Level 2 |
+| **Framework** | SDLC 6.1.0 + SASE Level 2 |
 
 ---
 

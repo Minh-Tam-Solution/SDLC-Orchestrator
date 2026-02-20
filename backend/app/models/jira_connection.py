@@ -5,7 +5,7 @@ Stores per-organization Jira Cloud API credentials (encrypted at-rest).
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 from cryptography.fernet import Fernet
@@ -43,8 +43,8 @@ class JiraConnection(Base):
     jira_base_url = Column(String(512), nullable=False)   # e.g., https://acme.atlassian.net
     jira_email = Column(String(254), nullable=False)
     api_token_enc = Column(Text, nullable=False)           # Fernet-encrypted API token
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     __table_args__ = (
         Index("ix_jira_conn_org", "organization_id", unique=True),
@@ -56,12 +56,18 @@ class JiraConnection(Base):
 
     @classmethod
     def _fernet(cls) -> Fernet:
-        """Return Fernet instance keyed by settings.FERNET_KEY (or SECRET_KEY padded)."""
+        """Return Fernet instance keyed by settings.FERNET_KEY (or SHA-256 of SECRET_KEY).
+
+        F-03 fix (Sprint 185): replaced zero-padding (.ljust(32, b"\\x00")) with
+        hashlib.sha256 to ensure full 256-bit entropy regardless of SECRET_KEY length.
+        Zero-padding reduces effective key space when SECRET_KEY < 32 bytes.
+        """
         key = getattr(settings, "FERNET_KEY", None)
         if not key:
-            # Derive 32-byte Fernet key from SECRET_KEY (first 32 bytes, base64-padded)
             import base64
-            raw = settings.SECRET_KEY.encode()[:32].ljust(32, b"\x00")
+            import hashlib
+            # SHA-256 of SECRET_KEY → 32 bytes of full entropy (no zero-padding)
+            raw = hashlib.sha256(settings.SECRET_KEY.encode()).digest()
             key = base64.urlsafe_b64encode(raw)
         return Fernet(key)
 

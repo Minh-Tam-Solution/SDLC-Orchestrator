@@ -460,7 +460,7 @@ This document provides the **OWASP ASVS Level 2** security compliance checklist 
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0*
 *Framework: OWASP ASVS 4.0.3 (Application Security Verification Standard)*
 *Target: Level 2 Compliance (90%+)*
 

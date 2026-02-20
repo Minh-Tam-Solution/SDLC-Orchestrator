@@ -88,7 +88,7 @@ class CodegenResult(BaseModel):
         >>> result = CodegenResult(
         ...     code="...",
         ...     files={"app/models/task.py": "class Task:..."},
-        ...     metadata={"model": "qwen2.5-coder:32b"},
+        ...     metadata={"model": "qwen3-coder:30b"},
         ...     provider="ollama",
         ...     tokens_used=1500,
         ...     generation_time_ms=2500

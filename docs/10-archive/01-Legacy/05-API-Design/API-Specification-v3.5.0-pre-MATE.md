@@ -7,7 +7,7 @@
 **Authority**: Backend Lead + CTO Review (✅ APPROVED)
 **Foundation**: FRD v3.2.0, Data Model ERD v3.3.0, Roadmap v5.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 6.0.6 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0
 
 **Changelog v3.5.0** (Feb 15, 2026):
 - **Governance Loop Endpoints** (Sprint 173 — ADR-053):
@@ -66,7 +66,7 @@
 - Total endpoints: 52 → 64 endpoints
 
 **Changelog v3.0.0** (Dec 21, 2025):
-- SDLC 5.1.3 update with EP-04/05/06 endpoint specifications
+- SDLC 6.1.0 update with EP-04/05/06 endpoint specifications
 - Added SDLC Structure Validation v2 endpoints
 - Added Codegen Engine endpoints (/codegen, /modes)
 - Total endpoints: 35 → 52 endpoints
@@ -284,7 +284,7 @@ components:
           pattern: ^[A-Z0-9-]+$
         description:
           type: string
-          example: Project governance tool that enforces SDLC 5.1.3
+          example: Project governance tool that enforces SDLC 6.1.0
         current_stage:
           type: string
           enum: [stage-00, stage-01, stage-02, stage-03, stage-04, stage-05, stage-06, stage-07, stage-08, stage-09]

@@ -80,7 +80,7 @@ Layer 1: SDLC-Enterprise-Framework (Methodology) ← Our foundation
 | **Mode B – Native OSS** | SME / non-tech founders | **qwen3-coder:30b** (256K context) | Full codegen + governance |
 | **Mode C – Hybrid Fallback** | Dev teams (credit exhausted) | Claude Code → Continue.dev | **Seamless failover orchestration** |
 
-> **UPDATE Feb 2026:** Model Strategy v3.0 — upgraded to qwen3-coder:30b (256K context, ~50 tok/s) trên RTX 5090. 8x context improvement vs qwen2.5-coder:32b (32K). 10-model fleet fully deployed.
+> **UPDATE Feb 2026:** Model Strategy v3.0 — upgraded to qwen3-coder:30b (256K context, ~50 tok/s) trên RTX 5090. 8x context improvement vs qwen3-coder:30b (32K). 10-model fleet fully deployed.
 
 ### 🔥 NEW: Mode C – Hybrid Fallback (Real Pain Point from Dev Team)
 

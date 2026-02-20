@@ -3,7 +3,7 @@
 **Sprint Duration**: Feb 17 - Mar 7, 2026 (14 working days)
 **Status**: PLANNED
 **Phase**: Phase 4 - BUILD (Governance Loop Completion)
-**Framework**: SDLC 6.0.5 (7-Pillar + Section 7 Quality Assurance)
+**Framework**: SDLC 6.1.0
 **CTO Approval**: Approved v4 FINAL (Feb 15, 2026) — All reviewers unanimous
 **ADR**: ADR-053-Governance-Loop-State-Machine.md
 **Contract**: CONTRACT-GOVERNANCE-LOOP.md
@@ -308,7 +308,7 @@ Consolidate 3 Implementation Guides into 1 SSOT:
 - Archive: 3 old guides → `10-Archive/02-Legacy/`
 - Update: `CONTENT-MAP.md`
 
-Sections: Tier Selection, Review Checklists, SDLC 6.0.5 Integration, Platform-Specific Guides
+Sections: Tier Selection, Review Checklists, SDLC 6.1.0 Integration, Platform-Specific Guides
 
 #### Day 4: Phase 5.3 — AI-GOVERNANCE Expansion (4 hours)
 
@@ -320,7 +320,7 @@ Sections: Tier Selection, Review Checklists, SDLC 6.0.5 Integration, Platform-Sp
 
 Update ~30 files with stale pre-6.0 version references:
 - `Version: 5.x.x` in headers → `Version: 6.0.5`
-- `SDLC 5.x.x` in titles → `SDLC 6.0.5`
+- `SDLC 5.x.x` in titles → `SDLC 6.1.0`
 - `NEW in 5.x.x` markers → `Added in 5.x.x, current as of 6.0.5`
 - Preserve historical narrative in case studies (CTO Mod 8)
 

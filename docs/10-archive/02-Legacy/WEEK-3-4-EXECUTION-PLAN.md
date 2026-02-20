@@ -6,7 +6,7 @@
 **Status**: PLANNING - Pre-Gate G1
 **Authority**: CTO + Backend Lead + Frontend Lead
 **Foundation**: Week 2 deliverables (FRD, Data Model v0.1)
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -779,7 +779,7 @@
    - GitHub Actions workflow template
 
 3. **References**
-   - SDLC 5.1.3 Complete Lifecycle (Stage 02: HOW)
+   - SDLC 6.1.0 Complete Lifecycle (Stage 02: HOW)
    - Zero Mock Policy (production-ready code only)
    - OWASP ASVS Level 2 (security standard)
 
@@ -793,7 +793,7 @@
 
 ---
 
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0
 **Current Stage**: Stage 01 (WHAT) → Stage 02 (HOW) transition
 **Authority**: CTO + Backend Lead + DevOps Lead
 **Quality**: Zero Mock Policy enforced, 9.5+ target

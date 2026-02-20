@@ -28,12 +28,12 @@ class TestOllamaProviderInit:
         """Test initialization with custom values."""
         provider = OllamaCodegenProvider(
             base_url="http://localhost:11434",
-            model="qwen2.5:7b",
+            model="qwen3:8b",
             timeout=60
         )
 
         assert provider.base_url == "http://localhost:11434"
-        assert provider.model == "qwen2.5:7b"
+        assert provider.model == "qwen3:8b"
         assert provider.timeout == 60
 
 

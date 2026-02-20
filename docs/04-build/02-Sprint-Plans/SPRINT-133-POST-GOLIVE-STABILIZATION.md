@@ -14,7 +14,7 @@ update_frequency: "Daily"
 
 **Sprint Duration**: February 3 - February 7, 2026 (5 days)
 **Sprint Goal**: Complete P1 items deferred from Sprint 132, stabilize production
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.1.0
 **Pre-requisite**: Sprint 132 Go-Live Complete
 
 ---
@@ -432,7 +432,7 @@ evaluated_by="system",  # TODO: Track evaluator user_id
 
 - [Sprint 132 Go-Live Preparation](./SPRINT-132-GO-LIVE-PREPARATION.md)
 - [TODO Resolution Plan](../../go-live/TODO-RESOLUTION-PLAN.md)
-- [SDLC 6.0.5 Framework](../../../SDLC-Enterprise-Framework/)
+- [SDLC 6.1.0 Framework](../../../SDLC-Enterprise-Framework/)
 
 ---
 

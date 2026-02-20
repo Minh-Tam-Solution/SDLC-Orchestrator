@@ -210,12 +210,14 @@ async def jira_list_projects(
     try:
         projects = await adapter.list_projects()
     except Exception as exc:
-        logger.error("Jira list_projects failed: %s", exc)
+        # F-04 fix (Sprint 185): log full exception server-side; return generic message to client
+        # to avoid leaking internal Jira API error details (URL paths, tokens, stack traces)
+        logger.error("Jira list_projects failed: %s", exc, exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail={
                 "error": "jira_api_error",
-                "message": f"Failed to fetch Jira projects: {exc}",
+                "message": "Failed to fetch Jira projects. Check your connection and try again.",
             },
         ) from exc
 
@@ -250,13 +252,14 @@ async def jira_sync(
             sprint_id=body.sprint_id,
         )
     except Exception as exc:
+        # F-04 fix (Sprint 185): log full exception server-side; return generic message to client
         logger.error("Jira get_sprint_issues failed board=%d sprint=%d: %s",
-                     body.board_id, body.sprint_id, exc)
+                     body.board_id, body.sprint_id, exc, exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail={
                 "error": "jira_api_error",
-                "message": f"Failed to fetch Jira sprint issues: {exc}",
+                "message": "Failed to fetch Jira sprint issues. Check board/sprint IDs and connection.",
             },
         ) from exc
 

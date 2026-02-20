@@ -5,7 +5,7 @@
 **Status**: ACTIVE - Sprint 16 Day 2
 **Authority**: Backend Lead + QA Lead Approved
 **Foundation**: Sprint 16 Testing Plan
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -195,7 +195,7 @@ def mock_github_repositories():
 
 ## Zero Mock Policy Compliance
 
-Per SDLC 5.1.3 Zero Mock Policy:
+Per SDLC 6.1.0 Zero Mock Policy:
 
 **Mocked**: External GitHub API calls only
 - `github_service.exchange_code_for_token()`
@@ -270,4 +270,4 @@ GITHUB_WEBHOOK_SECRET=test_webhook_secret
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0. Zero Mock Policy enforced.*

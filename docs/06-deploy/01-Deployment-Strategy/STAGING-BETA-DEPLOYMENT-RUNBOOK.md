@@ -5,7 +5,7 @@
 **Date**: December 13, 2025
 **Owner**: DevOps Lead + IT Team
 **Target Deployment**: December 18, 2025 (Sprint 32 Day 3)
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 **CTO Directive**: Staging deployment with Cloudflare + port mapping
 
 ---
@@ -30,7 +30,7 @@ Rollback Target: <5 minutes
 **Pre-Deployment** (Dec 16-17):
 - [ ] P2 fixes completed (CORS, SECRET_KEY, CSP)
 - [ ] CPO + Security Lead approvals obtained
-- [ ] 30 docs updated to SDLC 5.1.3
+- [ ] 30 docs updated to SDLC 6.1.0
 - [ ] CTO review + approval for P2 fixes
 
 **IT Team Coordination** (Dec 18 morning):
@@ -855,7 +855,7 @@ Action: Page on-call, notify #sdlc-team
 **Runbook Status**: FINAL - Ready for Dec 18 Deployment
 **Owner**: DevOps Lead + IT Team (dvhiep@nqh.com.vn)
 **Reviewer**: CTO
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 **Version**: 1.0.0
 
 ---

@@ -312,5 +312,5 @@
 
 ---
 
-*This report is part of Track 1 SASE (Q1 2026 P0) - SDLC 5.1.0 Framework Enhancement*
+*This report is part of Track 1 SASE (Q1 2026 P0) - SDLC 6.1.0 Framework Enhancement*
 *Reference: SE 3.0 SASE Integration Plan (Phase 2-Pilot)*

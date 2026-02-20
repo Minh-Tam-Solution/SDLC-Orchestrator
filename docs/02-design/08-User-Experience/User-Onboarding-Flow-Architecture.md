@@ -16,7 +16,7 @@
 | v2.3 | Dec 23, 2025 | CPO | - Added VSCode Extension as primary platform for local operations<br>- Updated CLI/Extension onboarding flow documentation<br>- Added `sdlcctl init` integration details |
 | v2.2 | Dec 23, 2025 | CPO | - Refined 3 Project Creation Scenarios: New (from scratch), Import Local, Import GitHub<br>- Added folder structure creation capability<br>- Added auto-detect for existing SDLC projects |
 | v2.1 | Dec 23, 2025 | CPO | - Added Project Creation Scenarios for existing users<br>- Unified "Import from GitHub" flow with onboarding flow<br>- Added manual project creation option |
-| v2.0 | Dec 23, 2025 | CPO | - Updated to SDLC 5.1.3 4-Tier Classification (LITE/STANDARD/PROFESSIONAL/ENTERPRISE)<br>- Merged AI Analysis + Policy Pack Selection into single step (5 steps total)<br>- Added Governance Appetite concept (user choice over AI recommendation)<br>- Added Codebase Metrics to recommendation algorithm (LOC, files, languages) |
+| v2.0 | Dec 23, 2025 | CPO | - Updated to SDLC 6.1.0 4-Tier Classification (LITE/STANDARD/PROFESSIONAL/ENTERPRISE)<br>- Merged AI Analysis + Policy Pack Selection into single step (5 steps total)<br>- Added Governance Appetite concept (user choice over AI recommendation)<br>- Added Codebase Metrics to recommendation algorithm (LOC, files, languages) |
 | v1.0 | Nov 13, 2025 | CPO | Initial version with 6-step onboarding flow |
 
 ---

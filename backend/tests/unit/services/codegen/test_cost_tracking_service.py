@@ -90,7 +90,7 @@ class TestCostTrackingService:
             metadata={
                 "prompt_tokens": 500,
                 "completion_tokens": 1500,
-                "model": "qwen2.5-coder:32b",
+                "model": "qwen3-coder:30b",
             },
             provider="ollama",
             tokens_used=2000,
@@ -158,11 +158,11 @@ class TestUpdateGenerationStart(TestCostTrackingService):
         result = service.update_generation_start(
             request_id="req-123",
             provider="ollama",
-            model="qwen2.5-coder:32b",
+            model="qwen3-coder:30b",
         )
 
         assert result.provider == "ollama"
-        assert result.model == "qwen2.5-coder:32b"
+        assert result.model == "qwen3-coder:30b"
         assert result.status == GenerationStatus.IN_PROGRESS.value
         mock_db.commit.assert_called()
 
@@ -365,7 +365,7 @@ class TestProviderHealthTracking(TestCostTrackingService):
             provider="ollama",
             is_available=True,
             response_time_ms=150,
-            model="qwen2.5-coder:32b",
+            model="qwen3-coder:30b",
             model_available=True,
         )
 

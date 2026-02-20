@@ -5,7 +5,7 @@
 **Date**: December 23, 2025
 **Stage**: 04 - BUILD (Development & Implementation)
 **Status**: CEO APPROVED - Ready for CTO Review
-**Framework**: SDLC 5.1.3 Complete Lifecycle + SASE L2
+**Framework**: SDLC 6.1.0
 **Strategic Context**: [Expert Feedback Integration](../../09-govern/05-Knowledge-Transfer/02-Expert-Response/FINAL-EXECUTIVE-SUMMARY.md)
 
 ---
@@ -651,5 +651,5 @@ This roadmap covers **10 sprints (20 weeks)** across **3 major epics**:
 **Last Updated**: December 23, 2025
 **Document Version**: 2.0.0
 **Owner**: CTO + Product Team
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Strategic Reference**: [Expert Feedback Integration](../../09-govern/05-Knowledge-Transfer/02-Expert-Response/FINAL-EXECUTIVE-SUMMARY.md)

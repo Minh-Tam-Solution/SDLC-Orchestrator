@@ -1896,7 +1896,7 @@ async def generate_stream(
         StreamingResponse with SSE events (text/event-stream)
 
     Example events:
-        data: {"type": "started", "session_id": "abc123", "model": "qwen2.5-coder:32b", "provider": "ollama"}
+        data: {"type": "started", "session_id": "abc123", "model": "qwen3-coder:30b", "provider": "ollama"}
 
         data: {"type": "file_generating", "session_id": "abc123", "path": "app/main.py"}
 

@@ -12,7 +12,7 @@
 
 ## 1. Executive Summary
 
-This document defines the architecture for the SDLC Structure Scanner, a validation engine that enforces SDLC 5.1.3 folder structure, naming conventions, and document metadata standards. The scanner is designed to be:
+This document defines the architecture for the SDLC Structure Scanner, a validation engine that enforces SDLC 6.1.0 folder structure, naming conventions, and document metadata standards. The scanner is designed to be:
 
 - **Tool-agnostic**: Validates OUTPUT regardless of AI tool used (Cursor, Copilot, Claude, etc.)
 - **Performance-optimized**: <30 seconds for 1000+ files
@@ -552,7 +552,7 @@ from typing import List, Optional
 from ..base_validator import BaseValidator, ValidatorRegistry
 from ..violation import ViolationReport, Severity
 
-# SDLC 5.1.3 Stage definitions
+# SDLC 6.1.0 Stage definitions
 VALID_STAGES = {
     "00": "foundation",
     "01": "planning",
@@ -572,7 +572,7 @@ SPECIAL_FOLDERS = {"10-archive", "99-legacy"}
 @ValidatorRegistry.register
 class StageFolderValidator(BaseValidator):
     """
-    Validate SDLC 5.1.3 stage folder structure.
+    Validate SDLC 6.1.0 stage folder structure.
 
     Rules:
     - STAGE-001: Invalid stage folder naming

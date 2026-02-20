@@ -4,7 +4,7 @@ TierGateMiddleware — Sprint 184 (ADR-059 INV-03 Tier Invariant Enforcement)
 SDLC Orchestrator — Enterprise-First Tier Enforcement
 
 Purpose:
-- Enforce subscription tier gates on all 78 API routes
+- Enforce subscription tier gates on all 79 API route prefixes
 - Return HTTP 402 Payment Required for insufficient tier access
 - Provide upgrade CTA URL in 402 response body
 
@@ -43,7 +43,7 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Route Tier Table — all 78 route prefixes mapped to minimum required tier
+# Route Tier Table — all 79 route prefixes mapped to minimum required tier
 # ---------------------------------------------------------------------------
 # LITE=1, STANDARD=2, PROFESSIONAL=3, ENTERPRISE=4
 # Ordering matters: more specific prefixes should appear before shorter ones
@@ -56,6 +56,9 @@ ROUTE_TIER_TABLE: dict[str, int] = {
     # -------------------------------------------------------------------------
     "/api/v1/auth":               1,
     "/api/v1/projects":           1,
+    # Ordering: /api/v1/gates-engine must precede /api/v1/gates — startswith("/api/v1/gates")
+    # is True for gates-engine paths, so the more-specific entry must appear first.
+    "/api/v1/gates-engine":       2,   # F-01: STANDARD (placed before /gates for prefix-match order)
     "/api/v1/gates":              1,
     "/api/v1/evidence":           1,
     "/api/v1/dashboard":          1,
@@ -69,6 +72,9 @@ ROUTE_TIER_TABLE: dict[str, int] = {
     "/api/v1/policies":           1,
     "/api/v1/push":               1,
     "/api/v1/gdpr":               1,   # GDPR = ALL tiers (privacy law obligation)
+    "/api/v1/analytics":          1,   # F-01 fix: analytics dashboard (all tiers)
+    "/api/v1/api-keys":           1,   # F-01 fix: API key management (all tiers)
+    "/api/v1/payments":           1,   # F-01 fix: billing/subscriptions (all tiers)
     # -------------------------------------------------------------------------
     # STANDARD (2): team collaboration + planning + integrations
     # -------------------------------------------------------------------------
@@ -102,6 +108,16 @@ ROUTE_TIER_TABLE: dict[str, int] = {
     #   telegram → STANDARD (Vietnam pilot), zalo → STANDARD,
     #   teams → PROFESSIONAL, slack → ENTERPRISE
     "/api/v1/channels":           2,
+    # F-01 fix: routes registered in main.py but missing from table (Sprint 184 review)
+    "/api/v1/triage":             2,   # F-01: triage workflow (STANDARD)
+    "/api/v1/sop":                2,   # F-01: SOP Generator (STANDARD)
+    "/api/v1/ai-detection":       2,   # F-01: AI Detection service (STANDARD)
+    "/api/v1/telemetry":          2,   # F-01: product telemetry (STANDARD)
+    "/api/v1/deprecation":        2,   # F-01: deprecation monitoring (STANDARD)
+    "/api/v1/vcr":                2,   # F-01: VCR/SASE workflow (STANDARD)
+    "/api/v1/doc-cross-reference": 2,  # F-01: document cross-reference validation (STANDARD)
+    "/api/v1/e2e":                2,   # F-01: E2E testing API (STANDARD)
+    "/api/v1/overrides":          2,   # F-01: override request workflow (STANDARD)
     # -------------------------------------------------------------------------
     # PROFESSIONAL (3): multi-agent, compliance-ready, full OTT, advanced AI
     # -------------------------------------------------------------------------
@@ -122,6 +138,7 @@ ROUTE_TIER_TABLE: dict[str, int] = {
     "/api/v1/pilot":              3,
     "/api/v1/preview":            3,
     "/api/v1/jira":               3,   # Jira integration — Sprint 184
+    "/api/v1/mcp":                3,   # F-01 fix: MCP Analytics dashboard (PROFESSIONAL+)
     # -------------------------------------------------------------------------
     # ENTERPRISE (4): SSO, NIST, SOC2, unlimited + SLA + audit
     # -------------------------------------------------------------------------
@@ -175,7 +192,7 @@ class TierGateMiddleware:
     """
     Pure ASGI tier gate middleware.
 
-    Enforces subscription tier requirements on all 78 API routes.
+    Enforces subscription tier requirements on all 79 API route prefixes.
     Returns HTTP 402 Payment Required with upgrade CTA when user's
     tier is insufficient for the requested route.
 

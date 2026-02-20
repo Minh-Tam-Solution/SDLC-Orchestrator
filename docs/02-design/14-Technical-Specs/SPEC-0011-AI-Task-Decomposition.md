@@ -1217,5 +1217,5 @@ ALTER TABLE decomposition_sessions ADD CONSTRAINT fk_project_id FOREIGN KEY (pro
 **Decision**: **APPROVED** - AI Task Decomposition Service
 **Priority**: **HIGH** - Core AI Governance feature
 **Timeline**: Sprint 26 (AI Council Service Implementation)
-**Framework Version**: SDLC 6.0.5
+**Framework Version**: SDLC 6.1.0
 **Last Updated**: January 31, 2026

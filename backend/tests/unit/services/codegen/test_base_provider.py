@@ -98,7 +98,7 @@ class TestCodegenResult:
                 "app/models/task.py": "class Task: pass"
             },
             metadata={
-                "model": "qwen2.5-coder:32b",
+                "model": "qwen3-coder:30b",
                 "temperature": 0.3
             },
             provider="ollama",
@@ -109,7 +109,7 @@ class TestCodegenResult:
         assert len(result.files) == 2
         assert result.tokens_used == 1500
         assert result.generation_time_ms == 3500
-        assert result.metadata["model"] == "qwen2.5-coder:32b"
+        assert result.metadata["model"] == "qwen3-coder:30b"
 
     def test_has_files_with_files(self):
         """Test when files exist."""

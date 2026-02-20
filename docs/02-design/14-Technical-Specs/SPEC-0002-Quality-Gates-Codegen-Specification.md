@@ -685,7 +685,7 @@ CREATE TABLE codegen_usage (
 
 ### 7.1 Changes from Previous Version
 
-This is the initial version (1.0.0) migrated from SDLC 5.3.0 format to Framework 6.0.5 format.
+This is the initial version (1.0.0) migrated from SDLC 6.1.0 format to Framework 6.0.5 format.
 
 **Migration Changes**:
 - Added YAML frontmatter with spec_id, tier, stage, relationships
@@ -703,7 +703,7 @@ This is the initial version (1.0.0) migrated from SDLC 5.3.0 format to Framework
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0.0 | 2026-01-28 | Backend Lead | Initial version (migrated to Framework 6.0.5) |
-| 0.9.0 | 2025-12-23 | Backend Lead + QA Lead | Original spec in SDLC 5.1.3 format |
+| 0.9.0 | 2025-12-23 | Backend Lead + QA Lead | Original spec in SDLC 6.1.0 format |
 
 ---
 
@@ -729,7 +729,7 @@ This is the initial version (1.0.0) migrated from SDLC 5.3.0 format to Framework
 ### 8.3 Related Specifications
 
 - [SPEC-0001: Governance System Implementation](SPEC-0001-Governance-System-Implementation.md): Uses quality gates for governance approval
-- [ADR-040: App Builder OpenSpec Integration](../03-ADRs/ADR-040-App-Builder-OpenSpec-Integration.md): Generates SDLC 6.0 specs validated by this pipeline
+- [ADR-040: App Builder OpenSpec Integration](../03-ADRs/ADR-040-App-Builder-OpenSpec-Integration.md): Generates SDLC 6.1.0 specs validated by this pipeline
 
 ---
 

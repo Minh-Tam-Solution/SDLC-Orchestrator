@@ -4,7 +4,7 @@
 **Sprint Dates**: February 1-12, 2026 (10 working days)
 **Status**: 🔴 CRITICAL - Security & Privacy Issue
 **Priority**: P0 - Must fix before soft launch (March 1, 2026)
-**Framework**: SDLC 5.1.3 (7-Pillar Architecture)
+**Framework**: SDLC 6.1.0
 **Related Documents**:
 - ADR-030: Platform Admin Role Redesign
 - ADMIN-ROLE-REFACTOR-PLAN.md

@@ -749,7 +749,7 @@ getTTFB(sendToAnalytics)
 - [USER-SUPPORT-OVERVIEW.md](../../../USER-SUPPORT-OVERVIEW.md) - Documentation index
 - [09-Support-Channels.md](../../07-operate/03-User%20Support/09-Support-Channels.md) - Contact info
 - [DashboardPage.tsx](../../../frontend/web/src/pages/DashboardPage.tsx) - Layout reference
-- [SDLC 5.1.3 Framework](https://github.com/Minh-Tam-Solution/SDLC-Enterprise-Framework) - Foundation
+- [SDLC 6.1.0 Framework](https://github.com/Minh-Tam-Solution/SDLC-Enterprise-Framework) - Foundation
 
 ---
 

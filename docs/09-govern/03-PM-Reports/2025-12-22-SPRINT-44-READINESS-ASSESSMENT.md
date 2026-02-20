@@ -5,7 +5,7 @@
 **Epic**: EP-04: SDLC Structure Enforcement
 **Assessment Date**: December 22, 2025
 **Assessor**: PM/PJM
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -125,7 +125,7 @@ Sprint 44 Design Documents:
 ### Foundation Analysis
 
 **Strengths**:
-- `FolderScanner` class already exists with SDLC 5.1.0 support
+- `FolderScanner` class already exists with SDLC 6.1.0 support
 - Stage pattern matching implemented
 - Legacy/archive handling in place
 - Test infrastructure ready

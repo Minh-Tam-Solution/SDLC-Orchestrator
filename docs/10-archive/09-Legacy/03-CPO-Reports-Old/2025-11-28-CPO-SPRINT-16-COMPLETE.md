@@ -5,7 +5,7 @@
 **Status**: COMPLETE
 **Authority**: CPO + QA Lead + Backend Lead Approved
 **Foundation**: Sprint 15 GitHub Foundation, Sprint 16 Plan
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -232,4 +232,4 @@ Sprint 16 (Testing & Documentation) has been **successfully completed**. All Git
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0. Zero Mock Policy enforced.*

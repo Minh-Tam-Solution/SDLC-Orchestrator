@@ -37,7 +37,7 @@
 - **NEW CATEGORY**: AI Safety & Governance Market ($2.8B by 2027)
 - **POSITIONING PIVOT**: From "SDLC Governance" → "AI-Native SDLC Governance & Safety"
 - Added AI Coding Tools category (Cursor, Copilot, Claude Code)
-- Added NQH AI Platform as infrastructure moat (qwen2.5-coder:32b)
+- Added NQH AI Platform as infrastructure moat (qwen3-coder:30b)
 - Added EP-04/05/06 as strategic differentiators
 - Updated competitive moat with Mode C Hybrid Fallback
 - Expanded threat analysis for AI Safety competitors

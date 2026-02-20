@@ -5,7 +5,7 @@
 **Date**: December 3, 2025
 **Status**: ACTIVE - Week 4 Day 1 Architecture Documentation
 **Authority**: Platform Engineering + SRE + CTO Approved
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 

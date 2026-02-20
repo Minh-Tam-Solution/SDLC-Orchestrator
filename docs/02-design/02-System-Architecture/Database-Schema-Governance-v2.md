@@ -148,7 +148,7 @@ CREATE TABLE governance_specifications (
   related_specs         TEXT[], -- ['SPEC-0002', 'SPEC-0003']
 
   -- Framework Context
-  framework_version     VARCHAR(20) NOT NULL DEFAULT '6.0.5', -- "SDLC 6.0.5"
+  framework_version     VARCHAR(20) NOT NULL DEFAULT '6.0.5', -- "SDLC 6.1.0"
   machine_readable_spec TEXT, -- URL to YAML control file
 
   -- Content Storage

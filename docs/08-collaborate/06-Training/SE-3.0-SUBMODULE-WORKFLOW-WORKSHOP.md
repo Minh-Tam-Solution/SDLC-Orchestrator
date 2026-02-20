@@ -118,7 +118,7 @@ mkdir -p 03-Templates-Tools/SASE-Artifacts
 
 # Commit to Framework repo
 git add .
-git commit -m "feat(SDLC 5.1.0): Add SASE artifact templates"
+git commit -m "feat(SDLC 6.1.0): Add SASE artifact templates"
 git push origin main
 
 # Return to main repo

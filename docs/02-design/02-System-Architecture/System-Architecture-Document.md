@@ -21,7 +21,7 @@
   - E2E parity tests ensure consistent validation (25 tests)
   - Local validation (no backend required) for CLI/Extension
 - **Feature Parity Targets**: CLI 71%, Extension 89%, Web 100%
-- **SDLC 6.0.5**: All surfaces aligned to Framework 6.0.5
+- **SDLC 6.1.0**: All surfaces aligned to Framework 6.0.5
 
 **Changelog v3.1.0** (Jan 08, 2026):
 - **MinIO Migration**: Migrated to AI-Platform shared service (`ai-platform-minio` on `ai-net` network)
@@ -710,7 +710,7 @@ Commit → Task → Sprint → Phase → Roadmap → Vision
 
 #### 11.2.4 SDLC Structure Validator (ADR-014)
 
-**Purpose**: Enforce SDLC 5.1.3.1 folder structure across all projects.
+**Purpose**: Enforce SDLC 6.1.0 folder structure across all projects.
 
 ```yaml
 Level-Based Validation:

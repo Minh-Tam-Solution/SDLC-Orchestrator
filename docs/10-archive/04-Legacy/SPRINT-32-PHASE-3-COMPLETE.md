@@ -3,16 +3,16 @@
 **Phase**: Phase 3 - Onboarding Flow Updates (VS Code Extension)  
 **Date**: December 13, 2025  
 **Status**: ✅ **COMPLETE**  
-**Framework**: SDLC 5.1.3 (Contract-First Restructure)  
+**Framework**: SDLC 6.1.0
 **Authority**: CTO + CPO Approved
 
 ---
 
 ## Executive Summary
 
-Phase 3 successfully implemented the VS Code Extension `/init` command feature for SDLC 5.1.3 Contract-First structure. Complete SDLC structure generator service created, init command handler implemented, and all integration points completed.
+Phase 3 successfully implemented the VS Code Extension `/init` command feature for SDLC 6.1.0 Contract-First structure. Complete SDLC structure generator service created, init command handler implemented, and all integration points completed.
 
-**Key Achievement**: VS Code Extension now supports SDLC 5.1.3 initialization with 4-tier classification, empty folder detection, and offline-first approach.
+**Key Achievement**: VS Code Extension now supports SDLC 6.1.0 initialization with 4-tier classification, empty folder detection, and offline-first approach.
 
 **Quality Score**: 9.5/10 ✅
 
@@ -28,19 +28,19 @@ Phase 3 successfully implemented the VS Code Extension `/init` command feature f
 
 **Features Implemented**:
 - ✅ Tier definitions (LITE/STANDARD/PROFESSIONAL/ENTERPRISE)
-- ✅ Stage mappings for SDLC 5.1.3 Contract-First structure
+- ✅ Stage mappings for SDLC 6.1.0 Contract-First structure
 - ✅ `.sdlc-config.json` generation
 - ✅ Folder structure creation by tier
 - ✅ Template file generation (problem-statement.md, requirements.md, etc.)
 - ✅ Gap analysis for existing projects
-- ✅ Legacy SDLC 5.1.3.x detection
+- ✅ Legacy SDLC 6.1.0.x detection
 
 **Key Functions**:
 - `generateSDLCStructure()` - Generate folder structure based on tier
 - `createConfigFile()` - Generate `.sdlc-config.json`
 - `generateTemplateFiles()` - Create template files per tier
 - `analyzeGaps()` - Analyze existing project for gaps
-- `detectLegacyStructure()` - Detect SDLC 5.1.3.x structure
+- `detectLegacyStructure()` - Detect SDLC 6.1.0.x structure
 
 ---
 
@@ -105,11 +105,11 @@ Phase 3 successfully implemented the VS Code Extension `/init` command feature f
 |---------|--------|-------------|
 | **Empty folder detection** | ✅ | Auto-detect empty folders and prompt for initialization |
 | **4-Tier selection UI** | ✅ | Quick pick UI for tier selection (LITE/STANDARD/PROFESSIONAL/ENTERPRISE) |
-| **SDLC 5.1.3 folder structure generation** | ✅ | Generate Contract-First structure (03-integration before 04-build) |
+| **SDLC 6.1.0 folder structure generation** | ✅ | Generate Contract-First structure (03-integration before 04-build) |
 | **.sdlc-config.json creation** | ✅ | Generate project configuration file |
 | **Template files** | ✅ | Generate problem-statement.md, requirements.md, etc. |
 | **Gap analysis** | ✅ | Analyze existing projects for gaps |
-| **Legacy 4.9.x detection** | ✅ | Detect and suggest migration from SDLC 5.1.3.x |
+| **Legacy 4.9.x detection** | ✅ | Detect and suggest migration from SDLC 6.1.0.x |
 | **Offline mode support** | ✅ | Work without server connection |
 | **Server sync** | ✅ | Sync with server when online |
 | **Keyboard shortcut** | ✅ | Cmd+Shift+I for quick access |
@@ -120,14 +120,14 @@ Phase 3 successfully implemented the VS Code Extension `/init` command feature f
 
 | Command | Shortcut | Description |
 |---------|----------|-------------|
-| **SDLC: Initialize Project** | `Cmd+Shift+I` | Initialize SDLC 5.1.3 project structure |
+| **SDLC: Initialize Project** | `Cmd+Shift+I` | Initialize SDLC 6.1.0 project structure |
 | **SDLC: Initialize Project (Offline)** | - | Initialize without server connection |
 | **SDLC: Reinitialize SDLC Project** | - | Reinitialize existing project |
 | **SDLC: Run SDLC Gap Analysis** | - | Analyze project for SDLC compliance gaps |
 
 ---
 
-## SDLC 5.1.3 Structure Generation
+## SDLC 6.1.0 Structure Generation
 
 ### Tier-Based Structure
 
@@ -210,7 +210,7 @@ project/
 
 **Functionality**:
 - Auto-detect when workspace folder is empty
-- Prompt user: "Initialize SDLC 5.1.3 project structure?"
+- Prompt user: "Initialize SDLC 6.1.0 project structure?"
 - One-click initialization
 
 **User Experience**:
@@ -351,7 +351,7 @@ project/
 
 **Conditions Met**:
 - [x] VS Code Extension `/init` command implemented ✅
-- [x] SDLC 5.1.3 structure generation working ✅
+- [x] SDLC 6.1.0 structure generation working ✅
 - [x] 4-Tier classification support ✅
 - [x] Empty folder detection ✅
 - [x] Offline-first approach ✅

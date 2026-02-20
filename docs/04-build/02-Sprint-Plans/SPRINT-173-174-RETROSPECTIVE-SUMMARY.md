@@ -3,7 +3,7 @@
 **Review Date**: February 28, 2026 (Sprint 174 completion)
 **Reviewed Sprints**: Sprint 173 (Governance Loop) + Sprint 174 (Anthropic Patterns)
 **Reviewer**: CTO Nguyen Quoc Huy
-**Framework**: SDLC 6.0.6 (7-Pillar + AI Governance)
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -46,7 +46,7 @@ Two consecutive sprints (173-174) delivered **flawlessly** with 100% Framework-F
 ### Key Learnings
 
 ✅ **What Went Exceptionally Well**:
-1. **Graceful Deprecation**: Team chose backward compatibility over aggressive deletion (SDLC 6.0.5 principle mastery)
+1. **Graceful Deprecation**: Team chose backward compatibility over aggressive deletion (SDLC 6.1.0 principle mastery)
 2. **Dual-Track Execution**: Track A (code) + Track B (Framework) ran parallel without conflicts
 3. **Strangler Fig Pattern**: Golden tests prevented Context Authority V1→V2 merge regressions
 4. **Test Coverage**: 96% backend (exceeded 95% target)
@@ -89,7 +89,7 @@ Two consecutive sprints (173-174) delivered **flawlessly** with 100% Framework-F
 | **8** | `backend/app/services/codegen/codegen_service.py` (modified) | — | Context cache injection |
 | **8** | `backend/sdlcctl/sdlcctl/cli.py` (modified) | — | Registered cache sub-app |
 | **9** | `backend/app/services/mcp_client_service.py` | ~300 | AsyncExitStack + stdio/SSE transports |
-| **10** | `docs/02-design/ADR-055-Autonomous-Codegen-4-Gate-Validation.md` | 558 | Governed autonomous codegen design |
+| **10** | `docs/02-design/01-ADRs/ADR-055-Autonomous-Codegen-4-Gate-Validation.md` | 558 | Governed autonomous codegen design |
 | **10** | `backend/app/services/browser_agent_service.py` | ~250 | Playwright prototype (exploration) |
 
 **Subtotal**: 4,284 LOC (automation + documentation)
@@ -169,7 +169,7 @@ Two consecutive sprints (173-174) delivered **flawlessly** with 100% Framework-F
 | **Definition of Done Checklist** | Missing "Create Completion Report" | Added as mandatory P0 task (Day 14) | **IMPROVED** |
 | **Accountability** | Unclear | Tech Lead responsible for sprint docs | **CLARIFIED** |
 
-**Evidence of Continuous Improvement**: Sprint 174 team **learned** from Sprint 173 gap and **corrected** immediately. This is the **SDLC 6.0.5 culture** we want.
+**Evidence of Continuous Improvement**: Sprint 174 team **learned** from Sprint 173 gap and **corrected** immediately. This is the **SDLC 6.1.0 culture** we want.
 
 ---
 
@@ -223,7 +223,7 @@ Sprint 174 research analyzed **3 sources** (Anthropic PDF with 10 internal teams
 
 1. **MCP Ecosystem Leadership**: Position as **orchestration layer** for all MCP-compatible tools
 2. **Enterprise Sales Enablement**: Use Sprint 174 technical proof (MCP client) in sales materials
-3. **Open-Source Framework**: SDLC 6.0.5 Framework as standalone OSS (Orchestrator commercial)
+3. **Open-Source Framework**: SDLC 6.1.0 Framework as standalone OSS (Orchestrator commercial)
 
 ---
 
@@ -291,7 +291,7 @@ Sprint 173-174 work positions SDLC Orchestrator as **enterprise-grade** (not sta
 - [Sprint 173 Completion Report](SPRINT-173-COMPLETION-REPORT.md) — Retrospectively created March 15, 2026
 - [Sprint 174 Completion Report](SPRINT-174-COMPLETION-REPORT.md) — Created on time February 28, 2026
 - [CURRENT-SPRINT.md](CURRENT-SPRINT.md) — Updated for Sprint 175 planning
-- [SDLC 6.0.5 Framework](../../SDLC-Enterprise-Framework/README.md) — Foundation for all sprints
+- [SDLC 6.1.0 Framework](../../SDLC-Enterprise-Framework/README.md) — Foundation for all sprints
 
 ---
 

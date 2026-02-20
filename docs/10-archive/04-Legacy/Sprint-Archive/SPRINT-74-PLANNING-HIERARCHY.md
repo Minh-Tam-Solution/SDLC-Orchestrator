@@ -4,9 +4,9 @@
 **Status:** ✅ COMPLETED
 **Duration:** 10 days (February 3-14, 2026)  
 **Completion Date:** January 18, 2026 (DB Migration Executed)
-**Goal:** Implement full Planning Hierarchy (Roadmap → Phase → Sprint → Backlog) with Sprint Governance Gates per SDLC 5.1.3  
+**Goal:** Implement full Planning Hierarchy (Roadmap → Phase → Sprint → Backlog) with Sprint Governance Gates per SDLC 6.1.0  
 **Story Points:** 55 SP  
-**Framework Reference:** SDLC 5.1.3 Sprint Planning Governance
+**Framework Reference:** SDLC 6.1.0 Sprint Planning Governance
 
 ---
 
@@ -97,9 +97,9 @@ Without Planning Hierarchy in Orchestrator, teams experience:
 └────────────────────────────────────────────────────────────────────┘
 ```
 
-### SDLC 5.1.3 Alignment
+### SDLC 6.1.0 Alignment
 
-| SDLC 5.1.3 Requirement | Sprint 74 Implementation |
+| SDLC 6.1.0 Requirement | Sprint 74 Implementation |
 |------------------------|--------------------------|
 | G-Sprint Gate | `/api/v1/sprints/{id}/gates/g-sprint/evaluate` |
 | G-Sprint-Close Gate | `/api/v1/sprints/{id}/gates/g-sprint-close/evaluate` |
@@ -131,7 +131,7 @@ Without Planning Hierarchy in Orchestrator, teams experience:
 
 ## 📊 Sprint Backlog
 
-### Epic: ADR-013 Planning Hierarchy + SDLC 5.1.3 Sprint Governance
+### Epic: ADR-013 Planning Hierarchy + SDLC 6.1.0 Sprint Governance
 
 ---
 
@@ -180,7 +180,7 @@ CREATE INDEX idx_roadmaps_status ON roadmaps(status);
 - [ ] Roadmap CRUD operations work correctly
 - [ ] Only project members can create/edit roadmaps
 - [ ] Roadmap deletion cascades to phases
-- [ ] Review cadence enforced per SDLC 5.1.3 Rule #10
+- [ ] Review cadence enforced per SDLC 6.1.0 Rule #10
 
 ---
 
@@ -268,7 +268,7 @@ CREATE TABLE sprints (
     team_size INTEGER,
     velocity_target INTEGER, -- Target velocity
     
-    -- SDLC 5.1.3 Governance
+    -- SDLC 6.1.0 Governance
     g_sprint_status VARCHAR(50) DEFAULT 'pending', -- pending, passed, failed
     g_sprint_approved_by UUID REFERENCES users(id),
     g_sprint_approved_at TIMESTAMP,
@@ -289,7 +289,7 @@ CREATE INDEX idx_sprints_status ON sprints(status);
 CREATE INDEX idx_sprints_g_sprint_status ON sprints(g_sprint_status);
 ```
 
-**SDLC 5.1.3 Validators:**
+**SDLC 6.1.0 Validators:**
 ```python
 # Rule #1: Sprint Numbers Are Immutable
 # - number field cannot be changed after creation
@@ -315,7 +315,7 @@ CREATE INDEX idx_sprints_g_sprint_status ON sprints(g_sprint_status);
 
 **As a** CTO  
 **I want** G-Sprint and G-Sprint-Close gates  
-**So that** sprint planning is governed per SDLC 5.1.3
+**So that** sprint planning is governed per SDLC 6.1.0
 
 | Task ID | Task | Owner | Est | Status |
 |---------|------|-------|-----|--------|
@@ -349,7 +349,7 @@ CREATE INDEX idx_gate_eval_sprint ON sprint_gate_evaluations(sprint_id);
 CREATE INDEX idx_gate_eval_type ON sprint_gate_evaluations(gate_type);
 ```
 
-**G-Sprint Checklist (from SDLC 5.1.3):**
+**G-Sprint Checklist (from SDLC 6.1.0):**
 ```json
 {
   "checklist": {
@@ -611,7 +611,7 @@ CREATE INDEX idx_backlog_priority ON backlog_items(priority);
 |------------|------|--------|
 | Sprint 73 Complete | Blocking | ✅ Complete |
 | ADR-013 Design | Reference | ✅ Approved |
-| SDLC 5.1.3 Release | Reference | ✅ Released (Jan 18, 2026) |
+| SDLC 6.1.0 Release | Reference | ✅ Released (Jan 18, 2026) |
 
 ---
 
@@ -694,7 +694,7 @@ CREATE INDEX idx_backlog_priority ON backlog_items(priority);
 3. **Unit Tests** - Backend test coverage
 4. **Integration Tests** - End-to-end workflow tests
 
-### SDLC 5.1.3 Compliance
+### SDLC 6.1.0 Compliance
 
 | Rule | Description | Implementation | Status |
 |------|-------------|----------------|--------|
@@ -709,5 +709,5 @@ CREATE INDEX idx_backlog_priority ON backlog_items(priority);
 
 **Sprint Owner:** Tech Lead
 **CTO Approval Required:** Before Go-Live
-**Framework Reference:** SDLC 5.1.3
+**Framework Reference:** SDLC 6.1.0
 **Last Updated:** January 18, 2026

@@ -67,7 +67,7 @@ The opportunity: enhance Anthropic's two-agent pattern with our existing governa
 
 ## 2. Decision
 
-Adopt Anthropic's two-agent pattern (Initializer + Coding Agent) enhanced with the SDLC 6.0.5 4-Gate Quality Pipeline, OPA-based policy evaluation, and Evidence State Machine tracking per feature.
+Adopt Anthropic's two-agent pattern (Initializer + Coding Agent) enhanced with the SDLC 6.1.0 4-Gate Quality Pipeline, OPA-based policy evaluation, and Evidence State Machine tracking per feature.
 
 ### 2.1 Two-Agent Pattern with JSON Persistence
 
@@ -439,7 +439,7 @@ This ADR implements the methodology defined in the SDLC Enterprise Framework:
 
 ### 5.3 Neutral
 
-- **Human review still required for >500 LOC changes**: G4 is explicitly human-in-the-loop for large features. This is by design (SDLC 6.0.5 AI Governance Principle: "Human accountability for architectural decisions"), not a limitation
+- **Human review still required for >500 LOC changes**: G4 is explicitly human-in-the-loop for large features. This is by design (SDLC 6.1.0 AI Governance Principle: "Human accountability for architectural decisions"), not a limitation
 - **Policy pack maintenance**: OPA policies for autonomous codegen require updates when new vulnerability patterns emerge or framework versions change. This follows the same maintenance cadence as existing policy packs
 - **Git-based persistence unchanged**: We preserve Anthropic's git-based state persistence (feature_list.json committed to repo). This is a pragmatic decision -- git is universally available and provides built-in history
 
@@ -551,8 +551,8 @@ This ADR implements the methodology defined in the SDLC Enterprise Framework:
 - ADR-022: Multi-Provider Codegen Architecture (EP-06 IR-based codegen)
 - ADR-053: Governance Loop State Machine (6-state gate lifecycle)
 - ADR-054: Anthropic Claude Code Best Practices (strategic integration)
-- SDLC 6.0.5: 7-Pillar Architecture + Section 7 Quality Assurance System
+- SDLC 6.1.0: 7-Pillar Architecture + Section 7 Quality Assurance System
 
 ---
 
-*ADR-055 -- Autonomous Codegen with 4-Gate Validation. Enhances Anthropic's two-agent pattern with SDLC 6.0.5 governance: OPA policies, Evidence State Machine, deterministic retry feedback, and prompt caching. Feature waste 60% to 30%. Security vulnerability rate <2%. Full audit trail.*
+*ADR-055 -- Autonomous Codegen with 4-Gate Validation. Enhances Anthropic's two-agent pattern with SDLC 6.1.0 governance: OPA policies, Evidence State Machine, deterministic retry feedback, and prompt caching. Feature waste 60% to 30%. Security vulnerability rate <2%. Full audit trail.*

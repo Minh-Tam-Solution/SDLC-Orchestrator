@@ -13,7 +13,7 @@
 | **Status** | COMPLETE ✅ (Dec 27, 2025) |
 | **Priority** | P0 Must Have |
 | **Dependencies** | Sprint 57 complete |
-| **Framework** | SDLC 5.1.2 Universal Framework |
+| **Framework** | SDLC 6.1.0 Universal Framework |
 
 ---
 

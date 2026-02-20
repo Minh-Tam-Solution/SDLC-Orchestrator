@@ -12,7 +12,7 @@
 | **Created** | December 24, 2025 |
 | **Sprint** | Sprint 50 - EP-06 Productization |
 | **Audience** | DevOps, Backend Developers |
-| **Framework** | SDLC 5.1.3 |
+| **Framework** | SDLC 6.1.0 |
 
 ---
 

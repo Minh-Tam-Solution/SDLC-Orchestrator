@@ -46,7 +46,7 @@
 - **EP-04**: SDLC Structure Enforcement (Sprint 41-46, $16.5K)
 - **EP-05**: Enterprise SDLC Migration Engine (Sprint 47-50, $58K)
 - **EP-06**: Codegen Engine initial scope defined
-- **NQH AI Platform**: qwen2.5-coder:32b integrated (92.7% HumanEval!)
+- **NQH AI Platform**: qwen3-coder:30b integrated (92.7% HumanEval!)
 - **Innovation**: `.sdlc-config.json` - 1KB replaces 700KB manual docs
 
 **Changelog v3.0.0** (Dec 20, 2025):

@@ -5,7 +5,7 @@
 **Status**: ✅ **APPROVED**  
 **Authority**: CTO + DevOps Lead  
 **Foundation**: Production Readiness, Configuration Management Best Practices  
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -269,7 +269,7 @@
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced. Battle-tested patterns applied.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0. Zero Mock Policy enforced. Battle-tested patterns applied.*
 
 **"Hardcoded ports fix: Configuration management improved. Production ready. Approved."** ⚔️ - CTO
 

@@ -425,6 +425,6 @@ groups:
 ---
 
 **Document Status**: IMPLEMENTED
-**Compliance**: SDLC 6.0.5 Stage 02
+**Compliance**: SDLC 6.1.0 Stage 02
 **Last Updated**: February 8, 2026
 **Owner**: Backend Lead + CTO

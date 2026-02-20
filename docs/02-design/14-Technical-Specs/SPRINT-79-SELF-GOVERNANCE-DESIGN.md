@@ -783,6 +783,6 @@ install-hooks:
 
 ---
 
-**SDLC 5.1.3 | Sprint 79 Technical Design | Self-Governance**
+**SDLC 6.1.0 | Sprint 79 Technical Design | Self-Governance**
 
 *Commit: faa7390*

@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+// F-05 fix (Sprint 185): import shared TIER_RANK to eliminate duplication with LockedFeature
+import { TIER_RANK } from "@/lib/tierConstants";
 
 /** Plan details for comparison table */
 interface PlanFeature {
@@ -102,19 +104,6 @@ const PLAN_FEATURES: PlanFeature[] = [
     enterprise: true,
   },
 ];
-
-const TIER_RANK: Record<string, number> = {
-  LITE: 1,
-  STANDARD: 2,
-  PROFESSIONAL: 3,
-  ENTERPRISE: 4,
-  free: 1,
-  lite: 1,
-  starter: 2,
-  founder: 2,
-  pro: 3,
-  enterprise: 4,
-};
 
 const TIER_DISPLAY: Record<string, { label: string; price: string; color: string }> = {
   LITE: { label: "LITE", price: "Free", color: "text-gray-600" },

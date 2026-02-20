@@ -31,7 +31,7 @@ This document maps SDLC Orchestrator's security controls to SOC 2 Type I Trust S
 
 | Control ID | Control Description | Implementation | Evidence |
 |------------|---------------------|----------------|----------|
-| CC1.1 | Integrity and Ethical Values | Code of conduct, SDLC 5.1.3 methodology | CLAUDE.md, Zero Mock Policy |
+| CC1.1 | Integrity and Ethical Values | Code of conduct, SDLC 6.1.0 methodology | CLAUDE.md, Zero Mock Policy |
 | CC1.2 | Board Independence | CTO/CPO/CEO approval gates | PROJECT-KICKOFF.md |
 | CC1.3 | Organizational Structure | Clear roles (Backend Lead, Frontend Lead, DevOps) | Sprint-Execution-Plan.md |
 | CC1.4 | Commitment to Competence | Technical hiring standards, code review requirements | ADR documents |
@@ -305,4 +305,4 @@ Based on review of the SDLC Orchestrator platform as of November 27, 2025:
 
 ---
 
-*This document is part of the SDLC 5.1.3 Complete Lifecycle compliance framework.*
+*This document is part of the SDLC 6.1.0 Complete Lifecycle compliance framework.*

@@ -424,4 +424,4 @@ class ContextOverlayService:
 
 ---
 
-**SDLC 5.1.3 | ADR-029 | Stage 02 (HOW)**
+**SDLC 6.1.0 | ADR-029 | Stage 02 (HOW)**

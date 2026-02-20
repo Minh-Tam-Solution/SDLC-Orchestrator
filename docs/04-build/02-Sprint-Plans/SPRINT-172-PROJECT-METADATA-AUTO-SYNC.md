@@ -3,7 +3,7 @@
 **Sprint Duration**: Feb 10-14, 2026 (5 days)
 **Status**: ✅ PARTIAL COMPLETE
 **Phase**: Phase 6 - Market Expansion + Infrastructure
-**Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance)
+**Framework**: SDLC 6.1.0
 **CTO Approval**: ✅ APPROVED (Feb 10, 2026)
 
 ---
@@ -212,7 +212,7 @@ frontend/e2e/project-metadata-sync.spec.ts
 **Test Cases**:
 1. Visit https://sdlc.nhatquangholding.com/app/projects/c0000000-0000-0000-0000-000000000003
 2. Check Network tab: POST `/projects/{id}/sync` called
-3. Verify metadata updated (SDLC 6.0.5, Sprint 171, G3 Ship Ready)
+3. Verify metadata updated (SDLC 6.1.0, Sprint 171, G3 Ship Ready)
 4. Refresh page: metadata still accurate (cached)
 5. Wait 6 minutes: metadata re-synced (cache expired)
 

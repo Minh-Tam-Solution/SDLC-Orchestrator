@@ -13,7 +13,7 @@ stage: "03 - Integration"
 **Status**: PROPOSED (Sprint 176)
 **Date**: February 2026
 **Author**: CTO Nguyen Quoc Huy
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 **References**: ADR-056 (Decision 3: Provider Profile Key), EP-07
 
 ---

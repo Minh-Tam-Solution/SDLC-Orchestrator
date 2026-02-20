@@ -5,7 +5,7 @@
 **Status**: ACTIVE - MANDATORY ENFORCEMENT
 **Authority**: Frontend Lead + CTO Approved
 **Foundation**: TypeScript 5.0+, React 18+, ESLint, Prettier
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0
 
 ---
 

@@ -23,25 +23,10 @@
 import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { UpgradeModal } from "./UpgradeModal";
-
-/** Canonical backend tier names (matches TierGateMiddleware TIER_NAMES) */
-export type BackendTier = "LITE" | "STANDARD" | "PROFESSIONAL" | "ENTERPRISE";
-
-/** Tier rank for comparison (mirrors TIER_VALUES in tier_gate.py) */
-const TIER_RANK: Record<string, number> = {
-  // Canonical names
-  LITE: 1,
-  STANDARD: 2,
-  PROFESSIONAL: 3,
-  ENTERPRISE: 4,
-  // Legacy names (from User.effective_tier)
-  free: 1,
-  lite: 1,
-  starter: 2,
-  founder: 2,
-  pro: 3,
-  enterprise: 4,
-};
+// F-05 fix (Sprint 185): import shared TIER_RANK + BackendTier from tierConstants
+// to eliminate duplication between LockedFeature and UpgradeModal
+import { TIER_RANK } from "@/lib/tierConstants";
+export type { BackendTier } from "@/lib/tierConstants";
 
 interface LockedFeatureProps {
   /** Minimum tier required to access this feature */

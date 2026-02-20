@@ -188,12 +188,12 @@ The BFlow Platform team completed a comprehensive strategic analysis of Anthropi
 ### 7. CLAUDE.md as Framework Standard (Framework Enhancement - HIGH LEVERAGE)
 
 **Source**: Anthropic Data Infrastructure team
-**Relevance**: SDLC 6.0.5 Section 8 (Specification Standard)
+**Relevance**: SDLC 6.1.0 Section 8 (Specification Standard)
 
 **Insight**: Anthropic's practice of maintaining CLAUDE.md files for codebase navigation is now an industry pattern. The SDLC Enterprise Framework could formalize this as a recommended artifact.
 
 **Recommended Framework Action**:
-- Add **CLAUDE.md Standard** to SDLC 6.0.5 Section 8 (Specification Standard)
+- Add **CLAUDE.md Standard** to SDLC 6.1.0 Section 8 (Specification Standard)
 - Define minimum CLAUDE.md structure for each tier:
   - **LITE**: Project overview + tech stack + key commands
   - **PROFESSIONAL**: + Module context zones + debugging patterns
@@ -201,16 +201,16 @@ The BFlow Platform team completed a comprehensive strategic analysis of Anthropi
 - This follows the **Framework-First Principle**: methodology first, then Orchestrator automation
 
 **Effort**: 1 document update to SDLC Enterprise Framework
-**Impact**: All SDLC 6.0.5 adopters benefit (not just Orchestrator)
+**Impact**: All SDLC 6.1.0 adopters benefit (not just Orchestrator)
 
 ---
 
 ### 8. AI Code Review Gates (Framework Enhancement - Evaluate)
 
 **Source**: Anthropic Security Engineering team
-**Relevance**: SDLC 6.0.5 Section 7 (Quality Assurance System)
+**Relevance**: SDLC 6.1.0 Section 7 (Quality Assurance System)
 
-**Insight**: Anthropic's automated code review pattern complements SDLC 6.0.5's existing Vibecoding Index and Progressive Routing. Claude Code review could be a formal signal in the Vibecoding Index calculation.
+**Insight**: Anthropic's automated code review pattern complements SDLC 6.1.0's existing Vibecoding Index and Progressive Routing. Claude Code review could be a formal signal in the Vibecoding Index calculation.
 
 **Recommended Framework Action**:
 - Evaluate adding "AI Code Review Score" as a 6th signal in the Vibecoding Index (currently 5 weighted signals)
@@ -224,15 +224,15 @@ The BFlow Platform team completed a comprehensive strategic analysis of Anthropi
 ### 9. AI Governance Principles Validation
 
 **Source**: All 10 Anthropic teams (cross-cutting)
-**Relevance**: SDLC 6.0.5 AI Governance Principles (7 principles)
+**Relevance**: SDLC 6.1.0 AI Governance Principles (7 principles)
 
-**Insight**: Anthropic's internal practices validate several of SDLC 6.0.5's AI Governance Principles:
+**Insight**: Anthropic's internal practices validate several of SDLC 6.1.0's AI Governance Principles:
 - **Principle 1 (Human-in-the-Loop)**: All Anthropic teams use "supervised autonomy" - Claude generates, human reviews
 - **Principle 3 (Evidence-Based)**: Data Infrastructure team's end-of-session documentation pattern
 - **Principle 5 (Progressive Trust)**: Product Dev team's auto-accept for boilerplate vs manual review for critical logic
 
 **Recommended Framework Action**:
-- Reference Anthropic's published practices as validation evidence in SDLC 6.0.5 AI Governance section
+- Reference Anthropic's published practices as validation evidence in SDLC 6.1.0 AI Governance section
 - Add "Anthropic Internal Practices" as a case study in Framework documentation
 - No framework changes needed - this validates existing principles
 
@@ -261,7 +261,7 @@ The BFlow Platform team completed a comprehensive strategic analysis of Anthropi
 | **Architecture** | 8+ microservices | Monolithic FastAPI + Next.js | Simpler CLAUDE.md structure needed |
 | **AI Usage** | NQH-Bot conversation | EP-06 Codegen + AI Context Engine | Autonomous coding pattern more relevant |
 | **Compliance** | Vietnamese (BHXH, PIT, VAT) | AGPL containment + OWASP | Different code review focus |
-| **Framework** | Consumes SDLC 6.0.5 | **Produces** SDLC 6.0.5 | Framework enhancements have multiplier effect |
+| **Framework** | Consumes SDLC 6.1.0 | **Produces** SDLC 6.1.0 | Framework enhancements have multiplier effect |
 | **Team Size** | 11 members | 8.5 FTE | Smaller team = higher per-person impact |
 
 **Because SDLC Orchestrator produces the SDLC Framework, any practice improvement here has a multiplier effect across all Framework adopters.** Items 7-9 (Framework enhancements) are uniquely high-leverage for this team.
@@ -273,7 +273,7 @@ The BFlow Platform team completed a comprehensive strategic analysis of Anthropi
 1. **Read** the BFlow main analysis document (Sections 1-2) for full context
 2. **Discuss** items 1-2 (P0) in next team sync - low-effort, high-value
 3. **Schedule** a 2-hour study session for items 4-5 (autonomous coding + agent framework)
-4. **Evaluate** item 7 (CLAUDE.md Standard) for SDLC 6.0.5 or 6.0.6 inclusion
+4. **Evaluate** item 7 (CLAUDE.md Standard) for SDLC 6.1.0 or 6.0.6 inclusion
 5. **Evaluate** item 3 (test generation) after P0 items are done
 
 ---

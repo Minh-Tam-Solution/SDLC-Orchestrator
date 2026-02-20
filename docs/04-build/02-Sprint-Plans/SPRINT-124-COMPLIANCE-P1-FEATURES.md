@@ -1,5 +1,5 @@
 ---
-# Required Fields (9/9) - SDLC 6.0.5 Section 8
+# Required Fields (9/9) - SDLC 6.1.0 Section 8
 sprint_id: SPRINT-124
 title: "Compliance P1 Features - Version Validator & Auto-Fix"
 status: PLANNING
@@ -44,7 +44,7 @@ deliverables:
 **Status**: 📋 PLANNED
 **Total Estimated LOC**: ~1,800
 **Estimated Effort**: 40h (20h Version Validator + 12h Auto-Fix + 8h Web Dashboard)
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.1.0
 **Priority**: P1 (Post-P0 Compliance Features)
 **Predecessor**: Sprint 123 (Compliance Validation P0) - ✅ A+ Rating
 
@@ -199,12 +199,12 @@ GET /api/v1/projects/{id}/compliance/versions:
 # Check version consistency
 sdlcctl compliance versions
 # Output:
-# ✅ Primary Version: SDLC 6.0.5 (from CLAUDE.md)
-# ✅ AGENTS.md: SDLC 6.0.5 (consistent)
+# ✅ Primary Version: SDLC 6.1.0 (from CLAUDE.md)
+# ✅ AGENTS.md: SDLC 6.1.0 (consistent)
 # ⚠️ WARNING: docs/04-build/02-Sprint-Plans/SPRINT-41.md
-#    Found: "SDLC 5.3.0", Expected: "SDLC 6.0.5"
-#    Line 15: "Framework: SDLC 5.3.0"
-#    Suggestion: Update to "Framework: SDLC 6.0.5"
+#    Found: "SDLC 6.1.0", Expected: "SDLC 6.1.0"
+#    Line 15: "Framework: SDLC 6.1.0"
+#    Suggestion: Update to "Framework: SDLC 6.1.0"
 
 # Check with expected version
 sdlcctl compliance versions --expected 6.0.5
@@ -602,7 +602,7 @@ CREATE INDEX idx_auto_fixes_status ON auto_fixes(status);
 ```python
 # Version Validator Tests
 def test_version_parser_extracts_semantic_version():
-    """Extract version from 'SDLC 6.0.5' format."""
+    """Extract version from 'SDLC 6.1.0' format."""
 
 def test_version_parser_handles_migration_format():
     """Extract both versions from '5.3.0 → 6.0.5' format."""
@@ -727,7 +727,7 @@ LOC Progress: XXXX / 1,800 (XX%)
 | **Status** | PLANNED |
 | **Predecessor** | Sprint 123 (Compliance Validation P0) - ✅ A+ |
 | **Successor** | Sprint 125 (Gate Readiness Dashboard) |
-| **Framework** | SDLC 6.0.5 |
+| **Framework** | SDLC 6.1.0 |
 | **CTO Approval** | Pending |
 
 ---

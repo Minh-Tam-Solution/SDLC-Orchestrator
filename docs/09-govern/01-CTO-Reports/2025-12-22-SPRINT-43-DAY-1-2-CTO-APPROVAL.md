@@ -300,7 +300,7 @@ async def test_opa_circuit_breaker_opens_after_failures():
 
 **Analysis**:
 - Design docs created beforehand (3,886 lines) enabled rapid implementation
-- Team has mastery of SDLC 5.1.3 patterns
+- Team has mastery of SDLC 6.1.0 patterns
 - Zero Mock Policy reduces testing overhead
 - Async patterns well-understood
 

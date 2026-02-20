@@ -17,7 +17,7 @@ closed_date: "2026-02-19"
 **Sprint Goal**: Adopt 4 ZeroClaw best practices (A+C+B+E) into EP-07 Multi-Agent Team Engine
 **Epic**: EP-07 Multi-Agent Team Engine
 **ADR**: ADR-058 (ZeroClaw Best Practice Adoption — 4 locked micro-decisions)
-**Framework**: SDLC 6.1.0 (7-Pillar + AI Governance)
+**Framework**: SDLC 6.1.0
 **Budget**: $3,840 (48 hrs at $80/hr)
 **Previous Sprint**: Sprint 178 — OTT Gateway + Team Orchestrator
 **Next Sprint**: Sprint 180 — Enterprise-First Refocus + ADR-059
@@ -164,7 +164,7 @@ print('AC-0.6: MODEL_ROUTE_HINTS — PASS')
 | Sprint 178 (Orchestrator + OTT) | ~32 | ✅ PASS |
 | **EP-07 prior total** | **~87** | ✅ **NO REGRESSIONS** |
 
-> **Source**: TP-056 Test Plan v3.x baseline prior to Sprint 179 = 87 test cases (tracked in `docs/02-design/Multi-Agent-Test-Plan.md`).
+> **Source**: TP-056 Test Plan v3.x baseline prior to Sprint 179 = 87 test cases (tracked in `docs/02-design/13-Testing-Strategy/Multi-Agent-Test-Plan.md`).
 
 ### Grand Total: 121/121 tests pass
 
@@ -188,7 +188,7 @@ python3 -m pytest tests/unit/test_output_scrubber.py \
 | 2 | All deliverables complete (15/15) | ✅ PASS | Section 2 — all ✅ |
 | 3 | Test coverage ≥ target (121/121 = 100%) | ✅ PASS | Section 4 — 34 new + 87 prior EP-07 |
 | 4 | No P0/P1 bugs open | ✅ PASS | F-179-01 patched before close |
-| 5 | ADR updated (ADR-058 4 decisions) | ✅ PASS | `docs/02-design/ADR-058-ZeroClaw-Best-Practice-Adoption.md` |
+| 5 | ADR updated (ADR-058 4 decisions) | ✅ PASS | `docs/02-design/01-ADRs/ADR-058-ZeroClaw-Best-Practice-Adoption.md` |
 | 6 | Sprint close doc created within 24h | ✅ PASS | This document (Feb 19, 2026) |
 | 7 | Next sprint (Sprint 180) backlog defined | ✅ PASS | ADR-059 + SPRINT-179-CLOSE.md scoped in plan file |
 | 8 | Security: no new unresolved threat surfaces | ✅ PASS | STM-056 updated: T11/T12/T13 now mitigated by Sprint 179 patterns |

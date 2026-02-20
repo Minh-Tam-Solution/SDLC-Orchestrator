@@ -13,7 +13,7 @@
 
 Sprint 114 Track 1 has been successfully completed, delivering the foundational documentation and templates for SDLC Framework 6.0. The track focused on establishing a unified specification standard that bridges the gap between rapid AI-assisted development (via OpenSpec patterns) and enterprise governance requirements (via SDLC methodology).
 
-The OpenSpec POC evaluation scored 8.3/10, validating its technical soundness for proposal generation while identifying governance gaps that SDLC 6.0 addresses. The comparison matrix analysis yielded a clear recommendation: **HYBRID APPROACH** (8.6/10 weighted score) - leveraging OpenSpec for rapid planning and SDLC 6.0 for governance integration.
+The OpenSpec POC evaluation scored 8.3/10, validating its technical soundness for proposal generation while identifying governance gaps that SDLC 6.1.0 addresses. The comparison matrix analysis yielded a clear recommendation: **HYBRID APPROACH** (8.6/10 weighted score) - leveraging OpenSpec for rapid planning and SDLC 6.1.0 for governance integration.
 
 Key outcomes include the SDLC-Specification-Standard.md template (650+ LOC) with full tier-aware requirements, three example specifications demonstrating LITE/STANDARD/PROFESSIONAL implementations, and comprehensive POC documentation for the Week 8 Gate decision. Track 1 deliverables provide the methodology foundation that Track 2 (Orchestrator) will automate in Sprint 115-119.
 
@@ -112,7 +112,7 @@ SDLC-Enterprise-Framework/05-Templates-Tools/Framework-6.0/
 
 ### 4.2 Identified Gaps (Bridgeable)
 
-| Gap | SDLC 6.0 Solution | Effort |
+| Gap | SDLC 6.1.0 Solution | Effort |
 |-----|-------------------|--------|
 | No tier classification | YAML frontmatter tier field | Low |
 | No stage awareness | YAML frontmatter stage field | Low |
@@ -125,7 +125,7 @@ SDLC-Enterprise-Framework/05-Templates-Tools/Framework-6.0/
 
 **Decision Criteria Matrix**:
 
-| Criterion | Weight | OpenSpec | SDLC 6.0 | HYBRID |
+| Criterion | Weight | OpenSpec | SDLC 6.1.0 | HYBRID |
 |-----------|--------|----------|----------|--------|
 | Developer Experience | 20% | 9/10 | 7/10 | 8/10 |
 | Governance Integration | 25% | 3/10 | 10/10 | 9/10 |
@@ -137,7 +137,7 @@ SDLC-Enterprise-Framework/05-Templates-Tools/Framework-6.0/
 
 **Week 8 Gate Recommendation**: **EXTEND (HYBRID Approach)**
 - Use OpenSpec for proposal/planning phase
-- Convert to SDLC 6.0 format for governance
+- Convert to SDLC 6.1.0 format for governance
 - Build conversion layer in Sprint 117-119
 
 ---
@@ -282,7 +282,7 @@ owner: team/person
 
 ## 10. Conclusion
 
-Sprint 114 Track 1 successfully established the foundational documentation for SDLC Framework 6.0. The HYBRID approach recommendation provides a clear path forward that balances developer experience (OpenSpec strengths) with enterprise governance (SDLC 6.0 strengths).
+Sprint 114 Track 1 successfully established the foundational documentation for SDLC Framework 6.0. The HYBRID approach recommendation provides a clear path forward that balances developer experience (OpenSpec strengths) with enterprise governance (SDLC 6.1.0 strengths).
 
 Key achievements:
 - **7 files, ~2,371 LOC** delivered ahead of schedule

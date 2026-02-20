@@ -4,7 +4,7 @@
 **Date:** January 19, 2026
 **Status:** ACTIVE - Sprint 82 (Pre-Launch Hardening)
 **Authority:** DevOps Lead + CTO Approved
-**Framework:** SDLC 6.0.6 P4 (Quality Gates)
+**Framework:** SDLC 6.1.0 P4 (Quality Gates)
 
 ---
 

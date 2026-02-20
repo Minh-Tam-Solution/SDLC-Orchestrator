@@ -22,7 +22,7 @@ related_specs:
   - SPEC-0002-Quality-Gates-Codegen-Specification
   - SPEC-0003-ADR-007-AI-Context-Engine
   - SPEC-0004-Policy-Guards-Design
-framework_version: SDLC 6.0.5
+framework_version: SDLC 6.1.0
 positioning: Operating System for Software 3.0
 ---
 

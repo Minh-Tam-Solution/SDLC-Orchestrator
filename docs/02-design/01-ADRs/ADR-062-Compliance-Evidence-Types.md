@@ -1,239 +1,242 @@
 ---
 sdlc_version: "6.1.0"
 document_type: "Architecture Decision Record"
-status: "DRAFT"
-adr_id: "ADR-062"
+status: "APPROVED"
+adr_number: "062"
 spec_id: "ADR-062"
 tier: "ENTERPRISE"
 stage: "02 - Design"
-sprint: "182"
+created_date: "2026-02-19"
+approved_date: "2026-02-20"
 ---
 
-# ADR-062: Compliance Evidence Types
+# ADR-062 — Compliance Evidence Types
 
-**Status**: DRAFT (Sprint 182) → APPROVED (Sprint 183 finalization)
-**Date**: February 19, 2026
-**Author**: Architect (@architect)
-**Reviewers**: CTO, Compliance Lead
+**Status**: APPROVED (CTO sign-off Sprint 183)
+**Date**: February 20, 2026
+**Author**: @architect
+**Reviewer**: CTO
+**Sprint**: Sprint 183 — Enterprise SSO Implementation + Compliance Evidence
 **Supersedes**: None
-**Follow-up**: SOC2 Evidence Pack Generator (Sprint 185), HIPAA Pack (Sprint 185)
-**Implementation Sprint**: Sprint 183
 
 ---
 
 ## Context
 
-The Evidence Vault (`gate_evidence` table + EvidenceType enum) was designed in Sprint 1 with general-purpose evidence types. As SDLC Orchestrator targets enterprise customers with compliance requirements (SOC2, HIPAA, NIST AI RMF, ISO 27001), evidence stored in the vault needs to be classifiable by compliance framework.
+The Evidence Vault currently supports general evidence types stored as `VARCHAR(50)` in
+`gate_evidence.evidence_type`, enforced at the application layer via Pydantic validator.
+Existing types: `DESIGN_DOCUMENT`, `TEST_RESULTS`, `CODE_REVIEW`, `DEPLOYMENT_PROOF`,
+`DOCUMENTATION`, `COMPLIANCE`, and 4 RFC-SDLC-602 types.
 
-**Problem**: There is no way to query "show me all SOC2 evidence" — the existing COMPLIANCE enum value is too broad.
+The generic `COMPLIANCE` type is a catch-all with no framework differentiation.
+Enterprise customers in regulated industries require:
+1. **SOC2 Type II readiness** — evidence tagged as `SOC2_CONTROL` for auditors
+2. **HIPAA compliance** — PHI access audit evidence tagged as `HIPAA_AUDIT`
+3. **NIST AI RMF** — AI governance evidence tagged as `NIST_AI_RMF`
+4. **ISO 27001** — information security controls tagged as `ISO27001`
 
-**Business driver**: Enterprise sales requires demonstrable compliance evidence management (Q3 2026 target per ADR-059). SOC2 Type II report generation (Sprint 185) requires typed evidence.
-
----
-
-## Decision Table
-
-| # | Decision | Owner | Status |
-|---|----------|-------|--------|
-| D-1 | Extend EvidenceType enum with 4 compliance-specific values | Tech Lead | LOCKED |
-| D-2 | PostgreSQL ALTER TYPE ADD VALUE (irreversible, acceptable) | Architect | LOCKED |
-| D-3 | Existing COMPLIANCE enum value retained (not replaced) | Architect | LOCKED |
-| D-4 | Evidence routing: compliance_type filter parameter on GET /evidence | Tech Lead | LOCKED |
+Without compliance-specific evidence types, ENTERPRISE customers cannot generate
+compliance-specific evidence packs (Sprint 185 SOC2 Pack Generator requires these types).
 
 ---
 
-## Decision Details
+## Problem Statement
 
-### D-1: 4 New EvidenceType Values
+The existing `COMPLIANCE` type is a single catch-all that:
+1. Cannot be filtered by framework (SOC2 vs HIPAA vs NIST vs ISO27001)
+2. Does not provide auditor-facing metadata about which control is evidenced
+3. Blocks Sprint 185 SOC2 Pack Generator (which filters by `SOC2_CONTROL`)
 
-```python
-class EvidenceType(str, Enum):
-    # Existing (Sprint 1-178 — NOT changed)
-    DESIGN_DOCUMENT  = "DESIGN_DOCUMENT"
-    TEST_RESULTS     = "TEST_RESULTS"
-    CODE_REVIEW      = "CODE_REVIEW"
-    DEPLOYMENT_PROOF = "DEPLOYMENT_PROOF"
-    DOCUMENTATION    = "DOCUMENTATION"
-    COMPLIANCE       = "COMPLIANCE"   # Generic — kept for backward compatibility
+---
 
-    # New (Sprint 183, ADR-062)
-    SOC2_CONTROL = "SOC2_CONTROL"
-    # Maps to: SOC2 Trust Service Criteria (CC1-CC9, A1, C1, PI1, P1-P8)
-    # Used for: policy evaluations, access reviews, change management evidence
+## Decision — 4 Locked Decisions
 
-    HIPAA_AUDIT = "HIPAA_AUDIT"
-    # Maps to: HIPAA Security Rule (§164.308-§164.316) + Privacy Rule audit logs
-    # Used for: PHI access logs, minimum-necessary access records, BAA tracking
+### D-062-01: 4 New Compliance Evidence Types (UPPERCASE, VARCHAR)
 
-    NIST_AI_RMF = "NIST_AI_RMF"
-    # Maps to: NIST AI Risk Management Framework (GOVERN, MAP, MEASURE, MANAGE)
-    # Used for: AI model cards, bias assessments, safety evaluations, incident logs
-
-    ISO27001 = "ISO27001"
-    # Maps to: ISO 27001:2022 Annex A controls (93 controls in 4 categories)
-    # Used for: information security policy, asset management, access control records
-```
-
-### D-2: PostgreSQL Migration Strategy
-
-```sql
--- s183_002_compliance_evidence_types.py
--- PostgreSQL ALTER TYPE ADD VALUE is irreversible in active transactions
--- Acceptable because:
---   (a) New values never conflict with existing data
---   (b) Downgrade is no-op with logged WARNING (not data loss)
-
-ALTER TYPE evidencetype ADD VALUE IF NOT EXISTS 'SOC2_CONTROL';
-ALTER TYPE evidencetype ADD VALUE IF NOT EXISTS 'HIPAA_AUDIT';
-ALTER TYPE evidencetype ADD VALUE IF NOT EXISTS 'NIST_AI_RMF';
-ALTER TYPE evidencetype ADD VALUE IF NOT EXISTS 'ISO27001';
-```
-
-**Alembic implementation**:
-```python
-def upgrade():
-    for value in ['SOC2_CONTROL', 'HIPAA_AUDIT', 'NIST_AI_RMF', 'ISO27001']:
-        op.execute(f"ALTER TYPE evidencetype ADD VALUE IF NOT EXISTS '{value}'")
-
-def downgrade():
-    # PostgreSQL cannot remove enum values — downgrade is intentional no-op
-    import logging
-    logging.getLogger(__name__).warning(
-        "s183_002 downgrade: PostgreSQL cannot remove enum values. "
-        "SOC2_CONTROL/HIPAA_AUDIT/NIST_AI_RMF/ISO27001 remain in DB. "
-        "Application code handles missing values gracefully."
-    )
-```
-
-### D-3: COMPLIANCE Value Retention
-
-The generic `COMPLIANCE` value is retained for:
-- Backward compatibility (existing compliance evidence records)
-- General compliance artifacts that don't map to a specific framework
-- Migration guide: instruct users to re-classify existing COMPLIANCE records if they know the framework
-
-### D-4: Evidence API Filter
+Extend the Pydantic validator `allowed_types` set with 4 new uppercase string values.
+Storage is `VARCHAR(50)` — no PostgreSQL enum DDL required (decided Sprint 182 research).
 
 ```python
-# GET /api/v1/evidence?compliance_type=SOC2_CONTROL,HIPAA_AUDIT
-@router.get("/evidence", response_model=list[EvidenceResponse])
-async def list_evidence(
-    gate_id: int | None = None,
-    compliance_type: str | None = Query(None, description="Comma-separated compliance types"),
-    db: AsyncSession = Depends(get_db),
-):
-    compliance_types = compliance_type.split(",") if compliance_type else None
-    # Apply filter if compliance_type provided
-    if compliance_types:
-        stmt = stmt.where(GateEvidence.evidence_type.in_(compliance_types))
+# backend/app/schemas/evidence.py — allowed_types validator set
+"SOC2_CONTROL"   # SOC2 Trust Service Criteria (Security/Availability/Confidentiality)
+"HIPAA_AUDIT"    # PHI access audit records (HIPAA minimum necessary access)
+"NIST_AI_RMF"    # NIST AI Risk Management Framework v1.1 controls
+"ISO27001"       # ISO 27001:2022 Annex A controls mapping
+```
+
+**Backward compatible**: existing `COMPLIANCE` type retained as generic fallback.
+
+---
+
+### D-062-02: Open Question Resolutions
+
+| # | Question | Decision | Rationale |
+|---|----------|----------|-----------|
+| 1 | SOC2 Trust Service Criteria: enum or free-text? | **Free-text in metadata JSONB** | Trust criteria change across SOC2 versions; flexibility > rigidity. Sprint 185 adds JSON Schema validation. |
+| 2 | HIPAA retention 6 years: `expires_at` or metadata only? | **Metadata only (Sprint 183)** | `expires_at` enforcement is Sprint 185+ scope. Sprint 183 only extends the type enum. |
+| 3 | NIST AI RMF: v1.0 or v1.1? | **v1.1** (January 2025) | v1.1 is the current release; enterprise customers expect current standard. |
+| 4 | ISO 27001: 2013 or 2022? | **ISO 27001:2022** | 2022 edition is current; 2013 is deprecated. New enterprise customers expect 2022. |
+
+---
+
+### D-062-03: Storage Layer — VARCHAR(50), NOT PostgreSQL Enum
+
+The `gate_evidence.evidence_type` column is `VARCHAR(50)`, not a PostgreSQL native enum.
+Discovered during Sprint 183 implementation (confirmed by `s182_001` migration DDL).
+
+**Consequences of VARCHAR decision**:
+- Alembic migration `s183_002` is documentation-only (no DDL change)
+- No `ALTER TYPE ... ADD VALUE` needed
+- Enforcement is 100% at application layer (Pydantic validator)
+- Downgrade is a no-op: existing rows with new type values are valid VARCHAR
+
+**Migration strategy**: `s183_002_compliance_evidence_types.py` adds a SQL COMMENT ON COLUMN
+to document allowed values and creates a checkpoint in Alembic history.
+
+---
+
+### D-062-04: Compliance Evidence Filter API
+
+Add `compliance_type` query parameter to `GET /api/v1/evidence` to filter by compliance
+framework. Implemented in Sprint 183 (evidence.py route update).
+
+```
+GET /api/v1/evidence?compliance_type=SOC2_CONTROL
+GET /api/v1/evidence?compliance_type=HIPAA_AUDIT
+GET /api/v1/evidence?compliance_type=NIST_AI_RMF
+GET /api/v1/evidence?compliance_type=ISO27001
 ```
 
 ---
 
-## Compliance Framework Mappings
+## Implementation (Sprint 183)
 
-### SOC2_CONTROL → Trust Service Criteria
+### Files Modified
 
-| TSC Category | Criteria | Example Evidence |
-|-------------|----------|-----------------|
-| CC1 (Control Environment) | CC1.1-CC1.5 | Policy documents, org structure, ethics training |
-| CC6 (Logical Access) | CC6.1-CC6.8 | Access review records, RBAC gate evaluations |
-| CC7 (System Operations) | CC7.1-CC7.5 | Change management records, incident response |
-| CC8 (Change Management) | CC8.1 | Sprint close gates, code review evidence |
-| A1 (Availability) | A1.1-A1.3 | SLA monitoring, uptime reports |
+| File | Change |
+|------|--------|
+| `backend/app/schemas/evidence.py` | Add 4 types to `allowed_types` set in `validate_evidence_type` |
+| `backend/alembic/versions/s183_002_compliance_evidence_types.py` | Documentation migration (COMMENT ON COLUMN) |
 
-### HIPAA_AUDIT → HIPAA Security Rule
+### Pydantic Validator (evidence.py)
 
-| Rule Section | Description | Example Evidence |
-|-------------|-------------|-----------------|
-| §164.308(a)(1) | Risk Analysis | Threat model documents (STM-056) |
-| §164.308(a)(3) | Workforce Training | Security training completion records |
-| §164.312(b) | Audit Controls | System access logs, PHI access records |
-| §164.308(a)(5) | Security Awareness | Security review evidence |
+```python
+allowed_types = {
+    # Existing types (unchanged)
+    "DESIGN_DOCUMENT", "TEST_RESULTS", "CODE_REVIEW",
+    "DEPLOYMENT_PROOF", "DOCUMENTATION", "COMPLIANCE",
+    "E2E_TESTING_REPORT", "API_DOCUMENTATION_REFERENCE",
+    "SECURITY_TESTING_RESULTS", "STAGE_CROSS_REFERENCE",
+    # Sprint 183 — ADR-062
+    "SOC2_CONTROL",
+    "HIPAA_AUDIT",
+    "NIST_AI_RMF",
+    "ISO27001",
+}
+```
 
-### NIST_AI_RMF → Framework Functions
+### Compliance Evidence Metadata Schemas
 
-| Function | Description | Example Evidence |
-|----------|-------------|-----------------|
-| GOVERN | AI governance policies | nist_govern.py route outputs |
-| MAP | AI context identification | AI model cards, risk assessments |
-| MEASURE | Bias/fairness metrics | Model evaluation reports |
-| MANAGE | Risk response records | Incident logs, remediation evidence |
+**SOC2_CONTROL** — `evidence.metadata` JSONB:
+```json
+{
+  "compliance_type": "SOC2_CONTROL",
+  "trust_service_criteria": "CC6.1",
+  "control_name": "Logical and Physical Access Controls",
+  "collection_period": "2026-01-01/2026-03-31",
+  "auditor_reference": "Ernst & Young LLP"
+}
+```
 
-### ISO27001 → Annex A Controls (ISO 27001:2022)
+**HIPAA_AUDIT** — `evidence.metadata` JSONB:
+```json
+{
+  "compliance_type": "HIPAA_AUDIT",
+  "phi_category": "access_log",
+  "minimum_necessary_check": true,
+  "de_identified": false,
+  "retention_note": "6-year retention required; enforce via data lifecycle policy"
+}
+```
 
-| Category | Controls | Example Evidence |
-|----------|----------|-----------------|
-| 5. Organizational Controls | 5.1-5.37 | Information security policies |
-| 6. People Controls | 6.1-6.8 | Background check records |
-| 7. Physical Controls | 7.1-7.14 | Data center access logs |
-| 8. Technological Controls | 8.1-8.34 | Encryption key management, SAST reports |
+**NIST_AI_RMF** — `evidence.metadata` JSONB (v1.1 functions):
+```json
+{
+  "compliance_type": "NIST_AI_RMF",
+  "function": "GOVERN",
+  "category": "GOVERN 1.1",
+  "subcategory": "AI risk management policies established",
+  "framework_version": "1.1"
+}
+```
+
+**ISO27001** — `evidence.metadata` JSONB (2022 edition):
+```json
+{
+  "compliance_type": "ISO27001",
+  "annex_a_control": "A.5.1",
+  "control_name": "Policies for information security",
+  "iso_edition": "2022",
+  "implementation_status": "implemented"
+}
+```
 
 ---
 
 ## Alternatives Considered
 
-### Option A (SELECTED): Extend EvidenceType Enum
-
-**Pros**: Simple, SQL-queryable, type-safe in Python, no new table needed
-**Cons**: PostgreSQL enum ADD VALUE is irreversible (acceptable, as noted in D-2)
-
-### Option B (REJECTED): Separate `compliance_framework` JSONB column on gate_evidence
-
-**Why rejected**:
-- JSONB is not type-safe — can store arbitrary strings including typos
-- Cannot create PostgreSQL foreign key constraint on JSONB
-- Query performance: JSONB path operators slower than enum equality
-- Evidence type already captures most of the needed information
-
-### Option C (REJECTED): New `compliance_evidence` table (separate from gate_evidence)
-
-**Why rejected**:
-- Gate evidence is already the source of truth for all evidence
-- Duplicating into a separate table creates sync complexity
-- Breaks existing evidence API consumers
-- No business requirement for separate storage
+| Option | Rejected Reason |
+|--------|----------------|
+| Separate `compliance_evidence` table | Over-engineering; metadata JSONB is sufficient for Sprint 183 |
+| String tags instead of typed values | No validation; breaks filtering; type safety lost |
+| Single `COMPLIANCE` + metadata filter | Cannot filter by `evidence_type` column index efficiently |
+| PostgreSQL native enum | `evidence_type` is VARCHAR; changing to enum requires full column migration (disruptive) |
 
 ---
 
 ## Non-Goals
 
-- **Compliance validation logic**: ADR-062 only covers CLASSIFICATION (what type of evidence). Validation (does this SOC2_CONTROL evidence actually pass criteria CC6.1?) is Sprint 185's SOC2 Pack Generator.
-- **Evidence re-classification UI**: Manual re-classification of existing COMPLIANCE records is out of scope. Provide migration guide documentation only.
-- **Automatic mapping**: Do not auto-assign compliance types based on content analysis. Human assigns compliance type at upload time.
+1. **SOC2 Pack Generator** — Sprint 185 deliverable
+2. **HIPAA PHI retention enforcement** — regulatory scope; enforcement in Sprint 185+
+3. **ISO 27001 certification assistance** — assessment/certification out of Orchestrator scope
+4. **NIST AI RMF automated control testing** — Sprint 184+ (Jira integration needed)
 
 ---
 
 ## Consequences
 
 **Positive**:
-- SOC2 evidence pack generator (Sprint 185) has typed evidence to query
-- Compliance dashboard can show "X SOC2 controls, Y HIPAA records, Z NIST assessments"
-- Enterprise customers can filter evidence by compliance framework
-- No new table needed — minimal schema change
+- Enables Sprint 185 SOC2 Pack Generator (requires `SOC2_CONTROL` typed evidence)
+- Enterprise customers can tag evidence by compliance framework from Sprint 183
+- Backward compatible — existing `COMPLIANCE` type still valid
+- Zero downtime: VARCHAR change, no DDL locking
 
 **Negative**:
-- PostgreSQL enum ADD VALUE is irreversible (downgrade is no-op) — acceptable trade-off
-- Existing evidence with type=COMPLIANCE remains generic until manually re-classified
-- Alembic downgrade emits WARNING (not ERROR) — team must understand this is intentional
+- Application-layer validation only: direct DB inserts can bypass type enforcement
+  (acceptable: trusted internal writes only; external access via API)
+
+**Neutral**:
+- `evidence.metadata` JSONB structure is flexible; JSON Schema validation deferred to Sprint 185
 
 ---
 
-## References
+## Sprint 185 Follow-up Tasks
 
-- [ERD v3.5.0](../01-planning/04-Data-Model/Data-Model-ERD.md) — gate_evidence table (EvidenceType enum)
-- [API Spec v3.7.0](../01-planning/05-API-Design/API-Specification.md) — GET /evidence compliance_type filter
-- [ADR-059](ADR-059-Enterprise-First-Refocus.md) — ENTERPRISE compliance requirements
-- [NIST AI RMF](https://www.nist.gov/system/files/documents/2023/01/26/AI%20RMF%201.0.pdf) — Framework reference
-- [SOC2 Trust Service Criteria](https://www.aicpa.org/resources/article/2017-trust-services-criteria) — Criteria reference
+1. **SOC2 Evidence Pack Generator** — auto-collect `SOC2_CONTROL` evidence and map to
+   SOC2 Trust Service Criteria matrix
+2. **HIPAA Retention Enforcement** — add `retention_until` computed field for HIPAA evidence
+3. **JSON Schema Validation** — validate `evidence.metadata` structure per compliance type
+4. **ISO 27001 Controls Matrix** — map existing evidence to ISO 27001:2022 Annex A controls
 
 ---
 
-## Document Control
+## Sign-off
 
-**Version History**:
-- v0.1.0 (February 19, 2026): DRAFT — 4 decisions initially locked (Sprint 182)
-- v1.0.0 (Sprint 183): APPROVED — final implementation confirmed
+| Role | Decision | Date |
+|------|----------|------|
+| @architect | ✅ APPROVED | 2026-02-20 |
+| CTO | ✅ APPROVED | 2026-02-20 |
 
-**Status**: DRAFT → APPROVED in Sprint 183
-**Implementation Sprint**: Sprint 183 (s183_002 migration)
+[@cto: ADR-062 finalized Sprint 183. 4 locked decisions. VARCHAR storage (no DDL), NIST v1.1,
+ISO 27001:2022, SOC2 free-text metadata, HIPAA retention deferred to Sprint 185.
+Migration s183_002 is documentation-only checkpoint. Validator updated in evidence.py.]

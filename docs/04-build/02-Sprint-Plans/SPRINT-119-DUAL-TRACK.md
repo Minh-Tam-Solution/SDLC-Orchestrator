@@ -4,7 +4,7 @@
 **Version**: 1.0.0
 **Dates**: March 10-14, 2026 (5 days)
 **Status**: PLANNED (Pending Sprint 117-118 Completion)
-**Framework**: SDLC 5.3.0 → 6.0.5 (Major Release)
+**Framework**: SDLC 6.1.0
 **Prerequisites**: 20 specs migrated, Section 7 complete
 
 ---
@@ -140,7 +140,7 @@ Release Documents:
      Location: SDLC-Enterprise-Framework/docs/guides/
 
      Content:
-       ## Migration Guide: SDLC 5.3.0 → 6.0.5
+       ## Migration Guide: SDLC 6.1.0 → 6.0.5
 
        ### Prerequisites
        - Current version: 5.3.0 or higher
@@ -225,7 +225,7 @@ comprehensive **Quality Assurance System** for AI-governed development.
 
 ## Migration
 
-Projects using SDLC 5.3.0 should migrate to 6.0.5:
+Projects using SDLC 6.1.0 should migrate to 6.0.5:
 - See [Migration Guide](docs/guides/MIGRATION-GUIDE-5.3-to-6.0.md)
 - 20 specifications already migrated as examples
 - Estimated effort: 2-4 hours per project

@@ -15,14 +15,14 @@ created_date: "2026-02-20"
 **Date**: February 20, 2026
 **Sprint Duration**: 8 days (Days 1–8)
 **Gate**: G-Sprint-Close (SDLC 6.1.0)
-**Reviewer Score**: Pending CTO review
+**Reviewer Score**: CONDITIONAL PASS 7.8/10 — F-01 (P1) + F-02 (P2) fixed same session
 **Next Sprint**: Sprint 185 — Advanced Audit Trail + SOC2 Evidence Pack
 
 ---
 
 ## Sprint Goal
 
-> Deliver tier gate enforcement across all 78 API routes (HTTP 402 Payment Required)
+> Deliver tier gate enforcement across all 79 API route prefixes (HTTP 402 Payment Required)
 > and ship Jira Cloud integration for PROFESSIONAL+ teams, enabling sprint issues to
 > sync directly to the SDLC Evidence Vault.
 
@@ -343,9 +343,11 @@ Total Sprint 184                        — 63 tests
 | Files created | 11 |
 | Files modified | 4 |
 | Bug fixed | 1 (httpx.Timeout) |
-| Technical debt resolved | 2 (78-route tier gate, Jira integration) |
-| Carry-forward items | 6 (all Sprint 185 scope) |
+| Technical debt resolved | 2 (79-route tier gate, Jira integration) |
+| Post-review P1 fix | 1 (F-01: +14 missing routes to ROUTE_TIER_TABLE → 79 entries) |
+| Post-review P2 fix | 1 (F-02: TG-27 assertion >= 30 → >= 79) |
+| Carry-forward items | 5 (F-03/F-04/F-05 P2 + F-06/F-07 INFO → Sprint 185) |
 
 ---
 
-[@cto: Sprint 184 CLOSED. 63/63 tests pass. TierGateMiddleware (pure ASGI) enforces HTTP 402 across all 78 routes. Jira integration ships with Fernet-encrypted token storage — 3 endpoints (connect/projects/sync). Frontend LockedFeature + UpgradeModal + TierGateError + 402 no-retry complete. Sprint 185 SOC2 audit trail can proceed.]
+[@cto: Sprint 184 CLOSED (post-review patch applied). 63/63 tests pass. F-01 fixed: ROUTE_TIER_TABLE expanded from 65 → 79 entries (+14 missing routes: analytics/api-keys/payments LITE, 9×STANDARD, mcp PROFESSIONAL; gates-engine ordering fix). F-02 fixed: TG-27 assertion updated >= 30 → >= 79. F-03/F-04/F-05 (P2) carry to Sprint 185. TierGateMiddleware (pure ASGI) enforces HTTP 402 across all 79 route prefixes. Sprint 185 SOC2 audit trail can proceed.]

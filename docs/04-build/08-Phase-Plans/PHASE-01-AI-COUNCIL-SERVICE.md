@@ -6,7 +6,7 @@
 **Status**: PLANNED - Sprint 26
 **Duration**: 5 days (Dec 9-13, 2025)
 **Owner**: Tech Lead + Backend Team
-**Framework**: SDLC 5.1.3.1 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 

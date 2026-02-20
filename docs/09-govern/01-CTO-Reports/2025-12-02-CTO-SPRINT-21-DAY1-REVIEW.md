@@ -5,7 +5,7 @@
 **Status**: ✅ **APPROVED** (with 1 minor condition)  
 **Authority**: CTO + Backend Lead  
 **Foundation**: Sprint 21 Plan (1,168 lines), ADR-007 Approved  
-**Framework**: SDLC 5.1.3.1 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -55,7 +55,7 @@
 
 ---
 
-### SDLC 5.1.3.1 Policy Rules (Rego) ✅
+### SDLC 6.1.0 Policy Rules (Rego) ✅
 
 **Rules Implemented**:
 - ✅ Stage sequence validation (G0.1 → G0.2 → G1 → G2 → G3 → G4 → G5)
@@ -67,7 +67,7 @@
 
 **CTO Assessment**: ✅ **EXCELLENT**
 - 15+ Rego rules implemented
-- Comprehensive SDLC 5.1.3.1 coverage
+- Comprehensive SDLC 6.1.0 coverage
 - Production-ready policy evaluation
 
 ---
@@ -149,7 +149,7 @@
 ### Sprint 21 Day 1 Value ✅
 
 **Compliance Scanner Core**:
-- ✅ Automated SDLC 5.1.3.1 compliance checking
+- ✅ Automated SDLC 6.1.0 compliance checking
 - ✅ Real-time violation detection
 - ✅ OPA policy evaluation (15+ rules)
 - ✅ Compliance score calculation
@@ -279,7 +279,7 @@ logger.debug(f"Doc-code drift check for project {project.id} (placeholder)")
 ### Why This Matters
 
 **Compliance Scanner**:
-- Automated SDLC 5.1.3.1 compliance checking
+- Automated SDLC 6.1.0 compliance checking
 - Real-time violation detection
 - Critical for Gate G3 validation
 - Evidence collection for audits
@@ -315,7 +315,7 @@ logger.debug(f"Doc-code drift check for project {project.id} (placeholder)")
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3.1. Zero Mock Policy enforced. Battle-tested patterns applied.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0. Zero Mock Policy enforced. Battle-tested patterns applied.*
 
 **"Sprint 21 Day 1: Compliance Scanner Core complete. 9.5/10 readiness. 1 minor placeholder (non-blocking). Ready for Day 2."** ⚔️ - CTO
 

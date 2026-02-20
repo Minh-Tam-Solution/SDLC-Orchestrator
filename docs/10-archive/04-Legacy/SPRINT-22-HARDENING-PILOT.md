@@ -5,7 +5,7 @@
 **Status**: PLANNED
 **Authority**: CTO + CPO + CEO
 **Foundation**: Gate G3 (Ship Ready) Requirements
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Week**: 12 of 13 (Dec 9-13, 2025)
 
 ---
@@ -400,6 +400,6 @@ Success Criteria:
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0. Zero Mock Policy enforced.*
 
 **Sprint 22 Focus**: "Ship Ready - From pilot to production with confidence"

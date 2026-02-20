@@ -120,7 +120,7 @@
 - Full-stack expertise (Python + React)
 - SASE framework knowledge (BRS/MRP/VCR workflow)
 - Leadership (mentor 3 developers)
-- SDLC 5.1.3 compliance (4-layer architecture, naming standards)
+- SDLC 6.1.0 compliance (4-layer architecture, naming standards)
 - Code review (100% coverage enforced)
 
 **Estimated Effort**: 20 hours/week x 6 weeks = 120 hours (mix of hands-on + oversight)
@@ -331,5 +331,5 @@ If team assignment not complete by EOD:
 
 ---
 
-*This issue is part of Track 1 SASE (Q1 2026 P0) - SDLC 5.1.0 Framework Enhancement*
+*This issue is part of Track 1 SASE (Q1 2026 P0) - SDLC 6.1.0 Framework Enhancement*
 *Reference: SASE-Week-5-Progress-Report.md, BRS-PILOT-001, LPS-PILOT-001*

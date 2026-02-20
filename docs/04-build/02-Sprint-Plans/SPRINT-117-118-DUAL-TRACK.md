@@ -4,7 +4,7 @@
 **Version**: 1.0.0
 **Dates**: February 24 - March 7, 2026 (10 days / 2 weeks)
 **Status**: PLANNED (Pending Sprint 116 Completion)
-**Framework**: SDLC 5.3.0 → 6.0 (OpenSpec-inspired Upgrade)
+**Framework**: SDLC 6.1.0
 **Prerequisites**: Sprint 116 FULL mode stable, Week 8 Gate passed
 
 ---

@@ -53,7 +53,7 @@
 
 | Aspect | Assessment |
 |--------|------------|
-| **Business Value** | Core SDLC 5.1.3 Pillar 2 - HIGHEST PRIORITY |
+| **Business Value** | Core SDLC 6.1.0 Pillar 2 - HIGHEST PRIORITY |
 | **Technical Scope** | Sprint lifecycle, gates, planning hierarchy |
 | **Story Points** | 42 SP - appropriate for complexity |
 | **Risk** | Medium - must be production-quality |
@@ -64,7 +64,7 @@
 ## Priority Order (CTO Mandated)
 
 ```
-1. Sprint 87 (Pillar 2)    - CRITICAL for SDLC 5.1.3
+1. Sprint 87 (Pillar 2)    - CRITICAL for SDLC 6.1.0
 2. Sprint 85 (CLI Auth)    - Security prerequisite
 3. Sprint 84 (Teams/Org)   - Enterprise readiness
 4. Sprint 86 Phase 2       - Enhancement
@@ -105,7 +105,7 @@ Team đã hoàn thành xuất sắc 5 sprints (79-83) trong 2 ngày. Sprint 86 P
 │   Date: January 20, 2026                                        │
 │   Valid Until: March 15, 2026 (Soft Launch)                     │
 │                                                                 │
-│   "Sprint Governance (87) is the heart of SDLC 5.1.3.          │
+│   "Sprint Governance (87) is the heart of SDLC 6.1.0.          │
 │    Execute with excellence."                                    │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
@@ -113,4 +113,4 @@ Team đã hoàn thành xuất sắc 5 sprints (79-83) trong 2 ngày. Sprint 86 P
 
 ---
 
-**SDLC 5.1.3 | CTO Approval Record | Stage 04 (BUILD)**
+**SDLC 6.1.0 | CTO Approval Record | Stage 04 (BUILD)**

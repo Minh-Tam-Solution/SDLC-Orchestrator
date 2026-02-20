@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-This guide provides comprehensive documentation for the RFC-SDLC-602 6-Phase E2E API Testing Workflow. It covers all CLI commands, VS Code Extension features, and best practices for implementing E2E API testing in SDLC 6.0.5 compliant projects.
+This guide provides comprehensive documentation for the RFC-SDLC-602 6-Phase E2E API Testing Workflow. It covers all CLI commands, VS Code Extension features, and best practices for implementing E2E API testing in SDLC 6.1.0 compliant projects.
 
 ### Key Features
 
@@ -77,7 +77,7 @@ pip install sdlcctl
 
 # Verify installation
 sdlcctl --version
-# Output: sdlcctl v1.5.0 (SDLC 6.0.5)
+# Output: sdlcctl v1.5.0 (SDLC 6.1.0)
 
 # Install VS Code Extension
 code --install-extension sdlc-orchestrator-1.6.0.vsix

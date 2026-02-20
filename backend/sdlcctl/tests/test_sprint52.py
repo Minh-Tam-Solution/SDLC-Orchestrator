@@ -278,11 +278,11 @@ class TestSSEEventTypes:
             type="started",
             timestamp="2025-12-26T10:00:00Z",
             session_id="session-123",
-            model="qwen2.5-coder:32b",
+            model="qwen3-coder:30b",
             provider="ollama"
         )
         assert event.type == "started"
-        assert event.model == "qwen2.5-coder:32b"
+        assert event.model == "qwen3-coder:30b"
         assert event.provider == "ollama"
 
     def test_file_generated_event(self):
@@ -357,12 +357,12 @@ class TestStreamingProgress:
             type="started",
             timestamp="2025-12-26T10:00:00Z",
             session_id="session-123",
-            model="qwen2.5-coder:32b",
+            model="qwen3-coder:30b",
             provider="ollama"
         )
         progress.handle_event(event)
         assert progress.stats.provider == "ollama"
-        assert progress.stats.model == "qwen2.5-coder:32b"
+        assert progress.stats.model == "qwen3-coder:30b"
 
     def test_handle_file_generated_event(self, progress):
         """Test handling file_generated event."""

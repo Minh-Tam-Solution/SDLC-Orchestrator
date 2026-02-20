@@ -35,7 +35,7 @@ created_date: "2026-02-19"
 
 ### P0 — ADR-061: Enterprise SSO Architecture (Day 1)
 
-**File**: `docs/02-design/ADR-061-Enterprise-SSO.md`
+**File**: `docs/02-design/01-ADRs/ADR-061-Enterprise-SSO.md`
 
 **5 Locked Decisions**:
 
@@ -57,7 +57,7 @@ created_date: "2026-02-19"
 
 ### P0 — ADR-062: Compliance Evidence Types (Day 1, DRAFT)
 
-**File**: `docs/02-design/ADR-062-Compliance-Evidence-Types.md`
+**File**: `docs/02-design/01-ADRs/ADR-062-Compliance-Evidence-Types.md`
 
 **Status**: DRAFT — finalized Sprint 183
 

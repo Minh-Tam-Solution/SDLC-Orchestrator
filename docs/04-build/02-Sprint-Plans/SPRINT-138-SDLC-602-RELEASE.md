@@ -1,11 +1,11 @@
-# Sprint 138: SDLC 6.0.5 Validation & Release
+# Sprint 138: SDLC 6.1.0 Validation & Release
 
 **Sprint ID**: SPRINT-138
 **Duration**: February 22 - March 1, 2026 (1 week)
 **Theme**: RFC-SDLC-602 Validation & Framework Release
 **Priority**: P0 (March Launch Gate)
 **Team**: BFlow Platform Team + SDLC Orchestrator Team + QA Lead
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -161,7 +161,7 @@ Evidence Location:
 
 **Quick Start Guide Content**:
 ```markdown
-# E2E API Testing Quick Start (SDLC 6.0.5)
+# E2E API Testing Quick Start (SDLC 6.1.0)
 
 ## Prerequisites
 - OpenAPI 3.0 specification (Stage 03)
@@ -363,7 +363,7 @@ CTO Approval: February 2, 2026 (9.2/10)
 6. ✅ Announcement published
 7. ✅ RFC status updated to COMPLETED
 8. ✅ CTO final approval
-9. ✅ VS Code Extension updated to 1.4.0 (SDLC 6.0.5)
+9. ✅ VS Code Extension updated to 1.4.0 (SDLC 6.1.0)
 
 ---
 
@@ -389,24 +389,24 @@ CTO Approval: February 2, 2026 (9.2/10)
 ### Phase 4: Component Updates (Feb 2)
 
 #### 2.7 VS Code Extension Update (P0)
-**Objective**: Update VS Code Extension to reference SDLC 6.0.5
+**Objective**: Update VS Code Extension to reference SDLC 6.1.0
 
 **Files to Update**:
 
 | File | Current | Target | Change |
 |------|---------|--------|--------|
-| `vscode-extension/package.json` | 1.3.0, SDLC 6.0.5 | 1.4.0, SDLC 6.0.5 | Version bump + description |
-| `vscode-extension/README.md` | Framework: SDLC 6.0.5 | Framework: SDLC 6.0.5 | What's New section |
+| `vscode-extension/package.json` | 1.3.0, SDLC 6.1.0 | 1.4.0, SDLC 6.1.0 | Version bump + description |
+| `vscode-extension/README.md` | Framework: SDLC 6.1.0 | Framework: SDLC 6.1.0 | What's New section |
 
 **Changes Required**:
 
 ```yaml
 package.json:
   version: "1.3.0" → "1.4.0"
-  description: "SDLC 6.0.5" → "SDLC 6.0.5"
+  description: "SDLC 6.1.0" → "SDLC 6.1.0"
 
 README.md:
-  Framework: "SDLC 6.0.5" → "SDLC 6.0.5"
+  Framework: "SDLC 6.1.0" → "SDLC 6.1.0"
   What's New: Add 1.4.0 (Sprint 138) section
   - E2E API Testing workflow awareness
   - Stage Cross-Reference support
@@ -415,7 +415,7 @@ README.md:
 
 **Acceptance Criteria**:
 - [x] package.json version bumped to 1.4.0
-- [x] description updated to SDLC 6.0.5
+- [x] description updated to SDLC 6.1.0
 - [x] README.md updated with 1.4.0 features
 - [x] Extension rebuilt and packaged
 

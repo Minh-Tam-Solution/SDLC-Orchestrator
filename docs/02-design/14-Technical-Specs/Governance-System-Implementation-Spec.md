@@ -535,7 +535,7 @@ governance_index_calculation_seconds
 
 - ADR-041: Framework 6.0 Governance System Design
 - Pre-Phase 0 Documents (docs/governance-v1/)
-- SDLC 5.3.0 Section 7: Quality Assurance System
+- SDLC 6.1.0 Section 7: Quality Assurance System
 
 ---
 

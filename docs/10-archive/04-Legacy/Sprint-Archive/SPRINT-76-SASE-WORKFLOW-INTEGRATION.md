@@ -5,7 +5,7 @@
 **Duration:** 5 days (January 27-31, 2026)
 **Goal:** Complete Team-Sprint Integration for SASE Workflows + AI Sprint Assistant Foundation
 **Story Points:** 36 SP
-**Framework Reference:** SDLC 5.1.3 P5 (SASE Integration)
+**Framework Reference:** SDLC 6.1.0 P5 (SASE Integration)
 **Prerequisite:** Sprint 75 ✅ (Planning API Validation Complete)
 **Technical Design:** [SPRINT-76-TECHNICAL-DESIGN.md](SPRINT-76-TECHNICAL-DESIGN.md) ✅ (1,105 lines)
 
@@ -434,7 +434,7 @@ class SprintAssistantService:
 
 ---
 
-## 📝 SDLC 5.1.3 Compliance
+## 📝 SDLC 6.1.0 Compliance
 
 | Pillar | Sprint 76 Implementation |
 |--------|--------------------------|
@@ -462,6 +462,6 @@ class SprintAssistantService:
 
 ---
 
-**SDLC 5.1.3 | Sprint 76 | Stage 04 (BUILD)**
+**SDLC 6.1.0 | Sprint 76 | Stage 04 (BUILD)**
 
 *G-Sprint Approval Required Before Sprint Start*

@@ -3,7 +3,7 @@
 **Dates**: February 3-14, 2026 (10 working days)
 **Status**: 📋 PLANNED
 **Total Estimated LOC**: ~3,500
-**Framework**: SDLC 6.0 (pending v6.0.5 tag)
+**Framework**: SDLC 6.1.0
 
 ---
 

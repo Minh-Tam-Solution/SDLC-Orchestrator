@@ -432,7 +432,7 @@ All Member permissions, PLUS:
 Experience:
 - 3+ months using platform
 - 5+ projects completed
-- Demonstrated understanding of SDLC 5.1.3
+- Demonstrated understanding of SDLC 6.1.0
 
 Skills:
 - Technical expertise in domain
@@ -708,6 +708,6 @@ Developer (Submit & Build)
 
 ---
 
-**Framework**: SDLC 5.1.3 Complete Lifecycle  
+**Framework**: SDLC 6.1.0
 **Platform**: SDLC Orchestrator v1.2.0  
 **Last Updated**: December 20, 2025

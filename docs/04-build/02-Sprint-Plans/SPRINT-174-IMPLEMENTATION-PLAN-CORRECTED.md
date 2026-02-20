@@ -1,5 +1,5 @@
 # Sprint 174: Anthropic Best Practices Integration — CORRECTED Implementation Plan
-## Methodology First, Tool Second (SDLC 6.0.6 Compliance)
+## Methodology First, Tool Second (SDLC 6.1.0 Compliance)
 
 **Date**: February 16, 2026  
 **Sprint**: 174 (Feb 17-28, 2026)  
@@ -14,7 +14,7 @@
 
 **Consequence**: Tool-driven development instead of methodology-driven development.
 
-**Framework-First Principle** (SDLC 6.0.6 Section 3.2):
+**Framework-First Principle** (SDLC 6.1.0 Section 3.2):
 > "Every capability in SDLC Orchestrator must first exist as a documented pattern in SDLC Enterprise Framework. The Framework is the source of truth; the Orchestrator is the automation layer."
 
 ---
@@ -553,7 +553,7 @@ python -m pytest tests/e2e/test_governance_loop_e2e.py::test_g1_to_g4_flow -v
 *Align ADR with actual Anthropic findings*
 
 #### Day 6: Revise ADR-054
-**File**: `docs/02-design/ADR-054-Anthropic-Claude-Code-Best-Practices.md`
+**File**: `docs/02-design/01-ADRs/ADR-054-Anthropic-Claude-Code-Best-Practices.md`
 
 **Changes**:
 
@@ -777,7 +777,7 @@ class MCPService:
 *Document future work*
 
 #### Day 10 Morning: ADR-055 (Autonomous Codegen)
-**File**: `docs/02-design/ADR-055-Autonomous-Codegen-4-Gate-Validation.md`
+**File**: `docs/02-design/01-ADRs/ADR-055-Autonomous-Codegen-4-Gate-Validation.md`
 
 **Content** (based on Framework doc from Day 2):
 - Architecture comparison: Anthropic vs SDLC

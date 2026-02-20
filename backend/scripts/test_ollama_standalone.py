@@ -152,7 +152,7 @@ TEST_WORKFLOWS = {
 
 def call_ollama(
     prompt: str,
-    model: str = "qwen2.5:14b-instruct",
+    model: str = "qwen3:32b",
     base_url: str = "http://localhost:11434",
     timeout: int = 120,
 ) -> tuple[str, dict]:
@@ -340,7 +340,7 @@ class TestResult:
 
 def test_sop_type(
     sop_type: SOPType,
-    model: str = "qwen2.5:14b-instruct",
+    model: str = "qwen3:32b",
     base_url: str = "http://localhost:11434",
 ) -> TestResult:
     """Test SOP generation for a specific type."""
@@ -402,7 +402,7 @@ def test_sop_type(
 
 
 def run_all_tests(
-    model: str = "qwen2.5:14b-instruct",
+    model: str = "qwen3:32b",
     base_url: str = "http://localhost:11434",
     output_dir: str = None,
 ) -> list[TestResult]:
@@ -531,7 +531,7 @@ if __name__ == "__main__":
 
     # Check Ollama connectivity
     base_url = os.environ.get("OLLAMA_URL", "http://localhost:11434")
-    model = os.environ.get("OLLAMA_MODEL", "qwen2.5:14b-instruct")
+    model = os.environ.get("OLLAMA_MODEL", "qwen3:32b")
 
     try:
         import requests

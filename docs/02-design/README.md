@@ -11,18 +11,18 @@
 **Positioning**: Operating System for Software 3.0
 
 **Changelog v3.2.0** (Jan 30, 2026):
-- **SDLC 6.0.5 Migration**: Framework upgraded from 5.1.3 → 6.0.5
+- **SDLC 6.1.0 Migration**: Framework upgraded from 5.1.3 → 6.0.5
 - **Multi-Frontend Alignment**: Sprint 125-127 (26.5 SP in 1 day)
   - CLI (sdlcctl) parity: 39% → 71% (+32 points)
   - VS Code Extension parity: 67% → 89% (+22 points)
 - **CLI Validation Testing Bug Fixes**:
   - Stage folder naming convention: `00-Project-Foundation` → `00-foundation`
-  - P0 artifact paths updated for SDLC 6.0.5
+  - P0 artifact paths updated for SDLC 6.1.0
   - Pre-commit hooks module created (`sdlcctl.hooks`)
   - Fix command now creates `99-Legacy` folders consistently
   - NLP parser test expectations aligned with actual implementation
   - See: [sdlcctl CHANGELOG v1.2.0](../../backend/sdlcctl/CHANGELOG.md)
-- **Design Decision**: All CLI validation rules now enforce SDLC 6.0.5 lowercase naming
+- **Design Decision**: All CLI validation rules now enforce SDLC 6.1.0 lowercase naming
 
 **Changelog v3.1.0** (Jan 19, 2026):
 - **Sprint 78 Design Artifacts**: 4 new data models + 38 API endpoints documented
@@ -46,7 +46,7 @@
 - **Sprint 43 OPA Integration**: Policy Guards Design complete
 - **Sprint 44 Scanner Engine**: CrossReferenceValidator, SDLC Structure Scanner
 - **14-Technical-Specs folder**: 15 specifications total
-- Updated framework reference: SDLC 5.1.3.1 → SDLC 5.1.3
+- Updated framework reference: SDLC 6.1.0 → SDLC 6.1.0
 
 **Changelog v2.0.0** (Nov 29, 2025):
 - Added AI Governance Layer (Section 11)
@@ -64,7 +64,7 @@ This stage transforms requirements (Stage 01 - WHAT) into technical architecture
 
 ---
 
-## Folder Structure (SDLC 5.1.3 Compliant)
+## Folder Structure (SDLC 6.1.0 Compliant)
 
 ```
 02-design/
@@ -597,7 +597,7 @@ Once Stage 02 is complete → **[Stage 04 (BUILD)](../03-Development-Implementat
 ## References
 
 - [Stage 01: Planning & Analysis (WHAT)](../01-Planning-Analysis/README.md) - Requirements foundation
-- [SDLC 5.1.3 Core Methodology](../../SDLC-Enterprise-Framework/README.md) - 10-Stage lifecycle
+- [SDLC 6.1.0 Core Methodology](../../SDLC-Enterprise-Framework/README.md) - 10-Stage lifecycle
 - [API Specification v1.0](../01-Planning-Analysis/04-API-Design/API-Specification.md) - REST + GraphQL
 - [Data Model ERD v1.0](../01-Planning-Analysis/03-Data-Model/Data-Model-ERD.md) - Database schema
 - [Security Architecture Best Practices](https://owasp.org/www-project-secure-coding-practices/) - OWASP guide
@@ -618,7 +618,7 @@ Once Stage 02 is complete → **[Stage 04 (BUILD)](../03-Development-Implementat
 **Quality Gates**: G2 (Technical Feasibility) ✅ PASSED (Dec 9, 2025)
 **Next Stage**: Stage 04 (BUILD) - Sprint 44-50 IN PROGRESS
 **Current Stage**: ✅ Stage 02 COMPLETED
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 
 ---
 

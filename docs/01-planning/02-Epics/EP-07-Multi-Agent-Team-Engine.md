@@ -281,13 +281,13 @@ Stores messages with lane contract + dead-letter fields.
 
 | Document | Location | Status |
 |----------|----------|--------|
-| ADR-056 | `docs/02-design/ADR-056-Multi-Agent-Team-Engine.md` | PROPOSED |
-| Security Threat Model | `docs/02-design/Multi-Agent-Security-Threat-Model.md` | PROPOSED |
-| Test Plan | `docs/02-design/Multi-Agent-Test-Plan.md` | PROPOSED |
+| ADR-056 | `docs/02-design/01-ADRs/ADR-056-Multi-Agent-Team-Engine.md` | PROPOSED |
+| Security Threat Model | `docs/02-design/07-Security-Design/Multi-Agent-Security-Threat-Model.md` | PROPOSED |
+| Test Plan | `docs/02-design/13-Testing-Strategy/Multi-Agent-Test-Plan.md` | PROPOSED |
 | Business Case | `docs/00-foundation/02-Business-Case/Multi-Agent-Team-Engine-Business-Case.md` | PROPOSED |
 | Pydantic Schemas | `backend/app/schemas/agent_team.py` | IMPLEMENTED |
 | Design Contracts | `backend/app/services/agent_team/` | IMPLEMENTED |
-| ADR-058 | `docs/02-design/ADR-058-ZeroClaw-Best-Practice-Adoption.md` | PROPOSED |
+| ADR-058 | `docs/02-design/01-ADRs/ADR-058-ZeroClaw-Best-Practice-Adoption.md` | PROPOSED |
 | FR-042 | `docs/01-planning/03-Functional-Requirements/FR-042-Output-Credential-Scrubbing.md` | PROPOSED |
 | FR-043 | `docs/01-planning/03-Functional-Requirements/FR-043-Environment-Variable-Scrubbing.md` | PROPOSED |
 | FR-044 | `docs/01-planning/03-Functional-Requirements/FR-044-History-Compaction.md` | PROPOSED |

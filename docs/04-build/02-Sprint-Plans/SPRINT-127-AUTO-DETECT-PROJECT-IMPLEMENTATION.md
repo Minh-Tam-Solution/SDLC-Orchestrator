@@ -243,7 +243,7 @@ describe('ProjectDetector', () => {
 
 - **Spec**: [SPEC-0015: Extension Auto-Detect Project](../../02-design/14-Technical-Specs/SPEC-0015-Extension-Auto-Detect-Project.md)
 - **Old Spec**: [VSCode Extension Specification](../../02-design/14-Technical-Specs/VSCode-Extension-Specification.md)
-- **SDLC-0014**: [CLI Extension SDLC 6.0.5 Upgrade](../../02-design/14-Technical-Specs/SPEC-0014-CLI-Extension-SDLC-6.0.0-Upgrade.md)
+- **SDLC-0014**: [CLI Extension SDLC 6.1.0 Upgrade](../../02-design/14-Technical-Specs/SPEC-0014-CLI-Extension-SDLC-6.0.0-Upgrade.md)
 - **ADR-045**: [Multi-Frontend Alignment Strategy](../../02-design/01-ADRs/ADR-045-Multi-Frontend-Alignment-Strategy.md)
 
 ---
