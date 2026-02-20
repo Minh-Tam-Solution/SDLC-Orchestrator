@@ -56,6 +56,7 @@ from app.middleware.rate_limiter import RateLimiterMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.middleware.cache_headers import CacheHeadersMiddleware
 from app.middleware.tier_gate import TierGateMiddleware  # Sprint 184 — Tier enforcement (ADR-059 INV-03)
+from app.middleware.usage_limits import UsageLimitsMiddleware  # Sprint 188 — per-resource usage limits (INV-04)
 
 # Global scheduler instance
 scheduler: AsyncIOScheduler | None = None
@@ -276,6 +277,13 @@ app.add_middleware(CacheHeadersMiddleware)
 # X-Admin-Override header bypass controlled by TIER_GATE_ADMIN_SECRET env var.
 app.add_middleware(TierGateMiddleware)  # Sprint 184 — pure ASGI, NOT BaseHTTPMiddleware
 
+# Usage Limits (Sprint 188 — INV-04 Per-Resource Usage Enforcement)
+# Pure ASGI — returns 402 with upgrade CTA when per-resource quota exceeded.
+# Intercepts 4 mutation endpoints: POST /projects, /evidence/upload, /gates, /teams/members/invite
+# IMPORTANT: Added AFTER TierGateMiddleware so it runs BEFORE it (LIFO order).
+# This ensures usage check fires before the tier-route gate check.
+app.add_middleware(UsageLimitsMiddleware)  # Sprint 188 — pure ASGI, NOT BaseHTTPMiddleware
+
 # ============================================================================
 # API Routes Registration
 # ============================================================================
@@ -376,6 +384,24 @@ app.include_router(enterprise_sso.router, prefix="/api/v1", tags=["Enterprise SS
 # Routes: POST /jira/connect, GET /jira/projects, POST /jira/sync
 # Tier gate: /api/v1/jira → PROFESSIONAL (tier=3) enforced by TierGateMiddleware
 app.include_router(jira_integration.router, prefix="/api/v1", tags=["Jira Integration"])  # Sprint 184 - Jira Integration (PROFESSIONAL+)
+
+# Sprint 185 — Audit Trail + SOC2 Evidence Pack (ENTERPRISE, ADR-059)
+# Routes: GET /enterprise/audit, POST /enterprise/audit/export, POST /enterprise/soc2-pack
+# Tier gate: /api/v1/enterprise → ENTERPRISE (tier=4) enforced by TierGateMiddleware
+from app.api.routes import audit_trail  # noqa: E402
+app.include_router(audit_trail.router, prefix="/api/v1", tags=["Audit Trail"])  # Sprint 185 - Immutable Audit Trail + SOC2 Pack (ENTERPRISE)
+
+# Sprint 186 — Multi-Region Data Residency (ENTERPRISE, ADR-063)
+# Routes: GET /data-residency/regions, GET|PUT /data-residency/projects/{id}/region
+# Storage-level residency only (MinIO bucket per region; DB single-region VN)
+from app.api.routes import data_residency  # noqa: E402
+app.include_router(data_residency.router, prefix="/api/v1", tags=["Data Residency"], dependencies=[Depends(require_enterprise_tier)])  # Sprint 186 - Data Residency (ENTERPRISE)
+
+# Sprint 186 — GDPR Data Subject Rights + Consent Management (ADR-063)
+# Self-service endpoints: /gdpr/dsar (submit), /gdpr/me/data-export, /gdpr/me/consent
+# DPO endpoints: /gdpr/dsar (list) — ENTERPRISE tier enforced below via dependency
+from app.api.routes import gdpr  # noqa: E402
+app.include_router(gdpr.router, prefix="/api/v1", tags=["GDPR"])  # Sprint 186 - GDPR (self-service: authenticated; DPO list: ENTERPRISE via service layer)
 
 # ============================================================================
 # Health Check Endpoints

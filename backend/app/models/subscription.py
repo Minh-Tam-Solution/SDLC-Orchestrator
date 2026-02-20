@@ -47,17 +47,22 @@ class SubscriptionPlan(str, enum.Enum):
     Pricing (CPO decisions BM-01 to BM-05):
     - LITE:       $0, free cloud gateway (was FREE — renamed Sprint 181)
     - FOUNDER:    2.5M VND/team/month (~$150) — legacy billing SKU, grandfathered
-    - STANDARD:   $99-$299/mo, 15-30 members
+    - STARTER:    $99/mo, 5 projects, 10GB, 10 members (Sprint 188 — lower STANDARD tier)
+    - STANDARD:   $299/mo, 15 projects, 50GB, 30 members (Sprint 188 — upper STANDARD tier)
+    - PRO:        $499/mo, 20 projects, 100GB, unlimited members
     - ENTERPRISE: Custom ($80/seat), unlimited + SSO + SLA
 
-    Note: FOUNDER plan name stays within STANDARD tier billing.
+    Note: FOUNDER plan name stays within STANDARD-Growth tier billing (grandfathered).
     Note: The PostgreSQL enum value was renamed 'free' → 'lite' via
           migration s181_001_tier_naming_lite.py.
+    Note: STARTER and PRO added in Sprint 188 via migration s188_002.
     """
 
     LITE = "lite"
     FOUNDER = "founder"
+    STARTER = "starter"       # $99/mo — was missing, causing PRO/STARTER tier enforcement to fail
     STANDARD = "standard"
+    PRO = "pro"               # $499/mo — was missing, causing PRO customers to fall back to LITE limits
     ENTERPRISE = "enterprise"
 
 

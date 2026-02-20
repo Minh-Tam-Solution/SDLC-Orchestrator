@@ -1,16 +1,17 @@
 # CLAUDE AI PROJECT CONTEXT - SDLC ORCHESTRATOR
 ## AI Assistant Configuration for Software 3.0 Operating System
 
-**Version**: 3.8.0
-**Status**: Gate G3 APPROVED - Ship Ready (98.2%)
-**Current Sprint**: Sprint 179 - ZeroClaw Security Hardening
-**Effective Date**: February 19, 2026
+**Version**: 3.9.0
+**Status**: Gate G4 APPROVED - Production Ready (GA)
+**Current Sprint**: Sprint 188 - GA Launch
+**Effective Date**: February 20, 2026
 **Project**: SDLC Orchestrator - Operating System for Software 3.0
 **Authority**: CTO + CPO + CEO Approved
 **Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 **SE 3.0 Status**: Track 1 APPROVED - SASE Integration Complete
 **EP-06 Status**: IR-Based Codegen Engine - Sprint 45-50 (~$50K investment)
-**EP-07 Status**: Multi-Agent Team Engine - Sprint 176-179 (ADR-056 + ADR-058, 14 non-negotiables)
+**EP-07 Status**: Multi-Agent Team Engine - Sprint 176-179 COMPLETE (ADR-056 + ADR-058, 14 non-negotiables)
+**Enterprise-First**: ADR-059 APPROVED — LITE/STANDARD/PROFESSIONAL/ENTERPRISE tiers, OTT channels, Sprint 180-188 roadmap complete
 
 ---
 
@@ -35,9 +36,9 @@ SDLC Orchestrator is the **Operating System for Software 3.0** - a control plane
 ### **Project Status**
 
 ```yaml
-Current Stage: Stage 04 (BUILD - Development & Implementation)
-Current Sprint: Sprint 179 - ZeroClaw Security Hardening
-Gate G3 Readiness: 98.2% (EXCEEDS 95% threshold)
+Current Stage: Stage 04 (BUILD → DEPLOY — GA Launch)
+Current Sprint: Sprint 188 - GA Launch + Pricing Enforcement + Enterprise Sales
+Gate G4 Status: APPROVED - Production Ready (98.2% G3 → G4 declared Sprint 187)
 Timeline: 90 days MVP + 6 sprints EP-06 extension
 Budget: $564K (8.5 FTE team) + $50K EP-06 investment
 Target: Vietnam SME Pilot (5 founding customers)
@@ -609,7 +610,42 @@ Documentation Files:
     ❌ user_guide.md (snake_case)
 ```
 
-### **5. Security Baseline (OWASP ASVS Level 2)**
+### **5. Optional Dependency Guard (MANDATORY for optional packages)**
+
+When a service uses an **optional** or **heavy** dependency (e.g., `reportlab`, `weasyprint`,
+`saml2`), guard it at module level with `try/except ImportError` so the module can be
+imported — and mocked — in test environments without that package installed.
+
+```python
+# Pattern: module-level ImportError guard (CTO Sprint 185 action item #5)
+try:
+    from reportlab.lib.pagesizes import A4
+    from reportlab.platypus import SimpleDocTemplate
+    _REPORTLAB_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    _REPORTLAB_AVAILABLE = False
+    A4 = None  # type: ignore[assignment]
+    SimpleDocTemplate = None  # type: ignore[assignment]
+
+class MyService:
+    async def generate_pdf(self):
+        if not _REPORTLAB_AVAILABLE:  # fail fast with actionable message
+            raise RuntimeError(
+                "reportlab is required. Install: pip install 'reportlab>=4.4.4'"
+            )
+        # ... generation logic
+```
+
+**When to use:**
+- `reportlab`, `weasyprint` — PDF generation (ENTERPRISE compliance features)
+- `python3-saml` — SAML 2.0 SSO (Sprint 183)
+- Any package that is not in the core requirements and may be absent in test/CI
+
+**When NOT to use:**
+- Core dependencies (`fastapi`, `sqlalchemy`, `pydantic`) — always installed
+- Packages with BSD/MIT license in `requirements.txt` baseline
+
+### **6. Security Baseline (OWASP ASVS Level 2)**
 
 ```yaml
 Authentication:
@@ -1034,7 +1070,7 @@ ADR-014: SDLC Structure Validator
 
 **Multi-Agent Team Engine (EP-07)** — Sprint 176-178:
 5. **[EP-07-Multi-Agent-Team-Engine.md](docs/01-planning/02-Epics/EP-07-Multi-Agent-Team-Engine.md)** - Epic scope, 14 non-negotiables
-6. **[ADR-056-Multi-Agent-Team-Engine.md](docs/02-design/ADR-056-Multi-Agent-Team-Engine.md)** - 4 locked decisions
+6. **[ADR-056-Multi-Agent-Team-Engine.md](docs/02-design/01-ADRs/ADR-056-Multi-Agent-Team-Engine.md)** - 4 locked decisions
 7. **[FR-037 to FR-044](docs/01-planning/03-Functional-Requirements/)** - BDD functional requirements (8 FRs: 5 core + 3 ZeroClaw)
 8. **[Multi-Agent-Provider-Integration.md](docs/03-integrate/03-Integration-Guides/Multi-Agent-Provider-Integration.md)** - Provider failover + OTT gateway
 
@@ -1877,15 +1913,29 @@ You are successful if:
 
 ---
 
-**Last Updated**: February 19, 2026
+**Last Updated**: February 20, 2026
 **Owner**: CTO + CPO + CEO
-**Status**: ✅ Gate G3 APPROVED - Ship Ready (98.2%)
-**Current Sprint**: Sprint 179 - ZeroClaw Security Hardening
+**Status**: ✅ Gate G4 APPROVED - Production Ready (GA)
+**Current Sprint**: Sprint 188 - GA Launch
 **Next Review**: Weekly CEO Review (Every Friday 3pm)
 
 ---
 
 ## 📋 **CHANGELOG**
+
+### v3.9.0 (February 20, 2026)
+- **Sprint 188 — GA Launch** - General Availability, pricing enforcement, enterprise sales enablement
+- **Gate G4 APPROVED** - Production Ready declared (Sprint 187, CTO + CPO co-signed)
+- **Enterprise-First focus** - ADR-059 roadmap complete (Sprints 180-188, 66 working days)
+- **Per-resource usage enforcement** - `UsageLimitsMiddleware` (Sprint 188): LITE max_projects=1, max_storage=100MB, max_gates/month=4, max_members=1
+- **Overage alert system** - `usage_alert_service.py`: email at 80% threshold, Redis dedup (23h TTL)
+- **Pricing page** - `/pricing` public standalone page (Tailwind, 4 tiers, FAQ, trust signals)
+- **Security Questionnaire** - 50-question enterprise RFP template in `docs/09-govern/07-Strategic-Decisions/`
+- **Vietnam Pilot Case Study** - Anonymised Series B fintech, 6-month SOC2, $195K+ savings documented
+- **SPRINT-188-CLOSE.md** - GA sprint close with Definition of Done checklist
+- **Enterprise-First Docs**: ADR-059 + 8 sprint plans (181-188) completed, full roadmap documented
+- Updated Sprint reference: Sprint 179 → Sprint 188
+- Updated Gate status: G3 APPROVED → **G4 APPROVED** (Production Ready)
 
 ### v3.8.0 (February 19, 2026)
 - **Sprint 179 — ZeroClaw Security Hardening** - ADR-058 with 4 locked micro-decisions
