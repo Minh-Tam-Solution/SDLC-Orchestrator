@@ -5,7 +5,7 @@
 **Date**: December 2, 2025  
 **Status**: ✅ ACTIVE - Strategic Planning  
 **Authority**: CTO + CPO  
-**Framework**: SDLC 5.1.3.1 Complete Lifecycle  
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -299,7 +299,7 @@ Job Queue Dashboard:
 - `docs/04-Policy-Library/Policy-Templates.md` (new)
 
 **Templates to Create**:
-1. **SDLC 5.1.3.1 Standard** - Complete lifecycle (10 stages)
+1. **SDLC 6.1.0 Standard** - Complete lifecycle (10 stages)
 2. **Agile Lightweight** - Minimal gates (G1, G3, G5)
 3. **Enterprise Compliance** - SOC 2, HIPAA, GDPR gates
 4. **Startup MVP** - Fast track (G0.1, G1, G3)

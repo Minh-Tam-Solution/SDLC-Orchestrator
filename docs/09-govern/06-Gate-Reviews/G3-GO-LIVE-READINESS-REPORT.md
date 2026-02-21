@@ -4,7 +4,7 @@
 **Date**: December 28, 2025  
 **Gate Status**: G3 APPROVED (98.2%)  
 **Assessment Team**: CTO + AI Dev Partner  
-**Framework**: SDLC 5.1.2 Universal Framework
+**Framework**: SDLC 6.1.0
 
 ---
 

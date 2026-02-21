@@ -13,7 +13,7 @@
 | **Status** | IN PROGRESS - G2 APPROVED (Dec 27, 2025) |
 | **Priority** | P1 Should Have |
 | **Dependencies** | Sprint 59 complete |
-| **Framework** | SDLC 5.1.2 Universal Framework |
+| **Framework** | SDLC 6.1.0 Universal Framework |
 | **Design Spec** | [Frontend-I18n-Specification.md](../../02-design/14-Technical-Specs/Frontend-I18n-Specification.md) |
 
 ---

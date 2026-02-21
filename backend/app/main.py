@@ -42,7 +42,7 @@ import os
 from contextlib import asynccontextmanager
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
@@ -55,6 +55,8 @@ from app.middleware.prometheus_metrics import (
 from app.middleware.rate_limiter import RateLimiterMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.middleware.cache_headers import CacheHeadersMiddleware
+from app.middleware.tier_gate import TierGateMiddleware  # Sprint 184 — Tier enforcement (ADR-059 INV-03)
+from app.middleware.usage_limits import UsageLimitsMiddleware  # Sprint 188 — per-resource usage limits (INV-04)
 
 # Global scheduler instance
 scheduler: AsyncIOScheduler | None = None
@@ -181,6 +183,16 @@ async def lifespan(app: FastAPI):
 # Import API routers (after lifespan is defined)
 from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, analytics_v2, council, sdlc_structure, sop, admin, docs, ai_detection, policy_packs, sast, evidence_timeline, override, codegen, pilot, preview, contract_lock, api_keys, payments, ai_providers, teams, organizations, organization_invitations, planning, agents, evidence_manifest, check_runs, planning_subagent, learnings, risk_analysis, consultations, mrp, framework_version, context_validation, maturity, auto_generation, governance_mode, vibecoding_index, stage_gating, context_authority, context_authority_v2, ceo_dashboard, governance_metrics, grafana_dashboards, dogfooding, governance_specs, governance_vibecoding, tier_management, gates_engine, compliance_validation, telemetry, mcp_analytics, deprecation_monitoring, vcr, websocket, push, spec_converter, cross_reference_validation  # Sprint 42-155: AI Safety + Codegen + Pilot + Preview + Contract Lock + API Keys + Payments + AI Providers + Teams + Planning + AGENTS.md + Evidence Manifest + Check Runs + Planning Subagent + Feedback Learning + Risk Analysis + CRP + MRP/VCR + Framework Version + Context Validation + Maturity + Auto-Generation + Governance Mode + Vibecoding Index + Stage Gating + Context Authority + Context Authority V2 + CEO Dashboard + Prometheus Metrics + Grafana Dashboards + Dogfooding + Sprint 118: Governance Specs + Governance Vibecoding + Tier Management + Sprint 120: Context Authority V2 + Gates Engine (SPEC-0011) + Sprint 123: Compliance Validation (SPEC-0013) + Sprint 146: Organization Invitations (ADR-047) + Sprint 147: Telemetry (Product Truth Layer) + Sprint 150: Deprecation Monitoring + Sprint 151: VCR (SASE Artifacts) + Sprint 153: WebSocket Real-time Notifications + Sprint 154: Spec Converter + Sprint 155: Cross-Reference Validation (ADR-050)
 from app.api.routes import agent_team  # Sprint 176 - Multi-Agent Team Engine (ADR-056/EP-07)
+from app.api.routes import ott_gateway  # Sprint 181 - OTT Gateway (Telegram + Zalo, ADR-059)
+from app.api.routes import templates  # Sprint 181 - SDLC Templates (CORE public endpoint)
+from app.api.routes import compliance_framework  # Sprint 181 - Compliance Framework (ENTERPRISE)
+from app.api.routes import nist_govern  # Sprint 181 - NIST GOVERN Function (ENTERPRISE)
+from app.api.routes import nist_manage  # Sprint 181 - NIST MANAGE Function (ENTERPRISE)
+from app.api.routes import nist_map  # Sprint 181 - NIST MAP Function (ENTERPRISE)
+from app.api.routes import nist_measure  # Sprint 181 - NIST MEASURE Function (ENTERPRISE)
+from app.api.routes import invitations  # Sprint 181 - Team Invitations (ENTERPRISE, async-fixed)
+from app.api.routes import enterprise_sso  # Sprint 183 - Enterprise SSO (SAML 2.0 + Azure AD, ADR-061)
+from app.api.routes import jira_integration  # Sprint 184 - Jira Integration (PROFESSIONAL+, ADR-059)
 from app.api.v1.endpoints import cross_reference  # Sprint 139 - RFC-SDLC-602 E2E Cross-Reference Validation
 from app.api.v1.endpoints import e2e_testing  # Sprint 140 - RFC-SDLC-602 E2E Test Execution API
 
@@ -258,6 +270,20 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 # Adds Cache-Control, Vary headers for client-side caching
 app.add_middleware(CacheHeadersMiddleware)
 
+# Tier Gate (Sprint 184 — ADR-059 INV-03 Tier Invariant Enforcement)
+# Pure ASGI — returns 402 Payment Required when subscription tier insufficient.
+# IMPORTANT: Added last so it runs first (LIFO stack order in Starlette).
+# Reads user_tier from scope["state"]["user_tier"] set by upstream auth middleware.
+# X-Admin-Override header bypass controlled by TIER_GATE_ADMIN_SECRET env var.
+app.add_middleware(TierGateMiddleware)  # Sprint 184 — pure ASGI, NOT BaseHTTPMiddleware
+
+# Usage Limits (Sprint 188 — INV-04 Per-Resource Usage Enforcement)
+# Pure ASGI — returns 402 with upgrade CTA when per-resource quota exceeded.
+# Intercepts 4 mutation endpoints: POST /projects, /evidence/upload, /gates, /teams/members/invite
+# IMPORTANT: Added AFTER TierGateMiddleware so it runs BEFORE it (LIFO order).
+# This ensures usage check fires before the tier-route gate check.
+app.add_middleware(UsageLimitsMiddleware)  # Sprint 188 — pure ASGI, NOT BaseHTTPMiddleware
+
 # ============================================================================
 # API Routes Registration
 # ============================================================================
@@ -334,6 +360,48 @@ app.include_router(push.router, prefix="/api/v1", tags=["Push Notifications"])  
 app.include_router(spec_converter.router, prefix="/api/v1", tags=["Spec Converter"])  # Sprint 154 - Specification Format Converter (ADR-050)
 app.include_router(cross_reference_validation.router, prefix="/api/v1", tags=["Cross-Reference Validation"])  # Sprint 155 - Document Cross-Reference Validation (ADR-050)
 app.include_router(agent_team.router, prefix="/api/v1", tags=["Multi-Agent Team Engine"])  # Sprint 176 - Multi-Agent Team Engine (ADR-056/EP-07)
+
+# Sprint 181 — OTT Gateway + Orphaned Route Activation (ADR-059)
+# OTT Gateway: POST /channels/{channel}/webhook (Telegram + Zalo normalizers)
+app.include_router(ott_gateway.router, prefix="/api/v1", tags=["OTT Gateway"])  # Sprint 181 - OTT Gateway (Telegram + Zalo)
+# Templates: CORE public endpoint (no auth, rate-limited by RateLimiterMiddleware)
+app.include_router(templates.router, prefix="/api/v1", tags=["Templates"])  # Sprint 181 - SDLC Templates (public CORE)
+# ENTERPRISE routes — HTTP 402 raised by require_enterprise_tier if tier < enterprise
+from app.api.dependencies import require_enterprise_tier  # noqa: E402
+app.include_router(compliance_framework.router, prefix="/api/v1", tags=["Compliance Framework"], dependencies=[Depends(require_enterprise_tier)])  # Sprint 181 - Compliance Framework (ENTERPRISE)
+app.include_router(nist_govern.router, prefix="/api/v1", tags=["NIST GOVERN"], dependencies=[Depends(require_enterprise_tier)])  # Sprint 181 - NIST GOVERN Function (ENTERPRISE)
+app.include_router(nist_manage.router, prefix="/api/v1", tags=["NIST MANAGE"], dependencies=[Depends(require_enterprise_tier)])  # Sprint 181 - NIST MANAGE Function (ENTERPRISE)
+app.include_router(nist_map.router, prefix="/api/v1", tags=["NIST MAP"], dependencies=[Depends(require_enterprise_tier)])  # Sprint 181 - NIST MAP Function (ENTERPRISE)
+app.include_router(nist_measure.router, prefix="/api/v1", tags=["NIST MEASURE"], dependencies=[Depends(require_enterprise_tier)])  # Sprint 181 - NIST MEASURE Function (ENTERPRISE)
+app.include_router(invitations.router, prefix="/api/v1", tags=["Invitations"], dependencies=[Depends(require_enterprise_tier)])  # Sprint 181 - Team Invitations (ENTERPRISE, async-fixed)
+
+# Sprint 183 — Enterprise SSO (SAML 2.0 + Azure AD, ADR-061)
+# Routes: /api/v1/enterprise/sso/{configure,saml/*,azure-ad/*,logout}
+# Tier gate applied per-endpoint (configure = ENTERPRISE; metadata = public; callbacks = no auth)
+app.include_router(enterprise_sso.router, prefix="/api/v1", tags=["Enterprise SSO"])  # Sprint 183 - Enterprise SSO SAML 2.0 + Azure AD (ENTERPRISE, ADR-061)
+
+# Sprint 184 — Jira Integration (PROFESSIONAL+, ADR-059)
+# Routes: POST /jira/connect, GET /jira/projects, POST /jira/sync
+# Tier gate: /api/v1/jira → PROFESSIONAL (tier=3) enforced by TierGateMiddleware
+app.include_router(jira_integration.router, prefix="/api/v1", tags=["Jira Integration"])  # Sprint 184 - Jira Integration (PROFESSIONAL+)
+
+# Sprint 185 — Audit Trail + SOC2 Evidence Pack (ENTERPRISE, ADR-059)
+# Routes: GET /enterprise/audit, POST /enterprise/audit/export, POST /enterprise/soc2-pack
+# Tier gate: /api/v1/enterprise → ENTERPRISE (tier=4) enforced by TierGateMiddleware
+from app.api.routes import audit_trail  # noqa: E402
+app.include_router(audit_trail.router, prefix="/api/v1", tags=["Audit Trail"])  # Sprint 185 - Immutable Audit Trail + SOC2 Pack (ENTERPRISE)
+
+# Sprint 186 — Multi-Region Data Residency (ENTERPRISE, ADR-063)
+# Routes: GET /data-residency/regions, GET|PUT /data-residency/projects/{id}/region
+# Storage-level residency only (MinIO bucket per region; DB single-region VN)
+from app.api.routes import data_residency  # noqa: E402
+app.include_router(data_residency.router, prefix="/api/v1", tags=["Data Residency"], dependencies=[Depends(require_enterprise_tier)])  # Sprint 186 - Data Residency (ENTERPRISE)
+
+# Sprint 186 — GDPR Data Subject Rights + Consent Management (ADR-063)
+# Self-service endpoints: /gdpr/dsar (submit), /gdpr/me/data-export, /gdpr/me/consent
+# DPO endpoints: /gdpr/dsar (list) — ENTERPRISE tier enforced below via dependency
+from app.api.routes import gdpr  # noqa: E402
+app.include_router(gdpr.router, prefix="/api/v1", tags=["GDPR"])  # Sprint 186 - GDPR (self-service: authenticated; DPO list: ENTERPRISE via service layer)
 
 # ============================================================================
 # Health Check Endpoints

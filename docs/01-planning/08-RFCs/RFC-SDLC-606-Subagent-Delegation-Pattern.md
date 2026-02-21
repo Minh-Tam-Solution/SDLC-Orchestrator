@@ -5,7 +5,7 @@
 **Author**: Framework Architect
 **Sprint**: 143 - Framework-First Track 1
 **Related**: Boris Cherny Tactics Analysis (Partial Gap - Subagents)
-**Framework Version**: SDLC 6.0.5
+**Framework Version**: SDLC 6.1.0
 
 ---
 
@@ -41,7 +41,7 @@ Boris Cherny recommends:
 ### Gap Analysis
 
 **Current State** (SDLC Orchestrator v1.6.0):
-- ✅ Sub-agent patterns documented (SDLC 6.0.5)
+- ✅ Sub-agent patterns documented (SDLC 6.1.0)
 - ✅ Types defined: Explore, Specialist, Proactive
 - ✅ SASE implicitly supports delegation
 - ❌ **No explicit CLI orchestration**
@@ -49,7 +49,7 @@ Boris Cherny recommends:
 
 **From CLAUDE.md v3.2.0** (lines 1141-1159):
 ```markdown
-## Sub-agent Orchestration (SDLC 6.0.5)
+## Sub-agent Orchestration (SDLC 6.1.0)
 
 Sub-agent Types:
   1. Explore Sub-agents: Pattern extraction, codebase research

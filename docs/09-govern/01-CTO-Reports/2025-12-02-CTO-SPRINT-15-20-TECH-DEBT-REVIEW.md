@@ -5,7 +5,7 @@
 **Status**: ✅ **REVIEWED**  
 **Authority**: CTO + Backend Lead + Frontend Lead  
 **Foundation**: Sprint 15-20 Completion, Gate G3 Preparation  
-**Framework**: SDLC 5.1.3.1 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -306,7 +306,7 @@ async def analyze_repository(...) -> dict:
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3.1. Zero Mock Policy enforced. Battle-tested patterns applied.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0. Zero Mock Policy enforced. Battle-tested patterns applied.*
 
 **"Technical debt: 3 items confirmed (9h). Code quality better than expected. Sprint 20.5 approved."** ⚔️ - CTO
 

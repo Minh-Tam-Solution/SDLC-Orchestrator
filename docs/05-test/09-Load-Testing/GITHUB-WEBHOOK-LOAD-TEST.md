@@ -5,7 +5,7 @@
 **Status**: ACTIVE - Sprint 17
 **Authority**: QA Lead + Backend Lead Approved
 **Foundation**: Sprint 16 GitHub Integration
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -250,4 +250,4 @@ load-test:
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0. Zero Mock Policy enforced.*

@@ -1,11 +1,11 @@
-# 🤖 AI STAGE-AWARE PROMPTS - SDLC 5.1.3
+# 🤖 AI STAGE-AWARE PROMPTS - SDLC 6.1.0
 ## Stage-Specific AI Context for SDLC Orchestrator Development
 
 **Version**: 2.0.0  
-**Date**: November 13, 2025 (Updated for SDLC 5.1.3 + November timeline)  
+**Date**: November 13, 2025 (Updated for SDLC 6.1.0 + November timeline)  
 **Status**: ACTIVE - Week 1 COMPLETE, Week 2 STARTING  
 **Current Stage**: Stage 01 (WHAT - Planning & Analysis)  
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0
 
 **Document Version**: 1.0
 **Date**: November 13, 2025
@@ -15,7 +15,7 @@
 
 ## 🎯 Overview
 
-SDLC Orchestrator's AI Context Engine provides **stage-aware prompts** that adapt to the current SDLC stage. This ensures AI assistance is contextually relevant and follows SDLC 5.1.3 best practices.
+SDLC Orchestrator's AI Context Engine provides **stage-aware prompts** that adapt to the current SDLC stage. This ensures AI assistance is contextually relevant and follows SDLC 6.1.0 best practices.
 
 ### 10 Stages
 
@@ -139,7 +139,7 @@ Generate a BRD with these sections:
 6. High-Level Solution (2-3 paragraphs)
 7. Assumptions & Risks (bullet points)
 
-Follow SDLC 5.1.3 standards. Be concise but comprehensive.
+Follow SDLC 6.1.0 standards. Be concise but comprehensive.
 ```
 
 ---
@@ -276,7 +276,7 @@ Generate a TDD with these sections:
    - Database indexing
    - Scalability approach
 
-Follow SDLC 5.1.3 standards. Be specific and implementation-ready.
+Follow SDLC 6.1.0 standards. Be specific and implementation-ready.
 ```
 
 #### **Prompt 2: Generate OpenAPI Spec**
@@ -317,7 +317,7 @@ Follow OpenAPI 3.0 standards. Include examples for all schemas.
 2. **Code Review**:
    - Check for bugs
    - Suggest improvements
-   - Verify SDLC 5.1.3 compliance
+   - Verify SDLC 6.1.0 compliance
 
 3. **Best Practices**:
    - Naming conventions
@@ -349,7 +349,7 @@ Output format:
 - **Summary**: 2-3 sentences
 - **Issues**: List critical issues (if any)
 - **Suggestions**: Improvement suggestions (non-blocking)
-- **SDLC 5.1.3 Compliance**: PASS / FAIL
+- **SDLC 6.1.0 Compliance**: PASS / FAIL
 ```
 
 #### **Prompt 2: Generate Unit Tests**

@@ -140,7 +140,7 @@ cd SDLC-Orchestrator-CORRECT
 ls -la SDLC-Enterprise-Framework/
 
 # Expected output: Directories like 00-Why, 01-What, 02-How, etc.
-# Instructor counts: "See? We have all 11 SDLC 5.1.3 folders!"
+# Instructor counts: "See? We have all 11 SDLC 6.1.0 folders!"
 
 # "Let's confirm with git submodule status"
 git submodule status
@@ -518,7 +518,7 @@ git status
 
 git add 03-Templates-Tools/SASE-Artifacts/04-ACE-Template.md
 
-git commit -m "feat(SDLC 5.1.0): Add ACE (Accountability & Commitment Examination) template
+git commit -m "feat(SDLC 6.1.0): Add ACE (Accountability & Commitment Examination) template
 
 New SASE artifact template for SE 3.0 Track 1.
 

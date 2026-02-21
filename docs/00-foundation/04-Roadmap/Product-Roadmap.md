@@ -1,12 +1,20 @@
 # Product Roadmap
 ## Operating System for Software 3.0
 
-**Version**: 7.0.0
-**Date**: February 3, 2026
-**Status**: ✅ CTO APPROVED - Sprint 147+ Roadmap (Spring Cleaning → Feature Complete)
-**Authority**: CTO Approval (Feb 3, 2026), CEO/CPO Signatures (Jan 27, 2026)
-**Foundation**: Financial Model v1.0, Product Vision v4.1.0, ADR-041, Framework 6.0.6
-**Framework**: SDLC 6.0.6 + Quality Assurance System (Pillar 7) + Organization Access Control
+**Version**: 8.0.0
+**Date**: February 19, 2026
+**Status**: ✅ CTO APPROVED - Enterprise-First Roadmap (Sprint 180-188)
+**Authority**: CTO Approval (Feb 19, 2026), CPO Approval (Feb 19, 2026)
+**Foundation**: Financial Model v2.0.0, Market-Sizing v4.0.0, BRD v3.0.0, ADR-059
+**Framework**: SDLC 6.1.0 + Quality Assurance System (Pillar 7) + Enterprise-First Strategy
+
+**Changelog v8.0.0** (Feb 19, 2026) — Enterprise-First Refocus (ADR-059):
+- **Sprint 180 COMPLETE**: Enterprise-First strategy docs (ADR-059, Financial-Model v2.0.0, BRD v3.0.0, Market-Sizing v4.0.0)
+- **TWO-PRODUCT ECOSYSTEM**: TinySDLC OSS + Orchestrator Commercial separated
+- **ENTERPRISE-FIRST**: Investment priority PROFESSIONAL+ gets new features; LITE/STANDARD maintenance only
+- **SPRINT 181-188**: 8-sprint enterprise completion roadmap ($42,240 budget, ~70 days)
+- **CPO PRICING DECISIONS**: BM-01 to BM-10 finalized (PROFESSIONAL $499, ENTERPRISE $80/seat)
+- **FOUNDER LEGACY**: FOUNDER plan grandfathered, no new sales after Sprint 188
 
 **Changelog v7.0.0** (Feb 3, 2026):
 - **Sprint 145 DEPLOYED**: MCP Integration Phase 1 (189%, 5,953 LOC)
@@ -111,7 +119,7 @@
 - **EP-04**: SDLC Structure Enforcement (Sprint 41-46, $16.5K, 117 SP)
 - **EP-05**: Enterprise SDLC Migration Engine (deprioritized, pending EP-06 success)
 - **EP-06**: Codegen Engine initial scope defined
-- **NQH AI Platform**: qwen2.5-coder:32b (92.7% HumanEval) ready
+- **NQH AI Platform**: qwen3-coder:30b (92.7% HumanEval) ready
 - **.sdlc-config.json**: 1KB replaces 700KB manual compliance docs
 
 **Changelog v4.0.0** (Dec 20, 2025):
@@ -122,6 +130,37 @@
 - Updated pricing tiers (Free / Team $149 / Enterprise $500+)
 - Two-Track Launch Strategy (Internal + External parallel)
 - CTO Approval: [Q1Q2-2026-ROADMAP-CTO-APPROVED.md](../../09-govern/04-Strategic-Updates/2025-12-20-Q1Q2-2026-ROADMAP-CTO-APPROVED.md)
+
+---
+
+## Enterprise Completion Roadmap (Sprint 181-188)
+
+**Goal**: General Availability of Enterprise-grade SDLC Orchestrator by Q3 2026
+**Strategy**: Enterprise-First (ADR-059) — PROFESSIONAL+ gets new features, LITE/STANDARD maintenance
+**Budget**: ~$42,240 total (Sprint 181-188)
+**Timeline**: ~70 working days from Feb 19, 2026
+
+| Sprint | Theme | Duration | Budget | Risk | Key Milestone |
+|--------|-------|----------|--------|------|---------------|
+| **181** | OTT Foundation + Route Activation | 8 days | $5,120 | MEDIUM | Telegram+Zalo live, 7 orphaned routes activated |
+| **182** | Enterprise SSO Design + Teams Channel | 6 days | $3,840 | HIGH | ADR-061 approved, Teams OTT connected |
+| **183** | Enterprise SSO Implementation + Compliance Evidence | 8 days | $5,120 | HIGH | First enterprise SSO deal unblocked |
+| **184** | Integrations + Tier Gate Enforcement | 8 days | $5,120 | MEDIUM | Jira live, all 78 routes tier-gated |
+| **185** | Audit Trail + SOC2 Evidence Pack | 8 days | $5,120 | HIGH | SOC2 evidence pack PDF generator ready |
+| **186** | Storage-Level Data Residency + GDPR | 10 days | $6,400 | VERY HIGH | EU evidence bucket isolated |
+| **187** | G4 Production Validation + Enterprise Beta | 10 days | $6,400 | HIGH | Gate G4 APPROVED, 2-3 beta enterprises |
+| **188** | GA Launch + Pricing Enforcement | 8 days | $5,120 | LOW | Product live, enterprise sales open |
+| **Total** | **8 Sprints** | **~70 days** | **~$42,240** | — | **GA Enterprise SaaS** |
+
+**Key Enterprise Features by Sprint**:
+- Sprint 181: OTT (Telegram/Zalo), 7 route activations, LITE tier naming
+- Sprint 182: SSO design (SAML 2.0 + Azure AD), Teams normalizer
+- Sprint 183: SSO live, SOC2/HIPAA/NIST/ISO27001 evidence types, Slack normalizer
+- Sprint 184: Tier gate middleware (402 responses), Jira integration
+- Sprint 185: Immutable audit trail, SOC2 PDF pack generator
+- Sprint 186: MinIO regional buckets (VN + EU), GDPR erasure/DSAR
+- Sprint 187: G4 gate + external pentest + enterprise beta (2-3 customers)
+- Sprint 188: Stripe enforcement, Product Hunt launch, CLAUDE.md v3.9.0
 
 ---
 
@@ -927,24 +966,27 @@ Previous roadmap versions archived at:
 
 | Role | Name | Approval Date | Status |
 |------|------|---------------|--------|
-| **CTO** | Mr. Tai | February 3, 2026 | ✅ APPROVED (v7.0.0) |
-| **CPO** | TBD | Pending | ⏳ |
+| **CTO** | Mr. Tai | February 19, 2026 | ✅ APPROVED (v8.0.0) |
+| **CPO** | TBD | February 19, 2026 | ✅ APPROVED (v8.0.0) |
 | **CEO** | TBD | Pending | ⏳ |
 
-**Sprint 147+ Roadmap Approval**: February 3, 2026 (24-sprint plan)
+**Enterprise-First Roadmap Approval**: February 19, 2026 (8-sprint enterprise plan, ADR-059)
+**Sprint 147+ Legacy Roadmap Approval**: February 3, 2026 (24-sprint plan, superseded)
 **Expert Synthesis Review**: February 2, 2026 (Course correction approved)
-**Sprint 147 Kickoff**: February 4, 2026, 9am
+**Sprint 181 Kickoff**: February 19, 2026
 
 **Key Planning Documents**:
 - [ROADMAP-147-170.md](../04-build/02-Sprint-Plans/ROADMAP-147-170.md) - Complete 24-sprint roadmap
 - [OPPORTUNITY-GATE-TEMPLATE.md](../09-govern/OPPORTUNITY-GATE-TEMPLATE.md) - Feature evaluation framework
 - [PRODUCT-TRUTH-LAYER-SPEC.md](../04-build/02-Sprint-Plans/PRODUCT-TRUTH-LAYER-SPEC.md) - Telemetry specification
 - [V1-V2-CONSOLIDATION-PLAN.md](../04-build/02-Sprint-Plans/V1-V2-CONSOLIDATION-PLAN.md) - API migration guide
+- [ADR-059-Enterprise-First-Refocus.md](../02-design/01-ADRs/ADR-059-Enterprise-First-Refocus.md) - Enterprise-First strategy decision
+- [SPRINT-181 through SPRINT-188](../04-build/02-Sprint-Plans/) - Enterprise completion sprint plans (when created)
 
-**Next Review**: February 14, 2026 (Sprint 148 planning)
+**Next Review**: February 26, 2026 (Sprint 181 planning)
 
 ---
 
 *This document is the SINGLE SOURCE OF TRUTH for product roadmap. Changes require CTO + CPO approval.*
 *Version controlled alongside quarterly reviews.*
-*Last Updated: February 3, 2026*
+*Last Updated: February 19, 2026*

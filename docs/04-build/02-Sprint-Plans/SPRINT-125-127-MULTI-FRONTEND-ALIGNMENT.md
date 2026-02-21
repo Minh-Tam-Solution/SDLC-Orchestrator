@@ -30,7 +30,7 @@ SDLC Orchestrator = Implementation of SDLC Framework
 > **"Nhà bác sĩ phải tự uống thuốc" (Doctor must take own medicine)**
 >
 > SDLC Orchestrator implements SDLC Framework, so it MUST:
-> 1. Follow all SDLC 6.0.5 documentation standards
+> 1. Follow all SDLC 6.1.0 documentation standards
 > 2. Keep Stage 00-03 (Foundation → Planning → Design → Integrate) docs updated
 > 3. Maintain feature parity matrix for all delivery surfaces
 > 4. Update ALL frontends when Framework version changes
@@ -51,11 +51,11 @@ SDLC Orchestrator = Implementation of SDLC Framework
 ### Sprint 125: Documentation Alignment
 - [ ] Update Stage 00-03 documentation for multi-frontend scope
 - [ ] Create Frontend Alignment Matrix (Web + CLI + Extension)
-- [ ] Update CLI/Extension version to SDLC 6.0.5
+- [ ] Update CLI/Extension version to SDLC 6.1.0
 
 ### Sprint 126: Implementation Alignment
-- [ ] Implement SDLC 6.0.5 spec validation in CLI
-- [ ] Implement SDLC 6.0.5 features in Extension
+- [ ] Implement SDLC 6.1.0 spec validation in CLI
+- [ ] Implement SDLC 6.1.0 features in Extension
 - [ ] Add cross-frontend integration tests
 
 ### Sprint 127: Process Improvement
@@ -90,19 +90,19 @@ SDLC Orchestrator = Implementation of SDLC Framework
 ### Sprint 125 Completion Summary
 
 **Delivered Artifacts**:
-- `backend/sdlcctl/sdlcctl/__init__.py` - Updated to v1.2.0, SDLC 6.0.5
+- `backend/sdlcctl/sdlcctl/__init__.py` - Updated to v1.2.0, SDLC 6.1.0
 - `backend/sdlcctl/pyproject.toml` - Updated to v1.2.0, added pyyaml + jsonschema
 - `backend/sdlcctl/sdlcctl/schemas/spec-frontmatter-schema.json` - NEW: JSON Schema for SPEC-0002
 - `backend/sdlcctl/sdlcctl/validation/validators/spec_frontmatter.py` - NEW: Frontmatter validator
 - `backend/sdlcctl/tests/unit/validation/test_spec_frontmatter_validator.py` - NEW: 16 unit tests
-- `vscode-extension/package.json` - Updated to v1.2.0, SDLC 6.0.5
+- `vscode-extension/package.json` - Updated to v1.2.0, SDLC 6.1.0
 - `docs/01-planning/01-Requirements/Frontend-Alignment-Matrix.md` - Updated GAPs resolved
 
 **Published Packages**:
-- PyPI: `sdlcctl==1.2.0` (SDLC 6.0.5 framework)
+- PyPI: `sdlcctl==1.2.0` (SDLC 6.1.0 framework)
 - VS Code Marketplace: `sdlc-orchestrator@1.2.0`
 
-**Note**: Existing validators in `backend/sdlcctl/sdlcctl/validation/validators/` acknowledged. Only incremental work needed for SDLC 6.0.5 features.
+**Note**: Existing validators in `backend/sdlcctl/sdlcctl/validation/validators/` acknowledged. Only incremental work needed for SDLC 6.1.0 features.
 
 ### 3.2 Stage Documentation Updates
 
@@ -161,7 +161,7 @@ SDLC Orchestrator = Implementation of SDLC Framework
 # Frontend Feature Alignment Matrix
 
 **Last Updated**: 2026-01-30
-**Framework Version**: SDLC 6.0.5
+**Framework Version**: SDLC 6.1.0
 
 ## Feature Parity Status
 
@@ -198,7 +198,7 @@ SDLC Orchestrator = Implementation of SDLC Framework
 
 ## 4. Sprint 126: Implementation Alignment (Current)
 
-**Sprint Goal**: Implement SDLC 6.0.5 features in CLI and Extension
+**Sprint Goal**: Implement SDLC 6.1.0 features in CLI and Extension
 **Start Date**: February 3, 2026 (accelerated from Feb 14)
 **Target Date**: February 14, 2026
 
@@ -259,7 +259,7 @@ SDLC Orchestrator = Implementation of SDLC Framework
 - API methods in `src/services/codegenApi.ts` (~150 lines added)
 
 **Commands Added**:
-- `sdlc.validateSpec` - Validate specification (SDLC 6.0.5)
+- `sdlc.validateSpec` - Validate specification (SDLC 6.1.0)
 - `sdlc.validateSpecWithTier` - Validate with tier selection
 - `sdlc.showSpecValidationResults` - Show validation results
 
@@ -424,8 +424,8 @@ When SDLC-Enterprise-Framework version changes:
 
 | File | Line | Current | Target | Change |
 |------|------|---------|--------|--------|
-| `backend/sdlcctl/pyproject.toml` | 8 | `"SDLC 5.0.0 Structure Validator CLI"` | `"SDLC 6.0.5 Specification Validator CLI"` | Description |
-| `backend/sdlcctl/sdlcctl/__init__.py` | 14 | `__framework__ = "SDLC 5.0.0"` | `__framework__ = "SDLC 6.0.5"` | Framework constant |
+| `backend/sdlcctl/pyproject.toml` | 8 | `"SDLC 6.1.0 Structure Validator CLI"` | `"SDLC 6.1.0 Specification Validator CLI"` | Description |
+| `backend/sdlcctl/sdlcctl/__init__.py` | 14 | `__framework__ = "SDLC 6.1.0"` | `__framework__ = "SDLC 6.1.0"` | Framework constant |
 | `backend/sdlcctl/sdlcctl/__init__.py` | 19 | Docstring mentions 5.0.0 | Update to 6.0.5 | Docstring |
 | `backend/sdlcctl/sdlcctl/cli.py` | 3, 64, 90, 92, 104, 110, 116 | Multiple 5.0.0 refs | Update all to 6.0.5 | Help text + comments |
 
@@ -434,7 +434,7 @@ When SDLC-Enterprise-Framework version changes:
 | File | Line | Current | Target | Change |
 |------|------|---------|--------|--------|
 | `vscode-extension/package.json` | 3 | `"version": "1.1.2"` | `"version": "1.2.0"` | Version bump |
-| `vscode-extension/package.json` | 4 | Description | Add "SDLC 6.0.5" | Description |
+| `vscode-extension/package.json` | 4 | Description | Add "SDLC 6.1.0" | Description |
 | `vscode-extension/package.json` | 42 | Keywords | Add "sdlc-6.0" | Keywords |
 
 ### Validation Script (Create in Sprint 125)
@@ -463,7 +463,7 @@ echo "Done. Run 'sdlcctl validate-version-refs --target $TARGET_VERSION' after v
 
 **Location**: `backend/sdlcctl/sdlcctl/validation/validators/`
 
-| Validator | Status | SDLC 6.0.5 Work Needed |
+| Validator | Status | SDLC 6.1.0 Work Needed |
 |-----------|--------|------------------------|
 | `naming_convention.py` | ✅ Exists | None |
 | `sequential_numbering.py` | ✅ Exists | None |

@@ -22,7 +22,7 @@ related_specs:
   - SPEC-0002-Quality-Gates-Codegen-Specification
   - SPEC-0003-ADR-007-AI-Context-Engine
   - SPEC-0004-Policy-Guards-Design
-framework_version: SDLC 6.0.5
+framework_version: SDLC 6.1.0
 positioning: Operating System for Software 3.0
 ---
 
@@ -210,7 +210,7 @@ graph TB
 | OPA | 0.58.0 | Apache-2.0 | 8185 | Policy engine |
 | MinIO | Latest | AGPL v3 | 9020 (shared) | S3-compatible storage |
 | Grafana | 10.2 | AGPL v3 | 3000 | Dashboards (iframe) |
-| PostgreSQL | 15.5 | PostgreSQL | 5432 | 30 tables |
+| PostgreSQL | 15.5 | PostgreSQL | 5432 | 33 tables |
 | Redis | 7.2 | BSD-3 | 6379 | Cache + sessions |
 
 **AGPL Mitigation**: MinIO and Grafana accessed ONLY via network APIs (HTTP/S3), never imported as code.
@@ -429,7 +429,7 @@ THEN all 5 evidence types MUST be present:
 
 - Clean architecture: 5-layer separation, dependency inversion
 - ADRs: Architecture decisions documented (22 ADRs as of Sprint 117)
-- API contracts: OpenAPI 3.0 (64 endpoints, auto-generated docs)
+- API contracts: OpenAPI 3.0 (91 endpoints, auto-generated docs)
 - Test coverage: 95%+ (unit + integration + E2E)
 - Code review: 2+ approvers required (Tech Lead + Backend Lead)
 
@@ -540,7 +540,7 @@ THEN all 5 evidence types MUST be present:
 #### Backend
 - **Framework**: FastAPI 0.104+ (async, auto-docs, OpenAPI 3.0)
 - **Language**: Python 3.11+ (type hints, async/await)
-- **Database**: PostgreSQL 15.5 (30 tables, pgvector for embeddings)
+- **Database**: PostgreSQL 15.5 (33 tables, pgvector for embeddings)
 - **Cache**: Redis 7.2 (sessions, token blacklist, policy cache)
 - **ORM**: SQLAlchemy 2.0 (async, relationship loading)
 - **Migrations**: Alembic 1.12+ (zero-downtime migrations)
@@ -726,7 +726,7 @@ THEN all 5 evidence types MUST be present:
 ## 9. Implementation Plan
 
 ### Phase 1: Layer 1-2 Foundation (Week 1)
-- [ ] PostgreSQL setup (30 tables, Alembic migrations)
+- [ ] PostgreSQL setup (33 tables, Alembic migrations)
 - [ ] Redis setup (sessions, cache, message queue)
 - [ ] OPA server (Docker Compose, health checks)
 - [ ] MinIO integration (S3 API wrapper, AGPL-safe)

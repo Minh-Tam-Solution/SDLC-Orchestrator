@@ -5,7 +5,7 @@
 **Duration:** 10 days (February 3-14, 2026)
 **Goal:** Implement AGENTS.md Generator + Static/Dynamic Overlay Architecture
 **Story Points:** 42 SP
-**Framework Reference:** SDLC 5.1.3 P5 (SASE Integration)
+**Framework Reference:** SDLC 6.1.0 P5 (SASE Integration)
 **Prerequisite:** Sprint 79 ✅ + ADR-029 ✅
 
 ---
@@ -812,7 +812,7 @@ GET /api/v1/projects/{project_id}/context-overlay/pr-comment:
 
 ---
 
-## 📝 SDLC 5.1.3 Compliance
+## 📝 SDLC 6.1.0 Compliance
 
 | Pillar | Sprint 80 Implementation |
 |--------|--------------------------|
@@ -863,6 +863,6 @@ GET /api/v1/projects/{project_id}/context-overlay/pr-comment:
 
 ---
 
-**SDLC 5.1.3 | Sprint 80 | Stage 04 (BUILD)**
+**SDLC 6.1.0 | Sprint 80 | Stage 04 (BUILD)**
 
 *G-Sprint Approval Required Before Sprint Start*

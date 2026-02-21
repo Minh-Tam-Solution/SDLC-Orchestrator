@@ -2,7 +2,7 @@
 ## Next.js Single Platform (Pre-GoLive) - Strangler Migration
 
 **Epic**: Frontend Platform Standardization  
-**Framework**: SDLC 5.1.2 Universal Framework  
+**Framework**: SDLC 6.1.0
 **Duration**: 8 weeks (4 sprints)  
 **Decision Reference**: [ADR-025: Frontend Platform Consolidation - Next.js Monolith (Pre-GoLive)](../../02-design/01-ADRs/ADR-025-Frontend-Platform-Consolidation-Nextjs-Monolith.md)
 

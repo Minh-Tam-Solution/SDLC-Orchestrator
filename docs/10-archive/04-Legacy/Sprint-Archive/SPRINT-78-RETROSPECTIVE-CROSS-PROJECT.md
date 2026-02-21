@@ -5,7 +5,7 @@
 **Duration:** 5 days (February 10-14, 2026)
 **Goal:** Complete Sprint Analytics Foundation + Cross-Project Sprint Dependencies
 **Story Points:** 36 SP
-**Framework Reference:** SDLC 5.1.3 P2 (Sprint Planning Governance)
+**Framework Reference:** SDLC 6.1.0 P2 (Sprint Planning Governance)
 **Prerequisite:** Sprint 77 ✅ (AI Council Sprint Integration)
 
 ---
@@ -739,7 +739,7 @@ POST /planning/templates/{template_id}/apply:
 
 ---
 
-## 📝 SDLC 5.1.3 Compliance
+## 📝 SDLC 6.1.0 Compliance
 
 | Pillar | Sprint 78 Implementation |
 |--------|--------------------------|
@@ -766,6 +766,6 @@ POST /planning/templates/{template_id}/apply:
 
 ---
 
-**SDLC 5.1.3 | Sprint 78 | Stage 04 (BUILD)**
+**SDLC 6.1.0 | Sprint 78 | Stage 04 (BUILD)**
 
 *G-Sprint Approval Required Before Sprint Start*

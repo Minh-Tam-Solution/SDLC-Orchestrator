@@ -1,5 +1,5 @@
 # User Support - SDLC Orchestrator
-**SDLC 5.1.3 Stage 07 - OPERATE**  
+**SDLC 6.1.0 Stage 07 - OPERATE**  
 **Date**: December 20, 2025  
 **Status**: ACTIVE  
 **Authority**: CTO Approved
@@ -8,7 +8,7 @@
 
 ## Overview
 
-This directory contains comprehensive user support documentation for **SDLC Orchestrator**, the AI-native platform that implements and enforces **SDLC 5.1.3 Enterprise Framework** governance policies.
+This directory contains comprehensive user support documentation for **SDLC Orchestrator**, the AI-native platform that implements and enforces **SDLC 6.1.0 Enterprise Framework** governance policies.
 
 ## Understanding the Relationship
 
@@ -16,7 +16,7 @@ This directory contains comprehensive user support documentation for **SDLC Orch
 ┌─────────────────────────────────────────────────────────────┐
 │                  SDLC Enterprise Framework                  │
 │              (Governance Policy & Methodology)              │
-│                      SDLC 5.1.3                            │
+│                      SDLC 6.1.0                            │
 │  ┌──────────────────────────────────────────────────────┐  │
 │  │  10 Lifecycle Stages (00-09)                         │  │
 │  │  4-Tier Classification (LITE → ENTERPRISE)           │  │
@@ -72,13 +72,13 @@ This directory contains comprehensive user support documentation for **SDLC Orch
 
 ## Key Concepts
 
-### What is SDLC 5.1.3 Framework?
+### What is SDLC 6.1.0 Framework?
 - **10-Stage Lifecycle**: Foundation → Planning → Design → Integrate → Build → Test → Deploy → Operate → Collaborate → Govern
 - **Proven Results**: BFlow ($43M, 827:1 ROI), NQH-Bot (₫15B+), MTEP (<30 min PaaS)
 - **AI+Human Excellence**: Battle-tested methodology for modern software development
 
 ### What is SDLC Orchestrator?
-- **Implementation Platform**: Enforces SDLC 5.1.3 governance automatically
+- **Implementation Platform**: Enforces SDLC 6.1.0 governance automatically
 - **Quality Gates**: Ensures compliance at each stage
 - **Evidence Management**: Captures artifacts and audit trails
 - **AI Integration**: Leverages AI Council for decision support
@@ -111,6 +111,6 @@ Help us improve! Submit feedback through:
 
 ---
 
-**Framework**: SDLC 5.1.3 Complete Lifecycle  
+**Framework**: SDLC 6.1.0
 **Platform**: SDLC Orchestrator v1.2.0  
 **Last Updated**: December 20, 2025

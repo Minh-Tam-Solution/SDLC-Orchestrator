@@ -15,7 +15,7 @@ dependencies:
   - SPEC-0012 (Validation Pipeline Interface)
 related_adrs:
   - ADR-041 (Stage Dependency Matrix)
-  - ADR-042 (SDLC 6.0.5 Migration Strategy)
+  - ADR-042 (SDLC 6.1.0 Migration Strategy)
 ---
 
 # SPEC-0013: Compliance Validation Service
@@ -24,7 +24,7 @@ related_adrs:
 
 ### 1.1 Purpose
 
-The Compliance Validation Service automates SDLC 6.0.5 compliance assessment, providing:
+The Compliance Validation Service automates SDLC 6.1.0 compliance assessment, providing:
 - **Compliance Scoring**: X/100 score with category breakdown
 - **Duplicate Detection**: Stage folder collision prevention
 - **Version Validation**: Framework reference consistency checking
@@ -32,7 +32,7 @@ The Compliance Validation Service automates SDLC 6.0.5 compliance assessment, pr
 
 ### 1.2 Background
 
-This specification derives from real-world lessons during NQH-Bot and BFlow SDLC 6.0.5 migrations (January 2026):
+This specification derives from real-world lessons during NQH-Bot and BFlow SDLC 6.1.0 migrations (January 2026):
 
 | Issue | Discovery Method | Impact | Automated Solution |
 |-------|------------------|--------|-------------------|
@@ -525,7 +525,7 @@ from app.services.validation.checkers import CATEGORY_CHECKERS
 
 
 class ComplianceScorerService:
-    """SDLC 6.0.5 Compliance Scoring Engine.
+    """SDLC 6.1.0 Compliance Scoring Engine.
 
     Calculates compliance score based on 10 categories, each worth 10 points.
     Total possible score: 100 points.
@@ -706,7 +706,7 @@ from app.schemas.compliance import (
 
 
 class DuplicateFolderDetector:
-    """Detect stage folder collisions in SDLC 6.0.5 projects.
+    """Detect stage folder collisions in SDLC 6.1.0 projects.
 
     Validates that each stage prefix (00-10) has exactly one folder.
     Reports collisions, gaps, and extra folders.
@@ -903,7 +903,7 @@ def validate():
 @click.option("--format", "-f", type=click.Choice(["text", "json"]), default="text")
 @click.option("--force", is_flag=True, help="Force refresh (bypass cache)")
 def compliance(project, category, format, force):
-    """Run SDLC 6.0.5 compliance validation.
+    """Run SDLC 6.1.0 compliance validation.
 
     Example:
         sdlcctl validate compliance --project nqh-bot
@@ -981,7 +981,7 @@ def format_compliance_report(data: dict[str, Any]) -> str:
 
     # Header
     lines.append("=" * 60)
-    lines.append(f"SDLC 6.0.5 Compliance Report")
+    lines.append(f"SDLC 6.1.0 Compliance Report")
     lines.append(f"Generated: {data['generated_at']}")
     lines.append("=" * 60)
     lines.append("")
@@ -1369,7 +1369,7 @@ def downgrade() -> None:
 
 **CTO Approval Notes**:
 - Documentation Grade: **A+ (98/100)** - Exemplary technical documentation
-- SDLC 6.0.5 Compliance: **100/100**
+- SDLC 6.1.0 Compliance: **100/100**
 - Risk Level: **GREEN** (Low Risk, High Value, Evidence-Based)
 - Confidence: **99.5%**
 - ROI Projection: **9.4x** (16h investment → 150h+ savings annually)

@@ -171,7 +171,7 @@ agents_md_governance:
 - Version: 5.3.0
 - Current Stage: 04-Build
 - Governance Mode: SOFT
-- Framework Version: SDLC 6.0
+- Framework Version: SDLC 6.1.0
 
 ## Active Specifications (Stage 04-Build)
 - SPEC-1001: Evidence Vault Upload Service (v2.0 - IMPLEMENTED)
@@ -444,7 +444,7 @@ sdlcctl context validate  # Check completeness
 - CTO review OpenSpec analysis
 - Decision: EXTEND (Hybrid) vs DEFER (SDLC only)
 - If EXTEND approved → Sprint 117-119 conversion layer development
-- If DEFER → Continue SDLC 6.0 standalone (still valuable)
+- If DEFER → Continue SDLC 6.1.0 standalone (still valuable)
 
 **Day 5 (Feb 21):**
 - Sprint 117-119 detailed planning based on Week 8 decision
@@ -478,7 +478,7 @@ sdlcctl context validate  # Check completeness
 
 | Risk | Likelihood | Impact | Mitigation | Status |
 |------|------------|--------|------------|--------|
-| Week 8 Gate rejects OpenSpec EXTEND | Low | Medium | SDLC 6.0 standalone still valuable (score 7.4/10) | ✅ Planned |
+| Week 8 Gate rejects OpenSpec EXTEND | Low | Medium | SDLC 6.1.0 standalone still valuable (score 7.4/10) | ✅ Planned |
 | Context Authority complexity underestimated | Medium | Medium | Sprint 117-118 buffer (7 days allocated) | ✅ Mitigated |
 | Migration effort exceeds 20 specs/sprint | Medium | Low | Prioritize 6-7 specs/sprint, extend to Sprint 118 | ✅ Flexible |
 | AGENTS.md auto-update bugs | Low | High | Manual override command: `sdlcctl context update --manual` | ✅ Planned |

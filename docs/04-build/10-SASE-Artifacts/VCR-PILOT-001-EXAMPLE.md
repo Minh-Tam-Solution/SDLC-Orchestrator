@@ -123,7 +123,7 @@ Available decision types (per SASE framework):
 **Rating**: 9/10
 
 **Strengths**:
-- ✅ SDLC 5.1.3 compliant (4-layer architecture, naming standards)
+- ✅ SDLC 6.1.0 compliant (4-layer architecture, naming standards)
 - ✅ Clean code structure (Service-Repository pattern)
 - ✅ AGPL containment (MinIO network-only access)
 - ✅ 100% code review (6 PRs, all reviewed by Tech Lead)
@@ -132,7 +132,7 @@ Available decision types (per SASE framework):
 - ⚠️ ADR-027 planned but not created yet - acceptable, will create in Phase 3
 
 **Comments**:
-> "Excellent SE hygiene. Architecture pattern consistent with SDLC 5.1.3 standards. Code review discipline maintained (100% coverage). AGPL containment properly implemented. ADR can be created retrospectively during Phase 3-Rollout."
+> "Excellent SE hygiene. Architecture pattern consistent with SDLC 6.1.0 standards. Code review discipline maintained (100% coverage). AGPL containment properly implemented. ADR can be created retrospectively during Phase 3-Rollout."
 
 ---
 
@@ -406,7 +406,7 @@ Phase 3-Rollout (5 NQH projects)
 
 ## VCR NOTES
 
-**This VCR follows the 06-VCR-Template.md from SDLC 5.1.0 Framework**
+**This VCR follows the 06-VCR-Template.md from SDLC 6.1.0 Framework**
 
 **Key Principles**:
 - ✅ VCR issued after MRP review (evidence-based approval)

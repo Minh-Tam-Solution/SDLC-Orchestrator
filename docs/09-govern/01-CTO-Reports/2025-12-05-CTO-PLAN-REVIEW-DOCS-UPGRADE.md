@@ -76,7 +76,7 @@
 - **Best Practice**: Follows Bflow pattern (28KB README, role-based)
 
 **Adjustments Required**:
-1. ✅ Keep stage numbering (00-09) - **CORRECT** (SDLC 5.1.3.1 standard)
+1. ✅ Keep stage numbering (00-09) - **CORRECT** (SDLC 6.1.0 standard)
 2. ✅ Consolidate reports - **CORRECT** (reduce duplication)
 3. ⚠️ **ADD**: Link to CLAUDE.md prominently in `/docs/README.md`
 4. ⚠️ **ADD**: Include Sprint 28 completion status in CURRENT-SPRINT.md

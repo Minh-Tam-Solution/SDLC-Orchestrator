@@ -4,7 +4,7 @@
 **Date**: February 4, 2026
 **Sprint**: Sprint 154 (Spec Standard Completion)
 **Author**: CTO + AI Assistant
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 **Related**: [SPEC-0002-Specification-Standard](../14-Technical-Specs/SPEC-0002-Specification-Standard.md), [ADR-040-App-Builder-OpenSpec-Integration](ADR-040-App-Builder-OpenSpec-Integration.md)
 
 ---

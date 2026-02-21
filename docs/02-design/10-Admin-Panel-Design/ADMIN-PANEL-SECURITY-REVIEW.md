@@ -1,5 +1,5 @@
 # Admin Panel - Security Review
-## SDLC 5.1.3 Complete Lifecycle - Design Phase
+## SDLC 6.1.0 Complete Lifecycle - Design Phase
 
 **Version**: 1.0.0
 **Date**: 2025-12-16

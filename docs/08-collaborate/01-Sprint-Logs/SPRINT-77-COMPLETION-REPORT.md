@@ -6,7 +6,7 @@
 **Story Points:** 38/38 (100%)  
 **Duration:** 5 days  
 **Team:** Backend + Frontend  
-**Next Gate:** G-Sprint-Close (SDLC 5.1.3 P2)
+**Next Gate:** G-Sprint-Close (SDLC 6.1.0 P2)
 
 ---
 
@@ -159,16 +159,16 @@ Sprint 77 successfully delivered **comprehensive sprint analytics** for the SDLC
 
 ---
 
-## SDLC 5.1.3 Compliance
+## SDLC 6.1.0 Compliance
 
 ### Document Naming Standards Fix ✅
 
-**Issue:** Duplicate prefix numbers in `docs/04-build/` violated SDLC 5.1.3 Document Naming Standards.
+**Issue:** Duplicate prefix numbers in `docs/04-build/` violated SDLC 6.1.0 Document Naming Standards.
 
 **Resolution:**
 - Renumbered all subdirectories with unique `NN-` prefixes (01-15, 99)
 - Sprint logs moved to `docs/08-collaborate/01-Sprint-Logs/`
-- All document paths now comply with SDLC 5.1.3 P6 (Documentation Governance)
+- All document paths now comply with SDLC 6.1.0 P6 (Documentation Governance)
 
 **New Structure:**
 ```
@@ -313,7 +313,7 @@ POST /api/v1/council/decide:
 | API3:2023 (Excessive Data Exposure) | Field filtering | ✅ |
 | API7:2023 (Server-Side Request Forgery) | Input validation | ✅ |
 
-### SDLC 5.1.3 Pillar Compliance
+### SDLC 6.1.0 Pillar Compliance
 
 | Pillar | Requirement | Implementation | Status |
 |--------|-------------|----------------|--------|
@@ -445,7 +445,7 @@ POST /api/v1/council/decide:
    - Velocity service from Sprint 76 used in forecast/retrospective
    - Reduced development time by ~20%
 
-4. **SDLC 5.1.3 Compliance**
+4. **SDLC 6.1.0 Compliance**
    - Document naming fix early prevented future debt
    - Sprint logs in correct location
    - All artifacts traceable
@@ -504,11 +504,11 @@ POST /api/v1/council/decide:
 
 ---
 
-## G-Sprint-Close Criteria (SDLC 5.1.3 P2)
+## G-Sprint-Close Criteria (SDLC 6.1.0 P2)
 
 ### Sprint Planning Governance Requirements
 
-**Per SDLC 5.1.3 Section 4.2 - Sprint Close:**
+**Per SDLC 6.1.0 Section 4.2 - Sprint Close:**
 
 - [x] **All committed work completed** (38/38 SP) ✅
 - [x] **Zero P0 issues remaining** ✅
@@ -565,13 +565,13 @@ Sprint 77 successfully delivered a **complete sprint analytics suite** for the S
 - ✅ **Automated retrospectives** (insights + action items)
 - ✅ **Sprint-aware AI Council** (context-aware decisions)
 
-**All features are production-ready** with 100% test coverage, performance targets met, and SDLC 5.1.3 compliance.
+**All features are production-ready** with 100% test coverage, performance targets met, and SDLC 6.1.0 compliance.
 
 **Sprint 77 Status:** ✅ **COMPLETE - G-Sprint-Close Ready**
 
 ---
 
-**SDLC 5.1.3 | Sprint 77 | AI Council Sprint Integration & Advanced Analytics | COMPLETE**
+**SDLC 6.1.0 | Sprint 77 | AI Council Sprint Integration & Advanced Analytics | COMPLETE**
 
 *"Sprint 77 transformed sprint management from reactive to proactive. Teams now have AI-powered insights to prevent sprint failures before they happen."*
 

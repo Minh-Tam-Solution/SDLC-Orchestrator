@@ -5,7 +5,7 @@
 **Backend**: Port 8300 (FastAPI)
 **Frontend**: Port 8310 (React + nginx)
 **Test Data**: DEMO-SEED-DATA.sql v3.0.0
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Executor**: AI Agent (Claude Opus 4.5)
 
 ---
@@ -485,7 +485,7 @@ Content-Type: application/json
 ---
 
 **Test Report Status**: COMPLETE
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Stage**: 05-TEST (Quality Assurance & Validation)
 **Authority**: QA Lead + CTO Review
 

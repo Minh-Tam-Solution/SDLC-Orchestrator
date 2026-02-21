@@ -5,7 +5,7 @@
 **Date**: January 6, 2026
 **Status**: ✅ **APPROVED** for Sprint 41-42 Implementation
 **Author**: Backend Team
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Epic**: EP-02 AI Safety Layer v1
 **Sprint**: Sprint 41-42
 
@@ -907,4 +907,4 @@ async def test_metadata_detector_no_match():
 
 **Document Version**: 1.0.0
 **Created**: January 6, 2026
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0

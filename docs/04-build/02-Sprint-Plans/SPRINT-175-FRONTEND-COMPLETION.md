@@ -3,7 +3,7 @@
 **Sprint Duration**: March 3-14, 2026 (10 working days)
 **Status**: PLANNED
 **Phase**: Stage 04 (BUILD) — Frontend Feature Completion
-**Framework**: SDLC 6.0.6 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.1.0
 **Priority**: P1 (User-Facing Feature Gaps)
 **Previous Sprint**: [Sprint 174 COMPLETE — Anthropic Best Practices](SPRINT-174-COMPLETION-REPORT.md)
 

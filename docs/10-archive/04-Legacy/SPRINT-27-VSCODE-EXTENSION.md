@@ -5,7 +5,7 @@
 **Status**: COMPLETE + Phase 2 Features Added
 **Authority**: CTO + CPO (9.5/10 Rating)
 **Foundation**: Expert Analysis (Deep Research, VS Code Copilot Chat)
-**Framework**: SDLC 5.1.3 Complete Lifecycle (Contract-First, 4-Tier Classification)
+**Framework**: SDLC 6.1.0
 **Week**: 12 of 13
 
 ---
@@ -54,7 +54,7 @@ Expert Alignment:
 | Gate Code Lens | ❌ | ✅ |
 | **`/init` Command** | ❌ | ✅ **NEW** |
 | **Empty Folder Detection** | ❌ | ✅ **NEW** |
-| **SDLC 5.1.3 Structure Generation** | ❌ | ✅ **NEW** |
+| **SDLC 6.1.0 Structure Generation** | ❌ | ✅ **NEW** |
 | **Gap Analysis** | ❌ | ✅ **NEW** |
 | **AI Template Pre-fill** | ❌ | ✅ **NEW** |
 
@@ -740,7 +740,7 @@ describe('ComplianceChatParticipant', () => {
 | `package.json` | 100 | Extension manifest |
 | **TOTAL** | **~900** | |
 
-### Phase 2 Files (Sprint 32) (~2,500 lines) - SDLC 5.1.3 Update
+### Phase 2 Files (Sprint 32) (~2,500 lines) - SDLC 6.1.0 Update
 
 | File | Lines | Description |
 |------|-------|-------------|
@@ -749,11 +749,11 @@ describe('ComplianceChatParticipant', () => {
 | `src/views/TierSelector.ts` | 250 | 4-Tier selector (LITE/STANDARD/PROFESSIONAL/ENTERPRISE) |
 | `src/providers/GateCodeLens.ts` | 300 | Inline gate status |
 | `src/commands/scaffoldDocs.ts` | 300 | BRD/ADR generation |
-| **`src/commands/initProject.ts`** | **400** | **NEW: /init command - SDLC 5.1.3 project initialization** |
+| **`src/commands/initProject.ts`** | **400** | **NEW: /init command - SDLC 6.1.0 project initialization** |
 | **`src/services/structureService.ts`** | **350** | **NEW: Folder structure generation + gap analysis** |
 | **`src/services/templateService.ts`** | **200** | **NEW: AI pre-fill templates** |
 
-### NEW: `/init` Command Specification (SDLC 5.1.3)
+### NEW: `/init` Command Specification (SDLC 6.1.0)
 
 **Command**: `SDLC: Initialize Project`
 **Shortcut**: `Cmd+Shift+I` (macOS) / `Ctrl+Shift+I` (Windows/Linux)
@@ -770,7 +770,7 @@ describe('ComplianceChatParticipant', () => {
    ```typescript
    // Auto-detect on folder open
    if (isEmptyFolder() || !hasSDLCConfig()) {
-     showInitPrompt("Create SDLC 5.1.3 Project?");
+     showInitPrompt("Create SDLC 6.1.0 Project?");
    }
    ```
 
@@ -795,7 +795,7 @@ describe('ComplianceChatParticipant', () => {
    2. Create tests/ for quality assurance
    ```
 
-5. **SDLC 5.1.3 Structure Generation**
+5. **SDLC 6.1.0 Structure Generation**
    ```
    project/
    ├── .sdlc-config.json          # Project configuration
@@ -831,7 +831,7 @@ describe('ComplianceChatParticipant', () => {
 | Command | Shortcut | Description |
 |---------|----------|-------------|
 | `SDLC: Initialize Project` | Cmd+Shift+I | **NEW**: Create/update .sdlc-config.json |
-| `SDLC: Validate Structure` | Cmd+Shift+V | **NEW**: Validate SDLC 5.1.3 compliance |
+| `SDLC: Validate Structure` | Cmd+Shift+V | **NEW**: Validate SDLC 6.1.0 compliance |
 | `SDLC: Submit Evidence` | Cmd+Shift+E | Submit file as gate evidence |
 | `SDLC: View Gates` | Cmd+Shift+G | Open gate status sidebar |
 | `SDLC: AI Assistant` | Cmd+Shift+A | Open AI chat panel |
@@ -839,7 +839,7 @@ describe('ComplianceChatParticipant', () => {
 | `SDLC: Create Structure` | - | **NEW**: Generate full folder structure |
 | `SDLC: Fix Structure` | - | **NEW**: Auto-fix structure issues |
 
-#### `.sdlc-config.json` Schema (SDLC 5.1.3)
+#### `.sdlc-config.json` Schema (SDLC 6.1.0)
 
 ```json
 {
@@ -945,17 +945,17 @@ describe('ComplianceChatParticipant', () => {
 2. Configure: VS Code Settings → SDLC Orchestrator → API URL
 3. Push tag: `git push origin v0.1.0`
 4. Sprint 28: Web Dashboard AI Integration
-5. **Sprint 32**: Phase 2 features (`/init` command, SDLC 5.1.3 structure generation)
+5. **Sprint 32**: Phase 2 features (`/init` command, SDLC 6.1.0 structure generation)
 
 ---
 
-## Phase 2 Implementation (Sprint 32) - SDLC 5.1.3
+## Phase 2 Implementation (Sprint 32) - SDLC 6.1.0
 
 ### Onboarding Flow Reference
 
 See detailed specification: [ONBOARDING-FLOW-SPEC.md](../../05-test/07-E2E-Testing/ONBOARDING-FLOW-SPEC.md)
 
-### Key SDLC 5.1.3 Changes for VS Code Extension
+### Key SDLC 6.1.0 Changes for VS Code Extension
 
 1. **Contract-First Stage Order**: Stage 03 is now `integration` (API Design BEFORE coding)
 2. **4-Tier Classification**: LITE, STANDARD, PROFESSIONAL, ENTERPRISE
@@ -972,7 +972,7 @@ Scenario: Initialize SDLC project in empty folder
   When user runs Cmd+Shift+I
   Then tier selection dialog appears
   When user selects STANDARD tier
-  Then SDLC 5.1.3 folder structure is generated
+  Then SDLC 6.1.0 folder structure is generated
   And .sdlc-config.json is created
 
 Scenario: Gap analysis for existing project
@@ -995,5 +995,5 @@ Scenario: Offline mode initialization
 
 **Document Version**: 2.0.0
 **Updated**: December 13, 2025
-**Framework**: SDLC 5.1.3 (Contract-First, 4-Tier Classification)
+**Framework**: SDLC 6.1.0
 **Phase 2 Target**: Sprint 32

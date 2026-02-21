@@ -4,7 +4,7 @@
 **Date**: January 21, 2026
 **Status**: APPROVED (CEO + CTO)
 **Priority**: P0 - Security & Privacy Issue
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 **Related**: ADR-030 (Platform Admin Role Redesign)
 
 ---

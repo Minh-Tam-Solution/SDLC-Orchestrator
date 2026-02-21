@@ -4,7 +4,7 @@
 **Date**: January 28 - February 4, 2026 (7 days)
 **Status**: IN PROGRESS (Day 6 of 7)
 **Epic**: TEST STRATEGY 2026 - Production-Ready TDD Infrastructure
-**Framework**: SDLC 5.2.0
+**Framework**: SDLC 6.1.0
 **Reference**: [Test Strategy 2026](../../05-test/00-TEST-STRATEGY-2026.md)
 
 ---
@@ -213,7 +213,7 @@ Functions:
 - get_mock_gate_approval_data() - Approval payload
 - get_mock_gate_rejection_data() - Rejection payload
 
-SDLC 5.2.0 Gates Supported:
+SDLC 6.1.0 Gates Supported:
 - G0.1 (Foundation Ready) - WHY stage
 - G0.2 (Solution Diversity) - WHY stage
 - G1 (Design Ready) - WHAT stage

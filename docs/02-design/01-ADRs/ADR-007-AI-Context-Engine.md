@@ -4,7 +4,7 @@
 **Date**: November 13, 2025
 **Decision Makers**: CTO, CPO (joint review)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -18,7 +18,7 @@ SDLC Orchestrator requires AI capabilities for:
 5. **Automated suggestions** for gate approvals
 
 We have access to:
-- **Internal Infrastructure**: Ollama at `https://api.nhatquangholding.com/` (qwen2.5:14b with 96.4% Vietnamese accuracy)
+- **Internal Infrastructure**: Ollama at `https://api.nhatquangholding.com/` (qwen3:32b with 96.4% Vietnamese accuracy)
 - **AI-Platform Heritage**: Battle-tested from BFlow/NQH-Bot/MTEP (86% test coverage, Zero Mock Policy)
 - **Cloud Providers**: OpenAI (GPT-4), Anthropic (Claude 3), Google (Gemini)
 
@@ -82,7 +82,7 @@ class OllamaProvider(AIProvider):
 
     def __init__(self):
         self.base_url = "https://api.nhatquangholding.com"
-        self.model = "qwen2.5:14b"  # 96.4% Vietnamese accuracy
+        self.model = "qwen3:32b"  # 96.4% Vietnamese accuracy
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
     async def complete(self, prompt: str, context: Dict[str, Any]) -> str:
@@ -111,7 +111,7 @@ class OllamaProvider(AIProvider):
 
         User Request: {prompt}
 
-        Provide specific, actionable guidance following SDLC 5.1.3 framework.
+        Provide specific, actionable guidance following SDLC 6.1.0 framework.
         """
 
 class ClaudeProvider(AIProvider):
@@ -207,7 +207,7 @@ from enum import Enum
 from typing import List, Dict, Any
 
 class SDLCStage(Enum):
-    """SDLC 5.1.3 stages (10 stages: 00-09 + Archive folder)"""
+    """SDLC 6.1.0 stages (10 stages: 00-09 + Archive folder)"""
     STAGE_00 = "FOUNDATION - Strategic Discovery & Validation (WHY?)"
     STAGE_01 = "PLANNING - Requirements & User Stories (WHAT?)"
     STAGE_02 = "DESIGN - Architecture & Technical Design (HOW?)"
@@ -330,7 +330,7 @@ class GateRecommendationService:
         """Recommend which gates to enforce"""
 
         prompt = f"""
-        Based on the following project context, recommend which SDLC 5.1.3 gates to enforce:
+        Based on the following project context, recommend which SDLC 6.1.0 gates to enforce:
 
         Team Size: {team_size} engineers
         Project Type: {project_type}

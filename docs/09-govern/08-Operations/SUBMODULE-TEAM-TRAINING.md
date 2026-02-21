@@ -46,7 +46,7 @@ SDLC-Orchestrator (Main Repo)
     ├── 00-Why/
     ├── 01-What/
     ├── 02-How/
-    └── ... (10 SDLC 5.1.3 stages)
+    └── ... (10 SDLC 6.1.0 stages)
 ```
 
 **Key Metadata Files:**
@@ -185,7 +185,7 @@ EOF
 
 # Step 4: Commit to Framework repo
 git add .
-git commit -m "feat(SDLC 5.1.0): Add BRS template for SASE artifacts"
+git commit -m "feat(SDLC 6.1.0): Add BRS template for SASE artifacts"
 git push origin main
 
 # Step 5: Return to main repo and update submodule pointer

@@ -8,7 +8,7 @@
 **Stage**: 02 - DESIGN (HOW)
 **Epic**: EP-01/EP-02 - AI Safety Foundation
 **Sprint**: Sprint 41 (Jan 6-17, 2026)
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 

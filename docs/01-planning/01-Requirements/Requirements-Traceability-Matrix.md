@@ -1,15 +1,16 @@
 # Requirements Traceability Matrix (RTM)
 ## Stage 00 (WHY) → Stage 01 (WHAT) Mapping
 
-**Version**: 2.1.0
-**Date**: December 23, 2025
-**Status**: ACTIVE - EP-06 Quality Gates + Validation Loop
+**Version**: 3.0.0
+**Date**: February 19, 2026
+**Status**: ACTIVE - EP-07 Multi-Agent + Enterprise-First (ADR-059)
 **Authority**: PM + CTO Review (✅ APPROVED)
-**Foundation**: FRD v3.1.0, Vision v4.0.0, Roadmap v5.0.0
+**Foundation**: FRD v3.1.0, Vision v4.0.0, ADR-059
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0 Complete Lifecycle
 
 **Changelog**:
+- v3.0.0 (Feb 19, 2026): Added EP-07 Multi-Agent requirements (FR-037 to FR-044) + Enterprise-First requirements (SSO, Tier Enforcement, Compliance, Audit Trail) per ADR-059
 - v2.1.0 (Dec 23, 2025): Added EP-06 Codegen Quality Gates (P8 problem, FR41-FR45, NFR29-NFR35)
 - v2.0.0 (Dec 21, 2025): SDLC 5.1.3 update, added EP-04/05/06 requirements tracing
 - v1.0.0 (Jan 13, 2025): Initial RTM (25 FRs traced to 7 problems)
@@ -43,7 +44,7 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 | **P8** | **AI-generated code quality ungoverned** *(v2.1)* | **9/10** | **FR41-FR45** | **Codegen quality ≥80%, escalation <5%** |
 
 **Total Problems Validated**: 8 (from Stage 00 user interviews + Expert Feedback)
-**Total FRs Mapped**: 30 (100% traceability)
+**Total FRs Mapped**: 53 (100% traceability — FR1-FR36 + FR41-FR45 core/codegen + FR-037 to FR-044 EP-07 Multi-Agent + FR-045 to FR-053 Enterprise-First per ADR-059)
 
 ---
 
@@ -236,7 +237,7 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 - **FR3.2**: Policy Pack Testing - Unit tests for policies (OPA test framework)
 - **FR3.3**: Policy Pack Editor - VS Code-like editor (syntax highlighting, autocomplete)
 - **FR3.4**: Policy Pack Versioning - Git-based versioning (1.0.0, 1.1.0, 2.0.0)
-- **FR3.5**: Pre-Built Policy Packs - 100+ pre-built policies (SDLC 4.8 best practices)
+- **FR3.5**: Pre-Built Policy Packs - 110+ pre-built policies (SDLC 6.1.0 best practices)
 
 **Success Metric**:
 - **Baseline**: Pre-built policy usage = 0% (no library exists)
@@ -247,7 +248,7 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 **Validation** (from Stage 00):
 - 6 out of 10 Engineering Managers spend 5+ hours writing custom policies
 - Pain level 6/10 (efficiency gain)
-- 100+ pre-built policies target (SDLC 4.8 best practices)
+- 110+ pre-built policies target (SDLC 6.1.0 best practices)
 
 ---
 
@@ -293,6 +294,56 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 - Pain level 9/10 (production code quality non-negotiable)
 
 **Technical Spec Reference**: [Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
+
+---
+
+## EP-07: Multi-Agent Team Engine (FR-037 to FR-044)
+
+**Problem P9**: AI agents work in isolation — no collaboration, no delegation, no escalation
+**Pain Level**: 9/10 (Enterprise teams with 50+ engineers; multi-agent SDLC workflow is blocked)
+**Business Driver**: BC-056 (Multi-Agent Business Case) — $4.4M ARR by Year 3
+
+| FR | Requirement | Stage 00 Problem | Priority | Sprint |
+|----|------------|-----------------|----------|--------|
+| FR-037 | Multi-Agent Conversation Management | P9: Agent isolation | P0 | 177-178 |
+| FR-038 | Agent Delegation And Tool Restriction | P9: No delegation model | P0 | 177 |
+| FR-039 | Provider Failover Classification | P9: No resilience | P0 | 177 |
+| FR-040 | Lane Queue Management | P9: No concurrent agents | P0 | 177 |
+| FR-041 | Input Sanitization And Security | P1: Security for OTT | P0 | 178 |
+| FR-042 | Output Credential Scrubbing | P2: Credential leakage | P0 | 179 |
+| FR-043 | Environment Variable Scrubbing | P2: Env leakage | P0 | 179 |
+| FR-044 | History Compaction | P3: Context overflow | P1 | 179 |
+
+**Success Metrics**:
+- Agent conversation success rate: >95% (no orphaned conversations)
+- Provider failover success: 100% (all 6 failure reasons handled)
+- Credential scrubbing: 0 credentials in agent output (6 patterns)
+- History compaction: <200ms overhead at 80% context threshold
+
+---
+
+## Enterprise-First Requirements (ADR-059)
+
+**Problem P10**: No enterprise-grade governance features — enterprise sales blocked
+**Pain Level**: 10/10 (Enterprise contracts require SSO, compliance, audit trail)
+**Business Driver**: ADR-059 + CPO BM-01 to BM-10 — $160K-$350K ARR Year 1
+
+| FR | Requirement | Pain | Priority | Sprint |
+|----|------------|------|----------|--------|
+| FR-045 (planned) | Enterprise SSO (SAML + Azure AD) | SSO required for enterprise contract | P0 | 183 |
+| FR-046 (planned) | Tier Gate Enforcement (402 responses) | Revenue requires tier gating | P0 | 184 |
+| FR-047 (planned) | Immutable Audit Trail (SOC2 Type II) | SOC2 requires append-only log | P0 | 185 |
+| FR-048 (planned) | Compliance Evidence Types (SOC2/HIPAA/NIST) | Compliance pack requires typed evidence | P0 | 183 |
+| FR-049 (planned) | Storage-Level Data Residency (EU) | GDPR requires EU data isolation | P0 | 186 |
+| FR-050 (planned) | GDPR Right to Erasure + DSAR | GDPR compliance required | P0 | 186 |
+| FR-051 (planned) | OTT Channel Abstraction (Teams/Slack) | Enterprise needs Teams/Slack | P1 | 181-183 |
+
+**Success Metrics**:
+- First enterprise customer onboarded with SSO by Sprint 183
+- All 78 routes tier-gated by Sprint 184
+- SOC2 evidence pack PDF generated by Sprint 185
+- EU data residency live by Sprint 186
+- Gate G4 APPROVED by Sprint 187
 
 ---
 
@@ -363,7 +414,7 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 | **FR45.2** | **Generation Mode Support** | **P8** | **9/10** |
 | **FR45.3** | **Observability Metrics** | **P8, P6** | **9/10** |
 
-**Total FRs**: 53 (FR1.1-FR15.1 + FR41-FR45 when expanded)
+**Total FRs**: 53 (FR1-FR25 core + FR41-FR45 codegen + FR-037..FR-044 EP-07 Multi-Agent + FR-045..FR-053 Enterprise-First)
 **Total Mapped**: 53 (100% traceability)
 
 ---
@@ -401,7 +452,7 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 - ✅ CEO/CTO/CPO approval: 9.5/8.5/9.0
 
 ### Requirements Definition (Stage 01)
-- ✅ 30 Functional Requirements (FR1-FR25 + FR41-FR45)
+- ✅ 53 Functional Requirements (FR1-FR25 + FR41-FR45 + FR-037..FR-044 EP-07 + FR-045..FR-053 Enterprise-First)
 - ✅ 24 Non-Functional Requirements (NFR1-NFR17 + NFR29-NFR35)
 - ✅ 100% traceability (all FRs map to validated problems)
 - ✅ 0 orphaned FRs (no "nice-to-have" features)
@@ -425,7 +476,7 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 ## Quality Gate G1: Planning & Analysis
 
 **G1 Criteria**:
-- ✅ All FRs (FR1-FR25 + FR41-FR45) trace back to validated problems (P1-P8)
+- ✅ All FRs (FR1-FR25 + FR41-FR45 + FR-037..FR-044 + FR-045..FR-053) trace back to validated problems (P1-P8)
 - ✅ 0 orphaned FRs (100% traceability)
 - ✅ All NFRs (NFR1-NFR17 + NFR29-NFR35) linked to business outcomes
 - ✅ Success metrics defined (10 measurable outcomes)
@@ -464,14 +515,18 @@ This document maps **Stage 01 Requirements (WHAT to build)** back to **Stage 00 
 - [EP-04 SDLC Structure Enforcement](../02-Epics/EP-04-SDLC-Structure-Enforcement.md)
 - [EP-05 Enterprise Migration](../02-Epics/EP-05-ENTERPRISE-SDLC-MIGRATION.md)
 - [EP-06 IR-Based Codegen Engine](../02-Epics/EP-06-IR-Based-Codegen-Engine.md)
-- **[Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)** *(NEW v2.1)*
+- **[Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)** *(v2.1)*
+- **[EP-07-Multi-Agent-Team-Engine.md](../02-Epics/EP-07-Multi-Agent-Team-Engine.md)** *(NEW v3.0)*
+- **[ADR-056-Multi-Agent-Team-Engine.md](../../02-design/01-ADRs/ADR-056-Multi-Agent-Team-Engine.md)** *(NEW v3.0)*
+- **[ADR-059-Enterprise-First-Refocus.md](../../02-design/01-ADRs/ADR-059-Enterprise-First-Refocus.md)** *(NEW v3.0)*
+- **[FR-037 through FR-044](../03-Functional-Requirements/)** *(NEW v3.0 — Multi-Agent BDD requirements)*
 
 ---
 
 **Document**: SDLC-Orchestrator-Requirements-Traceability-Matrix
-**Framework**: SDLC 5.1.3 Stage 01 (WHAT) - Planning & Analysis
+**Framework**: SDLC 6.1.0 Stage 01 (WHAT) - Planning & Analysis
 **Component**: Problem-to-Requirement Traceability
 **Review**: Quarterly with PM + CTO
-**Last Updated**: December 23, 2025
+**Last Updated**: February 19, 2026
 
 *"Every feature must trace back to a validated problem."*

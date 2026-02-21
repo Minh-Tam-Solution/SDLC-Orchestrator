@@ -128,14 +128,14 @@ Content:
 
 ### Priority 2: Framework Documentation Updates
 
-**Goal**: Finalize SDLC 5.1.0 documentation for Q1 2026 rollout
+**Goal**: Finalize SDLC 6.1.0 documentation for Q1 2026 rollout
 
 #### Deliverable 2.1: Update Framework README
 ```yaml
 File: SDLC-Enterprise-Framework/README.md
 Timeline: Jan 14 (Tuesday)
 Changes:
-  - Add "SDLC 5.1.0 SASE Integration" section
+  - Add "SDLC 6.1.0 SASE Integration" section
   - Link to 4 core documents
   - Link to 6 artifact templates
   - Add pilot status (Phase 2-Pilot, Week 5/8)

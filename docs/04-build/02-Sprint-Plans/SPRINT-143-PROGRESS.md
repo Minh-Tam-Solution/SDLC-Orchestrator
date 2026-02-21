@@ -1,7 +1,7 @@
 # Sprint 143 Progress Report
 
 **Sprint**: 143 - Framework-First Track 1: Boris Cherny Integration Patterns
-**Framework**: SDLC 6.0.5 (Boris Cherny Claude Code Tactics Integration)
+**Framework**: SDLC 6.1.0
 **Duration**: March 3-7, 2026 (5 working days)
 **Status**: 📋 PLANNED (Ready for CTO approval)
 **Owner**: Framework Architect + Documentation Team

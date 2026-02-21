@@ -53,10 +53,10 @@
 
 ### 1.2 SDLC Orchestrator Vision Alignment ✅
 
-**Vision**: "First governance-first platform on SDLC 5.1.3.1"
+**Vision**: "First governance-first platform on SDLC 6.1.0"
 
 **AI Council Contribution**:
-- ✅ Enforces SDLC 5.1.3.1 gates (G0-G5) via AI recommendations
+- ✅ Enforces SDLC 6.1.0 gates (G0-G5) via AI recommendations
 - ✅ Provides evidence-based compliance (SHA256 audit trail)
 - ✅ Developer-first tooling (VS Code Extension)
 - ✅ Tiered compliance (Lite/Standard/Enterprise)

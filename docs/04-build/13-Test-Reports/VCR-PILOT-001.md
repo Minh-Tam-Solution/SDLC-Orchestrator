@@ -20,7 +20,7 @@
 | **Effective Date** | January 31, 2025 |
 | **Reviewer** | CTO |
 | **Reviewed By** | AI Development Partner (for CTO) |
-| **Framework** | SDLC 5.1.0 Complete Lifecycle |
+| **Framework** | SDLC 6.1.0 Complete Lifecycle |
 
 ---
 
@@ -280,7 +280,7 @@ The SOP Generator Pilot (Phase 2-Pilot) has successfully demonstrated SASE Level
 - ✅ Human Accountability maintained (VCR review step)
 - ✅ Trust but Verify enforced (E2E tests + evidence pack)
 
-**SDLC 5.1.0 Complete Lifecycle**:
+**SDLC 6.1.0 Complete Lifecycle**:
 - ✅ Stage 04 (BUILD) complete with 98.2% quality
 - ✅ Gate G4 readiness achieved (Feb 7, 2026 review on track)
 - ✅ Zero Mock Policy 100% adherence

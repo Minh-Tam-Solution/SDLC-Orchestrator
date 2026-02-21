@@ -341,7 +341,7 @@ codegen:
     ollama:
       enabled: true
       base_url: "https://api.nhatquangholding.com"
-      model: "qwen2.5-coder:14b"    # Vietnamese-optimized
+      model: "qwen3-coder:30b"    # Vietnamese-optimized
       timeout_seconds: 60
       max_retries: 3
 
@@ -523,7 +523,7 @@ async def generate_with_retry(spec: CodegenSpec) -> CodegenResult:
       "backend/app/api/routes/users.py": "..."
     },
     "metadata": {
-      "model": "qwen2.5-coder:14b",
+      "model": "qwen3-coder:30b",
       "prompt_tokens": 450,
       "completion_tokens": 1250
     },
@@ -993,7 +993,7 @@ echo "PASS: No AGPL SDK imports"
 | **Last Updated** | January 29, 2026 |
 | **Author** | Backend Lead + Architect |
 | **Approvals** | CTO ✅ (Dec 23, 2025), CEO ✅ (Dec 23, 2025) |
-| **Framework Version** | SDLC 6.0.5 |
+| **Framework Version** | SDLC 6.1.0 |
 | **Status** | APPROVED |
 | **Migration From** | ADR-022-Multi-Provider-Codegen-Architecture.md |
 

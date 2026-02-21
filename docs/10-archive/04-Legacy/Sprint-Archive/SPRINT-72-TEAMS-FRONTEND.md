@@ -11,7 +11,7 @@
 
 ## 🎯 Orchestrator Philosophy: Dual Workbench Support
 
-Per SDLC 5.1.2 Principle #6 "Dual Workbenches", the UI must support both:
+Per SDLC 6.1.0 Principle #6 "Dual Workbenches", the UI must support both:
 
 ### Agent Coaching Environment (ACE) - For SE4H
 

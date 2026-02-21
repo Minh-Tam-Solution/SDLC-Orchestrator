@@ -6,7 +6,7 @@
 **Status**: ACTIVE - Week 5 Day 4 (API Documentation Finalization)
 **Authority**: Backend Lead + DevOps Lead + CTO Approved
 **Foundation**: Week 3-5 Production Experience (23 Endpoints)
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -675,7 +675,7 @@ curl "http://localhost:8000/api/v1/gates/{id}" \
 
 **Solution 1: Use valid gate types**
 ```bash
-# Valid gate types (SDLC 5.1.3)
+# Valid gate types (SDLC 6.1.0)
 gate_types=(
   "G0.1"  # Problem Definition
   "G0.2"  # Solution Diversity
@@ -1114,7 +1114,7 @@ kubectl rollout status deployment/sdlc-api
 ---
 
 **Troubleshooting Guide Status**: ✅ **COMPLETE**
-**Framework**: ✅ **SDLC 5.1.3 COMPLETE LIFECYCLE**
+**Framework**: ✅ **SDLC 6.1.0 COMPLETE LIFECYCLE**
 **Authorization**: ✅ **BACKEND LEAD + DEVOPS LEAD + CTO APPROVED**
 
 ---

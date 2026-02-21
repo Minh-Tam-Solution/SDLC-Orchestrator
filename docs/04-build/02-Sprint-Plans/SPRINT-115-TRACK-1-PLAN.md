@@ -189,7 +189,7 @@ author: name
 - Coding conventions
 - File structure
 
-### 2.2 Dynamic Context (SDLC 6.0 Extension)
+### 2.2 Dynamic Context (SDLC 6.1.0 Extension)
 - Gate-aware updates
 - Stage progression
 - Active constraints

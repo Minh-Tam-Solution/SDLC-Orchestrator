@@ -7,7 +7,7 @@
 **Author**: Frontend Lead
 **Reference**: ADR-028-Teams-Feature-Architecture
 **Sprint**: Sprint 72 (Feb 3 - Feb 17, 2026)
-**Framework**: SDLC 5.1.2 (Stage 08: COLLABORATE)
+**Framework**: SDLC 6.1.0
 
 **Changelog v1.1.0** (Jan 25, 2026):
 - Added `member_type` field to AddMemberInput interface
@@ -18,7 +18,7 @@
 
 ## 1. Overview
 
-This specification defines the frontend implementation for Teams feature in SDLC Orchestrator. The Teams feature enables **orchestration of AI+Human teams** following SDLC 5.1.2 SASE principles.
+This specification defines the frontend implementation for Teams feature in SDLC Orchestrator. The Teams feature enables **orchestration of AI+Human teams** following SDLC 6.1.0 SASE principles.
 
 ### SDLC Orchestrator = "Nhạc Trưởng" (Conductor)
 
@@ -951,7 +951,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-// SDLC 5.1.2 Stage definitions
+// SDLC 6.1.0 Stage definitions
 const SDLC_STAGES = [
   { id: "00", name: "Foundation", question: "WHY?" },
   { id: "01", name: "Planning", question: "WHAT?" },

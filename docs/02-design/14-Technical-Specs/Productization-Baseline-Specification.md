@@ -6,7 +6,7 @@
 **Date**: December 23, 2025
 **Author**: Product + Engineering
 **Sprint**: Sprint 50 (Mar 17-28, 2026)
-**Framework**: SDLC 5.1.3 + SASE Level 2
+**Framework**: SDLC 6.1.0
 **Dependency**: Sprint 49 (Pilot)
 
 ---
@@ -269,7 +269,7 @@ codegen:
     ollama:
       enabled: true
       base_url: "${OLLAMA_API_URL:https://api.nhatquangholding.com}"
-      model: "${OLLAMA_MODEL:qwen2.5-coder:14b}"
+      model: "${OLLAMA_MODEL:qwen3-coder:30b}"
       timeout_seconds: 60
       max_retries: 3
       # Rate limiting
@@ -322,7 +322,7 @@ codegen:
 
 # Ollama (Primary)
 OLLAMA_API_URL=https://api.nhatquangholding.com
-OLLAMA_MODEL=qwen2.5-coder:14b
+OLLAMA_MODEL=qwen3-coder:30b
 
 # Claude (Fallback - optional)
 ANTHROPIC_API_KEY=  # Set to enable

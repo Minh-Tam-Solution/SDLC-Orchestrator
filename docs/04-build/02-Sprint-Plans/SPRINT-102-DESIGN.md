@@ -3,7 +3,7 @@
 **Version**: 1.0.0  
 **Date**: January 23, 2026  
 **Status**: DESIGN APPROVED - Ready for Implementation  
-**Epic**: GAP-003, P1-003 (SDLC 5.2.0 Compliance)
+**Epic**: GAP-003, P1-003 (SDLC 6.1.0 Compliance)
 
 ---
 
@@ -805,7 +805,7 @@ def downgrade():
 │  Story Points: 22 SP                                           │
 │  Timeline: 5 days (Feb 3 - Feb 7)                             │
 │                                                                 │
-│  "Completes P0 gaps for SDLC 5.2.0 compliance.                │
+│  "Completes P0 gaps for SDLC 6.1.0 compliance.                │
 │   Graduated governance enables adoption at all org sizes."     │
 │                                                                 │
 │  — CTO, SDLC Orchestrator                                      │

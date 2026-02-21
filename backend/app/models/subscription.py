@@ -42,18 +42,27 @@ from app.db.base_class import Base
 
 class SubscriptionPlan(str, enum.Enum):
     """
-    Subscription plan tiers per Plan v2.2 Section 2.1.
+    Subscription plan tiers per ADR-059 4-Tier Classification (Sprint 181).
 
-    Pricing:
-    - FREE: 0 VND, 1 project, 5 gates
-    - FOUNDER: 2.5M VND/team/month (~$99)
-    - STANDARD: $30/user/month (manual billing in V1)
-    - ENTERPRISE: Custom pricing
+    Pricing (CPO decisions BM-01 to BM-05):
+    - LITE:       $0, free cloud gateway (was FREE — renamed Sprint 181)
+    - FOUNDER:    2.5M VND/team/month (~$150) — legacy billing SKU, grandfathered
+    - STARTER:    $99/mo, 5 projects, 10GB, 10 members (Sprint 188 — lower STANDARD tier)
+    - STANDARD:   $299/mo, 15 projects, 50GB, 30 members (Sprint 188 — upper STANDARD tier)
+    - PRO:        $499/mo, 20 projects, 100GB, unlimited members
+    - ENTERPRISE: Custom ($80/seat), unlimited + SSO + SLA
+
+    Note: FOUNDER plan name stays within STANDARD-Growth tier billing (grandfathered).
+    Note: The PostgreSQL enum value was renamed 'free' → 'lite' via
+          migration s181_001_tier_naming_lite.py.
+    Note: STARTER and PRO added in Sprint 188 via migration s188_002.
     """
 
-    FREE = "free"
+    LITE = "lite"
     FOUNDER = "founder"
+    STARTER = "starter"       # $99/mo — was missing, causing PRO/STARTER tier enforcement to fail
     STANDARD = "standard"
+    PRO = "pro"               # $499/mo — was missing, causing PRO customers to fall back to LITE limits
     ENTERPRISE = "enterprise"
 
 
@@ -90,7 +99,7 @@ class Subscription(Base):
     Attributes:
         id: Primary key
         user_id: Foreign key to users
-        plan: Subscription plan (free, founder, standard, enterprise)
+        plan: Subscription plan (lite, founder, standard, enterprise)
         status: Subscription status (active, canceled, past_due)
         current_period_start: Start of current billing period
         current_period_end: End of current billing period
@@ -120,7 +129,7 @@ class Subscription(Base):
     plan: Mapped[str] = mapped_column(
         Enum(SubscriptionPlan, name="subscription_plan_enum", create_constraint=True),
         nullable=False,
-        default=SubscriptionPlan.FREE,
+        default=SubscriptionPlan.LITE,
         comment="Subscription plan tier",
     )
 

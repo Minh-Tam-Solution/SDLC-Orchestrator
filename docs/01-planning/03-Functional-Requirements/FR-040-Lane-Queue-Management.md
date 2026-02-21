@@ -1,5 +1,5 @@
 ---
-sdlc_version: "6.0.6"
+sdlc_version: "6.1.0"
 document_type: "Functional Requirement"
 status: "PROPOSED"
 sprint: "176"
@@ -14,7 +14,7 @@ stage: "01 - Planning"
 **Status**: PROPOSED
 **Created**: February 2026
 **Sprint**: 177-178
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 **Epic**: EP-07 Multi-Agent Team Engine
 **ADR**: ADR-056 (Decision 2: Lane Contract)
 **Owner**: Backend Team

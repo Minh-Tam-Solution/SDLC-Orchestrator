@@ -5,7 +5,7 @@
 **Status**: ⏳ **IN PROGRESS** (2/4 P0 Items Complete)  
 **Authority**: Frontend Lead + CPO  
 **Foundation**: Frontend/UI-Backend Gap Analysis Report  
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -168,7 +168,7 @@
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced. Battle-tested patterns applied.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0. Zero Mock Policy enforced. Battle-tested patterns applied.*
 
 **"Gap Analysis P0: 3/4 complete. GitHub types added. EvidencePage integrated. Onboarding fixed. Project CRUD pending."** ⚔️ - Frontend Lead
 

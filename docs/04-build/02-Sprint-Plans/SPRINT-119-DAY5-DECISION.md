@@ -24,7 +24,7 @@
 
 ### Why EXTEND over ADOPT?
 
-1. **OpenSpec Already Integrated**: ADR-040 shows App Builder already generates SDLC 6.0 specs automatically. CLI wrapper is incremental, not critical.
+1. **OpenSpec Already Integrated**: ADR-040 shows App Builder already generates SDLC 6.1.0 specs automatically. CLI wrapper is incremental, not critical.
 
 2. **Context Authority V1 is Solid**: 1,406 LOC already in production (Sprint 109), with 7 API endpoints working.
 

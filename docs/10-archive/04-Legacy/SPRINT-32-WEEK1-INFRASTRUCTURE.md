@@ -802,7 +802,7 @@ kubectl wait --for=condition=ready pod -l app=ollama -n sop-generator-prod --tim
 
 **Afternoon (1pm-5pm): Pull Model & Test**
 
-**Task 3.3: Pull qwen2.5:14b-instruct Model** (1.5 hours)
+**Task 3.3: Pull qwen3:32b Model** (1.5 hours)
 
 ```bash
 # Get Ollama pod names
@@ -811,7 +811,7 @@ kubectl get pods -l app=ollama -n sop-generator-prod
 # Pull model on each pod (parallel)
 for pod in $(kubectl get pods -l app=ollama -n sop-generator-prod -o jsonpath='{.items[*].metadata.name}'); do
   echo "Pulling model on $pod..."
-  kubectl exec -it $pod -n sop-generator-prod -- ollama pull qwen2.5:14b-instruct &
+  kubectl exec -it $pod -n sop-generator-prod -- ollama pull qwen3:32b &
 done
 
 # Wait for all pulls to complete (10-15 min, model is ~8GB)
@@ -827,7 +827,7 @@ done
 **Expected Output** (per pod):
 ```
 NAME                     ID              SIZE    MODIFIED
-qwen2.5:14b-instruct     a4f9e5c2b1d3    8.1 GB  2 minutes ago
+qwen3:32b     a4f9e5c2b1d3    8.1 GB  2 minutes ago
 ```
 
 **Task 3.4: Test Ollama Generation** (1 hour)
@@ -852,7 +852,7 @@ done
 
 # Test 2: Generation latency (should be ~6-7s)
 echo "Test 2: Generation latency..."
-prompt='{"model": "qwen2.5:14b-instruct", "prompt": "Write a 3-step deployment SOP.", "stream": false}'
+prompt='{"model": "qwen3:32b", "prompt": "Write a 3-step deployment SOP.", "stream": false}'
 
 for i in {1..5}; do
   start=$(date +%s.%N)
@@ -949,7 +949,7 @@ kubectl get hpa -n sop-generator-prod
 
 **Demo**:
 - ✅ Ollama deployed (3 replicas on GPU nodes)
-- ✅ Model qwen2.5:14b-instruct loaded (8.1GB)
+- ✅ Model qwen3:32b loaded (8.1GB)
 - ✅ Generation latency: 6-8s (within target)
 - ✅ Load balancing working (requests distributed)
 - ✅ Failover tested (<2 min pod replacement)
@@ -1370,12 +1370,12 @@ test_case "Ollama pods ready (3/3)" \
   "[[ \$(kubectl get pods -l app=ollama -n $NAMESPACE --field-selector=status.phase=Running | wc -l) -eq 4 ]]"
 
 # Test 9: Ollama model loaded
-test_case "Ollama model loaded (qwen2.5:14b-instruct)" \
-  "kubectl exec -it deploy/ollama -n $NAMESPACE -- ollama list | grep -q 'qwen2.5:14b-instruct'"
+test_case "Ollama model loaded (qwen3:32b)" \
+  "kubectl exec -it deploy/ollama -n $NAMESPACE -- ollama list | grep -q 'qwen3:32b'"
 
 # Test 10: Ollama generation working
 test_case "Ollama generation working (<10s)" \
-  "timeout 10s kubectl exec -it deploy/ollama -n $NAMESPACE -- curl -s -X POST http://localhost:11434/api/generate -d '{\"model\":\"qwen2.5:14b-instruct\",\"prompt\":\"Say hello\",\"stream\":false}' | grep -q response"
+  "timeout 10s kubectl exec -it deploy/ollama -n $NAMESPACE -- curl -s -X POST http://localhost:11434/api/generate -d '{\"model\":\"qwen3:32b\",\"prompt\":\"Say hello\",\"stream\":false}' | grep -q response"
 
 # Test 11: PgBouncer connection pooling
 test_case "PgBouncer UP (2 replicas)" \
@@ -1481,7 +1481,7 @@ Create `docs/03-Development-Implementation/06-Test-Reports/SPRINT-32-WEEK1-REVIE
 - ✅ Kubernetes cluster (9 nodes: 6 general + 3 GPU)
 - ✅ PostgreSQL HA (primary + standby, <5min failover)
 - ✅ Redis Sentinel (3 nodes, <30s failover)
-- ✅ Ollama HA (3 replicas, qwen2.5:14b loaded)
+- ✅ Ollama HA (3 replicas, qwen3:32b loaded)
 - ✅ PgBouncer (1000 clients → 25 connections)
 - ✅ Prometheus + Grafana (30-day retention)
 - ✅ 5 critical alerts configured
@@ -1564,7 +1564,7 @@ Create `docs/03-Development-Implementation/06-Test-Reports/SPRINT-32-WEEK1-REVIE
 | **Kubernetes Cluster** | ✅ UP | 9 nodes | 36 CPU, 144GB RAM, 3 GPU | GKE production |
 | **PostgreSQL HA** | ✅ UP | 2 (primary + standby) | 3 CPU, 6GB RAM, 200GB storage | Bitnami chart |
 | **Redis Sentinel** | ✅ UP | 3 nodes | 1.5 CPU, 1.5GB RAM, 30GB storage | Bitnami chart |
-| **Ollama** | ✅ UP | 3 replicas | 6 CPU, 24GB RAM, 3 GPU | qwen2.5:14b loaded |
+| **Ollama** | ✅ UP | 3 replicas | 6 CPU, 24GB RAM, 3 GPU | qwen3:32b loaded |
 | **PgBouncer** | ✅ UP | 2 replicas | 0.4 CPU, 512MB RAM | Connection pooling |
 | **Prometheus** | ✅ UP | 1 instance | 2 CPU, 8GB RAM, 100GB storage | 30-day retention |
 | **Grafana** | ✅ UP | 1 instance | 1 CPU, 2GB RAM, 10GB storage | 1 dashboard |

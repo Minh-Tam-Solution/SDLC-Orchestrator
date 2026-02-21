@@ -6,7 +6,7 @@
 **Status**: ✅ ACTIVE - WEEK 10 IN PROGRESS
 **Authority**: PM + PJM (Project Manager)
 **Foundation**: PROJECT-KICKOFF.md (CEO Approved, 90-day timeline, $564K budget)
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0
 **Duration**: 13 weeks (90 days)
 **Team Size**: 8.5 FTE
 **Last Updated**: November 27, 2025 (Week 9 Day 5 Complete)
@@ -862,7 +862,7 @@ Sprint Backlog:
     ✅ EvidencePage (evidence vault table)
     ✅ DashboardPage (stats cards, recent gates)
     ✅ CreateProjectDialog (form with validation)
-    ✅ CreateGateDialog (SDLC 5.1.3 stages, gate types)
+    ✅ CreateGateDialog (SDLC 6.1.0 stages, gate types)
     ✅ UploadEvidenceDialog (file upload with progress)
     ✅ Design Evidence Log (DES-001 to DES-007)
     ✅ Frontend Design Specification wireframes
@@ -1207,7 +1207,7 @@ Files:
 
 ## 🎉 CLOSING NOTE
 
-This sprint plan represents **90 days of focused execution** to build the **FIRST governance-first platform** on SDLC 5.1.3. With proper planning, weekly retrospectives, and CEO oversight, we have **95% confidence** in meeting the **Week 13 launch target**.
+This sprint plan represents **90 days of focused execution** to build the **FIRST governance-first platform** on SDLC 6.1.0. With proper planning, weekly retrospectives, and CEO oversight, we have **95% confidence** in meeting the **Week 13 launch target**.
 
 **Key Success Factors**:
 1. ✅ Team commitment (8.5 FTE, 90 days)

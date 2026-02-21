@@ -6,7 +6,7 @@
 **Status**: ACTIVE - Week 4 Day 1 (Architecture Documentation)
 **Authority**: Backend Lead + Database Architect + CTO Approved
 **Foundation**: Week 2 Data Model v0.1 (21 tables), Alembic Setup
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 

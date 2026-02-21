@@ -360,7 +360,7 @@ Status: Active documentation. Used by all NQH development teams.''',
             'id': '90000000-0000-0000-0000-000000000001',
             'provider_name': 'NQH Ollama',
             'provider_type': 'ollama',
-            'model_name': 'qwen2.5-coder:32b',
+            'model_name': 'qwen3-coder:30b',
             'api_key_encrypted': '',
             'cost_per_1k_input_tokens': 0.00005,  # $0.05/1M = 95% savings
             'cost_per_1k_output_tokens': 0.00015,

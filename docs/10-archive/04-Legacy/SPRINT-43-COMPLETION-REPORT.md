@@ -2,7 +2,7 @@
 
 **Sprint**: 43 - Policy Guards & Evidence UI
 **Epic**: EP-02 AI Safety Layer v1
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 **Duration**: 10 days (December 13-22, 2025)
 **Status**: ✅ COMPLETE
 

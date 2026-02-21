@@ -6,7 +6,7 @@
 **Status**: ACTIVE - Week 4 Day 1 (Architecture Documentation)
 **Authority**: Backend Lead + DevOps Lead + CTO Approved
 **Foundation**: Week 3 Infrastructure (docker-compose.yml, .env.example)
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 

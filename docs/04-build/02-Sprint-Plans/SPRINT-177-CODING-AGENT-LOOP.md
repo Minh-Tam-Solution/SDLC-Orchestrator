@@ -3,7 +3,7 @@
 **Sprint Duration**: March 31 - April 11, 2026 (10 working days)
 **Status**: PLANNED
 **Phase**: Stage 04 (BUILD) — Autonomous Codegen Phase 2 + Multi-Agent Core Implementation
-**Framework**: SDLC 6.0.6 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.1.0
 **Priority**: P0 (ADR-055 Phase 2 + ADR-056 P0 Services)
 **Previous Sprint**: [Sprint 176 — Autonomous Codegen & Multi-Agent Foundation](SPRINT-176-AUTONOMOUS-CODEGEN-PILOT-PREP.md)
 **ADR References**:

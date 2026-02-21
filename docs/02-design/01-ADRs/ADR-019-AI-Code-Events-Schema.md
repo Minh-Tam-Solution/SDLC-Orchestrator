@@ -5,7 +5,7 @@
 **Date**: January 6, 2026
 **Author**: Backend Team + CTO
 **Deciders**: CTO, Backend Lead, DBA
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Epic**: EP-02 AI Safety Layer v1
 **Sprint**: Sprint 41 - AI Safety Foundation
 
@@ -564,4 +564,4 @@ def downgrade():
 
 ---
 
-*ADR Version: 1.0.0 | Created: January 6, 2026 | Framework: SDLC 5.1.3*
+*ADR Version: 1.0.0 | Created: January 6, 2026 | Framework: SDLC 6.1.0*

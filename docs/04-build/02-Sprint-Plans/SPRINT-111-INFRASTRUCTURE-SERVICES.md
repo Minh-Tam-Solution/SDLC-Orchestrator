@@ -4,7 +4,7 @@
 **Date**: TBD (Post Sprint 110)
 **Status**: PLANNING
 **Epic**: TEST STRATEGY 2026 - Infrastructure Layer Completion
-**Framework**: SDLC 5.3.0
+**Framework**: SDLC 6.1.0
 **Prerequisites**: Sprint 107 (TDD Foundation), Sprint 108-110 (Governance)
 
 ---

@@ -4,7 +4,7 @@
 **Date**: January 21, 2026
 **Approved By**: CTO + CEO + Legal Counsel
 **Deciders**: CTO + Product Lead + Security Lead
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Impact**: HIGH - Fundamental change to admin authorization model
 **Related**: ADR-017 (Admin Panel Architecture - SUPERSEDED)
 **Sprint**: Sprint 87 - Admin Role Refactoring

@@ -1,7 +1,7 @@
 # Expert Review Pack - SDLC Orchestrator
 ## External Expert Evaluation Request
 
-**Version**: 1.2.0 (Updated for SDLC 5.1.3)
+**Version**: 1.2.0 (Updated for SDLC 6.1.0)
 **Date**: January 18, 2026
 **Prepared By**: Nhat Quang Holding (NQH) - Product & Engineering Team
 **Classification**: Confidential - For Expert Review Only

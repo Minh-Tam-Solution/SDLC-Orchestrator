@@ -2435,7 +2435,7 @@
           "projects"
         ],
         "summary": "Initialize SDLC project",
-        "description": "Initialize a new SDLC 6.0.5 project. Creates project in database and returns configuration for .sdlc-config.json. Per RFC-001, creates 10-archive/ (no 99-Legacy/ in active stages).",
+        "description": "Initialize a new SDLC 6.1.0 project. Creates project in database and returns configuration for .sdlc-config.json. Per RFC-001, creates 10-archive/ (no 99-Legacy/ in active stages).",
         "operationId": "init_project_api_v1_projects_init_post",
         "security": [
           {
@@ -2500,8 +2500,8 @@
           "Projects",
           "projects"
         ],
-        "summary": "Migrate project stages to SDLC 5.0.0",
-        "description": "Migrate project from old stage structure to SDLC 5.0.0. Moves INTEGRATE from stage 07 to stage 03.",
+        "summary": "Migrate project stages to SDLC 6.1.0",
+        "description": "Migrate project from old stage structure to SDLC 6.1.0. Moves INTEGRATE from stage 07 to stage 03.",
         "operationId": "migrate_stages_api_v1_projects__project_id__migrate_stages_post",
         "security": [
           {
@@ -7510,8 +7510,8 @@
           "SDLC Structure",
           "SDLC Structure"
         ],
-        "summary": "Validate SDLC 5.0.0 structure",
-        "description": "Validate project documentation structure against SDLC 5.0.0 standards.",
+        "summary": "Validate SDLC 6.1.0 structure",
+        "description": "Validate project documentation structure against SDLC 6.1.0 standards.",
         "operationId": "validate_structure_api_v1_projects__project_id__validate_structure_post",
         "security": [
           {
@@ -13914,7 +13914,7 @@
           "Codegen"
         ],
         "summary": "Generate Stream",
-        "description": "Stream code generation with real-time file events via SSE.\n\nSprint 51A: Progressive Code Generation Flow\n\nThis endpoint streams events as files are generated:\n- started: Generation session initiated with provider info\n- file_generating: File generation started\n- file_generated: File completed with content and syntax check\n- quality_started: Quality pipeline initiated\n- quality_gate: Individual gate results\n- completed: All files generated successfully\n- error: Generation failed (includes recovery_id if partial)\n\nFrontend can display files as they appear, providing better UX\nthan waiting for all files to complete.\n\nArgs:\n    request: GenerateRequest with app_blueprint\n\nReturns:\n    StreamingResponse with SSE events (text/event-stream)\n\nExample events:\n    data: {\"type\": \"started\", \"session_id\": \"abc123\", \"model\": \"qwen2.5-coder:32b\", \"provider\": \"ollama\"}\n\n    data: {\"type\": \"file_generating\", \"session_id\": \"abc123\", \"path\": \"app/main.py\"}\n\n    data: {\"type\": \"file_generated\", \"session_id\": \"abc123\", \"path\": \"app/main.py\", \"content\": \"...\", \"lines\": 45, \"language\": \"python\", \"syntax_valid\": true}\n\n    data: {\"type\": \"completed\", \"session_id\": \"abc123\", \"total_files\": 12, \"total_lines\": 450, \"duration_ms\": 30000, \"success\": true}",
+        "description": "Stream code generation with real-time file events via SSE.\n\nSprint 51A: Progressive Code Generation Flow\n\nThis endpoint streams events as files are generated:\n- started: Generation session initiated with provider info\n- file_generating: File generation started\n- file_generated: File completed with content and syntax check\n- quality_started: Quality pipeline initiated\n- quality_gate: Individual gate results\n- completed: All files generated successfully\n- error: Generation failed (includes recovery_id if partial)\n\nFrontend can display files as they appear, providing better UX\nthan waiting for all files to complete.\n\nArgs:\n    request: GenerateRequest with app_blueprint\n\nReturns:\n    StreamingResponse with SSE events (text/event-stream)\n\nExample events:\n    data: {\"type\": \"started\", \"session_id\": \"abc123\", \"model\": \"qwen3-coder:30b\", \"provider\": \"ollama\"}\n\n    data: {\"type\": \"file_generating\", \"session_id\": \"abc123\", \"path\": \"app/main.py\"}\n\n    data: {\"type\": \"file_generated\", \"session_id\": \"abc123\", \"path\": \"app/main.py\", \"content\": \"...\", \"lines\": 45, \"language\": \"python\", \"syntax_valid\": true}\n\n    data: {\"type\": \"completed\", \"session_id\": \"abc123\", \"total_files\": 12, \"total_lines\": 450, \"duration_ms\": 30000, \"success\": true}",
         "operationId": "generate_stream_api_v1_codegen_generate_stream_post",
         "security": [
           {
@@ -37077,7 +37077,7 @@
           "Compliance Validation"
         ],
         "summary": "Calculate compliance score",
-        "description": "Calculate SDLC 6.0.5 compliance score for a project. 10 categories \u00d7 10 points = 100 maximum score.",
+        "description": "Calculate SDLC 6.1.0 compliance score for a project. 10 categories \u00d7 10 points = 100 maximum score.",
         "operationId": "validate_compliance_api_v1_projects__project_id__validate_compliance_post",
         "security": [
           {
@@ -50013,7 +50013,7 @@
           "stage"
         ],
         "title": "GateCreateRequest",
-        "description": "Create new quality gate request.\n\nRequest Body:\n    {\n        \"project_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"gate_name\": \"G2\",\n        \"gate_type\": \"SHIP_READY\",\n        \"stage\": \"SHIP\",\n        \"description\": \"G2 (Ship Ready) - Production deployment approval\",\n        \"exit_criteria\": [\n            {\"criterion\": \"Zero P0 bugs\", \"status\": \"pending\"},\n            {\"criterion\": \"95%+ test coverage\", \"status\": \"pending\"},\n            {\"criterion\": \"Security scan passed\", \"status\": \"pending\"}\n        ]\n    }\n\nValidation:\n    - gate_name: Required (e.g., G0.1, G1, G2)\n    - stage: Must be valid SDLC 4.9 stage (WHY, WHAT, BUILD, TEST, SHIP, etc.)\n    - project_id: Must exist in projects table"
+        "description": "Create new quality gate request.\n\nRequest Body:\n    {\n        \"project_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"gate_name\": \"G2\",\n        \"gate_type\": \"SHIP_READY\",\n        \"stage\": \"SHIP\",\n        \"description\": \"G2 (Ship Ready) - Production deployment approval\",\n        \"exit_criteria\": [\n            {\"criterion\": \"Zero P0 bugs\", \"status\": \"pending\"},\n            {\"criterion\": \"95%+ test coverage\", \"status\": \"pending\"},\n            {\"criterion\": \"Security scan passed\", \"status\": \"pending\"}\n        ]\n    }\n\nValidation:\n    - gate_name: Required (e.g., G0.1, G1, G2)\n    - stage: Must be valid SDLC 6.1.0 stage (WHY, WHAT, BUILD, TEST, SHIP, etc.)\n    - project_id: Must exist in projects table"
       },
       "GateEvaluationCreate": {
         "properties": {
@@ -54760,7 +54760,7 @@
         },
         "type": "object",
         "title": "MigrateStagesRequest",
-        "description": "Request to migrate project stages to SDLC 6.0.5. Includes RFC-001 legacy archive migration."
+        "description": "Request to migrate project stages to SDLC 6.1.0. Includes RFC-001 legacy archive migration."
       },
       "MigrateStagesResponse": {
         "properties": {
@@ -74179,7 +74179,7 @@
         },
         "type": "object",
         "title": "ValidateStructureRequest",
-        "description": "Request to validate SDLC 5.0.0 structure."
+        "description": "Request to validate SDLC 6.1.0 structure."
       },
       "ValidateStructureResponse": {
         "properties": {

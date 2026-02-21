@@ -2,7 +2,7 @@
 
 **Sprint Duration**: February 17-28, 2026 (10 working days)  
 **Sprint Goal**: Implement Tier 1 Anthropic patterns (Prompt Caching + MCP Positioning)  
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 **Status**: PLANNED
 
 ---

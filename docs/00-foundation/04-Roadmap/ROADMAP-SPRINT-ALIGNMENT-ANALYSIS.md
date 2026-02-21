@@ -1,5 +1,10 @@
 # Roadmap & Sprint Alignment Analysis
 
+> **⚠️ SUPERSEDED (February 19, 2026)**: This analysis covers Sprint 70-77 era (January 2026).
+> It has been superseded by **Product-Roadmap v8.0.0** (docs/00-foundation/01-Vision/Product-Roadmap.md)
+> which covers Sprint 181-188 under the Enterprise-First strategy (ADR-059).
+> Retained for historical reference only.
+
 **Analysis Date:** January 18, 2026
 **Framework:** SDLC 5.1.3 (7-Pillar Architecture)
 **Scope:** Q1-Q2 2026 Sprint Coverage

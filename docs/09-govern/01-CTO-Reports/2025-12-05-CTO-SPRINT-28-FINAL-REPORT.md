@@ -207,7 +207,7 @@ The same components can be adapted for VS Code webview:
 
 ## Compliance Verification
 
-### SDLC 5.1.3.1 Compliance
+### SDLC 6.1.0 Compliance
 
 | Requirement | Status |
 |-------------|--------|

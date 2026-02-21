@@ -5,7 +5,7 @@
 **Review Date**: December 10, 2025
 **Status**: ✅ **READY FOR APPROVAL** (12/12 criteria met)
 **Authority**: CTO + CPO + Security Lead
-**Framework**: SDLC 5.1.3 Complete Lifecycle (Stage 02 → Stage 03 Transition)
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -108,7 +108,7 @@ def upload_to_minio(file_path: str) -> str:
 
 **Evidence**:
 - Integration: REST API calls to OPA service (port 8181)
-- Policies: 110 pre-built policies (all 10 SDLC 5.1.3 stages)
+- Policies: 110 pre-built policies (all 10 SDLC 6.1.0 stages)
 - Evaluation: Real Rego execution (<50ms p95)
 - Testing: Policy test framework (5+ tests per policy)
 
@@ -615,7 +615,7 @@ curl -I http://localhost:8000/api/v1/health
 ---
 
 **Checklist Status**: ✅ **COMPLETE** (12/12 criteria met)
-**Framework**: ✅ **SDLC 5.1.3 COMPLETE LIFECYCLE**
+**Framework**: ✅ **SDLC 6.1.0 COMPLETE LIFECYCLE**
 **Authorization**: ✅ **CTO + CPO + SECURITY LEAD APPROVED**
 
 ---

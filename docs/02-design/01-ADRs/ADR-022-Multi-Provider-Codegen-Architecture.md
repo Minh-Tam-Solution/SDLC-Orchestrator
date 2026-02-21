@@ -5,7 +5,7 @@
 **Date**: December 23, 2025
 **Decision Makers**: CTO, CEO (joint review)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 5.1.3 + SASE Level 2
+**Framework**: SDLC 6.1.0
 **Sprint**: Sprint 45 (Jan 6-17, 2026)
 
 ---
@@ -281,7 +281,7 @@ class OllamaCodegenProvider(CodegenProvider):
 
     def __init__(self):
         self.base_url = settings.OLLAMA_API_URL  # https://api.nhatquangholding.com
-        self.model = settings.OLLAMA_CODEGEN_MODEL  # qwen2.5-coder:14b
+        self.model = settings.OLLAMA_CODEGEN_MODEL  # qwen3-coder:30b
         self._available: bool = False
         self._check_availability()
 
@@ -784,7 +784,7 @@ codegen:
     ollama:
       enabled: true
       base_url: "https://api.nhatquangholding.com"
-      model: "qwen2.5-coder:14b"
+      model: "qwen3-coder:30b"
       timeout_seconds: 60
       max_retries: 3
 
@@ -801,7 +801,7 @@ codegen:
 ```bash
 # .env
 OLLAMA_API_URL=https://api.nhatquangholding.com
-OLLAMA_CODEGEN_MODEL=qwen2.5-coder:14b
+OLLAMA_CODEGEN_MODEL=qwen3-coder:30b
 ANTHROPIC_API_KEY=  # Optional, for Claude fallback
 ```
 

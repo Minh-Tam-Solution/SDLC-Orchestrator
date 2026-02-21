@@ -3,7 +3,7 @@
 **Date**: December 12, 2025
 **Gate**: G3 - Ship Ready
 **Project**: SDLC Orchestrator
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 **Status**: ✅ RECOMMENDED FOR APPROVAL
 **Readiness Score**: 98.2%
 
@@ -148,7 +148,7 @@ Rationale:
 - Begin internal beta with 5 pilot teams
 
 ### Short-term (Sprint 32)
-- Batch update 30 documents to SDLC 5.1.3
+- Batch update 30 documents to SDLC 6.1.0
 - Address P2 security refinements
 - Collect pilot team feedback
 
@@ -182,6 +182,6 @@ The platform is ready for beta pilot deployment with the 5 internal teams (BFlow
 
 **Document Owner**: CTO
 **Last Updated**: December 12, 2025
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 **Gate**: G3 - Ship Ready
 **Next Gate**: G4 - Internal Validation (30 days post-launch)

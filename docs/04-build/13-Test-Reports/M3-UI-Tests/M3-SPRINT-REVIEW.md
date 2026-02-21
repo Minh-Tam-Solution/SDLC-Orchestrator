@@ -172,7 +172,7 @@ const generateMutation = useMutation({
 │ Gen Time: 6.5s               │  |------|----------------|------| │
 │ Completeness: 100% ✅ PASS   │                                  │
 │ SHA256: a7b3c5d...           │  ## 5. Quality Criteria          │
-│ Model: qwen2.5:14b-instruct  │  - [ ] All env vars set          │
+│ Model: qwen3:32b  │  - [ ] All env vars set          │
 └───────────────────────────────┴──────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────────────┐

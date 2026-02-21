@@ -5,14 +5,14 @@
 **Duration**: 5 days (January 6-10, 2026)
 **Status**: PLANNED
 **Team**: 2 Backend, 1 DevOps
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Phase**: PHASE-04 (SDLC Structure Validator)
 
 ---
 
 ## Sprint Goal
 
-Build the core SDLC Validator CLI (`sdlcctl`) with SDLC 5.1.3 validation engine, including 4-tier classification support, P0 artifact checking, and pre-commit hook integration.
+Build the core SDLC Validator CLI (`sdlcctl`) with SDLC 6.1.0 validation engine, including 4-tier classification support, P0 artifact checking, and pre-commit hook integration.
 
 ---
 
@@ -69,7 +69,7 @@ class ValidationResult:
     score: int  # 0-100
 
 class SDLCValidator:
-    """SDLC 5.1.3 Structure Validator Engine"""
+    """SDLC 6.1.0 Structure Validator Engine"""
 
     STAGE_NAMES = {
         "00": "00-Project-Foundation",
@@ -108,7 +108,7 @@ class SDLCValidator:
             return Tier.ENTERPRISE
 
     async def validate(self) -> ValidationResult:
-        """Run full SDLC 5.1.3 validation"""
+        """Run full SDLC 6.1.0 validation"""
         # Implementation
         pass
 ```
@@ -256,7 +256,7 @@ repos:
     rev: v1.0.0
     hooks:
       - id: sdlc-validate
-        name: SDLC 5.1.3 Structure Validation
+        name: SDLC 6.1.0 Structure Validation
         entry: sdlcctl validate --strict
         language: python
         types: [file]
@@ -269,7 +269,7 @@ repos:
 # Hook output on failure
 $ git commit -m "Add new feature"
 
-SDLC 5.1.3 Structure Validation.............................Failed
+SDLC 6.1.0 Structure Validation.............................Failed
 
 ❌ Violations Found: 2
 
@@ -376,7 +376,7 @@ backend/
 [project]
 name = "sdlcctl"
 version = "1.0.0"
-description = "SDLC 5.1.3 Structure Validator CLI"
+description = "SDLC 6.1.0 Structure Validator CLI"
 dependencies = [
     "typer>=0.9.0",
     "rich>=13.0.0",
@@ -426,7 +426,7 @@ Optimization Techniques:
 ### Non-blocking Dependencies
 
 - PHASE-04 document approved (completed)
-- SDLC 5.1.3 Framework finalized (completed)
+- SDLC 6.1.0 Framework finalized (completed)
 
 ---
 
@@ -456,7 +456,7 @@ Optimization Techniques:
 ## References
 
 - [PHASE-04: SDLC Structure Validator](../04-Phase-Plans/PHASE-04-SDLC-VALIDATOR.md)
-- [SDLC 5.1.3 Framework](../../../SDLC-Enterprise-Framework/)
+- [SDLC 6.1.0 Framework](../../../SDLC-Enterprise-Framework/)
 - [ADR-014: SDLC Structure Validator](../../02-design/01-ADRs/ADR-014-SDLC-Validator.md)
 
 ---

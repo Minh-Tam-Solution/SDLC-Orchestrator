@@ -1,4 +1,4 @@
-# SDLC 5.1.3 Structure Validation - User Guide
+# SDLC 6.1.0 Structure Validation - User Guide
 
 **Version**: 1.0.0
 **Status**: ACTIVE - STAGE 03 (BUILD)
@@ -10,7 +10,7 @@
 
 ## Overview
 
-The SDLC 5.1.3 Structure Validation feature ensures your project documentation follows the complete SDLC lifecycle framework. It validates folder structure, P0 artifacts, and provides actionable fix suggestions.
+The SDLC 6.1.0 Structure Validation feature ensures your project documentation follows the complete SDLC lifecycle framework. It validates folder structure, P0 artifacts, and provides actionable fix suggestions.
 
 ### Key Features
 
@@ -25,7 +25,7 @@ The SDLC 5.1.3 Structure Validation feature ensures your project documentation f
 
 ## 4-Tier Classification
 
-SDLC 5.1.3 supports four tiers based on project size and requirements:
+SDLC 6.1.0 supports four tiers based on project size and requirements:
 
 | Tier | Icon | Required Stages | Description |
 |------|------|-----------------|-------------|
@@ -308,7 +308,7 @@ echo "# Maintenance & Evolution" > docs/07-Maintenance-Evolution/README.md
 
 #### "Invalid folder naming" Warning
 
-**Problem**: Folder name doesn't match SDLC 5.1.3 convention.
+**Problem**: Folder name doesn't match SDLC 6.1.0 convention.
 
 **Solution**:
 1. Rename folder to match `XX-Stage-Name` format

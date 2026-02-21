@@ -53,7 +53,7 @@
 
 ## 📋 Epic Overview (Original Plan)
 
-**Problem**: All 8 system settings are mock - violates SDLC 5.1.2 Zero Mock Policy
+**Problem**: All 8 system settings are mock - violates SDLC 6.1.0 Zero Mock Policy
 
 **Solution**: Phase 1 fixes 4 critical security settings first (6-week phased approach)
 
@@ -91,7 +91,7 @@ Fix Zero Mock Policy violation - make 4 security settings functional.
 Current State:
 - Settings exist in database but have NO effect on code
 - Admin changes settings → nothing happens
-- Violates SDLC 5.1.2 framework that we enforce on others
+- Violates SDLC 6.1.0 framework that we enforce on others
 
 Phase 1 Target:
 - ✅ session_timeout_minutes → controls JWT expiry

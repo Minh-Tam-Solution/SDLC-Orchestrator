@@ -1,5 +1,5 @@
 # Admin Panel - Functional Requirements
-## SDLC 5.1.3 Complete Lifecycle - Design Phase
+## SDLC 6.1.0 Complete Lifecycle - Design Phase
 
 **Version**: 2.1.0
 **Date**: 2025-12-18

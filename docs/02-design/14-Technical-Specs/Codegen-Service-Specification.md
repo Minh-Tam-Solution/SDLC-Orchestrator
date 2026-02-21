@@ -6,7 +6,7 @@
 **Date**: December 23, 2025
 **Author**: Backend Lead + Architect
 **Sprint**: Sprint 45 (Jan 6-17, 2026)
-**Framework**: SDLC 5.1.3 + SASE Level 2
+**Framework**: SDLC 6.1.0
 **ADR Reference**: [ADR-022-Multi-Provider-Codegen-Architecture](../01-ADRs/ADR-022-Multi-Provider-Codegen-Architecture.md)
 
 ---
@@ -95,7 +95,7 @@ This specification defines the technical implementation of the Codegen Service -
         v
 ┌───────────────────────────────────────────────────────────────┐
 │              External: Ollama API (api.nhatquangholding.com)                │
-│              Model: qwen2.5-coder:14b                         │
+│              Model: qwen3-coder:30b                           │
 └───────────────────────────────────────────────────────────────┘
 
 * Claude available only if ANTHROPIC_API_KEY configured
@@ -215,7 +215,7 @@ class CodegenResult(BaseModel):
                 "provider": "ollama",
                 "tokens_used": 1500,
                 "generation_time_ms": 2500,
-                "metadata": {"model": "qwen2.5-coder:14b"}
+                "metadata": {"model": "qwen3-coder:30b"}
             }
         }
 
@@ -461,7 +461,7 @@ class EstimateResponse(BaseModel):
     "tokens_used": 2500,
     "generation_time_ms": 3200,
     "metadata": {
-      "model": "qwen2.5-coder:14b",
+      "model": "qwen3-coder:30b",
       "prompt_tokens": 800,
       "completion_tokens": 1700
     }
@@ -663,7 +663,7 @@ class Settings(BaseSettings):
 
     # Codegen Provider Settings
     OLLAMA_API_URL: str = "https://api.nhatquangholding.com"
-    OLLAMA_CODEGEN_MODEL: str = "qwen2.5-coder:14b"
+    OLLAMA_CODEGEN_MODEL: str = "qwen3-coder:30b"
     OLLAMA_TIMEOUT_SECONDS: int = 60
     OLLAMA_MAX_RETRIES: int = 3
 
@@ -987,7 +987,7 @@ echo "=== All smoke tests passed ==="
 
 # Codegen - Ollama (Primary)
 OLLAMA_API_URL=https://api.nhatquangholding.com
-OLLAMA_CODEGEN_MODEL=qwen2.5-coder:14b
+OLLAMA_CODEGEN_MODEL=qwen3-coder:30b
 OLLAMA_TIMEOUT_SECONDS=60
 OLLAMA_MAX_RETRIES=3
 
@@ -1021,7 +1021,7 @@ metadata:
   name: codegen-config
 data:
   OLLAMA_API_URL: "https://api.nhatquangholding.com"
-  OLLAMA_CODEGEN_MODEL: "qwen2.5-coder:14b"
+  OLLAMA_CODEGEN_MODEL: "qwen3-coder:30b"
   CODEGEN_DEFAULT_PROVIDER: "ollama"
   CODEGEN_FALLBACK_CHAIN: "ollama,claude,deepcode"
 

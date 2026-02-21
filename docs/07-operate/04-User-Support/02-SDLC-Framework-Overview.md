@@ -1,4 +1,4 @@
-# SDLC 5.1.3 Framework Overview
+# SDLC 6.1.0 Framework Overview
 **Understanding the Governance Policy Behind SDLC Orchestrator**  
 **Last Updated**: December 20, 2025
 
@@ -6,7 +6,7 @@
 
 ## Introduction
 
-**SDLC Orchestrator** is the platform that implements **SDLC 5.1.3 Enterprise Framework** - a battle-tested, AI+Human software development methodology with proven results:
+**SDLC Orchestrator** is the platform that implements **SDLC 6.1.0 Enterprise Framework** - a battle-tested, AI+Human software development methodology with proven results:
 
 ### Real-World Success Stories
 
@@ -18,7 +18,7 @@
 
 ---
 
-## The SDLC 5.1.3 Framework
+## The SDLC 6.1.0 Framework
 
 ### Core Philosophy
 
@@ -34,7 +34,7 @@ Every stage = Real-world validated
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                   SDLC 5.1.3 Complete Lifecycle                     │
+│                   SDLC 6.1.0 Complete Lifecycle                     │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  STAGE 00: FOUNDATION  (WHY?)                                      │
@@ -174,7 +174,7 @@ Projects are classified by complexity and requirements:
 
 ## 6-Pillar Architecture
 
-SDLC 5.1.3 is built on 6 foundational pillars:
+SDLC 6.1.0 is built on 6 foundational pillars:
 
 ### 1. Design Thinking
 **Human-Centered Approach**
@@ -320,7 +320,7 @@ Reporting       → Dashboards & analytics
 
 ## Framework vs Platform
 
-### SDLC 5.1.3 Enterprise Framework
+### SDLC 6.1.0 Enterprise Framework
 **What**: Governance policy and methodology  
 **Why**: Proven best practices from real projects  
 **Location**: `/SDLC-Enterprise-Framework/`  
@@ -381,7 +381,7 @@ Orchestrator = The Enforcer
 
 ### Key Takeaways
 
-✅ **SDLC 5.1.3** is a proven 10-stage framework with real-world success  
+✅ **SDLC 6.1.0** is a proven 10-stage framework with real-world success  
 ✅ **Quality Gates** ensure quality at every checkpoint  
 ✅ **4-Tier Classification** matches process to project complexity  
 ✅ **6 Pillars** provide comprehensive methodology  
@@ -397,7 +397,7 @@ Orchestrator = The Enforcer
 
 ---
 
-**Framework**: SDLC 5.1.3 Complete Lifecycle  
+**Framework**: SDLC 6.1.0
 **Platform**: SDLC Orchestrator v1.2.0  
 **Proven Results**: BFlow, NQH-Bot, MTEP  
 **Last Updated**: December 20, 2025

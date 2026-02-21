@@ -41,7 +41,7 @@ Frontend improvements have been successfully completed, enhancing user experienc
 | **Empty State** | Helpful message when no gates exist | ✅ Implemented |
 | **Gate List** | Grid layout showing all gates | ✅ Implemented |
 | **Status Badges** | Color-coded status indicators | ✅ Implemented |
-| **SDLC 5.1.3 Labels** | Stage labels (G0-G6) | ✅ Implemented |
+| **SDLC 6.1.0 Labels** | Stage labels (G0-G6) | ✅ Implemented |
 
 **Key Features**:
 - Empty state with "No gates yet" message
@@ -51,7 +51,7 @@ Frontend improvements have been successfully completed, enhancing user experienc
   - `rejected`: Red
   - `in_review`: Blue
   - `pending`: Yellow
-- Stage labels mapped to SDLC 5.1.3:
+- Stage labels mapped to SDLC 6.1.0:
   - G0: Problem Definition
   - G1: Solution Validation
   - G2: Design Ready
@@ -234,7 +234,7 @@ Frontend improvements have been successfully completed, enhancing user experienc
 | Gates page | ✅ Complete |
 | Empty state | ✅ Complete |
 | Status badges | ✅ Complete |
-| SDLC 5.1.3 labels | ✅ Complete |
+| SDLC 6.1.0 labels | ✅ Complete |
 | Routing configured | ✅ Complete |
 | E2E tests passing | ✅ 20/26 (77%) |
 | Zero Mock Policy | ✅ 100% |
@@ -275,7 +275,7 @@ All frontend improvements have been successfully delivered. Sidebar navigation i
 
 **Report Generated**: November 27, 2025  
 **Author**: Frontend Team  
-**Framework**: SDLC 5.1.3 Complete Lifecycle  
+**Framework**: SDLC 6.1.0
 **Status**: ✅ **COMPLETE**
 
 ---

@@ -5,7 +5,7 @@
 **Duration:** 10 days (February 17-28, 2026)
 **Goal:** Integrate AGENTS.md with GitHub Check Runs, VS Code Extension, and PR Webhooks
 **Story Points:** 42 SP _(+4 SP from design review)_
-**Framework Reference:** SDLC 5.1.3 P5 (SASE Integration)
+**Framework Reference:** SDLC 6.1.0 P5 (SASE Integration)
 **Prerequisite:** Sprint 80 ✅ COMPLETE
 **Design Review:** [SPRINT-81-DESIGN-REVIEW.md](../../02-design/14-Technical-Specs/SPRINT-81-DESIGN-REVIEW.md)
 
@@ -919,7 +919,7 @@ GET /api/v1/agents-md/context/{project_id}/history:
 
 ---
 
-## 📝 SDLC 5.1.3 Compliance
+## 📝 SDLC 6.1.0 Compliance
 
 | Pillar | Sprint 81 Implementation |
 |--------|--------------------------|
@@ -1112,7 +1112,7 @@ Key Insight from Design Review:
 
 ---
 
-**SDLC 5.1.3 | Sprint 81 | Stage 04 (BUILD)**
+**SDLC 6.1.0 | Sprint 81 | Stage 04 (BUILD)**
 
 *G-Sprint Gate: ✅ PASSED (CTO Approval Jan 19, 2026)*
 *Design Review: ✅ COMPLETE (DRR-081-001)*

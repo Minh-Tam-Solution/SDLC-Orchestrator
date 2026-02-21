@@ -102,7 +102,7 @@ def upgrade() -> None:
     op.create_check_constraint(
         "ck_agent_definitions_sdlc_role",
         "agent_definitions",
-        "sdlc_role IN ('pm', 'architect', 'coder', 'reviewer', 'tester', 'devops')",
+        "sdlc_role IN ('researcher', 'pm', 'pjm', 'architect', 'coder', 'reviewer', 'tester', 'devops')",
     )
     op.create_check_constraint(
         "ck_agent_definitions_queue_mode",

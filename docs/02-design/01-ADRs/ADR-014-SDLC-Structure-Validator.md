@@ -4,7 +4,7 @@
 **Date**: December 3, 2025
 **Decision Makers**: CTO, CPO (joint review)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 6.0.6 (RFC-001 Legacy Document Organization)
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -12,7 +12,7 @@
 
 Per CEO directive và PM/PJM Bflow handover (Dec 3, 2025), cần:
 
-1. **Enforce SDLC 6.0.5 folder structure** across all projects (including RFC-001 legacy archive compliance)
+1. **Enforce SDLC 6.1.0 folder structure** across all projects (including RFC-001 legacy archive compliance)
 2. **Level-based compliance** based on project size
 3. **Automated validation** to prevent non-compliant commits
 4. **Templates** for new project scaffolding
@@ -122,7 +122,7 @@ SDLC_605_STAGES = {
     "10": "archive"   # RFC-001: centralized legacy archive (10-archive/{NN}-Legacy/)
 }
 
-# Common mistakes to detect (old naming → SDLC 6.0.5 naming)
+# Common mistakes to detect (old naming → SDLC 6.1.0 naming)
 STAGE_NAME_CORRECTIONS = {
     "Project-Foundation": "foundation",
     "Planning-Analysis": "planning",
@@ -183,7 +183,7 @@ class ValidationResult:
     passed: bool
 
 class SDLCStructureValidator:
-    """Validate project structure against SDLC 6.0.5 standards (including RFC-001)"""
+    """Validate project structure against SDLC 6.1.0 standards (including RFC-001)"""
 
     def __init__(self, project_root: Path, config: Optional[Dict] = None):
         self.project_root = Path(project_root)
@@ -292,7 +292,7 @@ class SDLCStructureValidator:
         return None
 
     def _validate_stage_naming(self):
-        """Validate stage folders use exact SDLC 6.0.5 naming (lowercase per RFC-001)"""
+        """Validate stage folders use exact SDLC 6.1.0 naming (lowercase per RFC-001)"""
         docs_root = self.project_root / self.config.get("structure", {}).get("docs_root", "docs")
 
         if not docs_root.exists():
@@ -394,7 +394,7 @@ class SDLCStructureValidator:
                 ))
 
     def _validate_rfc001_legacy_archive(self):
-        """RFC-001 (SDLC 6.0.5): No 99-Legacy/ folders in active stages 00-09"""
+        """RFC-001 (SDLC 6.1.0): No 99-Legacy/ folders in active stages 00-09"""
         docs_root = self.project_root / self.config.get("structure", {}).get("docs_root", "docs")
 
         if not docs_root.exists():
@@ -467,7 +467,7 @@ import sys
 from pathlib import Path
 
 def main():
-    parser = argparse.ArgumentParser(description="SDLC 6.0.5 Structure Validator (RFC-001 compliant)")
+    parser = argparse.ArgumentParser(description="SDLC 6.1.0 Structure Validator (RFC-001 compliant)")
     parser.add_argument("project_path", nargs="?", default=".", help="Project root path")
     parser.add_argument("--strict", action="store_true", help="Exit with error on any issues")
     parser.add_argument("--fix", action="store_true", help="Auto-fix issues (interactive)")
@@ -677,5 +677,5 @@ jobs:
 ## References
 
 - [PM-PJM-SDLC-FRAMEWORK-HANDOVER-DEC3-2025.md](../../09-Executive-Reports/PM-PJM-SDLC-FRAMEWORK-HANDOVER-DEC3-2025.md)
-- [SDLC 6.0.5 Stage Naming Standard](#4-sdlc-stage-naming-standard-exact)
+- [SDLC 6.1.0 Stage Naming Standard](#4-sdlc-stage-naming-standard-exact)
 - [Bflow Platform](https://github.com/Minh-Tam-Solution/Bflow-Platform) - Reference implementation

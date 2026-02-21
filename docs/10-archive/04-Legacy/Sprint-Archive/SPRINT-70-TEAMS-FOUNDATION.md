@@ -11,7 +11,7 @@
 
 ## 🎯 Why Teams is THE Core Feature
 
-> **"Built BY AI+Human Teams FOR AI+Human Teams"** - SDLC 5.1.2
+> **"Built BY AI+Human Teams FOR AI+Human Teams"** - SDLC 6.1.0
 
 ### SDLC Orchestrator = Nhạc Trưởng (Conductor)
 
@@ -34,7 +34,7 @@ With Platform (Enterprise Teams):
   └─────────────────────────────────────────────────┘
 ```
 
-### Team Collaboration per SDLC 5.1.2
+### Team Collaboration per SDLC 6.1.0
 
 | Concept | SDLC Framework | Orchestrator Implementation |
 |---------|----------------|----------------------------|

@@ -470,7 +470,7 @@ class SessionManager:
         blueprint: dict,
         total_files_expected: int,
         provider: str = "ollama",
-        model: str = "qwen2.5-coder:32b"
+        model: str = "qwen3-coder:30b"
     ) -> SessionState:
         """
         Create a new code generation session.

@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-Sprint 129 implements **GitHub Project Onboarding**, enabling users to connect their GitHub repositories and run SDLC 6.0.5 gap analysis. This sprint uses a **clone-local strategy** (NOT API fetch) for better performance and user experience.
+Sprint 129 implements **GitHub Project Onboarding**, enabling users to connect their GitHub repositories and run SDLC 6.1.0 gap analysis. This sprint uses a **clone-local strategy** (NOT API fetch) for better performance and user experience.
 
 **Strategic Context**:
 - **Problem**: Users need to onboard existing GitHub projects to SDLC Orchestrator

@@ -3,7 +3,7 @@
 **Phase**: Phase 2 - Onboarding Documentation  
 **Date**: December 13, 2025  
 **Status**: ✅ **COMPLETE**  
-**Framework**: SDLC 5.1.3 (Contract-First Restructure)  
+**Framework**: SDLC 6.1.0
 **Authority**: CTO + CPO Approved
 
 ---
@@ -75,7 +75,7 @@ Phase 2 successfully completed all onboarding documentation deliverables. Compre
 
 **Updates**:
 - ✅ `/init` command specification
-- ✅ SDLC 5.1.3 structure generation
+- ✅ SDLC 6.1.0 structure generation
 - ✅ Empty folder detection
 - ✅ Tier-based structure creation
 
@@ -215,7 +215,7 @@ sdlcctl migrate /path/to/project --force
 
 ### Post-Migration Validation
 
-- [ ] Verify folder structure matches SDLC 5.1.3
+- [ ] Verify folder structure matches SDLC 6.1.0
 - [ ] Check `.sdlc-config.json` updated
 - [ ] Validate internal references
 - [ ] Run `sdlcctl validate` command

@@ -249,4 +249,4 @@ The VS Code Extension MVP v0.1.0 meets all quality gates and is ready for intern
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3.1*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0*

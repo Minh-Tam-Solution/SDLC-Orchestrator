@@ -12,7 +12,7 @@
 | **Duration** | 2 days (Dec 25, 2025) |
 | **Status** | COMPLETE ✅ (Dec 25, 2025) |
 | **Priority** | P0 Must Have |
-| **Framework** | SDLC 5.1.2 Universal Framework |
+| **Framework** | SDLC 6.1.0 Universal Framework |
 
 ---
 

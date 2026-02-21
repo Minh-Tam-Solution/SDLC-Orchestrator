@@ -5,7 +5,7 @@
 **Date**: January 18, 2026
 **Purpose**: External Expert Review - Product Specification & Feature Scope
 **Confidentiality**: For Review Only - Not for Distribution
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Company**: Nhat Quang Holding (NQH) (Vietnam-based software company)
 
 ---
@@ -159,7 +159,7 @@ We have defined **25 Functional Requirements (FR1-FR25)** organized into 8 capab
 
 #### FR4: Gate Definition & Configuration
 
-**10 Quality Gates** (aligned with SDLC 5.1.3):
+**10 Quality Gates** (aligned with SDLC 6.1.0):
 
 | Gate | Stage | Name | Required Evidence | Approvers |
 |------|-------|------|-------------------|-----------|
@@ -402,7 +402,7 @@ Request → Ollama (try) → Claude (try) → GPT-4 (try) → Rule-based (guaran
 | **Override Workflow** | Request, approve, reject override with comments |
 | **Export** | CSV and JSON export for auditors |
 
-### 3.8 FR21-FR23: Sprint Planning Governance (NEW in SDLC 5.1.3)
+### 3.8 FR21-FR23: Sprint Planning Governance (NEW in SDLC 6.1.0)
 
 #### FR21: G-Sprint Gate (Sprint Planning)
 
@@ -437,7 +437,7 @@ Request → Ollama (try) → Claude (try) → GPT-4 (try) → Rule-based (guaran
 **Sprint Governance Gates (Separate Track)**:
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  DUAL-TRACK QUALITY GATES (SDLC 5.1.3)                          │
+│  DUAL-TRACK QUALITY GATES (SDLC 6.1.0)                          │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  Feature Gates (G0-G3):    G0.1 → G0.2 → G1 → G2 → G3 → G4     │
@@ -453,7 +453,7 @@ Request → Ollama (try) → Claude (try) → GPT-4 (try) → Rule-based (guaran
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 3.9 FR24-FR25: Team Management (NEW in SDLC 5.1.3)
+### 3.9 FR24-FR25: Team Management (NEW in SDLC 6.1.0)
 
 #### FR24: Personal Teams vs Organization Teams
 

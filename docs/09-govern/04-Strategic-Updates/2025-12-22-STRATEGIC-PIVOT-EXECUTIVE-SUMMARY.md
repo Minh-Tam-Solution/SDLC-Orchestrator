@@ -110,7 +110,7 @@ YES: The Operating System for Software 3.0
 ```
 
 **Core Value**:
-1. SDLC 5.1.3 Framework (10 stages, governance-first)
+1. SDLC 6.1.0 Framework (10 stages, governance-first)
 2. Multi-Provider Orchestration (Claude, Cursor, DeepCode, Ollama, OSS)
 3. AI Safety Layer (detect + control AI-generated code)
 4. IR-based Architecture (AppBlueprint → Code)

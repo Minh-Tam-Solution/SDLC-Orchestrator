@@ -7,7 +7,7 @@ tier: PROFESSIONAL
 owner: CTO Office + QA Team (BFlow)
 last_updated: 2026-02-01
 created: 2026-02-01
-framework_version: SDLC 6.0.5
+framework_version: SDLC 6.1.0
 type: Service Specification
 approval: Pending
 ---
@@ -1077,7 +1077,7 @@ Tasks:
 
 **QA Team (BFlow)**: ✅ APPROVED (February 1, 2026)
 **CTO Office**: Pending
-**Framework Release**: SDLC 6.0.5 (Pending)
+**Framework Release**: SDLC 6.1.0 (Pending)
 
 ---
 

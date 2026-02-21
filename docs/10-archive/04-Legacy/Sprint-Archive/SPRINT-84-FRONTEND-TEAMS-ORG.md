@@ -5,7 +5,7 @@
 **Duration:** 10 days (January 21 - January 31, 2026)
 **Goal:** Implement Teams & Organizations management UI to close Frontend-Backend gap
 **Story Points:** 34 SP
-**Framework Reference:** SDLC 5.1.3 P2 (Sprint Planning Governance)
+**Framework Reference:** SDLC 6.1.0 P2 (Sprint Planning Governance)
 **Prerequisite:** Sprint 83 ✅ Dynamic Context & Analytics Complete
 **Target:** Multi-tenant UI Foundation
 

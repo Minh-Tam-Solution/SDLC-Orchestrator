@@ -232,7 +232,7 @@ class TestTeamsPerformance:
 ## 🐛 BUG #7 Verification
 
 **Issue:** New projects had 0 gates, users must manually create 5 gates per project
-**Solution:** Auto-create 5 default gates aligned with SDLC 5.1.2
+**Solution:** Auto-create 5 default gates aligned with SDLC 6.1.0
 
 ### Test Coverage
 1. ✅ **E2E Test:** Create project → Verify 5 gates auto-created
@@ -402,7 +402,7 @@ pytest tests/integration/test_sprint73_teams_integration.py::TestTeamsPerformanc
 ---
 
 **Authority:** QA Engineer + Backend Lead + CTO Approved
-**Framework:** SDLC 5.1.2 Complete Lifecycle
+**Framework:** SDLC 6.1.0 Complete Lifecycle
 **Policy:** Zero Mock Policy enforced (real API calls, real browser testing)
 
 **"Quality over quantity. Real tests over mocks. Let's validate before deploying."** - CTO

@@ -1,5 +1,5 @@
 # SPRINT-37: Admin Panel Implementation
-## SDLC 5.1.3 Complete Lifecycle - BUILD Phase
+## SDLC 6.1.0 Complete Lifecycle - BUILD Phase
 
 ---
 

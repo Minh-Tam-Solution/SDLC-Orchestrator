@@ -5,7 +5,7 @@
 **Sprint Type**: Deployment + Beta Pilot Launch
 **Status**: PLANNED
 **Gate**: Post-G3 (Ship Ready ✅ APPROVED 98.2%)
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 **CTO Directive**: Critical P2 fixes + Beta pilot with 5 internal teams
 
 ---
@@ -17,7 +17,7 @@
 **Success Criteria**:
 - [ ] All P2 issues resolved (CORS, SECRET_KEY, CSP)
 - [ ] CPO + Security Lead approvals obtained
-- [ ] 30 docs updated to SDLC 5.1.3
+- [ ] 30 docs updated to SDLC 6.1.0
 - [ ] Staging deployment successful (8/8 services healthy)
 - [ ] 5 teams onboarded (90%+ daily active users)
 - [ ] Zero P0/P1 bugs in production
@@ -193,7 +193,7 @@ Evidence:
 
 **Owner**: PM + Frontend Lead
 
-#### Task 2.1: Batch Update SDLC 5.1.3 → 5.0.0
+#### Task 2.1: Batch Update SDLC 6.1.0 → 5.0.0
 
 ```yaml
 Priority: P3 (Non-blocking)
@@ -202,8 +202,8 @@ Owner: PM + Frontend Lead
 Reviewer: CTO
 
 Acceptance Criteria:
-  - [ ] Find all references to "SDLC 5.1.3" in /docs
-  - [ ] Replace with "SDLC 5.1.3"
+  - [ ] Find all references to "SDLC 6.1.0" in /docs
+  - [ ] Replace with "SDLC 6.1.0"
   - [ ] Update version numbers in headers
   - [ ] Verify no broken links
   - [ ] Commit with conventional commit message
@@ -219,14 +219,14 @@ Files to Update (30 total):
 
 Command:
   # Find all occurrences
-  grep -r "SDLC 5.1.3" docs/ README.md CLAUDE.md
+  grep -r "SDLC 6.1.0" docs/ README.md CLAUDE.md
 
   # Replace (GNU sed)
   find docs/ README.md CLAUDE.md -type f -name "*.md" \
-    -exec sed -i 's/SDLC 4\.9/SDLC 5.1.3/g' {} +
+    -exec sed -i 's/SDLC 4\.9/SDLC 6.1.0/g' {} +
 
   # Verify
-  grep -r "SDLC 5.1.3" docs/ README.md CLAUDE.md || echo "All updated"
+  grep -r "SDLC 6.1.0" docs/ README.md CLAUDE.md || echo "All updated"
 
 Evidence:
   - Git commit with file list
@@ -464,7 +464,7 @@ Teams:
   5. Superset Analytics (6 members) - Day 5, 4-6pm
 
 Session Agenda (2 hours):
-  1. SDLC 5.1.3 Overview (15 min)
+  1. SDLC 6.1.0 Overview (15 min)
      - 10-stage lifecycle
      - Gate G0.1/G0.2 (Design Thinking)
      - Evidence-based development
@@ -575,7 +575,7 @@ Evidence:
 
 - [ ] **All P2 issues resolved** (CORS, SECRET_KEY, CSP)
 - [ ] **CPO + Security Lead approvals obtained**
-- [ ] **30 docs updated to SDLC 5.1.3**
+- [ ] **30 docs updated to SDLC 6.1.0**
 - [ ] **Staging deployment successful** (8/8 services healthy)
 - [ ] **5 teams onboarded** (38 users)
 - [ ] **90%+ daily active users** (34+ users logging in daily)
@@ -783,7 +783,7 @@ Risks:
 ### Week 1 Completion (Dec 20)
 
 - [ ] All P2 issues resolved + CTO approved
-- [ ] 30 docs updated to SDLC 5.1.3
+- [ ] 30 docs updated to SDLC 6.1.0
 - [ ] Staging deployment successful (8/8 services)
 - [ ] 5 teams onboarded (38 users)
 - [ ] Support channel active (#sdlc-orchestrator-beta)
@@ -825,7 +825,7 @@ Risks:
 **Sprint Start**: December 16, 2025 (Monday)
 **Sprint End**: December 27, 2025 (Friday)
 **CTO Approval**: Required before Day 1
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 
 ---
 

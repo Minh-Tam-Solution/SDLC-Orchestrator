@@ -3,14 +3,16 @@
  *
  * @module frontend/src/app/app/compliance/page
  * @description Unified compliance dashboard showing all frameworks
- * @sdlc SDLC 6.0.6 - Sprint 156 (Phase 3: COMPLIANCE)
- * @status Sprint 156 - NIST AI RMF GOVERN
+ * @sdlc SDLC 6.1.0 - Sprint 185 (F-07: ENTERPRISE tier gate wired)
+ * @status Active — ENTERPRISE+ required (ADR-059)
  */
 
 "use client";
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { LockedFeature } from "@/components/tier-gate/LockedFeature";
+import { useUserTier } from "@/hooks/useUserTier";
 
 const frameworks = [
   {
@@ -52,7 +54,17 @@ const frameworks = [
 ];
 
 export default function ComplianceOverviewPage() {
+  // F-07 (Sprint 185): ENTERPRISE tier gate — compliance is an ENTERPRISE feature
+  // ADR-059 Decision 1: /api/v1/compliance → tier 4 (ENTERPRISE)
+  const { effectiveTier, isLoading } = useUserTier();
+  const currentTier = isLoading ? "LITE" : effectiveTier;
+
   return (
+    <LockedFeature
+      requiredTier="ENTERPRISE"
+      currentTier={currentTier}
+      featureLabel="Compliance Dashboard"
+    >
     <div className="space-y-6">
       {/* Framework Cards */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -148,5 +160,6 @@ export default function ComplianceOverviewPage() {
         </div>
       </div>
     </div>
+    </LockedFeature>
   );
 }

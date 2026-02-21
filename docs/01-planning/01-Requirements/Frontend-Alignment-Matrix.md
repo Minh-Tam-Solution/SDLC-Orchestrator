@@ -2,7 +2,7 @@
 
 **Version**: 1.4.0
 **Status**: ACTIVE
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 **Last Updated**: 2026-01-30 (Sprint 126 Complete - E2E Tests)
 **Owner**: PM + Architect
 
@@ -48,7 +48,7 @@ SDLC Orchestrator delivers governance through **3 frontend surfaces**. This matr
 | Folder Structure Validation | ✅ | ✅ | ✅ | ✅ Aligned | - |
 | Tier Classification | ✅ | ✅ | ✅ | ✅ Aligned | - |
 | Compliance Scoring | ✅ | ✅ | ⚠️ | Frontend | 126 |
-| **SDLC 6.0.5 Spec Features** |
+| **SDLC 6.1.0 Spec Features** |
 | YAML Frontmatter Validation | ✅ | ✅ | ✅ | ✅ Aligned | **126** ✅ |
 | JSON Schema Validation | ✅ | ✅ | ✅ | ✅ Aligned | **126** ✅ |
 | BDD Requirements Validation | ✅ | ✅ | ✅ | ✅ Aligned | **126** ✅ |
@@ -63,7 +63,7 @@ SDLC Orchestrator delivers governance through **3 frontend surfaces**. This matr
 | **AI Features** |
 | AI Council Chat | ✅ | ❌ | ✅ | - | - |
 | AI Recommendations | ✅ | ❌ | ✅ | - | - |
-| Context Authority (6.0.5) | ✅ | ❌ | ❌ | **All** | **127** |
+| Context Authority (6.1.0) | ✅ | ❌ | ❌ | **All** | **127** |
 
 ### 3.2 Feature Status Summary
 
@@ -71,7 +71,7 @@ SDLC Orchestrator delivers governance through **3 frontend surfaces**. This matr
 |----------|-----|-----|-----------|
 | Total Features | 18 | 12 | 16 |
 | Implemented | 18 | 12 | 16 |
-| **SDLC 6.0.5 Features** | 5/7 | **7/7** | **4/7** |
+| **SDLC 6.1.0 Features** | 5/7 | **7/7** | **4/7** |
 | Parity Score | 100% | **71%** | **89%** |
 
 > **Updated Jan 30, 2026 (Sprint 126)**:
@@ -114,7 +114,7 @@ SDLC Orchestrator delivers governance through **3 frontend surfaces**. This matr
 | **Evidence** |
 | POST /evidence | Upload evidence | ✅ | ❌ | ✅ | |
 | GET /evidence | List evidence | ✅ | ❌ | ✅ | |
-| **Specs (SDLC 6.0.5)** |
+| **Specs (SDLC 6.1.0)** |
 | POST /specs/validate | Validate spec | ✅ | ⚠️ | ⚠️ | CLI/Ext: local impl |
 | POST /specs/convert | Convert spec | ❌ | ⚠️ | ❌ | CLI: local impl |
 | GET /specs | List specs | ✅ | ⚠️ | ❌ | CLI: local impl |
@@ -180,7 +180,7 @@ Sprint 125 ✅ COMPLETE (Jan 30, 2026 - 14 days early!)
 Sprint 126 ✅ COMPLETE (Jan 30, 2026)
 ├── [DONE] JSON Schema validation integration
 ├── [DONE] Implement spec_bdd_validator (CLI)
-├── [DONE] Implement sdlcctl spec convert (OpenSpec → SDLC 6.0.5)
+├── [DONE] Implement sdlcctl spec convert (OpenSpec → SDLC 6.1.0)
 ├── [DONE] Implement sdlcctl spec init (create new spec)
 ├── [EXISTS] sdlcctl spec list (was in Sprint 119)
 ├── [DONE] Add spec validation to Extension (S126-06)

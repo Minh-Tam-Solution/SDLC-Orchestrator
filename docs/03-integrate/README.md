@@ -7,7 +7,7 @@
 **Date**: February 15, 2026
 **Status**: ✅ ACTIVE - Governance Loop 3-Client Parity (Sprint 173)
 **Authority**: Backend Lead + CTO Approved
-**Framework**: SDLC 6.0.6 (Framework-First)
+**Framework**: SDLC 6.1.0 (Framework-First)
 **Positioning**: Operating System for Software 3.0
 
 **Changelog v2.4.0** (Feb 15, 2026):
@@ -497,7 +497,7 @@ Success Response:
 | Document | Description |
 |----------|-------------|
 | [System-Architecture-Document.md](../02-design/02-System-Architecture/System-Architecture-Document.md) | 5-layer architecture (v3.0.0) |
-| [API-Specification.md](../01-planning/05-API-Design/API-Specification.md) | 64 endpoints (v3.1.0) |
+| [API-Specification.md](../01-planning/05-API-Design/API-Specification.md) | 91 endpoints (v3.6.0) |
 | [Quality-Gates-Codegen-Specification.md](../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md) | Sprint 48 spec |
 | [Policy-Guards-Design.md](../02-design/14-Technical-Specs/Policy-Guards-Design.md) | OPA integration |
 | [EP-06-IR-Based-Codegen-Engine.md](../01-planning/02-Epics/EP-06-IR-Based-Codegen-Engine.md) | Epic specification |

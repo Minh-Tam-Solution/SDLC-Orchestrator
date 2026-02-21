@@ -5,7 +5,7 @@
 **Status**: ACTIVE - MANDATORY ENFORCEMENT
 **Authority**: Backend Lead + CTO Approved
 **Foundation**: PEP 8, PEP 257, PEP 484 (Type Hints)
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -468,7 +468,7 @@ Date: November 13, 2025
 Status: ACTIVE - STAGE 03 (BUILD)
 Authority: Backend Lead + CTO Approved
 Foundation: ADR-002 (Authentication Model)
-Framework: SDLC 5.1.3 Complete Lifecycle
+Framework: SDLC 6.1.0 Complete Lifecycle
 """
 
 # 1. Standard library imports

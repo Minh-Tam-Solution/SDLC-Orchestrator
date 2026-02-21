@@ -1,23 +1,32 @@
 # OSS Landscape Research
 ## Open Source Software Integration Strategy and License Analysis
 
-**Version**: 3.0.0
-**Date**: December 23, 2025
-**Status**: ACTIVE - STAGE 00 FOUNDATION (Software 3.0 Pivot)
-**Authority**: CPO Approval (Dec 23, 2025), CTO Review (9.0/10), Legal Review (PENDING)
-**Foundation**: Product Vision 4.0.0, Competitive Landscape 3.0.0
+**Version**: 4.0.0
+**Date**: February 19, 2026
+**Status**: ACTIVE - STAGE 00 FOUNDATION (Enterprise-First Strategy)
+**Authority**: CPO Approval (Dec 23, 2025), CTO Review (9.0/10), Legal Review (RESOLVED)
+**Foundation**: Product Vision v5.0.0, Competitive Landscape v4.0.0
 **Stage**: Stage 00 (WHY - Project Foundation)
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0 (7-Pillar + AI Governance)
+
+**Changelog v4.0.0** (Feb 19, 2026):
+- **ENTERPRISE-FIRST**: Two-Product Ecosystem (TinySDLC OSS + Orchestrator commercial)
+- **AI MODELS**: qwen2.5-coder:32b → qwen3-coder:30b (Model Strategy v3.0, 256K context)
+- **FRAMEWORK**: SDLC 5.1.3 → 6.1.0 (7-Pillar + AI Governance)
+- **EP-07 MULTI-AGENT**: Team Engine with OTT Gateway (Telegram/Zalo/Teams/Slack)
+- **ENTERPRISE SSO**: SAML/OIDC via ADR-061 (Sprint 182-183)
+- **MINIO**: Evidence Vault with immutable audit + SOC2 evidence pack
+- **LEGAL REVIEW**: RESOLVED — AGPL containment validated
 
 **Changelog v3.0.0** (Dec 23, 2025) - Software 3.0 Pivot:
 - **EP-06 IR-BASED CODEGEN**: Multi-provider architecture (Ollama → Claude → DeepCode)
 - **DEFERRED DEEPCODE**: Q2 2026 decision gate (not integrated until validated)
 - **SPRINT 45-50 DESIGN**: ADR-022 approved, 5 technical specs committed
-- **FOUNDER PLAN INFRASTRUCTURE**: Ollama-first for $99/team/month cost model
+- **FOUNDER PLAN INFRASTRUCTURE**: Ollama-first for Enterprise-First cost model
 - Updated provider fallback chain for codegen use case
 
 **Changelog v2.0.0** (Dec 21, 2025) - CPO Strategic Review:
-- **NEW**: NQH AI Platform integration (qwen2.5-coder:32b, RTX 5090)
+- **NEW**: NQH AI Platform integration (qwen3-coder:30b, RTX 5090)
 - **NEW**: Mode C Hybrid Fallback (Claude → Continue.dev)
 - **NEW**: Mixpanel for analytics (ADR-021 approved)
 - Added Model Roles Strategy (IT Admin Dec 2025)
@@ -70,7 +79,7 @@ This document answers **WHY we're using OSS components and WHY Option C (Hybrid)
                         ↓
 ┌─────────────────────────────────────────────────────────┐
 │ Layer 3: AI Infrastructure (MULTI-PROVIDER)            │
-│ - Ollama (api.nhatquangholding.com, qwen2.5-coder) [PRIMARY, $0]     │
+│ - Ollama (api.nhatquangholding.com, qwen3-coder:30b) [PRIMARY, $0]  │
 │ - Claude API (fallback) [PAID, $1K/month budget]       │
 │ - DeepCode (DEFERRED Q2 2026) [Decision gate pending]  │
 └─────────────────────────────────────────────────────────┘
@@ -85,18 +94,18 @@ This document answers **WHY we're using OSS components and WHY Option C (Hybrid)
 
 **Infrastructure**:
 - **Hardware**: RTX 5090 32GB VRAM
-- **Model**: qwen2.5-coder:32b (92.7% HumanEval - better than GPT-4!)
+- **Model**: qwen3-coder:30b (256K context, Model Strategy v3.0)
 - **API**: https://api.nhatquangholding.com (NAT)
 - **Cost**: $0/month (owned infrastructure)
 
-**Model Roles Strategy** (IT Admin Dec 2025):
+**Model Roles Strategy** (Model Strategy v3.0, Feb 2026):
 | Role | Model | Use Case |
 |------|-------|----------|
-| **Default** | qwen2.5-coder:32b | Code generation, complex reasoning |
-| **Edit** | qwen2.5-coder:32b | Code refactoring, multi-file edits |
-| **Chat** | qwen2.5-coder:32b | Developer assistance |
-| **Autocomplete** | qwen2.5-coder:14b | Fast completions (<100ms) |
-| **Vietnamese** | qwen3:14b | Vietnamese language support |
+| **Primary Code** | qwen3-coder:30b | Code generation, 256K context |
+| **Primary Chat** | qwen3:32b | Developer assistance, Vietnamese |
+| **Deep Reasoning** | deepseek-r1:32b | Architecture, thinking mode |
+| **SOP/RAG** | mistral-small3.2:24b | Structured JSON extraction |
+| **Fast** | qwen3:14b/8b | Quick completions (<100ms) |
 
 **Cost Savings Analysis**:
 | Provider | Monthly Cost | Annual Cost | vs NQH Platform |
@@ -111,12 +120,12 @@ This document answers **WHY we're using OSS components and WHY Option C (Hybrid)
 ### Why Enhanced Hybrid (Option C+)
 
 1. **Cost Efficiency**: NQH AI Platform = $0/month vs $5K/month cloud APIs
-2. **Performance**: 92.7% HumanEval (qwen2.5-coder:32b) matches GPT-4
+2. **Performance**: qwen3-coder:30b with 256K context — superior code analysis
 3. **Latency**: <100ms local vs 500-2000ms cloud APIs
 4. **Privacy**: Code stays on-premise (no cloud data exposure)
 5. **Fallback**: Ollama → Claude ensures zero downtime
 6. **Competitive Moat**: Proprietary AI infrastructure (hard to replicate)
-7. **Founder Plan Economics**: $99/team/month viable with Ollama-first approach
+7. **Enterprise-First Economics**: 6-tier pricing ($99-$80/seat) viable with Ollama-first approach
 
 ### EP-06 Multi-Provider Architecture (Sprint 45-50)
 
@@ -127,7 +136,7 @@ This document answers **WHY we're using OSS components and WHY Option C (Hybrid)
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  1. OLLAMA (Primary) ──────────────────────────────────────────→│
-│     - api.nhatquangholding.com (qwen2.5-coder:14b/32b)                        │
+│     - api.nhatquangholding.com (qwen3-coder:30b, 256K context)                │
 │     - Cost: $0/month                                             │
 │     - Latency: <100ms                                            │
 │     - Use case: 95% of requests                                  │
@@ -170,7 +179,7 @@ This document answers **WHY we're using OSS components and WHY Option C (Hybrid)
 | **PostgreSQL** | PostgreSQL | 15.5 | Primary database | $0 |
 | **Redis** | BSD-3 | 7.2 | Caching + sessions | $0 |
 | **Mixpanel** | SaaS | Latest | Product analytics (ADR-021) | Free tier Year 1 |
-| **NQH AI Platform** | Proprietary | Latest | AI inference (qwen2.5-coder) | $50K+ saved |
+| **NQH AI Platform** | Proprietary | Latest | AI inference (qwen3-coder:30b) | $50K+ saved |
 | **Continue.dev** | Apache-2.0 | Latest | Mode C fallback | $0 |
 
 **Total OSS Value**: $170K/year (if built proprietary + cloud AI)
@@ -210,13 +219,13 @@ This document answers **WHY we're using OSS components and WHY Option C (Hybrid)
 **Weaknesses**:
 - **Learning Curve**: Rego language unfamiliar (vs Python/JavaScript)
 - **No UI**: CLI-only (we must build dashboard)
-- **Not SDLC-Aware**: Generic policy engine (we add SDLC 4.8 policies)
+- **Not SDLC-Aware**: Generic policy engine (we add SDLC 6.1.0 policies)
 
 **Why Selected**:
 - **Speed**: Don't rebuild policy engine (6 months saved)
 - **Quality**: Battle-tested (Netflix production for 4+ years)
 - **License**: Apache-2.0 (safe to wrap, no AGPL risk)
-- **Moat**: We add SDLC 4.8 policies (100+ policy packs = competitive advantage)
+- **Moat**: We add SDLC 6.1.0 policies (110+ policy packs = competitive advantage)
 
 **Alternatives Considered**:
 
@@ -628,13 +637,13 @@ export function MetricsDashboard() {
 - ✅ Grafana (AGPL, contained) - Dashboards
 - ✅ PostgreSQL (PostgreSQL) - Database
 - ✅ Redis (BSD-3) - Caching
-- ✅ **PROPRIETARY**: Gate Engine Wrapper, Evidence Vault API, AI Context Engine, Policy Packs (100+)
+- ✅ **PROPRIETARY**: Gate Engine Wrapper, Evidence Vault API, AI Context Engine, Policy Packs (110+)
 
 **Pros**:
 - **Speed**: 3 months to MVP (vs 13 months proprietary)
 - **Cost**: $0 OSS (vs $450K proprietary)
 - **Quality**: Battle-tested OSS (vs unproven custom)
-- **Moat**: SDLC 4.8 policy packs = defensible IP (1-2 years to replicate)
+- **Moat**: SDLC 6.1.0 policy packs = defensible IP (1-2 years to replicate)
 
 **Cons**:
 - **Legal Risk**: AGPL containment must work (legal review Week 2)
@@ -673,11 +682,11 @@ export function MetricsDashboard() {
 - ✅ Examples (SDLC policy examples for OPA)
 
 **Do NOT Contribute Upstream** (keep proprietary):
-- ❌ SDLC 4.8 policy packs (competitive moat)
+- ❌ SDLC 6.1.0 policy packs (competitive moat)
 - ❌ Gate Engine wrapper logic (business logic)
 - ❌ AI Context Engine prompts (competitive advantage)
 
-**Principle**: Contribute to OSS infrastructure (OPA, MinIO), keep business logic proprietary (SDLC 4.8).
+**Principle**: Contribute to OSS infrastructure (OPA, MinIO), keep business logic proprietary (SDLC 6.1.0).
 
 ---
 
@@ -862,7 +871,7 @@ export function MetricsDashboard() {
 ---
 
 **Document**: SDLC-Orchestrator-OSS-Landscape-Research
-**Framework**: SDLC 5.1.3 Stage 00 (WHY) - Market Analysis
+**Framework**: SDLC 6.1.0 Stage 00 (WHY) - Market Analysis
 **Component**: Open Source Strategy and License Analysis
 **Review**: Monthly (security), Quarterly (license)
 **Last Updated**: December 23, 2025

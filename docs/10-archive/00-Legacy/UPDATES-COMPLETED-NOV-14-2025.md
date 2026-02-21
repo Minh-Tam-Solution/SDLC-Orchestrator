@@ -291,7 +291,7 @@
 
 ### Documentation Standards
 
-- ✅ SDLC 5.1.3 compliant headers
+- ✅ SDLC 6.1.0 compliant headers
 - ✅ Consistent terminology (Phase 1/Phase 2)
 - ✅ Clear rationale for all changes
 - ✅ Traceability (CEO decision → documentation)

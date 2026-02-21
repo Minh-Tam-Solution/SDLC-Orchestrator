@@ -3,7 +3,7 @@
 **Stage**: 05 - TEST
 **Question**: Does it work correctly?
 **Status**: ✅ **ACTIVE - TDD Strategy Complete**
-**Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+**Framework**: SDLC 6.1.0
 **Version**: 4.0.0 (January 27, 2026)
 
 ---
@@ -43,7 +43,7 @@ All tests follow the **Red-Green-Refactor cycle**:
 | **[03-Stage-03-Test-Plan.md](03-Stage-03-Test-Plan.md)** | Build/TDD implementation | ⏳ Pending |
 | **[04-Stage-04-Test-Plan.md](04-Stage-04-Test-Plan.md)** | Integration/E2E testing | ⏳ Pending |
 | **[05-Stage-05-Test-Plan.md](05-Stage-05-Test-Plan.md)** | Deploy/Smoke testing | ⏳ Pending |
-| **[06-Framework-Compliance-Tests.md](06-Framework-Compliance-Tests.md)** | SDLC 5.2.0 alignment verification | ⏳ Pending |
+| **[06-Framework-Compliance-Tests.md](06-Framework-Compliance-Tests.md)** | SDLC 6.1.0 alignment verification | ⏳ Pending |
 
 ---
 
@@ -187,7 +187,7 @@ def test_gate_approval_calls_notify_method():
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │ SDLC Framework (Methodology)                                 │
-│ - SDLC 5.2.0 (7-Pillar + AI Governance Principles)          │
+│ - SDLC 6.1.0 (7-Pillar + AI Governance Principles)          │
 │ - Defines stages, gates, evidence types                      │
 │ - Tools-agnostic                                             │
 └──────────────────────────────────────────────────────────────┘
@@ -204,7 +204,7 @@ def test_gate_approval_calls_notify_method():
 └──────────────────────────────────────────────────────────────┘
 ```
 
-**Framework Compliance Tests**: Verify Orchestrator implements SDLC 5.2.0 correctly
+**Framework Compliance Tests**: Verify Orchestrator implements SDLC 6.1.0 correctly
 **Automation Logic Tests**: Verify Orchestrator features work correctly
 
 See: [00-TEST-STRATEGY-2026.md § 4. Framework vs Orchestrator Testing](00-TEST-STRATEGY-2026.md#4-framework-vs-orchestrator-testing)
@@ -274,7 +274,7 @@ Legacy test documents (pre-2026) migrated to `docs/10-archive/05-Legacy/` per RF
 
 **Last Updated**: January 27, 2026
 **Owner**: QA Lead + CTO + Backend Lead
-**Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+**Framework**: SDLC 6.1.0
 
 ---
 

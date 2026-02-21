@@ -119,7 +119,7 @@ All items must be verified before Gate G4 (Internal Validation) approval.
 
 ### 6.1 User Documentation
 
-- [ ] **API documentation** complete (OpenAPI 3.0, all 64 endpoints)
+- [ ] **API documentation** complete (OpenAPI 3.0, all 91 endpoints)
 - [ ] **User guide** published (onboarding, features)
 - [ ] **Admin guide** published (RBAC, policies)
 
@@ -134,7 +134,7 @@ All items must be verified before Gate G4 (Internal Validation) approval.
 
 ### 7.1 SDLC Framework
 
-- [ ] **SDLC 5.2.0** compliance verified (7-Pillar Architecture)
+- [ ] **SDLC 6.1.0** compliance verified (7-Pillar Architecture)
 - [ ] **AGENTS.md** updated with dynamic context
 - [ ] **Evidence Vault** audit trail complete
 

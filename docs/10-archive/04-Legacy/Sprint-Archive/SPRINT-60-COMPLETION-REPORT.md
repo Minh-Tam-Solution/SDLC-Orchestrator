@@ -8,7 +8,7 @@
 | Title | i18n Localization (VN/EN) |
 | Duration | December 27, 2025 |
 | Status | COMPLETE |
-| Framework | SDLC 5.1.2 Universal Framework |
+| Framework | SDLC 6.1.0 Universal Framework |
 
 ---
 

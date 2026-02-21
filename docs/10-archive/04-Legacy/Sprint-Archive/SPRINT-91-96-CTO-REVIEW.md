@@ -3,7 +3,7 @@
 **Review Date:** January 22, 2026
 **Reviewer:** AI Development Partner
 **Status:** PENDING CTO APPROVAL
-**Framework:** SDLC 5.1.3 (7-Pillar Architecture)
+**Framework:** SDLC 6.1.0 (7-Pillar Architecture)
 
 ---
 

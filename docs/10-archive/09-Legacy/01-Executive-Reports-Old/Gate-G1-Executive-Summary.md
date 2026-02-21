@@ -4,7 +4,7 @@
 **Date**: November 21, 2025
 **Status**: READY FOR APPROVAL - Gate G1 Meeting (Friday Nov 25, 2025)
 **Authority**: CEO + CTO + CPO
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -112,7 +112,7 @@ Following CEO-approved **Internal-First Strategy** (Phase 1: Feb-Jun 2026, zero 
 - Grafana integration (AGPL, network-only)
 
 **FR5: Policy Pack Library**
-- 110 pre-built SDLC 5.1.3 policies (all 10 stages)
+- 110 pre-built SDLC 6.1.0 policies (all 10 stages)
 - Rego language (OPA native)
 - Custom policy support
 - Policy testing framework (5+ tests per policy)
@@ -395,7 +395,7 @@ CREATE INDEX idx_users_is_active ON users(is_active) WHERE deleted_at IS NULL; -
 **Status**: ✅ READY FOR APPROVAL
 **Recommendation**: ✅ **GO** (Unconditional)
 **Next Gate**: G2 (Ship Ready) - December 9, 2025
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0
 
 **Quality**: Zero Mock Policy enforced, 95%+ test coverage target
 **Authority**: CEO + CTO + CPO unanimous approval required

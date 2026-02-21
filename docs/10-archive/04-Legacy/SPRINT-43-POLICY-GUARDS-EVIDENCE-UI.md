@@ -1,5 +1,5 @@
 # SPRINT-43: Policy Guards & Evidence UI
-## SDLC 5.1.3 Complete Lifecycle - BUILD Phase | AI Safety First (Q1 2026)
+## SDLC 6.1.0 Complete Lifecycle - BUILD Phase | AI Safety First (Q1 2026)
 
 ---
 
@@ -12,7 +12,7 @@
 | **Duration** | 2 weeks (Feb 3-14, 2026) |
 | **Status** | PLANNED |
 | **Team** | 3 Backend + 2 Frontend + 1 DevOps + 1 QA |
-| **Framework** | SDLC 5.1.3 + SASE Level 2 |
+| **Framework** | SDLC 6.1.0 + SASE Level 2 |
 | **Prerequisites** | Sprint 42 Complete |
 
 ---
@@ -1296,4 +1296,4 @@ Sprint 43 hoàn thiện AI Safety Layer v1 với Policy Guards (OPA integration)
 
 ---
 
-*Document Version: 1.0.0 | Created: December 20, 2025 | Framework: SDLC 5.1.3*
+*Document Version: 1.0.0 | Created: December 20, 2025 | Framework: SDLC 6.1.0*

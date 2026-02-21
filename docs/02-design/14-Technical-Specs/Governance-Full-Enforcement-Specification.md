@@ -5,7 +5,7 @@
 **Status**: DRAFT - Awaiting CTO Approval
 **Sprint**: 116 - Full Enforcement Mode
 **Dependencies**: Sprint 115 Metrics Pass (Go Decision)
-**Framework**: SDLC 5.3.0 → 6.0 Quality Assurance System
+**Framework**: SDLC 6.1.0
 
 ---
 

@@ -3,7 +3,7 @@
 **Stage**: 04 - TEST
 **Question**: Does it work correctly?
 **Status**: In Progress
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -94,7 +94,7 @@ Frontend (TypeScript):
 
 **Last Updated**: December 5, 2025
 **Owner**: QA Lead + CTO
-**Framework**: SDLC 5.1.3 Stage 04
+**Framework**: SDLC 6.1.0
 
 ---
 

@@ -5,7 +5,7 @@
 **Day**: 3 of 5
 **Status**: COMPLETE
 **CTO Rating**: 9.3/10
-**Framework**: SDLC 5.1.3.1 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 

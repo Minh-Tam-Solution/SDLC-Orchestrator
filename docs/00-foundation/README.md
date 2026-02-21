@@ -3,12 +3,21 @@
 
 **Stage**: 00 - FOUNDATION
 **Question**: Why are we building this?
-**Version**: 4.2.0
-**Date**: January 30, 2026
+**Version**: 5.0.0
+**Date**: February 19, 2026
 **Status**: ✅ COMPLETED - Gate G0.1 + G0.2 PASSED
 **Authority**: PM + CEO + CTO + CPO Approved (9.5/10 Confidence)
-**Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
-**Positioning**: Operating System for Software 3.0
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+**Positioning**: Operating System for Software 3.0 — Enterprise-First
+
+**Changelog v5.0.0** (Feb 19, 2026) — Enterprise-First Refocus:
+- **ENTERPRISE-FIRST STRATEGY**: ADR-059 approved — PROFESSIONAL+ gets new features, LITE/STANDARD maintenance only
+- **TWO-PRODUCT ECOSYSTEM**: TinySDLC (OSS, free) + Orchestrator (commercial, LITE→ENTERPRISE)
+- **NEW TIER MODEL**: LITE free / STD_STARTER $99 / STD_GROWTH $299 / PROFESSIONAL $499 / ENTERPRISE $80/seat / FOUNDER_LEGACY
+- **REVISED YEAR 1 TARGET**: $160K-$350K ARR (45-70 teams) — was $86K-$144K
+- **SPRINT 181-188 ROADMAP**: 8-sprint enterprise completion (OTT, SSO, SOC2, GDPR, GA Launch)
+- **FRAMEWORK 6.1.0**: System Thinking Foundation, Multi-Agent Patterns, Crisis-to-Pattern Methodology
+- **Documents updated**: BRD v3.0.0, Financial-Model v2.0.0, Product-Roadmap v8.0.0, Market-Sizing v4.0.0
 
 **Changelog v4.2.0** (Jan 30, 2026):
 - **Multi-Frontend Alignment**: Sprint 125-127 completed (26.5 SP in 1 day - historic achievement)
@@ -80,7 +89,7 @@ This stage combines:
 
 ---
 
-## Folder Structure (SDLC 6.0.6 Compliant)
+## Folder Structure (SDLC 6.1.0 Compliant)
 
 ```
 00-foundation/
@@ -170,7 +179,7 @@ This stage combines:
 
 ### 05-Market-Analysis (100% complete)
 - ✅ Competitive-Landscape.md (8,000+ lines, 5 competitor categories, 12-24 month moat)
-- ✅ Market-Sizing.md (6,500+ lines, TAM $816M, SAM $201M, SOM $240K Year 1)
+- ✅ Market-Sizing.md (6,500+ lines, TAM $816M, SAM $201M, SOM $160K-$350K Year 1)
 - ✅ OSS-Landscape-Research.md (6,500+ lines, 5 OSS components, AGPL containment strategy)
 
 **Overall Progress**: ✅ 100% (14 of 14 documents complete)
@@ -198,13 +207,16 @@ Once Stage 00 is complete → **[Stage 01: Planning (WHAT)](../01-planning/READM
 
 ## References
 
-- [SDLC 5.1 Core Methodology](../../SDLC-Enterprise-Framework/02-Core-Methodology/)
+- [SDLC 6.1.0 Core Methodology](../../SDLC-Enterprise-Framework/02-Core-Methodology/)
 - [PROJECT-KICKOFF.md](../../PROJECT-KICKOFF.md) - CEO approval summary
 - [Design Thinking Principles](../../SDLC-Enterprise-Framework/02-Core-Methodology/SDLC-Design-Thinking-Principles.md)
+- [ADR-059 Enterprise-First Strategy](../02-design/03-ADRs/ADR-059-Tier-System-Invariants.md)
+- [Financial Model v2.0.0](02-Business-Case/Financial-Model.md) — Enterprise-First revision
+- [Product Roadmap v8.0.0](04-Roadmap/Product-Roadmap.md) — Sprint 181-188 Enterprise Completion
 
 ---
 
-**Last Updated**: January 30, 2026
+**Last Updated**: February 19, 2026
 **Owner**: PM + Design Lead + CEO
 **Status**: ✅ COMPLETED
 
@@ -218,11 +230,11 @@ Once Stage 00 is complete → **[Stage 01: Planning (WHAT)](../01-planning/READM
 | Total Lines | 30,000+ lines |
 | Quality Gates | G0.1 ✅ PASSED, G0.2 ✅ PASSED |
 | Next Stage | Stage 01 (WHAT) - ✅ PASSED |
-| Current Stage | Stage 04 (BUILD) - Sprint 44-50 EP-06 |
-| Vision Version | v4.0.0 (Dec 23, 2025) |
-| Roadmap Version | v5.0.0 (Dec 23, 2025) |
-| Positioning | Operating System for Software 3.0 |
-| Year 1 Target | 30-50 teams, $86K-$144K ARR |
+| Current Stage | Stage 04 (BUILD) - Sprint 181-188 Enterprise Completion |
+| Vision Version | v5.0.0 (Feb 19, 2026) |
+| Roadmap Version | v8.0.0 (Feb 19, 2026) |
+| Positioning | Operating System for Software 3.0 — Enterprise-First |
+| Year 1 Target | 45-70 teams, $160K-$350K ARR |
 
 ---
 
@@ -239,13 +251,14 @@ Layer 2: SDLC Orchestrator (Governance + Codegen) ← Our product
 Layer 1: SDLC-Enterprise-Framework (Methodology) ← Our foundation
 ```
 
-### Approved Epics (Q1-Q2 2026)
+### Approved Epics (2025-2026)
 
 | Epic | Focus | Investment | Timeline | Priority |
 |------|-------|------------|----------|----------|
-| **EP-04** | SDLC Structure Enforcement | $16,500 (117 SP) | Sprint 44-46 | P1 |
-| **EP-05** | Enterprise SDLC Migration | Deprioritized | Pending EP-06 | P2 |
+| **EP-04** | SDLC Structure Enforcement | $16,500 | Sprint 44-46 | P1 |
 | **EP-06** | IR-Based Codegen Engine | ~$50,000 | Sprint 45-50 | **P0** ⭐ |
+| **EP-07** | Multi-Agent Team Engine | $14,400 | Sprint 176-179 | **P0** ⭐ |
+| **Sprint 181-188** | Enterprise Completion | $42,240 | 8 sprints | **P0** ⭐ |
 
 ### EP-06 Sprint 45-50 Design Specs (CTO Approved)
 
@@ -266,20 +279,25 @@ Layer 1: SDLC-Enterprise-Framework (Methodology) ← Our foundation
 4. **IR Decomposition** - 128K → 5K tokens (96% context reduction)
 5. **Vietnamese Domain Templates** - F&B, Hotel, Retail with Vietnamese questionnaire flow
 
-### Pricing Strategy (Founder Plan)
+### Pricing Strategy (Enterprise-First — ADR-059)
 
 | Tier | Price | Target | Features |
 |------|-------|--------|----------|
-| **Founder Plan** | $99/team/mo | Vietnam SME | IR Codegen, 1 product, unlimited users |
-| **Standard** | $30/user/mo | Global EM 6-50 eng | Full governance, 10 projects |
-| **Enterprise** | Custom | CTO 50-500 eng | SSO, RBAC, self-hosted, unlimited |
+| **LITE** | Free | Individual / eval | Basic gates, 1 project, 14-day PRO trial |
+| **STD_STARTER** | $99/mo | Small team 2-5 devs | Cloud collaboration, 5 projects |
+| **STD_GROWTH** | $299/mo | Growing team 5-15 | Compliance-light, 15 projects |
+| **PROFESSIONAL** | $499/mo | Vietnam pilot 15-30 | Full compliance, multi-agent (EP-07) |
+| **ENTERPRISE** | $80/seat/mo | 50+ devs, regulated | SSO (SAML), SOC2, HIPAA, SLA, GDPR |
+| **FOUNDER_LEGACY** | $399/mo | Grandfathered only | No new sales after Sprint 188 |
 
-### Business Value
+### Business Value (Enterprise-First)
 
-- **Year 1 Target**: 30-50 teams, $86K-$144K ARR (realistic, founder-led sales)
-- **Founder Plan (60%)**: 18-30 teams × $99 × 12 = $21K-$36K
-- **Standard (30%)**: 9-15 teams × $30 × 10 users × 12 = $32K-$54K
-- **Enterprise (10%)**: 3-5 teams × custom = $33K-$54K
+- **Year 1 Target**: 45-70 teams, $160K-$350K ARR (enterprise-first mix)
+- **PROFESSIONAL (40%)**: 18-28 teams × $499 × 12 = $108K-$168K
+- **STANDARD (35%)**: 16-25 teams × $99-$299 × 12 = $19K-$90K
+- **ENTERPRISE (15%)**: 7-10 teams × $80 × 25 seats × 12 = $168K-$240K
+- **Professional Services (10%)**: $16K-$35K (Vietnam pilot packages)
+- **LTV:CAC**: 6.6:1 (up from 4.08:1)
 
 ---
 

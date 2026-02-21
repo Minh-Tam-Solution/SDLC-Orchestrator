@@ -5,7 +5,7 @@
 **Duration:** 10 days (January 20 - February 2, 2026)
 **Goal:** Complete P0 Launch Blockers + Evidence Vault Hardening
 **Story Points:** 48 SP
-**Framework Reference:** SDLC 5.1.3 P4 (Quality Gates)
+**Framework Reference:** SDLC 6.1.0 P4 (Quality Gates)
 **Prerequisite:** Sprint 78 ✅ + CTO Pre-Launch Approval ✅
 
 ---
@@ -735,7 +735,7 @@ GET /api/v1/projects/{id}/evidence/chain/verify:
 
 ---
 
-## 📝 SDLC 5.1.3 Compliance
+## 📝 SDLC 6.1.0 Compliance
 
 | Pillar | Sprint 79 Implementation |
 |--------|--------------------------|
@@ -795,6 +795,6 @@ Per CTO approval (Jan 19, 2026):
 
 ---
 
-**SDLC 5.1.3 | Sprint 79 | Stage 04 (BUILD)**
+**SDLC 6.1.0 | Sprint 79 | Stage 04 (BUILD)**
 
 *G-Sprint Approval: ✅ CTO Approved (Jan 19, 2026)*

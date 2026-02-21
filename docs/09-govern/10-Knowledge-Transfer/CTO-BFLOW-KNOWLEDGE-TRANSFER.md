@@ -104,7 +104,7 @@ class CrossReferenceValidator:
 
 ### LESSON 4: Legacy/Archive Folder Structure
 
-**SDLC 5.1.0 Structure**:
+**SDLC 6.1.0 Structure**:
 - **10 stages**: 00-09 (Foundation → Govern) - exactly 10 stages
 - **10-archive**: at docs root ONLY (not a stage, holds unsorted legacy docs)
 - **99-legacy**: within each stage (00-09) AND in backend, frontend, tools

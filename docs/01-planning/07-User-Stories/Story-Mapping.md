@@ -1,15 +1,16 @@
 # Story Mapping
 ## User Journey Visualization (Stage 00-09)
 
-**Version**: 2.0.0
-**Date**: December 21, 2025
-**Status**: ACTIVE - EP-04/05/06 JOURNEYS ADDED
+**Version**: 2.1.0
+**Date**: February 20, 2026
+**Status**: ACTIVE - Enterprise-First Alignment
 **Authority**: PM + UX Lead Review (✅ APPROVED)
-**Foundation**: User Stories v2.0.0, Acceptance Criteria v2.0.0, Roadmap v4.1.0
+**Foundation**: User Stories v2.1.0, Acceptance Criteria v2.1.0, Roadmap v5.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 
 **Changelog**:
+- v2.1.0 (Feb 20, 2026): Enterprise-First alignment — SDLC 5.1.3→6.1.0, SDLC 4.8→6.1.0
 - v2.0.0 (Dec 21, 2025): SDLC 5.1.3 update, EP-04/05/06 user journeys added
 - v1.0.0 (Jan 13, 2025): Initial story mapping (7 journeys, 50+ stories)
 
@@ -17,7 +18,7 @@
 
 ## Document Purpose
 
-This document visualizes **user journeys across SDLC 4.8 stages (Stage 00-09)** using story mapping.
+This document visualizes **user journeys across SDLC 6.1.0 stages (Stage 00-09)** using story mapping.
 
 **Key Sections**:
 - Journey 1: EM Validates Feature Idea (Stage 00)
@@ -298,9 +299,9 @@ This document visualizes **user journeys across SDLC 4.8 stages (Stage 00-09)** 
 ---
 
 **Document**: SDLC-Orchestrator-Story-Mapping
-**Framework**: SDLC 5.1.3 Stage 01 (WHAT) - Planning & Analysis
+**Framework**: SDLC 6.1.0 Stage 01 (WHAT) - Planning & Analysis
 **Component**: User Journey Visualization
 **Review**: Sprint planning sessions with PM + UX Lead
-**Last Updated**: December 21, 2025
+**Last Updated**: February 20, 2026
 
 *"Story mapping bridges the gap between requirements and user experience."* 🗺️

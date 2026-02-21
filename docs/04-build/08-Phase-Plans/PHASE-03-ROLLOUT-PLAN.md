@@ -126,7 +126,7 @@
         nodeSelector:
           accelerator: nvidia-tesla-t4
   ```
-- [ ] Pull model: `qwen2.5:14b-instruct` (3x instances)
+- [ ] Pull model: `qwen3:32b` (3x instances)
 - [ ] Create Service (LoadBalancer)
 - [ ] Test health endpoint: `curl http://ollama-svc:11434/api/tags`
 

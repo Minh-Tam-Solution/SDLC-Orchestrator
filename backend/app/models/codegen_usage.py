@@ -87,7 +87,7 @@ class CodegenUsageLog(Base):
     # Request info
     request_id = Column(String(64), nullable=False, unique=True, index=True)
     provider = Column(String(50), nullable=False, index=True)  # ollama, claude, deepcode
-    model = Column(String(100), nullable=True)  # qwen2.5-coder:32b, claude-3, etc.
+    model = Column(String(100), nullable=True)  # qwen3-coder:30b, claude-3, etc.
     status = Column(String(20), nullable=False, default=GenerationStatus.PENDING.value, index=True)
 
     # Generation parameters

@@ -2,7 +2,7 @@
 **Date**: February 10, 2026
 **Sprint**: 171 (Phase 6 - Market Expansion)
 **Audit Scope**: Complete documentation structure (1,006 files)
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -243,7 +243,7 @@ These files contain old references but are intentionally preserved for historica
 
 **File**: `docs/02-design/02-System-Architecture/System-Architecture-Document.md`
 - **Last Modified**: January 30, 2026
-- **Framework**: SDLC 6.0.5 (Multi-Frontend Aligned)
+- **Framework**: SDLC 6.1.0 (Multi-Frontend Aligned)
 - **MinIO References**: ✅ Correctly shows ai-platform-minio migration
 - **Port References**: ✅ Correctly shows 9020 (host) / 9000 (container)
 - **Status**: ✅ ACCURATE
@@ -275,7 +275,7 @@ These files contain old references but are intentionally preserved for historica
 3. **Documentation Pipeline Health**
    - Recent sprint docs (160-171) are 100% complete
    - All stage README files current
-   - Framework version consistent (SDLC 6.0.5)
+   - Framework version consistent (SDLC 6.1.0)
 
 ### Challenges Encountered ⚠️
 

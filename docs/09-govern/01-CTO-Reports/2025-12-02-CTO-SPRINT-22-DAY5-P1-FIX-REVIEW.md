@@ -307,6 +307,6 @@ The P1 login race condition fix demonstrates excellent code quality and proper P
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3.1*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0*
 *"Reliable tests enable confident deployments."*
 

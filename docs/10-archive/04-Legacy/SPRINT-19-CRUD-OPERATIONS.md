@@ -5,7 +5,7 @@
 **Status**: PLANNED
 **Authority**: Frontend Lead + Backend Lead + CPO
 **Foundation**: Frontend-Backend Gap Analysis Report
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -335,6 +335,6 @@ test.describe('Gate CRUD', () => {
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0. Zero Mock Policy enforced.*
 
 **Sprint 19 Focus**: "CRUD Operations - Full management capabilities for Projects & Gates"

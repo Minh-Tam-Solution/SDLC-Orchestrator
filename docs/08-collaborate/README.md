@@ -4,7 +4,7 @@
 **Stage**: 08 - Team Management
 **Question Answered**: How do we COLLABORATE effectively?
 **Status**: ACTIVE
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -130,9 +130,9 @@ Level 3 - CEO:
 
 ---
 
-## SDLC 5.1.3 Compliance
+## SDLC 6.1.0 Compliance
 
-This stage maps to **Stage 08: Team Management (COLLABORATE)** in SDLC 5.1.3.
+This stage maps to **Stage 08: Team Management (COLLABORATE)** in SDLC 6.1.0.
 
 ### Required Artifacts (PROFESSIONAL Tier)
 
@@ -178,7 +178,7 @@ This stage maps to **Stage 08: Team Management (COLLABORATE)** in SDLC 5.1.3.
 ---
 
 **Document Status**: P0 Entry Point (PROFESSIONAL Required)
-**Compliance**: SDLC 5.1.3 Stage 08
+**Compliance**: SDLC 6.1.0 Stage 08
 **Last Updated**: December 5, 2025
 **Owner**: PM + Tech Lead
 

@@ -5,7 +5,7 @@
 **Authors:** CTO + Tech Lead  
 **Reviewers:** 3 External Experts (Phản biện 1, 2, 3)  
 **Decision Deadline:** January 24, 2026 (Sprint 79 Kickoff)  
-**Framework:** SDLC 5.1.3 - Pillar 7 (Govern)
+**Framework:** SDLC 6.1.0 - Pillar 7 (Govern)
 
 ---
 

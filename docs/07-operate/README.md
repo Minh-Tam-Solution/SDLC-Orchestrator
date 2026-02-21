@@ -3,7 +3,7 @@
 **Stage**: 06 - OPERATE
 **Question**: How do we keep it running?
 **Status**: Planned
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -99,7 +99,7 @@ Legacy ops docs migrated to `docs/10-archive/07-Legacy/` per RFC-001.
 
 **Last Updated**: December 5, 2025
 **Owner**: DevOps Lead + CTO
-**Framework**: SDLC 5.1.3 Stage 06
+**Framework**: SDLC 6.1.0
 
 ---
 

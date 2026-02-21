@@ -4,7 +4,7 @@
 **Date**: November 27, 2025
 **Status**: ✅ READY FOR APPROVAL
 **Authority**: CTO + CPO + Security Lead
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Gate**: G3 - Ship Ready (Stage 03 → Stage 04)
 
 ---
@@ -224,8 +224,8 @@ Comments:
 
 ---
 
-*This document is part of the SDLC 5.1.3 Complete Lifecycle Gate Review process.*
+*This document is part of the SDLC 6.1.0 Complete Lifecycle Gate Review process.*
 
 **Generated**: November 27, 2025
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Status**: Awaiting CTO + CPO + Security Lead signatures

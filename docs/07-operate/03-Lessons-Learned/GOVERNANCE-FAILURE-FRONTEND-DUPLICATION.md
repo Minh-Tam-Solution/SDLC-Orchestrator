@@ -4,7 +4,7 @@
 **Discovery Date:** January 19, 2026  
 **Severity:** 🔴 **P1 - Major Governance Failure**  
 **Category:** Architectural Drift, Process Failure  
-**Framework:** SDLC 5.1.3 - Pillar 7 (Govern)
+**Framework:** SDLC 6.1.0 - Pillar 7 (Govern)
 
 ---
 
@@ -418,7 +418,7 @@ Last Updated: Jan 27, 2026
 
 - ✅ Zero architectural drift incidents for 6 months
 - ✅ Customer testimonial: "They practice what they preach"
-- ✅ Internal audit: 95%+ compliance with SDLC 5.1.3 governance pillar
+- ✅ Internal audit: 95%+ compliance with SDLC 6.1.0 governance pillar
 - ✅ Case study: "How we govern our own governance platform"
 
 ---
@@ -506,7 +506,7 @@ Last Updated: Jan 27, 2026
 
 - [ADR-025: Frontend Platform Consolidation](../../02-design/01-ADRs/ADR-025-Frontend-Platform-Consolidation-Nextjs-Monolith.md)
 - [Sprint 61-64: Frontend Platform Consolidation Sprint Plan](../../04-build/02-Sprint-Plans/SPRINT-61-64-FRONTEND-PLATFORM-CONSOLIDATION.md)
-- [SDLC 5.1.3 Framework - Pillar 7: Govern](../../../SDLC-Enterprise-Framework/02-Core-Methodology/README.md)
+- [SDLC 6.1.0 Framework - Pillar 7: Govern](../../../SDLC-Enterprise-Framework/02-Core-Methodology/README.md)
 
 ---
 

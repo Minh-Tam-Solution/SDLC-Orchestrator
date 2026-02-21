@@ -337,7 +337,7 @@ git push origin main
 Before approving, verify:
 
 ### Code Quality
-- [ ] All modified files follow snake_case naming (SDLC 5.1.2)
+- [ ] All modified files follow snake_case naming (SDLC 6.1.0)
 - [ ] Type hints present on all functions
 - [ ] Docstrings follow Google style
 - [ ] No TODO comments or placeholders

@@ -11,7 +11,7 @@
 
 ## 🎯 Orchestrator Philosophy: Gradual Autonomy & Governance
 
-Per SDLC 5.1.2 Principle #7 "Gradual Autonomy", Teams Integration validates:
+Per SDLC 6.1.0 Principle #7 "Gradual Autonomy", Teams Integration validates:
 
 ### Maturity Level Validation (L0 → L3)
 
@@ -45,7 +45,7 @@ Per SDLC 5.1.2 Principle #7 "Gradual Autonomy", Teams Integration validates:
 | Team → Project | Consultation Protocol (context binding) |
 | Activity feed | ATME (observability) |
 
-### Go-Live Checklist → SDLC 5.1.2 Compliance
+### Go-Live Checklist → SDLC 6.1.0 Compliance
 
 ```yaml
 Go-Live Requirements:

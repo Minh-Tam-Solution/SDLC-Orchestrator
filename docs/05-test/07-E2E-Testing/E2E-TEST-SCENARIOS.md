@@ -4,7 +4,7 @@
 **Date**: November 29, 2025
 **Status**: ACTIVE - STAGE 03 (BUILD)
 **Authority**: QA Lead + CTO Approved
-**Framework**: SDLC 5.1.3.1 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Project**: NQH-Bot Platform - Vietnamese Enterprise Chatbot
 
 ---
@@ -13,7 +13,7 @@
 
 This document defines comprehensive End-to-End (E2E) test scenarios for SDLC Orchestrator, covering all 5 Functional Requirements (FR1-FR5) and critical user journeys. All test scenarios are synchronized with the seed data in `DEMO-SEED-DATA.sql` v3.0.0 and Alembic migration `a502ce0d23a7`.
 
-**Test Project**: NQH-Bot Platform - The real-world project led by CEO Tai Dang with 2 teams (Local + Remote) using SDLC 5.1.3.1.
+**Test Project**: NQH-Bot Platform - The real-world project led by CEO Tai Dang with 2 teams (Local + Remote) using SDLC 6.1.0.
 
 ### 1.1 Functional Requirements Coverage
 
@@ -23,7 +23,7 @@ This document defines comprehensive End-to-End (E2E) test scenarios for SDLC Orc
 | FR2 | Evidence Vault | Auto-collection + SHA256 integrity | TC-EVID-* |
 | FR3 | AI Context Engine | Stage-aware AI assistance | TC-AI-* |
 | FR4 | Real-Time Dashboard | Overview + metrics + WebSocket | TC-DASH-* |
-| FR5 | Policy Pack Library | 100+ SDLC 5.1.3 policies | TC-POL-* |
+| FR5 | Policy Pack Library | 100+ SDLC 6.1.0 policies | TC-POL-* |
 
 ### 1.2 Test Environment
 
@@ -427,7 +427,7 @@ Scenario: View gate details on project page
 | G3 | BUILD | SHIP_READY | PENDING_APPROVAL | Yellow |
 
 And each gate card shows:
-  - Exit criteria checklist (SDLC 5.1.3.1 compliant)
+  - Exit criteria checklist (SDLC 6.1.0 compliant)
   - Evidence count
   - Last updated date
   - Approvers (CEO/CPO/CTO as appropriate)
@@ -919,7 +919,7 @@ Scenario: AI recommends policies for project
   And enters description: "E-commerce platform with payment processing"
   When AI analyzes project type
   Then AI recommends:
-    - "SDLC 5.1.3 Standard" (100% match)
+    - "SDLC 6.1.0 Standard" (100% match)
     - "Security Baseline - PCI DSS" (95% match - payment processing)
     - "Performance Pack" (85% match - e-commerce)
 
@@ -1491,7 +1491,7 @@ HSTS: Strict-Transport-Security header present
 ### 6.1 Seed Data Overview - NQH-Bot Platform
 
 ```yaml
-# SDLC Orchestrator - Automating CEO Tai Dang's SDLC 5.1.3.1 Framework
+# SDLC Orchestrator - Automating CEO Tai Dang's SDLC 6.1.0 Framework
 # CEO leads 2 teams (Local + Remote) developing NQH-Bot Platform
 
 Users: 12 total
@@ -1522,7 +1522,7 @@ Evidence: 13 files
   - DIAGRAM: 2 (NLP Pipeline, System Architecture)
   - REPORT: 1 (Test Coverage)
 
-Policies: 10 active (SDLC 5.1.3.1 compliant)
+Policies: 10 active (SDLC 6.1.0 compliant)
   - WHY: 3 (Problem Statement, User Research, Solution Alternatives)
   - WHAT: 3 (FRD, API Spec, Data Model)
   - HOW: 2 (Architecture, Security Baseline)
@@ -1682,7 +1682,7 @@ curl -s http://localhost:8300/api/v1/dashboard/stats \
 
 **Document Status**: ✅ ACTIVE - Ready for QA Testing
 **Synchronized With**: DEMO-SEED-DATA.sql v3.0.0, Alembic migration a502ce0d23a7
-**Test Project**: NQH-Bot Platform (CEO Tai Dang leads 2 teams using SDLC 5.1.3.1)
+**Test Project**: NQH-Bot Platform (CEO Tai Dang leads 2 teams using SDLC 6.1.0)
 **Framework Reference**: docs/10-Archive/SDLC-Enterprise-Framework
 **Next Review**: December 5, 2025
 **Owner**: QA Lead + CTO

@@ -56,7 +56,10 @@ from app.models.ai_engine import AIProvider, AIRequest, AIUsageLog, AIEvidenceDr
 from app.models.policy import Policy, CustomPolicy, PolicyTest
 
 # Supporting - 5 models
-from app.models.support import StageTransition, Webhook, AuditLog, Notification, SystemSetting
+# Note: AuditLog exported from support.py is the legacy class (LegacyAuditLog).
+# The authoritative Sprint 185 AuditLog is in app.models.audit_log.
+# Both map to audit_logs table; support.py uses extend_existing=True.
+from app.models.support import StageTransition, Webhook, LegacyAuditLog as AuditLog, Notification, SystemSetting
 
 # Compliance Scanning (Sprint 21) - 3 models
 from app.models.compliance_scan import ComplianceScan, ComplianceViolation, ScanJob

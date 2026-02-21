@@ -7,7 +7,7 @@
 **Created**: 2026-01-28
 **Sprint**: 118 Track 2 - D6
 **Related Specs**: SPEC-0001 (Anti-Vibecoding), SPEC-0002 (Specification Standard)
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -179,7 +179,7 @@ erDiagram
         string version "X.Y.Z semantic"
         enum status "DRAFT | APPROVED | DEPRECATED"
         array tier "LITE/STANDARD/PROFESSIONAL/ENTERPRISE"
-        int pillar "1-7 (SDLC 6.0 pillars)"
+        int pillar "1-7 (SDLC 6.1.0 pillars)"
         string owner
         timestamp created_at
         timestamp updated_at
@@ -1128,7 +1128,7 @@ graph TB
 ✅ Diagram 2: Database Schema (14 Tables + Relationships)
   - Group 1: 7 specification management tables
   - Group 2: 7 anti-vibecoding tables
-  - Foreign key relationships to existing 30 tables
+  - Foreign key relationships to existing 33 tables
   - Index strategy (50+ indexes: FK, time-series, GIN, composite)
 
 ✅ Diagram 3: API Request Flow (Complete Lifecycle)

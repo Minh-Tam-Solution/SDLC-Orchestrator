@@ -23,7 +23,7 @@ Usage:
 
 Environment Variables:
     OLLAMA_URL: Ollama API endpoint (default: http://localhost:11434)
-    OLLAMA_MODEL: Model to use (default: qwen2.5:14b-instruct)
+    OLLAMA_MODEL: Model to use (default: qwen3:32b)
 
 Output:
     - Console: Test results with metrics
@@ -261,7 +261,7 @@ class SOPOllamaIntegrationTest:
     def __init__(
         self,
         ollama_url: str = "http://localhost:11434",
-        ollama_model: str = "qwen2.5:14b-instruct",
+        ollama_model: str = "qwen3:32b",
         timeout: int = 60,  # Extended timeout for testing
     ):
         self.ollama_url = ollama_url
@@ -505,7 +505,7 @@ async def main():
     """Run integration tests."""
     # Configuration from environment or defaults
     ollama_url = os.environ.get("OLLAMA_URL", "http://localhost:11434")
-    ollama_model = os.environ.get("OLLAMA_MODEL", "qwen2.5:14b-instruct")
+    ollama_model = os.environ.get("OLLAMA_MODEL", "qwen3:32b")
 
     # Create test runner
     test_runner = SOPOllamaIntegrationTest(

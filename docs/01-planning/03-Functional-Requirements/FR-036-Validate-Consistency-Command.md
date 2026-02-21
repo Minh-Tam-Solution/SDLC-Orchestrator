@@ -4,7 +4,7 @@
 **Status**: APPROVED
 **Created**: February 1, 2026
 **Sprint**: Sprint 136
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 **Related Spec**: SPEC-0021 Stage Consistency Validation
 **Owner**: Backend Team
 
@@ -117,7 +117,7 @@ Stage Consistency Validation Report
 ====================================
 Project: SDLC-Orchestrator
 Tier: PROFESSIONAL
-Framework: SDLC 6.0.5
+Framework: SDLC 6.1.0
 Timestamp: 2026-02-01T12:00:00Z
 
 Stage Consistency Results:

@@ -15,7 +15,7 @@
 | **Team** | 1 Backend Lead + 0.5 Architect |
 | **Story Points** | 13 SP |
 | **Budget** | $3,000 |
-| **Framework** | SDLC 5.1.3 + SASE Level 2 |
+| **Framework** | SDLC 6.1.0 + SASE Level 2 |
 | **Strategic Context** | [Expert Feedback Integration](../../09-govern/05-Knowledge-Transfer/02-Expert-Response/FINAL-EXECUTIVE-SUMMARY.md) |
 | **CEO Approval** | ✅ Dec 23, 2025 |
 | **CTO Approval** | ✅ Dec 23, 2025 |

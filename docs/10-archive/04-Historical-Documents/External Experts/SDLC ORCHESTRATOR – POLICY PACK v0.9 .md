@@ -10,7 +10,7 @@
 > Dùng với **Gate Engine** (OPA/Conftest). YAML phía dưới là **abstraction** cho PM/QA, được biên dịch sang quy tắc chi tiết.
 
 ```yaml
-# policy_pack.yaml — SDLC 5.1.3 (v0.9)
+# policy_pack.yaml — SDLC 6.1.0 (v0.9)
 version: 0.9
 schema: sdlc.gatepolicy/1
 

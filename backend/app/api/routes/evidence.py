@@ -4,7 +4,11 @@ Evidence Status API Endpoints
 Provides evidence completeness status for OPA policy enforcement.
 Part of Sprint 133 - Evidence Vault + Gates Integration (SPEC-0016).
 
+Sprint 186 addition (ADR-062 D-3, P1 mandate):
+- GET /evidence — list GateEvidence records with ?compliance_type= filter
+
 Endpoints:
+- GET /evidence - List evidence records (ADR-062 D-3 compliance filter)
 - GET /projects/{project_id}/evidence/status - Get evidence completeness
 - POST /projects/{project_id}/evidence/validate - Trigger validation
 - GET /projects/{project_id}/evidence/gaps - Get detailed gap report
@@ -15,18 +19,187 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_db, get_current_user
-from app.models.user import User
+from app.models.gate import Gate
+from app.models.gate_evidence import GateEvidence
 from app.models.project import Project
+from app.models.user import User
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+# ADR-062 D-3: Recognised compliance evidence types.
+# Any evidence record whose evidence_type matches one of these values
+# is considered a compliance evidence artefact and is queryable via
+# the ?compliance_type= filter on GET /evidence.
+_VALID_COMPLIANCE_TYPES: frozenset[str] = frozenset({
+    "SOC2_CONTROL",
+    "HIPAA_AUDIT",
+    "NIST_AI_RMF",
+    "ISO27001",
+})
+
+
+@router.get("/evidence")
+async def list_evidence(
+    compliance_type: Optional[str] = Query(
+        None,
+        description=(
+            "Filter by compliance evidence type. "
+            "Valid values: SOC2_CONTROL | HIPAA_AUDIT | NIST_AI_RMF | ISO27001. "
+            "Case-insensitive. Returns 400 for unknown types. (ADR-062 D-3)"
+        ),
+    ),
+    gate_id: Optional[str] = Query(None, description="Filter by gate UUID"),
+    source: Optional[str] = Query(
+        None,
+        description="Filter by evidence source: cli | extension | web | agent | jira",
+    ),
+    limit: int = Query(50, ge=1, le=200, description="Max records to return (1-200)"),
+    offset: int = Query(0, ge=0, description="Pagination offset"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
+    """
+    List GateEvidence records stored in the Evidence Vault.
+
+    ADR-062 D-3 — compliance_type filter (Sprint 186 P1 mandate, 4 sprints overdue):
+    Pass ?compliance_type= to restrict results to a specific compliance artefact
+    category. The filter is case-insensitive and normalised to uppercase before
+    matching against the evidence_type column (B-tree indexed).
+
+    Recognised compliance_type values:
+        SOC2_CONTROL  — SOC 2 Trust Service Criteria controls
+        HIPAA_AUDIT   — HIPAA audit trail records
+        NIST_AI_RMF   — NIST AI Risk Management Framework controls
+        ISO27001      — ISO/IEC 27001 Annex A controls
+
+    Additional filters:
+        gate_id  — restrict to evidence attached to a specific gate (UUID)
+        source   — restrict by upload origin: cli | extension | web | agent | jira
+
+    Pagination:
+        limit  — number of records per page (default 50, max 200)
+        offset — zero-based page offset (default 0)
+
+    Returns:
+        {
+            "items": [...],          // list of evidence records
+            "total": int,            // total matching records (for pagination)
+            "limit": int,
+            "offset": int,
+            "compliance_type_filter": str | null   // normalised filter applied
+        }
+
+    Raises:
+        400: compliance_type value not in the recognised set
+        400: gate_id is not a valid UUID
+    """
+    # F-03: Build base query with org-scoping via Gate → Project JOIN.
+    # Prevents cross-tenant data exposure: a user in org A cannot see org B's evidence.
+    base_stmt = (
+        select(GateEvidence)
+        .join(Gate, GateEvidence.gate_id == Gate.id)
+        .join(Project, Gate.project_id == Project.id)
+        .where(
+            GateEvidence.deleted_at.is_(None),
+            Project.organization_id == current_user.organization_id,
+        )
+    )
+
+    # --------------------------------------------------------------------------
+    # compliance_type filter (ADR-062 D-3)
+    # --------------------------------------------------------------------------
+    normalised_ct: Optional[str] = None
+    if compliance_type is not None:
+        normalised_ct = compliance_type.strip().upper()
+        if normalised_ct not in _VALID_COMPLIANCE_TYPES:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"Unknown compliance_type '{compliance_type}'. "
+                    f"Valid values: {sorted(_VALID_COMPLIANCE_TYPES)}"
+                ),
+            )
+        base_stmt = base_stmt.where(GateEvidence.evidence_type == normalised_ct)
+
+    # --------------------------------------------------------------------------
+    # gate_id filter
+    # --------------------------------------------------------------------------
+    if gate_id is not None:
+        try:
+            gate_uuid = UUID(gate_id)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="gate_id must be a valid UUID",
+            )
+        base_stmt = base_stmt.where(GateEvidence.gate_id == gate_uuid)
+
+    # --------------------------------------------------------------------------
+    # source filter
+    # --------------------------------------------------------------------------
+    if source is not None:
+        base_stmt = base_stmt.where(GateEvidence.source == source.lower())
+
+    # --------------------------------------------------------------------------
+    # Total count (for pagination metadata)
+    # --------------------------------------------------------------------------
+    count_stmt = select(func.count()).select_from(base_stmt.subquery())
+    total: int = (await db.execute(count_stmt)).scalar_one()
+
+    # --------------------------------------------------------------------------
+    # Paginated result set (newest first)
+    # --------------------------------------------------------------------------
+    result_stmt = (
+        base_stmt
+        .order_by(GateEvidence.created_at.desc())
+        .offset(offset)
+        .limit(limit)
+    )
+    records = list((await db.execute(result_stmt)).scalars().all())
+
+    logger.debug(
+        "list_evidence: compliance_type=%s gate_id=%s source=%s total=%d returned=%d",
+        normalised_ct,
+        gate_id,
+        source,
+        total,
+        len(records),
+    )
+
+    return {
+        "items": [
+            {
+                "id": str(record.id),
+                "gate_id": str(record.gate_id) if record.gate_id else None,
+                "file_name": record.file_name,
+                "file_size": record.file_size,
+                "file_type": record.file_type,
+                "evidence_type": record.evidence_type,
+                "source": record.source,
+                "sha256_hash": record.sha256_hash,
+                "description": record.description,
+                "uploaded_by": str(record.uploaded_by) if record.uploaded_by else None,
+                "uploaded_at": record.uploaded_at.isoformat() if record.uploaded_at else None,
+                "created_at": record.created_at.isoformat() if record.created_at else None,
+                "s3_url": record.s3_url,
+            }
+            for record in records
+        ],
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "compliance_type_filter": normalised_ct,
+    }
 
 
 @router.get("/projects/{project_id}/evidence/status")

@@ -213,5 +213,5 @@ curl -X POST http://localhost:8310/api/v1/auth/login -d '{"email":"test","passwo
 
 **Document Status**: ACTIVE
 **Last Updated**: December 13, 2025
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Stage**: 07-OPERATE (Incident Response)

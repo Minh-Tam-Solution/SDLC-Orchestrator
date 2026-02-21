@@ -5,7 +5,7 @@
 **Duration:** 5 days (February 3-7, 2026)
 **Goal:** Integrate AI Council with Sprint Context + Advanced Sprint Analytics
 **Story Points:** 38 SP
-**Framework Reference:** SDLC 5.1.3 P2 (Sprint Planning) + P5 (SASE)
+**Framework Reference:** SDLC 6.1.0 P2 (Sprint Planning) + P5 (SASE)
 **Prerequisite:** Sprint 76 ✅ (SASE Workflow Integration)
 
 ---
@@ -746,7 +746,7 @@ POST /planning/sprints/{sprint_id}/retrospective:
 
 ---
 
-## 📝 SDLC 5.1.3 Compliance
+## 📝 SDLC 6.1.0 Compliance
 
 | Pillar | Sprint 77 Implementation |
 |--------|--------------------------|
@@ -774,6 +774,6 @@ POST /planning/sprints/{sprint_id}/retrospective:
 
 ---
 
-**SDLC 5.1.3 | Sprint 77 | Stage 04 (BUILD)**
+**SDLC 6.1.0 | Sprint 77 | Stage 04 (BUILD)**
 
 *G-Sprint Approval Required Before Sprint Start*

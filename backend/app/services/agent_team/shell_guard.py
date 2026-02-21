@@ -1,19 +1,23 @@
 """
 Shell command safety guard — ADR-056 Non-Negotiable #5.
+Updated: Sprint 179 — Environment variable scrubbing (ADR-058 Pattern C).
 
 Sources:
 - Nanobot N6: nanobot/agent/tools/shell.py (8 deny patterns)
+- ZeroClaw: src/tools/shell.rs -> env_clear() + SAFE_ENV_VARS
 - Path traversal detection
 - Output truncation (10KB)
 
 Blocks dangerous shell commands before execution by agent tools.
+Scrubs environment variables to safe allowlist for subprocess isolation.
 
-Sprint 177 Day 6 implementation.
+Sprint 177 Day 6 implementation. Sprint 179 Day 1-2 env scrubbing.
 """
 
 from __future__ import annotations
 
 import logging
+import os
 import re
 
 logger = logging.getLogger(__name__)
@@ -55,6 +59,22 @@ DENY_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
 ]
 
 MAX_OUTPUT_SIZE = 10 * 1024  # 10KB
+
+# Sprint 179 — ADR-058 Pattern C: safe environment variable allowlist.
+# Only these 9 vars are passed to agent subprocesses.
+# LC_ALL included for Vietnamese UTF-8 locale (vi_VN.UTF-8).
+# Missing vars are omitted (not set to empty string).
+SAFE_ENV_VARS: tuple[str, ...] = (
+    "PATH",
+    "HOME",
+    "LANG",
+    "LC_ALL",
+    "TZ",
+    "TERM",
+    "USER",
+    "SHELL",
+    "TMPDIR",
+)
 
 
 class ShellGuard:
@@ -141,3 +161,30 @@ class ShellGuard:
                 f"limit {MAX_OUTPUT_SIZE:,} bytes)"
             )
         return output
+
+    @staticmethod
+    def scrub_environment() -> dict[str, str]:
+        """
+        Return a safe environment dict for agent subprocess execution.
+
+        Reads ``os.environ``, keeps only variables in ``SAFE_ENV_VARS``.
+        Missing vars are **omitted** (not set to empty string — avoids
+        confusing tools with unexpected empty values).
+
+        Callers pass the returned dict as ``subprocess.Popen(env=safe_env)``.
+
+        Sprint 179 — ADR-058 Pattern C / FR-043.
+        Source: ZeroClaw ``src/tools/shell.rs`` -> ``env_clear()``.
+        """
+        safe_env: dict[str, str] = {}
+        for var in SAFE_ENV_VARS:
+            value = os.environ.get(var)
+            if value is not None:
+                safe_env[var] = value
+
+        logger.debug(
+            "TRACE_ENV_SCRUB: allowed %d of %d host env vars",
+            len(safe_env),
+            len(os.environ),
+        )
+        return safe_env

@@ -5,9 +5,9 @@
 **Date**: December 21, 2025
 **Status**: ✅ APPROVED - Gate G1 Legal PASSED
 **Authority**: External Legal Counsel + CEO Sign-Off (✅ APPROVED)
-**Foundation**: OSS Landscape Research v2.0.0, Vision v3.1.0, Roadmap v4.1.0
+**Foundation**: OSS Landscape Research v2.0.0, Vision v5.0.0, Roadmap v5.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 **Gate Impact**: Gate G1 (Legal + Market Validation) - ✅ PASSED
 
 **Changelog**:
@@ -943,7 +943,7 @@ cyclonedx-cli validate --input-file sbom-cyclonedx.json
 - [Stripe OSS License Policy](https://stripe.com/docs/licenses) - Industry benchmark
 - [GitHub SBOM Guide](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-supply-chain-security)
 - [OSS Landscape Research v1.0](../../00-Project-Foundation/05-Market-Analysis/OSS-Landscape-Research.md)
-- [BRD v1.2](../../00-Project-Foundation/02-Business-Case/Business-Requirements-Document.md)
+- [BRD v3.0.0](../../00-foundation/02-Business-Case/Business-Requirements-Document.md)
 
 ---
 

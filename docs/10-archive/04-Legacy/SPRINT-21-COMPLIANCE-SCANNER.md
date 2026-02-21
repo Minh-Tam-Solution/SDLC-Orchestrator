@@ -4,8 +4,8 @@
 **Date**: November 29, 2025
 **Status**: PLANNED
 **Authority**: CTO + Backend Lead + CPO
-**Foundation**: SDLC 5.1.3.1 Enforcement Requirements
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Foundation**: SDLC 6.1.0 Enforcement Requirements
+**Framework**: SDLC 6.1.0
 **Week**: 11 of 13 (Dec 2-6, 2025)
 
 ---
@@ -52,7 +52,7 @@ Platform Solution:
 | # | Task | File | Est. | Owner |
 |---|------|------|------|-------|
 | 1.1 | Create ComplianceScanner service | backend/app/services/compliance_scanner.py | 3h | BE |
-| 1.2 | Define SDLC 5.1.3.1 policy rules | backend/app/policies/sdlc-4.9.1.rego | 2h | BE |
+| 1.2 | Define SDLC 6.1.0 policy rules | backend/app/policies/sdlc-4.9.1.rego | 2h | BE |
 | 1.3 | Create compliance_scans table | alembic/versions/xxx_compliance_scans.py | 1h | BE |
 | 1.4 | Add scan results model | backend/app/models/compliance_scan.py | 1h | BE |
 
@@ -61,7 +61,7 @@ Platform Solution:
 **compliance_scanner.py**:
 ```python
 """
-Compliance Scanner Service - SDLC 5.1.3.1 Violation Detection
+Compliance Scanner Service - SDLC 6.1.0 Violation Detection
 
 This service periodically scans projects to detect violations of SDLC standards.
 """
@@ -73,7 +73,7 @@ from app.services.github_service import GitHubService
 
 class ComplianceScanner:
     """
-    Scan projects for SDLC 5.1.3.1 compliance violations.
+    Scan projects for SDLC 6.1.0 compliance violations.
 
     Features:
     - Documentation structure validation
@@ -124,7 +124,7 @@ class ComplianceScanner:
         )
 
     async def _check_documentation_structure(self, project_id: str) -> List[Violation]:
-        """Check if /docs folder follows SDLC 5.1.3.1 structure."""
+        """Check if /docs folder follows SDLC 6.1.0 structure."""
         # Expected structure: 00-Project-Foundation, 01-Planning-Analysis, etc.
         pass
 
@@ -184,7 +184,7 @@ violation[msg] {
 
 ### Success Criteria
 - [ ] ComplianceScanner service created
-- [ ] 10+ SDLC 5.1.3.1 rules defined in Rego
+- [ ] 10+ SDLC 6.1.0 rules defined in Rego
 - [ ] Database schema for scan results
 - [ ] Unit tests for scanner logic
 
@@ -305,7 +305,7 @@ class OllamaService:
 
     def __init__(self):
         self.base_url = settings.OLLAMA_BASE_URL  # http://api.nhatquangholding.com:11434
-        self.model = settings.OLLAMA_MODEL  # qwen2.5-coder:32b
+        self.model = settings.OLLAMA_MODEL  # qwen3-coder:30b
 
     async def generate_recommendation(
         self,
@@ -337,7 +337,7 @@ class OllamaService:
     def _build_prompt(self, violation: Violation, context: Dict) -> str:
         """Build stage-aware prompt for the AI."""
         return f"""
-You are an SDLC 5.1.3.1 compliance expert. A violation was detected in a software project.
+You are an SDLC 6.1.0 compliance expert. A violation was detected in a software project.
 
 ## Violation Details
 - Type: {violation.type}
@@ -594,7 +594,7 @@ CREATE INDEX idx_compliance_scans_date ON compliance_scans(scanned_at DESC);
 ## Definition of Done
 
 - [ ] ComplianceScanner service complete
-- [ ] 15+ SDLC 5.1.3.1 policy rules
+- [ ] 15+ SDLC 6.1.0 policy rules
 - [ ] Scheduled daily scans working
 - [ ] Ollama AI integration complete
 - [ ] Compliance dashboard UI
@@ -681,7 +681,7 @@ class DocCodeSyncScanner:
     """
     Detect drift between documentation and code implementation.
 
-    This is critical for SDLC 5.1.3.1 compliance because:
+    This is critical for SDLC 6.1.0 compliance because:
     1. New team members rely on docs to understand system
     2. AI Codex changes may not update docs
     3. Iterative development creates doc debt
@@ -783,7 +783,7 @@ class DocCodeSyncScanner:
         recommendations = []
         for drift in drifts[:5]:  # Top 5 priority items
             prompt = f"""
-A documentation drift was detected in an SDLC 5.1.3.1 project:
+A documentation drift was detected in an SDLC 6.1.0 project:
 
 Type: {drift.type}
 Location: {drift.location}
@@ -1158,7 +1158,7 @@ Platform Enforcement:
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0. Zero Mock Policy enforced.*
 
 **Sprint 21 Focus**: "Automated Compliance - Platform that enforces, not just suggests"
 

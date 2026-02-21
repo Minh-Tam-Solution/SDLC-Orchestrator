@@ -213,26 +213,20 @@ class Webhook(Base):
         return f"<Webhook(project_id={self.project_id}, provider={self.provider})>"
 
 
-class AuditLog(Base):
+class LegacyAuditLog(Base):
     """
-    Audit Log model for system-wide audit trail.
+    Legacy Audit Log model — superseded by app.models.audit_log.AuditLog (Sprint 185).
 
-    Purpose:
-        - 100% operation logging (compliance, security)
-        - User action tracking (who did what when)
-        - Security event monitoring (failed logins, permission changes)
+    Sprint 185 (ADR-059): The authoritative audit log model with SOC2 Type II
+    controls and the immutable create_event() factory is in app/models/audit_log.py.
+    This class is retained for backward-compatible ORM access via the User.audit_logs
+    relationship; it maps to the same audit_logs table with extend_existing=True.
 
-    Logged Actions:
-        - USER_LOGIN: User login event
-        - USER_LOGOUT: User logout event
-        - GATE_CREATED: Gate created
-        - GATE_APPROVED: Gate approved
-        - GATE_REJECTED: Gate rejected
-        - EVIDENCE_UPLOADED: Evidence file uploaded
-        - POLICY_EVALUATED: Policy evaluation executed
-        - PERMISSION_CHANGED: User permission changed
+    DO NOT use this class directly for new audit events. Use:
+        from app.models.audit_log import AuditLog
+        event = AuditLog.create_event(...)
 
-    Fields:
+    Fields (legacy subset):
         - id: UUID primary key
         - user_id: Foreign key to User (actor, nullable for system events)
         - action: Action type ('USER_LOGIN', 'GATE_CREATED', etc.)
@@ -242,29 +236,12 @@ class AuditLog(Base):
         - ip_address: Client IP address
         - user_agent: Client user agent
         - created_at: Event timestamp
-
-    Relationships:
-        - user: Many-to-One with User model
-
-    Indexes:
-        - user_id (B-tree) - Fast user audit lookup
-        - action (B-tree) - Action type filtering
-        - resource_type + resource_id (composite) - Resource audit lookup
-        - created_at (B-tree) - Recent events queries
-
-    Usage Example:
-        log = AuditLog(
-            user_id=user.id,
-            action='GATE_APPROVED',
-            resource_type='gate',
-            resource_id=gate.id,
-            details={'gate_name': 'G1 Design Ready', 'approver_role': 'CTO'},
-            ip_address='192.168.1.100',
-            user_agent='Mozilla/5.0...'
-        )
     """
 
     __tablename__ = "audit_logs"
+    # extend_existing=True: the Sprint 185 AuditLog (audit_log.py) already
+    # defined this table; this class extends it rather than redefining it.
+    __table_args__ = {"extend_existing": True}
 
     # Primary Key
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4, index=True)

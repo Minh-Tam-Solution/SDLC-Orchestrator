@@ -19,7 +19,7 @@ This document defines the database schema for automating **SPEC-0001** (Anti-Vib
 
 **Scope**:
 - **14 new tables** (governance_specifications, spec_versions, etc.)
-- **ERD diagram** showing relationships to existing 30 tables
+- **ERD diagram** showing relationships to existing 33 tables
 - **DDL statements** (SQL CREATE TABLE)
 - **Index strategy** for query optimization
 - **Migration plan** (Alembic version sequence)
@@ -27,7 +27,7 @@ This document defines the database schema for automating **SPEC-0001** (Anti-Vib
 
 **Constraints**:
 - ✅ Zero downtime migrations
-- ✅ Compatible with existing 30-table schema
+- ✅ Compatible with existing 33-table schema
 - ✅ PostgreSQL 15.5+ (pgvector, btree_gin extensions)
 - ✅ Foreign keys to existing tables: users, projects, gates, gate_evidence
 - ✅ Performance target: <50ms p95 for all queries
@@ -148,7 +148,7 @@ CREATE TABLE governance_specifications (
   related_specs         TEXT[], -- ['SPEC-0002', 'SPEC-0003']
 
   -- Framework Context
-  framework_version     VARCHAR(20) NOT NULL DEFAULT '6.0.5', -- "SDLC 6.0.5"
+  framework_version     VARCHAR(20) NOT NULL DEFAULT '6.0.5', -- "SDLC 6.1.0"
   machine_readable_spec TEXT, -- URL to YAML control file
 
   -- Content Storage
@@ -1168,7 +1168,7 @@ ALTER TABLE kill_switch_events
 
 **Prerequisites**:
 - PostgreSQL 15.5+
-- Existing 30-table schema deployed
+- Existing 33-table schema deployed
 - `alembic` migration framework configured
 
 **Migration Plan** (3 phases):
@@ -1564,7 +1564,7 @@ LIMIT 20;
 ### **Pre-Implementation Review**
 
 - [ ] **All 14 tables defined** with PRIMARY KEY, NOT NULL constraints
-- [ ] **Foreign keys** to existing 30 tables (users, projects, gate_evidence)
+- [ ] **Foreign keys** to existing 33 tables (users, projects, gate_evidence)
 - [ ] **50+ indexes** for query optimization (FK, time-series, enum, GIN, FTS)
 - [ ] **JSONB fields** for flexible metadata (frontmatter, conditions, evidence)
 - [ ] **Seed data** prepared for progressive_routing_rules (4 zones) and kill_switch_triggers (3 triggers)

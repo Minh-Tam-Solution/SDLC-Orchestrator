@@ -194,7 +194,7 @@
 **Code Review**:
 - **Policy**: 100% coverage (all code reviewed by Tech Lead before merge)
 - **SLA**: <24 hours (PR open → approval)
-- **Standards**: SDLC 5.1.3 (4-layer architecture, naming conventions, AGPL containment)
+- **Standards**: SDLC 6.1.0 (4-layer architecture, naming conventions, AGPL containment)
 
 **Slack Channel**: #sase-pilot-sop-generator (created Jan 17)
 - Use for: questions, blockers, updates (async communication)
@@ -317,5 +317,5 @@
 
 ---
 
-*This agenda is part of Track 1 SASE (Q1 2026 P0) - SDLC 5.1.0 Framework Enhancement*
+*This agenda is part of Track 1 SASE (Q1 2026 P0) - SDLC 6.1.0 Framework Enhancement*
 *Reference: BRS-PILOT-001, LPS-PILOT-001, SASE-Week-5-Progress-Report.md*

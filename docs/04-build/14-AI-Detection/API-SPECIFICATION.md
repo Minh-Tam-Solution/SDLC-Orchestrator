@@ -2,7 +2,7 @@
 
 **SDLC Stage**: 04 - BUILD
 **Sprint**: 42 - AI Detection & Validation Pipeline
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 **Version**: 1.0.0
 **Status**: Production Ready
 

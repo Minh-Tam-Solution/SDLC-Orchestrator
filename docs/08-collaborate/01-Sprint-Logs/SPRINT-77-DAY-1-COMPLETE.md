@@ -571,7 +571,7 @@ class TestCouncilSprintContext:
 
 ---
 
-## SDLC 5.1.3 Compliance ✅ 100%
+## SDLC 6.1.0 Compliance ✅ 100%
 
 | Pillar | Requirement | Implementation | Status |
 |--------|-------------|----------------|--------|
@@ -630,6 +630,6 @@ class TestCouncilSprintContext:
 
 ---
 
-**SDLC 5.1.3 | Sprint 77 Day 1 | ✅ COMPLETE**
+**SDLC 6.1.0 | Sprint 77 Day 1 | ✅ COMPLETE**
 
 *"AI Council is now sprint-aware. Decisions factor in sprint health, team expertise, and sprint goals. Foundation ready for Day 2 burndown charts."*

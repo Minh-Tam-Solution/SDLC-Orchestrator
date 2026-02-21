@@ -170,7 +170,7 @@ $ python -m pytest tests/integration/test_mcp_integration.py -v
    - What could be improved: Documentation velocity, deprecation warnings discovery, CLI parameter naming
 
 7. **Framework 6.0.5 Compliance**
-   - SDLC 6.0.5 integration
+   - SDLC 6.1.0 integration
    - Evidence artifacts created (15+)
    - Quality gates passed
 

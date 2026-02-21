@@ -1,13 +1,16 @@
 # Database Schema (SQL Migrations)
 ## PostgreSQL 15.5 Schema Definitions
 
-**Version**: 2.1.0
-**Date**: December 16, 2025
-**Status**: ACTIVE - Gate Status Normalization
+**Version**: 2.2.0
+**Date**: February 20, 2026
+**Status**: ACTIVE - Enterprise-First Alignment
 **Authority**: Backend Lead + CTO Review (APPROVED)
-**Foundation**: Data Model ERD v2.0 (with AI Governance)
+**Foundation**: Data Model ERD v3.5.0 (with AI Governance + Enterprise-First)
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+
+**Changelog v2.2.0** (Feb 20, 2026):
+- Enterprise-First alignment — SDLC 5.1.3→6.1.0, ERD ref v3.5.0
 
 **Changelog v2.0.0** (Dec 3, 2025):
 - Added Migration 006: AI Governance Tables (stage_requirements, requirement_overrides)

@@ -3,7 +3,7 @@
 **Sprint Duration**: February 3-7, 2026 (5 days)
 **Sprint Goal**: WebSocket + Push Notifications
 **Status**: ✅ **COMPLETE**
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.1.0
 **Exit Criteria**: 9/9 (100%)
 **ADR**: [ADR-049-Real-Time-Notifications-Architecture](../../02-design/01-ADRs/ADR-049-Real-Time-Notifications-Architecture.md)
 **Tech Spec**: [SPEC-0025-Real-Time-Notifications](../../02-design/14-Technical-Specs/SPEC-0025-Real-Time-Notifications.md)

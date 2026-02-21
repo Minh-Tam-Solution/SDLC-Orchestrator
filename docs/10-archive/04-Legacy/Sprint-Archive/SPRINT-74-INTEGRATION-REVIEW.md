@@ -125,7 +125,7 @@ class Sprint:
 | sprint_gate_evaluations | via Sprint | ✅ evaluated_by | via Sprint.Project.team |
 | backlog_items | ✅ project_id | ✅ assignee_id, created_by | via Project.team |
 
-### SDLC 5.1.3 Compliance
+### SDLC 6.1.0 Compliance
 
 | Rule | Status | Notes |
 |------|--------|-------|

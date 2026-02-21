@@ -6,7 +6,7 @@
 **Date**: December 23, 2025
 **Author**: Product + Success Team
 **Sprint**: Sprint 49 (Mar 3-14, 2026)
-**Framework**: SDLC 5.1.3 + SASE Level 2
+**Framework**: SDLC 6.1.0
 **Dependency**: Sprint 48 (Quality Gates)
 
 ---

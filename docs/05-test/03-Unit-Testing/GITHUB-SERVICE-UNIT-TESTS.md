@@ -5,7 +5,7 @@
 **Status**: ACTIVE - Sprint 16 Day 1
 **Authority**: Backend Lead + QA Lead Approved
 **Foundation**: Sprint 16 Testing Plan
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -185,7 +185,7 @@ Tests special scenarios:
 
 ## Zero Mock Policy Compliance
 
-Per SDLC 5.1.3 Zero Mock Policy:
+Per SDLC 6.1.0 Zero Mock Policy:
 
 **Mocked**: External GitHub API calls (requests.get, requests.post)
 - Reason: Cannot call real GitHub API in tests
@@ -233,4 +233,4 @@ PYTHONPATH="$PWD/backend" pytest tests/unit/services/test_github_service.py --co
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0. Zero Mock Policy enforced.*

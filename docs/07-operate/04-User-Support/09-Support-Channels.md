@@ -6,7 +6,7 @@
 
 ## Support Philosophy
 
-We're committed to helping you succeed with SDLC Orchestrator and SDLC 5.1.3 Framework:
+We're committed to helping you succeed with SDLC Orchestrator and SDLC 6.1.0 Framework:
 
 ```
 Self-Service → Team Support → Admin Support → Engineering Support
@@ -686,7 +686,7 @@ We're Here to Help! 🚀
 
 ---
 
-**Framework**: SDLC 5.1.3 Complete Lifecycle  
+**Framework**: SDLC 6.1.0
 **Platform**: SDLC Orchestrator v1.2.0  
 **Support**: Here to help you succeed  
 **Author**: Mr. Tai (taidt@mtsolution.com.vn, +84 939 116 006)  

@@ -6,7 +6,7 @@
 
 ## Overview
 
-This guide compiles battle-tested best practices from successful projects using SDLC 5.1.3 Framework, including:
+This guide compiles battle-tested best practices from successful projects using SDLC 6.1.0 Framework, including:
 - **BFlow**: $43M revenue, 827:1 ROI
 - **NQH-Bot**: ₫15B+ value, 95% recovery rate
 - **MTEP**: <30 min PaaS, <50ms response time
@@ -750,13 +750,13 @@ Practices:
 
 > "Quality is not an act, it is a habit." - Aristotle
 
-SDLC 5.1.3 Framework provides the structure.  
+SDLC 6.1.0 Framework provides the structure.  
 SDLC Orchestrator enforces the discipline.  
 Your practices determine the outcome.
 
 ---
 
-**Framework**: SDLC 5.1.3 Complete Lifecycle  
+**Framework**: SDLC 6.1.0
 **Platform**: SDLC Orchestrator v1.2.0  
 **Proven Results**: 827:1 ROI, ₫15B+ value, <30 min deployment  
 **Last Updated**: December 20, 2025

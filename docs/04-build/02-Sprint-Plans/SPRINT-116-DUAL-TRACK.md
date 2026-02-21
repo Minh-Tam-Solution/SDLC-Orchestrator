@@ -4,7 +4,7 @@
 **Version**: 1.0.0
 **Dates**: February 17-21, 2026 (5 days)
 **Status**: PLANNED (Pending Sprint 115 Completion)
-**Framework**: SDLC 5.3.0 → 6.0 (OpenSpec-inspired Upgrade)
+**Framework**: SDLC 6.1.0
 **Prerequisites**: Sprint 115 metrics pass Go/No-Go gate
 
 ---

@@ -15,7 +15,7 @@
 | **Team** | 1 Backend + 1 Frontend + 0.5 DevOps |
 | **Story Points** | 18 SP |
 | **Budget** | $5,000 (part of $15,000 for Sprint 46-48) |
-| **Framework** | SDLC 5.1.3 + SASE Level 2 |
+| **Framework** | SDLC 6.1.0 + SASE Level 2 |
 | **Dependency** | Sprint 45-47 (providers + IR + onboarding/templates) |
 | **Strategic Context** | [Expert Feedback Integration](../../09-govern/05-Knowledge-Transfer/02-Expert-Response/FINAL-EXECUTIVE-SUMMARY.md) |
 

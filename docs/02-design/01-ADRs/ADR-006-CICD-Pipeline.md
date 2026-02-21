@@ -4,14 +4,14 @@
 **Date**: November 13, 2025
 **Decision Makers**: CTO, DevOps Lead, Tech Lead
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 
 ---
 
 ## Context
 
 SDLC Orchestrator requires a robust CI/CD pipeline that:
-1. **Enforces SDLC 5.1.3 gates** (eat our own dog food)
+1. **Enforces SDLC 6.1.0 gates** (eat our own dog food)
 2. **Zero Mock Policy** compliance (NQH-Bot lesson)
 3. **Multi-environment deployment** (dev, staging, production)
 4. **Security scanning** (OWASP, SBOM, secrets)
@@ -31,7 +31,7 @@ Implement **GitHub Actions-based CI/CD** with:
 
 1. **Build Pipeline**: Test → Security → Quality → Package
 2. **Deploy Pipeline**: Staging → Testing → Production
-3. **Gate Enforcement**: SDLC 5.1.3 gates as pipeline stages
+3. **Gate Enforcement**: SDLC 6.1.0 gates as pipeline stages
 4. **Infrastructure as Code**: Terraform for AWS resources
 5. **Monitoring Integration**: Prometheus/Grafana metrics
 
@@ -59,7 +59,7 @@ Implement **GitHub Actions-based CI/CD** with:
 
 ### Pipeline Philosophy
 
-Following SDLC 5.1.3 stages:
+Following SDLC 6.1.0 stages:
 - **Stage 04 (BUILD)**: Code compilation, unit tests
 - **Stage 05 (TEST)**: Integration tests, E2E tests
 - **Stage 05 (SHIP)**: Deployment, smoke tests
@@ -777,7 +777,7 @@ jobs:
 
 ### Positive
 
-1. **Gate Enforcement**: CI/CD enforces SDLC 5.1.3 gates automatically
+1. **Gate Enforcement**: CI/CD enforces SDLC 6.1.0 gates automatically
 2. **Quality Assurance**: Zero Mock Policy ensures real testing
 3. **Fast Feedback**: Developers get results in <10 minutes
 4. **Security**: OWASP, SBOM, secret scanning built-in
@@ -853,7 +853,7 @@ jobs:
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [DORA Metrics](https://dora.dev/)
 - [Zero Mock Policy](../../heritage/nqh-bot-lessons.md)
-- [SDLC 5.1.3 Gates](../../sdlc-framework/gates.md)
+- [SDLC 6.1.0 Gates](../../sdlc-framework/gates.md)
 
 ---
 

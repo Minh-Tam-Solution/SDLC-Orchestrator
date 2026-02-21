@@ -62,8 +62,8 @@ CODEGEN_OLLAMA_URL=http://host.docker.internal:11434
 CODEGEN_OLLAMA_URL=https://api.nhatquangholding.com
 
 # Model configuration
-CODEGEN_MODEL_PRIMARY=qwen2.5-coder:32b-instruct-q4_K_M  # 92.7% HumanEval
-CODEGEN_MODEL_FAST=qwen2.5:14b-instruct        # Fast autocomplete
+CODEGEN_MODEL_PRIMARY=qwen3-coder:30b  # 92.7% HumanEval
+CODEGEN_MODEL_FAST=qwen3:32b        # Fast autocomplete
 CODEGEN_TIMEOUT=120                             # Timeout in seconds
 
 # Claude Configuration (Fallback - Optional)
@@ -137,7 +137,7 @@ Response:
   },
   "tokens_used": 1500,
   "generation_time_ms": 3500,
-  "metadata": {"model": "qwen2.5-coder:32b"}
+  "metadata": {"model": "qwen3-coder:30b"}
 }
 ```
 
@@ -240,7 +240,7 @@ curl http://localhost:8000/api/v1/codegen/health
 1. Check Ollama server is running: `curl http://localhost:11434/api/tags`
 2. Verify network connectivity to Ollama endpoint
 3. Check `CODEGEN_OLLAMA_URL` is correctly set via environment variable
-4. Verify model is installed: should show `qwen2.5-coder:32b` in models list
+4. Verify model is installed: should show `qwen3-coder:30b` in models list
 
 ### Issue: Generation Timeout
 
@@ -322,7 +322,7 @@ ERROR: No codegen providers available
 2. **Use IR-based generation** - 96% token reduction vs full context
 3. **Generate incrementally** - `target_module` for single module
 4. **Cache results** - Store generated code for reuse
-5. **Use smaller models** - `qwen2.5:14b` for simple tasks
+5. **Use smaller models** - `qwen3:32b` for simple tasks
 
 ---
 

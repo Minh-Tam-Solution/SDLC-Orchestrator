@@ -992,7 +992,7 @@ COMMENT ON COLUMN planning_sessions.depth IS 'Analysis depth: quick (10s), mediu
 
 """
 =========================================================================
-SDLC 5.1.3 Planning Mode Command
+SDLC 6.1.0 Planning Mode Command
 SDLC Orchestrator - Sprint 96
 
 Version: 1.0.0

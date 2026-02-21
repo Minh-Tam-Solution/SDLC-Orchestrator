@@ -6,17 +6,17 @@
 **Status**: ✅ Gate G3 PASSED - Sprint 122 Stabilization
 **Authority**: CTO + Backend Lead + Tech Lead
 **Foundation**: Stage 02 (Design & Architecture) - 24 documents ✅ COMPLETE
-**Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+**Framework**: SDLC 6.1.0
 **Previous Stage**: Stage 02 (HOW - Design & Architecture) ✅ COMPLETE (Gate G2 PASSED)
 **Positioning**: Operating System for Software 3.0
 
 **Changelog v3.0.0** (Jan 30, 2026):
-- **SDLC 6.0.5 Migration**: Framework upgraded from 5.1.3 → 6.0.5
+- **SDLC 6.1.0 Migration**: Framework upgraded from 5.1.3 → 6.0.5
 - **Multi-Frontend Alignment**: Sprint 125-127 completed (26.5 SP in 1 day)
   - CLI (sdlcctl): 264 tests passed, 95%+ coverage
   - VS Code Extension: Compilation verified, 34 pre-existing lint warnings
 - **CLI Bug Fixes (Sprint 127)**:
-  - Stage folder naming: `00-Project-Foundation` → `00-foundation` (SDLC 6.0.5 compliant)
+  - Stage folder naming: `00-Project-Foundation` → `00-foundation` (SDLC 6.1.0 compliant)
   - P0 artifact paths updated across all validators
   - Pre-commit hooks module: `sdlcctl.hooks.pre_commit.run_validation()`
   - Fix command: Creates `99-Legacy` folders consistently
@@ -45,7 +45,7 @@ This stage transforms architecture (Stage 02 - HOW) into working code with:
 
 ---
 
-## Folder Structure (SDLC 5.1.3 Compliant - Unique Prefix Numbers)
+## Folder Structure (SDLC 6.1.0 Compliant - Unique Prefix Numbers)
 
 ```
 04-build/
@@ -69,7 +69,7 @@ This stage transforms architecture (Stage 02 - HOW) into working code with:
 ```
 
 **Note**: Sprint implementation logs (SPRINT-XX-DAY-X-COMPLETE.md) are now located in
-`08-collaborate/01-Sprint-Logs/` per SDLC 5.1.3 Document Naming Standards.
+`08-collaborate/01-Sprint-Logs/` per SDLC 6.1.0 Document Naming Standards.
 
 ---
 
@@ -195,7 +195,7 @@ async def create_project(
         POST /api/v1/projects
         {
             "name": "SDLC Orchestrator",
-            "description": "First governance platform on SDLC 5.1.3"
+            "description": "First governance platform on SDLC 6.1.0"
         }
     """
     # Validate project name uniqueness
@@ -507,7 +507,7 @@ Focus: Automated SDLC compliance enforcement + Ollama AI
 
 Deliverables:
   - ComplianceScanner service (detect violations automatically)
-  - 15+ SDLC 5.1.3.1 policy rules (Rego)
+  - 15+ SDLC 6.1.0 policy rules (Rego)
   - Scheduled daily scans
   - Ollama AI integration (recommendations)
   - Compliance Dashboard UI
@@ -614,7 +614,7 @@ Documentation:
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [React Documentation](https://react.dev/)
 - [OWASP ASVS Level 2](https://owasp.org/www-project-application-security-verification-standard/)
-- [SDLC 5.1.3 Framework](/Users/dttai/Documents/Python/01.NQH/Bflow-Platform/Sub-Repo/SDLC-Enterprise-Framework)
+- [SDLC 6.1.0 Framework](/Users/dttai/Documents/Python/01.NQH/Bflow-Platform/Sub-Repo/SDLC-Enterprise-Framework)
 
 ---
 

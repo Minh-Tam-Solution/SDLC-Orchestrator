@@ -3,7 +3,7 @@
 **Date**: January 28, 2026
 **Sprint**: 106 - App Builder Integration (MVP)
 **Status**: ✅ **COMPLETE** (Day 0-3 finished)
-**Framework**: SDLC 5.2.0 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.1.0
 
 ---
 

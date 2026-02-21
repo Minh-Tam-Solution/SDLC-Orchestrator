@@ -8,7 +8,7 @@
 **Date**: December 28, 2025  
 **Decision Maker**: CTO  
 **Stage**: Stage 02 (HOW - Design & Architecture)  
-**Framework**: SDLC 5.1.2 Universal Framework
+**Framework**: SDLC 6.1.0
 
 ---
 

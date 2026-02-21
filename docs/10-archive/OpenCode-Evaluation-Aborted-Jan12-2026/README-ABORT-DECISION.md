@@ -40,7 +40,7 @@
 
 **Track 1 SASE is Q1 2026 P0**:
 - SASE framework enhancement requires full team focus
-- SDLC 5.1.0 artifacts delivery (Weeks 1-14, Dec 9 - Apr 11)
+- SDLC 6.1.0 artifacts delivery (Weeks 1-14, Dec 9 - Apr 11)
 - OpenCode evaluation would distract from core deliverables
 - $30K OpenCode budget better spent on Vibecode CLI (our differentiator)
 
@@ -141,7 +141,7 @@ All OpenCode evaluation documents archived in this folder:
 
 ### Track 1 SASE Focus (Jan 13 - Apr 11, 2026)
 
-**Priority**: SDLC 5.1.0 Framework Enhancement
+**Priority**: SDLC 6.1.0 Framework Enhancement
 - Week 1-4: SASE artifact templates
 - Week 5-8: Documentation + playbooks
 - Week 9-12: Validation + QA

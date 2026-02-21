@@ -2,7 +2,7 @@
 
 **Date**: January 27, 2026
 **Status**: ✅ **ACTIVE - Go-Live Ready**
-**Framework**: SDLC 5.2.0 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.1.0
 **Owner**: QA Lead + CTO + Backend Lead
 **Version**: 4.0.0 (Complete rewrite aligned with TDD skill)
 
@@ -13,7 +13,7 @@
 This document defines the **Test-Driven Development (TDD) strategy** for SDLC Orchestrator, aligning with:
 - `.claude/skills/test-driven-development` - Iron Law: NO PRODUCTION CODE WITHOUT FAILING TEST FIRST
 - `.claude/skills/testing-patterns` - Factory patterns, behavior-driven testing, anti-patterns avoidance
-- **SDLC 5.2.0 Framework** - 7-Pillar architecture, AI Governance Principles, Risk-Based Planning
+- **SDLC 6.1.0 Framework** - 7-Pillar architecture, AI Governance Principles, Risk-Based Planning
 - **Orchestrator-Framework Gap** - Test both methodology compliance AND automation implementation
 
 **Key Principle**: **"If you didn't watch the test fail, you don't know if it tests the right thing."**
@@ -182,7 +182,7 @@ backend/tests/factories/
 Feature: Quality Gate Creation
   As an Engineering Manager
   I want to create quality gates
-  So that I can enforce SDLC 5.2.0 compliance
+  So that I can enforce SDLC 6.1.0 compliance
 
 Scenario: Create G1 Design Ready Gate
   Given I am authenticated as Engineering Manager
@@ -405,7 +405,7 @@ class TestProductionHealth:
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │ SDLC Framework (Methodology)                                 │
-│ - SDLC 5.2.0 (7-Pillar + AI Governance Principles)          │
+│ - SDLC 6.1.0 (7-Pillar + AI Governance Principles)          │
 │ - Defines stages, gates, evidence types                      │
 │ - Tools-agnostic (works with Claude, GPT, Gemini, manual)   │
 │ - Version: Submodule at SDLC-Enterprise-Framework/          │
@@ -436,7 +436,7 @@ class TestProductionHealth:
 
 class TestFrameworkCompliance:
     """
-    Verify Orchestrator implements SDLC 5.2.0 gates correctly
+    Verify Orchestrator implements SDLC 6.1.0 gates correctly
     """
 
     def test_stage_00_has_g01_and_g02_gates(self):
@@ -762,7 +762,7 @@ jobs:
 | **Unit Tests** | ❌ Incomplete | <50% coverage, no factories |
 | **Integration Tests** | ⚠️ Partial | Some GitHub/MinIO tests exist |
 | **E2E Tests** | ⚠️ Partial | Bruno API tests exist, no Playwright |
-| **Framework Compliance** | ❌ Missing | No tests for SDLC 5.2.0 alignment |
+| **Framework Compliance** | ❌ Missing | No tests for SDLC 6.1.0 alignment |
 | **CI/CD Pipeline** | ⚠️ Partial | Exists but not enforcing TDD |
 
 ---
@@ -825,7 +825,7 @@ docs/05-test/
 ├── 03-Stage-03-Test-Plan.md (Build/TDD)
 ├── 04-Stage-04-Test-Plan.md (Integration/E2E)
 ├── 05-Stage-05-Test-Plan.md (Deploy/Smoke)
-└── 06-Framework-Compliance-Tests.md (SDLC 5.2.0 alignment)
+└── 06-Framework-Compliance-Tests.md (SDLC 6.1.0 alignment)
 ```
 
 ---
@@ -866,7 +866,7 @@ docs/05-test/
 
 **Framework**:
 - [SDLC-Enterprise-Framework](../../SDLC-Enterprise-Framework/) (submodule)
-- [SDLC 5.2.0 Changelog](../../SDLC-Enterprise-Framework/CONTENT-MAP.md)
+- [SDLC 6.1.0 Changelog](../../SDLC-Enterprise-Framework/CONTENT-MAP.md)
 
 **Requirements**:
 - [Functional Requirements](../01-planning/01-Requirements/Functional-Requirements-Document.md)
@@ -882,7 +882,7 @@ docs/05-test/
 **Date**: January 27, 2026
 **Version**: 4.0.0
 **Status**: ✅ ACTIVE - Go-Live Ready
-**Framework**: SDLC 5.2.0 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.1.0
 
 ---
 

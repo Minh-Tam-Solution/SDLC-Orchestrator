@@ -2,7 +2,7 @@
 
 **Date**: February 1, 2026
 **Status**: PLANNING
-**Framework**: SDLC 6.0.5 Evidence-Based Validation
+**Framework**: SDLC 6.1.0
 **Owner**: CTO + Backend Team + Frontend Team
 
 ---
@@ -148,7 +148,7 @@ Backend: ✅ 100% complete (no violations expected)
 
 ---
 
-#### 1.4 SPEC-0014: CLI Extension SDLC 6.0.5 Upgrade
+#### 1.4 SPEC-0014: CLI Extension SDLC 6.1.0 Upgrade
 
 **File**: `docs/02-design/evidence/SPEC-0014-evidence.json`
 
@@ -1070,7 +1070,7 @@ Sprint 137 (Mar 3):     🚀 SOFT LAUNCH
 **Status**: ✅ ROADMAP APPROVED
 **Owner**: CTO + Backend Team + Frontend Team + QA Lead
 **Next Review**: Sprint 134 Completion (Feb 7, 2026)
-**Framework**: SDLC 6.0.5 Evidence-Based Validation (SPEC-0016)
+**Framework**: SDLC 6.1.0
 
 ---
 

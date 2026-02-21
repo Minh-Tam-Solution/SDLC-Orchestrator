@@ -4,7 +4,7 @@
 **Date:** January 19, 2026
 **Status:** ACTIVE - Sprint 82 (Pre-Launch Hardening)
 **Authority:** DevOps Lead + CTO Approved
-**Framework:** SDLC 6.0.6 P7 (Documentation Permanence, RFC-001)
+**Framework:** SDLC 6.1.0 P7 (Documentation Permanence, RFC-001)
 **Compliance:** SEC 17a-4, FINRA 4511, GDPR Art. 17
 
 ---

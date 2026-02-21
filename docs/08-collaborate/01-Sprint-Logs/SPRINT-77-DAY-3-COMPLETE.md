@@ -169,5 +169,5 @@ Next implementation will include:
 ---
 
 **Approved By**: Backend Lead
-**Framework**: SDLC 5.1.3 P2 (Sprint Planning Governance)
+**Framework**: SDLC 6.1.0
 **Reference**: Sprint 77 Technical Design

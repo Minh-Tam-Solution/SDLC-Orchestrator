@@ -5,7 +5,7 @@
 **Date**: January 28, 2026
 **Author**: Backend Lead
 **ADR Reference**: ADR-041
-**Framework**: SDLC 5.3.0
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -535,7 +535,7 @@ governance_index_calculation_seconds
 
 - ADR-041: Framework 6.0 Governance System Design
 - Pre-Phase 0 Documents (docs/governance-v1/)
-- SDLC 5.3.0 Section 7: Quality Assurance System
+- SDLC 6.1.0 Section 7: Quality Assurance System
 
 ---
 

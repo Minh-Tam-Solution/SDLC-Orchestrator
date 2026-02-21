@@ -3,7 +3,7 @@
 **Sprint Duration**: March 31 - April 11, 2026 (10 working days)
 **Status**: PLANNED
 **Phase**: Stage 04 (BUILD) — Autonomous Codegen Phase 2
-**Framework**: SDLC 6.0.6 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.1.0
 **Priority**: P0 (ADR-055 Phase 2 Critical Path)
 **Previous Sprint**: [Sprint 176 — Autonomous Codegen & Pilot Prep](SPRINT-176-AUTONOMOUS-CODEGEN-PILOT-PREP.md)
 **ADR Reference**: [ADR-055 — Autonomous Codegen with 4-Gate Validation](../../02-design/ADR-055-Autonomous-Codegen-4-Gate-Validation.md)

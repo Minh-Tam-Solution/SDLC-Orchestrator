@@ -441,7 +441,7 @@ response = agent.run("How many bananas fit in a Toyota GR86?")
 **Impact**: Completes Sprint 171's E2E gaps + unlocks autonomous QA testing.
 
 ### 4. Framework-First Multiplier Effect
-**Rationale**: BFlow's analysis emphasizes "framework enhancements have multiplier effect across all SDLC 6.0.5 adopters."
+**Rationale**: BFlow's analysis emphasizes "framework enhancements have multiplier effect across all SDLC 6.1.0 adopters."
 
 **Recommendation**: Prioritize CLAUDE.md template + Legal use case documentation (Day 9-10) to enable early adopters (Q1 2026 soft launch cohort).
 

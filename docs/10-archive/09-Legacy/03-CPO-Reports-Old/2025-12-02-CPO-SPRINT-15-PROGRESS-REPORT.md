@@ -5,7 +5,7 @@
 **Status**: IN PROGRESS (Days 1-2 Complete ✅, Days 3-5 Pending)  
 **Authority**: Backend Lead + CPO  
 **Foundation**: Sprint 14 Complete ✅, User-Onboarding-Flow-Architecture.md  
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -339,7 +339,7 @@ CREATE INDEX idx_projects_github_repo_id ON projects(github_repo_id);
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3. Zero Mock Policy enforced. Battle-tested patterns applied.*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0. Zero Mock Policy enforced. Battle-tested patterns applied.*
 
 **"Sprint 15: GitHub Foundation. Days 1-2 complete. 10 endpoints. 1,735 lines. Zero Mock. AGPL-Safe. Days 3-5 ready."** ⚔️ - Backend Lead
 

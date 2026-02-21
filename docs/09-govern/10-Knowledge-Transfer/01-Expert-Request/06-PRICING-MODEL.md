@@ -26,7 +26,7 @@
 | **Seats** | ≤5 users (flat team pricing, prevents arbitrage) |
 | **Projects** | 1 product (multiple repos for same product) |
 | **Included Features** | EP-06 IR-based codegen, Evidence Vault (10GB), Policy Guards |
-| **AI Codegen** | Native OSS (qwen2.5-coder) + BYO option |
+| **AI Codegen** | Native OSS (qwen3-coder) + BYO option |
 | **Support** | Email + Community Discord |
 | **SLA** | 99.5% uptime |
 

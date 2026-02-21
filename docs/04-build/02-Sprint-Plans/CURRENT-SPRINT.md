@@ -4,7 +4,7 @@
 **Sprint Goal**: Complete 6 hidden production pages — sidebar integration, hook wiring, UI polish
 **Status**: PLANNED
 **Priority**: P1 (User-Facing Feature Gaps)
-**Framework**: SDLC 6.0.6 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.1.0
 **Previous Sprint**: [Sprint 174 COMPLETE - Anthropic Best Practices](SPRINT-174-COMPLETION-REPORT.md)
 **Detailed Plan**: [SPRINT-175-FRONTEND-COMPLETION.md](SPRINT-175-FRONTEND-COMPLETION.md)
 
@@ -169,7 +169,7 @@
 **Sprint Goal**: Integrate Anthropic team patterns with Framework-First compliance
 **Status**: ✅ COMPLETE (February 28, 2026)
 **Priority**: P0 (Framework Standards + Cost Optimization + Strategic Positioning)
-**Framework**: SDLC 6.0.6 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.1.0
 **Value**: $76K (CLAUDE.md + Prompt Caching + MCP + Autonomous Codegen + Browser Agent)
 **Previous Sprint**: [Sprint 173 COMPLETE - Governance Loop](SPRINT-173-COMPLETION-REPORT.md)
 
@@ -179,7 +179,7 @@
 
 CTO analysis of Anthropic's internal Claude Code practices (PDF + claude-quickstarts + BFlow notification) identified 12 patterns. Sprint 174 implements the highest-ROI patterns following the **Framework-First corrected sequence**.
 
-**Critical Correction**: Original plan violated SDLC 6.0.6 Section 3.2 ("Every capability in Orchestrator must first exist as documented pattern in Framework"). CTO resequenced: Methodology (Days 1-3) -> Tool (Days 4-5) -> Documentation (Day 6) -> Infrastructure (Days 7-8) -> Integration (Day 9) -> Expansion (Day 10).
+**Critical Correction**: Original plan violated SDLC 6.1.0 Section 3.2 ("Every capability in Orchestrator must first exist as documented pattern in Framework"). CTO resequenced: Methodology (Days 1-3) -> Tool (Days 4-5) -> Documentation (Day 6) -> Infrastructure (Days 7-8) -> Integration (Day 9) -> Expansion (Day 10).
 
 **References**:
 - [CTO Anthropic Analysis](CTO-ANTHROPIC-ANALYSIS-SPRINT-174.md) — 552 lines, 10 teams + 5 quickstarts analyzed
@@ -248,7 +248,7 @@ CTO analysis of Anthropic's internal Claude Code practices (PDF + claude-quickst
 ## Phase 3: ADR Revision (Day 6) — DOCUMENTATION
 
 ### Day 6: ADR-054 Revision
-**File**: `docs/02-design/ADR-054-Anthropic-Claude-Code-Best-Practices.md`
+**File**: `docs/02-design/01-ADRs/ADR-054-Anthropic-Claude-Code-Best-Practices.md`
 - Source Analysis: 10 Anthropic teams, 5 quickstarts, 9 BFlow items
 - Attribution Clarity: 5 Anthropic patterns vs 7 SDLC innovations
 - Framework cross-references to Days 1-3 documents
@@ -287,7 +287,7 @@ CTO analysis of Anthropic's internal Claude Code practices (PDF + claude-quickst
 ## Phase 6: ADRs + Prototypes (Day 10) — EXPANSION
 
 ### Day 10 Morning: ADR-055
-**File**: `docs/02-design/ADR-055-Autonomous-Codegen-4-Gate-Validation.md`
+**File**: `docs/02-design/01-ADRs/ADR-055-Autonomous-Codegen-4-Gate-Validation.md`
 - References Framework Day 2 methodology
 - Implementation plan: Sprint 175-177
 
@@ -329,13 +329,13 @@ CTO analysis of Anthropic's internal Claude Code practices (PDF + claude-quickst
 | 1 | 2 | CREATE | `SDLC-Enterprise-Framework/03-AI-GOVERNANCE/11-AUTONOMOUS-CODEGEN-PATTERNS.md` |
 | 1 | 3 | CREATE | `SDLC-Enterprise-Framework/02-Core-Methodology/SDLC-MRP-Template.md` |
 | 2 | 4 | EDIT | `CLAUDE.md` — v3.4.0, 6 module zones (1,871 lines) |
-| 3 | 6 | EDIT | `docs/02-design/ADR-054-Anthropic-Claude-Code-Best-Practices.md` |
+| 3 | 6 | EDIT | `docs/02-design/01-ADRs/ADR-054-Anthropic-Claude-Code-Best-Practices.md` |
 | 4 | 7 | CREATE | `backend/app/services/context_cache_service.py` |
 | 4 | 8 | CREATE | `backend/sdlcctl/sdlcctl/commands/cache.py` |
 | 4 | 8 | EDIT | `backend/app/services/codegen/codegen_service.py` |
 | 4 | 8 | EDIT | `backend/sdlcctl/sdlcctl/cli.py` |
 | 5 | 9 | CREATE | `backend/app/services/mcp_client_service.py` |
-| 6 | 10 | CREATE | `docs/02-design/ADR-055-Autonomous-Codegen-4-Gate-Validation.md` |
+| 6 | 10 | CREATE | `docs/02-design/01-ADRs/ADR-055-Autonomous-Codegen-4-Gate-Validation.md` |
 | 6 | 10 | CREATE | `backend/app/services/browser_agent_service.py` |
 
 ---

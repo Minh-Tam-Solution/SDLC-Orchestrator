@@ -29,14 +29,14 @@ suite('SSE Event Parsing Tests', () => {
             type: 'started' as const,
             timestamp: '2025-12-26T10:00:00Z',
             session_id: 'abc123',
-            model: 'qwen2.5-coder:32b',
+            model: 'qwen3-coder:30b',
             provider: 'ollama',
         };
 
         const event: SSEStartedEvent = eventData;
 
         assert.strictEqual(event.type, 'started');
-        assert.strictEqual(event.model, 'qwen2.5-coder:32b');
+        assert.strictEqual(event.model, 'qwen3-coder:30b');
         assert.strictEqual(event.provider, 'ollama');
     });
 

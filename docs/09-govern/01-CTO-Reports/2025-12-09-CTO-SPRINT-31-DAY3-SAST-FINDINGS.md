@@ -4,7 +4,7 @@
 **Sprint**: 31 - Gate G3 Preparation
 **Day**: 3 - Security Audit
 **Status**: IN PROGRESS
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -433,6 +433,6 @@ The SDLC Orchestrator codebase demonstrates **strong security posture** with com
 ---
 
 **Report Generated**: December 9, 2025
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 **Sprint**: 31 (Day 3 of 5)
 **Gate**: G3 Preparation

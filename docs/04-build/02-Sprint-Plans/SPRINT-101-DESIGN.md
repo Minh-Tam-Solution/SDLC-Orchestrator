@@ -3,7 +3,7 @@
 **Version**: 1.0.0  
 **Date**: January 23, 2026  
 **Status**: DESIGN APPROVED - Ready for Implementation  
-**Epic**: GAP-001, GAP-002 (SDLC 5.2.0 Compliance)
+**Epic**: GAP-001, GAP-002 (SDLC 6.1.0 Compliance)
 
 ---
 
@@ -688,7 +688,7 @@ def downgrade():
 │  Story Points: 18 SP                                           │
 │  Timeline: 5 days (Jan 27 - Jan 31)                           │
 │                                                                 │
-│  "Critical gap closure for SDLC 5.2.0 compliance.              │
+│  "Critical gap closure for SDLC 6.1.0 compliance.              │
 │   Approved for immediate execution post-Sprint 100."           │
 │                                                                 │
 │  — CTO, SDLC Orchestrator                                      │

@@ -11,7 +11,7 @@
 
 ## 🎯 Orchestrator Philosophy: SE4H + SE4A Roles
 
-Per SDLC 5.1.2 Agentic Core Principles, Teams API must support:
+Per SDLC 6.1.0 Agentic Core Principles, Teams API must support:
 
 ### Team Roles → SASE Mapping
 
@@ -30,7 +30,7 @@ Team.settings:
     - /docs/02-design/MTS-001-Backend-Standards.yaml
   briefing_templates:      # BriefingScript templates
     - /docs/01-planning/BRS-Template.yaml
-  agentic_maturity: L1     # L0-L3 per SDLC 5.1.2
+  agentic_maturity: L1     # L0-L3 per SDLC 6.1.0
   crp_threshold: 0.7       # CRP required if confidence < 70%
   auto_approve_mrp: false  # Human VCR required
 ```
@@ -186,7 +186,7 @@ Team.settings:
 
 **SASE Compliance:**
 ```yaml
-# AI Agent constraints per SDLC 5.1.2
+# AI Agent constraints per SDLC 6.1.0
 ai_agent_rules:
   allowed_roles: [ai_agent, member]  # NOT owner/admin
   capabilities:

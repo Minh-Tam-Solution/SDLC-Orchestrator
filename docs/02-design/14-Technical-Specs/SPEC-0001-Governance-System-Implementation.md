@@ -85,7 +85,7 @@ This specification defines the technical implementation of the SDLC Framework 6.
 ### 2.3 Related Documents
 
 - [ADR-041: Framework 6.0 Governance System Design](../03-ADRs/ADR-041-Framework-6.0-Governance-System.md)
-- [SDLC 6.0 Section 7: Quality Assurance System](../../../SDLC-Enterprise-Framework/00-Core-Pillars/07-Quality-Assurance-System.md)
+- [SDLC 6.1.0 Section 7: Quality Assurance System](../../../SDLC-Enterprise-Framework/00-Core-Pillars/07-Quality-Assurance-System.md)
 - Pre-Phase 0 Documents: `docs/governance-v1/`
 
 ---
@@ -490,7 +490,7 @@ class CEODashboardService:
 
 ### 7.1 Changes from Previous Version
 
-This is the initial version (1.0.0) migrated from SDLC 5.3.0 format to Framework 6.0.5 format.
+This is the initial version (1.0.0) migrated from SDLC 6.1.0 format to Framework 6.0.5 format.
 
 **Migration Changes**:
 - Added YAML frontmatter with spec_id, tier, stage, relationships

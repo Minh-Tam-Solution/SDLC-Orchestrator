@@ -3,12 +3,21 @@
 
 **Stage**: 01 - PLANNING
 **Question**: What are we building?
-**Version**: 4.2.0
-**Date**: January 30, 2026
+**Version**: 4.3.0
+**Date**: February 20, 2026
 **Status**: ✅ COMPLETED - Gate G1 PASSED
 **Authority**: PM + CTO + CPO Approved
-**Framework**: SDLC 6.0.6 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 **Positioning**: Operating System for Software 3.0
+
+**Changelog v4.3.0** (Feb 20, 2026):
+- **Enterprise-First Strategy Alignment** (Sprint 181-188):
+  - Framework: SDLC 6.0.6 → 6.1.0
+  - Strategy: Dual Wedge → Enterprise-First (ADR-059)
+  - Pricing: Founder $99/team → 6-Tier (LITE free / STD $99-$299 / PRO $499 / ENT $80/seat / FOUNDER_LEGACY $399)
+  - Targets: 30-50 teams $86K-$144K → 45-70 teams $160K-$350K ARR
+  - Data model: 30 → 33 tables, API: 64 → 91 endpoints, Policies: 100+ → 110+
+  - AI models: qwen2.5-coder:32b → qwen3-coder:30b (256K context, Model Strategy v3.0)
 
 **Changelog v4.2.1** (Jan 30, 2026):
 - **CLI Test Bug Fixes**: Sprint 127 continuation - validation testing revealed SDLC 6.0.5 migration gaps
@@ -52,9 +61,9 @@
 **Changelog v4.0.0** (Dec 23, 2025):
 - **SOFTWARE 3.0 PIVOT**: Control Plane for AI Coders positioning
 - **EP-06 IR-Based Codegen**: Sprint 45-50 (P0 priority), ~$50K investment
-- **Founder Plan**: $99/team/month for Vietnam SME (~2.5M VND)
-- **Dual Wedge Strategy**: Vietnam SME (40%) + Global EM (40%) + Enterprise (20%)
-- **Year 1 Target**: 30-50 teams, $86K-$144K ARR (realistic, founder-led sales)
+- **FOUNDER_LEGACY**: $399/mo grandfathered (no new sales after Sprint 188)
+- **Enterprise-First Strategy** (ADR-059): 6-Tier pricing, Two-Product ecosystem
+- **Year 1 Target**: 45-70 teams, $160K-$350K ARR (Enterprise-First, Financial Model v2.0.0)
 - **Sprint 45-50 Design Complete**: All 5 technical specs CTO-approved
 - **Multi-Provider**: Ollama → Claude → DeepCode (DeepCode deferred Q2 2026)
 - **Vietnamese Domain Templates**: F&B, Hotel, Retail with Vietnamese questionnaire
@@ -203,12 +212,12 @@ Stage 01 documents were updated to support Sprint 48 implementation of Codegen Q
 
 ### 04-Data-Model (100% complete)
 - ✅ Data-Model-v0.1.md (baseline)
-- ✅ Data-Model-ERD.md (v3.1.0, 30 tables incl. EP-06 codegen)
+- ✅ Data-Model-ERD.md (v3.5.0, 33 tables incl. EP-06 codegen + EP-07 Multi-Agent)
 - ✅ Database-Schema.md
 - ✅ Data-Dictionary.md
 
 ### 05-API-Design (100% complete)
-- ✅ API-Specification.md (v3.1.0, 64 endpoints incl. +12 EP-06 codegen)
+- ✅ API-Specification.md (v3.6.0, 91 endpoints incl. EP-06 codegen + EP-07 Multi-Agent)
 - ✅ API-Authentication.md (JWT + OAuth)
 - ✅ API-Versioning-Strategy.md
 
@@ -239,7 +248,7 @@ Stage 01 documents were updated to support Sprint 48 implementation of Codegen Q
 ### 1. Functional Requirements (FR1-FR20+)
 
 **FR1: Quality Gate Management**
-- Gate Engine evaluates SDLC 4.8 policies
+- Gate Engine evaluates SDLC 6.1.0 policies
 - Gate status (BLOCKED, PENDING, PASSED) visible in dashboard
 - Gate checks run on git push (VS Code Extension)
 - Policy packs configurable (YAML)
@@ -263,7 +272,7 @@ Stage 01 documents were updated to support Sprint 48 implementation of Codegen Q
 - Grafana iframe embedding (metrics)
 
 **FR5: Policy Pack Library**
-- 100+ SDLC 4.8 policy packs (Rego)
+- 110+ SDLC 6.1.0 policy packs (Rego)
 - Policy editor (VS Code-like, syntax highlighting)
 - Policy testing framework (unit tests for policies)
 - Policy versioning (Git-based)
@@ -390,7 +399,7 @@ Stage 01 documents were updated to support Sprint 48 implementation of Codegen Q
 
 ---
 
-## Next Stages Preview (SDLC 5.1 Complete Lifecycle)
+## Next Stages Preview (SDLC 6.1.0 Complete Lifecycle)
 
 **Stage 02: Design & Architecture (HOW)** - Week 3-4
 - System Architecture Diagram (4-layer architecture)
@@ -419,7 +428,7 @@ Stage 01 documents were updated to support Sprint 48 implementation of Codegen Q
 
 ---
 
-**Last Updated**: December 23, 2025
+**Last Updated**: February 20, 2026
 **Owner**: PM + Backend Lead + Legal Counsel + CTO
 **Status**: ✅ COMPLETED
 
@@ -431,13 +440,13 @@ Stage 01 documents were updated to support Sprint 48 implementation of Codegen Q
 **Total Lines**: 250,000+ lines across all documents
 **Quality Gates**: G1 (Planning & Analysis) - ✅ PASSED
 **Next Stage**: Stage 02 (Design & Architecture) - ✅ PASSED
-**Current Stage**: Stage 04 (BUILD) - Sprint 44-50 EP-06
+**Current Stage**: Stage 04 (BUILD) - Sprint 179+ (EP-07 Multi-Agent + ZeroClaw)
 **Positioning**: Operating System for Software 3.0
 
 **Strategic Updates (Dec 23, 2025 - Software 3.0 Pivot)**:
 - **EP-06 IR-Based Codegen**: P0 priority, Sprint 45-50, ~$50K investment
-- **Founder Plan**: $99/team/month for Vietnam SME (~2.5M VND)
-- **Year 1 Target**: 30-50 teams, $86K-$144K ARR (realistic)
+- **FOUNDER_LEGACY**: $399/mo grandfathered (no new sales after Sprint 188)
+- **Year 1 Target**: 45-70 teams, $160K-$350K ARR (Enterprise-First, Financial Model v2.0.0)
 - **Sprint 45-50 Design Complete**: All 5 technical specs CTO-approved
 - **Multi-Provider**: Ollama → Claude → DeepCode (DeepCode Q2 2026 decision gate)
 - **Vietnamese Domain Templates**: F&B, Hotel, Retail with Vietnamese questionnaire

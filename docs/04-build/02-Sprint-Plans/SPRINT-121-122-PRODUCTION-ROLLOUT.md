@@ -3,7 +3,7 @@
 **Version**: 2.0.0
 **Dates**: February 17-28, 2026 (10 days, 2 sprints)
 **Status**: 📋 PLANNED
-**Framework**: SDLC 6.0.5
+**Framework**: SDLC 6.1.0
 **Prepared By**: Track 2 Team (Jan 29, 2026)
 **Updated**: CTO Approved (Jan 29, 2026)
 

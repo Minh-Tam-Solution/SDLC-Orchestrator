@@ -7,7 +7,7 @@
 
 ### What is SDLC Orchestrator?
 
-SDLC Orchestrator is an AI-native platform that implements and enforces **SDLC 5.1.3 Enterprise Framework** - a proven 10-stage software development lifecycle with battle-tested results:
+SDLC Orchestrator is an AI-native platform that implements and enforces **SDLC 6.1.0 Enterprise Framework** - a proven 10-stage software development lifecycle with battle-tested results:
 - **BFlow**: $43M revenue, 827:1 ROI
 - **NQH-Bot**: ₫15B+ value
 - **MTEP**: <30 min PaaS deployment
@@ -47,7 +47,7 @@ Think of it as:
 ### What do I need to know before starting?
 
 **Must Know**:
-- SDLC 5.1.3 has 10 stages (Foundation → Govern)
+- SDLC 6.1.0 has 10 stages (Foundation → Govern)
 - Quality gates ensure quality at checkpoints
 - Evidence is required for gate approval
 - AI Council provides intelligent support
@@ -224,7 +224,7 @@ Result:
 - Learns from past projects
 - Flags compliance issues
 
-Think of it as your **AI advisor** that knows SDLC 5.1.3 framework inside-out.
+Think of it as your **AI advisor** that knows SDLC 6.1.0 framework inside-out.
 
 ### Is AI Council required?
 
@@ -487,7 +487,7 @@ See [Support Channels](09-Support-Channels.md)
 3. **Email**: support@nhatquangholding.com
 4. **Quarterly Review**: Feature request sessions
 
-### Where can I learn more about SDLC 5.1.3?
+### Where can I learn more about SDLC 6.1.0?
 
 **Framework Documentation**:
 - **Overview**: `/SDLC-Enterprise-Framework/README.md`
@@ -513,7 +513,7 @@ See [Support Channels](09-Support-Channels.md)
 | **Tier** | Project classification (LITE to ENTERPRISE) |
 | **AI Council** | Intelligent advisory system |
 | **Audit Trail** | Complete history of actions |
-| **Framework** | SDLC 5.1.3 governance policy |
+| **Framework** | SDLC 6.1.0 governance policy |
 | **Orchestrator** | This platform (enforcement tool) |
 
 ---
@@ -534,6 +534,6 @@ See [Support Channels](09-Support-Channels.md) for all contact methods.
 
 ---
 
-**Framework**: SDLC 5.1.3 Complete Lifecycle  
+**Framework**: SDLC 6.1.0
 **Platform**: SDLC Orchestrator v1.2.0  
 **Last Updated**: December 20, 2025

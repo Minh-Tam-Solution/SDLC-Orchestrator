@@ -1,13 +1,24 @@
 # API Specification (OpenAPI 3.0)
 ## Complete REST + GraphQL Endpoints
 
-**Version**: 3.6.0
-**Date**: February 18, 2026
-**Status**: PROPOSED - Multi-Agent Team Engine (Sprint 176, ADR-056)
+**Version**: 3.7.0
+**Date**: February 19, 2026
+**Status**: ACTIVE - Enterprise-First Refocus (Sprint 181-188, ADR-059)
 **Authority**: Backend Lead + CTO Review (✅ APPROVED)
-**Foundation**: FRD v3.2.0, Data Model ERD v3.4.0, Roadmap v5.0.0
+**Foundation**: FRD v3.2.0, Data Model ERD v3.5.0, Roadmap v8.0.0
 **Stage**: Stage 01 (WHAT - Planning & Analysis)
-**Framework**: SDLC 6.0.6 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0
+
+**Changelog v3.7.0** (Feb 19, 2026):
+- **Enterprise-First endpoints** (Sprint 181-188, ADR-059):
+  - New group: OTT Gateway (3 endpoints) — POST /channels/{channel}/webhook + management
+  - New group: Enterprise SSO (6 endpoints) — SAML + Azure AD SSO flow (Sprint 183)
+  - New group: Enterprise Compliance (4 endpoints) — SOC2 pack, HIPAA report (Sprint 185)
+  - New group: Data Residency (4 endpoints) — Region management (Sprint 186)
+  - New group: GDPR (4 endpoints) — Erasure + DSAR (Sprint 186)
+  - New group: Enterprise Audit (2 endpoints) — Audit trail + export (Sprint 185)
+  - New endpoint: Jira Integration (3 endpoints) — connect, list, sync (Sprint 184)
+  - Total endpoints: 91 → 117 (26 new enterprise endpoints)
 
 **Changelog v3.6.0** (Feb 18, 2026):
 - **Multi-Agent Team Engine** (Sprint 176 — ADR-056, EP-07):
@@ -294,7 +305,7 @@ components:
           pattern: ^[A-Z0-9-]+$
         description:
           type: string
-          example: Project governance tool that enforces SDLC 5.1.3
+          example: Project governance tool that enforces SDLC 6.1.0
         current_stage:
           type: string
           enum: [stage-00, stage-01, stage-02, stage-03, stage-04, stage-05, stage-06, stage-07, stage-08, stage-09]
@@ -2065,7 +2076,7 @@ Get activation dashboard summary data.
 
 **Technical Spec Reference**: [Product-Truth-Layer-Specification.md](../../02-design/14-Technical-Specs/Product-Truth-Layer-Specification.md)
 
-**Total REST Endpoints**: 75 endpoints (35 original + 16 AI Governance + 12 EP-06 Codegen + 1 SDLC Validation + 5 Team Invitations + 3 Password Reset + 3 Telemetry)
+**Total REST Endpoints**: 117 endpoints (35 original + 16 AI Governance + 12 EP-06 Codegen + 1 SDLC Validation + 5 Team Invitations + 3 Password Reset + 3 Telemetry + 11 Multi-Agent + 26 Enterprise)
 
 ---
 
@@ -2658,9 +2669,18 @@ Create a new agent definition (template).
 }
 ```
 
-**Response** (201): `AgentDefinitionResponse`
+**Response** (201): `AgentDefinitionResponse` — includes computed `role_type` field (`se4a` | `se4h` | `router`)
 **Errors**: 400 (validation), 403 (scope), 409 (duplicate name)
 **Scope**: `agent_team:write`
+
+**`sdlc_role` valid values** (12 roles, 3 types — ADR-056 §12.5):
+- **SE4A** (autonomous agents): `researcher`, `pm`, `pjm`, `architect`, `coder`, `reviewer`, `tester`, `devops`
+- **SE4H** (AI advisors for human decision-makers): `ceo`, `cpo`, `cto`
+- **Router** (guidance only): `assistant`
+
+**`role_type` computed field** (read-only, derived from `sdlc_role`):
+- Not stored in DB — computed in `AgentDefinitionResponse`
+- SE4H roles enforce stricter constraints: `max_delegation_depth=0`, read-only tools, advisory output only
 
 #### GET /api/v1/agent-team/definitions
 
@@ -2777,11 +2797,163 @@ Batch evidence capture with correlation_id.
 
 ---
 
-**Last Updated**: 2026-02-18
+## 11. OTT Gateway (Sprint 181, ADR-060)
+
+**Base Path**: `/api/v1/channels`
+**Tier**: STANDARD+ (Telegram), PROFESSIONAL+ (Teams/Slack)
+**Auth**: Webhook HMAC verification (not JWT)
+
+| Method | Path | Description | Tier |
+|--------|------|-------------|------|
+| POST | `/channels/{channel}/webhook` | Receive OTT webhook payload | varies |
+| GET | `/channels` | List registered OTT channels | PROFESSIONAL+ |
+| PUT | `/channels/{channel}/config` | Configure channel settings | PROFESSIONAL+ |
+
+**Channel Values**: `telegram` | `zalo` | `teams` | `slack`
+
+**Request** (POST /channels/telegram/webhook):
+```json
+{
+  "update_id": 123456789,
+  "message": {
+    "message_id": 42,
+    "from": { "id": 987654321, "username": "user" },
+    "chat": { "id": 987654321 },
+    "text": "@agent help me review gate G2",
+    "date": 1708341000
+  }
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "status": "accepted",
+  "correlation_id": "telegram_42",
+  "channel": "telegram"
+}
+```
+
+---
+
+## 12. Enterprise SSO (Sprint 183, ADR-061)
+
+**Base Path**: `/api/v1/enterprise/sso`
+**Tier**: ENTERPRISE only
+**Auth**: JWT for config endpoints; SAML/OAuth for auth flow
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/enterprise/sso/configure` | Create/update SSO provider config |
+| GET | `/enterprise/sso/metadata` | SAML SP metadata XML |
+| GET | `/enterprise/sso/login` | Initiate SSO login (redirect) |
+| POST | `/enterprise/sso/acs` | SAML Assertion Consumer Service |
+| GET | `/enterprise/sso/azure-callback` | Azure AD OAuth callback |
+| POST | `/enterprise/sso/logout` | Single Logout (SLO) |
+
+**Request** (POST /enterprise/sso/configure):
+```json
+{
+  "provider": "SAML",
+  "issuer_url": "https://company.okta.com",
+  "metadata_url": "https://company.okta.com/app/metadata",
+  "acs_url": "https://sdlcorchestrator.com/api/v1/enterprise/sso/acs",
+  "jit_provisioning": true,
+  "role_mapping": {
+    "Engineering": "developer",
+    "Leads": "team_lead",
+    "CTOs": "admin"
+  }
+}
+```
+
+---
+
+## 13. Enterprise Compliance (Sprint 185, ADR-062)
+
+**Base Path**: `/api/v1/enterprise/compliance`
+**Tier**: ENTERPRISE only
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/enterprise/compliance/soc2-pack` | Start async SOC2 evidence pack generation |
+| GET | `/enterprise/compliance/soc2-pack/{job_id}` | Check generation status |
+| GET | `/enterprise/compliance/soc2-pack/{job_id}/download` | Download PDF |
+| POST | `/enterprise/compliance/hipaa-report` | Generate HIPAA audit report |
+
+**Request** (POST /enterprise/compliance/soc2-pack):
+```json
+{
+  "period_start": "2026-01-01",
+  "period_end": "2026-03-31",
+  "include_criteria": ["CC1.1", "CC6.1", "CC7.2", "A1.2"]
+}
+```
+
+---
+
+## 14. Enterprise Audit Trail (Sprint 185)
+
+**Base Path**: `/api/v1/enterprise/audit`
+**Tier**: ENTERPRISE only
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/enterprise/audit` | List audit logs (paginated) |
+| GET | `/enterprise/audit/export` | Export audit logs (JSON/CSV) |
+
+**Query Params**: `from_date`, `to_date`, `user_id`, `action`, `resource_type`, `page`, `per_page`
+
+---
+
+## 15. Data Residency (Sprint 186, ADR-063)
+
+**Base Path**: `/api/v1/enterprise/data-residency`
+**Tier**: ENTERPRISE only
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/enterprise/data-residency/regions` | List available regions (VN, EU, US) |
+| PUT | `/projects/{id}/data-region` | Set project data region |
+| GET | `/projects/{id}/data-region` | Get current data region |
+| POST | `/enterprise/data-residency/migrate` | Migrate evidence between regions |
+
+---
+
+## 16. GDPR (Sprint 186)
+
+**Base Path**: `/api/v1/gdpr`
+**Tier**: ALL tiers (GDPR rights apply regardless of plan)
+**Auth**: JWT required
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/gdpr/erasure-request` | Submit erasure request (30-day soft delete) |
+| GET | `/gdpr/erasure-request/{id}` | Check erasure status |
+| GET | `/gdpr/export` | DSAR: Export all user data (JSON) |
+| POST | `/gdpr/consent` | Update consent preferences |
+
+---
+
+## 17. Jira Integration (Sprint 184)
+
+**Base Path**: `/api/v1/integrations/jira`
+**Tier**: PROFESSIONAL+ only
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/integrations/jira/connect` | Connect Jira workspace (store credentials) |
+| GET | `/integrations/jira/projects` | List available Jira projects |
+| POST | `/integrations/jira/sync/{project_id}` | Sync Jira sprint → Evidence Vault |
+
+---
+
+**Last Updated**: 2026-02-19
 **Owner**: Backend Lead + CTO
-**Status**: PROPOSED (Sprint 176 - Multi-Agent Team Engine)
+**Status**: ACTIVE (Sprint 181-188 - Enterprise-First Refocus)
 
 **Version History**:
+- v3.7.0 (Feb 19, 2026): Added 26 Enterprise-First endpoints (117 total, ADR-059, Sprint 181-188)
 - v3.6.0 (Feb 18, 2026): Added 11 Multi-Agent Team Engine endpoints (91 total, ADR-056, EP-07)
 - v3.5.0 (Feb 15, 2026): Added 5 Governance Loop endpoints (80 total, ADR-053)
 - v3.4.0 (Feb 8, 2026): Added 3 Product Truth Layer telemetry endpoints (75 total)
@@ -2794,7 +2966,7 @@ Batch evidence capture with correlation_id.
 
 **Related Documents**:
 - [Functional Requirements Document](../01-Requirements/Functional-Requirements-Document.md) (v3.1.0)
-- [Data Model ERD](../04-Data-Model/Data-Model-ERD.md) (v3.2.0)
+- [Data Model ERD](../04-Data-Model/Data-Model-ERD.md) (v3.5.0)
 - [Non-Functional Requirements](../01-Requirements/Non-Functional-Requirements.md) (v3.1.0)
 - [EP-06 IR-Based Codegen Engine](../02-Epics/EP-06-IR-Based-Codegen-Engine.md)
 - [Quality-Gates-Codegen-Specification.md](../../02-design/14-Technical-Specs/Quality-Gates-Codegen-Specification.md)
@@ -2806,4 +2978,4 @@ Batch evidence capture with correlation_id.
 
 ---
 
-**End of API Specification v3.4.0**
+**End of API Specification v3.7.0**

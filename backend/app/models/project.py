@@ -158,6 +158,19 @@ class Project(Base):
         comment="User who performed EU AI Act classification"
     )
 
+    # Data Residency (Sprint 186, ADR-063)
+    # Storage-level region routing for MinIO/S3 buckets.
+    # Valid values: 'VN' (Asia Pacific / default), 'EU' (Frankfurt, GDPR), 'US' (future).
+    # DB remains single-region; only MinIO bucket selection is region-aware.
+    data_region = Column(
+        String(10),
+        nullable=False,
+        default="VN",
+        server_default="VN",
+        index=True,
+        comment="MinIO/S3 storage region for this project: VN | EU | US",
+    )
+
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     updated_at = Column(

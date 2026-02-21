@@ -5,7 +5,7 @@
 **Status**: ✅ CLEAN - No Copyleft Violations
 **Authority**: CTO + Legal Counsel (✅ APPROVED)
 **Foundation**: AGPL Containment Legal Brief v2.0.0, Roadmap v4.1.0
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 
 **Changelog**:
 - v2.0.0 (Dec 21, 2025): SDLC 5.1.3 update, EP-04/05/06 dependency audit

@@ -5,7 +5,7 @@
 **Date**: January 18, 2026
 **Purpose**: External Expert Review - Architecture & Technical Design
 **Confidentiality**: For Review Only - Not for Distribution
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Company**: Nhat Quang Holding (NQH) (Vietnam-based software company)
 
 ---
@@ -97,7 +97,7 @@ SDLC Orchestrator follows a **4-Layer Architecture** with a **Bridge-First Patte
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 2.2 Key Architecture Decisions (Updated for SDLC 5.1.3)
+### 2.2 Key Architecture Decisions (Updated for SDLC 6.1.0)
 
 #### ADR-015: Sprint Planning Governance (NEW in 5.1.3)
 

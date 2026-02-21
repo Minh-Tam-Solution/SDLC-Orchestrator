@@ -11,6 +11,7 @@
 
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TierGateError } from "@/lib/apiClient";
 
 /**
  * Default query client configuration
@@ -26,14 +27,17 @@ function makeQueryClient() {
         gcTime: 5 * 60 * 1000,
         // Don't refetch on window focus for better UX
         refetchOnWindowFocus: false,
-        // Only retry once on failure
-        retry: 1,
+        // Never retry tier-gated (402) requests — upgrade required, not transient
+        // Retry once for all other failures
+        retry: (failureCount, error) =>
+          !(error instanceof TierGateError) && failureCount < 1,
         // Retry delay
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       },
       mutations: {
-        // Retry mutations once
-        retry: 1,
+        // Never retry tier-gated (402) mutations
+        retry: (failureCount, error) =>
+          !(error instanceof TierGateError) && failureCount < 1,
       },
     },
   });

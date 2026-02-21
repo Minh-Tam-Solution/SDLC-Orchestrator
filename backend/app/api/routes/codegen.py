@@ -979,6 +979,240 @@ async def generate_onboarding_blueprint(
     )
 
 
+# ============================================================================
+# Initializer Agent Endpoint (Sprint 176 — ADR-055 Phase 1)
+# Spec → Feature List with dependency graph + complexity estimation
+# ============================================================================
+
+
+class InitializeRequest(BaseModel):
+    """
+    Request model for Initializer Agent (ADR-055 Phase 1).
+
+    Accepts an AppBlueprint specification and produces a feature_list.json
+    with dependency resolution, complexity estimation, and Gate G1 readiness.
+    """
+
+    blueprint: Dict[str, Any] = Field(
+        ...,
+        description="AppBlueprint specification (name, modules, entities, fields)",
+    )
+    project_id: str = Field(
+        ...,
+        description="Project UUID for tracking",
+    )
+    mode: str = Field(
+        "scaffold",
+        description="Generation mode: scaffold (lenient) or production (strict)",
+        pattern="^(scaffold|production)$",
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "blueprint": {
+                    "name": "TaskManager",
+                    "description": "Hệ thống quản lý công việc cho SME",
+                    "modules": [
+                        {
+                            "name": "tasks",
+                            "entities": [
+                                {
+                                    "name": "Task",
+                                    "fields": [
+                                        {"name": "id", "type": "uuid", "primary": True},
+                                        {"name": "title", "type": "string", "max_length": 200},
+                                        {"name": "status", "type": "enum", "enum_values": ["todo", "in_progress", "done"]},
+                                    ],
+                                    "relations": [],
+                                }
+                            ],
+                        }
+                    ],
+                },
+                "project_id": "550e8400-e29b-41d4-a716-446655440000",
+                "mode": "scaffold",
+            }
+        }
+
+
+class ExtractedFeatureResponse(BaseModel):
+    """Feature extracted from blueprint (API response format)."""
+
+    id: str
+    name: str
+    module: str
+    description: str
+    complexity: str
+    dependencies: List[str]
+    priority: int
+    estimated_files: int
+    entities: List[str]
+    status: str
+
+
+class DependencyEdgeResponse(BaseModel):
+    """Dependency edge in the feature graph."""
+
+    source: str
+    target: str
+    reason: str
+
+
+class SpecValidationResponse(BaseModel):
+    """Spec validation result for Gate G1."""
+
+    spec_complete: bool
+    errors: List[str]
+    warnings: List[str]
+    gate_g1_ready: bool
+    checked_at: str
+
+
+class InitializeResponse(BaseModel):
+    """
+    Response from Initializer Agent — the feature_list.json structure.
+
+    This output feeds into the Coding Agent (Sprint 177) for per-feature
+    code generation.
+    """
+
+    project_id: str
+    spec_version: str
+    mode: str
+    blueprint_name: str
+    total_features: int
+    features: List[ExtractedFeatureResponse]
+    dependency_graph: List[DependencyEdgeResponse]
+    validation: SpecValidationResponse
+    initialized_at: str
+    initialized_by: str
+
+
+@router.post("/initialize", response_model=InitializeResponse)
+async def initialize_codegen(
+    request: InitializeRequest,
+    current_user: User = Depends(get_current_active_user),
+) -> InitializeResponse:
+    """
+    Initialize a codegen session from AppBlueprint specification.
+
+    Sprint 176: ADR-055 Initializer Agent — Phase 1 of 2-Agent Pattern.
+
+    This endpoint:
+    1. Parses the AppBlueprint into structured IR
+    2. Extracts features from modules with complexity estimation
+    3. Resolves inter-feature dependencies via entity relations
+    4. Applies topological sort for generation priority ordering
+    5. Validates spec completeness for Gate G1 readiness
+
+    The output (feature_list.json) is consumed by the Coding Agent
+    (Sprint 177) to generate code per feature.
+
+    Args:
+        request: InitializeRequest with blueprint, project_id, mode
+
+    Returns:
+        InitializeResponse with features, dependency graph, and validation
+
+    Raises:
+        400: Invalid blueprint or project_id format
+        422: Blueprint fails Pydantic validation
+    """
+    from uuid import UUID as UUIDType
+
+    from app.services.codegen.initializer_agent import InitializerAgent
+    from app.services.codegen.schemas.app_blueprint import AppBlueprint
+
+    logger.info(
+        "Initializer Agent invoked by user %s: project=%s, mode=%s",
+        current_user.id,
+        request.project_id,
+        request.mode,
+    )
+
+    # Validate project_id format
+    try:
+        project_uuid = UUIDType(request.project_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid project_id format: {request.project_id}",
+        )
+
+    # Parse blueprint dict into AppBlueprint IR
+    try:
+        blueprint = AppBlueprint.model_validate(request.blueprint)
+    except Exception as e:
+        logger.warning("Blueprint validation failed: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid blueprint: {e}",
+        )
+
+    # Run Initializer Agent
+    try:
+        agent = InitializerAgent()
+        result = await agent.initialize(
+            blueprint=blueprint,
+            project_id=project_uuid,
+            mode=request.mode,
+        )
+    except Exception as e:
+        logger.exception("Initializer Agent error: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Initialization failed: {e}",
+        )
+
+    logger.info(
+        "Initializer Agent complete: %d features, g1_ready=%s",
+        result.total_features,
+        result.validation.gate_g1_ready,
+    )
+
+    # Convert to response format
+    return InitializeResponse(
+        project_id=str(result.project_id),
+        spec_version=result.spec_version,
+        mode=result.mode,
+        blueprint_name=result.blueprint_name,
+        total_features=result.total_features,
+        features=[
+            ExtractedFeatureResponse(
+                id=f.id,
+                name=f.name,
+                module=f.module,
+                description=f.description,
+                complexity=f.complexity.value,
+                dependencies=f.dependencies,
+                priority=f.priority,
+                estimated_files=f.estimated_files,
+                entities=f.entities,
+                status=f.status.value,
+            )
+            for f in result.features
+        ],
+        dependency_graph=[
+            DependencyEdgeResponse(
+                source=e.source,
+                target=e.target,
+                reason=e.reason,
+            )
+            for e in result.dependency_graph
+        ],
+        validation=SpecValidationResponse(
+            spec_complete=result.validation.spec_complete,
+            errors=result.validation.errors,
+            warnings=result.validation.warnings,
+            gate_g1_ready=result.validation.gate_g1_ready,
+            checked_at=result.validation.checked_at.isoformat(),
+        ),
+        initialized_at=result.initialized_at.isoformat(),
+        initialized_by=result.initialized_by,
+    )
+
+
 @router.get("/health", response_model=HealthResponse)
 async def health_check(
     service: CodegenService = Depends(get_service)
@@ -1662,7 +1896,7 @@ async def generate_stream(
         StreamingResponse with SSE events (text/event-stream)
 
     Example events:
-        data: {"type": "started", "session_id": "abc123", "model": "qwen2.5-coder:32b", "provider": "ollama"}
+        data: {"type": "started", "session_id": "abc123", "model": "qwen3-coder:30b", "provider": "ollama"}
 
         data: {"type": "file_generating", "session_id": "abc123", "path": "app/main.py"}
 

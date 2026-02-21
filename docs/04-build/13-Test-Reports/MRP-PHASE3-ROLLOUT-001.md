@@ -19,7 +19,7 @@
 | **Created Date** | April 5, 2026 |
 | **Author** | Tech Lead (Phase 3-Rollout Team) |
 | **Reviewers** | CTO, Security Lead, Platform Lead |
-| **Framework** | SDLC 5.1.0 Complete Lifecycle + SE 3.0 SASE Integration |
+| **Framework** | SDLC 6.1.0 Complete Lifecycle + SE 3.0 SASE Integration |
 
 ---
 
@@ -1702,7 +1702,7 @@ git show 0a0c3e6 --stat
 
 2. ⚠️ Model pull speed: 15 min to pull 8GB Ollama model
    - Could pre-bake into Docker image for faster deployments
-   - Recommendation: Create custom Ollama image with qwen2.5:14b pre-loaded
+   - Recommendation: Create custom Ollama image with qwen3:32b pre-loaded
 
 3. ⚠️ Documentation timing: Some runbooks created end of week
    - Should be earlier for review and feedback

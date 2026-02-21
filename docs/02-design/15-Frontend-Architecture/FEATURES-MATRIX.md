@@ -4,7 +4,7 @@
 **Date:** January 22, 2026
 **Status:** CTO Approved Design Document
 **Owner:** Architecture Team
-**Framework:** SDLC 5.1.3 (7-Pillar Architecture)
+**Framework:** SDLC 6.1.0
 
 ---
 

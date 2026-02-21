@@ -61,7 +61,7 @@ This guide documents the onboarding flow for the first project owner on SDLC Orc
 ### Step 4: Configure Project
 
 1. Set SDLC stage: 03-BUILD (Development phase)
-2. Configure gates based on SDLC 5.1.2 framework:
+2. Configure gates based on SDLC 6.1.0 framework:
    - G0.1: Problem Definition (if applicable)
    - G0.2: Solution Diversity (if applicable)
    - G1: Requirements Approval

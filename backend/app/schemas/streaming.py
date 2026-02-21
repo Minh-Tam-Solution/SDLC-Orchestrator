@@ -91,7 +91,7 @@ class StartedEvent(StreamEvent):
             "type": "started",
             "timestamp": "2025-12-25T10:30:00Z",
             "session_id": "abc123",
-            "model": "qwen2.5-coder:32b",
+            "model": "qwen3-coder:30b",
             "provider": "ollama"
         }
     """

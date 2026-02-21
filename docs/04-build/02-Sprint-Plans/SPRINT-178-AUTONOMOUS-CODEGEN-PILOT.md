@@ -3,7 +3,7 @@
 **Sprint Duration**: April 14-25, 2026 (10 working days)
 **Status**: PLANNED
 **Phase**: Stage 04 (BUILD) → Stage 06 (DEPLOY) — Autonomous Codegen Pilot + Multi-Agent P1
-**Framework**: SDLC 6.0.6 (7-Pillar + AI Governance Principles)
+**Framework**: SDLC 6.1.0
 **Priority**: P0 (Vietnamese SME Pilot Launch + ADR-056 P1 Integration)
 **Previous Sprint**: [Sprint 177 — Coding Agent Loop + Multi-Agent Core](SPRINT-177-CODING-AGENT-LOOP.md)
 **ADR References**:

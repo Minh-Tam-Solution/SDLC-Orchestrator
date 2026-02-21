@@ -2,7 +2,7 @@
 
 **Version**: 1.0.0
 **Date**: January 28, 2026
-**Framework**: SDLC 5.3.0 Quality Assurance System
+**Framework**: SDLC 6.1.0
 **ADR Reference**: ADR-041
 
 ---
@@ -250,7 +250,7 @@ Click **Submit Attestation** after:
 
 - [Kill Switch Admin Guide](./Governance-Kill-Switch-Admin-Guide.md)
 - [ADR-041: Stage Dependencies](../../02-design/03-ADRs/ADR-041-Stage-Dependencies.md)
-- [SDLC 5.3.0 Quality Assurance System](../../../SDLC-Enterprise-Framework/02-Core-Methodology/SDLC-Quality-Assurance-System.md)
+- [SDLC 6.1.0 Quality Assurance System](../../../SDLC-Enterprise-Framework/02-Core-Methodology/SDLC-Quality-Assurance-System.md)
 
 ---
 

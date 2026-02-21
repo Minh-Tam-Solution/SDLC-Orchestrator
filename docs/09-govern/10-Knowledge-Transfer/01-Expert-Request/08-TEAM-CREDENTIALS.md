@@ -41,7 +41,7 @@
 | **React/TypeScript** | Production dashboards with 200K users |
 | **PostgreSQL** | Multi-tenant databases at scale |
 | **DevOps/Kubernetes** | Production deployments with 99.9% uptime |
-| **AI/ML** | Ollama (qwen2.5-coder:32b), Claude, GPT-4 integration |
+| **AI/ML** | Ollama (qwen3-coder:30b), Claude, GPT-4 integration |
 
 ### Lessons Learned (Why We Built This)
 
@@ -139,7 +139,7 @@
 | Sprint 76 | Sprint Forecasting | 100% | ✅ Pass |
 | Sprint 77 | Retrospective Automation | 100% | ✅ Pass |
 | Sprint 78 | Team Management | 100% | ✅ Pass |
-| Sprint 79 | Landing Page & SDLC 5.1.3 | 🔄 In Progress | - |
+| Sprint 79 | Landing Page & SDLC 6.1.0 | 🔄 In Progress | - |
 | **Average** | | **98%** | **All Pass** |
 
 **Current Sprint**: Sprint 79 (January 2026)
@@ -224,7 +224,7 @@ We deliver at elite level:
 ### 4. Framework Foundation
 
 We have a head start:
-- SDLC 5.1.3 (8 months of refinement, 7-Pillar Architecture)
+- SDLC 6.1.0 (8 months of refinement, 7-Pillar Architecture)
 - 100+ policy packs
 - Battle-tested patterns
 - CEO AI patterns encoded
@@ -263,7 +263,7 @@ We have a head start:
 |-------|-------|
 | Author | CEO + CTO, Nhat Quang Holding |
 | Approved By | CTO |
-| Status | Updated for SDLC 5.1.3 (Jan 18, 2026) |
+| Status | Updated for SDLC 6.1.0 (Jan 18, 2026) |
 | Version | 1.2.0 |
 
 ---

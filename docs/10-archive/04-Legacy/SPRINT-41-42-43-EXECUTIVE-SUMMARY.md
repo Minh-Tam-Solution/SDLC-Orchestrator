@@ -4,7 +4,7 @@
 **Document ID**: SPRINT-EXEC-2026-Q1
 **Date**: December 20, 2025
 **Status**: ✅ **CTO APPROVED**
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Epic Coverage**: EP-01, EP-02, EP-03
 
 ---
@@ -381,7 +381,7 @@ deny[msg] {
 
 **Document Version**: 1.0.0
 **Created**: December 20, 2025
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 **Approval**: CTO Mr. Tai (taidt@mtsolution.com.vn)
 
 ---

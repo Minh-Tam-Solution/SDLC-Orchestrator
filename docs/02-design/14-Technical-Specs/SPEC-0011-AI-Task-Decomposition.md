@@ -26,7 +26,7 @@ related_specs:
   - SPEC-0006
   - SPEC-0009
 stage: 02-DESIGN
-framework_version: 6.0.6
+framework_version: 6.1.0
 ---
 
 # SPEC-0011: AI Task Decomposition Service - CEO-Quality Task Generation
@@ -35,7 +35,7 @@ framework_version: 6.0.6
 **Date**: December 3, 2025
 **Decision Makers**: CTO, CPO (joint review)
 **Stage**: Stage 02 (HOW - Design & Architecture)
-**Framework**: SDLC 6.0.6
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -59,7 +59,7 @@ framework_version: 6.0.6
 AI Task Decomposition Service that:
 1. Accepts user story + project context + SDLC stage
 2. Enriches context with project profile, related tasks, team velocity
-3. Uses multi-provider AI chain (Ollama qwen2.5:14b primary → Claude fallback)
+3. Uses multi-provider AI chain (Ollama qwen3:32b primary → Claude fallback)
 4. Generates structured task list with estimates, dependencies, acceptance criteria
 5. Validates completeness against checklist (happy path, error handling, tests, docs, security)
 6. Enables human review workflow (approve/modify/reject)
@@ -176,7 +176,7 @@ Feature: Multi-Provider Fallback Chain
   Background:
     GIVEN the provider chain is configured as:
       | Priority | Provider | Model | Timeout | Quota |
-      | 1 | Ollama | qwen2.5:14b | 60s | Unlimited |
+      | 1 | Ollama | qwen3:32b | 60s | Unlimited |
       | 2 | Claude | claude-sonnet-4-5 | 30s | 1000 req/day |
       | 3 | GPT-4o | gpt-4o | 30s | 500 req/day |
       | 4 | Rule-based | deterministic | 5s | Unlimited |
@@ -773,7 +773,7 @@ CREATE TABLE decomposed_tasks (
 
     -- AI metadata
     ai_provider VARCHAR(50),  -- "ollama", "claude", "gpt-4o", "rule-based"
-    ai_model VARCHAR(100),  -- "qwen2.5:14b", "claude-sonnet-4-5"
+    ai_model VARCHAR(100),  -- "qwen3:32b", "claude-sonnet-4-5"
     decomposition_prompt TEXT,
     raw_ai_response JSONB,
 
@@ -1217,5 +1217,5 @@ ALTER TABLE decomposition_sessions ADD CONSTRAINT fk_project_id FOREIGN KEY (pro
 **Decision**: **APPROVED** - AI Task Decomposition Service
 **Priority**: **HIGH** - Core AI Governance feature
 **Timeline**: Sprint 26 (AI Council Service Implementation)
-**Framework Version**: SDLC 6.0.5
+**Framework Version**: SDLC 6.1.0
 **Last Updated**: January 31, 2026

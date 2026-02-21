@@ -1,15 +1,22 @@
 # Data Model & Entity-Relationship Diagram
 ## Database Schema and Relationships
 
-**Version**: 3.4.0
-**Date**: February 18, 2026
-**Status**: PROPOSED - Multi-Agent Team Engine (Sprint 176, ADR-056)
+**Version**: 3.5.0
+**Date**: February 19, 2026
+**Status**: ACTIVE - Enterprise-First Refocus (Sprint 182-186, ADR-059)
 **Authority**: CTO + Backend Lead ✅ APPROVED
-**Foundation**: FRD v3.2.0, Vision v4.0.0, EP-04/05/06/07 Data Requirements
+**Foundation**: FRD v3.2.0, Vision v4.0.0, EP-04/05/06/07 Data Requirements, ADR-059, ADR-061, ADR-062
 **Stage**: Stage 04 (BUILD)
-**Framework**: SDLC 6.0.6 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0
 
 **Changelog**:
+- v3.5.0 (Feb 19, 2026): Enterprise-First tables (Sprint 182-186, ADR-059):
+  - New table: `enterprise_sso_configs` — SSO provider config per organization (ADR-061, Sprint 182)
+  - New table: `sso_sessions` — Active SSO sessions with JIT provisioning tracking (ADR-061, Sprint 182)
+  - New table: `user_consents` — GDPR consent tracking per user (Sprint 186)
+  - New column: `projects.data_region` — Storage data residency (VN|EU|US, Sprint 186)
+  - Updated table: `audit_logs` — Added correlation_id, sso_config_id (Sprint 185)
+  - Reference: ADR-059-Enterprise-First-Refocus.md, ADR-061-Enterprise-SSO.md
 - v3.4.0 (Feb 18, 2026): Sprint 176 Multi-Agent Team Engine (ADR-056, EP-07):
   - New table: `agent_definitions` — agent templates with SDLC roles, tool permissions, provider config
   - New table: `agent_conversations` — conversation state with snapshot precedence, budget tracking
@@ -190,7 +197,8 @@ This document defines **WHAT data to store**, not HOW to implement database (Sta
 | AI Engine | ai_providers, ai_requests, ai_usage_logs, ai_evidence_drafts | 4 |
 | System | audit_logs, notifications | 2 |
 | **EP-06 Codegen** | **ir_modules, codegen_generations, codegen_attempts, codegen_escalations, codegen_evidence, vcr_requests** | **6** |
-| **TOTAL** | | **30** |
+| **Enterprise (Sprint 182-186)** | **enterprise_sso_configs, sso_sessions, user_consents** | **3** |
+| **TOTAL** | | **36** |
 
 **Key Relationships**:
 - **C-Suite Approval Workflow**: users (CEO/CTO/CPO/CIO/CFO) → gate_approvals → gates
@@ -241,7 +249,7 @@ CREATE INDEX idx_users_department ON users(department);
 
 **Constraints**:
 - Email must be unique and valid format (validated in application layer)
-- Role must be one of (SDLC 4.8 RBAC):
+- Role must be one of (SDLC 6.1.0 RBAC):
   - **C-Suite**: ceo, cto, cpo, cio, cfo
   - **Engineering**: em, pm, dev_lead, qa_lead, security_lead, devops_lead, data_lead
   - **Admin**: admin
@@ -298,6 +306,7 @@ CREATE TABLE projects (
   status            VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'archived', 'paused')),
   policy_pack_tier  VARCHAR(20) NOT NULL DEFAULT 'LITE' CHECK (policy_pack_tier IN ('LITE', 'STANDARD', 'PROFESSIONAL', 'ENTERPRISE')),
   github_repo_url   VARCHAR(500),
+  data_region       VARCHAR(10) DEFAULT 'VN' CHECK (data_region IN ('VN', 'EU', 'US')), -- Sprint 186, ADR-063
   created_at        TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at        TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -434,7 +443,7 @@ CREATE INDEX idx_gate_evals_created_at ON gate_evaluations(created_at DESC);
 
 ## Table 5a: gate_approvals
 
-**Purpose**: Multi-approval workflow for quality gates (SDLC 4.8 Stages 00-09).
+**Purpose**: Multi-approval workflow for quality gates (SDLC 6.1.0 Stages 00-09).
 
 **Schema**:
 ```sql
@@ -458,7 +467,7 @@ CREATE INDEX idx_gate_approvals_status ON gate_approvals(approval_status);
 - N:1 with gates (many approvals belong to one gate)
 - N:1 with users (many approvals by one user)
 
-**Business Rules** (SDLC 5.1.3 Complete Lifecycle - 10 Stages):
+**Business Rules** (SDLC 6.1.0 Complete Lifecycle - 10 Stages):
 - **G0.1** (Problem Foundation): CPO + EM (2 approvals required)
 - **G0.2** (Business Case): CEO + CPO (2 approvals required)
 - **G1** (Requirements & Planning): CTO + CPO (2 approvals required)
@@ -1177,7 +1186,7 @@ CREATE TABLE agent_definitions (
     project_id UUID NOT NULL REFERENCES projects(id),
     team_id UUID REFERENCES teams(id),
     agent_name VARCHAR(50) NOT NULL,
-    sdlc_role VARCHAR(20) NOT NULL,           -- pm/architect/coder/reviewer/tester/devops
+    sdlc_role VARCHAR(20) NOT NULL,           -- 12 roles (3 types): SE4A: researcher/pm/pjm/architect/coder/reviewer/tester/devops | SE4H: ceo/cpo/cto | Router: assistant (ADR-056 §12.5)
     provider VARCHAR(20) NOT NULL,
     model VARCHAR(100) NOT NULL,
     system_prompt TEXT,
@@ -1309,9 +1318,104 @@ CREATE INDEX idx_agent_msg_correlation ON agent_messages(correlation_id);
 
 ---
 
+## Enterprise Tables (Sprint 182-186, ADR-059)
+
+> **NEW (Sprint 182-186)**: 3 tables for Enterprise-First features.
+> Reference: ADR-059-Enterprise-First-Refocus.md, ADR-061-Enterprise-SSO.md
+
+---
+
+## Table 34: enterprise_sso_configs
+
+*Added: Sprint 182, ADR-061 — Enterprise SSO Provider Configuration*
+
+```sql
+CREATE TABLE enterprise_sso_configs (
+    id SERIAL PRIMARY KEY,
+    organization_id INTEGER NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+    provider VARCHAR(20) NOT NULL CHECK (provider IN ('SAML', 'AZURE_AD', 'GOOGLE_WS')),
+    issuer_url TEXT,
+    metadata_url TEXT,
+    acs_url TEXT NOT NULL,
+    client_id VARCHAR(255),
+    client_secret_encrypted BYTEA,                    -- AES-256 encrypted via HashiCorp Vault
+    jit_provisioning BOOLEAN DEFAULT TRUE,             -- Auto-create users on first SSO login
+    scim_enabled BOOLEAN DEFAULT FALSE,               -- SCIM 2.0 user sync (Sprint 183+)
+    role_mapping JSONB DEFAULT '{}',                  -- {"IdP-Group": "Orchestrator-Role"}
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX idx_sso_config_org ON enterprise_sso_configs(organization_id, provider);
+```
+
+**Relationships**:
+- N:1 with `organizations` (one org can have multiple providers: SAML + Azure AD)
+- 1:N with `sso_sessions` (one config creates many sessions)
+
+**Tier**: ENTERPRISE only (tier gate enforced at API layer)
+
+---
+
+## Table 35: sso_sessions
+
+*Added: Sprint 182, ADR-061 — Active SSO Sessions*
+
+```sql
+CREATE TABLE sso_sessions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    sso_config_id INTEGER NOT NULL REFERENCES enterprise_sso_configs(id),
+    provider_session_id TEXT UNIQUE,                  -- IdP-assigned session identifier
+    id_token_hash VARCHAR(64),                        -- SHA256 of id_token (raw token NOT stored)
+    provisioning_method VARCHAR(20) DEFAULT 'jit',   -- 'jit' | 'scim' | 'manual'
+    expires_at TIMESTAMP NOT NULL,                    -- Per IdP token lifetime (max 8h)
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_sso_sessions_user ON sso_sessions(user_id);
+CREATE INDEX idx_sso_sessions_expiry ON sso_sessions(expires_at);
+```
+
+**Relationships**:
+- N:1 with `users`
+- N:1 with `enterprise_sso_configs`
+
+**Security**: id_token stored as SHA256 hash only. Raw token never persisted.
+
+---
+
+## Table 36: user_consents
+
+*Added: Sprint 186 — GDPR Consent Tracking*
+
+```sql
+CREATE TABLE user_consents (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    consent_type VARCHAR(30) NOT NULL
+        CHECK (consent_type IN ('MARKETING', 'ANALYTICS', 'ESSENTIAL')),
+    granted BOOLEAN NOT NULL,
+    policy_version VARCHAR(10) NOT NULL,              -- e.g., "v1.2"
+    ip_address INET,
+    granted_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    revoked_at TIMESTAMP,                             -- NULL if still granted
+    UNIQUE(user_id, consent_type)                     -- One consent record per type per user
+);
+```
+
+**Relationships**:
+- N:1 with `users`
+
+**GDPR**: Consent revocation tracked immutably (revoked_at timestamp, record kept for audit).
+
+---
+
 ## Document Control
 
 **Version History**:
+- v3.5.0 (February 19, 2026): Enterprise-First tables (Sprint 182-186, ADR-059): enterprise_sso_configs, sso_sessions, user_consents + projects.data_region column
 - v3.4.0 (February 18, 2026): Added 3 Multi-Agent Team Engine tables (Sprint 176, ADR-056, EP-07)
 - v3.3.0 (February 15, 2026): Sprint 173 Governance Loop schema changes (ADR-053)
 - v3.2.0 (February 8, 2026): Added product_events table (Sprint 147 - Product Truth Layer)
@@ -1336,9 +1440,9 @@ CREATE INDEX idx_agent_msg_correlation ON agent_messages(correlation_id);
 
 ---
 
-**End of Data Model v3.2.0**
+**End of Data Model v3.5.0**
 
-**Status**: ✅ IMPLEMENTED - Product Truth Layer (Sprint 147)
-**Date**: February 8, 2026
+**Status**: ✅ ACTIVE - Enterprise-First Refocus (Sprint 182-186)
+**Date**: February 19, 2026
 **Gate G3**: ✅ PASSED
-**Sprint 147**: Product Truth Layer - product_events table added
+**Sprint 182-186**: Enterprise SSO, GDPR consent, data residency tables added

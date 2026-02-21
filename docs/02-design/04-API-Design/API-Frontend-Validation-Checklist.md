@@ -5,7 +5,7 @@
 **Status**: ACTIVE - Pre-Week 3 Validation
 **Authority**: Frontend Lead + Backend Lead
 **Foundation**: API Specification v1.0 Template (OpenAPI 3.0)
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 

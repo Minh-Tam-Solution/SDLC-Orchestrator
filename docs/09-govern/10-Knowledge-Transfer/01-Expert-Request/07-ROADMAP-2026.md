@@ -4,7 +4,7 @@
 **Version**: 1.1.0
 **Date**: January 18, 2026
 **Purpose**: External Expert Review - Strategic Planning
-**Status**: CTO Approved (Updated for SDLC 5.1.3)
+**Status**: CTO Approved (Updated for SDLC 6.1.0)
 
 ---
 
@@ -53,7 +53,7 @@
 | Organization Teams | ✅ Complete | Shared company workspace |
 | Team Switching | ✅ Complete | Context switching between teams |
 | Role-Based Access | ✅ Complete | Owner/Admin/Member/Viewer roles |
-| Landing Page Update | ✅ Complete | SDLC 5.1.3 messaging |
+| Landing Page Update | ✅ Complete | SDLC 6.1.0 messaging |
 
 **Current Sprint**: Sprint 79 (January 2026)
 
@@ -75,7 +75,7 @@
 | Deliverable | Description |
 |-------------|-------------|
 | **IR-Based Codegen** | Intermediate Representation for Vietnamese SME templates |
-| **Dual Mode Support** | Mode A: BYO (Cursor/Copilot) + Mode B: Native OSS (qwen2.5-coder) |
+| **Dual Mode Support** | Mode A: BYO (Cursor/Copilot) + Mode B: Native OSS (qwen3-coder) |
 | **Vietnam SME Templates** | Pre-built templates for common Vietnamese business apps |
 | **BYOK LLM Integration** | Bring Your Own Key for API cost optimization |
 
@@ -286,7 +286,7 @@
 |-------|-------|
 | Author | PM Team, Nhat Quang Holding |
 | Approved By | CTO + CEO |
-| Status | Updated for SDLC 5.1.3 (Jan 18, 2026) |
+| Status | Updated for SDLC 6.1.0 (Jan 18, 2026) |
 | Version | 1.2.0 |
 
 ---

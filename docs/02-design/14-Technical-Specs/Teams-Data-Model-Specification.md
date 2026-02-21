@@ -575,7 +575,7 @@ class TeamMember(Base):
             "member_type IN ('human', 'ai_agent')",
             name="team_members_member_type_check"
         ),
-        # SASE Principle: AI agents cannot be owners/admins (per SDLC 5.1.2)
+        # SASE Principle: AI agents cannot be owners/admins (per SDLC 6.1.0)
         CheckConstraint(
             "NOT (member_type = 'ai_agent' AND role IN ('owner', 'admin'))",
             name="team_members_ai_agent_role_check"

@@ -1,8 +1,8 @@
 ---
-sdlc_version: "6.0.6"
+sdlc_version: "6.1.0"
 document_type: "Epic"
 status: "PROPOSED"
-sprint: "176"
+sprint: "176-179"
 spec_id: "EP-07"
 tier: "PROFESSIONAL"
 stage: "01 - Planning"
@@ -18,18 +18,18 @@ stage: "01 - Planning"
 | **Priority** | **P0** (blocks EP-06 Autonomous Codegen) |
 | **Owner** | CTO / Platform Team |
 | **Created** | 2026-02-17 |
-| **Updated** | 2026-02-18 |
-| **SDLC Version** | 6.0.6 |
+| **Updated** | 2026-02-19 |
+| **SDLC Version** | 6.1.0 |
 | **Stage** | 01-planning |
-| **Timeline** | Sprint 176–178 (Feb–Apr 2026) |
-| **Investment** | ~$10,560 |
-| **ADR** | ADR-056 (4 locked decisions, 14 non-negotiables) |
+| **Timeline** | Sprint 176–179 (Feb–Apr 2026) |
+| **Investment** | ~$14,400 |
+| **ADR** | ADR-056 (4 locked decisions, 14 non-negotiables), ADR-058 (ZeroClaw patterns) |
 
 ---
 
 ## 1. Epic Summary
 
-Build foundational multi-agent infrastructure for SDLC Orchestrator by absorbing production-proven patterns from OpenClaw (36-channel gateway), TinyClaw (file-based queue), and Nanobot (tool isolation). Enables agent-to-agent delegation, lane-based message queue, provider failover classification, and security guards.
+Build foundational multi-agent infrastructure for SDLC Orchestrator by absorbing production-proven patterns from OpenClaw (36-channel gateway), TinyClaw (file-based queue), Nanobot (tool isolation), and ZeroClaw (Rust agent runtime). Enables agent-to-agent delegation, lane-based message queue, provider failover classification, security guards, and output credential scrubbing.
 
 **Dependency**: EP-06 Autonomous Codegen (ADR-055) requires MATE for Initializer → Coder → Reviewer agent chain.
 
@@ -67,14 +67,24 @@ Build foundational multi-agent infrastructure for SDLC Orchestrator by absorbing
 | OTT Gateway Scaffold | Plugin-based architecture (Telegram MVP) | 178 |
 | Integration Tests | 14 test cases (lane queue + multi-agent E2E) | 178 |
 
-### 3.3 P2 — OTT Approval + Expansion (Sprint 179+)
+### 3.3 P1.5 — ZeroClaw Security Hardening (Sprint 179)
 
 | Deliverable | Description | Sprint |
 |------------|-------------|--------|
-| OTT Approval Flow | 2FA-like confirmation (APPROVE G3 #12345) | 179 |
-| Discord Plugin | Discord channel integration | 179 |
-| WhatsApp/Zalo Plugins | Vietnamese market channels | 180-181 |
-| Team Visualizer | Agent collaboration dashboard | 180 |
+| Output Credential Scrubbing | 6 regex patterns, scrub → hash → store (FR-042) | 179 |
+| Environment Variable Scrubbing | 9-var safe allowlist for shell execution (FR-043) | 179 |
+| History Compaction | Auto-summarize at 80% capacity, metadata_ JSONB (FR-044) | 179 |
+| Query Classification | Pure function model routing: code/reasoning/fast hints | 179 |
+| Unit Tests | 34 new test cases across 4 modules | 179 |
+
+### 3.4 P2 — OTT Approval + Expansion (Sprint 180+)
+
+| Deliverable | Description | Sprint |
+|------------|-------------|--------|
+| OTT Approval Flow | 2FA-like confirmation (APPROVE G3 #12345) | 180 |
+| Discord Plugin | Discord channel integration | 180 |
+| WhatsApp/Zalo Plugins | Vietnamese market channels | 181-182 |
+| Team Visualizer | Agent collaboration dashboard | 181 |
 
 ---
 
@@ -108,6 +118,10 @@ Build foundational multi-agent infrastructure for SDLC Orchestrator by absorbing
 | Shell deny patterns | Nanobot `tools/shell.py` | `shell_guard.py` |
 | Tool context isolation | Nanobot `subagent.py` | `tool_context.py` |
 | Reflect-after-tools | Nanobot `loop.py` | `reflect_step.py` |
+| Credential scrubbing | ZeroClaw `src/agent/loop_.rs` | `output_scrubber.py` |
+| Environment scrubbing | ZeroClaw `src/tools/shell.rs` | `shell_guard.py` |
+| History compaction | ZeroClaw `src/agent/loop_.rs` | `history_compactor.py` |
+| Query classification | ZeroClaw `src/agent/classifier.rs` | `query_classifier.py` |
 
 ---
 
@@ -123,7 +137,7 @@ Stores agent templates/defaults. Snapshot Precedence: these values become defaul
 | project_id | UUID FK → projects | |
 | team_id | UUID FK → teams | nullable |
 | agent_name | VARCHAR(50) | |
-| sdlc_role | VARCHAR(20) | pm/architect/coder/reviewer/tester/devops |
+| sdlc_role | VARCHAR(20) | 12 roles (3 types): SE4A: researcher/pm/pjm/architect/coder/reviewer/tester/devops, SE4H: ceo/cpo/cto, Router: assistant (ADR-056 §12.5) |
 | provider | VARCHAR(20) | |
 | model | VARCHAR(100) | |
 | system_prompt | TEXT | |
@@ -231,7 +245,7 @@ Stores messages with lane contract + dead-letter fields.
 | Criterion | Target | Measurement |
 |-----------|--------|-------------|
 | Unit test coverage | 95%+ | `--cov-report=term-missing` |
-| All unit tests pass | 73/73 | 6 test suites |
+| All unit tests pass | 107/107 | 10 test suites (6 original + 4 ZeroClaw) |
 | Integration tests pass | 14/14 | Lane queue + E2E |
 | P0 API response time | <100ms p95 | pytest-benchmark |
 | Zero P0 security bugs | 0 | STM-056 threat coverage |
@@ -267,9 +281,14 @@ Stores messages with lane contract + dead-letter fields.
 
 | Document | Location | Status |
 |----------|----------|--------|
-| ADR-056 | `docs/02-design/ADR-056-Multi-Agent-Team-Engine.md` | PROPOSED |
-| Security Threat Model | `docs/02-design/Multi-Agent-Security-Threat-Model.md` | PROPOSED |
-| Test Plan | `docs/02-design/Multi-Agent-Test-Plan.md` | PROPOSED |
+| ADR-056 | `docs/02-design/01-ADRs/ADR-056-Multi-Agent-Team-Engine.md` | PROPOSED |
+| Security Threat Model | `docs/02-design/07-Security-Design/Multi-Agent-Security-Threat-Model.md` | PROPOSED |
+| Test Plan | `docs/02-design/13-Testing-Strategy/Multi-Agent-Test-Plan.md` | PROPOSED |
 | Business Case | `docs/00-foundation/02-Business-Case/Multi-Agent-Team-Engine-Business-Case.md` | PROPOSED |
 | Pydantic Schemas | `backend/app/schemas/agent_team.py` | IMPLEMENTED |
 | Design Contracts | `backend/app/services/agent_team/` | IMPLEMENTED |
+| ADR-058 | `docs/02-design/01-ADRs/ADR-058-ZeroClaw-Best-Practice-Adoption.md` | PROPOSED |
+| FR-042 | `docs/01-planning/03-Functional-Requirements/FR-042-Output-Credential-Scrubbing.md` | PROPOSED |
+| FR-043 | `docs/01-planning/03-Functional-Requirements/FR-043-Environment-Variable-Scrubbing.md` | PROPOSED |
+| FR-044 | `docs/01-planning/03-Functional-Requirements/FR-044-History-Compaction.md` | PROPOSED |
+| Sprint 179 Plan | `docs/04-build/02-Sprint-Plans/SPRINT-179-ZEROCLAW-HARDENING.md` | PROPOSED |

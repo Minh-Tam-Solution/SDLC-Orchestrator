@@ -2,7 +2,7 @@
 ## "Inspired Evolution" - AgentScope Pattern Implementation
 
 **Epic**: AI Council Multi-Agent Enhancement  
-**Framework**: SDLC 5.1.2 Universal Framework  
+**Framework**: SDLC 6.1.0
 **Duration**: 8 weeks (Q1/Q2 2026)  
 **Decision Reference**: [ADR-023: AgentScope Pattern Extraction](../../02-design/01-ADRs/ADR-023-AgentScope-Pattern-Extraction.md)
 

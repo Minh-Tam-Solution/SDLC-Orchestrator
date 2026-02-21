@@ -1,5 +1,5 @@
 # SPRINT-41: AI Safety Foundation
-## SDLC 5.1.3 Complete Lifecycle - BUILD Phase | AI Safety First (Q1 2026)
+## SDLC 6.1.0 Complete Lifecycle - BUILD Phase | AI Safety First (Q1 2026)
 
 ---
 
@@ -12,7 +12,7 @@
 | **Duration** | 2 weeks (Jan 6-17, 2026) |
 | **Status** | PLANNED |
 | **Team** | 2 Backend + 2 Frontend + 1 DevOps + 1 QA |
-| **Framework** | SDLC 5.1.3 + SASE Level 2 |
+| **Framework** | SDLC 6.1.0 + SASE Level 2 |
 | **CTO Approval** | December 20, 2025 |
 
 ---
@@ -708,4 +708,4 @@ Sprint 41 đánh dấu khởi đầu Q1 2026 "AI Safety First" với 2 track son
 
 ---
 
-*Document Version: 1.0.0 | Created: December 20, 2025 | Framework: SDLC 5.1.3*
+*Document Version: 1.0.0 | Created: December 20, 2025 | Framework: SDLC 6.1.0*

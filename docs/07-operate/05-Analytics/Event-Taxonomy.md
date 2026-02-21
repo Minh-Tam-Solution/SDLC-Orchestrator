@@ -5,7 +5,7 @@
 **Version**: 1.0.0
 **Date**: December 21, 2025
 **Status**: PRODUCTION READY
-**Framework**: SDLC 5.1.3
+**Framework**: SDLC 6.1.0
 
 ---
 

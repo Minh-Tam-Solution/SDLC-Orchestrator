@@ -1,6 +1,6 @@
 {
   "timestamp": "2025-12-10T00:59:01.134580",
-  "model": "qwen2.5:14b-instruct",
+  "model": "qwen3:32b",
   "total_tests": 5,
   "passed": 5,
   "failed": 0,

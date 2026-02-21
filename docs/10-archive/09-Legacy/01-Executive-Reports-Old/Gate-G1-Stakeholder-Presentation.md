@@ -5,7 +5,7 @@
 **Meeting Date**: Friday, November 25, 2025
 **Status**: ACTIVE - Gate G1 Approval Meeting
 **Authority**: CEO + CTO + CPO + Legal Counsel
-**Framework**: SDLC 5.1.3 Complete Lifecycle
+**Framework**: SDLC 6.1.0
 
 ---
 
@@ -107,7 +107,7 @@
 - **Status**: FR1-FR5 complete with 17 API endpoints
 - **Impact**: User value articulated for 5 personas
 
-**Key Achievement**: 110+ acceptance criteria (measurable, testable), 19 Use Cases covering all SDLC 5.1.3 stages
+**Key Achievement**: 110+ acceptance criteria (measurable, testable), 19 Use Cases covering all SDLC 6.1.0 stages
 
 ---
 
@@ -194,7 +194,7 @@
 - Policy compliance tracking
 
 **FR5: Policy Pack Library** (110+ policies)
-- Pre-built SDLC 5.1.3 policies (all 10 stages)
+- Pre-built SDLC 6.1.0 policies (all 10 stages)
 - Custom policy support (project-specific)
 - Policy testing framework
 
@@ -235,7 +235,7 @@
 - ai_evidence_drafts (generated content)
 
 **Policy Library - FR5** (3 tables):
-- policies (110 SDLC 5.1.3 policies)
+- policies (110 SDLC 6.1.0 policies)
 - custom_policies (project-specific)
 - policy_tests (test cases)
 

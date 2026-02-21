@@ -4,13 +4,13 @@
 **Stage**: 10 - Archive
 **Question Answered**: What is the historical record?
 **Status**: REFERENCE ONLY
-**Framework**: SDLC 6.0.5 (RFC-001: Legacy Document Organization Standard)
+**Framework**: SDLC 6.1.0
 
 ---
 
 ## Purpose
 
-This folder is the **single centralized archive** for all legacy and historical documents, organized by stage-aligned subdirectories per RFC-001 (SDLC 6.0.5 MANDATORY standard).
+This folder is the **single centralized archive** for all legacy and historical documents, organized by stage-aligned subdirectories per RFC-001 (SDLC 6.1.0 MANDATORY standard).
 
 Benefits:
 - Historical reference and audit compliance
@@ -60,7 +60,7 @@ exception: User explicitly requests historical information
 
 ## Archive Pattern (RFC-001)
 
-**MANDATORY (SDLC 6.0.5)**: All legacy content lives in `10-archive/{NN}-Legacy/` where `{NN}` is the stage number.
+**MANDATORY (SDLC 6.1.0)**: All legacy content lives in `10-archive/{NN}-Legacy/` where `{NN}` is the stage number.
 
 ```
 Stage 00 legacy → 10-archive/00-Legacy/
@@ -137,7 +137,7 @@ Migrated from `99-Legacy/` per-stage to centralized `10-archive/{NN}-Legacy/` on
 
 ---
 
-## Tier Requirements (SDLC 6.0.5)
+## Tier Requirements (SDLC 6.1.0)
 
 | Tier | Archive Requirements |
 |------|---------------------|
@@ -177,6 +177,6 @@ DO:
 ---
 
 **Document Status**: P0 Entry Point (AI-NEVER-READ Directive)
-**Compliance**: SDLC 6.0.5 (RFC-001 MANDATORY)
+**Compliance**: SDLC 6.1.0 (RFC-001 MANDATORY)
 **Last Updated**: February 13, 2026
 **Owner**: PM + CTO

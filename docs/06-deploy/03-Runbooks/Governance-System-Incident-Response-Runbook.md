@@ -5,7 +5,7 @@
 **Status:** PRODUCTION-READY  
 **Owner:** CTO + On-Call Engineer  
 **Last Updated:** January 28, 2026  
-**Framework:** SDLC 6.0 Governance System  
+**Framework:** SDLC 6.1.0 Governance System  
 
 ---
 

@@ -416,7 +416,7 @@ VCR-PILOT-001 (APPROVED, 5/5 rating)
 ### Appendix C: References
 
 - **BRS**: BRS-PILOT-001-NQH-Bot-SOP-Generator.yaml
-- **Framework**: SDLC 5.1.0 Complete Lifecycle
+- **Framework**: SDLC 6.1.0 Complete Lifecycle
 - **Methodology**: SE 3.0 SASE Integration (arXiv:2509.06216v2)
 - **User Guide**: docs/04-Testing-QA/USER-GUIDE-SOP-GENERATOR.md
 

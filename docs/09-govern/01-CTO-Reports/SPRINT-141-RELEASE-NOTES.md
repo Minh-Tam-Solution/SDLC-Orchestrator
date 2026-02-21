@@ -1,7 +1,7 @@
 # Sprint 141 Release Notes
 
 **Sprint**: 141 - Full Workflow Integration
-**Framework**: SDLC 6.0.5 (RFC-SDLC-602 E2E API Testing Enhancement)
+**Framework**: SDLC 6.1.0
 **Date**: February 21, 2026
 **Status**: COMPLETE
 **CTO Sign-Off**: Approved

@@ -15,7 +15,7 @@
 | **Sprint** | 80 (Feb 3-14, 2026) |
 | **Epic** | EP-07: AGENTS.md Integration |
 | **ADR Reference** | ADR-029 |
-| **Framework** | SDLC 5.1.3 |
+| **Framework** | SDLC 6.1.0 |
 
 ---
 
@@ -971,7 +971,7 @@ Dynamic context is delivered via PR comments (not in this file).
         if analysis.has_tsconfig:
             conventions.append("- TypeScript: strict mode enabled")
 
-        # Naming conventions (default SDLC 5.1.3)
+        # Naming conventions (default SDLC 6.1.0)
         conventions.append("- Files: snake_case (Python ≤50 chars), camelCase/PascalCase (TypeScript)")
         conventions.append("- Tests: 95%+ coverage required")
 
@@ -2533,6 +2533,6 @@ The system uses two different status enum systems that MUST be explicitly mapped
 
 ---
 
-**SDLC 6.0.5 | Sprint 80+ | Stage 04 (BUILD)**
+**SDLC 6.1.0 | Sprint 80+ | Stage 04 (BUILD)**
 
 *Document ID: TDS-080-001*

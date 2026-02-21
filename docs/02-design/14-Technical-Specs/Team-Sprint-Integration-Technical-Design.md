@@ -6,7 +6,7 @@
 **Status:** DESIGN - Ready for Implementation
 **Author:** AI Council + Backend Lead
 **Reviewer:** CTO
-**Framework:** SDLC 5.1.3 P5 (SASE Integration)
+**Framework:** SDLC 6.1.0 P5 (SASE Integration)
 
 ---
 
@@ -33,7 +33,7 @@ Sprint 76 focuses on resolving remaining team-sprint integration gaps (GAP 2, GA
 
 ### Problem Statement
 
-Currently, backlog items can be assigned to any user in the system, regardless of whether they are members of the project's team. This violates the SDLC 5.1.3 team governance principle that only team members should work on project items.
+Currently, backlog items can be assigned to any user in the system, regardless of whether they are members of the project's team. This violates the SDLC 6.1.0 team governance principle that only team members should work on project items.
 
 ### Solution Design
 
@@ -931,7 +931,7 @@ class TestSASESprintContext:
 ```rego
 # Sprint-aware SASE Policies
 # SDLC Orchestrator - Sprint 76
-# Framework: SDLC 5.1.3 P5 (SASE Integration)
+# Framework: SDLC 6.1.0 P5 (SASE Integration)
 
 package sdlc.sprint
 

@@ -4,7 +4,7 @@
 **Version**: 1.1.0
 **Date**: January 18, 2026
 **Classification**: Internal + Investor Ready
-**Framework**: SDLC 5.1.3 (7-Pillar Architecture)
+**Framework**: SDLC 6.1.0
 
 ---
 

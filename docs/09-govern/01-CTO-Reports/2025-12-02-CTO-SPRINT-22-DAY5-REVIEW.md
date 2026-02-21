@@ -316,6 +316,6 @@ Sprint 22 Day 5 successfully delivers comprehensive E2E test coverage for compli
 
 ---
 
-*SDLC Orchestrator - First Governance-First Platform on SDLC 5.1.3.1*
+*SDLC Orchestrator - First Governance-First Platform on SDLC 6.1.0*
 *"Testing ensures quality. Quality ensures trust."*
 

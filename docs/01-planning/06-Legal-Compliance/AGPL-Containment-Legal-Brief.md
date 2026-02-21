@@ -5,7 +5,7 @@
 **Status**: ✅ APPROVED - Legal Counsel Reviewed
 **Authority**: CTO + External Legal Counsel (✅ APPROVED)
 **Foundation**: Gate G0.2 Decision (Option C - Hybrid Architecture)
-**Framework**: SDLC 5.1.3 Complete Lifecycle (10 Stages)
+**Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 
 **Changelog**:
 - v2.0.0 (Dec 21, 2025): SDLC 5.1.3 update, legal counsel review complete, EP-04/05/06 OSS compliance
