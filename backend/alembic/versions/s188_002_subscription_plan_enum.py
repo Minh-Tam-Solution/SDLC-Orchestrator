@@ -17,11 +17,10 @@ Fix:
   Python model update:  app/models/subscription.py  (SubscriptionPlan enum, Sprint 188)
   PostgreSQL DDL:       ALTER TYPE subscription_plan_enum ADD VALUE IF NOT EXISTS ...
 
-TECHNICAL NOTE — ADD VALUE outside transaction:
-  PostgreSQL requires ALTER TYPE ... ADD VALUE to run outside any open transaction
-  block. Alembic wraps all migrations in context.begin_transaction(), so we must
-  obtain the raw connection and set isolation_level="AUTOCOMMIT" before executing.
-  The IF NOT EXISTS guard makes this idempotent (safe to re-run).
+TECHNICAL NOTE — ADD VALUE in transaction (PG 12+):
+  PostgreSQL 12+ allows ALTER TYPE ... ADD VALUE IF NOT EXISTS inside a transaction
+  block. This project targets PG 15.5, so we can use op.execute() directly without
+  AUTOCOMMIT. The IF NOT EXISTS guard makes this idempotent (safe to re-run).
 
 DOWNGRADE NOTE — PostgreSQL ≤ 15 has no DROP VALUE:
   ALTER TYPE ... DROP VALUE was added in PostgreSQL 16. This project targets PG 15.5.
@@ -46,21 +45,10 @@ depends_on = None
 
 def upgrade() -> None:
     """Add 'starter' and 'pro' enum values to subscription_plan_enum (F-01 fix)."""
-    # ALTER TYPE ADD VALUE cannot run inside a transaction block (PostgreSQL requirement).
-    # Switching to AUTOCOMMIT commits any Alembic-managed transaction implicitly.
-    connection = op.get_bind()
-    autocommit_conn = connection.execution_options(isolation_level="AUTOCOMMIT")
-
-    autocommit_conn.execute(
-        sa.text(
-            "ALTER TYPE subscription_plan_enum ADD VALUE IF NOT EXISTS 'starter'"
-        )
-    )
-    autocommit_conn.execute(
-        sa.text(
-            "ALTER TYPE subscription_plan_enum ADD VALUE IF NOT EXISTS 'pro'"
-        )
-    )
+    # PostgreSQL 12+ allows ALTER TYPE ADD VALUE IF NOT EXISTS inside a transaction.
+    # Using op.execute() directly — no AUTOCOMMIT workaround needed on PG 15.5.
+    op.execute("ALTER TYPE subscription_plan_enum ADD VALUE IF NOT EXISTS 'starter'")
+    op.execute("ALTER TYPE subscription_plan_enum ADD VALUE IF NOT EXISTS 'pro'")
 
 
 def downgrade() -> None:
@@ -88,40 +76,31 @@ def downgrade() -> None:
             "running this downgrade."
         )
 
-    # Recreate the enum without 'starter' and 'pro' using AUTOCOMMIT (DDL outside tx).
-    autocommit_conn = connection.execution_options(isolation_level="AUTOCOMMIT")
+    # Recreate the enum without 'starter' and 'pro'.
+    # All DDL below (DROP TYPE, CREATE TYPE, ALTER TABLE, RENAME) runs inside the
+    # Alembic transaction — PostgreSQL supports these operations transactionally.
 
     # Step 1: Create the reduced enum under a temporary name.
     # DROP IF EXISTS first — makes downgrade idempotent if it failed mid-sequence.
-    autocommit_conn.execute(
-        sa.text("DROP TYPE IF EXISTS subscription_plan_enum_s188_downgrade")
-    )
-    autocommit_conn.execute(
-        sa.text(
-            "CREATE TYPE subscription_plan_enum_s188_downgrade AS ENUM "
-            "('lite', 'founder', 'standard', 'enterprise')"
-        )
+    op.execute("DROP TYPE IF EXISTS subscription_plan_enum_s188_downgrade")
+    op.execute(
+        "CREATE TYPE subscription_plan_enum_s188_downgrade AS ENUM "
+        "('lite', 'founder', 'standard', 'enterprise')"
     )
 
     # Step 2: Migrate the subscriptions.plan column to the new type.
     #         USING cast: plan::text casts the old enum to text, then to the new enum.
-    autocommit_conn.execute(
-        sa.text(
-            "ALTER TABLE subscriptions "
-            "ALTER COLUMN plan TYPE subscription_plan_enum_s188_downgrade "
-            "USING plan::text::subscription_plan_enum_s188_downgrade"
-        )
+    op.execute(
+        "ALTER TABLE subscriptions "
+        "ALTER COLUMN plan TYPE subscription_plan_enum_s188_downgrade "
+        "USING plan::text::subscription_plan_enum_s188_downgrade"
     )
 
     # Step 3: Drop the original enum (now no columns reference it).
-    autocommit_conn.execute(
-        sa.text("DROP TYPE subscription_plan_enum")
-    )
+    op.execute("DROP TYPE subscription_plan_enum")
 
     # Step 4: Rename the reduced enum back to the canonical name.
-    autocommit_conn.execute(
-        sa.text(
-            "ALTER TYPE subscription_plan_enum_s188_downgrade "
-            "RENAME TO subscription_plan_enum"
-        )
+    op.execute(
+        "ALTER TYPE subscription_plan_enum_s188_downgrade "
+        "RENAME TO subscription_plan_enum"
     )

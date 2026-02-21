@@ -493,7 +493,7 @@ class CRPService:
         - Priority inference from keywords
         - Option generation with pros/cons
         """
-        from app.services.sase_generation_service import create_sase_generation_service
+        from app.services.sase_adapter import create_sase_generation_service
 
         logger.info("Auto-generate CRP requested")
 

@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 const complianceTabs = [
   { name: "Overview", href: "/app/compliance" },
-  { name: "NIST AI RMF", href: "/app/compliance/nist" },
+  { name: "NIST AI RMF", href: "/app/compliance/nist", disabled: true },
   { name: "EU AI Act", href: "/app/compliance/eu-ai-act", disabled: true },
   { name: "ISO 42001", href: "/app/compliance/iso-42001", disabled: true },
 ];

@@ -57,6 +57,7 @@ from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.middleware.cache_headers import CacheHeadersMiddleware
 from app.middleware.tier_gate import TierGateMiddleware  # Sprint 184 — Tier enforcement (ADR-059 INV-03)
 from app.middleware.usage_limits import UsageLimitsMiddleware  # Sprint 188 — per-resource usage limits (INV-04)
+from app.middleware.conversation_first_guard import ConversationFirstGuard  # Sprint 190 — admin-only write paths
 
 # Global scheduler instance
 scheduler: AsyncIOScheduler | None = None
@@ -91,7 +92,7 @@ async def lifespan(app: FastAPI):
     print(f"📊 OpenAPI docs: http://{api_host}:{api_port}/api/docs")
     print(f"🔐 Authentication endpoints: http://{api_host}:{api_port}/api/v1/auth")
     print(f"🚪 Gates endpoints: http://{api_host}:{api_port}/api/v1/gates")
-    print(f"📝 SOP Generator (Phase 2-Pilot): http://{api_host}:{api_port}/api/v1/sop")
+    # Sprint 190: SOP Generator banner removed (route deleted)
 
     startup_errors = []
 
@@ -181,15 +182,12 @@ async def lifespan(app: FastAPI):
 # ============================================================================
 
 # Import API routers (after lifespan is defined)
-from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, feedback, triage, analytics, analytics_v2, council, sdlc_structure, sop, admin, docs, ai_detection, policy_packs, sast, evidence_timeline, override, codegen, pilot, preview, contract_lock, api_keys, payments, ai_providers, teams, organizations, organization_invitations, planning, agents, evidence_manifest, check_runs, planning_subagent, learnings, risk_analysis, consultations, mrp, framework_version, context_validation, maturity, auto_generation, governance_mode, vibecoding_index, stage_gating, context_authority, context_authority_v2, ceo_dashboard, governance_metrics, grafana_dashboards, dogfooding, governance_specs, governance_vibecoding, tier_management, gates_engine, compliance_validation, telemetry, mcp_analytics, deprecation_monitoring, vcr, websocket, push, spec_converter, cross_reference_validation  # Sprint 42-155: AI Safety + Codegen + Pilot + Preview + Contract Lock + API Keys + Payments + AI Providers + Teams + Planning + AGENTS.md + Evidence Manifest + Check Runs + Planning Subagent + Feedback Learning + Risk Analysis + CRP + MRP/VCR + Framework Version + Context Validation + Maturity + Auto-Generation + Governance Mode + Vibecoding Index + Stage Gating + Context Authority + Context Authority V2 + CEO Dashboard + Prometheus Metrics + Grafana Dashboards + Dogfooding + Sprint 118: Governance Specs + Governance Vibecoding + Tier Management + Sprint 120: Context Authority V2 + Gates Engine (SPEC-0011) + Sprint 123: Compliance Validation (SPEC-0013) + Sprint 146: Organization Invitations (ADR-047) + Sprint 147: Telemetry (Product Truth Layer) + Sprint 150: Deprecation Monitoring + Sprint 151: VCR (SASE Artifacts) + Sprint 153: WebSocket Real-time Notifications + Sprint 154: Spec Converter + Sprint 155: Cross-Reference Validation (ADR-050)
+from app.api.routes import auth, evidence, gates, policies, dashboard, projects, github, compliance, notifications, triage, analytics_v2, sdlc_structure, admin, docs, ai_detection, policy_packs, sast, evidence_timeline, override, codegen, preview, contract_lock, api_keys, payments, ai_providers, teams, organizations, organization_invitations, planning, agents, evidence_manifest, check_runs, planning_subagent, risk_analysis, consultations, mrp, framework_version, context_validation, maturity, auto_generation, governance_mode, vibecoding_index, stage_gating, context_authority_v2, ceo_dashboard, governance_metrics, grafana_dashboards, governance_specs, governance_vibecoding, tier_management, gates_engine, compliance_validation, telemetry, mcp_analytics, deprecation_monitoring, vcr, websocket, push, cross_reference_validation  # Sprint 42-155 (Sprint 190: removed feedback, analytics v1, council, sop, pilot, learnings, context_authority v1, dogfooding, spec_converter)
 from app.api.routes import agent_team  # Sprint 176 - Multi-Agent Team Engine (ADR-056/EP-07)
 from app.api.routes import ott_gateway  # Sprint 181 - OTT Gateway (Telegram + Zalo, ADR-059)
 from app.api.routes import templates  # Sprint 181 - SDLC Templates (CORE public endpoint)
 from app.api.routes import compliance_framework  # Sprint 181 - Compliance Framework (ENTERPRISE)
-from app.api.routes import nist_govern  # Sprint 181 - NIST GOVERN Function (ENTERPRISE)
-from app.api.routes import nist_manage  # Sprint 181 - NIST MANAGE Function (ENTERPRISE)
-from app.api.routes import nist_map  # Sprint 181 - NIST MAP Function (ENTERPRISE)
-from app.api.routes import nist_measure  # Sprint 181 - NIST MEASURE Function (ENTERPRISE)
+# Sprint 190: NIST imports removed (nist_govern, nist_manage, nist_map, nist_measure) — frozen, unused
 from app.api.routes import invitations  # Sprint 181 - Team Invitations (ENTERPRISE, async-fixed)
 from app.api.routes import enterprise_sso  # Sprint 183 - Enterprise SSO (SAML 2.0 + Azure AD, ADR-061)
 from app.api.routes import jira_integration  # Sprint 184 - Jira Integration (PROFESSIONAL+, ADR-059)
@@ -284,6 +282,11 @@ app.add_middleware(TierGateMiddleware)  # Sprint 184 — pure ASGI, NOT BaseHTTP
 # This ensures usage check fires before the tier-route gate check.
 app.add_middleware(UsageLimitsMiddleware)  # Sprint 188 — pure ASGI, NOT BaseHTTPMiddleware
 
+# Conversation-First Guard (Sprint 190 — CEO directive)
+# Pure ASGI — returns 403 for non-admin write ops on admin-gated paths.
+# IMPORTANT: Added AFTER UsageLimitsMiddleware so it runs BEFORE (LIFO).
+app.add_middleware(ConversationFirstGuard)  # Sprint 190 — admin-only write paths
+
 # ============================================================================
 # API Routes Registration
 # ============================================================================
@@ -297,14 +300,16 @@ app.include_router(dashboard.router, prefix="/api/v1", tags=["Dashboard"])
 app.include_router(projects.router, prefix="/api/v1", tags=["Projects"])
 app.include_router(github.router, prefix="/api/v1", tags=["GitHub"])
 app.include_router(compliance.router, prefix="/api/v1", tags=["Compliance"])
+from app.api.routes import compliance_export  # noqa: E402  # Sprint 192
+app.include_router(compliance_export.router, prefix="/api/v1", tags=["Compliance Export"])  # Sprint 192 — Compliance PDF Export
 app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["Notifications"])
-app.include_router(feedback.router, prefix="/api/v1", tags=["Feedback"])
+# Sprint 190: feedback.router removed — frozen, unused (Day 2)
 app.include_router(triage.router, prefix="/api/v1", tags=["Triage"])
-app.include_router(analytics.router, prefix="/api/v1", tags=["Analytics"])  # Sprint 24 (legacy session tracking)
+# Sprint 190: analytics.router (v1) removed — superseded by analytics_v2 (Day 3)
 app.include_router(analytics_v2.router, prefix="/api/v1", tags=["Analytics v2"])  # Sprint 41 (Mixpanel + PostgreSQL)
-app.include_router(council.router, prefix="/api/v1", tags=["AI Council"])  # Sprint 26 Day 3
+# Sprint 190: council.router removed — frozen, unused (Day 2)
 app.include_router(sdlc_structure.router, prefix="/api/v1", tags=["SDLC Structure"])  # Sprint 30 Day 3
-app.include_router(sop.router, prefix="/api/v1", tags=["SOP Generator"])  # Phase 2-Pilot Week 1
+# Sprint 190: sop.router removed — frozen, unused (Day 3)
 app.include_router(admin.router, prefix="/api/v1", tags=["Admin Panel"])  # Sprint 37 - ADR-017
 app.include_router(docs.router, prefix="/api/v1", tags=["Documentation"])  # User Support Documentation
 app.include_router(ai_detection.router, prefix="/api/v1", tags=["AI Detection"])  # Sprint 42 - AI Detection Service
@@ -313,7 +318,7 @@ app.include_router(sast.router, prefix="/api/v1", tags=["SAST"])  # Sprint 43 - 
 app.include_router(evidence_timeline.router, prefix="/api/v1", tags=["Evidence Timeline"])  # Sprint 43 - Evidence UI
 app.include_router(override.router, prefix="/api/v1", tags=["Override / VCR"])  # Sprint 43 - VCR Override Flow
 app.include_router(codegen.router, prefix="/api/v1", tags=["Codegen"])  # Sprint 45 - EP-06 Codegen Engine
-app.include_router(pilot.router, prefix="/api/v1", tags=["Pilot"])  # Sprint 49 - EP-06 Pilot Tracking
+# Sprint 190: pilot.router removed — frozen, unused (Day 3)
 app.include_router(preview.router, prefix="/api/v1", tags=["Preview"])  # Sprint 51B - QR Mobile Preview
 app.include_router(contract_lock.router, prefix="/api/v1", tags=["Contract Lock"])  # Sprint 53 - Spec Immutability
 app.include_router(api_keys.router, prefix="/api/v1", tags=["API Keys"])  # Sprint 52B - VS Code Extension Auth
@@ -327,7 +332,7 @@ app.include_router(agents.router, prefix="/api/v1", tags=["AGENTS.md"])  # Sprin
 app.include_router(evidence_manifest.router, prefix="/api/v1", tags=["Evidence Manifest"])  # Sprint 82 - Tamper-Evident Hash Chain
 app.include_router(check_runs.router, prefix="/api/v1", tags=["Check Runs"])  # Sprint 86 - GitHub Check Run UI (P0 Blocker)
 app.include_router(planning_subagent.router, prefix="/api/v1", tags=["Planning Sub-agent"])  # Sprint 99 - Planning Sub-agent Orchestration (ADR-034)
-app.include_router(learnings.router, prefix="/api/v1", tags=["Feedback Learning"])  # Sprint 100 - EP-11 Feedback Loop Closure
+# Sprint 190: learnings.router removed — frozen, unused (Day 2)
 app.include_router(risk_analysis.router, prefix="/api/v1", tags=["Risk Analysis"])  # Sprint 101 - Risk-Based Planning Trigger (GAP-001)
 app.include_router(consultations.router, prefix="/api/v1", tags=["CRP - Consultations"])  # Sprint 101 - Consultation Request Protocol (GAP-002)
 app.include_router(mrp.router, prefix="/api/v1", tags=["MRP - Merge Readiness Protocol"])  # Sprint 102 - MRP/VCR 5-Point + 4-Tier Enforcement
@@ -338,11 +343,11 @@ app.include_router(auto_generation.router, prefix="/api/v1", tags=["Auto-Generat
 app.include_router(governance_mode.router, prefix="/api/v1", tags=["Governance Mode"])  # Sprint 108 - Governance Mode Management & Kill Switch
 app.include_router(vibecoding_index.router, prefix="/api/v1", tags=["Vibecoding Index"])  # Sprint 109 - Vibecoding Index Signals Engine
 app.include_router(stage_gating.router, prefix="/api/v1", tags=["Stage Gating"])  # Sprint 109 - Stage-Aware PR Gating (11 SDLC Stages)
-app.include_router(context_authority.router, prefix="/api/v1", tags=["Context Authority"])  # Sprint 109 - Context Authority MVP (ADR & Linkage Validation)
+# Sprint 190: context_authority.router (v1) removed — superseded by context_authority_v2 (Day 3)
 app.include_router(ceo_dashboard.router, prefix="/api/v1", tags=["CEO Dashboard"])  # Sprint 110 - CEO Dashboard & Observability (Executive Governance Intelligence)
 app.include_router(governance_metrics.router, prefix="/api/v1", tags=["Governance Metrics"])  # Sprint 110 - Prometheus Metrics Collector (45 Governance Observability Metrics)
 app.include_router(grafana_dashboards.router, prefix="/api/v1", tags=["Grafana Dashboards"])  # Sprint 110 - Grafana Dashboard Configurations (CEO, Tech, Ops Dashboards)
-app.include_router(dogfooding.router, prefix="/api/v1", tags=["Dogfooding"])  # Sprint 114 - Track 2 WARNING Mode Dogfooding Metrics
+# Sprint 190: dogfooding.router removed — frozen, unused (Day 3)
 app.include_router(governance_specs.router, prefix="/api/v1", tags=["Governance Specs"])  # Sprint 118 - SPEC-0002 Specification Management
 app.include_router(governance_vibecoding.router, prefix="/api/v1", tags=["Governance Vibecoding"])  # Sprint 118 - SPEC-0001 Vibecoding Index Engine
 app.include_router(tier_management.router, prefix="/api/v1", tags=["Tier Management"])  # Sprint 118 - 4-Tier Classification System
@@ -357,7 +362,7 @@ app.include_router(deprecation_monitoring.router, prefix="/api/v1", tags=["Depre
 app.include_router(vcr.router, prefix="/api/v1", tags=["VCR (Version Controlled Resolution)"])  # Sprint 151 - SASE Artifacts VCR Workflow (ADR-048, SPEC-0024)
 app.include_router(websocket.router, prefix="/ws", tags=["WebSocket"])  # Sprint 153 - Real-time Notifications (WebSocket)
 app.include_router(push.router, prefix="/api/v1", tags=["Push Notifications"])  # Sprint 153 - Browser Push Notifications
-app.include_router(spec_converter.router, prefix="/api/v1", tags=["Spec Converter"])  # Sprint 154 - Specification Format Converter (ADR-050)
+# Sprint 190: spec_converter.router removed — frozen, unused (Day 3)
 app.include_router(cross_reference_validation.router, prefix="/api/v1", tags=["Cross-Reference Validation"])  # Sprint 155 - Document Cross-Reference Validation (ADR-050)
 app.include_router(agent_team.router, prefix="/api/v1", tags=["Multi-Agent Team Engine"])  # Sprint 176 - Multi-Agent Team Engine (ADR-056/EP-07)
 
@@ -369,10 +374,7 @@ app.include_router(templates.router, prefix="/api/v1", tags=["Templates"])  # Sp
 # ENTERPRISE routes — HTTP 402 raised by require_enterprise_tier if tier < enterprise
 from app.api.dependencies import require_enterprise_tier  # noqa: E402
 app.include_router(compliance_framework.router, prefix="/api/v1", tags=["Compliance Framework"], dependencies=[Depends(require_enterprise_tier)])  # Sprint 181 - Compliance Framework (ENTERPRISE)
-app.include_router(nist_govern.router, prefix="/api/v1", tags=["NIST GOVERN"], dependencies=[Depends(require_enterprise_tier)])  # Sprint 181 - NIST GOVERN Function (ENTERPRISE)
-app.include_router(nist_manage.router, prefix="/api/v1", tags=["NIST MANAGE"], dependencies=[Depends(require_enterprise_tier)])  # Sprint 181 - NIST MANAGE Function (ENTERPRISE)
-app.include_router(nist_map.router, prefix="/api/v1", tags=["NIST MAP"], dependencies=[Depends(require_enterprise_tier)])  # Sprint 181 - NIST MAP Function (ENTERPRISE)
-app.include_router(nist_measure.router, prefix="/api/v1", tags=["NIST MEASURE"], dependencies=[Depends(require_enterprise_tier)])  # Sprint 181 - NIST MEASURE Function (ENTERPRISE)
+# Sprint 190: NIST router registrations removed (nist_govern, nist_manage, nist_map, nist_measure) — frozen, unused
 app.include_router(invitations.router, prefix="/api/v1", tags=["Invitations"], dependencies=[Depends(require_enterprise_tier)])  # Sprint 181 - Team Invitations (ENTERPRISE, async-fixed)
 
 # Sprint 183 — Enterprise SSO (SAML 2.0 + Azure AD, ADR-061)
@@ -402,6 +404,8 @@ app.include_router(data_residency.router, prefix="/api/v1", tags=["Data Residenc
 # DPO endpoints: /gdpr/dsar (list) — ENTERPRISE tier enforced below via dependency
 from app.api.routes import gdpr  # noqa: E402
 app.include_router(gdpr.router, prefix="/api/v1", tags=["GDPR"])  # Sprint 186 - GDPR (self-service: authenticated; DPO list: ENTERPRISE via service layer)
+
+# Sprint 191: deprecated_routes.py removed (410 stub grace period expired)
 
 # ============================================================================
 # Health Check Endpoints

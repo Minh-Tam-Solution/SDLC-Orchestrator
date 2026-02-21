@@ -15,7 +15,7 @@ Field mappings:
     sender_id       → activity["from"]["aadObjectId"] (Azure AD object ID)
     content         → activity["text"] (empty string for non-text activity types)
     timestamp       → activity["timestamp"] (ISO 8601 string → datetime UTC)
-    correlation_id  → activity["id"] (Bot Framework activity ID)
+    correlation_id  → "teams_" + activity["id"] (prefixed Bot Framework activity ID)
     metadata        → {conversation_id, tenant_id, activity_type}
 
 Tier: PROFESSIONAL+ (ADR-059 BM-10: Teams is enterprise OTT channel)
@@ -163,7 +163,9 @@ def _parse_teams(payload: dict[str, Any]) -> OrchestratorMessage:
     content: str = payload.get("text") or ""
 
     # PA-23: Map activity.id → correlation_id (Bot Framework assigns unique ID per activity)
-    correlation_id: str = payload.get("id", "")
+    # Sprint 191: Prefix with "teams_" to match {channel}_{id} convention (Slack, Zalo, Telegram)
+    activity_id: str = payload.get("id", "")
+    correlation_id: str = f"teams_{activity_id}" if activity_id else ""
 
     # PA-24: Parse timestamp (ISO 8601 string → UTC datetime)
     timestamp_str: str = payload.get("timestamp", "")

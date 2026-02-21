@@ -55,11 +55,10 @@ from app.models.ai_engine import AIProvider, AIRequest, AIUsageLog, AIEvidenceDr
 # Policy Library (FR5) - 3 models
 from app.models.policy import Policy, CustomPolicy, PolicyTest
 
-# Supporting - 5 models
-# Note: AuditLog exported from support.py is the legacy class (LegacyAuditLog).
-# The authoritative Sprint 185 AuditLog is in app.models.audit_log.
-# Both map to audit_logs table; support.py uses extend_existing=True.
-from app.models.support import StageTransition, Webhook, LegacyAuditLog as AuditLog, Notification, SystemSetting
+# Supporting - 4 models (LegacyAuditLog removed — Sprint 185 AuditLog is authoritative)
+from app.models.support import StageTransition, Webhook, Notification, SystemSetting
+# Sprint 185 AuditLog — the only audit model (SOC2 Type II, immutable)
+from app.models.audit_log import AuditLog
 
 # Compliance Scanning (Sprint 21) - 3 models
 from app.models.compliance_scan import ComplianceScan, ComplianceViolation, ScanJob
@@ -234,26 +233,7 @@ from app.models.compliance import (
     RiskStatus,
 )
 
-# NIST MAP & MEASURE (Sprint 157 - Phase 3 COMPLIANCE) - 2 models + 3 enums
-from app.models.nist_map_measure import (
-    AISystem,
-    PerformanceMetric,
-    AISystemType,
-    AIRiskLevel,
-    MetricType,
-)
-
-# NIST MANAGE (Sprint 158 - Phase 3 COMPLIANCE) - 2 models + 6 enums
-from app.models.nist_manage import (
-    ManageRiskResponse,
-    ManageIncident,
-    ResponseType,
-    ResponseStatus,
-    ResponsePriority,
-    IncidentSeverity,
-    IncidentType,
-    IncidentStatus,
-)
+# Sprint 190: NIST model imports removed (nist_map_measure, nist_manage) — services deleted, tables deprecated
 
 # Tier-Based Gate Approval (Sprint 161 - Phase 4 AUTHORIZATION) - GateDecision model
 # Note: ProjectFunctionRole imported earlier (before Project) to resolve relationship
@@ -435,21 +415,7 @@ __all__ = [
     "RiskLikelihood",
     "RiskImpact",
     "RiskStatus",
-    # NIST MAP & MEASURE - Sprint 157 Phase 3 (2 models + 3 enums)
-    "AISystem",
-    "PerformanceMetric",
-    "AISystemType",
-    "AIRiskLevel",
-    "MetricType",
-    # NIST MANAGE - Sprint 158 Phase 3 (2 models + 6 enums)
-    "ManageRiskResponse",
-    "ManageIncident",
-    "ResponseType",
-    "ResponseStatus",
-    "ResponsePriority",
-    "IncidentSeverity",
-    "IncidentType",
-    "IncidentStatus",
+    # Sprint 190: NIST MAP/MEASURE/MANAGE exports removed (models deleted)
     # Tier-Based Gate Approval - Sprint 161 Phase 4 (2 models)
     "ProjectFunctionRole",
     "GateDecision",

@@ -733,8 +733,6 @@
       "checkRuns": "Check Runs",
       "hashChain": "Hash Chain",
       "appBuilder": "App Builder",
-      "sopGenerator": "SOP Generator",
-      "specConverter": "Spec Converter",
       "compliance": "Compliance",
       "settings": "Settings",
       "adminPanel": "Admin Panel",
@@ -1244,102 +1242,6 @@
         "savedDesc": "Your notification preferences have been updated.",
         "error": "Error",
         "errorDesc": "Failed to save notification preferences."
-      }
-    }
-  },
-  "pilot": {
-    "hero": {
-      "badge": "Pilot Program",
-      "headline": "Join the SDLC Orchestrator Pilot",
-      "subheadline": "Be among the first 10 Vietnamese SME founders to shape the future of AI governance",
-      "cta": "Apply Now"
-    },
-    "benefits": {
-      "title": "Why Join the Pilot?",
-      "subtitle": "Exclusive benefits for early adopters",
-      "items": {
-        "earlyAccess": {
-          "title": "Early Access",
-          "description": "Get access to new features before official launch"
-        },
-        "freeSupport": {
-          "title": "Free 1-on-1 Support",
-          "description": "Dedicated onboarding and technical assistance"
-        },
-        "lifetime": {
-          "title": "Lifetime Discount",
-          "description": "50% off subscription for all pilot participants"
-        },
-        "community": {
-          "title": "Founder Community",
-          "description": "Connect with other Vietnamese founders building with AI"
-        }
-      }
-    },
-    "form": {
-      "title": "Apply for Pilot Program",
-      "subtitle": "Limited to 10 participants - Join now!",
-      "name": "Full Name",
-      "namePlaceholder": "Nguyen Van A",
-      "email": "Email Address",
-      "emailPlaceholder": "you@company.com",
-      "company": "Company Name",
-      "companyPlaceholder": "My Startup Co.",
-      "role": "Your Role",
-      "rolePlaceholder": "Select your role",
-      "roleOptions": {
-        "founder": "Founder / CEO",
-        "cto": "CTO / Tech Lead",
-        "manager": "Engineering Manager",
-        "developer": "Developer",
-        "other": "Other"
-      },
-      "submit": "Join Pilot Program",
-      "submitting": "Submitting...",
-      "success": {
-        "title": "Application Submitted!",
-        "description": "Thank you for applying. We'll contact you within 24 hours to confirm your spot."
-      },
-      "validation": {
-        "nameRequired": "Please enter your full name",
-        "nameMin": "Name must be at least 2 characters",
-        "nameTooLong": "Name must be less than 100 characters",
-        "emailRequired": "Please enter your email address",
-        "emailInvalid": "Please enter a valid email address",
-        "companyRequired": "Please enter your company name",
-        "companyTooLong": "Company name is too long",
-        "roleRequired": "Please select your role"
-      },
-      "errors": {
-        "alreadyEnrolled": "You're already enrolled in the pilot program",
-        "serverError": "Something went wrong. Please try again later.",
-        "unauthorized": "Please log in to apply for the pilot program"
-      }
-    },
-    "faq": {
-      "title": "Frequently Asked Questions",
-      "subtitle": "Everything you need to know about the pilot program",
-      "items": {
-        "q1": {
-          "question": "Who can join the pilot program?",
-          "answer": "Vietnamese SME founders and technical leaders in F&B, Hospitality, or Retail industries. We're looking for teams ready to integrate AI governance into their development workflow."
-        },
-        "q2": {
-          "question": "How long does the pilot last?",
-          "answer": "The pilot runs for 6 weeks with weekly check-ins. You'll work closely with our team to implement SDLC Orchestrator and provide feedback."
-        },
-        "q3": {
-          "question": "What's the time commitment?",
-          "answer": "Approximately 2 hours per week: 1 hour for onboarding/training sessions and 1 hour for integration with your existing workflow."
-        },
-        "q4": {
-          "question": "Is it really free?",
-          "answer": "Yes! The pilot program is completely free. You'll get full access to all features, dedicated support, and a 50% lifetime discount after the pilot ends."
-        },
-        "q5": {
-          "question": "What happens after the pilot?",
-          "answer": "Pilot participants receive 50% off for life, priority support, early access to new features, and a voice in our product roadmap. You're also part of our founder community."
-        }
       }
     }
   }

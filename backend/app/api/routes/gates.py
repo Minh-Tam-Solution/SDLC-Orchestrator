@@ -1642,3 +1642,171 @@ async def get_gate_approvals(
         )
         for approval in approvals
     ]
+
+
+# =========================================================================
+# Break-Glass Approve (Sprint 192 — Feature-Flagged)
+# =========================================================================
+
+
+class BreakGlassApproveRequest(GateApproveRequest):
+    """Break-glass approve request — requires justification fields."""
+
+    reason: str  # min 50 chars enforced below
+    incident_ticket: str
+    severity: str  # P0 or P1
+
+
+@router.post(
+    "/{gate_id}/break-glass-approve",
+    response_model=GateApprovalResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Break-glass emergency gate approve (admin/owner only)",
+    responses={
+        404: {"description": "Feature disabled or gate not found"},
+        403: {"description": "Insufficient role or rate limited"},
+        422: {"description": "Validation error"},
+    },
+)
+async def break_glass_approve_gate(
+    gate_id: UUID,
+    request: BreakGlassApproveRequest,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> GateApprovalResponse:
+    """
+    Emergency break-glass gate approval bypassing normal approval workflow.
+
+    Feature-flagged: returns 404 when BREAK_GLASS_WEB_ENABLED=false.
+    Requires admin/owner/CTO/CEO role. Rate limited to 2 per user per week.
+
+    Required fields:
+        reason: Justification (min 50 chars).
+        incident_ticket: Reference to incident ticket.
+        severity: P0 or P1.
+
+    Audit: action="break_glass_approve", source="break_glass_web".
+    """
+    from app.core.config import Settings
+    settings = Settings()
+
+    if not settings.BREAK_GLASS_WEB_ENABLED:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="break-glass approve is not enabled",
+        )
+
+    # Validate role — CTO P2-2: use actual role names from user model
+    allowed_roles = {"ceo", "cto", "admin", "owner"}
+    user_roles = set()
+    if hasattr(current_user, "roles") and current_user.roles:
+        user_roles = {r.name.lower() for r in current_user.roles}
+    if hasattr(current_user, "role") and current_user.role:
+        user_roles.add(current_user.role.lower())
+
+    if not user_roles & allowed_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="break-glass approve requires admin, owner, CTO, or CEO role",
+        )
+
+    # Validate request fields
+    if len(request.reason) < 50:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="reason must be at least 50 characters",
+        )
+
+    if request.severity not in ("P0", "P1"):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="severity must be P0 or P1",
+        )
+
+    # Rate limit: max 2 break-glass per user per week (Redis)
+    try:
+        from app.utils.redis import get_redis_client
+        redis = await get_redis_client()
+        rate_key = f"break_glass:{current_user.id}"
+        count = await redis.get(rate_key)
+        if count and int(count) >= 2:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="break-glass rate limit exceeded (max 2 per week)",
+            )
+        pipe = redis.pipeline()
+        pipe.incr(rate_key)
+        pipe.expire(rate_key, 7 * 24 * 3600)  # 1 week TTL
+        await pipe.execute()
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.warning("break_glass: rate limit check failed: %s", str(exc))
+
+    # Fetch gate
+    gate = await db.get(Gate, gate_id)
+    if not gate:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"gate {gate_id} not found",
+        )
+
+    # Approve gate (bypass normal SUBMITTED state requirement)
+    now = datetime.utcnow()
+    gate.status = "APPROVED"
+    gate.approved_at = now
+
+    # Create approval record
+    approval = GateApproval(
+        gate_id=gate_id,
+        approver_id=current_user.id,
+        is_approved=True,
+        comments=(
+            f"[BREAK-GLASS] severity={request.severity} "
+            f"ticket={request.incident_ticket} "
+            f"reason={request.reason}"
+        ),
+        approved_at=now,
+    )
+    db.add(approval)
+
+    # Audit log
+    try:
+        from app.models.audit_log import AuditLog
+        audit = AuditLog(
+            event_type="gate_action",
+            action="break_glass_approve",
+            actor_id=str(current_user.id),
+            actor_email=current_user.email,
+            resource_type="gate",
+            resource_id=str(gate_id),
+            detail={
+                "severity": request.severity,
+                "incident_ticket": request.incident_ticket,
+                "reason": request.reason[:200],
+                "source": "break_glass_web",
+                "previous_status": gate.status,
+            },
+        )
+        db.add(audit)
+    except Exception as exc:
+        logger.warning("break_glass: audit log failed: %s", str(exc))
+
+    await db.commit()
+    await db.refresh(approval)
+
+    logger.info(
+        "break_glass: approved gate=%s user=%s severity=%s ticket=%s",
+        gate_id, current_user.email, request.severity, request.incident_ticket,
+    )
+
+    return GateApprovalResponse(
+        id=approval.id,
+        gate_id=approval.gate_id,
+        approved_by=approval.approver_id,
+        approved_by_name=current_user.name or current_user.email,
+        approved_by_role="BREAK-GLASS",
+        is_approved=True,
+        comments=approval.comments,
+        approved_at=approval.approved_at,
+    )

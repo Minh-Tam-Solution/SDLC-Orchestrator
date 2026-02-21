@@ -165,8 +165,18 @@ def upgrade() -> None:
         -- Restrict to the application role only; PUBLIC must not call this directly.
         REVOKE EXECUTE ON FUNCTION fn_export_audit_logs(TIMESTAMPTZ, TIMESTAMPTZ, TEXT)
             FROM PUBLIC;
-        GRANT  EXECUTE ON FUNCTION fn_export_audit_logs(TIMESTAMPTZ, TIMESTAMPTZ, TEXT)
-            TO dpo_role;
+    """)
+
+    # Grant to dpo_role only if the role exists (staging may not have it)
+    op.execute("""
+        DO $$
+        BEGIN
+            IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'dpo_role') THEN
+                GRANT EXECUTE ON FUNCTION fn_export_audit_logs(TIMESTAMPTZ, TIMESTAMPTZ, TEXT)
+                    TO dpo_role;
+            END IF;
+        END;
+        $$;
     """)
 
     # -------------------------------------------------------------------------
@@ -221,8 +231,18 @@ def upgrade() -> None:
         -- pseudonymization (it disables the immutability trigger internally).
         REVOKE EXECUTE ON FUNCTION fn_pseudonymize_audit_actor(UUID)
             FROM PUBLIC;
-        GRANT  EXECUTE ON FUNCTION fn_pseudonymize_audit_actor(UUID)
-            TO dpo_role;
+    """)
+
+    # Grant to dpo_role only if the role exists (staging may not have it)
+    op.execute("""
+        DO $$
+        BEGIN
+            IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'dpo_role') THEN
+                GRANT EXECUTE ON FUNCTION fn_pseudonymize_audit_actor(UUID)
+                    TO dpo_role;
+            END IF;
+        END;
+        $$;
     """)
 
 

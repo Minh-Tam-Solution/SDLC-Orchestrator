@@ -1,14 +1,31 @@
 # Stage 02: Design & Architecture (HOW?)
 ## System Architecture + Technical Design
 
-**Version**: 3.2.0
-**Date**: January 30, 2026
+**Version**: 3.3.0
+**Date**: February 21, 2026
 **Status**: ✅ COMPLETED - Gate G2 PASSED (CTO 9.4/10, CPO 9.2/10)
 **Authority**: CTO + Tech Lead + Backend Lead Approved
 **Foundation**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
 **Previous Stage**: Stage 01 (Planning & Analysis - WHAT) ✅ COMPLETE
-**Next Stage**: Stage 04 (BUILD) - Sprint 122 Stabilization
-**Positioning**: Operating System for Software 3.0
+**Next Stage**: Stage 04 (BUILD) - Sprint 190 Aggressive Cleanup
+**Positioning**: Operating System for Software 3.0 — Conversation-First
+
+**Changelog v3.3.0** (Feb 21, 2026):
+- **Chat-First Facade (ADR-064 APPROVED)**: CEO + CTO + CPO approved Option D+ — conversation-first UX
+  - ADR-064: 4 locked decisions (Chat=UX, LLM Function Calling, Actions Contract, Magic Link)
+  - STM-064: Security Threat Model with 8 attack surfaces (C1-C8), all mitigations validated
+  - Sprint 189 deliverables COMPLETE (CTO 9.4/10): chat_command_router, magic_link_service, OTT dedupe
+- **CEO Interface Strategy**: Product is conversation-first (OTT + CLI for team members, Web for admin/owner only)
+  - Enterprise channels (MS Teams, Slack) retained — security policy compliance
+  - VSCode Extension FROZEN (defer to Sprint 193+)
+- **Sprint 190 CEO APPROVED**: ~21K LOC aggressive cleanup (NIST, AI Council, Feedback Learning, SOP, Pilot, Spec Converter, V1 routes)
+  - Expert panel: 9/9 APPROVE with 11 corrections incorporated
+  - SASE blocker identified: `sase_generation_service.py` deferred to Sprint 191+
+- **Interface Role Matrix Updated**:
+  - OTT Gateway (Telegram, Zalo, MS Teams, Slack) = **PRIMARY** for team members
+  - CLI (sdlcctl) = **PRIMARY** for dev/CI workflows
+  - Web App = **ADMIN ONLY** (5 pages: Projects, Gates, Evidence, Team, Settings)
+  - VSCode Extension = **FROZEN** (bug fixes only)
 
 **Changelog v3.2.0** (Jan 30, 2026):
 - **SDLC 6.1.0 Migration**: Framework upgraded from 5.1.3 → 6.0.5

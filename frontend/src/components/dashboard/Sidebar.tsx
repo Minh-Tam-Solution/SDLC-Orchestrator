@@ -15,7 +15,26 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 
+// Sprint 190 — Conversation-First Interface Strategy (CEO directive)
+// FEATURE_FLAG_LEGACY_DASHBOARD: when false (default), only show 5 admin pages
+// Set NEXT_PUBLIC_FEATURE_FLAG_LEGACY_DASHBOARD=true to show all pages
+const SHOW_LEGACY_DASHBOARD =
+  process.env.NEXT_PUBLIC_FEATURE_FLAG_LEGACY_DASHBOARD === "true";
+
+// Core admin pages (always visible) — Sprint 190 Day 5
+const CORE_ADMIN_HREFS = new Set([
+  "/app",              // Dashboard home
+  "/app/notifications",
+  "/app/projects",     // 1. Projects
+  "/app/teams",        // 4. Team
+  "/app/organizations",// 4. Team (orgs)
+  "/app/gates",        // 2. Gates
+  "/app/evidence",     // 3. Evidence
+  "/app/policies",
+]);
+
 // Navigation items configuration - Updated for /app/* routes (Sprint 85)
+// Sprint 190: items tagged as core vs legacy for feature-flag filtering
 const navigationItems = [
   {
     name: "Dashboard",
@@ -117,17 +136,8 @@ const navigationItems = [
     href: "/app/codegen",
     icon: CodeBracketIcon,
   },
-  {
-    name: "SOP Generator",
-    href: "/app/sop-generator",
-    icon: ClipboardDocumentListIcon,
-  },
-  // Sprint 154: Spec Converter (Visual Editor for specs)
-  {
-    name: "Spec Converter",
-    href: "/app/spec-converter",
-    icon: SpecConverterIcon,
-  },
+  // Sprint 190: SOP Generator route deleted — nav item hidden
+  // Sprint 190: Spec Converter route deleted — nav item hidden
   // Sprint 175: Analytics & Planning (Hidden pages integration)
   {
     name: "CEO Dashboard",
@@ -149,12 +159,14 @@ const navigationItems = [
     href: "/app/plan-review",
     icon: ClipboardCheckIcon,
   },
-  {
-    name: "Learnings",
-    href: "/app/learnings",
-    icon: AcademicCapIcon,
-  },
-];
+  // Sprint 190: Learnings route deleted — nav item hidden
+].filter((item) => {
+  // Sprint 190: When legacy dashboard is OFF, only show core admin pages
+  if (!SHOW_LEGACY_DASHBOARD && !CORE_ADMIN_HREFS.has(item.href)) {
+    return false;
+  }
+  return true;
+});
 
 // Admin items moved to inline conditional rendering (Sprint 69)
 // Admin Panel only shown to superusers

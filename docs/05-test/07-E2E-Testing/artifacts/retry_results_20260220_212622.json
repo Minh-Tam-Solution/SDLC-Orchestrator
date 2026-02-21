@@ -1,0 +1,2262 @@
+[
+  {
+    "stt": 1,
+    "method": "GET",
+    "path": "/api/v1/planning/roadmaps",
+    "label": "FIX: planning roadmaps with project_id",
+    "status": "PASS",
+    "code": 200,
+    "elapsed_ms": 10,
+    "request_body": null,
+    "params": {
+      "project_id": "d1383f03-5923-43ce-b015-443a2cf66044"
+    },
+    "response": {
+      "items": [],
+      "total": 0,
+      "page": 1,
+      "page_size": 20,
+      "has_next": false
+    }
+  },
+  {
+    "stt": 2,
+    "method": "GET",
+    "path": "/api/v1/planning/sprints",
+    "label": "FIX: planning sprints with project_id",
+    "status": "PASS",
+    "code": 200,
+    "elapsed_ms": 6,
+    "request_body": null,
+    "params": {
+      "project_id": "d1383f03-5923-43ce-b015-443a2cf66044"
+    },
+    "response": {
+      "items": [],
+      "total": 0,
+      "page": 1,
+      "page_size": 20,
+      "has_next": false
+    }
+  },
+  {
+    "stt": 3,
+    "method": "GET",
+    "path": "/api/v1/planning/backlog",
+    "label": "FIX: planning backlog with project_id",
+    "status": "PASS",
+    "code": 200,
+    "elapsed_ms": 11,
+    "request_body": null,
+    "params": {
+      "project_id": "d1383f03-5923-43ce-b015-443a2cf66044"
+    },
+    "response": {
+      "items": [],
+      "total": 0,
+      "page": 1,
+      "page_size": 50,
+      "has_next": false,
+      "total_points": 0,
+      "p0_count": 0,
+      "p1_count": 0,
+      "p2_count": 0
+    }
+  },
+  {
+    "stt": 4,
+    "method": "GET",
+    "path": "/api/v1/planning/phases",
+    "label": "FIX: planning phases with roadmap_id",
+    "status": "SERVER_ERROR",
+    "code": 500,
+    "elapsed_ms": 17,
+    "request_body": null,
+    "params": {
+      "roadmap_id": "00000000-0000-0000-0000-000000000001"
+    },
+    "response": "Internal Server Error"
+  },
+  {
+    "stt": 5,
+    "method": "GET",
+    "path": "/api/v1/evidence-manifests",
+    "label": "FIX: evidence-manifests with project_id",
+    "status": "PASS",
+    "code": 200,
+    "elapsed_ms": 9,
+    "request_body": null,
+    "params": {
+      "project_id": "d1383f03-5923-43ce-b015-443a2cf66044"
+    },
+    "response": {
+      "total": 0,
+      "manifests": []
+    }
+  },
+  {
+    "stt": 6,
+    "method": "POST",
+    "path": "/api/v1/auth/register",
+    "label": "FIX: register with full_name",
+    "status": "VALIDATION_ERROR",
+    "code": 422,
+    "elapsed_ms": 2,
+    "request_body": {
+      "email": "e2e_retry@sdlc.test",
+      "password": "E2eRetry@123456",
+      "full_name": "E2E Retry Tester"
+    },
+    "params": null,
+    "response": {
+      "detail": [
+        {
+          "type": "value_error",
+          "loc": [
+            "body",
+            "email"
+          ],
+          "msg": "value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.",
+          "input": "e2e_retry@sdlc.test",
+          "ctx": {
+            "reason": "The part after the @-sign is a special-use or reserved name that cannot be used with email."
+          }
+        }
+      ],
+      "body": "{'email': 'e2e_retry@sdlc.test', 'password': 'E2eRetry@123456', 'full_name': 'E2E Retry Tester'}"
+    }
+  },
+  {
+    "stt": 7,
+    "method": "GET",
+    "path": "/api/v1/payments/subscriptions/me",
+    "label": "My subscription (spec path)",
+    "status": "NOT_FOUND",
+    "code": 404,
+    "elapsed_ms": 10,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "detail": "No subscription found"
+    }
+  },
+  {
+    "stt": 8,
+    "method": "GET",
+    "path": "/api/v1/payments/d1383f03-5923-43ce-b015-443a2cf66044",
+    "label": "Payment by txn ref",
+    "status": "PASS",
+    "code": 404,
+    "elapsed_ms": 9,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "detail": "Payment not found"
+    }
+  },
+  {
+    "stt": 9,
+    "method": "GET",
+    "path": "/api/v1/compliance/scans/d1383f03-5923-43ce-b015-443a2cf66044",
+    "label": "Compliance scans for project",
+    "status": "FAIL",
+    "code": 405,
+    "elapsed_ms": 1,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "detail": "Method Not Allowed"
+    }
+  },
+  {
+    "stt": 10,
+    "method": "GET",
+    "path": "/api/v1/compliance/violations/d1383f03-5923-43ce-b015-443a2cf66044",
+    "label": "Compliance violations",
+    "status": "UNAUTHORIZED",
+    "code": 403,
+    "elapsed_ms": 5,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "detail": "Access denied. You are not a member of this project."
+    }
+  },
+  {
+    "stt": 11,
+    "method": "GET",
+    "path": "/api/v1/compliance/ai/models",
+    "label": "AI compliance models",
+    "status": "PASS",
+    "code": 200,
+    "elapsed_ms": 4,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "models": [],
+      "default_model": "qwen3:32b",
+      "ollama_url": ""
+    }
+  },
+  {
+    "stt": 12,
+    "method": "GET",
+    "path": "/api/v1/compliance/ai/budget",
+    "label": "AI compliance budget",
+    "status": "PASS",
+    "code": 200,
+    "elapsed_ms": 7,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "month": "2026-02",
+      "total_spent": 0.0,
+      "budget": 500.0,
+      "remaining": 500.0,
+      "percentage_used": 0.0,
+      "by_provider": {},
+      "alerts": []
+    }
+  },
+  {
+    "stt": 13,
+    "method": "GET",
+    "path": "/api/v1/compliance/queue/status",
+    "label": "Compliance queue status",
+    "status": "PASS",
+    "code": 200,
+    "elapsed_ms": 6,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "pending": 0,
+      "running": 0,
+      "completed": 0,
+      "failed": 0,
+      "total_jobs": 0
+    }
+  },
+  {
+    "stt": 14,
+    "method": "GET",
+    "path": "/api/v1/admin/audit-logs",
+    "label": "Admin audit logs",
+    "status": "PASS",
+    "code": 200,
+    "elapsed_ms": 7,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "items": [
+        {
+          "id": "129e8bf9-bd85-451a-813c-2b6c9365b215",
+          "timestamp": "2026-02-20T14:23:28.722501",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "login_method": "password"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "779d1fdb-c081-455b-b0b6-c9aeb6de8d16",
+          "timestamp": "2026-02-20T14:23:07.118127",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "631a5b2a-03e2-4847-987b-89dd3b8a8f7a",
+          "timestamp": "2026-02-20T14:21:17.206911",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "b7339e78-f587-48e8-8b2f-0661eea61dd2",
+          "timestamp": "2026-02-20T14:21:17.201894",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "e4248ef2-e995-44fa-bfe5-51c1124496a1",
+          "timestamp": "2026-02-20T14:21:17.196762",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "3a474b63-0bc7-4758-99b5-0fd6da9179cc",
+          "timestamp": "2026-02-20T14:21:17.190444",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "d70eda87-4b9c-4400-bd46-9bebbb401b6a",
+          "timestamp": "2026-02-20T14:21:17.185397",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "b2739e5b-0c0e-4d50-bcad-656a0e8e816b",
+          "timestamp": "2026-02-20T14:21:17.179859",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "14ddf46d-7806-4136-b1a6-dde340c5a7bb",
+          "timestamp": "2026-02-20T14:21:17.173882",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "58827568-edff-4353-a248-2072138dd2f2",
+          "timestamp": "2026-02-20T14:21:17.166688",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "1d32e0fb-3100-4431-84be-38ce2d800989",
+          "timestamp": "2026-02-20T14:21:17.158846",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "e173c8b5-6a7e-4e9b-b2a0-e6bbdaa80648",
+          "timestamp": "2026-02-20T14:21:12.424217",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "40165caa-0e56-43a2-b8eb-1ae1b1950230",
+          "timestamp": "2026-02-20T14:21:12.398166",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "max_attempts_exceeded",
+            "failed_login_count": 5
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "9dcd127f-2b55-4ffa-a328-3b1c2b6b923e",
+          "timestamp": "2026-02-20T14:21:12.210383",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "bddcd90c-0559-42dd-a7c8-e576631d9b71",
+          "timestamp": "2026-02-20T14:21:12.023475",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "969dd9ef-46b1-48a7-8bb7-402bc1147bb9",
+          "timestamp": "2026-02-20T14:20:55.450020",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "e5b298a7-e6c6-47a5-b9ea-eb6021e27d8f",
+          "timestamp": "2026-02-20T14:20:52.264193",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "543836ae-b059-49d2-9dbc-cb955059398d",
+          "timestamp": "2026-02-16T18:32:41.199215",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "14.169.44.112"
+        },
+        {
+          "id": "f135d544-0965-4cda-aa03-ac39fdddf499",
+          "timestamp": "2026-02-16T16:24:45.811160",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "14.169.44.112"
+        },
+        {
+          "id": "8dff23b9-ae32-4975-983e-2d54140c7d7f",
+          "timestamp": "2026-02-15T13:18:39.891235",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "14.169.44.112"
+        },
+        {
+          "id": "7bc97599-f5c6-488c-ba26-46e2b9864ce0",
+          "timestamp": "2026-02-13T09:30:08.613737",
+          "action": "USER_LOGIN",
+          "actor_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "actor_email": "haniz.cons@gmail.com",
+          "target_type": "user",
+          "target_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "target_name": null,
+          "details": {
+            "email": "haniz.cons@gmail.com",
+            "login_method": "oauth_github"
+          },
+          "ip_address": "171.243.48.241"
+        },
+        {
+          "id": "155ee57b-9c71-43cd-b8c9-040dc7e9806a",
+          "timestamp": "2026-02-13T08:50:57.446402",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "admin@sop-generator.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "171.243.48.241"
+        },
+        {
+          "id": "92d622c3-ed41-41da-87b1-de39e7c70095",
+          "timestamp": "2026-02-13T08:50:56.652583",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "admin@sop-generator.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "171.243.48.241"
+        },
+        {
+          "id": "78f9a69e-e685-46b2-9e27-775b88e1e775",
+          "timestamp": "2026-02-13T08:50:55.589305",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "admin@sop-generator.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "171.243.48.241"
+        },
+        {
+          "id": "7d55fed5-5562-4cf6-b9c4-e6b306f71a26",
+          "timestamp": "2026-02-13T08:50:34.725543",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "admin@sop-generator.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "171.243.48.241"
+        },
+        {
+          "id": "1522e6da-3351-4be5-87b2-d0dd50973ec2",
+          "timestamp": "2026-02-13T07:18:49.500728",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "admin@sdlc-orchestrator.io",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "118.69.65.108"
+        },
+        {
+          "id": "25b61825-5567-43f6-96f5-e895472103a4",
+          "timestamp": "2026-02-13T07:18:45.390996",
+          "action": "USER_LOGOUT",
+          "actor_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "actor_email": "haniz.cons@gmail.com",
+          "target_type": "user",
+          "target_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "target_name": null,
+          "details": {
+            "email": "haniz.cons@gmail.com"
+          },
+          "ip_address": "118.69.65.108"
+        },
+        {
+          "id": "c4f7adca-24ac-4e05-aac2-cad6ef8b049a",
+          "timestamp": "2026-02-13T04:36:51.821983",
+          "action": "USER_LOGIN",
+          "actor_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "actor_email": "haniz.cons@gmail.com",
+          "target_type": "user",
+          "target_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "target_name": null,
+          "details": {
+            "email": "haniz.cons@gmail.com",
+            "login_method": "oauth_github"
+          },
+          "ip_address": "118.69.65.108"
+        },
+        {
+          "id": "538d7d73-fc90-4a8c-b056-67d4ebaeb051",
+          "timestamp": "2026-02-13T04:36:51.813580",
+          "action": "USER_CREATED",
+          "actor_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "actor_email": "haniz.cons@gmail.com",
+          "target_type": "user",
+          "target_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "target_name": null,
+          "details": {
+            "email": "haniz.cons@gmail.com",
+            "registration_method": "oauth_github"
+          },
+          "ip_address": "118.69.65.108"
+        },
+        {
+          "id": "51ef5d48-7947-46a6-8eb5-4d88bc199a87",
+          "timestamp": "2026-02-13T04:36:13.856017",
+          "action": "USER_LOGOUT",
+          "actor_id": "8ffd87f5-a201-4403-8607-c5a8c3b1fa8c",
+          "actor_email": "nguyenlequocanh.sec@gmail.com",
+          "target_type": "user",
+          "target_id": "8ffd87f5-a201-4403-8607-c5a8c3b1fa8c",
+          "target_name": null,
+          "details": {
+            "email": "nguyenlequocanh.sec@gmail.com"
+          },
+          "ip_address": "118.69.65.108"
+        },
+        {
+          "id": "6c96d524-8992-43dc-8363-a886d8feedeb",
+          "timestamp": "2026-02-13T04:35:26.135679",
+          "action": "USER_LOGIN",
+          "actor_id": "8ffd87f5-a201-4403-8607-c5a8c3b1fa8c",
+          "actor_email": "nguyenlequocanh.sec@gmail.com",
+          "target_type": "user",
+          "target_id": "8ffd87f5-a201-4403-8607-c5a8c3b1fa8c",
+          "target_name": null,
+          "details": {
+            "email": "nguyenlequocanh.sec@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "118.69.65.108"
+        },
+        {
+          "id": "3dfa5505-461b-4b3d-9de9-b01a319906df",
+          "timestamp": "2026-02-13T04:35:26.071997",
+          "action": "USER_CREATED",
+          "actor_id": "8ffd87f5-a201-4403-8607-c5a8c3b1fa8c",
+          "actor_email": "nguyenlequocanh.sec@gmail.com",
+          "target_type": "user",
+          "target_id": "8ffd87f5-a201-4403-8607-c5a8c3b1fa8c",
+          "target_name": null,
+          "details": {
+            "email": "nguyenlequocanh.sec@gmail.com",
+            "registration_method": "oauth_google"
+          },
+          "ip_address": "118.69.65.108"
+        },
+        {
+          "id": "23d53ce8-703d-4eb5-82b7-14f2e5fed2a1",
+          "timestamp": "2026-02-11T14:47:35.913303",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "14.169.44.112"
+        },
+        {
+          "id": "cee8d939-8d5b-4414-8958-e90c896e4b65",
+          "timestamp": "2026-02-11T10:39:26.378800",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "192.168.2.1"
+        },
+        {
+          "id": "28c78fd0-97fb-45f0-8f42-2e4b24483b03",
+          "timestamp": "2026-02-11T04:51:45.881041",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "192.168.2.1"
+        },
+        {
+          "id": "a5d1fefb-d335-4efc-b428-56037c8839f0",
+          "timestamp": "2026-02-11T02:22:15.095890",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "192.168.2.1"
+        },
+        {
+          "id": "26a1ce33-03ae-4866-a3dd-0eb59fc3bf1a",
+          "timestamp": "2026-02-10T10:58:38.823868",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "login_method": "password"
+          },
+          "ip_address": "192.168.2.1"
+        },
+        {
+          "id": "4940b5a9-5279-4503-9737-80f83eb87bd7",
+          "timestamp": "2026-02-07T13:12:20.526079",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "116.105.52.3"
+        },
+        {
+          "id": "fcddbcff-a528-420c-b0bb-1b222c9cc39b",
+          "timestamp": "2026-02-07T13:11:58.141502",
+          "action": "USER_LOGOUT",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn"
+          },
+          "ip_address": "116.105.52.3"
+        },
+        {
+          "id": "367de100-d2ac-437e-baa3-7650cab0d8ce",
+          "timestamp": "2026-02-07T13:07:47.660042",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "login_method": "password"
+          },
+          "ip_address": "116.105.52.3"
+        },
+        {
+          "id": "abe5c4f8-9a84-4238-8f76-a9f0c563d37f",
+          "timestamp": "2026-02-07T00:39:38.393810",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "login_method": "password"
+          },
+          "ip_address": "116.105.52.3"
+        },
+        {
+          "id": "a75c5703-ee53-409c-bf35-12c95c4c4128",
+          "timestamp": "2026-02-06T02:56:44.618890",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "login_method": "password"
+          },
+          "ip_address": "116.98.68.103"
+        },
+        {
+          "id": "5f565030-83c2-4857-8e70-e2cfeb7e8238",
+          "timestamp": "2026-02-06T00:26:57.044837",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "login_method": "password"
+          },
+          "ip_address": "116.98.68.103"
+        },
+        {
+          "id": "7eaf8dfa-80be-41de-9ef5-f15b2dd1e7a2",
+          "timestamp": "2026-02-06T00:26:52.902607",
+          "action": "USER_LOGOUT",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn"
+          },
+          "ip_address": "116.98.68.103"
+        },
+        {
+          "id": "af184da0-d531-40fa-b641-51250866b01a",
+          "timestamp": "2026-02-06T00:26:26.254998",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "127.0.0.1"
+        },
+        {
+          "id": "8b5d2fd0-7225-4471-8fc6-336bd5dc7463",
+          "timestamp": "2026-02-06T00:26:20.045686",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "dvhiep@nqh.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "127.0.0.1"
+        },
+        {
+          "id": "9c7f7f6e-6e18-49db-9ea0-b4eba417ad79",
+          "timestamp": "2026-02-06T00:26:14.422035",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "dvhiep@nqh.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "127.0.0.1"
+        },
+        {
+          "id": "362d45bf-fb39-4d2c-8d74-daa542b18ce0",
+          "timestamp": "2026-02-06T00:15:37.652554",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "login_method": "password"
+          },
+          "ip_address": "116.98.68.103"
+        },
+        {
+          "id": "afb2139a-a98e-4902-a50e-1f57922fed2a",
+          "timestamp": "2026-02-06T00:15:30.309563",
+          "action": "USER_LOGOUT",
+          "actor_id": "a0000000-0000-0000-0000-000000000001",
+          "actor_email": "admin@sdlc-orchestrator.io",
+          "target_type": "user",
+          "target_id": "a0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "admin@sdlc-orchestrator.io"
+          },
+          "ip_address": "116.98.68.103"
+        },
+        {
+          "id": "0d8dc219-3f57-4fef-88d1-c14fa53a70c0",
+          "timestamp": "2026-02-06T00:13:08.729637",
+          "action": "USER_UPDATED",
+          "actor_id": "a0000000-0000-0000-0000-000000000001",
+          "actor_email": "admin@sdlc-orchestrator.io",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": "taidt@mtsolution.com.vn",
+          "details": {
+            "changes": {
+              "password": "reset"
+            },
+            "updated_by": "admin@sdlc-orchestrator.io"
+          },
+          "ip_address": "116.98.68.103"
+        }
+      ],
+      "total": 57,
+      "page": 1,
+      "page_size": 50,
+      "pages": 2
+    }
+  },
+  {
+    "stt": 15,
+    "method": "GET",
+    "path": "/api/v1/admin/audit-logs",
+    "label": "Admin audit logs paginated",
+    "status": "PASS",
+    "code": 200,
+    "elapsed_ms": 5,
+    "request_body": null,
+    "params": {
+      "page": 1,
+      "limit": 10
+    },
+    "response": {
+      "items": [
+        {
+          "id": "129e8bf9-bd85-451a-813c-2b6c9365b215",
+          "timestamp": "2026-02-20T14:23:28.722501",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "login_method": "password"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "779d1fdb-c081-455b-b0b6-c9aeb6de8d16",
+          "timestamp": "2026-02-20T14:23:07.118127",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "631a5b2a-03e2-4847-987b-89dd3b8a8f7a",
+          "timestamp": "2026-02-20T14:21:17.206911",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "b7339e78-f587-48e8-8b2f-0661eea61dd2",
+          "timestamp": "2026-02-20T14:21:17.201894",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "e4248ef2-e995-44fa-bfe5-51c1124496a1",
+          "timestamp": "2026-02-20T14:21:17.196762",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "3a474b63-0bc7-4758-99b5-0fd6da9179cc",
+          "timestamp": "2026-02-20T14:21:17.190444",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "d70eda87-4b9c-4400-bd46-9bebbb401b6a",
+          "timestamp": "2026-02-20T14:21:17.185397",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "b2739e5b-0c0e-4d50-bcad-656a0e8e816b",
+          "timestamp": "2026-02-20T14:21:17.179859",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "14ddf46d-7806-4136-b1a6-dde340c5a7bb",
+          "timestamp": "2026-02-20T14:21:17.173882",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "58827568-edff-4353-a248-2072138dd2f2",
+          "timestamp": "2026-02-20T14:21:17.166688",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "1d32e0fb-3100-4431-84be-38ce2d800989",
+          "timestamp": "2026-02-20T14:21:17.158846",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "e173c8b5-6a7e-4e9b-b2a0-e6bbdaa80648",
+          "timestamp": "2026-02-20T14:21:12.424217",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "account_locked"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "40165caa-0e56-43a2-b8eb-1ae1b1950230",
+          "timestamp": "2026-02-20T14:21:12.398166",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "locked_until": "2026-02-20T14:51:12.389441+00:00",
+            "failure_reason": "max_attempts_exceeded",
+            "failed_login_count": 5
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "9dcd127f-2b55-4ffa-a328-3b1c2b6b923e",
+          "timestamp": "2026-02-20T14:21:12.210383",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "bddcd90c-0559-42dd-a7c8-e576631d9b71",
+          "timestamp": "2026-02-20T14:21:12.023475",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "969dd9ef-46b1-48a7-8bb7-402bc1147bb9",
+          "timestamp": "2026-02-20T14:20:55.450020",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "e5b298a7-e6c6-47a5-b9ea-eb6021e27d8f",
+          "timestamp": "2026-02-20T14:20:52.264193",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "172.22.0.1"
+        },
+        {
+          "id": "543836ae-b059-49d2-9dbc-cb955059398d",
+          "timestamp": "2026-02-16T18:32:41.199215",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "14.169.44.112"
+        },
+        {
+          "id": "f135d544-0965-4cda-aa03-ac39fdddf499",
+          "timestamp": "2026-02-16T16:24:45.811160",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "14.169.44.112"
+        },
+        {
+          "id": "8dff23b9-ae32-4975-983e-2d54140c7d7f",
+          "timestamp": "2026-02-15T13:18:39.891235",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "14.169.44.112"
+        },
+        {
+          "id": "7bc97599-f5c6-488c-ba26-46e2b9864ce0",
+          "timestamp": "2026-02-13T09:30:08.613737",
+          "action": "USER_LOGIN",
+          "actor_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "actor_email": "haniz.cons@gmail.com",
+          "target_type": "user",
+          "target_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "target_name": null,
+          "details": {
+            "email": "haniz.cons@gmail.com",
+            "login_method": "oauth_github"
+          },
+          "ip_address": "171.243.48.241"
+        },
+        {
+          "id": "155ee57b-9c71-43cd-b8c9-040dc7e9806a",
+          "timestamp": "2026-02-13T08:50:57.446402",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "admin@sop-generator.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "171.243.48.241"
+        },
+        {
+          "id": "92d622c3-ed41-41da-87b1-de39e7c70095",
+          "timestamp": "2026-02-13T08:50:56.652583",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "admin@sop-generator.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "171.243.48.241"
+        },
+        {
+          "id": "78f9a69e-e685-46b2-9e27-775b88e1e775",
+          "timestamp": "2026-02-13T08:50:55.589305",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "admin@sop-generator.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "171.243.48.241"
+        },
+        {
+          "id": "7d55fed5-5562-4cf6-b9c4-e6b306f71a26",
+          "timestamp": "2026-02-13T08:50:34.725543",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "admin@sop-generator.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "171.243.48.241"
+        },
+        {
+          "id": "1522e6da-3351-4be5-87b2-d0dd50973ec2",
+          "timestamp": "2026-02-13T07:18:49.500728",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "admin@sdlc-orchestrator.io",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "118.69.65.108"
+        },
+        {
+          "id": "25b61825-5567-43f6-96f5-e895472103a4",
+          "timestamp": "2026-02-13T07:18:45.390996",
+          "action": "USER_LOGOUT",
+          "actor_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "actor_email": "haniz.cons@gmail.com",
+          "target_type": "user",
+          "target_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "target_name": null,
+          "details": {
+            "email": "haniz.cons@gmail.com"
+          },
+          "ip_address": "118.69.65.108"
+        },
+        {
+          "id": "c4f7adca-24ac-4e05-aac2-cad6ef8b049a",
+          "timestamp": "2026-02-13T04:36:51.821983",
+          "action": "USER_LOGIN",
+          "actor_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "actor_email": "haniz.cons@gmail.com",
+          "target_type": "user",
+          "target_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "target_name": null,
+          "details": {
+            "email": "haniz.cons@gmail.com",
+            "login_method": "oauth_github"
+          },
+          "ip_address": "118.69.65.108"
+        },
+        {
+          "id": "538d7d73-fc90-4a8c-b056-67d4ebaeb051",
+          "timestamp": "2026-02-13T04:36:51.813580",
+          "action": "USER_CREATED",
+          "actor_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "actor_email": "haniz.cons@gmail.com",
+          "target_type": "user",
+          "target_id": "00cf1267-18a7-41d2-ad1d-0ef3ede26162",
+          "target_name": null,
+          "details": {
+            "email": "haniz.cons@gmail.com",
+            "registration_method": "oauth_github"
+          },
+          "ip_address": "118.69.65.108"
+        },
+        {
+          "id": "51ef5d48-7947-46a6-8eb5-4d88bc199a87",
+          "timestamp": "2026-02-13T04:36:13.856017",
+          "action": "USER_LOGOUT",
+          "actor_id": "8ffd87f5-a201-4403-8607-c5a8c3b1fa8c",
+          "actor_email": "nguyenlequocanh.sec@gmail.com",
+          "target_type": "user",
+          "target_id": "8ffd87f5-a201-4403-8607-c5a8c3b1fa8c",
+          "target_name": null,
+          "details": {
+            "email": "nguyenlequocanh.sec@gmail.com"
+          },
+          "ip_address": "118.69.65.108"
+        },
+        {
+          "id": "6c96d524-8992-43dc-8363-a886d8feedeb",
+          "timestamp": "2026-02-13T04:35:26.135679",
+          "action": "USER_LOGIN",
+          "actor_id": "8ffd87f5-a201-4403-8607-c5a8c3b1fa8c",
+          "actor_email": "nguyenlequocanh.sec@gmail.com",
+          "target_type": "user",
+          "target_id": "8ffd87f5-a201-4403-8607-c5a8c3b1fa8c",
+          "target_name": null,
+          "details": {
+            "email": "nguyenlequocanh.sec@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "118.69.65.108"
+        },
+        {
+          "id": "3dfa5505-461b-4b3d-9de9-b01a319906df",
+          "timestamp": "2026-02-13T04:35:26.071997",
+          "action": "USER_CREATED",
+          "actor_id": "8ffd87f5-a201-4403-8607-c5a8c3b1fa8c",
+          "actor_email": "nguyenlequocanh.sec@gmail.com",
+          "target_type": "user",
+          "target_id": "8ffd87f5-a201-4403-8607-c5a8c3b1fa8c",
+          "target_name": null,
+          "details": {
+            "email": "nguyenlequocanh.sec@gmail.com",
+            "registration_method": "oauth_google"
+          },
+          "ip_address": "118.69.65.108"
+        },
+        {
+          "id": "23d53ce8-703d-4eb5-82b7-14f2e5fed2a1",
+          "timestamp": "2026-02-11T14:47:35.913303",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "14.169.44.112"
+        },
+        {
+          "id": "cee8d939-8d5b-4414-8958-e90c896e4b65",
+          "timestamp": "2026-02-11T10:39:26.378800",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "192.168.2.1"
+        },
+        {
+          "id": "28c78fd0-97fb-45f0-8f42-2e4b24483b03",
+          "timestamp": "2026-02-11T04:51:45.881041",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "192.168.2.1"
+        },
+        {
+          "id": "a5d1fefb-d335-4efc-b428-56037c8839f0",
+          "timestamp": "2026-02-11T02:22:15.095890",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "192.168.2.1"
+        },
+        {
+          "id": "26a1ce33-03ae-4866-a3dd-0eb59fc3bf1a",
+          "timestamp": "2026-02-10T10:58:38.823868",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "login_method": "password"
+          },
+          "ip_address": "192.168.2.1"
+        },
+        {
+          "id": "4940b5a9-5279-4503-9737-80f83eb87bd7",
+          "timestamp": "2026-02-07T13:12:20.526079",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000004",
+          "actor_email": "dangtt1971@gmail.com",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000004",
+          "target_name": null,
+          "details": {
+            "email": "dangtt1971@gmail.com",
+            "login_method": "oauth_google"
+          },
+          "ip_address": "116.105.52.3"
+        },
+        {
+          "id": "fcddbcff-a528-420c-b0bb-1b222c9cc39b",
+          "timestamp": "2026-02-07T13:11:58.141502",
+          "action": "USER_LOGOUT",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn"
+          },
+          "ip_address": "116.105.52.3"
+        },
+        {
+          "id": "367de100-d2ac-437e-baa3-7650cab0d8ce",
+          "timestamp": "2026-02-07T13:07:47.660042",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "login_method": "password"
+          },
+          "ip_address": "116.105.52.3"
+        },
+        {
+          "id": "abe5c4f8-9a84-4238-8f76-a9f0c563d37f",
+          "timestamp": "2026-02-07T00:39:38.393810",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "login_method": "password"
+          },
+          "ip_address": "116.105.52.3"
+        },
+        {
+          "id": "a75c5703-ee53-409c-bf35-12c95c4c4128",
+          "timestamp": "2026-02-06T02:56:44.618890",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "login_method": "password"
+          },
+          "ip_address": "116.98.68.103"
+        },
+        {
+          "id": "5f565030-83c2-4857-8e70-e2cfeb7e8238",
+          "timestamp": "2026-02-06T00:26:57.044837",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "login_method": "password"
+          },
+          "ip_address": "116.98.68.103"
+        },
+        {
+          "id": "7eaf8dfa-80be-41de-9ef5-f15b2dd1e7a2",
+          "timestamp": "2026-02-06T00:26:52.902607",
+          "action": "USER_LOGOUT",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn"
+          },
+          "ip_address": "116.98.68.103"
+        },
+        {
+          "id": "af184da0-d531-40fa-b641-51250866b01a",
+          "timestamp": "2026-02-06T00:26:26.254998",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "127.0.0.1"
+        },
+        {
+          "id": "8b5d2fd0-7225-4471-8fc6-336bd5dc7463",
+          "timestamp": "2026-02-06T00:26:20.045686",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "dvhiep@nqh.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "127.0.0.1"
+        },
+        {
+          "id": "9c7f7f6e-6e18-49db-9ea0-b4eba417ad79",
+          "timestamp": "2026-02-06T00:26:14.422035",
+          "action": "USER_LOGIN_FAILED",
+          "actor_id": null,
+          "actor_email": null,
+          "target_type": null,
+          "target_id": null,
+          "target_name": null,
+          "details": {
+            "email": "dvhiep@nqh.com.vn",
+            "failure_reason": "invalid_credentials"
+          },
+          "ip_address": "127.0.0.1"
+        },
+        {
+          "id": "362d45bf-fb39-4d2c-8d74-daa542b18ce0",
+          "timestamp": "2026-02-06T00:15:37.652554",
+          "action": "USER_LOGIN",
+          "actor_id": "b0000000-0000-0000-0000-000000000001",
+          "actor_email": "taidt@mtsolution.com.vn",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "taidt@mtsolution.com.vn",
+            "login_method": "password"
+          },
+          "ip_address": "116.98.68.103"
+        },
+        {
+          "id": "afb2139a-a98e-4902-a50e-1f57922fed2a",
+          "timestamp": "2026-02-06T00:15:30.309563",
+          "action": "USER_LOGOUT",
+          "actor_id": "a0000000-0000-0000-0000-000000000001",
+          "actor_email": "admin@sdlc-orchestrator.io",
+          "target_type": "user",
+          "target_id": "a0000000-0000-0000-0000-000000000001",
+          "target_name": null,
+          "details": {
+            "email": "admin@sdlc-orchestrator.io"
+          },
+          "ip_address": "116.98.68.103"
+        },
+        {
+          "id": "0d8dc219-3f57-4fef-88d1-c14fa53a70c0",
+          "timestamp": "2026-02-06T00:13:08.729637",
+          "action": "USER_UPDATED",
+          "actor_id": "a0000000-0000-0000-0000-000000000001",
+          "actor_email": "admin@sdlc-orchestrator.io",
+          "target_type": "user",
+          "target_id": "b0000000-0000-0000-0000-000000000001",
+          "target_name": "taidt@mtsolution.com.vn",
+          "details": {
+            "changes": {
+              "password": "reset"
+            },
+            "updated_by": "admin@sdlc-orchestrator.io"
+          },
+          "ip_address": "116.98.68.103"
+        }
+      ],
+      "total": 57,
+      "page": 1,
+      "page_size": 50,
+      "pages": 2
+    }
+  },
+  {
+    "stt": 16,
+    "method": "GET",
+    "path": "/api/v1/agents-md/d1383f03-5923-43ce-b015-443a2cf66044",
+    "label": "AGENTS.md for project",
+    "status": "PASS",
+    "code": 404,
+    "elapsed_ms": 5,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "detail": "No AGENTS.md found for project d1383f03-5923-43ce-b015-443a2cf66044. Generate one first."
+    }
+  },
+  {
+    "stt": 17,
+    "method": "GET",
+    "path": "/api/v1/agents-md/context/d1383f03-5923-43ce-b015-443a2cf66044",
+    "label": "AGENTS.md context",
+    "status": "PASS",
+    "code": 200,
+    "elapsed_ms": 10,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "id": "64fca992-0255-4f36-946f-1292afd8999c",
+      "project_id": "d1383f03-5923-43ce-b015-443a2cf66044",
+      "generated_at": "2026-02-20T14:26:22.366695",
+      "stage_name": "Stage 00 (DISCOVER)",
+      "gate_status": "No gates evaluated",
+      "sprint": null,
+      "constraints": [
+        {
+          "type": "agpl",
+          "severity": "info",
+          "message": "AGPL: MinIO/Grafana network-only access (no SDK imports)",
+          "affected_files": []
+        }
+      ],
+      "strict_mode": false,
+      "formatted": {
+        "pr_comment": "<!-- SDLC-CONTEXT-START -->\n## \ud83c\udfaf SDLC Context (Feb 20, 2026 14:26 UTC)\n\n| Stage | Gate | Sprint |\n|-------|------|--------|\n| Stage 00 (DISCOVER) | No gates evaluated | N/A |\n\n### Active Constraints\n- \u2139\ufe0f **Agpl**: AGPL: MinIO/Grafana network-only access (no SDK imports)\n\n---\n*Generated by [SDLC Orchestrator](https://sdlc.dev) \u2022 [View Dashboard](#)*\n<!-- SDLC-CONTEXT-END -->",
+        "cli": "\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                   SDLC CONTEXT                          \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502  \ud83d\udccd Stage: Stage 00 (DISCOVER)                           \u2502\n\u2502  \ud83d\udeaa Gate:  No gates evaluated                            \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502  \ud83d\udccb Constraints:                                         \u2502\n\u2502    \u2139\ufe0f AGPL: MinIO/Grafana network-only access (no SDK...  \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+        "check_run": "<!-- SDLC-CONTEXT-START -->\n## \ud83c\udfaf SDLC Context (Feb 20, 2026 14:26 UTC)\n\n| Stage | Gate | Sprint |\n|-------|------|--------|\n| Stage 00 (DISCOVER) | No gates evaluated | N/A |\n\n### Active Constraints\n- \u2139\ufe0f **Agpl**: AGPL: MinIO/Grafana network-only access (no SDK imports)\n\n---\n*Generated by [SDLC Orchestrator](https://sdlc.dev) \u2022 [View Dashboard](#)*\n<!-- SDLC-CONTEXT-END -->",
+        "vscode": {
+          "type": "sdlc_context",
+          "version": "1.0.0",
+          "data": {
+            "stage": {
+              "name": "Stage 00 (DISCOVER)",
+              "gate": "No gates evaluated",
+              "strict_mode": false
+            },
+            "sprint": null,
+            "constraints": [
+              {
+                "type": "agpl",
+                "severity": "info",
+                "message": "AGPL: MinIO/Grafana network-only access (no SDK imports)",
+                "icon": "info"
+              }
+            ]
+          },
+          "generated_at": "2026-02-20T14:26:22.366695"
+        },
+        "json": {
+          "id": "64fca992-0255-4f36-946f-1292afd8999c",
+          "project_id": "d1383f03-5923-43ce-b015-443a2cf66044",
+          "generated_at": "2026-02-20T14:26:22.366695",
+          "stage_name": "Stage 00 (DISCOVER)",
+          "gate_status": "No gates evaluated",
+          "sprint": null,
+          "constraints": [
+            {
+              "type": "agpl",
+              "severity": "info",
+              "message": "AGPL: MinIO/Grafana network-only access (no SDK imports)",
+              "affected_files": []
+            }
+          ],
+          "strict_mode": false
+        }
+      }
+    }
+  },
+  {
+    "stt": 18,
+    "method": "GET",
+    "path": "/api/v1/agents-md/repos",
+    "label": "AGENTS.md repos",
+    "status": "SERVER_ERROR",
+    "code": 500,
+    "elapsed_ms": 8,
+    "request_body": null,
+    "params": null,
+    "response": "Internal Server Error"
+  },
+  {
+    "stt": 19,
+    "method": "GET",
+    "path": "/api/v1/context-authority/v2/templates",
+    "label": "Context authority templates",
+    "status": "PASS",
+    "code": 200,
+    "elapsed_ms": 7,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "templates": [
+        {
+          "id": "fca5fbe8-f1b4-4639-b3a6-c1044c08704a",
+          "name": "Gate G0.2 Pass - Design Approved",
+          "trigger_type": "gate_pass",
+          "trigger_value": "G0.2",
+          "tier": null,
+          "overlay_content": "## \ud83c\udfaf Current Status: Design Approved\n\nGate G0.2 (Solution Diversity) PASSED on {date}.\n\n**You may now:**\n- Write code in `backend/app/` and `frontend/src/`\n- Create new services and components\n- Implement features per approved ADRs\n\n**Required for all code:**\n- Link to ADR: `@adr ADR-XXX` in file header\n- Test coverage: 80% minimum\n- BDD format for new features\n\n**Reference:**\n- Architecture: docs/02-design/03-ADRs/\n- Specs: docs/02-design/14-Technical-Specs/",
+          "priority": 100,
+          "is_active": true,
+          "description": "Shown when Gate G0.2 (Solution Diversity) passes",
+          "created_by_id": null,
+          "created_at": "2026-02-05T16:29:48.732720Z",
+          "updated_at": "2026-02-05T16:29:48.732720Z"
+        },
+        {
+          "id": "8c779a0f-8ffb-4004-bd51-d17f74479796",
+          "name": "Gate G2 Pass - Build Active",
+          "trigger_type": "gate_pass",
+          "trigger_value": "G2",
+          "tier": null,
+          "overlay_content": "## \u2705 Build Phase Active\n\nGate G2 (Design Ready) PASSED on {date}.\n\n**Build phase guidelines:**\n- Follow approved architecture in ADRs\n- Maintain 95%+ test coverage\n- Run SAST scans before PR\n- No new features without spec",
+          "priority": 90,
+          "is_active": true,
+          "description": "Shown when Gate G2 (Design Ready) passes",
+          "created_by_id": null,
+          "created_at": "2026-02-05T16:29:48.732720Z",
+          "updated_at": "2026-02-05T16:29:48.732720Z"
+        },
+        {
+          "id": "690c9d91-f2f1-408b-b6d1-2683983629fe",
+          "name": "Red Zone Block",
+          "trigger_type": "index_zone",
+          "trigger_value": "red",
+          "tier": null,
+          "overlay_content": "## \ud83d\udeab Vibecoding Index: RED ({index})\n\nThis submission is BLOCKED and requires CEO review.\n\n**Critical signals:**\n{top_signals}\n\n**Immediate Actions Required:**\n- Do NOT merge without CEO approval\n- Review code for anti-patterns\n- Consider major refactoring\n\n**Escalation:**\n- Queue: CEO Immediate Attention\n- SLA: 1 hour",
+          "priority": 100,
+          "is_active": true,
+          "description": "Shown when vibecoding index is in Red zone (81-100)",
+          "created_by_id": null,
+          "created_at": "2026-02-05T16:29:48.732720Z",
+          "updated_at": "2026-02-05T16:29:48.732720Z"
+        },
+        {
+          "id": "ce60f9e5-7e4e-432a-aa0d-16e94bd2c6e6",
+          "name": "Orange Zone Warning",
+          "trigger_type": "index_zone",
+          "trigger_value": "orange",
+          "tier": null,
+          "overlay_content": "## \u26a0\ufe0f Vibecoding Index: ORANGE ({index})\n\nThis submission requires Tech Lead review before merge.\n\n**Contributing signals:**\n{top_signals}\n\n**Suggested Actions:**\n- Review architectural patterns\n- Reduce AI dependency ratio\n- Consider breaking into smaller PRs\n\n**Escalation:**\n- Queue: Tech Lead Review\n- SLA: 4 hours",
+          "priority": 80,
+          "is_active": true,
+          "description": "Shown when vibecoding index is in Orange zone (61-80)",
+          "created_by_id": null,
+          "created_at": "2026-02-05T16:29:48.732720Z",
+          "updated_at": "2026-02-05T16:29:48.732720Z"
+        },
+        {
+          "id": "bb41c835-ba0d-42a9-a199-dfe0076f525d",
+          "name": "Stage 02 Code Block",
+          "trigger_type": "stage_constraint",
+          "trigger_value": "stage_02_code_block",
+          "tier": null,
+          "overlay_content": "## \ud83d\udeab Stage Constraint: Code Blocked\n\nCurrent Stage: **02 - Design**\n\n**Code changes are blocked because:**\n- Architecture not yet approved (Gate G2 pending)\n- Design documents incomplete\n\n**To proceed:**\n1. Complete ADRs: docs/02-design/03-ADRs/\n2. Request Gate G2 review: `sdlcctl gate request G2`\n3. Wait for approval\n\n**Allowed changes in Stage 02:**\n- docs/02-design/**\n- prisma/schema.prisma (schema design only)\n- openapi/** (API contracts)",
+          "priority": 100,
+          "is_active": true,
+          "description": "Shown when code changes attempted in Stage 02 (Design)",
+          "created_by_id": null,
+          "created_at": "2026-02-05T16:29:48.732720Z",
+          "updated_at": "2026-02-05T16:29:48.732720Z"
+        }
+      ],
+      "total": 5,
+      "page": 1,
+      "page_size": 20,
+      "pages": 1
+    }
+  },
+  {
+    "stt": 20,
+    "method": "GET",
+    "path": "/api/v1/context-authority/agents-md",
+    "label": "Context authority agents-md",
+    "status": "PASS",
+    "code": 200,
+    "elapsed_ms": 3,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "exists": false,
+      "file_path": "/app/AGENTS.md",
+      "last_modified": null,
+      "age_days": 0,
+      "is_stale": true,
+      "staleness_threshold_days": 7,
+      "line_count": 0,
+      "message": "AGENTS.md not found"
+    }
+  },
+  {
+    "stt": 21,
+    "method": "GET",
+    "path": "/api/v1/planning/subagent/health",
+    "label": "Planning subagent health",
+    "status": "VALIDATION_ERROR",
+    "code": 422,
+    "elapsed_ms": 7,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "detail": [
+        {
+          "type": "uuid_parsing",
+          "loc": [
+            "path",
+            "planning_id"
+          ],
+          "msg": "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `h` at 1",
+          "input": "health",
+          "ctx": {
+            "error": "invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `h` at 1"
+          }
+        }
+      ],
+      "body": null
+    }
+  },
+  {
+    "stt": 22,
+    "method": "GET",
+    "path": "/api/v1/planning/subagent/sessions",
+    "label": "Planning subagent sessions",
+    "status": "VALIDATION_ERROR",
+    "code": 422,
+    "elapsed_ms": 3,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "detail": [
+        {
+          "type": "uuid_parsing",
+          "loc": [
+            "path",
+            "planning_id"
+          ],
+          "msg": "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `s` at 1",
+          "input": "sessions",
+          "ctx": {
+            "error": "invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `s` at 1"
+          }
+        }
+      ],
+      "body": null
+    }
+  },
+  {
+    "stt": 23,
+    "method": "POST",
+    "path": "/api/v1/planning/subagent/should-plan",
+    "label": "Should plan check",
+    "status": "PASS",
+    "code": 422,
+    "elapsed_ms": 9,
+    "request_body": {
+      "change_description": "add new API endpoint",
+      "files_changed": 1
+    },
+    "params": null,
+    "response": {
+      "detail": [
+        {
+          "type": "missing",
+          "loc": [
+            "body",
+            "diff"
+          ],
+          "msg": "Field required",
+          "input": {
+            "change_description": "add new API endpoint",
+            "files_changed": 1
+          }
+        }
+      ],
+      "body": "{'change_description': 'add new API endpoint', 'files_changed': 1}"
+    }
+  },
+  {
+    "stt": 24,
+    "method": "GET",
+    "path": "/api/v1/vibecoding/score",
+    "label": "FIX: vibecoding score with project_id",
+    "status": "VALIDATION_ERROR",
+    "code": 422,
+    "elapsed_ms": 2,
+    "request_body": null,
+    "params": {
+      "project_id": "d1383f03-5923-43ce-b015-443a2cf66044"
+    },
+    "response": {
+      "detail": [
+        {
+          "type": "uuid_parsing",
+          "loc": [
+            "path",
+            "submission_id"
+          ],
+          "msg": "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `s` at 1",
+          "input": "score",
+          "ctx": {
+            "error": "invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `s` at 1"
+          }
+        }
+      ],
+      "body": null
+    }
+  },
+  {
+    "stt": 25,
+    "method": "POST",
+    "path": "/api/v1/projects",
+    "label": "Create project (triggers usage limit check)",
+    "status": "PASS",
+    "code": 201,
+    "elapsed_ms": 16,
+    "request_body": {
+      "name": "Usage Limit Test",
+      "description": "E2E test for usage limits"
+    },
+    "params": null,
+    "response": {
+      "id": "5ef2b0a3-2748-49a6-8753-ed5373f3262f",
+      "name": "Usage Limit Test",
+      "slug": "usage-limit-test",
+      "description": "E2E test for usage limits",
+      "owner_id": "b0000000-0000-0000-0000-000000000001",
+      "is_active": true,
+      "policy_pack": "standard",
+      "team_id": null,
+      "gates_created": 5,
+      "github_repo_id": null,
+      "github_repo_full_name": null,
+      "created_at": "2026-02-20T14:26:22.420181",
+      "updated_at": "2026-02-20T14:26:22.420182"
+    }
+  },
+  {
+    "stt": 26,
+    "method": "POST",
+    "path": "/api/v1/api/v1/github/webhooks",
+    "label": "OTT: /api/v1/api/v1/github/webhooks",
+    "status": "SERVER_ERROR",
+    "code": 500,
+    "elapsed_ms": 15,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "detail": {
+        "error": "webhook_not_configured",
+        "message": "GITHUB_APP_WEBHOOK_SECRET not set"
+      }
+    }
+  },
+  {
+    "stt": 27,
+    "method": "GET",
+    "path": "/api/v1/api/v1/github/webhooks/stats",
+    "label": "OTT: /api/v1/api/v1/github/webhooks/stats",
+    "status": "SERVER_ERROR",
+    "code": 500,
+    "elapsed_ms": 11,
+    "request_body": null,
+    "params": null,
+    "response": "Internal Server Error"
+  },
+  {
+    "stt": 28,
+    "method": "GET",
+    "path": "/api/v1/api/v1/github/webhooks/dlq",
+    "label": "OTT: /api/v1/api/v1/github/webhooks/dlq",
+    "status": "SERVER_ERROR",
+    "code": 500,
+    "elapsed_ms": 7,
+    "request_body": null,
+    "params": null,
+    "response": "Internal Server Error"
+  },
+  {
+    "stt": 29,
+    "method": "POST",
+    "path": "/api/v1/api/v1/github/webhooks/dlq/{job_id}/retry",
+    "label": "OTT: /api/v1/api/v1/github/webhooks/dlq/{job_id}/retry",
+    "status": "SERVER_ERROR",
+    "code": 500,
+    "elapsed_ms": 24,
+    "request_body": null,
+    "params": null,
+    "response": "Internal Server Error"
+  },
+  {
+    "stt": 30,
+    "method": "POST",
+    "path": "/api/v1/api/v1/github/webhooks/process",
+    "label": "OTT: /api/v1/api/v1/github/webhooks/process",
+    "status": "SERVER_ERROR",
+    "code": 500,
+    "elapsed_ms": 7,
+    "request_body": null,
+    "params": null,
+    "response": "Internal Server Error"
+  },
+  {
+    "stt": 31,
+    "method": "GET",
+    "path": "/api/v1/codegen/usage/monthly",
+    "label": "Codegen monthly usage",
+    "status": "VALIDATION_ERROR",
+    "code": 422,
+    "elapsed_ms": 5,
+    "request_body": null,
+    "params": null,
+    "response": {
+      "detail": [
+        {
+          "type": "missing",
+          "loc": [
+            "query",
+            "year"
+          ],
+          "msg": "Field required",
+          "input": null
+        },
+        {
+          "type": "missing",
+          "loc": [
+            "query",
+            "month"
+          ],
+          "msg": "Field required",
+          "input": null
+        }
+      ],
+      "body": null
+    }
+  },
+  {
+    "stt": 32,
+    "method": "GET",
+    "path": "/api/v1/codegen/usage/report",
+    "label": "Codegen usage report",
+    "status": "SERVER_ERROR",
+    "code": 500,
+    "elapsed_ms": 12,
+    "request_body": null,
+    "params": null,
+    "response": "Internal Server Error"
+  }
+]

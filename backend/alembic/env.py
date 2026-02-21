@@ -28,6 +28,28 @@ from app.core.config import settings
 
 target_metadata = Base.metadata
 
+# Sprint 190: Tables deprecated but NOT dropped (data preserved for audit).
+# Prevent autogenerate from suggesting DROP TABLE for these.
+_DEPRECATED_TABLES_S190 = {
+    "ai_systems",
+    "performance_metrics",
+    "manage_risk_responses",
+    "manage_incidents",
+    "council_sessions",
+    "pilot_feedback",
+    "feedback_comments",
+    "pr_learnings",
+    "learning_aggregations",
+}
+
+
+def include_object(object, name, type_, reflected, compare_to):
+    """Filter deprecated tables from autogenerate diff."""
+    if type_ == "table" and name in _DEPRECATED_TABLES_S190:
+        return False
+    return True
+
+
 # Set database URL from settings (prioritize environment variable over alembic.ini)
 def get_url():
     # Prioritize settings.DATABASE_URL from environment variable
@@ -56,6 +78,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -80,7 +103,9 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            include_object=include_object,
         )
 
         with context.begin_transaction():

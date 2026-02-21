@@ -1,13 +1,23 @@
 # SDLC Orchestrator - Business Requirements Document (BRD)
 ## WHY We Need This Solution — Problem Validation, Two-Product Strategy, Enterprise-First
 
-**Version**: 3.0.0
-**Date**: February 19, 2026
-**Status**: ACTIVE - STAGE 00 FOUNDATION (Enterprise-First Refocus)
+**Version**: 4.0.0
+**Date**: February 21, 2026
+**Status**: ACTIVE - STAGE 00 FOUNDATION (Chat-First Governance + Enterprise-First)
 **Authority**: CEO + CPO Approved
-**Foundation**: Market-Sizing v4.0.0, Financial Model v2.0.0, ADR-059
+**Foundation**: Market-Sizing v4.0.0, Financial Model v2.0.0, ADR-059, ADR-064
 **Stage**: Stage 00 (WHY) — Project Foundation
 **Framework**: SDLC 6.1.0 (7-Pillar + AI Governance Principles + 12-Role System)
+
+**Changelog v4.0.0** (Feb 21, 2026) — Chat-First Governance Loop:
+- **CHAT-FIRST UX PIVOT**: EP-08 + ADR-064 approved — Chat is the primary interface, Control Plane is truth
+- **NEW UX PROBLEM**: 35+ dashboard pages slower than manual AI + SDLC Framework docs; CEO liberation blocked
+- **NORTH STAR LOOP**: `@mention → Gate Actions → Evidence → Approve (Magic Link) → Audit Export`
+- **SPRINT 189-192**: Chat Governance Loop roadmap (Router, Magic Link, Cleanup, Enterprise Hardening)
+- **CODEBASE CLEANUP**: Sprint 190 deletes ~18.3K LOC (28% frontend) — dead pages, unused components
+- **OPTION D+**: Chat-First Facade (~500 LOC new) over existing enterprise Control Plane
+- **BR6 ADDED**: Platform UX — Chat-First Governance as new business requirement
+- **11 CTO CONDITIONS**: T-01..T-09 + A-01..A-04 locked in ADR-064
 
 **Changelog v3.0.0** (Feb 19, 2026) — Enterprise-First Refocus:
 - **TWO-PRODUCT STRATEGY**: TinySDLC OSS (community/individual) + Orchestrator (commercial/enterprise)
@@ -551,10 +561,10 @@ Invariant mapping (one-way only):
 
 ---
 
-## 🗓️ Enterprise Roadmap (Sprint 181-188)
+## 🗓️ Enterprise Roadmap (Sprint 181-192)
 
 | Sprint | Theme | Key Deliverable |
-|--------|-------|-----------------|
+|--------|-------|------------------|
 | Sprint 181 | OTT Foundation | Telegram+Zalo live; 7 orphaned routes activated |
 | Sprint 182 | Enterprise SSO Design | ADR-061 + Teams channel — enterprise deals unlocked |
 | Sprint 183 | SSO Implementation | SAML GA + SOC2/HIPAA evidence types |
@@ -562,7 +572,10 @@ Invariant mapping (one-way only):
 | Sprint 185 | Audit Trail + SOC2 | SOC2 evidence pack generator |
 | Sprint 186 | Multi-Region + GDPR | EU data residency (storage-level only) |
 | Sprint 187 | G4 + Enterprise Beta | Gate G4 APPROVED; 2-3 beta enterprise |
-| Sprint 188 | GA Launch | Pricing enforced; enterprise sales open |
+| Sprint 188 | GA Launch | Pricing enforced; v2.0.0-ga; enterprise sales open |
+| **Sprint 189** | **Chat Governance Loop** | **Ollama PoC + Chat Router + Magic Link (EP-08, ADR-064)** |
+| **Sprint 190** | **Aggressive Cleanup** | **~18.3K LOC deletion (28% frontend); dead page removal** |
+| **Sprint 191-192** | **Enterprise Hardening** | **SOC 2 chat audit; SSO magic link federation; E2E** |
 
 ---
 
@@ -600,6 +613,11 @@ Invariant mapping (one-way only):
 - ✅ CPO — G0.1 + G0.2 APPROVED; BM-01 through BM-10 DECIDED
 - ✅ PM (@pm, SE4A) — BRD v3.0.0 reflecting all CPO decisions
 
+**Chat-First Governance Loop Approval** (Feb 21, 2026):
+- ✅ CTO — EP-08 + ADR-064 conditionally approved (11 conditions locked)
+- ✅ Expert Panel — Option D+ approved 7/7 (5 expert rounds)
+- ✅ PM (@pm, SE4A) — BRD v4.0.0 reflecting Chat-First pivot
+
 **Pending CEO Review** (required before external communication):
 - 🔴 Pricing page copy + marketing materials (Sprint 188)
 - 🔴 Product Hunt launch timing
@@ -618,6 +636,11 @@ Invariant mapping (one-way only):
 - Microsoft Teams channel
 - SOC2/HIPAA evidence types
 
+**Chat-First Governance (Sprint 189-192)**:
+- Chat Router + Magic Link (Sprint 189)
+- Aggressive Cleanup — 18.3K LOC deletion (Sprint 190)
+- Enterprise Hardening — SOC 2 chat audit, SSO federation (Sprint 191-192)
+
 **Target (Q4 2026)**:
 - GA launch (Sprint 188)
 - Enterprise sales pipeline open
@@ -627,10 +650,10 @@ Invariant mapping (one-way only):
 
 **Document**: SDLC-Orchestrator-Business-Requirements-Document
 **Framework**: SDLC 6.1.0 Stage 00 (WHY)
-**Component**: Business Case — Problem & Opportunity Validation (Enterprise-First)
+**Component**: Business Case — Problem & Opportunity Validation (Chat-First + Enterprise-First)
 **Review**: Weekly with CPO (Tuesday 2 PM)
 **CPO Authority**: BM-01 through BM-10 decided (Feb 19, 2026)
-**ADR Reference**: ADR-059 (Enterprise-First architecture + tier model)
-**Last Updated**: February 19, 2026 by @pm (SE4A)
+**ADR Reference**: ADR-059 (Enterprise-First), ADR-064 (Chat-First Facade)
+**Last Updated**: February 21, 2026 by @pm (SE4A)
 
-*"Enterprise-First means LITE stays — it's the funnel. PROFESSIONAL+ is the revenue engine."* 🎯
+*"Chat = UX, Control Plane = Truth. Platform not faster than manual AI is a failed platform."* 🎯

@@ -220,6 +220,24 @@ async def compute_gate_actions(
             f"Cannot submit: missing required evidence: {', '.join(missing_evidence)}"
         )
 
+    # --- requires_oob_auth (Sprint 189 — ADR-064 D-064-03, FR-047) ---
+    # G3 and G4 gates require out-of-band authentication (Magic Link) for
+    # approval via chat. G0.1/G0.2/G1/G2 can be approved directly.
+    # This is server-driven: the chat_command_router checks this field
+    # and generates a Magic Link URL instead of executing approval directly.
+    # Canonical gate_type values from GateType enum (full form) + short aliases.
+    # Full: G3_SHIP_READY, G4_PRODUCTION — from models/gate.py GateType enum
+    # Short: G3, G4 — used when gate_type stores abbreviated form
+    # Fallback: gate_name prefix match for legacy/custom gate names
+    oob_gate_types = {"G3_SHIP_READY", "G4_PRODUCTION", "G3", "G4"}
+    requires_oob_auth = False
+    if hasattr(gate, "gate_type") and gate.gate_type in oob_gate_types:
+        requires_oob_auth = True
+    elif hasattr(gate, "gate_name"):
+        gate_name_upper = (gate.gate_name or "").upper()
+        if gate_name_upper.startswith("G3") or gate_name_upper.startswith("G4"):
+            requires_oob_auth = True
+
     return {
         "gate_id": gate.id,
         "status": current_status,
@@ -228,6 +246,7 @@ async def compute_gate_actions(
         "required_evidence": required_evidence,
         "submitted_evidence": submitted_evidence_types,
         "missing_evidence": missing_evidence,
+        "requires_oob_auth": requires_oob_auth,
     }
 
 

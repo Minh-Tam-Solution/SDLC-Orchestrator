@@ -218,7 +218,6 @@ export const LIMITS_SETTINGS_META: LimitsSettingMeta[] = [
  * Feature flag setting keys
  */
 export type FeatureSettingKey =
-  | "ai_council_enabled"
   | "github_integration_enabled"
   | "codegen_enabled"
   | "sast_enabled";
@@ -227,7 +226,6 @@ export type FeatureSettingKey =
  * Typed feature settings for form binding
  */
 export interface FeatureSettings {
-  ai_council_enabled: boolean;
   github_integration_enabled: boolean;
   codegen_enabled: boolean;
   sast_enabled: boolean;
@@ -248,13 +246,6 @@ export interface FeatureSettingMeta {
  * Feature flags settings metadata
  */
 export const FEATURE_SETTINGS_META: FeatureSettingMeta[] = [
-  {
-    key: "ai_council_enabled",
-    label: "AI Council",
-    description: "Enable AI-powered task decomposition and code review features.",
-    type: "boolean",
-    default: true,
-  },
   {
     key: "github_integration_enabled",
     label: "GitHub Integration",
@@ -404,7 +395,6 @@ export function getLimitsSettings(settings: SystemSettingItem[]): LimitsSettings
  */
 export function getFeatureSettings(settings: SystemSettingItem[]): FeatureSettings {
   return {
-    ai_council_enabled: getSettingValue(settings, "ai_council_enabled", true),
     github_integration_enabled: getSettingValue(settings, "github_integration_enabled", true),
     codegen_enabled: getSettingValue(settings, "codegen_enabled", false),
     sast_enabled: getSettingValue(settings, "sast_enabled", true),

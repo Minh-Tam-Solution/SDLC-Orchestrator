@@ -1,10 +1,10 @@
 # CLAUDE AI PROJECT CONTEXT - SDLC ORCHESTRATOR
 ## AI Assistant Configuration for Software 3.0 Operating System
 
-**Version**: 3.9.0
+**Version**: 3.10.0
 **Status**: Gate G4 APPROVED - Production Ready (GA)
-**Current Sprint**: Sprint 188 - GA Launch
-**Effective Date**: February 20, 2026
+**Current Sprint**: Sprint 190 - Conversation-First Cleanup
+**Effective Date**: February 21, 2026
 **Project**: SDLC Orchestrator - Operating System for Software 3.0
 **Authority**: CTO + CPO + CEO Approved
 **Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
@@ -12,6 +12,7 @@
 **EP-06 Status**: IR-Based Codegen Engine - Sprint 45-50 (~$50K investment)
 **EP-07 Status**: Multi-Agent Team Engine - Sprint 176-179 COMPLETE (ADR-056 + ADR-058, 14 non-negotiables)
 **Enterprise-First**: ADR-059 APPROVED — LITE/STANDARD/PROFESSIONAL/ENTERPRISE tiers, OTT channels, Sprint 180-188 roadmap complete
+**Interface Strategy**: Conversation-First (CEO directive Sprint 190) — OTT+CLI primary, Web App admin-only
 
 ---
 
@@ -37,7 +38,7 @@ SDLC Orchestrator is the **Operating System for Software 3.0** - a control plane
 
 ```yaml
 Current Stage: Stage 04 (BUILD → DEPLOY — GA Launch)
-Current Sprint: Sprint 188 - GA Launch + Pricing Enforcement + Enterprise Sales
+Current Sprint: Sprint 190 - Conversation-First Cleanup (~47K LOC deleted)
 Gate G4 Status: APPROVED - Production Ready (98.2% G3 → G4 declared Sprint 187)
 Timeline: 90 days MVP + 6 sprints EP-06 extension
 Budget: $564K (8.5 FTE team) + $50K EP-06 investment
@@ -1471,7 +1472,6 @@ python -m pytest backend/tests/unit/test_minio_integration.py -v
 **Purpose**: Multi-provider AI orchestration with stage-aware prompts. Routes AI requests through a cost-optimized provider chain (Ollama → Claude → GPT-4o → Rule-based) with context-aware requirement classification.
 
 **Key Files**:
-- `backend/app/services/ai_council_service.py` — Multi-LLM deliberation (3-stage council: QUERIES → PEER_REVIEW → SYNTHESIS)
 - `backend/app/services/ai_recommendation_service.py` — Recommendation generation (37KB)
 - `backend/app/services/governance/context_authority_v2.py` — Context Authority V2 (61KB, FROZEN Sprint 173)
 - `backend/app/services/ollama_service.py` — Local LLM HTTP adapter
@@ -1502,11 +1502,6 @@ Request → Ollama (Primary, $50/mo)
 - 5 context dimensions: scale, team, industry, risk, practices
 - Auto-filtering based on project profile
 
-**Council Deliberation Stages**:
-```
-STAGE_1_QUERIES ──> STAGE_2_PEER_REVIEW ──> STAGE_3_SYNTHESIS ──> CouncilDecision
-```
-
 **Common Tasks**:
 1. **Generate AI recommendation**: `POST /api/v1/projects/{id}/decompose`
 2. **Query context authority**: Context Authority V2 evaluates requirement applicability
@@ -1515,17 +1510,11 @@ STAGE_1_QUERIES ──> STAGE_2_PEER_REVIEW ──> STAGE_3_SYNTHESIS ──> Co
 **Debugging**:
 - **Issue**: Ollama timeout on large context (>128K tokens)
   - **Fix**: Use `qwen3-coder:30b` (256K context) for code analysis; split requests for other models
-- **Issue**: Council stuck in STAGE_2
-  - **Root Cause**: Peer review timeout when comparing 3+ model outputs
-  - **Fix**: Set `council_timeout=120` seconds, fallback to Stage 1 best result
 
 **Tests**:
 ```bash
 # Ollama integration (requires running Ollama)
 python -m pytest backend/tests/unit/test_ollama_integration.py -v
-
-# Council service tests
-python -m pytest backend/tests/unit/ -k "council" -v
 ```
 
 **Dependencies**:
@@ -1913,15 +1902,31 @@ You are successful if:
 
 ---
 
-**Last Updated**: February 20, 2026
+**Last Updated**: February 21, 2026
 **Owner**: CTO + CPO + CEO
 **Status**: ✅ Gate G4 APPROVED - Production Ready (GA)
-**Current Sprint**: Sprint 188 - GA Launch
+**Current Sprint**: Sprint 190 - Conversation-First Cleanup
 **Next Review**: Weekly CEO Review (Every Friday 3pm)
 
 ---
 
 ## 📋 **CHANGELOG**
+
+### v3.10.0 (February 21, 2026)
+- **Sprint 190 — Conversation-First Cleanup** - CEO-directed aggressive cleanup (~47K LOC deleted)
+- **Interface Strategy**: OTT+CLI = PRIMARY (team members), Web App = ADMIN ONLY (owner/admin)
+- **Services deleted (12)**: 4 NIST services, AI Council, Feedback Learning, Learning Aggregation, SOP Generator, Spec Converter (dir), Pilot Tracking, Analytics v1 route, Context Authority v1 route
+- **Routes deleted (14)**: nist-govern/manage/map/measure, council, feedback, learnings, sop, pilot, spec-converter, analytics v1, context-authority v1, dogfooding
+- **410 Gone stub**: `deprecated_routes.py` returns HTTP 410 for all deleted endpoints with migration guide
+- **ConversationFirstGuard middleware**: Pure ASGI middleware enforcing admin-only write paths
+- **Frontend feature flag**: `NEXT_PUBLIC_FEATURE_FLAG_LEGACY_DASHBOARD` gates non-core pages
+- **9 pages replaced** with `ConversationFirstFallback` component (SOP, Spec, Learnings, 5 NIST, Analytics)
+- **Alembic migration**: `s190_001_deprecate_unused_tables.py` — COMMENT ON TABLE for 9 deprecated tables
+- **env.py include_object**: Prevents autogenerate from suggesting DROP TABLE for deprecated tables
+- **26 test files deleted** (~18K LOC test code for deleted services)
+- **15 new tests**: 10 smoke tests + 5 SASE anti-regression tests (all passing)
+- **Blockers deferred to Sprint 191+**: `sase_generation_service.py` (VCR/CRP dep), `analytics_service.py` v1 (v2 dep), `context_authority.py` v1 (v2 dep)
+- Updated Sprint reference: Sprint 188 → Sprint 190
 
 ### v3.9.0 (February 20, 2026)
 - **Sprint 188 — GA Launch** - General Availability, pricing enforcement, enterprise sales enablement

@@ -220,7 +220,8 @@ def _parse_slack(payload: dict[str, Any]) -> OrchestratorMessage:
         )
 
     # PA-45: Map event.user → sender_id (Slack user ID is stable identifier)
-    sender_id: str = event.get("user", "")
+    # Sprint 191: Named sentinel instead of empty string (matches Telegram "channel_post" pattern)
+    sender_id: str = event.get("user") or "slack_bot"
 
     # PA-49: Extract text content (app_mention text includes bot mention token)
     content: str = event.get("text") or ""

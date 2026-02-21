@@ -213,70 +213,10 @@ class Webhook(Base):
         return f"<Webhook(project_id={self.project_id}, provider={self.provider})>"
 
 
-class LegacyAuditLog(Base):
-    """
-    Legacy Audit Log model — superseded by app.models.audit_log.AuditLog (Sprint 185).
-
-    Sprint 185 (ADR-059): The authoritative audit log model with SOC2 Type II
-    controls and the immutable create_event() factory is in app/models/audit_log.py.
-    This class is retained for backward-compatible ORM access via the User.audit_logs
-    relationship; it maps to the same audit_logs table with extend_existing=True.
-
-    DO NOT use this class directly for new audit events. Use:
-        from app.models.audit_log import AuditLog
-        event = AuditLog.create_event(...)
-
-    Fields (legacy subset):
-        - id: UUID primary key
-        - user_id: Foreign key to User (actor, nullable for system events)
-        - action: Action type ('USER_LOGIN', 'GATE_CREATED', etc.)
-        - resource_type: Resource type ('user', 'gate', 'evidence', etc.)
-        - resource_id: Resource UUID
-        - details: JSONB additional details
-        - ip_address: Client IP address
-        - user_agent: Client user agent
-        - created_at: Event timestamp
-    """
-
-    __tablename__ = "audit_logs"
-    # extend_existing=True: the Sprint 185 AuditLog (audit_log.py) already
-    # defined this table; this class extends it rather than redefining it.
-    __table_args__ = {"extend_existing": True}
-
-    # Primary Key
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4, index=True)
-
-    # User Relationship (nullable for system events)
-    user_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("users.id", ondelete="SET NULL"),
-        nullable=True,
-        index=True,
-    )
-
-    # Action
-    action = Column(String(50), nullable=False, index=True)  # 'USER_LOGIN', 'GATE_CREATED', etc.
-
-    # Resource
-    resource_type = Column(String(50), nullable=True, index=True)  # 'user', 'gate', 'evidence'
-    resource_id = Column(UUID(as_uuid=True), nullable=True, index=True)
-    target_name = Column(String(255), nullable=True)  # Human-readable target name for display
-
-    # Details
-    details = Column(JSONB, nullable=False, default=dict)  # Additional context
-
-    # Client Information
-    ip_address = Column(INET, nullable=True)
-    user_agent = Column(String(512), nullable=True)
-
-    # Audit Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
-
-    # Relationships
-    user = relationship("User", back_populates="audit_logs")
-
-    def __repr__(self) -> str:
-        return f"<AuditLog(action={self.action}, user_id={self.user_id}, resource_type={self.resource_type})>"
+# LegacyAuditLog REMOVED — Sprint 185 replaced this with app.models.audit_log.AuditLog.
+# The legacy class defined columns (user_id, target_name, details) that no longer exist
+# in the DB table. With extend_existing=True, SQLAlchemy merged both column sets causing
+# INSERT failures. See app/models/audit_log.py for the authoritative model.
 
 
 class SystemSetting(Base):

@@ -1,6 +1,6 @@
 # ADR-015: AI Council Testing Strategy
 
-**Status**: ACCEPTED
+**Status**: SUPERSEDED (Sprint 190 — AI Council service deleted, test files removed Sprint 192)
 **Date**: December 4, 2025
 **Decision Makers**: CTO, Backend Lead
 **Sprint**: 26 - AI Council Service

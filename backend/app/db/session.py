@@ -47,9 +47,11 @@ Zero Mock Policy: Real async database session with production-ready pooling
 =========================================================================
 """
 
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Generator
 
+from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
@@ -129,3 +131,45 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             await session.rollback()
             raise
         # Note: async with context manager auto-closes session
+
+
+# ---------------------------------------------------------------------------
+# Sync session factory — for services that use plain SQLAlchemy ORM (Session)
+# Used by CostTrackingService via run_in_threadpool in async route handlers.
+# ---------------------------------------------------------------------------
+
+def _ensure_sync_url(url: str) -> str:
+    """Convert async DB URL to sync psycopg2 URL for threadpool workers."""
+    url = url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql+psycopg2://", 1)
+    return url
+
+
+sync_engine = create_engine(
+    _ensure_sync_url(settings.DATABASE_URL),
+    echo=settings.DEBUG,
+    pool_size=5,
+    max_overflow=5,
+    pool_pre_ping=True,
+    pool_recycle=1800,
+)
+
+SyncSessionLocal = sessionmaker(
+    sync_engine,
+    class_=Session,
+    expire_on_commit=False,
+    autocommit=False,
+    autoflush=False,
+)
+
+
+def get_sync_db() -> Generator[Session, None, None]:
+    """Sync session dependency — use only in run_in_threadpool or def routes."""
+    with SyncSessionLocal() as session:
+        try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise

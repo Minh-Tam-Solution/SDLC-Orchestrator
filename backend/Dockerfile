@@ -1,39 +1,54 @@
 # File: backend/Dockerfile
-# Version: 1.0.0
-# Status: ACTIVE - STAGE 03 (BUILD)
-# Date: 2025-11-27
+# Version: 2.0.0
+# Status: ACTIVE - Sprint 192 (Enterprise Hardening)
+# Date: 2026-02-21
 # Authority: DevOps Lead + CTO Approved
-# Foundation: SDLC 4.9 Complete Lifecycle, Zero Mock Policy
+# Foundation: SDLC 6.1.0, Multi-Stage Build, Zero Mock Policy
 #
 # Description:
-# Dockerfile for SDLC Orchestrator FastAPI backend.
-# Python 3.11 with async support and production dependencies.
+# Multi-stage Dockerfile for SDLC Orchestrator FastAPI backend.
+# Stage 1 (builder): Installs build tools + compiles C extensions.
+# Stage 2 (runtime): Copies only compiled packages. Target: <600MB.
 
-FROM python:3.11-slim
+# ── Stage 1: Builder ─────────────────────────────────────────────────────────
+FROM python:3.11-slim AS builder
 
-WORKDIR /app
+WORKDIR /build
 
-# Install system dependencies (build tools for C extensions)
+# Build tools needed for C extensions (psycopg2, bcrypt, cryptography)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
     build-essential \
     pkg-config \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching (use docker-specific requirements)
-COPY requirements-docker.txt .
+# Copy requirements first for Docker layer caching
+COPY requirements/core.txt requirements/core.txt
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements-docker.txt
+# Install Python deps into /install prefix (isolated from system Python)
+RUN pip install --no-cache-dir --prefix=/install -r requirements/core.txt
 
-# Install Semgrep for SAST scanning (added Jan 17, 2026)
-RUN pip install --no-cache-dir semgrep
+# Install Semgrep separately (large package, own layer for caching)
+RUN pip install --no-cache-dir --prefix=/install semgrep
+
+# ── Stage 2: Runtime ─────────────────────────────────────────────────────────
+FROM python:3.11-slim AS runtime
+
+WORKDIR /app
+
+# Runtime-only system deps (no build-essential, no pkg-config)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy pre-built Python packages from builder
+COPY --from=builder /install /usr/local
 
 # Copy application code
 COPY . .
 
-# Create non-root user for security (Semgrep CWE-250)
+# Create non-root user for security (CWE-250)
 RUN groupadd -r appuser && useradd -r -g appuser appuser \
     && chown -R appuser:appuser /app
 USER appuser

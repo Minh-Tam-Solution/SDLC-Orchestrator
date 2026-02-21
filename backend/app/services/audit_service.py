@@ -25,7 +25,7 @@ from uuid import UUID
 from fastapi import Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.support import LegacyAuditLog as AuditLog
+from app.models.audit_log import AuditLog
 
 
 class AuditAction(str, Enum):
@@ -200,17 +200,25 @@ class AuditService:
             ip_address = ip_address or self._get_client_ip(request)
             user_agent = user_agent or request.headers.get("user-agent", "")[:512]
 
-        # Create audit log entry
-        audit_log = AuditLog(
-            user_id=user_id,
-            action=action.value if isinstance(action, AuditAction) else action,
+        # Map legacy action to Sprint 185 event_type
+        action_str = action.value if isinstance(action, AuditAction) else action
+        event_type = self._action_to_event_type(action_str)
+
+        # Include target_name in detail payload if provided
+        detail_payload = dict(details) if details else {}
+        if target_name:
+            detail_payload["target_name"] = target_name
+
+        # Create audit log entry using Sprint 185 schema
+        audit_log = AuditLog.create_event(
+            event_type=event_type,
+            action=action_str,
+            actor_id=str(user_id) if user_id else None,
             resource_type=resource_type,
-            resource_id=resource_id,
-            target_name=target_name,
-            details=details or {},
+            resource_id=str(resource_id) if resource_id else None,
+            detail=detail_payload or None,
             ip_address=ip_address,
             user_agent=user_agent,
-            created_at=datetime.utcnow(),
         )
 
         self.db.add(audit_log)
@@ -218,6 +226,32 @@ class AuditService:
         await self.db.refresh(audit_log)
 
         return audit_log
+
+    @staticmethod
+    def _action_to_event_type(action: str) -> str:
+        """Map legacy AuditAction string to Sprint 185 event_type."""
+        action_upper = action.upper()
+        if action_upper.startswith(("USER_", "ADMIN_", "ROLE_", "PERMISSION_")):
+            return "user_admin"
+        if action_upper.startswith("GATE_"):
+            return "gate_action"
+        if action_upper.startswith("EVIDENCE_"):
+            return "evidence_access"
+        if action_upper.startswith(("POLICY_", "COMPLIANCE_", "VIOLATION_")):
+            return "gate_action"
+        if action_upper.startswith("AI_"):
+            return "system_event"
+        if action_upper.startswith(("API_KEY_",)):
+            return "api_key_event"
+        if action_upper.startswith(("SYSTEM_", "CONFIG_", "RATE_LIMIT_", "SECURITY_")):
+            return "system_event"
+        if action_upper.startswith("OAUTH_"):
+            return "sso_event"
+        if action_upper.startswith("PASSWORD_") or action_upper.startswith("MFA_"):
+            return "user_admin"
+        if action_upper.startswith("TOKEN_"):
+            return "user_admin"
+        return "system_event"
 
     async def log_login(
         self,

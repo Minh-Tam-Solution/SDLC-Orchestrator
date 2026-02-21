@@ -34,72 +34,43 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # -------------------------------------------------------------------------
-    # 1. Create audit_logs table
-    # -------------------------------------------------------------------------
-    op.create_table(
-        "audit_logs",
-        sa.Column("id", UUID(as_uuid=True), primary_key=True, nullable=False),
-        sa.Column("event_type", sa.String(64), nullable=False),
-        sa.Column("action", sa.String(64), nullable=False),
-        sa.Column("actor_id", sa.String(36), nullable=True),
-        sa.Column("actor_email", sa.String(254), nullable=True),
-        sa.Column("organization_id", sa.String(36), nullable=True),
-        sa.Column("resource_type", sa.String(64), nullable=True),
-        sa.Column("resource_id", sa.String(36), nullable=True),
-        sa.Column("detail", JSONB, nullable=True),
-        sa.Column("ip_address", sa.String(45), nullable=True),
-        sa.Column("user_agent", sa.String(512), nullable=True),
-        sa.Column("tier_at_event", sa.String(32), nullable=True),
-        sa.Column(
-            "created_at",
-            sa.DateTime(timezone=True),
-            nullable=False,
-            server_default=sa.text("NOW()"),
-        ),
-    )
+    # Drop old audit_logs table if it exists with the legacy schema
+    # (Sprint 185 v1 had user_id/details; v2 uses event_type/actor_id).
+    op.execute("DROP TABLE IF EXISTS audit_logs CASCADE;")
 
-    # -------------------------------------------------------------------------
-    # 2. Create indexes
-    # -------------------------------------------------------------------------
-    op.create_index("ix_audit_logs_id", "audit_logs", ["id"], unique=False)
-    op.create_index("ix_audit_logs_event_type", "audit_logs", ["event_type"])
-    op.create_index("ix_audit_logs_action", "audit_logs", ["action"])
-    op.create_index("ix_audit_logs_actor_id", "audit_logs", ["actor_id"])
-    op.create_index("ix_audit_logs_organization_id", "audit_logs", ["organization_id"])
-    op.create_index("ix_audit_logs_resource_id", "audit_logs", ["resource_id"])
-    op.create_index("ix_audit_logs_created_at", "audit_logs", ["created_at"])
+    # 1. Create audit_logs table (fresh schema)
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS audit_logs (
+            id UUID NOT NULL,
+            event_type VARCHAR(64) NOT NULL,
+            action VARCHAR(64) NOT NULL,
+            actor_id VARCHAR(36),
+            actor_email VARCHAR(254),
+            organization_id VARCHAR(36),
+            resource_type VARCHAR(64),
+            resource_id VARCHAR(36),
+            detail JSONB,
+            ip_address VARCHAR(45),
+            user_agent VARCHAR(512),
+            tier_at_event VARCHAR(32),
+            created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+            PRIMARY KEY (id)
+        );
+    """)
 
-    # Composite indexes for most common query patterns
-    op.create_index(
-        "ix_audit_org_created",
-        "audit_logs",
-        ["organization_id", "created_at"],
-    )
-    op.create_index(
-        "ix_audit_actor_created",
-        "audit_logs",
-        ["actor_id", "created_at"],
-    )
-    op.create_index(
-        "ix_audit_resource",
-        "audit_logs",
-        ["resource_type", "resource_id"],
-    )
+    # 2. Create indexes (IF NOT EXISTS — PostgreSQL 9.5+)
+    op.execute("CREATE INDEX IF NOT EXISTS ix_audit_logs_id ON audit_logs (id);")
+    op.execute("CREATE INDEX IF NOT EXISTS ix_audit_logs_event_type ON audit_logs (event_type);")
+    op.execute("CREATE INDEX IF NOT EXISTS ix_audit_logs_action ON audit_logs (action);")
+    op.execute("CREATE INDEX IF NOT EXISTS ix_audit_logs_actor_id ON audit_logs (actor_id);")
+    op.execute("CREATE INDEX IF NOT EXISTS ix_audit_logs_organization_id ON audit_logs (organization_id);")
+    op.execute("CREATE INDEX IF NOT EXISTS ix_audit_logs_resource_id ON audit_logs (resource_id);")
+    op.execute("CREATE INDEX IF NOT EXISTS ix_audit_logs_created_at ON audit_logs (created_at);")
+    op.execute("CREATE INDEX IF NOT EXISTS ix_audit_org_created ON audit_logs (organization_id, created_at);")
+    op.execute("CREATE INDEX IF NOT EXISTS ix_audit_actor_created ON audit_logs (actor_id, created_at);")
+    op.execute("CREATE INDEX IF NOT EXISTS ix_audit_resource ON audit_logs (resource_type, resource_id);")
 
-    # -------------------------------------------------------------------------
-    # 3. Immutability trigger — prevent UPDATE and DELETE at DB engine level
-    #
-    # This trigger enforces SOC2 tamper-evidence:
-    #   - No UPDATE: cannot alter historical event data
-    #   - No DELETE: no event can be erased (even by DB admin via application)
-    #   - Retention is handled by archiving/partitioning, NOT deletion
-    #
-    # Security note: PostgreSQL superuser can bypass triggers with
-    # SET session_replication_role = 'replica'; — this is an infra-level
-    # control that should be restricted via GRANT/REVOKE on the DB role
-    # used by the application (app role should NOT be superuser).
-    # -------------------------------------------------------------------------
+    # 3. Immutability trigger — SOC2 CC7.2 tamper-evidence
     op.execute("""
         CREATE OR REPLACE FUNCTION prevent_audit_log_modifications()
         RETURNS TRIGGER AS $$
@@ -110,6 +81,10 @@ def upgrade() -> None:
                 TG_OP;
         END;
         $$ LANGUAGE plpgsql;
+    """)
+
+    op.execute("""
+        DROP TRIGGER IF EXISTS audit_log_immutable ON audit_logs;
     """)
 
     op.execute("""

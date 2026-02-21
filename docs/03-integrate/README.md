@@ -3,12 +3,40 @@
 
 **Stage**: 07 - INTEGRATE
 **Question**: How do we connect with others?
-**Version**: 2.4.0
-**Date**: February 15, 2026
-**Status**: ✅ ACTIVE - Governance Loop 3-Client Parity (Sprint 173)
+**Version**: 2.5.0
+**Date**: February 21, 2026
+**Status**: ✅ ACTIVE - Conversation-First Interface Strategy (Sprint 189-190)
 **Authority**: Backend Lead + CTO Approved
 **Framework**: SDLC 6.1.0 (Framework-First)
-**Positioning**: Operating System for Software 3.0
+**Positioning**: Operating System for Software 3.0 — Conversation-First
+
+**Changelog v2.5.0** (Feb 21, 2026):
+- **Conversation-First Interface Strategy** (CEO directive, ADR-064 APPROVED):
+  - OTT + CLI = **PRIMARY** interfaces for team members
+  - Web App = **ADMIN ONLY** (5 pages: Projects, Gates, Evidence, Team, Settings)
+  - VSCode Extension = **FROZEN** (defer Sprint 193+)
+- **Sprint 189 — Chat-First Governance Loop COMPLETE** (CTO 9.4/10):
+  - `chat_command_router.py` (~300 LOC) — LLM Function Calling with 5-tool bounded allowlist
+  - `magic_link_service.py` (~150 LOC) — HMAC-SHA256 OOB authentication, 5-min TTL
+  - OTT gateway webhook deduplication — Redis-based, <5ms latency
+  - North Star Loop: `@mention → Gate Actions → Evidence → Approve (Magic Link) → Audit Export`
+- **Sprint 190 — Aggressive Cleanup CEO APPROVED** (~21K LOC deletion):
+  - Deprecated endpoints will return HTTP 410 Gone (removed Sprint 191)
+  - Affected route groups: NIST (4), AI Council, Feedback Learning, SOP, Pilot, Spec Converter, Analytics v1, Context Authority v1, Dogfooding
+  - SASE services DEFERRED (Sprint 191+, VCR/CRP dependency)
+- **Interface Role Matrix** (post-Sprint 189):
+  - **OTT Gateway** (Telegram, Zalo, MS Teams, Slack): Team member governance via chat
+  - **CLI** (sdlcctl): DevOps, CI pipelines, developer workflows
+  - **Web App**: Admin/owner only — project management, gate oversight, settings
+  - **VSCode Extension**: FROZEN (bug fixes only, defer to Sprint 193+)
+- **Enterprise Channel Tiers**:
+  - LITE/STANDARD: Telegram, Zalo (consumer OTT)
+  - PROFESSIONAL/ENTERPRISE: MS Teams, Slack (enterprise-approved, security policy compliance)
+- **New Integration Points** (Sprint 189):
+  - `ott_gateway → mention_parser → chat_command_router` pipeline
+  - Magic Link browser-based SSO validation flow
+  - Chat source tracking in audit_logs (`source="chat"`)
+- **References**: ADR-064, EP-08, FR-046, FR-047, FR-048, STM-064, SPRINT-189, SPRINT-190
 
 **Changelog v2.4.0** (Feb 15, 2026):
 - **Sprint 173 Governance Loop Integration**: 3-client parity for gate lifecycle

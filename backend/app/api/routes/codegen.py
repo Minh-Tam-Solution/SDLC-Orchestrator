@@ -1339,32 +1339,26 @@ async def get_cost_report(
         Cost report with totals, daily breakdown, and projections
     """
     from uuid import UUID
-    from app.api.dependencies import get_db
+    from fastapi.concurrency import run_in_threadpool
+    from app.db.session import SyncSessionLocal
     from app.services.codegen.cost_tracking_service import get_cost_tracking_service
+    pid = UUID(project_id) if project_id else None
+    user_id = current_user.id
 
-    # Get database session
-    db = next(get_db())
+    def _run_cost_report():
+        with SyncSessionLocal() as db:
+            service = get_cost_tracking_service(db)
+            return service.get_cost_report(user_id=user_id, project_id=pid, days=days)
 
-    try:
-        service = get_cost_tracking_service(db)
+    report = await run_in_threadpool(_run_cost_report)
 
-        pid = UUID(project_id) if project_id else None
-
-        report = service.get_cost_report(
-            user_id=current_user.id,
-            project_id=pid,
-            days=days,
-        )
-
-        return CostReportResponse(
-            period=report["period"],
-            totals=CostTotals(**report["totals"]),
-            daily_costs=[DailyCostItem(**d) for d in report["daily_costs"]],
-            quality=QualityMetrics(**report["quality"]),
-            projections=CostProjections(**report["projections"]),
-        )
-    finally:
-        db.close()
+    return CostReportResponse(
+        period=report["period"],
+        totals=CostTotals(**report["totals"]),
+        daily_costs=[DailyCostItem(**d) for d in report["daily_costs"]],
+        quality=QualityMetrics(**report["quality"]),
+        projections=CostProjections(**report["projections"]),
+    )
 
 
 @router.get("/usage/monthly", response_model=MonthlyCostResponse)
@@ -1388,7 +1382,8 @@ async def get_monthly_cost(
         Monthly cost summary with budget status
     """
     from uuid import UUID
-    from app.api.dependencies import get_db
+    from fastapi.concurrency import run_in_threadpool
+    from app.db.session import SyncSessionLocal
     from app.services.codegen.cost_tracking_service import get_cost_tracking_service
 
     if month < 1 or month > 12:
@@ -1397,22 +1392,15 @@ async def get_monthly_cost(
             detail="Month must be between 1 and 12"
         )
 
-    db = next(get_db())
+    pid = UUID(project_id) if project_id else None
 
-    try:
-        service = get_cost_tracking_service(db)
+    def _run_monthly_cost():
+        with SyncSessionLocal() as db:
+            service = get_cost_tracking_service(db)
+            return service.get_monthly_cost(year=year, month=month, project_id=pid)
 
-        pid = UUID(project_id) if project_id else None
-
-        summary = service.get_monthly_cost(
-            year=year,
-            month=month,
-            project_id=pid,
-        )
-
-        return MonthlyCostResponse(**summary)
-    finally:
-        db.close()
+    summary = await run_in_threadpool(_run_monthly_cost)
+    return MonthlyCostResponse(**summary)
 
 
 @router.get("/usage/provider-health/{provider}", response_model=ProviderHealthResponse)
@@ -1433,7 +1421,8 @@ async def get_provider_health_history(
     Returns:
         Health check history with availability percentage
     """
-    from app.api.dependencies import get_db
+    from fastapi.concurrency import run_in_threadpool
+    from app.db.session import SyncSessionLocal
     from app.services.codegen.cost_tracking_service import get_cost_tracking_service
 
     if provider not in ["ollama", "claude", "deepcode"]:
@@ -1442,31 +1431,26 @@ async def get_provider_health_history(
             detail=f"Unknown provider: {provider}"
         )
 
-    db = next(get_db())
+    def _run_health():
+        with SyncSessionLocal() as db:
+            service = get_cost_tracking_service(db)
+            return service.get_provider_health_history(provider=provider, hours=hours)
 
-    try:
-        service = get_cost_tracking_service(db)
+    checks = await run_in_threadpool(_run_health)
 
-        checks = service.get_provider_health_history(
-            provider=provider,
-            hours=hours,
-        )
+    # Calculate availability percentage
+    if checks:
+        available_count = sum(1 for c in checks if c["is_available"])
+        availability_percent = (available_count / len(checks)) * 100
+    else:
+        availability_percent = 0.0
 
-        # Calculate availability percentage
-        if checks:
-            available_count = sum(1 for c in checks if c["is_available"])
-            availability_percent = (available_count / len(checks)) * 100
-        else:
-            availability_percent = 0.0
-
-        return ProviderHealthResponse(
-            provider=provider,
-            hours=hours,
-            checks=[ProviderHealthItem(**c) for c in checks],
-            availability_percent=round(availability_percent, 2),
-        )
-    finally:
-        db.close()
+    return ProviderHealthResponse(
+        provider=provider,
+        hours=hours,
+        checks=[ProviderHealthItem(**c) for c in checks],
+        availability_percent=round(availability_percent, 2),
+    )
 
 
 # ============================================================================

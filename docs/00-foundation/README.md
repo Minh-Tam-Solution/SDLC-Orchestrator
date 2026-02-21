@@ -3,12 +3,21 @@
 
 **Stage**: 00 - FOUNDATION
 **Question**: Why are we building this?
-**Version**: 5.0.0
-**Date**: February 19, 2026
+**Version**: 6.0.0
+**Date**: February 21, 2026
 **Status**: ✅ COMPLETED - Gate G0.1 + G0.2 PASSED
 **Authority**: PM + CEO + CTO + CPO Approved (9.5/10 Confidence)
 **Framework**: SDLC 6.1.0 (7-Pillar + Section 7 Quality Assurance + Section 8 Specification Standard)
-**Positioning**: Operating System for Software 3.0 — Enterprise-First
+**Positioning**: Operating System for Software 3.0 — Chat-First Governance
+
+**Changelog v6.0.0** (Feb 21, 2026) — Chat-First Governance Loop:
+- **CHAT-FIRST PIVOT**: EP-08 + ADR-064 (Option D+) — LLM Function Calling chat facade on existing enterprise control plane
+- **NORTH STAR LOOP**: `@mention → Gate Actions → Evidence → Approve (Magic Link) → Audit Export`
+- **~500 LOC NEW + ~18K LOC DELETED**: Net reduction in codebase complexity (28% of frozen backend code)
+- **SPRINT 189-192 ROADMAP**: Chat Governance Loop (189), Aggressive Cleanup (190), Enterprise Hardening (191-192)
+- **CEO LIBERATION**: Encodes CEO governance patterns so any PM achieves CEO-level oversight via chat
+- **11 CTO CONDITIONS**: T-01..T-09 + A-01..A-04 (bounded function calling, run_in_threadpool, Actions Contract)
+- **Documents updated**: Vision v6.0.0, BRD v4.0.0, Roadmap v9.0.0, Problem-Statement v5.0.0, EP-08 Business Case
 
 **Changelog v5.0.0** (Feb 19, 2026) — Enterprise-First Refocus:
 - **ENTERPRISE-FIRST STRATEGY**: ADR-059 approved — PROFESSIONAL+ gets new features, LITE/STANDARD maintenance only
@@ -211,12 +220,14 @@ Once Stage 00 is complete → **[Stage 01: Planning (WHAT)](../01-planning/READM
 - [PROJECT-KICKOFF.md](../../PROJECT-KICKOFF.md) - CEO approval summary
 - [Design Thinking Principles](../../SDLC-Enterprise-Framework/02-Core-Methodology/SDLC-Design-Thinking-Principles.md)
 - [ADR-059 Enterprise-First Strategy](../02-design/03-ADRs/ADR-059-Tier-System-Invariants.md)
+- [ADR-064 Chat-First Facade](../02-design/01-ADRs/ADR-064-Chat-First-Facade-Option-D-Plus.md) — Option D+ (4 locked decisions, 11 conditions)
+- [EP-08 Chat-First Governance Loop](../01-planning/02-Epics/EP-08-Chat-First-Governance-Loop.md) — Sprint 189-192
 - [Financial Model v2.0.0](02-Business-Case/Financial-Model.md) — Enterprise-First revision
-- [Product Roadmap v8.0.0](04-Roadmap/Product-Roadmap.md) — Sprint 181-188 Enterprise Completion
+- [Product Roadmap v9.0.0](04-Roadmap/Product-Roadmap.md) — Sprint 189-192 Chat-First Governance Loop
 
 ---
 
-**Last Updated**: February 19, 2026
+**Last Updated**: February 21, 2026
 **Owner**: PM + Design Lead + CEO
 **Status**: ✅ COMPLETED
 
@@ -230,10 +241,10 @@ Once Stage 00 is complete → **[Stage 01: Planning (WHAT)](../01-planning/READM
 | Total Lines | 30,000+ lines |
 | Quality Gates | G0.1 ✅ PASSED, G0.2 ✅ PASSED |
 | Next Stage | Stage 01 (WHAT) - ✅ PASSED |
-| Current Stage | Stage 04 (BUILD) - Sprint 181-188 Enterprise Completion |
-| Vision Version | v5.0.0 (Feb 19, 2026) |
-| Roadmap Version | v8.0.0 (Feb 19, 2026) |
-| Positioning | Operating System for Software 3.0 — Enterprise-First |
+| Current Stage | Stage 04 (BUILD) - Sprint 189-192 Chat-First Governance Loop |
+| Vision Version | v6.0.0 (Feb 21, 2026) |
+| Roadmap Version | v9.0.0 (Feb 21, 2026) |
+| Positioning | Operating System for Software 3.0 — Chat-First Governance |
 | Year 1 Target | 45-70 teams, $160K-$350K ARR |
 
 ---
@@ -259,6 +270,7 @@ Layer 1: SDLC-Enterprise-Framework (Methodology) ← Our foundation
 | **EP-06** | IR-Based Codegen Engine | ~$50,000 | Sprint 45-50 | **P0** ⭐ |
 | **EP-07** | Multi-Agent Team Engine | $14,400 | Sprint 176-179 | **P0** ⭐ |
 | **Sprint 181-188** | Enterprise Completion | $42,240 | 8 sprints | **P0** ⭐ |
+| **EP-08** | Chat-First Governance Loop | ~$24,000 | Sprint 189-192 | **P0** ⭐ |
 
 ### EP-06 Sprint 45-50 Design Specs (CTO Approved)
 

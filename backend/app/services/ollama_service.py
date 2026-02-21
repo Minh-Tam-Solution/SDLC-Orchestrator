@@ -43,7 +43,7 @@ from enum import Enum
 from typing import Any, Optional
 
 import requests
-from requests.exceptions import ConnectionError, RequestException, Timeout
+from requests.exceptions import ConnectionError, HTTPError, RequestException, Timeout
 
 from app.core.config import settings
 
@@ -370,6 +370,133 @@ class OllamaService:
         except RequestException as e:
             logger.error(f"Ollama request failed: {e}")
             raise OllamaError(f"Request failed: {str(e)}")
+
+    # ============================================================================
+    # Chat Completion with Tool Calling (Sprint 189 — ADR-064 T-02)
+    # ============================================================================
+
+    def chat(
+        self,
+        messages: list[dict[str, str]],
+        model: Optional[str] = None,
+        tools: Optional[list[dict[str, Any]]] = None,
+        temperature: float = 0.3,
+        max_tokens: int = 2048,
+    ) -> dict[str, Any]:
+        """
+        Chat completion using Ollama /api/chat with native tool calling.
+
+        Sprint 189 P0-1: This method calls /api/chat (NOT /api/generate) to
+        support the `tools` parameter for LLM Function Calling. The existing
+        generate() method only calls /api/generate which does NOT support tools.
+
+        This method is SYNC — callers in async context MUST wrap with
+        starlette.concurrency.run_in_threadpool (ADR-064 T-08).
+
+        Args:
+            messages: Chat messages [{"role": "system"|"user"|"assistant", "content": "..."}]
+            model: Model to use (default: self.model, recommended: qwen3:32b for Vietnamese)
+            tools: Ollama tool definitions for function calling. Each tool:
+                   {"type": "function", "function": {"name": str, "description": str, "parameters": dict}}
+            temperature: Sampling temperature (default: 0.3 for deterministic tool calls)
+            max_tokens: Maximum tokens to generate
+
+        Returns:
+            Raw Ollama /api/chat response dict containing:
+            - message.content: Text response (may be empty if tool_calls present)
+            - message.tool_calls: List of tool calls [{"function": {"name": str, "arguments": dict}}]
+            - model, created_at, done, total_duration, eval_count, etc.
+
+        Raises:
+            OllamaError: If chat request fails
+
+        Example:
+            tools = [{"type": "function", "function": {
+                "name": "create_project",
+                "description": "Create a new project",
+                "parameters": {"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]}
+            }}]
+            response = ollama.chat(
+                messages=[{"role": "user", "content": "Tạo dự án Bflow"}],
+                tools=tools,
+            )
+            if response.get("message", {}).get("tool_calls"):
+                tool_call = response["message"]["tool_calls"][0]
+                fn_name = tool_call["function"]["name"]
+                fn_args = tool_call["function"]["arguments"]
+        """
+        url = f"{self.base_url}/api/chat"
+        model = model or self.model
+
+        payload: dict[str, Any] = {
+            "model": model,
+            "messages": messages,
+            "stream": False,
+            "options": {
+                "temperature": temperature,
+                "num_predict": max_tokens,
+            },
+        }
+
+        if tools:
+            payload["tools"] = tools
+
+        try:
+            start_time = time.time()
+
+            logger.debug(
+                "Ollama chat: model=%s messages=%d tools=%d",
+                model,
+                len(messages),
+                len(tools) if tools else 0,
+            )
+
+            response = requests.post(
+                url,
+                json=payload,
+                timeout=self.timeout,
+                headers={"Content-Type": "application/json"},
+            )
+
+            response.raise_for_status()
+
+            data = response.json()
+
+            elapsed_ms = (time.time() - start_time) * 1000
+            tool_calls = data.get("message", {}).get("tool_calls", [])
+            logger.info(
+                "Ollama chat response: %.0fms, tool_calls=%d, model=%s",
+                elapsed_ms,
+                len(tool_calls),
+                model,
+            )
+
+            return data
+
+        except Timeout:
+            logger.error("Ollama chat timeout after %ds", self.timeout)
+            raise OllamaError(f"Chat request timed out after {self.timeout}s")
+
+        except ConnectionError:
+            logger.error("Ollama not available at %s", self.base_url)
+            self._is_available = False
+            raise OllamaError(f"Ollama not available at {self.base_url}")
+
+        except HTTPError as e:
+            status_code = e.response.status_code if e.response is not None else 0
+            logger.error(
+                "Ollama chat HTTP error: status=%d model=%s url=%s",
+                status_code,
+                model,
+                url,
+            )
+            raise OllamaError(
+                f"Chat request failed: HTTP {status_code}",
+            ) from e
+
+        except RequestException as e:
+            logger.error("Ollama chat request failed: %s", e)
+            raise OllamaError(f"Chat request failed: {str(e)}")
 
     # ============================================================================
     # Violation Recommendation Generation

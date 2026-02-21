@@ -71,6 +71,7 @@ from .commands.e2e import app as e2e_app
 from .commands.worktree import app as worktree_app
 from .commands.gate import app as gate_app
 from .commands.cache import app as cache_app
+from .commands.governance import app as governance_app
 
 console = Console()
 
@@ -229,6 +230,9 @@ app.add_typer(gate_app, name="gate")
 
 # Register cache sub-app (Sprint 174 - Anthropic Best Practices, Context Caching)
 app.add_typer(cache_app, name="cache")
+
+# Register governance sub-app (Sprint 191 - Unified Command Registry)
+app.add_typer(governance_app, name="governance")
 
 # Register validate-consistency command (Sprint 136 - SPEC-0021)
 app.command(

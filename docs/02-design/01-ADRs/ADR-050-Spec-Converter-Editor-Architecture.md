@@ -1,6 +1,6 @@
 # ADR-050: Spec Converter & Editor Architecture
 
-**Status**: PROPOSED
+**Status**: SUPERSEDED (Sprint 190 — backend service deleted, frontend components removed Sprint 192)
 **Date**: February 4, 2026
 **Sprint**: Sprint 154 (Spec Standard Completion)
 **Author**: CTO + AI Assistant

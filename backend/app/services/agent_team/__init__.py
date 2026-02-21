@@ -2,7 +2,11 @@
 Multi-Agent Team Engine — Strategic Upgrade from TinyClaw + OpenClaw + Nanobot.
 
 ADR-056: 14 non-negotiable conditions, 4 locked decisions, 3 codebase patterns.
-Sprint 176-178 implementation.
+Sprint 176-179 implementation.
+
+Sprint 189 additions (ADR-064 — Chat-First Governance Loop):
+- ChatCommandRouter: LLM Function Calling with bounded tool allowlist
+- MagicLinkService: HMAC-SHA256 OOB auth tokens for gate approvals via chat
 """
 
 from app.services.agent_team.conversation_limits import ConversationLimits, LimitViolation
@@ -62,6 +66,32 @@ from app.services.agent_team.history_compactor import HistoryCompactor
 from app.services.agent_team.query_classifier import classify, ClassificationRule
 from app.services.agent_team.config import DEFAULT_CLASSIFICATION_RULES, MODEL_ROUTE_HINTS
 
+# Sprint 189 — Chat-First Governance Loop (ADR-064)
+# Sprint 191 — Pydantic models + ToolName moved to command_registry.py
+from app.services.agent_team.command_registry import (
+    CreateProjectParams,
+    ExportAuditParams,
+    GetGateStatusParams,
+    RequestApprovalParams,
+    SubmitEvidenceParams,
+    ToolName,
+)
+from app.services.agent_team.chat_command_router import (
+    ChatCommandResult,
+    route_chat_command,
+    OLLAMA_TOOLS,
+)
+from app.services.agent_team.magic_link_service import (
+    MagicLinkService,
+    MagicLinkToken,
+    MagicLinkPayload,
+    MagicLinkError,
+    MagicLinkExpiredError,
+    MagicLinkUsedError,
+    MagicLinkInvalidError,
+    MagicLinkUserMismatchError,
+)
+
 __all__ = [
     # Sprint 176 — Design Contracts
     "ConversationLimits",
@@ -114,4 +144,22 @@ __all__ = [
     "ClassificationRule",
     "DEFAULT_CLASSIFICATION_RULES",
     "MODEL_ROUTE_HINTS",
+    # Sprint 189 — Chat-First Governance Loop (ADR-064)
+    "ChatCommandResult",
+    "route_chat_command",
+    "ToolName",
+    "OLLAMA_TOOLS",
+    "CreateProjectParams",
+    "GetGateStatusParams",
+    "SubmitEvidenceParams",
+    "RequestApprovalParams",
+    "ExportAuditParams",
+    "MagicLinkService",
+    "MagicLinkToken",
+    "MagicLinkPayload",
+    "MagicLinkError",
+    "MagicLinkExpiredError",
+    "MagicLinkUsedError",
+    "MagicLinkInvalidError",
+    "MagicLinkUserMismatchError",
 ]

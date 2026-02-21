@@ -1,12 +1,23 @@
 # SDLC Orchestrator - Product Vision
 ## Operating System for Software 3.0
 
-**Version**: 5.0.0
-**Date**: February 19, 2026
-**Status**: ✅ CTO APPROVED - Enterprise-First Strategy (ADR-059)
+**Version**: 6.0.0
+**Date**: February 21, 2026
+**Status**: ✅ CTO APPROVED - Chat-First Governance (ADR-064 + ADR-059)
 **Authority**: CEO + CPO + CTO Approved
-**Foundation**: SDLC 6.1.0 + SASE Level 2 + Enterprise-First (ADR-059)
-**Positioning**: Control Plane for AI Coders + Enterprise Governance — Two-Product Ecosystem
+**Foundation**: SDLC 6.1.0 + SASE Level 2 + Enterprise-First (ADR-059) + Chat-First (ADR-064)
+**Positioning**: Chat-First Governance for AI Coders — "Chat = UX, Control Plane = Truth"
+
+**Changelog v6.0.0** (Feb 21, 2026) — Chat-First Governance Loop:
+- **CHAT-FIRST PIVOT**: EP-08 + ADR-064 approved — Chat is the primary UX, Control Plane is the source of truth
+- **NORTH STAR LOOP**: `@mention → Gate Actions → Evidence → Approve (Magic Link) → Audit Export`
+- **OPTION D+ APPROVED**: Chat-First Facade — thin chat layer (~500 LOC new) over existing enterprise Control Plane
+- **SPRINT 189-192**: Chat Governance Loop roadmap (Chat Router, Magic Link, Aggressive Cleanup, Enterprise Hardening)
+- **CEO LIBERATION**: CEO no longer bottleneck — any PM achieves CEO-level governance via chat
+- **CODEBASE CLEANUP**: Sprint 190 deletes ~18.3K LOC (28% of frontend) — dead pages, unused components
+- **11 CTO CONDITIONS**: T-01..T-09 + A-01..A-04 locked in ADR-064 (bounded function calling, native Ollama, async Redis, etc.)
+- **MAGIC LINK AUTH**: Out-of-band approval via time-limited URL (no OTT login required)
+- **4 LOCKED DECISIONS**: D-064-01 (Chat=UX, CP=Truth), D-064-02 (LLM Function Calling), D-064-03 (Actions Contract), D-064-04 (Magic Link OOB Auth)
 
 **Changelog v5.0.0** (Feb 19, 2026) — Enterprise-First Refocus:
 - **ENTERPRISE-FIRST STRATEGY**: ADR-059 approved — PROFESSIONAL+ gets new features, LITE/STANDARD maintenance only
@@ -539,7 +550,7 @@ We envision a world where:
 - ✅ Gate G3 APPROVED (Dec 12, 2025, 98.2% readiness)
 - ✅ EP-07: Multi-Agent Team Engine (Sprint 176-179)
 - ✅ Enterprise-First Pivot (Sprint 180, ADR-059)
-- 🔄 Sprint 181-188: Enterprise Completion Roadmap (current)
+- ✅ Sprint 181-188: Enterprise Completion Roadmap (COMPLETE)
   - S181: OTT Gateway (Telegram/Zalo) + FREE tier elimination
   - S182: Teams Normalizer + Enterprise SSO Foundation (ADR-061)
   - S183: Slack Normalizer + SSO SAML (Azure AD)
@@ -547,7 +558,11 @@ We envision a world where:
   - S185: SOC 2 Evidence Pack Auto-Generation
   - S186: RBAC v2 + Data Residency
   - S187: Compliance Dashboard + Executive Reporting
-  - S188: GA Polish + FOUNDER_LEGACY Sunset
+  - S188: GA Launch + v2.0.0-ga + FOUNDER_LEGACY Sunset
+- 🔄 Sprint 189-192: Chat-First Governance Loop (EP-08, current)
+  - S189: Chat Governance Loop (Ollama PoC + Chat Router + Magic Link)
+  - S190: Aggressive Cleanup (~18.3K LOC deletion, 28% frontend)
+  - S191-192: Enterprise Hardening (SOC 2 chat audit, SSO magic link federation)
 - ⏳ EP-06: IR-Based Codegen (Sprint 45-50, Q2)
 - 🎯 45-70 teams by Dec 2026 (enterprise-led sales)
 - 🎯 $160K-$350K ARR
@@ -599,21 +614,25 @@ We envision a world where:
 
 ## References
 
-- [Product Roadmap v8.0.0](../04-Roadmap/Product-Roadmap.md) - Sprint 181-188 Enterprise Completion Roadmap
+- [Product Roadmap v9.0.0](../04-Roadmap/Product-Roadmap.md) - Sprint 189-192 Chat-First Governance Loop Roadmap
 - [Problem Statement](../03-Design-Thinking/Problem-Statement.md) - User validation
 - [Market Analysis](../05-Market-Analysis/Competitive-Landscape.md) - Competitive positioning
-- [BRD v3.0.0](../02-Business-Case/BRD-Business-Requirements.md) - Business requirements (two-product, Enterprise-First)
+- [BRD v4.0.0](../02-Business-Case/BRD-Business-Requirements.md) - Business requirements (Chat-First + Enterprise-First)
 - [Financial Model v2.0.0](../02-Business-Case/Financial-Model.md) - Revenue projections, LTV:CAC 6.6:1
+- [ADR-064 Chat-First Facade](../../02-design/03-ADRs/ADR-064-Chat-First-Facade-Option-D-Plus.md) - 4 locked decisions, 13 conditions
 - [ADR-059 Enterprise-First Strategy](../../02-design/03-ADRs/ADR-059-Enterprise-First-Strategy.md) - 6 strategic invariants
 - [ADR-061 Enterprise SSO](../../02-design/03-ADRs/ADR-061-Enterprise-SSO-Foundation.md) - 5 locked SSO decisions
+- [EP-08 Chat-First Governance Loop](../../01-planning/02-Epics/EP-08-Chat-First-Governance-Loop.md) - North Star Loop, ~$24K investment
 - [EP-07 Multi-Agent Team Engine](../../01-planning/02-Epics/EP-07-Multi-Agent-Team-Engine.md) - Multi-agent architecture
 
 ---
 
-**Last Updated**: 2026-02-19
+**Last Updated**: 2026-02-21
 **Owner**: CEO + CPO + CTO
-**Status**: ✅ CTO APPROVED - Enterprise-First Strategy (v5.0.0)
+**Status**: ✅ CTO APPROVED - Chat-First Governance (v6.0.0)
 **CTO Approval**: [Q1Q2-2026-ROADMAP-CTO-APPROVED.md](../../09-govern/04-Strategic-Updates/2025-12-20-Q1Q2-2026-ROADMAP-CTO-APPROVED.md)
+**Chat-First**: [ADR-064](../../02-design/03-ADRs/ADR-064-Chat-First-Facade-Option-D-Plus.md)
 **Enterprise-First**: [ADR-059](../../02-design/03-ADRs/ADR-059-Enterprise-First-Strategy.md)
+**EP-08 Design**: [EP-08 Chat-First Governance Loop](../../01-planning/02-Epics/EP-08-Chat-First-Governance-Loop.md)
 **EP-06 Design**: [Sprint 45-50 Technical Specs](../../02-design/14-Technical-Specs/)
 **EP-07 Design**: [ADR-056 Multi-Agent Team Engine](../../02-design/ADR-056-Multi-Agent-Team-Engine.md)

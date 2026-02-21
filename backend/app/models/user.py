@@ -217,7 +217,7 @@ class User(Base):
     # Support Relationships
     stage_transitions = relationship("StageTransition", back_populates="user")
     webhooks = relationship("Webhook", back_populates="creator")
-    audit_logs = relationship("LegacyAuditLog", back_populates="user")
+    # audit_logs relationship removed — Sprint 185 AuditLog uses actor_id (string), not FK
     notifications = relationship("Notification", back_populates="user")
 
     # Usage Tracking Relationships (Sprint 24)

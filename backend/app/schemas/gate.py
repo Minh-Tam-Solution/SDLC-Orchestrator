@@ -251,6 +251,11 @@ class GateActionsResponse(BaseModel):
     required_evidence: List[str] = Field(default_factory=list, description="Evidence types required for this gate")
     submitted_evidence: List[str] = Field(default_factory=list, description="Evidence types already submitted")
     missing_evidence: List[str] = Field(default_factory=list, description="Evidence types still needed")
+    requires_oob_auth: bool = Field(
+        default=False,
+        description="Sprint 189 — True if gate approval requires out-of-band authentication "
+        "(Magic Link). Server-driven, not client-side. See ADR-064 D-064-03, FR-047.",
+    )
 
 
 class GateEvaluateResponse(BaseModel):

@@ -409,15 +409,6 @@
       "emailSupport": "Email hỗ trợ",
       "discord": "Discord"
     },
-  "i18n": {
-    "toggle": {
-      "ariaLabel": "Ngôn ngữ hiện tại: {current}. Nhấn để đổi.",
-      "title": "Chuyển sang {next}"
-    },
-    "dropdown": {
-      "ariaLabel": "Chọn ngôn ngữ"
-    }
-  },
     "failed": {
       "title": "Thanh toán không thành công",
       "transactionId": "Mã giao dịch",
@@ -457,6 +448,15 @@
         "vnSupport": "Hỗ trợ tiếng Việt",
         "sla": "SLA 99.5%"
       }
+    }
+  },
+  "i18n": {
+    "toggle": {
+      "ariaLabel": "Ngôn ngữ hiện tại: {current}. Nhấn để đổi.",
+      "title": "Chuyển sang {next}"
+    },
+    "dropdown": {
+      "ariaLabel": "Chọn ngôn ngữ"
     }
   },
   "docs": {
@@ -733,8 +733,6 @@
       "checkRuns": "Kiểm tra",
       "hashChain": "Chuỗi băm",
       "appBuilder": "Trình tạo ứng dụng",
-      "sopGenerator": "Tạo SOP",
-      "specConverter": "Chuyển đổi Spec",
       "compliance": "Tuân thủ",
       "settings": "Cài đặt",
       "adminPanel": "Quản trị viên",
@@ -1244,102 +1242,6 @@
         "savedDesc": "Tùy chọn thông báo đã được cập nhật.",
         "error": "Lỗi",
         "errorDesc": "Không thể lưu tùy chọn thông báo."
-      }
-    }
-  },
-  "pilot": {
-    "hero": {
-      "badge": "Chương trình thí điểm",
-      "headline": "Tham gia Chương trình Thí điểm SDLC Orchestrator",
-      "subheadline": "Trở thành một trong 10 founder SME Việt Nam đầu tiên định hình tương lai quản trị AI",
-      "cta": "Đăng ký ngay"
-    },
-    "benefits": {
-      "title": "Tại sao nên tham gia Chương trình Thí điểm?",
-      "subtitle": "Quyền lợi độc quyền cho những người tiên phong",
-      "items": {
-        "earlyAccess": {
-          "title": "Truy cập Sớm",
-          "description": "Trải nghiệm tính năng mới trước khi ra mắt chính thức"
-        },
-        "freeSupport": {
-          "title": "Hỗ trợ 1-1 Miễn phí",
-          "description": "Onboarding chuyên biệt và hỗ trợ kỹ thuật"
-        },
-        "lifetime": {
-          "title": "Giảm giá Trọn đời",
-          "description": "Giảm 50% phí đăng ký cho tất cả thành viên thí điểm"
-        },
-        "community": {
-          "title": "Cộng đồng Founder",
-          "description": "Kết nối với các founder Việt Nam khác xây dựng với AI"
-        }
-      }
-    },
-    "form": {
-      "title": "Đăng ký Chương trình Thí điểm",
-      "subtitle": "Giới hạn 10 thành viên - Đăng ký ngay!",
-      "name": "Họ và tên",
-      "namePlaceholder": "Nguyễn Văn A",
-      "email": "Địa chỉ Email",
-      "emailPlaceholder": "ban@congty.com",
-      "company": "Tên Công ty",
-      "companyPlaceholder": "Công ty Startup của tôi",
-      "role": "Vai trò của bạn",
-      "rolePlaceholder": "Chọn vai trò",
-      "roleOptions": {
-        "founder": "Founder / CEO",
-        "cto": "CTO / Trưởng phòng Kỹ thuật",
-        "manager": "Quản lý Kỹ thuật",
-        "developer": "Lập trình viên",
-        "other": "Khác"
-      },
-      "submit": "Tham gia Chương trình Thí điểm",
-      "submitting": "Đang gửi...",
-      "success": {
-        "title": "Đã gửi đơn đăng ký!",
-        "description": "Cảm ơn bạn đã đăng ký. Chúng tôi sẽ liên hệ trong vòng 24 giờ để xác nhận."
-      },
-      "validation": {
-        "nameRequired": "Vui lòng nhập họ tên đầy đủ",
-        "nameMin": "Tên phải có ít nhất 2 ký tự",
-        "nameTooLong": "Tên phải ít hơn 100 ký tự",
-        "emailRequired": "Vui lòng nhập địa chỉ email",
-        "emailInvalid": "Vui lòng nhập địa chỉ email hợp lệ",
-        "companyRequired": "Vui lòng nhập tên công ty",
-        "companyTooLong": "Tên công ty quá dài",
-        "roleRequired": "Vui lòng chọn vai trò"
-      },
-      "errors": {
-        "alreadyEnrolled": "Bạn đã đăng ký chương trình thí điểm",
-        "serverError": "Đã xảy ra lỗi. Vui lòng thử lại sau.",
-        "unauthorized": "Vui lòng đăng nhập để đăng ký chương trình thí điểm"
-      }
-    },
-    "faq": {
-      "title": "Câu hỏi Thường gặp",
-      "subtitle": "Mọi thứ bạn cần biết về chương trình thí điểm",
-      "items": {
-        "q1": {
-          "question": "Ai có thể tham gia chương trình thí điểm?",
-          "answer": "Founder và lãnh đạo kỹ thuật của SME Việt Nam trong các ngành F&B, Khách sạn, hoặc Bán lẻ. Chúng tôi tìm kiếm những đội ngũ sẵn sàng tích hợp quản trị AI vào quy trình phát triển."
-        },
-        "q2": {
-          "question": "Chương trình thí điểm kéo dài bao lâu?",
-          "answer": "Chương trình kéo dài 6 tuần với các buổi check-in hàng tuần. Bạn sẽ làm việc chặt chẽ với đội ngũ chúng tôi để triển khai SDLC Orchestrator và đóng góp phản hồi."
-        },
-        "q3": {
-          "question": "Cam kết thời gian là bao nhiêu?",
-          "answer": "Khoảng 2 giờ mỗi tuần: 1 giờ cho các buổi onboarding/đào tạo và 1 giờ để tích hợp với quy trình hiện tại của bạn."
-        },
-        "q4": {
-          "question": "Có thực sự miễn phí không?",
-          "answer": "Có! Chương trình thí điểm hoàn toàn miễn phí. Bạn sẽ được truy cập đầy đủ tất cả tính năng, hỗ trợ chuyên biệt, và giảm giá 50% trọn đời sau khi kết thúc chương trình."
-        },
-        "q5": {
-          "question": "Điều gì xảy ra sau chương trình thí điểm?",
-          "answer": "Thành viên thí điểm nhận giảm giá 50% trọn đời, hỗ trợ ưu tiên, truy cập sớm các tính năng mới, và có tiếng nói trong lộ trình sản phẩm. Bạn cũng là thành viên của cộng đồng founder."
-        }
       }
     }
   }

@@ -1,6 +1,6 @@
 # ADR-021: Analytics Service with Mixpanel Integration
 
-**Status**: ✅ APPROVED
+**Status**: SUPERSEDED (Sprint 190 — analytics_service deleted, replaced by telemetry_service)
 **Date**: December 21, 2025
 **Approved By**: CTO (Quoc Nguyen Huu)
 **Approval Date**: December 21, 2025

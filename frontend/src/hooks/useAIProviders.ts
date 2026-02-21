@@ -58,7 +58,6 @@ export interface AIProviderConfig {
   claude: ProviderStatus;
   openai: ProviderStatus;
   codegen: CodegenConfig;
-  ai_council_enabled: boolean;
   default_provider: string;
   fallback_enabled: boolean;
   fallback_chain: string[];

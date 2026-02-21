@@ -150,6 +150,13 @@ class Settings(BaseSettings):
     EVIDENCE_MANIFEST_SECRET_KEY: str = secrets.token_urlsafe(32)  # Auto-generate if not set
     EVIDENCE_RETENTION_DAYS: int = 2555  # ~7 years for GDPR compliance
 
+    # Magic Link OOB Auth (Sprint 189 - Chat-First Governance Loop)
+    # HMAC-SHA256 signed single-use tokens for gate approvals via chat
+    # CRITICAL: Must be set in production, rotated every 90 days via Vault
+    # See: ADR-064 D-064-04, FR-047, STM-064 C1
+    MAGIC_LINK_SECRET: str = secrets.token_urlsafe(32)  # Auto-generate if not set
+    MAGIC_LINK_TTL_SECONDS: int = 300  # 5-minute expiry (STM-064 C1)
+
     GOOGLE_CLIENT_ID: Optional[str] = None
     GOOGLE_CLIENT_SECRET: Optional[str] = None
     MICROSOFT_CLIENT_ID: Optional[str] = None
@@ -244,6 +251,9 @@ class Settings(BaseSettings):
     COOKIE_SAMESITE: str = "lax"  # Allow OAuth redirects, block CSRF
     COOKIE_ACCESS_TOKEN_MAX_AGE: int = 900  # 15 minutes (seconds)
     COOKIE_REFRESH_TOKEN_MAX_AGE: int = 604800  # 7 days (seconds)
+
+    # Break-Glass Approve (Sprint 192 — feature-flagged, default OFF)
+    BREAK_GLASS_WEB_ENABLED: bool = False
 
     @property
     def allowed_origins_list(self) -> list[str]:

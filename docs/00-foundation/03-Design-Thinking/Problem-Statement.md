@@ -1,13 +1,21 @@
 # SDLC Orchestrator - Problem Statement
 ## Validated Problem Definition (Design Thinking: DEFINE)
 
-**Version**: 4.0.0
-**Date**: February 19, 2026
-**Status**: ACTIVE - VALIDATED (Gate G0.1 PASSED) + Enterprise-First Strategy
+**Version**: 5.0.0
+**Date**: February 21, 2026
+**Status**: ACTIVE - VALIDATED (Gate G0.1 PASSED) + Chat-First Governance + Enterprise-First Strategy
 **Authority**: CEO + CPO + PM + CTO Approved
 **Foundation**: User Personas v2.0.0, User Research (10+ interviews)
 **Stage**: Stage 00 (WHY) - Design Thinking DEFINE Phase
 **Framework**: SDLC 6.1.0 (7-Pillar + AI Governance)
+
+**Changelog v5.0.0** (Feb 21, 2026):
+- **PLATFORM UX GAP**: Added Root Cause 9 — "Platform not faster than manual AI + SDLC Framework docs"
+- **CHAT-FIRST PIVOT**: EP-08 + ADR-064 approved as solution to Platform UX Gap
+- **CEO LIBERATION BLOCKED**: 35+ dashboard pages slower than CEO using Claude Code + docs manually
+- **NORTH STAR LOOP**: `@mention → Gate Actions → Evidence → Approve (Magic Link) → Audit Export`
+- **CODEBASE CLEANUP**: 28% of frontend is dead code — evidence of UX complexity bloat
+- Sprint 189-192 roadmap addresses Root Cause 9 directly
 
 **Changelog v4.0.0** (Feb 19, 2026):
 - **ENTERPRISE-FIRST**: Added "Enterprise Governance Gap" as Root Cause 8
@@ -391,6 +399,43 @@ This results in:
 
 ---
 
+### Root Cause 9: Platform UX Gap (NEW v5.0.0)
+
+**The Problem**:
+- SDLC Orchestrator has 35+ dashboard pages, 91+ frontend routes, 688 API endpoints
+- Platform is NOT faster than CEO manually using Claude Code + SDLC Framework docs
+- 28% of frontend codebase is dead code (unused pages, orphaned components)
+- CEO cannot delegate governance to PMs because the tool is slower than the manual alternative
+- "CEO Liberation" promise unfulfilled — CEO remains the bottleneck
+
+**Evidence**:
+- CEO direct observation: "I'm faster with Claude Code than clicking through 35 dashboard pages"
+- Frontend audit (Sprint 189): 18.3K LOC identified as dead/unused (28% of frontend)
+- 91 frontend routes, but daily active usage concentrated on <10 routes
+- Competitive threat: If AI coders + SDLC Framework docs are faster, platform has zero value-add
+
+**Impact**:
+- CEO cannot stop being the bottleneck (blocks team scaling)
+- Feature adoption stalled (complex UX deters new users)
+- Onboarding TTFV exceeds target (35+ pages to learn vs. single chat interface)
+- Competitive disadvantage: Simpler chat-based tools win adoption
+
+**Why This Happens**:
+- ❌ Feature accumulation: 188 sprints of building = UI bloat without pruning
+- ❌ Dashboard-first assumption: Every feature gets a page (wrong UX paradigm for governance)
+- ❌ No usage-based pruning: Dead pages not deleted because "someone might use them"
+- ❌ Wrong interaction model: Governance is conversational (approve/reject/review), not dashboard-browsing
+
+**Solution Vision (EP-08 Chat-First Governance Loop)**:
+- ✅ Chat = primary UX, Control Plane = source of truth (ADR-064)
+- ✅ North Star Loop: `@mention → Gate Actions → Evidence → Approve (Magic Link) → Audit Export`
+- ✅ ~500 LOC new chat layer over existing enterprise Control Plane (Option D+)
+- ✅ Sprint 190: Delete ~18.3K LOC dead code (28% frontend cleanup)
+- ✅ Magic Link: Approve gates without OTT login (time-limited URL)
+- ✅ CEO Liberation: Any PM achieves CEO-level governance via chat
+
+---
+
 ## 💰 Business Impact (Quantified)
 
 ### Financial Impact
@@ -524,9 +569,9 @@ This results in:
 
 **Document**: SDLC-Orchestrator-Problem-Statement
 **Framework**: SDLC 6.1.0 Stage 00 (WHY) - Design Thinking DEFINE
-**Component**: Problem Validation (Gate G0.1) + AI Governance Extension (v2.1.0)
+**Component**: Problem Validation (Gate G0.1) + AI Governance Extension (v2.1.0) + Platform UX Gap (v5.0.0)
 **Review**: Quarterly (validate problem remains relevant)
-**Last Updated**: December 23, 2025
+**Last Updated**: February 21, 2026
 
 **Strategic Solutions (Software 3.0)**:
 
@@ -541,10 +586,11 @@ This results in:
 **EP-04**: SDLC Structure Enforcement - Prevent AI codex structure violations
 **EP-05**: Enterprise Migration Engine - .sdlc-config.json (1KB vs 700KB) [Deprioritized]
 
-**Year 1 Target (Enterprise-First)**:
+**Year 1 Target (Enterprise-First + Chat-First)**:
 - 45-70 teams total
 - $160K-$350K ARR
 - Enterprise SSO/RBAC live (Sprint 182-183)
+- Chat-First Governance live (Sprint 189-192, EP-08)
 - Vietnam SME pilot validated with 8/10 satisfaction
 
 *"Define the RIGHT problem before building the RIGHT solution"* 🎯

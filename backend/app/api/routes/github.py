@@ -51,7 +51,7 @@ from app.services import github_app_service
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/github", tags=["github"])
+router = APIRouter(prefix="/github", tags=["github"])
 
 
 # ============================================================================

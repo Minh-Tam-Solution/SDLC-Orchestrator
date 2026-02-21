@@ -23,7 +23,6 @@ ADR-060 D-060-03: Tier gating enforced per channel inside ott_gateway.
 
 from __future__ import annotations
 
-import hashlib
 import hmac
 import logging
 import os
@@ -34,8 +33,9 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.services.agent_bridge import normalize, route_to_normalizer
+from app.services.agent_bridge import route_to_normalizer
 from app.services.agent_bridge.protocol_adapter import OrchestratorMessage
+from app.utils.redis import get_redis_client
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +48,12 @@ SUPPORTED_CHANNELS: frozenset[str] = frozenset({"telegram", "zalo", "teams", "sl
 _HMAC_ENABLED: bool = os.getenv("OTT_HMAC_ENABLED", "false").lower() == "true"
 _TELEGRAM_SECRET: str = os.getenv("TELEGRAM_WEBHOOK_SECRET", "")
 _SLACK_SIGNING_SECRET: str = os.getenv("SLACK_SIGNING_SECRET", "")
+# Sprint 192 — CTO P1-2: Zalo uses os.getenv() pattern (matches Slack/Telegram)
+_ZALO_APP_SECRET: str = os.getenv("ZALO_APP_SECRET", "")
+_ZALO_APP_ID: str = os.getenv("ZALO_APP_ID", "")
+
+# Redis dedupe TTL (Sprint 189 — ADR-064 T-04, FR-048)
+_DEDUPE_TTL_SECONDS: int = 3600  # 1 hour covers all reasonable retry windows
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -97,6 +103,60 @@ def _verify_telegram_secret_token(body: bytes, secret_header: str | None) -> boo
     return hmac.compare_digest(secret_header, _TELEGRAM_SECRET)
 
 
+def _verify_zalo_signature(
+    body: bytes,
+    raw_body: dict[str, Any],
+    signature: str | None,
+) -> bool:
+    """
+    Verify Zalo OA X-ZEvent-Signature using SHA256.
+
+    Zalo formula: sha256(app_id + body_utf8 + timestamp + oa_secret_key).
+    app_id and timestamp are extracted from the parsed JSON body.
+
+    No replay protection — Zalo does not provide a separate timestamp header
+    (documented limitation, CTO acknowledged Sprint 192 P3-1).
+
+    Returns True if OTT_HMAC_ENABLED is False (dev mode bypass).
+    """
+    if not _HMAC_ENABLED:
+        return True
+    if not signature:
+        return False
+    app_id = raw_body.get("appId") or raw_body.get("app_id") or _ZALO_APP_ID
+    timestamp = str(raw_body.get("timestamp", ""))
+    from app.services.agent_bridge.zalo_normalizer import verify_signature as _zalo_verify
+    return _zalo_verify(body, signature, app_id, timestamp, _ZALO_APP_SECRET)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Webhook dedupe — event ID extraction (Sprint 189 — FR-048 §2.1)
+# ──────────────────────────────────────────────────────────────────────────────
+
+def _extract_event_id(channel: str, body: dict[str, Any]) -> str | None:
+    """
+    Extract platform-specific event ID for deduplication (FR-048 §2.1).
+
+    Each OTT platform uses a different field for unique event identification:
+        Telegram: update_id (integer, monotonically increasing)
+        Slack:    event_id within the event envelope
+        Teams:    id (activity ID)
+        Zalo:     event_id in the webhook payload
+
+    Returns None if event ID cannot be extracted (dedupe skipped).
+    """
+    if channel == "telegram":
+        uid = body.get("update_id")
+        return str(uid) if uid is not None else None
+    elif channel == "slack":
+        return body.get("event_id") or body.get("event", {}).get("event_ts") or None
+    elif channel == "teams":
+        return body.get("id") or None
+    elif channel == "zalo":
+        return body.get("event_id") or None
+    return None
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Webhook endpoint
 # ──────────────────────────────────────────────────────────────────────────────
@@ -114,6 +174,7 @@ async def receive_webhook(
     x_telegram_bot_api_secret_token: str | None = Header(default=None),
     x_slack_signature: str | None = Header(default=None),
     x_slack_request_timestamp: str | None = Header(default=None),
+    x_zevent_signature: str | None = Header(default=None, alias="X-ZEvent-Signature"),
 ) -> JSONResponse:
     """
     Receive an OTT channel webhook and enqueue it for the Multi-Agent Team Engine.
@@ -125,6 +186,8 @@ async def receive_webhook(
         Telegram: HMAC verified via X-Telegram-Bot-Api-Secret-Token header.
         Slack:    HMAC-SHA256 verified via X-Slack-Signature +
                   X-Slack-Request-Timestamp headers (replay protection 5min).
+        Zalo:     SHA256 verified via X-ZEvent-Signature header
+                  (Sprint 192). No replay protection (Zalo API limitation).
         All:      Verification bypassed when OTT_HMAC_ENABLED=false (dev default).
 
     Slack url_verification:
@@ -179,6 +242,54 @@ async def receive_webhook(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="request body must be valid JSON",
         )
+
+    # Sprint 192: Zalo verification requires parsed body (appId + timestamp
+    # are inside the JSON payload). Verification still covers raw body_bytes
+    # integrity — the SHA256 base string includes the raw body string.
+    if channel == "zalo":
+        if not _verify_zalo_signature(
+            body=body_bytes,
+            raw_body=raw_body,
+            signature=x_zevent_signature,
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="webhook signature invalid",
+            )
+
+    # ── Sprint 189: Redis-based webhook dedupe (ADR-064 T-04, FR-048) ──
+    # Dedupe at gateway level (NOT router) to cover ALL channels.
+    # Event ID extraction per platform: Telegram update_id, Slack event_id,
+    # Teams id, Zalo event_id. Returns HTTP 200 for duplicates to prevent
+    # OTT platform re-delivery.
+    event_id = _extract_event_id(channel, raw_body)
+    if event_id:
+        try:
+            redis = await get_redis_client()
+            dedupe_key = f"webhook_dedupe:{channel}:{event_id}"
+            # Atomic SET NX EX: returns True if key was set (new event),
+            # None/False if key exists (duplicate). Eliminates TOCTOU race
+            # in GET-then-SET pattern. See FR-048 §2.2.
+            was_set = await redis.set(
+                dedupe_key, "1", nx=True, ex=_DEDUPE_TTL_SECONDS,
+            )
+            if not was_set:
+                logger.info(
+                    "ott_gateway: duplicate webhook channel=%s event_id=%s",
+                    channel,
+                    event_id,
+                )
+                return JSONResponse(
+                    content={"status": "duplicate", "event_id": str(event_id)},
+                    status_code=status.HTTP_200_OK,
+                )
+        except Exception as exc:
+            # Dedupe failure is non-fatal — log and continue processing
+            logger.warning(
+                "ott_gateway: dedupe check failed channel=%s error=%s",
+                channel,
+                str(exc),
+            )
 
     try:
         msg: OrchestratorMessage = route_to_normalizer(channel, raw_body)

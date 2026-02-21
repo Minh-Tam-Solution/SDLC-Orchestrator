@@ -36,6 +36,7 @@ Authority: CTO + CPO Approved (ADR-059)
 import logging
 import os
 from typing import Any
+from uuid import UUID
 
 from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
@@ -238,8 +239,8 @@ class TierGateMiddleware:
             await self.app(scope, receive, send)
             return
 
-        # Resolve user's current tier from scope state (set by AuthMiddleware)
-        user_tier_str: str = self._resolve_user_tier(scope)
+        # Resolve user's current tier (scope state → JWT + DB lookup → LITE)
+        user_tier_str: str = await self._resolve_user_tier(scope)
         user_tier_value: int = TIER_VALUES.get(user_tier_str, 1)
 
         if user_tier_value < required_tier:
@@ -288,18 +289,15 @@ class TierGateMiddleware:
                 return tier
         return None
 
-    def _resolve_user_tier(self, scope: Scope) -> str:
+    async def _resolve_user_tier(self, scope: Scope) -> str:
         """
         Resolve user's subscription tier from request scope.
 
         Priority order:
         1. scope["state"]["user_tier"] — set by upstream AuthMiddleware
-        2. Default to "LITE" (fail-open: don't block on lookup failure)
-
-        The downstream route-level dependencies (require_enterprise_tier,
-        get_current_active_user) enforce authentication separately.
-        Unauthenticated requests are handled by those dependencies (401),
-        not by this middleware (402).
+        2. JWT decode + DB subscription lookup (same pattern as UsageLimitsMiddleware)
+        3. Superuser check — superusers get ENTERPRISE tier automatically
+        4. Default to "LITE" (fail-open: don't block on lookup failure)
 
         Args:
             scope: ASGI connection scope
@@ -307,12 +305,79 @@ class TierGateMiddleware:
         Returns:
             Tier name string (used in TIER_VALUES lookup).
         """
+        # Priority 1: scope state (set by AuthMiddleware — no DB hit needed)
         state: dict[str, Any] = scope.get("state", {})  # type: ignore[assignment]
-        # scope["state"] may be a Starlette State object or plain dict
+        tier_from_state: str | None = None
         if hasattr(state, "__dict__"):
-            # Starlette State object: access attributes via __dict__
-            return getattr(state, "user_tier", "LITE")
-        return state.get("user_tier", "LITE")
+            tier_from_state = getattr(state, "user_tier", None)
+        else:
+            tier_from_state = state.get("user_tier")  # type: ignore[union-attr]
+
+        if tier_from_state:
+            return tier_from_state
+
+        # Priority 2: JWT decode + DB lookup
+        user_id = self._extract_user_id(scope)
+        if user_id is None:
+            return "LITE"
+
+        try:
+            from app.db.session import AsyncSessionLocal
+
+            async with AsyncSessionLocal() as db:
+                from sqlalchemy import select as sa_select
+
+                # Check if user is superuser — superusers get ENTERPRISE
+                from app.models.user import User
+                user_result = await db.execute(
+                    sa_select(User.is_superuser).where(User.id == user_id)
+                )
+                is_superuser = user_result.scalar_one_or_none()
+                if is_superuser:
+                    return "ENTERPRISE"
+
+                # Check subscription plan
+                from app.models.subscription import Subscription
+                sub_result = await db.execute(
+                    sa_select(Subscription.plan).where(Subscription.user_id == user_id)
+                )
+                plan_value: str | None = sub_result.scalar_one_or_none()
+
+            if plan_value:
+                normalised = plan_value.lower().strip()
+                if normalised in TIER_VALUES:
+                    return normalised
+                return "LITE"
+        except Exception as exc:
+            logger.warning(
+                "TierGateMiddleware: tier DB lookup failed for user=%s: %s",
+                user_id, exc,
+            )
+
+        return "LITE"
+
+    def _extract_user_id(self, scope: Scope) -> UUID | None:
+        """Extract user UUID from JWT Authorization header (fail-silent)."""
+        headers: dict[bytes, bytes] = dict(scope.get("headers", []))
+        raw_auth: bytes = headers.get(b"authorization", b"")
+        auth_str: str = raw_auth.decode("utf-8", errors="replace").strip()
+
+        if not auth_str.lower().startswith("bearer "):
+            return None
+
+        token = auth_str[7:].strip()
+        if not token:
+            return None
+
+        try:
+            from app.core.security import decode_token
+            payload = decode_token(token)
+            sub: str | None = payload.get("sub")
+            if not sub:
+                return None
+            return UUID(sub)
+        except Exception:
+            return None
 
     def _is_admin_bypass(self, scope: Scope) -> bool:
         """

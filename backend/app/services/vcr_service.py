@@ -652,7 +652,7 @@ class VCRService:
         - PR diff analysis for problem/solution extraction
         - Confidence scoring for generated content
         """
-        from app.services.sase_generation_service import create_sase_generation_service
+        from app.services.sase_adapter import create_sase_generation_service
 
         logger.info(
             f"Auto-generate VCR requested for project {request.project_id}, "

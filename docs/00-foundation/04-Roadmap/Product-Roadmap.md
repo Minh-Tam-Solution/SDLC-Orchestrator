@@ -1,12 +1,23 @@
 # Product Roadmap
 ## Operating System for Software 3.0
 
-**Version**: 8.0.0
-**Date**: February 19, 2026
-**Status**: ✅ CTO APPROVED - Enterprise-First Roadmap (Sprint 180-188)
-**Authority**: CTO Approval (Feb 19, 2026), CPO Approval (Feb 19, 2026)
-**Foundation**: Financial Model v2.0.0, Market-Sizing v4.0.0, BRD v3.0.0, ADR-059
-**Framework**: SDLC 6.1.0 + Quality Assurance System (Pillar 7) + Enterprise-First Strategy
+**Version**: 9.0.0
+**Date**: February 21, 2026
+**Status**: ✅ CTO APPROVED - Chat-First Governance Loop (Sprint 189-192) + Enterprise-First (Sprint 180-188)
+**Authority**: CTO Approval (Feb 21, 2026), CPO Approval (Feb 19, 2026)
+**Foundation**: Financial Model v2.0.0, Market-Sizing v4.0.0, BRD v4.0.0, ADR-059, ADR-064
+**Framework**: SDLC 6.1.0 + Quality Assurance System (Pillar 7) + Enterprise-First Strategy + Chat-First Governance
+
+**Changelog v9.0.0** (Feb 21, 2026) — Chat-First Governance Loop (EP-08, ADR-064):
+- **CHAT-FIRST PIVOT**: EP-08 + ADR-064 approved — Chat is the primary UX, Control Plane is truth
+- **SPRINT 189**: Chat Governance Loop (Ollama Vietnamese PoC, Chat Router, Magic Link Service)
+- **SPRINT 190**: Aggressive Cleanup (~18.3K LOC deletion, 28% frontend dead code)
+- **SPRINT 191-192**: Enterprise Hardening (SOC 2 chat audit, SSO magic link federation)
+- **OPTION D+**: Chat-First Facade (~500 LOC new) — thin chat layer over existing enterprise Control Plane
+- **NORTH STAR LOOP**: `@mention → Gate Actions → Evidence → Approve (Magic Link) → Audit Export`
+- **11 CTO CONDITIONS**: T-01..T-09 + A-01..A-04 locked in ADR-064
+- **NET CODEBASE**: +500 LOC new, -18,300 LOC deleted = -17,800 LOC net reduction
+- **BUDGET**: ~$24,000 total (Sprint 189-192)
 
 **Changelog v8.0.0** (Feb 19, 2026) — Enterprise-First Refocus (ADR-059):
 - **Sprint 180 COMPLETE**: Enterprise-First strategy docs (ADR-059, Financial-Model v2.0.0, BRD v3.0.0, Market-Sizing v4.0.0)
@@ -161,6 +172,64 @@
 - Sprint 186: MinIO regional buckets (VN + EU), GDPR erasure/DSAR
 - Sprint 187: G4 gate + external pentest + enterprise beta (2-3 customers)
 - Sprint 188: Stripe enforcement, Product Hunt launch, CLAUDE.md v3.9.0
+
+---
+
+## Chat-First Governance Loop Roadmap (Sprint 189-192)
+
+**Goal**: Replace 35+ dashboard pages with chat-first governance — "Chat = UX, Control Plane = Truth"
+**Strategy**: Option D+ Chat-First Facade (ADR-064) — thin chat layer over existing enterprise Control Plane
+**Epic**: EP-08 Chat-First Governance Loop
+**Budget**: ~$24,000 total (Sprint 189-192)
+**Timeline**: ~32 working days from Feb 21, 2026
+**North Star Loop**: `@mention → Gate Actions → Evidence → Approve (Magic Link) → Audit Export`
+
+| Sprint | Theme | Duration | Budget | Risk | Key Milestone |
+|--------|-------|----------|--------|------|---------------|
+| **189** | Chat Governance Loop | 8 days | $5,120 | HIGH | Ollama Vietnamese PoC (Day 1 GO/NO-GO), chat_command_router, magic_link_service |
+| **190** | Aggressive Cleanup | 8 days | $5,120 | MEDIUM | ~18.3K LOC deletion (28% frontend), dead page removal, test stabilization |
+| **191** | Enterprise Hardening P1 | 8 days | $6,400 | MEDIUM | SOC 2 chat audit trail, SSO magic link + SAML federation |
+| **192** | Enterprise Hardening P2 | 8 days | $6,400 | LOW | E2E smoke suite, compliance certification, checkpoint Sprint 193 prep |
+| **Total** | **4 Sprints** | **~32 days** | **~$24,000** | — | **Chat-First Governance GA** |
+
+**Key Deliverables by Sprint**:
+- Sprint 189: Ollama `/api/chat` method (Vietnamese validation), `chat_command_router.py` (~200 LOC), `magic_link_service.py` (~150 LOC), OTT gateway dedupe
+- Sprint 190: Delete ~18.3K LOC (28% of frontend) — dead pages, unused components, orphaned routes; test suite stabilization
+- Sprint 191: SOC 2 audit trail for chat approvals, SSO magic link federation with SAML, enterprise compliance evidence
+- Sprint 192: E2E smoke test suite for chat governance loop, performance validation, Sprint 193 checkpoint preparation
+
+**Architecture (ADR-064 — 4 Locked Decisions)**:
+- **D-064-01**: Chat = UX, Control Plane = source of truth (chat never bypasses gates)
+- **D-064-02**: LLM Function Calling for intent detection (not regex parsing)
+- **D-064-03**: Actions Contract — typed actions with pre/post conditions
+- **D-064-04**: Magic Link OOB authentication (time-limited URL, no OTT login required)
+
+**3 Invariants**:
+- **INV-01**: Agent NEVER decides truth — Control Plane is the sole oracle
+- **INV-02**: PRO/ENTERPRISE is enforcement-first, LITE is nudge-only
+- **INV-03**: Chat approval → immutable audit (same row as web approval)
+
+**11 CTO Conditions (Non-Negotiable)**:
+- T-01: Bounded function calling (10 functions max)
+- T-02: Native Ollama `/api/chat` (not LangChain)
+- T-03: Evidence type user-selected (not LLM-guessed)
+- T-04: Dedupe at gateway (not router)
+- T-05: Use async Redis (`from app.core.redis import get_redis`)
+- T-06: OPA → audit_logs (not separate policy_audit)
+- T-07: Alembic downgrade = `raise NotImplementedError`
+- T-08: `run_in_threadpool` for Ollama sync calls
+- T-09: `run_in_threadpool` for ProjectService sync calls
+- A-01: `requires_oob_auth` is new code (not existing field)
+- A-02: Correct Redis import path
+- A-03: OPA → audit proper column mapping
+- A-04: All code samples are pseudocode (must implement)
+
+**Success Gate (End of Sprint 192)**:
+- North Star Loop demonstrated end-to-end (chat → gate → evidence → approve → audit)
+- Frontend reduced by ~28% (dead code removed)
+- Magic link approval works without OTT login
+- SOC 2 audit trail covers chat approvals
+- All 11 CTO conditions verified in code review
 
 ---
 
@@ -966,10 +1035,11 @@ Previous roadmap versions archived at:
 
 | Role | Name | Approval Date | Status |
 |------|------|---------------|--------|
-| **CTO** | Mr. Tai | February 19, 2026 | ✅ APPROVED (v8.0.0) |
+| **CTO** | Mr. Tai | February 21, 2026 | ✅ APPROVED (v9.0.0) |
 | **CPO** | TBD | February 19, 2026 | ✅ APPROVED (v8.0.0) |
 | **CEO** | TBD | Pending | ⏳ |
 
+**Chat-First Governance Loop Approval**: February 21, 2026 (EP-08 + ADR-064, 11 conditions)
 **Enterprise-First Roadmap Approval**: February 19, 2026 (8-sprint enterprise plan, ADR-059)
 **Sprint 147+ Legacy Roadmap Approval**: February 3, 2026 (24-sprint plan, superseded)
 **Expert Synthesis Review**: February 2, 2026 (Course correction approved)
@@ -981,12 +1051,15 @@ Previous roadmap versions archived at:
 - [PRODUCT-TRUTH-LAYER-SPEC.md](../04-build/02-Sprint-Plans/PRODUCT-TRUTH-LAYER-SPEC.md) - Telemetry specification
 - [V1-V2-CONSOLIDATION-PLAN.md](../04-build/02-Sprint-Plans/V1-V2-CONSOLIDATION-PLAN.md) - API migration guide
 - [ADR-059-Enterprise-First-Refocus.md](../02-design/01-ADRs/ADR-059-Enterprise-First-Refocus.md) - Enterprise-First strategy decision
+- [ADR-064-Chat-First-Facade.md](../02-design/03-ADRs/ADR-064-Chat-First-Facade-Option-D-Plus.md) - Chat-First Governance (4 locked decisions, 13 conditions)
+- [EP-08-Chat-First-Governance-Loop.md](../01-planning/02-Epics/EP-08-Chat-First-Governance-Loop.md) - Epic scope, ~$24K investment
+- [SPRINT-189-CHAT-GOVERNANCE-LOOP.md](../04-build/02-Sprint-Plans/SPRINT-189-CHAT-GOVERNANCE-LOOP.md) - Sprint 189 daily schedule
 - [SPRINT-181 through SPRINT-188](../04-build/02-Sprint-Plans/) - Enterprise completion sprint plans (when created)
 
-**Next Review**: February 26, 2026 (Sprint 181 planning)
+**Next Review**: February 28, 2026 (Sprint 189 Day 5 checkpoint)
 
 ---
 
 *This document is the SINGLE SOURCE OF TRUTH for product roadmap. Changes require CTO + CPO approval.*
 *Version controlled alongside quarterly reviews.*
-*Last Updated: February 19, 2026*
+*Last Updated: February 21, 2026*

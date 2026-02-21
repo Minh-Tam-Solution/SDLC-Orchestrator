@@ -680,7 +680,7 @@ async def create_phase(
 @router.get("/phases")
 async def list_phases(
     roadmap_id: UUID = Query(..., description="Roadmap UUID"),
-    status: Optional[str] = Query(None, description="Filter by status"),
+    phase_status: Optional[str] = Query(None, description="Filter by status", alias="status"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -702,8 +702,8 @@ async def list_phases(
     await check_project_access(db, roadmap.project_id, current_user)
 
     query = select(Phase).where(Phase.roadmap_id == roadmap_id)
-    if status:
-        query = query.where(Phase.status == status)
+    if phase_status:
+        query = query.where(Phase.status == phase_status)
 
     # Count total
     count_result = await db.execute(
