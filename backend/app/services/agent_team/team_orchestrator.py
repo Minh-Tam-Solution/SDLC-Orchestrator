@@ -52,6 +52,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.agent_conversation import AgentConversation
 from app.models.agent_definition import AgentDefinition
 from app.models.agent_message import AgentMessage
+from app.models.sprint import Sprint
 from app.services.agent_team.agent_invoker import (
     AgentInvoker,
     InvocationResult,
@@ -489,6 +490,11 @@ class TeamOrchestrator:
                 + system_prompt
             )
 
+        # Sprint 193 — Phase 3: Inject current sprint context into agent prompts
+        sprint_context = await self._get_sprint_context(conversation.project_id)
+        if sprint_context:
+            system_prompt += f"\n\n## Current Sprint Context\n{sprint_context}"
+
         # Fetch recent conversation history
         history_result = await self.db.execute(
             select(AgentMessage)
@@ -514,6 +520,61 @@ class TeamOrchestrator:
         })
 
         return system_prompt, context_messages
+
+    async def _get_sprint_context(self, project_id: UUID) -> Optional[str]:
+        """
+        Get formatted sprint context for agent prompt injection.
+
+        Sprint 193 — Phase 3: Agents must see sprint context so they can
+        align their work with the current sprint goal, backlog priorities,
+        and gate status.
+
+        Args:
+            project_id: UUID of the project
+
+        Returns:
+            Formatted sprint context string, or None if no active sprint
+        """
+        try:
+            result = await self.db.execute(
+                select(Sprint)
+                .where(
+                    Sprint.project_id == project_id,
+                    Sprint.status == "active",
+                )
+                .order_by(Sprint.number.desc())
+                .limit(1)
+            )
+            sprint = result.scalar_one_or_none()
+
+            if not sprint:
+                return None
+
+            lines = [
+                f"**Sprint {sprint.number}: {sprint.name}** | Status: {sprint.status.upper()}",
+                "",
+                f"Goal: {sprint.goal}",
+            ]
+
+            if sprint.start_date and sprint.end_date:
+                from datetime import date as date_type
+
+                today = date_type.today()
+                days_remaining = (sprint.end_date - today).days
+                if days_remaining >= 0:
+                    lines.append(f"Days remaining: {days_remaining}")
+                else:
+                    lines.append(f"Sprint overdue by {abs(days_remaining)} days")
+
+            g_sprint = getattr(sprint, "g_sprint_status", None)
+            if g_sprint:
+                lines.append(f"G-Sprint: {g_sprint}")
+
+            return "\n".join(lines)
+
+        except Exception as e:
+            logger.warning("Failed to get sprint context for project %s: %s", project_id, e)
+            return None
 
     def _build_invoker(
         self,

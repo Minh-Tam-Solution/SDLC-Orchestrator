@@ -9,7 +9,7 @@ Date: January 18, 2026
 Status: ACTIVE - Sprint 75 Enhancement
 Authority: Backend Lead + CTO Approved
 Reference: ADR-013-Planning-Hierarchy
-Reference: SDLC-Sprint-Planning-Governance.md (SDLC 5.1.3)
+Reference: SDLC-Sprint-Planning-Governance.md (SDLC 6.1.1)
 
 Endpoints:
 - /roadmaps: Roadmap CRUD (strategic planning)
@@ -17,7 +17,7 @@ Endpoints:
 - /sprints: Sprint CRUD + G-Sprint/G-Sprint-Close gates
 - /backlog: Backlog item CRUD (stories, tasks, bugs)
 
-SDLC 5.1.3 Compliance:
+SDLC 6.1.1 Compliance:
 - G-Sprint Gate validation before sprint start
 - G-Sprint-Close Gate validation with 24h documentation deadline
 - Immutable sprint numbering (Rule #1)
@@ -28,14 +28,15 @@ Sprint 75 Enhancement:
 - check_sprint_gate_authorization() - Team-based gate approval validation
 - Only SE4H Coach (team owner/admin) can approve sprint gates
 - AI agents (SE4A) cannot approve governance gates
-- Human oversight enforcement for SDLC 5.1.3
+- Human oversight enforcement for SDLC 6.1.1
 
 Zero Mock Policy: Production-ready FastAPI routes
 =========================================================================
 """
 
+import logging
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -200,6 +201,8 @@ from app.services.sprint_template_service import (
 # Router Configuration
 # =========================================================================
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/planning", tags=["Planning Hierarchy"])
 
 
@@ -258,7 +261,7 @@ async def check_sprint_gate_authorization(
     """
     Check if user can approve sprint gates (G-Sprint/G-Sprint-Close).
 
-    SDLC 5.1.3 Sprint Planning Governance (Sprint 75):
+    SDLC 6.1.1 Sprint Planning Governance (Sprint 75):
     - If project has team: user must be team owner/admin (SE4H Coach)
     - If project has no team: user must be project owner
     - AI agents (SE4A) cannot approve gates
@@ -846,7 +849,7 @@ async def create_sprint(
     """
     Create a new sprint.
 
-    SDLC 5.1.3 Rule #1: Sprint numbers are immutable after creation.
+    SDLC 6.1.1 Rule #1: Sprint numbers are immutable after creation.
     """
     await check_project_access(db, data.project_id, current_user, require_write=True)
 
@@ -861,7 +864,7 @@ async def create_sprint(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Sprint {data.number} already exists in this project. "
-            f"Sprint numbers are immutable per SDLC 5.1.3 Rule #1.",
+            f"Sprint numbers are immutable per SDLC 6.1.1 Rule #1.",
         )
 
     # Validate phase belongs to project if provided
@@ -1260,7 +1263,7 @@ async def submit_gate_evaluation(
     """
     Submit gate evaluation for approval.
 
-    SDLC 5.1.3 Sprint Planning Governance (Sprint 75):
+    SDLC 6.1.1 Sprint Planning Governance (Sprint 75):
     - Only team owner/admin (SE4H Coach) can approve sprint gates
     - AI agents (SE4A) cannot approve gates
     - This enforces human oversight for sprint governance
@@ -1303,6 +1306,32 @@ async def submit_gate_evaluation(
             detail="Gate evaluation already submitted",
         )
 
+    # Sprint 193 Phase 4: Auto-verify checklist items with auto_verify=True
+    # before finalization so automated results affect pass/fail outcome
+    try:
+        project_result = await db.execute(
+            select(Project).where(Project.id == sprint.project_id)
+        )
+        project = project_result.scalar_one_or_none()
+        if project:
+            from app.services.github_service import github_service
+            from app.services.sprint_verification_service import SprintVerificationService
+
+            verification_svc = SprintVerificationService(
+                db=db, github_service=github_service
+            )
+            await verification_svc.auto_evaluate_checklist_item(
+                evaluation=evaluation,
+                sprint=sprint,
+                project=project,
+            )
+    except Exception:
+        # Auto-verification is best-effort; manual checklist still works
+        logger.warning(
+            "Auto-verification failed for sprint %s gate %s",
+            sprint_id, gate_type.value, exc_info=True,
+        )
+
     # Finalize evaluation
     if data.notes:
         evaluation.notes = data.notes
@@ -1325,14 +1354,19 @@ async def submit_gate_evaluation(
 
 
 def _serialize_gate_evaluation(evaluation: SprintGateEvaluation) -> dict:
-    """Serialize gate evaluation to response dict."""
-    checked = 0
+    """Serialize gate evaluation to response dict.
+
+    Sprint 193 fix: Template uses 'passed' field (True/False/None),
+    not 'checked'. The serializer was reading the wrong field name,
+    causing completion counts to always be 0.
+    """
+    passed_count = 0
     total = 0
     for category_items in evaluation.checklist.values():
         for item in category_items:
             total += 1
-            if item.get("checked", False):
-                checked += 1
+            if item.get("passed") is True:
+                passed_count += 1
 
     return {
         "id": evaluation.id,
@@ -1344,8 +1378,8 @@ def _serialize_gate_evaluation(evaluation: SprintGateEvaluation) -> dict:
         "evaluated_by": evaluation.evaluated_by,
         "evaluated_at": evaluation.evaluated_at,
         "created_at": evaluation.created_at,
-        "all_items_checked": checked == total and total > 0,
-        "checked_count": checked,
+        "all_items_passed": passed_count == total and total > 0,
+        "passed_count": passed_count,
         "total_count": total,
     }
 
@@ -1364,7 +1398,7 @@ async def create_backlog_item(
     """
     Create a new backlog item (story, task, bug, spike).
 
-    SDLC 5.1.3 GAP 2 Resolution (Sprint 76):
+    SDLC 6.1.1 GAP 2 Resolution (Sprint 76):
     - If assignee_id is provided, validates that assignee is a team member
     - Projects without teams allow any assignee (backward compatibility)
     """
@@ -1440,7 +1474,7 @@ async def get_valid_assignees(
     """
     Get list of valid assignees for backlog items in a project.
 
-    SDLC 5.1.3 GAP 2 Resolution (Sprint 76):
+    SDLC 6.1.1 GAP 2 Resolution (Sprint 76):
     - Returns only team members who can be assigned to backlog items
     - Used by frontend to populate assignee dropdown
     - If project has no team, returns empty list (allow any assignee)
@@ -1627,7 +1661,7 @@ async def update_backlog_item(
     """
     Update a backlog item.
 
-    SDLC 5.1.3 GAP 2 Resolution (Sprint 76):
+    SDLC 6.1.1 GAP 2 Resolution (Sprint 76):
     - If assignee_id is being updated, validates that new assignee is a team member
     - Projects without teams allow any assignee (backward compatibility)
     """

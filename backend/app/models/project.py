@@ -284,6 +284,25 @@ class Project(Base):
         """Count active gates (not deleted)"""
         return sum(1 for gate in self.gates if gate.deleted_at is None)
 
+    # Sprint 193 — GitHub integration property aliases
+    # DynamicContextService uses project.github_repo and project.default_branch
+    # These delegate to GitHubRepository (Sprint 129, ADR-044) when available,
+    # falling back to the legacy github_repo_full_name column.
+
+    @property
+    def github_repo(self) -> Optional[str]:
+        """Full repository name (owner/repo) for GitHub API calls."""
+        if self.github_repository:
+            return self.github_repository.full_name
+        return self.github_repo_full_name
+
+    @property
+    def default_branch(self) -> str:
+        """Default branch name for GitHub operations."""
+        if self.github_repository and self.github_repository.default_branch:
+            return self.github_repository.default_branch
+        return "main"
+
 
 class ProjectMember(Base):
     """

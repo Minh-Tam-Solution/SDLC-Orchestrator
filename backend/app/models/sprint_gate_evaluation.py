@@ -7,7 +7,7 @@ Version: 1.0.0
 Date: January 18, 2026
 Status: ACTIVE - Sprint 74 Implementation
 Authority: Backend Lead + CTO Approved
-Framework: SDLC 5.1.3 Sprint Planning Governance
+Framework: SDLC 6.1.1 Sprint Planning Governance
 ADR: ADR-013 Planning Hierarchy
 
 Purpose:
@@ -15,10 +15,10 @@ Purpose:
 - JSONB checklist for audit trail
 - Support tier-based approval authority
 
-SDLC 5.1.3 Compliance:
+SDLC 6.1.1 Compliance:
 - G-Sprint: Validates sprint plan before execution
 - G-Sprint-Close: Ensures proper closure and documentation
-- Checklist items per SDLC 5.1.3 specification
+- Checklist items per SDLC 6.1.1 specification
 
 Security Standards:
 - Row-Level Security (sprint-scoped access)
@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     from app.models.user import User
 
 
-# SDLC 5.1.3 G-Sprint Checklist Template
+# SDLC 6.1.1 G-Sprint Checklist Template
 G_SPRINT_CHECKLIST_TEMPLATE = {
     "alignment": [
         {"id": "goal_aligns_phase", "label": "Sprint goal aligns with Phase objective", "required": True, "passed": None},
@@ -68,13 +68,14 @@ G_SPRINT_CHECKLIST_TEMPLATE = {
         {"id": "escalation_clear", "label": "Escalation path clear", "required": False, "passed": None},
     ],
     "documentation": [
+        {"id": "current_sprint_md_exists", "label": "CURRENT-SPRINT.md exists in repo", "required": True, "passed": None, "auto_verify": True},
         {"id": "sprint_doc_created", "label": "SPRINT-XX.md created", "required": True, "passed": None},
         {"id": "dod_agreed", "label": "Definition of Done agreed", "required": True, "passed": None},
         {"id": "events_scheduled", "label": "Sprint events scheduled", "required": True, "passed": None},
     ],
 }
 
-# SDLC 5.1.3 G-Sprint-Close Checklist Template
+# SDLC 6.1.1 G-Sprint-Close Checklist Template
 G_SPRINT_CLOSE_CHECKLIST_TEMPLATE = {
     "work": [
         {"id": "work_accounted", "label": "All items accounted for (done/carryover)", "required": True, "passed": None},
@@ -97,7 +98,8 @@ G_SPRINT_CLOSE_CHECKLIST_TEMPLATE = {
         {"id": "bug_escape_recorded", "label": "Bug escape rate recorded", "required": False, "passed": None},
     ],
     "documentation": [
-        {"id": "current_sprint_updated", "label": "CURRENT-SPRINT.md updated", "required": True, "passed": None},
+        {"id": "current_sprint_updated", "label": "CURRENT-SPRINT.md updated", "required": True, "passed": None, "auto_verify": True},
+        {"id": "current_sprint_fresh", "label": "CURRENT-SPRINT.md updated within 24h (Rule 9)", "required": True, "passed": None, "auto_verify": True},
         {"id": "sprint_index_updated", "label": "SPRINT-INDEX.md updated", "required": True, "passed": None},
         {"id": "roadmap_reviewed", "label": "Roadmap reviewed (update if needed)", "required": True, "passed": None},
         {"id": "within_24h", "label": "Documentation within 24 business hours", "required": True, "passed": None},
@@ -114,7 +116,7 @@ class SprintGateEvaluation(Base):
         - Track evaluator and evaluation timestamp
         - Support audit trail for compliance
 
-    SDLC 5.1.3 Gate Types:
+    SDLC 6.1.1 Gate Types:
         - g_sprint: Sprint planning gate
         - g_sprint_close: Sprint completion gate
 
@@ -178,11 +180,11 @@ class SprintGateEvaluation(Base):
         comment="Evaluation status: pending, passed, failed"
     )
 
-    # JSONB Checklist (SDLC 5.1.3 format)
+    # JSONB Checklist (SDLC 6.1.1 format)
     checklist = Column(
         JSONB,
         nullable=False,
-        comment="SDLC 5.1.3 checklist with pass/fail per item"
+        comment="SDLC 6.1.1 checklist with pass/fail per item"
     )
 
     # Notes
@@ -208,7 +210,7 @@ class SprintGateEvaluation(Base):
         Index("idx_gate_eval_sprint", "sprint_id"),
         Index("idx_gate_eval_type", "gate_type"),
         Index("idx_gate_eval_status", "status"),
-        {"comment": "SDLC 5.1.3 Sprint Gate Evaluations"},
+        {"comment": "SDLC 6.1.1 Sprint Gate Evaluations"},
     )
 
     def __repr__(self) -> str:

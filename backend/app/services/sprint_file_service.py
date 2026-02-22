@@ -1,0 +1,474 @@
+"""
+=========================================================================
+Sprint File Service — CURRENT-SPRINT.md Generation & GitHub Push
+SDLC Orchestrator - Sprint 193 (Security Hardening & Automation)
+
+Version: 1.0.0
+Date: February 22, 2026
+Status: ACTIVE - Sprint 193 Phase 1
+Authority: Backend Lead + CTO Approved
+Framework: SDLC 6.1.1 Sprint Planning Governance
+
+Purpose:
+- Generate CURRENT-SPRINT.md from Sprint DB model (DB-first approach)
+- Push generated file to customer project GitHub repos
+- Verify file freshness for G-Sprint-Close automated checks
+
+Design Decisions:
+- Separate service from DynamicContextService (SRP)
+- Shares GitHubService via DI for file operations
+- Uses GitHubAppService for server-side installation tokens
+- Guards for projects without GitHub repos (no crash)
+
+Zero Mock Policy: Production-ready service with real GitHub API calls
+=========================================================================
+"""
+
+import logging
+from datetime import datetime, timezone
+from typing import Optional, Dict, Any
+from uuid import UUID
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from app.models.sprint import Sprint
+from app.models.project import Project
+from app.services.github_service import GitHubService, GitHubAPIError
+
+logger = logging.getLogger(__name__)
+
+
+# Default path for CURRENT-SPRINT.md in customer repos
+CURRENT_SPRINT_PATH = "docs/04-build/02-Sprint-Plans/CURRENT-SPRINT.md"
+
+
+class SprintFileService:
+    """
+    Generates CURRENT-SPRINT.md from Sprint DB records and pushes to GitHub.
+
+    This service implements the CEO directive: the platform must enforce
+    CURRENT-SPRINT.md maintenance on ALL governed customer projects.
+
+    Architecture:
+        Sprint DB (truth) → generate_current_sprint_md() → push_to_github()
+        Same pattern as DynamicContextService for AGENTS.md.
+
+    Auth Flow:
+        project → github_repository → installation → installation_id
+        → get_installation_token(installation_id) → access_token
+        → github_service.update_file()
+    """
+
+    def __init__(self, db: AsyncSession, github_service: GitHubService):
+        self.db = db
+        self.github_service = github_service
+
+    def generate_current_sprint_md(
+        self, sprint: Sprint, project: Project, previous_sprint: Optional[Sprint] = None
+    ) -> str:
+        """
+        Generate CURRENT-SPRINT.md content from Sprint DB record.
+
+        Adapted from TinySDLC template approach but using the Orchestrator's
+        richer data model (backlog items, gate evaluations, phases).
+
+        Args:
+            sprint: Active Sprint model with relationships loaded
+            project: Project model for context
+            previous_sprint: Optional previous sprint for summary section
+
+        Returns:
+            Markdown string for CURRENT-SPRINT.md
+        """
+        sections = [
+            self._header_section(sprint, project),
+            self._goal_section(sprint),
+            self._backlog_section(sprint),
+            self._success_criteria_section(sprint),
+            self._gate_status_section(sprint),
+        ]
+
+        if previous_sprint:
+            sections.append(self._previous_sprint_section(previous_sprint))
+
+        sections.append(self._footer_section(sprint))
+
+        return "\n\n---\n\n".join(sections) + "\n"
+
+    async def push_to_github(
+        self,
+        project: Project,
+        content: str,
+        path: str = CURRENT_SPRINT_PATH,
+    ) -> Optional[str]:
+        """
+        Commit CURRENT-SPRINT.md to project's GitHub repo.
+
+        Uses GitHub App installation tokens for server-side authentication.
+        Returns commit SHA on success, None if project has no GitHub repo.
+
+        Args:
+            project: Project with github_repository relationship
+            content: Generated markdown content
+            path: File path in repo (default: docs/04-build/02-Sprint-Plans/CURRENT-SPRINT.md)
+
+        Returns:
+            Commit SHA string on success, None if no GitHub repo configured
+        """
+        if not project.github_repo:
+            logger.debug(
+                "Project %s has no GitHub repo configured, skipping push",
+                project.id,
+            )
+            return None
+
+        # Get installation token for server-side auth
+        access_token = await self._get_installation_token(project)
+        if not access_token:
+            logger.warning(
+                "Could not get installation token for project %s", project.id
+            )
+            return None
+
+        owner, repo = project.github_repo.split("/", 1)
+
+        try:
+            commit_sha = self.github_service.update_file(
+                access_token=access_token,
+                owner=owner,
+                repo=repo,
+                path=path,
+                content=content,
+                message="chore(sprint): Auto-update CURRENT-SPRINT.md\n\nGenerated by SDLC Orchestrator Sprint File Service",
+                branch=project.default_branch,
+            )
+            logger.info(
+                "Pushed CURRENT-SPRINT.md to %s (commit: %s)",
+                project.github_repo,
+                commit_sha,
+            )
+            return commit_sha
+        except GitHubAPIError as e:
+            logger.error(
+                "Failed to push CURRENT-SPRINT.md to %s: %s",
+                project.github_repo,
+                str(e),
+            )
+            return None
+
+    async def verify_freshness(
+        self,
+        project: Project,
+        sprint: Sprint,
+        path: str = CURRENT_SPRINT_PATH,
+    ) -> Dict[str, Any]:
+        """
+        Check if CURRENT-SPRINT.md in repo matches the current sprint.
+
+        Used by SprintVerificationService for automated G-Sprint-Close
+        verification (Phase 4).
+
+        Args:
+            project: Project with github_repository relationship
+            sprint: Current sprint to verify against
+            path: File path in repo
+
+        Returns:
+            Dict with keys: fresh (bool), reason (str), sprint_match (bool)
+        """
+        if not project.github_repo:
+            return {
+                "fresh": False,
+                "reason": "no_github_repo",
+                "sprint_match": False,
+                "file_exists": False,
+            }
+
+        access_token = await self._get_installation_token(project)
+        if not access_token:
+            return {
+                "fresh": False,
+                "reason": "no_installation_token",
+                "sprint_match": False,
+                "file_exists": False,
+            }
+
+        owner, repo = project.github_repo.split("/", 1)
+
+        try:
+            result = self.github_service.get_file_content(
+                access_token=access_token,
+                owner=owner,
+                repo=repo,
+                path=path,
+                ref=project.default_branch,
+            )
+        except GitHubAPIError:
+            result = None
+
+        if result is None:
+            return {
+                "fresh": False,
+                "reason": "file_not_found",
+                "sprint_match": False,
+                "file_exists": False,
+            }
+
+        content = result.get("content", "")
+        sprint_ref = f"Sprint {sprint.number}"
+        sprint_match = sprint_ref in content
+
+        return {
+            "fresh": sprint_match,
+            "reason": "current" if sprint_match else "stale_sprint_reference",
+            "sprint_match": sprint_match,
+            "file_exists": True,
+            "sha": result.get("sha"),
+        }
+
+    async def get_active_sprint(self, project_id: UUID) -> Optional[Sprint]:
+        """
+        Query the active sprint for a project with relationships loaded.
+
+        Args:
+            project_id: UUID of the project
+
+        Returns:
+            Sprint with backlog_items loaded, or None
+        """
+        stmt = (
+            select(Sprint)
+            .options(selectinload(Sprint.backlog_items))
+            .where(
+                Sprint.project_id == project_id,
+                Sprint.status == "active",
+            )
+            .order_by(Sprint.number.desc())
+            .limit(1)
+        )
+        result = await self.db.execute(stmt)
+        return result.scalar_one_or_none()
+
+    # =========================================================================
+    # Template Section Generators
+    # =========================================================================
+
+    def _header_section(self, sprint: Sprint, project: Project) -> str:
+        """Generate header with sprint identity and metadata."""
+        status_emoji = {
+            "planning": "PLANNED",
+            "active": "ACTIVE",
+            "completed": "COMPLETED",
+            "cancelled": "CANCELLED",
+        }
+        display_status = status_emoji.get(sprint.status, sprint.status.upper())
+
+        lines = [
+            f"# Current Sprint: Sprint {sprint.number} — {sprint.name}",
+            "",
+            f"**Sprint Duration**: {self._format_dates(sprint)}",
+            f"**Sprint Goal**: {sprint.goal}",
+            f"**Status**: {display_status}",
+        ]
+
+        if sprint.capacity_points:
+            lines.append(f"**Capacity**: {sprint.capacity_points} story points")
+        if sprint.team_size:
+            lines.append(f"**Team Size**: {sprint.team_size}")
+
+        lines.extend([
+            "**Framework**: SDLC 6.1.1",
+            f"**Project**: {project.name}",
+        ])
+
+        return "\n".join(lines)
+
+    def _goal_section(self, sprint: Sprint) -> str:
+        """Generate sprint goal section."""
+        return f"## Sprint {sprint.number} Goal\n\n{sprint.goal}"
+
+    def _backlog_section(self, sprint: Sprint) -> str:
+        """Generate backlog table grouped by priority."""
+        lines = [
+            f"## Sprint {sprint.number} Backlog",
+            "",
+        ]
+
+        backlog = getattr(sprint, "backlog_items", None) or []
+        if not backlog:
+            lines.append("*No backlog items defined yet.*")
+            return "\n".join(lines)
+
+        # Group by priority
+        priority_groups = {"P0": [], "P1": [], "P2": [], "P3": []}
+        for item in backlog:
+            priority = getattr(item, "priority", "P2") or "P2"
+            priority_key = priority.upper() if priority.upper() in priority_groups else "P2"
+            priority_groups[priority_key].append(item)
+
+        for priority, items in priority_groups.items():
+            if not items:
+                continue
+
+            priority_labels = {
+                "P0": "Critical (must complete)",
+                "P1": "High Priority",
+                "P2": "Standard",
+                "P3": "Nice to Have",
+            }
+            lines.extend([
+                f"### {priority} — {priority_labels.get(priority, priority)}",
+                "",
+                "| # | Title | Type | Points | Status |",
+                "|---|-------|------|--------|--------|",
+            ])
+
+            for idx, item in enumerate(items, 1):
+                item_type = getattr(item, "type", "task") or "task"
+                points = getattr(item, "story_points", "-") or "-"
+                item_status = getattr(item, "status", "todo") or "todo"
+                title = getattr(item, "title", "Untitled") or "Untitled"
+                lines.append(f"| {idx} | {title} | {item_type} | {points} | {item_status} |")
+
+            lines.append("")
+
+        return "\n".join(lines)
+
+    def _success_criteria_section(self, sprint: Sprint) -> str:
+        """Generate success criteria from backlog items."""
+        lines = [
+            f"## Sprint {sprint.number} Success Criteria",
+            "",
+        ]
+
+        backlog = getattr(sprint, "backlog_items", None) or []
+        p0_p1_items = [
+            item for item in backlog
+            if getattr(item, "priority", "").upper() in ("P0", "P1")
+        ]
+
+        if p0_p1_items:
+            for item in p0_p1_items:
+                title = getattr(item, "title", "Untitled") or "Untitled"
+                status_icon = "x" if getattr(item, "status", "") == "done" else " "
+                lines.append(f"- [{status_icon}] {title}")
+        else:
+            lines.append("*Success criteria derived from P0/P1 backlog items.*")
+
+        lines.extend([
+            "",
+            "- [ ] `ruff check` 0 errors on all modified files",
+            "- [ ] G-Sprint-Close within 24h of sprint end",
+            "- [ ] CURRENT-SPRINT.md updated to COMPLETED on close",
+        ])
+
+        return "\n".join(lines)
+
+    def _gate_status_section(self, sprint: Sprint) -> str:
+        """Generate G-Sprint gate status table."""
+        g_sprint = getattr(sprint, "g_sprint_status", "pending") or "pending"
+        g_close = getattr(sprint, "g_sprint_close_status", "pending") or "pending"
+
+        status_icons = {
+            "pending": "\u23f3 PENDING",
+            "passed": "\u2705 PASSED",
+            "failed": "\u274c FAILED",
+        }
+
+        lines = [
+            "## G-Sprint Gate Status",
+            "",
+            "| Gate | Status | Notes |",
+            "|------|--------|-------|",
+            f"| G-Sprint (Sprint {sprint.number} start) | {status_icons.get(g_sprint, g_sprint)} | |",
+            f"| G-Sprint-Close (Sprint {sprint.number} end) | {status_icons.get(g_close, g_close)} | |",
+        ]
+
+        return "\n".join(lines)
+
+    def _previous_sprint_section(self, prev: Sprint) -> str:
+        """Generate previous sprint summary."""
+        lines = [
+            "## Previous Sprint Summary",
+            "",
+            f"### Sprint {prev.number} — {prev.name} ({prev.status.upper()})",
+            "",
+        ]
+
+        if prev.goal:
+            lines.append(f"**Goal**: {prev.goal}")
+
+        backlog = getattr(prev, "backlog_items", None) or []
+        if backlog:
+            done_count = sum(
+                1 for item in backlog if getattr(item, "status", "") == "done"
+            )
+            lines.append(
+                f"**Deliverables**: {done_count}/{len(backlog)} completed"
+            )
+
+        return "\n".join(lines)
+
+    def _footer_section(self, sprint: Sprint) -> str:
+        """Generate footer with timestamps and Rule 9 reference."""
+        now = datetime.now(timezone.utc)
+        lines = [
+            f"**Last Updated**: {now.strftime('%B %d, %Y')}",
+            "**Updated By**: SDLC Orchestrator — Sprint File Service",
+            "**Framework Version**: SDLC 6.1.1",
+            "",
+            "**Rule 9 (Documentation Freeze = Sprint Freeze)**: "
+            "CURRENT-SPRINT.md auto-generated from Sprint DB record.",
+        ]
+        return "\n".join(lines)
+
+    # =========================================================================
+    # Private Helpers
+    # =========================================================================
+
+    def _format_dates(self, sprint: Sprint) -> str:
+        """Format sprint date range."""
+        start = getattr(sprint, "start_date", None)
+        end = getattr(sprint, "end_date", None)
+        if start and end:
+            return f"{start.strftime('%B %d')} – {end.strftime('%B %d, %Y')}"
+        elif start:
+            return f"{start.strftime('%B %d, %Y')} – TBD"
+        return "Dates not set"
+
+    async def _get_installation_token(self, project: Project) -> Optional[str]:
+        """
+        Get GitHub App installation token for server-side operations.
+
+        Flow: project → github_repository → installation → installation_id
+              → get_installation_token() → access_token
+
+        Returns:
+            Access token string, or None if not available
+        """
+        gh_repo = getattr(project, "github_repository", None)
+        if not gh_repo:
+            return None
+
+        installation = getattr(gh_repo, "installation", None)
+        if not installation:
+            return None
+
+        installation_id = getattr(installation, "installation_id", None)
+        if not installation_id:
+            return None
+
+        try:
+            from app.services.github_app_service import get_installation_token
+
+            token = await get_installation_token(installation_id)
+            return token
+        except Exception as e:
+            logger.error(
+                "Failed to get installation token for project %s: %s",
+                project.id,
+                str(e),
+            )
+            return None

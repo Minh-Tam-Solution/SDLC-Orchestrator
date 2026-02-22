@@ -586,6 +586,231 @@ class GitHubService:
         return normalized
 
     # ============================================================================
+    # File Operations (Sprint 193 — P0 Bug Fix)
+    # DynamicContextService calls update_file() and create_update_pr()
+    # for AGENTS.md auto-push. These methods were referenced but never
+    # implemented, making the entire GitHub push path dead code.
+    # ============================================================================
+
+    def get_file_content(
+        self,
+        access_token: str,
+        owner: str,
+        repo: str,
+        path: str,
+        ref: Optional[str] = None,
+    ) -> Optional[dict[str, Any]]:
+        """
+        Get file content and metadata from a GitHub repository.
+
+        Uses GitHub Contents API: GET /repos/{owner}/{repo}/contents/{path}
+
+        Args:
+            access_token: GitHub OAuth or installation access token
+            owner: Repository owner
+            repo: Repository name
+            path: File path within repository
+            ref: Branch/tag/commit reference (default: default branch)
+
+        Returns:
+            File data dict with keys: content (decoded), sha, size, path.
+            None if file does not exist (404).
+
+        Raises:
+            GitHubAPIError: If API call fails (non-404 errors)
+        """
+        params = {}
+        if ref:
+            params["ref"] = ref
+
+        try:
+            result = self._make_request(
+                method="GET",
+                endpoint=f"/repos/{owner}/{repo}/contents/{path}",
+                access_token=access_token,
+                params=params if params else None,
+            )
+
+            if result and isinstance(result, dict) and result.get("type") == "file":
+                import base64
+                encoded_content = result.get("content", "")
+                decoded = base64.b64decode(encoded_content).decode("utf-8")
+                return {
+                    "content": decoded,
+                    "sha": result.get("sha"),
+                    "size": result.get("size"),
+                    "path": result.get("path"),
+                }
+            return result
+
+        except GitHubAPIError as e:
+            if "not found" in str(e).lower():
+                return None
+            raise
+
+    def update_file(
+        self,
+        access_token: str,
+        owner: str,
+        repo: str,
+        path: str,
+        content: str,
+        message: str,
+        branch: str = "main",
+        sha: Optional[str] = None,
+    ) -> Optional[str]:
+        """
+        Create or update a file in a GitHub repository via Contents API.
+
+        Uses GitHub Contents API: PUT /repos/{owner}/{repo}/contents/{path}
+
+        Args:
+            access_token: GitHub OAuth or installation access token
+            owner: Repository owner
+            repo: Repository name
+            path: File path within repository
+            content: File content (plain text, will be base64-encoded)
+            message: Commit message
+            branch: Target branch (default: main)
+            sha: Current file SHA (required for updates, omit for creation)
+
+        Returns:
+            Commit SHA if successful, None otherwise.
+
+        Raises:
+            GitHubAPIError: If API call fails
+        """
+        import base64
+        encoded = base64.b64encode(content.encode("utf-8")).decode("utf-8")
+
+        # If sha not provided, try to get it (file may already exist)
+        if sha is None:
+            existing = self.get_file_content(
+                access_token=access_token,
+                owner=owner,
+                repo=repo,
+                path=path,
+                ref=branch,
+            )
+            if existing and isinstance(existing, dict):
+                sha = existing.get("sha")
+
+        data: dict[str, Any] = {
+            "message": message,
+            "content": encoded,
+            "branch": branch,
+        }
+        if sha:
+            data["sha"] = sha
+
+        result = self._make_request(
+            method="PUT",
+            endpoint=f"/repos/{owner}/{repo}/contents/{path}",
+            access_token=access_token,
+            data=data,
+        )
+
+        if result and isinstance(result, dict):
+            commit_info = result.get("commit", {})
+            return commit_info.get("sha")
+        return None
+
+    def create_update_pr(
+        self,
+        access_token: str,
+        owner: str,
+        repo: str,
+        path: str,
+        content: str,
+        title: str,
+        body: str,
+        base_branch: str = "main",
+    ) -> Optional[str]:
+        """
+        Create a pull request with a single file change.
+
+        Flow: create branch → commit file → create PR.
+
+        Args:
+            access_token: GitHub OAuth or installation access token
+            owner: Repository owner
+            repo: Repository name
+            path: File path to update
+            content: New file content
+            title: PR title
+            body: PR description
+            base_branch: Base branch for the PR (default: main)
+
+        Returns:
+            PR URL if successful, None otherwise.
+
+        Raises:
+            GitHubAPIError: If any step fails
+        """
+        import time
+
+        # Step 1: Get the base branch's latest commit SHA
+        base_ref = self._make_request(
+            method="GET",
+            endpoint=f"/repos/{owner}/{repo}/git/ref/heads/{base_branch}",
+            access_token=access_token,
+        )
+        if not base_ref:
+            logger.error("Failed to get base branch ref for %s/%s", owner, repo)
+            return None
+
+        base_sha = base_ref.get("object", {}).get("sha")
+
+        # Step 2: Create a new branch
+        branch_name = f"sdlc-orchestrator/auto-update-{int(time.time())}"
+        try:
+            self._make_request(
+                method="POST",
+                endpoint=f"/repos/{owner}/{repo}/git/refs",
+                access_token=access_token,
+                data={
+                    "ref": f"refs/heads/{branch_name}",
+                    "sha": base_sha,
+                },
+            )
+        except GitHubAPIError:
+            logger.error("Failed to create branch %s", branch_name)
+            return None
+
+        # Step 3: Commit the file to the new branch
+        commit_sha = self.update_file(
+            access_token=access_token,
+            owner=owner,
+            repo=repo,
+            path=path,
+            content=content,
+            message=title,
+            branch=branch_name,
+        )
+        if not commit_sha:
+            logger.error("Failed to commit file to branch %s", branch_name)
+            return None
+
+        # Step 4: Create the pull request
+        pr_result = self._make_request(
+            method="POST",
+            endpoint=f"/repos/{owner}/{repo}/pulls",
+            access_token=access_token,
+            data={
+                "title": title,
+                "body": body,
+                "head": branch_name,
+                "base": base_branch,
+            },
+        )
+
+        if pr_result and isinstance(pr_result, dict):
+            pr_url = pr_result.get("html_url")
+            logger.info("Created PR: %s", pr_url)
+            return pr_url
+        return None
+
+    # ============================================================================
     # Rate Limiting
     # ============================================================================
 

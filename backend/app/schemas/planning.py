@@ -569,8 +569,8 @@ class GateEvaluationResponse(BaseModel):
     created_at: datetime = Field(..., description="Creation timestamp")
 
     # Computed
-    all_items_checked: bool = Field(False, description="All checklist items passed")
-    checked_count: int = Field(0, description="Number of checked items")
+    all_items_passed: bool = Field(False, description="All checklist items passed")
+    passed_count: int = Field(0, description="Number of passed items")
     total_count: int = Field(0, description="Total number of items")
 
     model_config = ConfigDict(from_attributes=True)
