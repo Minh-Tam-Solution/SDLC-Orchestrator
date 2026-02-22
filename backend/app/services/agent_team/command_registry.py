@@ -71,6 +71,12 @@ class ExportAuditParams(BaseModel):
     format: Literal["json", "csv"] = Field(default="json", description="Export format")
 
 
+class UpdateSprintParams(BaseModel):
+    """Parameters for update_sprint command (Sprint 194 ENR-01)."""
+
+    project_id: UUID = Field(..., description="Project UUID")
+
+
 # ============================================================================
 # Tool Name Enum — Bounded Allowlist (T-01)
 # ============================================================================
@@ -84,6 +90,7 @@ class ToolName(str, Enum):
     SUBMIT_EVIDENCE = "submit_evidence"
     REQUEST_APPROVAL = "request_approval"
     EXPORT_AUDIT = "export_audit"
+    UPDATE_SPRINT = "update_sprint"
 
 
 # ============================================================================
@@ -127,7 +134,7 @@ class CommandDef:
 
 
 # ============================================================================
-# Governance Commands — The 5 Tools (T-01)
+# Governance Commands — 6 Tools (T-01 + Sprint 194 ENR-01)
 # ============================================================================
 
 GOVERNANCE_COMMANDS: list[CommandDef] = [
@@ -199,6 +206,21 @@ GOVERNANCE_COMMANDS: list[CommandDef] = [
             "Use when user says 'export audit', 'xuất báo cáo', 'compliance report', etc."
         ),
         ott_aliases=("export audit", "xuất báo cáo", "compliance report"),
+        required_params=("project_id",),
+    ),
+    CommandDef(
+        name="update_sprint",
+        description="Regenerate and push CURRENT-SPRINT.md for the active sprint",
+        params=UpdateSprintParams,
+        permission="governance:write",
+        handler="sprint_command_handler.handle_update_sprint",
+        cli_name="update-sprint",
+        ott_description=(
+            "Update CURRENT-SPRINT.md for the active sprint. "
+            "Use when user says 'update sprint', 'cập nhật sprint', "
+            "'refresh sprint file', etc."
+        ),
+        ott_aliases=("update sprint", "cập nhật sprint", "refresh sprint"),
         required_params=("project_id",),
     ),
 ]

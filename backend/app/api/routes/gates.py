@@ -1687,8 +1687,7 @@ async def break_glass_approve_gate(
 
     Audit: action="break_glass_approve", source="break_glass_web".
     """
-    from app.core.config import Settings
-    settings = Settings()
+    from app.core.config import settings
 
     if not settings.BREAK_GLASS_WEB_ENABLED:
         raise HTTPException(

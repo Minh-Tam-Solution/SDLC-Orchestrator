@@ -1727,6 +1727,7 @@ python -m pytest backend/tests/unit/ -k "sast or semgrep" -v
 - `backend/app/services/agent_team/output_scrubber.py` — Credential scrubbing (6 patterns, ADR-058 Pattern A)
 - `backend/app/services/agent_team/history_compactor.py` — Auto-summarize at 80% capacity (ADR-058 Pattern B)
 - `backend/app/services/agent_team/query_classifier.py` — Model routing hints: code/reasoning/fast (ADR-058 Pattern E)
+- `backend/app/services/agent_team/magic_link_service.py` — HMAC-SHA256 OOB auth for gate approvals via chat (ADR-064, FR-047)
 - `backend/app/schemas/agent_team.py` — Pydantic v2 schemas (all endpoints)
 
 **Database Tables** (3 P0 tables — ERD v3.4.0):

@@ -52,11 +52,7 @@ from app.models.phase import Phase
 from app.models.project import Project, ProjectMember
 from app.models.roadmap import Roadmap
 from app.models.sprint import Sprint
-from app.models.sprint_gate_evaluation import (
-    SprintGateEvaluation,
-    G_SPRINT_CHECKLIST_TEMPLATE,
-    G_SPRINT_CLOSE_CHECKLIST_TEMPLATE,
-)
+from app.models.sprint_gate_evaluation import SprintGateEvaluation
 from app.models.retro_action_item import RetroActionItem
 from app.models.team import Team
 from app.models.team_member import TeamMember
@@ -65,22 +61,12 @@ from app.services.backlog_service import (
     BacklogService,
     AssigneeNotTeamMemberError,
 )
-from app.services.sprint_assistant import (
-    SprintAssistantService,
-    get_sprint_assistant_service,
-)
-from app.services.burndown_service import (
-    BurndownService,
-    get_burndown_service,
-)
-from app.services.forecast_service import (
-    ForecastService,
-    get_forecast_service,
-)
-from app.services.retrospective_service import (
-    RetrospectiveService,
-    get_retrospective_service,
-)
+from app.services.sprint_assistant import get_sprint_assistant_service
+from app.services.burndown_service import get_burndown_service
+from app.services.forecast_service import get_forecast_service
+from app.services.github_service import github_service
+from app.services.retrospective_service import get_retrospective_service
+from app.services.sprint_verification_service import SprintVerificationService
 from app.schemas.planning import (
     # Roadmap
     RoadmapCreate,
@@ -103,13 +89,11 @@ from app.schemas.planning import (
     GateEvaluationSubmit,
     GateEvaluationResponse,
     GateType,
-    GateStatus,
     # Backlog
     BacklogItemCreate,
     BacklogItemUpdate,
     BacklogItemResponse,
     BacklogItemListResponse,
-    Priority,
     # Bulk Operations
     BulkMoveToSprint,
     BulkUpdatePriority,
@@ -158,10 +142,7 @@ from app.schemas.sprint_dependency import (
     SprintDependencyBulkResult,
 )
 from app.models.sprint_dependency import SprintDependency
-from app.services.sprint_dependency_service import (
-    SprintDependencyService,
-    get_sprint_dependency_service,
-)
+from app.services.sprint_dependency_service import get_sprint_dependency_service
 from app.schemas.resource_allocation import (
     ResourceAllocationCreate,
     ResourceAllocationUpdate,
@@ -174,10 +155,7 @@ from app.schemas.resource_allocation import (
     ResourceHeatmap,
 )
 from app.models.resource_allocation import ResourceAllocation
-from app.services.resource_allocation_service import (
-    ResourceAllocationService,
-    get_resource_allocation_service,
-)
+from app.services.resource_allocation_service import get_resource_allocation_service
 from app.schemas.sprint_template import (
     SprintTemplateCreate,
     SprintTemplateUpdate,
@@ -191,10 +169,7 @@ from app.schemas.sprint_template import (
     SprintTemplateBulkResult,
 )
 from app.models.sprint_template import SprintTemplate
-from app.services.sprint_template_service import (
-    SprintTemplateService,
-    get_sprint_template_service,
-)
+from app.services.sprint_template_service import get_sprint_template_service
 
 
 # =========================================================================
@@ -1314,9 +1289,6 @@ async def submit_gate_evaluation(
         )
         project = project_result.scalar_one_or_none()
         if project:
-            from app.services.github_service import github_service
-            from app.services.sprint_verification_service import SprintVerificationService
-
             verification_svc = SprintVerificationService(
                 db=db, github_service=github_service
             )

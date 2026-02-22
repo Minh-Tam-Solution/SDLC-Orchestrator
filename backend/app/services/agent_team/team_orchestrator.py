@@ -44,6 +44,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from uuid import UUID
 
 from sqlalchemy import select
@@ -384,6 +385,17 @@ class TeamOrchestrator:
                 parent_message_id=response_msg.id,
             )
 
+            # Step 11: Append to sprint activity log (Sprint 194 ENR-02)
+            if conversation.project_id:
+                await self._log_sprint_activity(
+                    conversation_id=conversation.id,
+                    project_id=conversation.project_id,
+                    summary=(
+                        f"{definition.agent_name} responded "
+                        f"({result.provider_used}, {result.latency_ms}ms)"
+                    ),
+                )
+
             logger.info(
                 "TRACE_ORCHESTRATOR: Message processed successfully: "
                 "msg=%s, provider=%s, tokens=%d, cost=%d cents, "
@@ -705,3 +717,60 @@ class TeamOrchestrator:
             )
 
         return routed
+
+    # -----------------------------------------------------------------
+    # Sprint Activity Log (Sprint 194 ENR-02 — TinySDLC pattern)
+    # -----------------------------------------------------------------
+
+    async def _log_sprint_activity(
+        self,
+        conversation_id: UUID,
+        project_id: UUID,
+        summary: str,
+    ) -> None:
+        """Append conversation summary to the active sprint's activity log.
+
+        Stores activities in ``Sprint.metadata_["activities"]`` JSONB field.
+        Keeps the last 50 entries to prevent unbounded growth.
+
+        Args:
+            conversation_id: Conversation that triggered this activity.
+            project_id: Project UUID to look up active sprint.
+            summary: Human-readable 1-line summary.
+        """
+        try:
+            result = await self.db.execute(
+                select(Sprint)
+                .where(
+                    Sprint.project_id == project_id,
+                    Sprint.status == "ACTIVE",
+                )
+                .order_by(Sprint.created_at.desc())
+                .limit(1)
+            )
+            sprint = result.scalar_one_or_none()
+            if sprint is None:
+                return
+
+            metadata = dict(sprint.metadata_) if sprint.metadata_ else {}
+            activities: list = metadata.get("activities", [])
+            activities.append({
+                "conversation_id": str(conversation_id),
+                "summary": summary,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            })
+            # Keep last 50 activities to prevent unbounded growth
+            metadata["activities"] = activities[-50:]
+            sprint.metadata_ = metadata
+            await self.db.flush()
+
+            logger.debug(
+                "TRACE_ORCHESTRATOR: Sprint activity logged — sprint=%s, conv=%s",
+                sprint.id,
+                conversation_id,
+            )
+        except Exception as e:
+            # Non-critical: log warning but don't fail message processing
+            logger.warning(
+                "TRACE_ORCHESTRATOR: Failed to log sprint activity: %s", e
+            )

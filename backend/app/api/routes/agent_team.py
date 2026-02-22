@@ -136,6 +136,78 @@ async def create_agent_definition(
     return AgentDefinitionResponse.model_validate(definition)
 
 
+@router.post(
+    "/definitions/seed",
+    response_model=list[AgentDefinitionResponse],
+    status_code=status.HTTP_201_CREATED,
+    summary="Seed default agent definitions",
+    description="Create 12 default SDLC role agent definitions for a project. "
+    "Skips roles that already have an active definition.",
+)
+async def seed_agent_definitions(
+    project_id: UUID,
+    team_id: Optional[UUID] = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[AgentDefinitionResponse]:
+    """Seed 12 default agent definitions (Sprint 194 GAP-01)."""
+    from app.services.agent_team.agent_seed_service import AgentSeedService
+
+    logger.info("Seeding agent definitions for project=%s, user=%s", project_id, current_user.id)
+    svc = AgentSeedService(db)
+    created = await svc.seed_project_agents(project_id, team_id=team_id)
+    await db.commit()
+    for d in created:
+        await db.refresh(d)
+    logger.info("Seeded %d agent definitions for project=%s", len(created), project_id)
+    return [AgentDefinitionResponse.model_validate(d) for d in created]
+
+
+@router.get(
+    "/presets",
+    summary="List team presets",
+    description="Return all 5 named team presets (solo-dev, startup-2, enterprise-3, "
+    "review-pair, full-sprint). Presets are code-defined constants.",
+)
+async def list_team_presets(
+    current_user: User = Depends(get_current_user),
+) -> list[dict]:
+    """List available team presets (Sprint 194 GAP-02)."""
+    from app.services.agent_team.team_presets import list_presets
+
+    return list_presets()
+
+
+@router.post(
+    "/presets/{preset_name}/apply",
+    status_code=status.HTTP_201_CREATED,
+    summary="Apply team preset",
+    description="Seed agent definitions for a named team preset. "
+    "Only seeds roles defined in the preset, skipping roles that already exist.",
+)
+async def apply_team_preset(
+    preset_name: str,
+    project_id: UUID = Query(..., description="Project UUID"),
+    team_id: Optional[UUID] = Query(None, description="Optional team UUID"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    """Apply a team preset to seed agent definitions (Sprint 194 GAP-02)."""
+    from app.services.agent_team.team_presets import TeamPresetService
+
+    logger.info(
+        "Applying preset '%s' to project=%s, user=%s",
+        preset_name, project_id, current_user.id,
+    )
+    try:
+        svc = TeamPresetService(db)
+        result = await svc.apply_preset(preset_name, project_id, team_id=team_id)
+        await db.commit()
+        return result
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @router.get(
     "/definitions",
     response_model=AgentDefinitionListResponse,

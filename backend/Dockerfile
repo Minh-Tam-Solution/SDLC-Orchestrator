@@ -1,7 +1,7 @@
 # File: backend/Dockerfile
-# Version: 2.0.0
-# Status: ACTIVE - Sprint 192 (Enterprise Hardening)
-# Date: 2026-02-21
+# Version: 2.1.0
+# Status: ACTIVE - Sprint 194 (Security + Agent Enrichment)
+# Date: 2026-02-24
 # Authority: DevOps Lead + CTO Approved
 # Foundation: SDLC 6.1.0, Multi-Stage Build, Zero Mock Policy
 #
@@ -28,8 +28,9 @@ COPY requirements/core.txt requirements/core.txt
 # Install Python deps into /install prefix (isolated from system Python)
 RUN pip install --no-cache-dir --prefix=/install -r requirements/core.txt
 
-# Install Semgrep separately (large package, own layer for caching)
-RUN pip install --no-cache-dir --prefix=/install semgrep
+# NOTE: Semgrep removed from runtime image (Sprint 194 F-192-07).
+# SAST scans run in CI pipeline only (GitHub Actions).
+# Keeps runtime image <600MB.
 
 # ── Stage 2: Runtime ─────────────────────────────────────────────────────────
 FROM python:3.11-slim AS runtime
