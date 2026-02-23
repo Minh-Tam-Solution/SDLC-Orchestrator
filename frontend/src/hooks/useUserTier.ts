@@ -104,7 +104,7 @@ export function useUserTier() {
   } = useQuery<UserProfile>({
     queryKey: ["user-profile"],
     queryFn: async (): Promise<UserProfile> => {
-      const response = await api.get<UserProfile>("/users/me/profile");
+      const response = await api.get<UserProfile>("/auth/me");
       return response.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes

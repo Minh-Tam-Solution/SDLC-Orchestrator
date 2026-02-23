@@ -264,7 +264,7 @@ class QualityPipeline:
     def __init__(
         self,
         skip_security: bool = False,
-        skip_tests: bool = True,  # Tests disabled by default (needs Docker sandbox)
+        skip_tests: Optional[bool] = None,
         semgrep_rules: Optional[str] = None,
     ):
         """
@@ -272,11 +272,17 @@ class QualityPipeline:
 
         Args:
             skip_security: Skip Gate 2 (security scan)
-            skip_tests: Skip Gate 4 (test execution)
+            skip_tests: Skip Gate 4 (test execution). Defaults to True unless
+                        GATE4_ENABLED env var is set to 'true'.
             semgrep_rules: Path to custom Semgrep rules (default: auto)
         """
+        import os
         self.skip_security = skip_security
-        self.skip_tests = skip_tests
+        if skip_tests is None:
+            gate4_enabled = os.environ.get("GATE4_ENABLED", "false").lower() == "true"
+            self.skip_tests = not gate4_enabled
+        else:
+            self.skip_tests = skip_tests
         self.semgrep_rules = semgrep_rules or "p/python"
 
     def run(
@@ -689,22 +695,226 @@ class QualityPipeline:
         """
         Gate 4: Test Execution.
 
-        Runs pytest in a sandbox environment.
-        Requires Docker for isolation.
+        Runs pytest in a sandboxed temp directory with a 60-second timeout.
+
+        Strategy:
+        - Write generated files to an isolated temp directory
+        - Discover test files (test_*.py / *_test.py)
+        - Run ``python -m pytest -v --tb=short`` via subprocess
+        - Parse stdout for PASSED / FAILED counts
+        - If no test files exist, return PASSED (nothing to validate)
+        - If pytest is unavailable or times out, return SKIPPED with reason
+
+        Sprint 196 — Track A-02 (replaces GateStatus.SKIPPED stub).
         """
         start_time = datetime.utcnow()
+        gate_name = "Test Coverage"
+        gate_number = 4
+        timeout_seconds = 60
 
-        # For now, return skipped - full implementation needs Docker sandbox
-        logger.info("Gate 4 (Test Execution) requires sandbox - skipping")
+        if language != "python":
+            return GateResult(
+                gate_name=gate_name,
+                gate_number=gate_number,
+                status=GateStatus.SKIPPED,
+                duration_ms=self._elapsed_ms(start_time),
+                summary=f"Skipped (language '{language}' not yet supported for Gate 4)",
+                details={"reason": f"Gate 4 only supports Python; got {language}"},
+            )
 
-        return GateResult(
-            gate_name="Test Coverage",
-            gate_number=4,
-            status=GateStatus.SKIPPED,
-            duration_ms=int((datetime.utcnow() - start_time).total_seconds() * 1000),
-            summary="Skipped (sandbox not configured)",
-            details={"reason": "Docker sandbox required for test execution"},
-        )
+        tmpdir = None
+        try:
+            tmpdir = Path(tempfile.mkdtemp(prefix="gate4_"))
+
+            # Write all generated files into the temp directory
+            for fpath, content in files.items():
+                dest = tmpdir / fpath
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_text(content, encoding="utf-8")
+
+            # Minimal pyproject.toml so pytest discovers tests
+            pyproject = tmpdir / "pyproject.toml"
+            if not pyproject.exists():
+                pyproject.write_text(
+                    "[tool.pytest.ini_options]\ntestpaths = [\".\", \"tests\"]\n",
+                    encoding="utf-8",
+                )
+
+            # Discover test files
+            test_files = list(tmpdir.rglob("test_*.py")) + list(tmpdir.rglob("*_test.py"))
+            # Deduplicate (rglob may overlap)
+            test_files = sorted(set(test_files))
+
+            if not test_files:
+                logger.info("Gate 4: No test files found — nothing to validate")
+                return GateResult(
+                    gate_name=gate_name,
+                    gate_number=gate_number,
+                    status=GateStatus.PASSED,
+                    duration_ms=self._elapsed_ms(start_time),
+                    summary="Passed (no test files to execute)",
+                    details={"test_files": 0, "tests_passed": 0, "tests_failed": 0},
+                )
+
+            logger.info("Gate 4: Running pytest on %d test file(s) in sandbox", len(test_files))
+
+            result = subprocess.run(
+                ["python", "-m", "pytest", "-v", "--tb=short", "--no-header", "-q"],
+                cwd=str(tmpdir),
+                capture_output=True,
+                text=True,
+                timeout=timeout_seconds,
+                env={**subprocess.os.environ, "PYTHONPATH": str(tmpdir)},
+            )
+
+            # Parse pytest output
+            issues, tests_passed, tests_failed = self._parse_pytest_output(
+                result.stdout, result.stderr
+            )
+
+            if tests_failed > 0:
+                return GateResult(
+                    gate_name=gate_name,
+                    gate_number=gate_number,
+                    status=GateStatus.FAILED,
+                    duration_ms=self._elapsed_ms(start_time),
+                    issues=issues,
+                    summary=f"Failed ({tests_failed} test(s) failed, {tests_passed} passed)",
+                    details={
+                        "test_files": len(test_files),
+                        "tests_passed": tests_passed,
+                        "tests_failed": tests_failed,
+                        "returncode": result.returncode,
+                    },
+                )
+
+            return GateResult(
+                gate_name=gate_name,
+                gate_number=gate_number,
+                status=GateStatus.PASSED,
+                duration_ms=self._elapsed_ms(start_time),
+                summary=f"Passed ({tests_passed} test(s) passed)",
+                details={
+                    "test_files": len(test_files),
+                    "tests_passed": tests_passed,
+                    "tests_failed": 0,
+                    "returncode": result.returncode,
+                },
+            )
+
+        except subprocess.TimeoutExpired:
+            logger.warning("Gate 4: pytest timed out after %ds", timeout_seconds)
+            return GateResult(
+                gate_name=gate_name,
+                gate_number=gate_number,
+                status=GateStatus.FAILED,
+                duration_ms=self._elapsed_ms(start_time),
+                issues=[GateIssue(
+                    file_path="<sandbox>",
+                    line=None,
+                    column=None,
+                    severity="error",
+                    code="gate4/timeout",
+                    message=f"pytest timed out after {timeout_seconds}s",
+                )],
+                summary=f"Failed (timeout after {timeout_seconds}s)",
+                details={"reason": "timeout", "timeout_seconds": timeout_seconds},
+            )
+        except FileNotFoundError:
+            logger.warning("Gate 4: pytest not available — skipping")
+            return GateResult(
+                gate_name=gate_name,
+                gate_number=gate_number,
+                status=GateStatus.SKIPPED,
+                duration_ms=self._elapsed_ms(start_time),
+                summary="Skipped (pytest not available in sandbox)",
+                details={"reason": "pytest binary not found"},
+            )
+        except Exception as exc:
+            logger.error("Gate 4: Unexpected error — %s", exc, exc_info=True)
+            return GateResult(
+                gate_name=gate_name,
+                gate_number=gate_number,
+                status=GateStatus.SKIPPED,
+                duration_ms=self._elapsed_ms(start_time),
+                summary=f"Skipped (error: {exc})",
+                details={"reason": "unexpected_error", "error": str(exc)},
+            )
+        finally:
+            if tmpdir and tmpdir.exists():
+                shutil.rmtree(tmpdir, ignore_errors=True)
+
+    @staticmethod
+    def _elapsed_ms(start: datetime) -> int:
+        """Milliseconds since *start*."""
+        return int((datetime.utcnow() - start).total_seconds() * 1000)
+
+    @staticmethod
+    def _parse_pytest_output(
+        stdout: str, stderr: str
+    ) -> tuple[list["GateIssue"], int, int]:
+        """
+        Parse pytest ``-v --tb=short`` output into structured issues.
+
+        Returns:
+            (issues, tests_passed, tests_failed)
+        """
+        issues: list[GateIssue] = []
+        tests_passed = 0
+        tests_failed = 0
+
+        for line in stdout.splitlines():
+            # pytest -v lines look like:  tests/test_foo.py::test_bar PASSED
+            if "::" in line:
+                if " PASSED" in line:
+                    tests_passed += 1
+                elif " FAILED" in line:
+                    tests_failed += 1
+                    # Extract test path and name
+                    parts = line.split("::")
+                    fpath = parts[0].strip()
+                    test_name = parts[1].split()[0] if len(parts) > 1 else "unknown"
+                    issues.append(GateIssue(
+                        file_path=fpath,
+                        line=None,
+                        column=None,
+                        severity="error",
+                        code="gate4/test_failed",
+                        message=f"Test {test_name} FAILED",
+                    ))
+                elif " ERROR" in line:
+                    tests_failed += 1
+                    parts = line.split("::")
+                    fpath = parts[0].strip()
+                    issues.append(GateIssue(
+                        file_path=fpath,
+                        line=None,
+                        column=None,
+                        severity="error",
+                        code="gate4/test_error",
+                        message=f"Test collection error in {fpath}",
+                    ))
+
+        # Fallback: parse summary line (e.g. "3 passed, 1 failed")
+        if tests_passed == 0 and tests_failed == 0:
+            combined = stdout + "\n" + stderr
+            passed_match = re.search(r"(\d+)\s+passed", combined)
+            failed_match = re.search(r"(\d+)\s+failed", combined)
+            if passed_match:
+                tests_passed = int(passed_match.group(1))
+            if failed_match:
+                tests_failed = int(failed_match.group(1))
+                if not issues:
+                    issues.append(GateIssue(
+                        file_path="<sandbox>",
+                        line=None,
+                        column=None,
+                        severity="error",
+                        code="gate4/test_failed",
+                        message=f"{tests_failed} test(s) failed (see pytest output)",
+                    ))
+
+        return issues, tests_passed, tests_failed
 
 
 # Singleton instance

@@ -11,7 +11,7 @@ Purpose:
 Architecture:
 - Pure ASGI (NOT BaseHTTPMiddleware) — avoids FastAPI 0.100+ hang bug
   (Starlette BaseHTTPMiddleware event loop conflict on unhandled exceptions)
-- Reads user_tier from scope["state"]["user_tier"] (set by AuthMiddleware)
+- Reads user_tier from scope["state"]["user_tier"] if available (optional fast path)
 - Falls back to JWT decode → Redis cache if scope state not populated
 - Admin bypass via X-Admin-Override header (ENTERPRISE routes only)
 - Fail-open: if tier lookup fails, pass through (route-level guards handle auth)
@@ -76,6 +76,9 @@ ROUTE_TIER_TABLE: dict[str, int] = {
     "/api/v1/analytics":          1,   # F-01 fix: analytics dashboard (all tiers)
     "/api/v1/api-keys":           1,   # F-01 fix: API key management (all tiers)
     "/api/v1/payments":           1,   # F-01 fix: billing/subscriptions (all tiers)
+    "/api/v1/api":                1,   # Sprint 196 TG-41: FastAPI auto-docs (public)
+    "/api/v1/onboarding":         1,   # Sprint 196 TG-41: onboarding wizard (all tiers)
+    "/api/v1/timeline":           1,   # Sprint 196 TG-41: evidence timeline (all tiers)
     # -------------------------------------------------------------------------
     # STANDARD (2): team collaboration + planning + integrations
     # -------------------------------------------------------------------------
@@ -93,12 +96,12 @@ ROUTE_TIER_TABLE: dict[str, int] = {
     "/api/v1/sprints":            2,
     "/api/v1/backlog":            2,
     "/api/v1/opa":                2,
-    "/api/v1/risk-analysis":      2,
+    "/api/v1/risk":               2,   # Sprint 196 TG-41: was phantom "/api/v1/risk-analysis"
     "/api/v1/contract-lock":      2,
     "/api/v1/spec-converter":     2,
     "/api/v1/cross-reference":    2,
     "/api/v1/agents":             2,
-    "/api/v1/evidence-manifest":  2,
+    "/api/v1/evidence-manifests": 1,   # Sprint 196 TG-41: was phantom "/api/v1/evidence-manifest"; LITE (evidence hash chain)
     "/api/v1/consultations":      2,
     "/api/v1/mrp":                2,
     "/api/v1/framework-version":  2,
@@ -119,6 +122,7 @@ ROUTE_TIER_TABLE: dict[str, int] = {
     "/api/v1/doc-cross-reference": 2,  # F-01: document cross-reference validation (STANDARD)
     "/api/v1/e2e":                2,   # F-01: E2E testing API (STANDARD)
     "/api/v1/overrides":          2,   # F-01: override request workflow (STANDARD)
+    "/api/v1/agents-md":          2,   # Sprint 196 TG-41: AGENTS.md context overlay (team collab)
     # -------------------------------------------------------------------------
     # PROFESSIONAL (3): multi-agent, compliance-ready, full OTT, advanced AI
     # -------------------------------------------------------------------------
@@ -127,9 +131,9 @@ ROUTE_TIER_TABLE: dict[str, int] = {
     "/api/v1/governance":         3,
     "/api/v1/ceo-dashboard":      3,
     "/api/v1/crp":                3,
-    "/api/v1/auto-generation":    3,
+    "/api/v1/auto-generate":      3,   # Sprint 196 TG-41: was phantom "/api/v1/auto-generation"
     "/api/v1/governance-mode":    3,
-    "/api/v1/vibecoding-index":   3,
+    "/api/v1/vibecoding":         3,   # Sprint 196 TG-41: was mismatched "/api/v1/vibecoding-index"
     "/api/v1/stage-gating":       3,
     "/api/v1/governance-metrics": 3,
     "/api/v1/grafana-dashboards": 3,
@@ -148,6 +152,7 @@ ROUTE_TIER_TABLE: dict[str, int] = {
     "/api/v1/nist":               4,
     "/api/v1/compliance":         4,
     "/api/v1/invitations":        4,
+    "/api/v1/org-invitations":    4,  # Sprint 197 B-01: route now visible after prefix fix
     "/api/v1/enterprise":         4,   # Covers all /api/v1/enterprise/* routes (SSO, audit, compliance)
     "/api/v1/data-residency":     4,   # Multi-region — Sprint 186
 }
@@ -293,11 +298,12 @@ class TierGateMiddleware:
         """
         Resolve user's subscription tier from request scope.
 
-        Priority order:
-        1. scope["state"]["user_tier"] — set by upstream AuthMiddleware
-        2. JWT decode + DB subscription lookup (same pattern as UsageLimitsMiddleware)
-        3. Superuser check — superusers get ENTERPRISE tier automatically
-        4. Default to "LITE" (fail-open: don't block on lookup failure)
+        Priority order (ADR-065 Unified Tier Resolution):
+        1. scope["state"]["user_tier"] — optional fast path
+        2. JWT decode → DB lookup:
+           a. is_superuser / is_platform_admin → ENTERPRISE (ADR-065 D2)
+           b. Organization-based max-tier (ADR-065 D1, ADR-047)
+        3. Default to "LITE" (fail-open: don't block on lookup failure)
 
         Args:
             scope: ASGI connection scope
@@ -305,7 +311,7 @@ class TierGateMiddleware:
         Returns:
             Tier name string (used in TIER_VALUES lookup).
         """
-        # Priority 1: scope state (set by AuthMiddleware — no DB hit needed)
+        # Priority 1: scope state (optional fast path)
         state: dict[str, Any] = scope.get("state", {})  # type: ignore[assignment]
         tier_from_state: str | None = None
         if hasattr(state, "__dict__"):
@@ -316,8 +322,13 @@ class TierGateMiddleware:
         if tier_from_state:
             return tier_from_state
 
-        # Priority 2: JWT decode + DB lookup
+        # Priority 2: JWT decode → user_id
         user_id = self._extract_user_id(scope)
+
+        # Priority 2b: API key (sdlc_live_*) → user_id via DB lookup
+        if user_id is None:
+            user_id = await self._extract_user_id_from_api_key(scope)
+
         if user_id is None:
             return "LITE"
 
@@ -327,7 +338,7 @@ class TierGateMiddleware:
             async with AsyncSessionLocal() as db:
                 from sqlalchemy import select as sa_select
 
-                # Check if user is superuser or platform admin — both get ENTERPRISE
+                # ADR-065 D2: superuser/platform_admin → ENTERPRISE
                 from app.models.user import User
                 user_result = await db.execute(
                     sa_select(User.is_superuser, User.is_platform_admin).where(User.id == user_id)
@@ -336,18 +347,28 @@ class TierGateMiddleware:
                 if row and (row[0] or row[1]):
                     return "ENTERPRISE"
 
-                # Check subscription plan
-                from app.models.subscription import Subscription
-                sub_result = await db.execute(
-                    sa_select(Subscription.plan).where(Subscription.user_id == user_id)
+                # ADR-065 D1: org-based tier resolution (replaces Subscription.plan)
+                from app.models.organization import Organization, UserOrganization
+                org_result = await db.execute(
+                    sa_select(Organization.plan).where(
+                        UserOrganization.user_id == user_id,
+                        UserOrganization.organization_id == Organization.id,
+                    )
                 )
-                plan_value: str | None = sub_result.scalar_one_or_none()
+                org_plans = [r[0] for r in org_result.all() if r[0]]
 
-            if plan_value:
-                normalised = plan_value.lower().strip()
-                if normalised in TIER_VALUES:
-                    return normalised
-                return "LITE"
+            if org_plans:
+                # Find highest tier among all org memberships
+                best_plan = "LITE"
+                best_rank = 0
+                for plan in org_plans:
+                    rank = TIER_VALUES.get(plan, TIER_VALUES.get(plan.upper(), 1))
+                    if rank > best_rank:
+                        best_rank = rank
+                        best_plan = plan
+                        if best_rank >= 4:
+                            return best_plan  # early exit for ENTERPRISE
+                return best_plan
         except Exception as exc:
             logger.warning(
                 "TierGateMiddleware: tier DB lookup failed for user=%s: %s",
@@ -377,6 +398,54 @@ class TierGateMiddleware:
                 return None
             return UUID(sub)
         except Exception:
+            return None
+
+    async def _extract_user_id_from_api_key(self, scope: Scope) -> UUID | None:
+        """
+        Extract user UUID from API key (sdlc_live_*) via DB lookup.
+
+        Called when JWT decode fails — handles VSCode Extension and CLI
+        API key authentication for tier resolution.
+
+        Args:
+            scope: ASGI connection scope
+
+        Returns:
+            UUID of the user owning the API key, or None.
+        """
+        headers: dict[bytes, bytes] = dict(scope.get("headers", []))
+        raw_auth: bytes = headers.get(b"authorization", b"")
+        auth_str: str = raw_auth.decode("utf-8", errors="replace").strip()
+
+        if not auth_str.lower().startswith("bearer "):
+            return None
+
+        token = auth_str[7:].strip()
+        if not token or not token.startswith("sdlc_live_"):
+            return None
+
+        try:
+            from app.core.security import hash_api_key
+            from app.db.session import AsyncSessionLocal
+
+            key_hash = hash_api_key(token)
+
+            async with AsyncSessionLocal() as db:
+                from sqlalchemy import select as sa_select
+                from app.models.user import APIKey
+
+                result = await db.execute(
+                    sa_select(APIKey.user_id).where(
+                        APIKey.key_hash == key_hash,
+                        APIKey.is_active == True,  # noqa: E712
+                    )
+                )
+                user_id = result.scalar_one_or_none()
+                return user_id
+        except Exception as exc:
+            logger.debug(
+                "TierGateMiddleware: API key lookup failed: %s", exc,
+            )
             return None
 
     def _is_admin_bypass(self, scope: Scope) -> bool:

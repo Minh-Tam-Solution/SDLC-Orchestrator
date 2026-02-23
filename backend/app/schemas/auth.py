@@ -293,6 +293,18 @@ class OAuthProvider(BaseModel):
 # =========================================================================
 
 
+class UserOrganizationInfo(BaseModel):
+    """Organization membership info included in /auth/me response (ADR-065 D3)."""
+
+    id: UUID = Field(..., description="Organization UUID")
+    name: str = Field(..., description="Organization display name")
+    slug: str = Field(..., description="URL-safe org identifier")
+    plan: str = Field(..., description="Org subscription plan: free, starter, pro, enterprise")
+    role: str = Field(..., description="User role in this org: owner, admin, member")
+    joined_at: datetime = Field(..., description="When user joined this organization")
+    model_config = ConfigDict(from_attributes=True)
+
+
 class UserProfile(BaseModel):
     """
     User profile response (authenticated user).
@@ -307,6 +319,8 @@ class UserProfile(BaseModel):
             "is_platform_admin": false,
             "roles": ["Engineering Manager", "CTO"],
             "oauth_providers": ["github", "google"],
+            "effective_tier": "pro",
+            "organizations": [...],
             "created_at": "2025-10-01T08:00:00Z",
             "last_login_at": "2025-11-28T10:30:00Z"
         }
@@ -314,6 +328,10 @@ class UserProfile(BaseModel):
     Sprint 88: Platform Admin Privacy Fix
         - is_platform_admin: Platform admins manage system operations but CANNOT access customer data
         - is_superuser: DEPRECATED - legacy field, use is_platform_admin for privacy checks
+
+    Sprint 195 / ADR-065 D3: Added effective_tier + organizations fields
+        - effective_tier: Highest tier across all org memberships (or "enterprise" for superuser)
+        - organizations: List of org memberships with plan and role
     """
 
     id: UUID = Field(..., description="User UUID")
@@ -326,6 +344,8 @@ class UserProfile(BaseModel):
     oauth_providers: List[str] = Field(
         default_factory=list, description="List of linked OAuth providers"
     )
+    effective_tier: str = Field(default="free", description="Effective subscription tier (ADR-065 D3): highest tier across all org memberships")
+    organizations: List[UserOrganizationInfo] = Field(default_factory=list, description="User's organization memberships with plan and role (ADR-065 D3)")
     created_at: datetime = Field(..., description="Account creation timestamp")
     last_login_at: Optional[datetime] = Field(None, description="Last login timestamp")
     model_config = ConfigDict(from_attributes=True)

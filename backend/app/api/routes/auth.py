@@ -656,6 +656,62 @@ async def get_current_user_profile(
     # Fetch OAuth providers
     oauth_providers = [oauth.provider for oauth in current_user.oauth_accounts]
 
+    # ADR-065 D3: Fetch org memberships and compute effective_tier
+    from app.models.organization import Organization, UserOrganization
+    from app.schemas.auth import UserOrganizationInfo
+    from sqlalchemy import select as sa_select
+
+    org_memberships: list[UserOrganizationInfo] = []
+    effective_tier = "free"
+
+    # Superuser/platform_admin → always enterprise (ADR-065 D2)
+    if current_user.is_superuser or current_user.is_platform_admin:
+        effective_tier = "enterprise"
+
+    # Query org memberships
+    org_result = await db.execute(
+        sa_select(
+            Organization.id,
+            Organization.name,
+            Organization.slug,
+            Organization.plan,
+            UserOrganization.role,
+            UserOrganization.joined_at,
+        ).where(
+            UserOrganization.user_id == current_user.id,
+            UserOrganization.organization_id == Organization.id,
+        )
+    )
+    org_rows = org_result.all()
+
+    # ADR-065 D4: expanded TIER_RANK covering all ADR-059 plan strings
+    tier_rank = {
+        "enterprise": 4,
+        "pro": 3, "professional": 3,
+        "starter": 2, "standard": 2, "founder": 2,
+        "free": 1, "lite": 1,
+    }
+    best_rank = 0
+    is_admin = current_user.is_superuser or current_user.is_platform_admin
+
+    for row in org_rows:
+        org_memberships.append(UserOrganizationInfo(
+            id=row[0],
+            name=row[1],
+            slug=row[2],
+            plan=row[3] or "free",
+            role=row[4] or "member",
+            joined_at=row[5],
+        ))
+        plan = row[3] or "free"
+        rank = tier_rank.get(plan, 1)
+        if rank > best_rank:
+            best_rank = rank
+            if not is_admin:
+                effective_tier = plan
+
+    # No-op: effective_tier defaults to "free" already
+
     return UserProfile(
         id=current_user.id,
         email=current_user.email,
@@ -665,6 +721,8 @@ async def get_current_user_profile(
         is_platform_admin=current_user.is_platform_admin,
         roles=role_names,
         oauth_providers=oauth_providers,
+        effective_tier=effective_tier,
+        organizations=org_memberships,
         created_at=current_user.created_at,
         last_login_at=current_user.last_login,
     )

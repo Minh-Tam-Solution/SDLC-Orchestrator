@@ -36,7 +36,7 @@ from app.schemas.organization_invitation import (
 from app.services import organization_invitation_service
 from app.services.email_service import send_invitation_email
 
-router = APIRouter(prefix="/api/v1", tags=["organization-invitations"])
+router = APIRouter(tags=["organization-invitations"])
 
 
 # ============================================================================

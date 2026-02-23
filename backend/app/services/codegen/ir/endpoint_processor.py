@@ -135,14 +135,20 @@ class EndpointProcessor(IRProcessor):
             return ProcessorResult(success=False, files=files, errors=errors)
 
     def _get_service_filename(self, entity: Dict[str, Any]) -> str:
-        """Get service filename from entity."""
+        """Get service filename from entity.
+
+        Examples: employees→employee, categories→category, addresses→address
+        """
         table_name = entity.get("table_name", "")
-        # Remove trailing 's' for singular filename
-        if table_name.endswith("ies"):
+        if not table_name:
+            return table_name
+        if table_name.endswith("ies") and len(table_name) > 3:
             return table_name[:-3] + "y"
-        elif table_name.endswith("es"):
-            return table_name[:-2]
-        elif table_name.endswith("s") and not table_name.endswith("ss"):
+        if table_name.endswith("es") and len(table_name) > 2:
+            base = table_name[:-2]
+            if base.endswith(("s", "sh", "ch", "x", "z")):
+                return base
+        if table_name.endswith("s") and not table_name.endswith("ss"):
             return table_name[:-1]
         return table_name
 

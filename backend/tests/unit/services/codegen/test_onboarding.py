@@ -340,12 +340,15 @@ class TestOnboardingService:
         service = OnboardingService()
         options = service.get_domain_options()
 
-        assert len(options) == 3
+        assert len(options) == 6
 
         keys = [o["key"] for o in options]
         assert "restaurant" in keys
         assert "hotel" in keys
         assert "retail" in keys
+        assert "ecommerce" in keys
+        assert "hrm" in keys
+        assert "crm" in keys
 
         # Check Vietnamese names
         for opt in options:
@@ -568,3 +571,357 @@ def _clean_meta_fields(obj):
     elif isinstance(obj, list):
         return [_clean_meta_fields(item) for item in obj]
     return obj
+
+
+# ---------------------------------------------------------------------------
+# Sprint 196 Track D-02: Onboarding Test Expansion — New Domains
+# ---------------------------------------------------------------------------
+
+class TestOnboardingValidatorNewDomains:
+    """Validator tests for ecommerce, hrm, crm domains."""
+
+    def test_validate_domain_ecommerce(self):
+        """Test ecommerce domain validation."""
+        validator = OnboardingValidator()
+
+        result = validator.validate_domain("ecommerce")
+        assert result.valid is True
+        assert result.normalized_value == "ecommerce"
+
+    def test_validate_domain_hrm(self):
+        """Test hrm domain validation."""
+        validator = OnboardingValidator()
+
+        result = validator.validate_domain("HRM")  # case insensitive
+        assert result.valid is True
+        assert result.normalized_value == "hrm"
+
+    def test_validate_domain_crm(self):
+        """Test crm domain validation."""
+        validator = OnboardingValidator()
+
+        result = validator.validate_domain("Crm")
+        assert result.valid is True
+        assert result.normalized_value == "crm"
+
+    def test_validate_ecommerce_features(self):
+        """Test ecommerce features validation."""
+        validator = OnboardingValidator()
+
+        result = validator.validate_features(
+            "ecommerce", ["products", "orders"]
+        )
+        assert result.valid is True
+
+    def test_validate_hrm_features(self):
+        """Test hrm features validation."""
+        validator = OnboardingValidator()
+
+        result = validator.validate_features(
+            "hrm", ["employees", "payroll"]
+        )
+        assert result.valid is True
+
+    def test_validate_crm_features(self):
+        """Test crm features validation."""
+        validator = OnboardingValidator()
+
+        result = validator.validate_features(
+            "crm", ["leads", "contacts"]
+        )
+        assert result.valid is True
+
+    def test_validate_ecommerce_invalid_feature(self):
+        """Test invalid feature for ecommerce is rejected."""
+        validator = OnboardingValidator()
+
+        result = validator.validate_features(
+            "ecommerce", ["products", "rooms"]  # 'rooms' is hotel feature
+        )
+        assert result.valid is False
+
+    def test_validate_all_ecommerce(self):
+        """Test validate_all for ecommerce domain."""
+        validator = OnboardingValidator()
+
+        valid, errors, normalized = validator.validate_all(
+            app_name="Shop My Pham Online",
+            domain="ecommerce",
+            features=["products", "orders"],
+            scale="small",
+        )
+        assert valid is True
+        assert len(errors) == 0
+        assert normalized["app_name"] == "ShopMyPhamOnline"
+        assert normalized["domain"] == "ecommerce"
+
+
+class TestOnboardingServiceNewDomains:
+    """Service tests for ecommerce, hrm, crm domains."""
+
+    def test_set_domain_ecommerce(self):
+        """Test setting ecommerce domain."""
+        service = OnboardingService()
+        session = service.create_session()
+
+        result = service.set_domain(session, "ecommerce")
+        assert result["success"] is True
+        assert session.domain == "ecommerce"
+        assert len(result["available_features"]) > 0
+
+    def test_set_domain_hrm(self):
+        """Test setting hrm domain."""
+        service = OnboardingService()
+        session = service.create_session()
+
+        result = service.set_domain(session, "hrm")
+        assert result["success"] is True
+        assert session.domain == "hrm"
+
+    def test_set_domain_crm(self):
+        """Test setting crm domain."""
+        service = OnboardingService()
+        session = service.create_session()
+
+        result = service.set_domain(session, "crm")
+        assert result["success"] is True
+        assert session.domain == "crm"
+
+    def test_get_feature_options_ecommerce(self):
+        """Test feature options for ecommerce."""
+        service = OnboardingService()
+        features = service.get_feature_options("ecommerce")
+
+        assert len(features) > 0
+        keys = [f["key"] for f in features]
+        assert "products" in keys
+        assert "orders" in keys
+
+    def test_get_feature_options_hrm(self):
+        """Test feature options for hrm."""
+        service = OnboardingService()
+        features = service.get_feature_options("hrm")
+
+        assert len(features) > 0
+        keys = [f["key"] for f in features]
+        assert "employees" in keys
+        assert "payroll" in keys
+
+    def test_get_feature_options_crm(self):
+        """Test feature options for crm."""
+        service = OnboardingService()
+        features = service.get_feature_options("crm")
+
+        assert len(features) > 0
+        keys = [f["key"] for f in features]
+        assert "leads" in keys
+        assert "contacts" in keys
+
+    def test_generate_blueprint_ecommerce(self):
+        """Test blueprint generation for ecommerce."""
+        service = OnboardingService()
+        session = service.create_session()
+
+        service.set_domain(session, "ecommerce")
+        service.set_app_name(session, "Shop My Pham")
+        service.set_features(session, ["products", "orders"])
+        service.set_scale(session, "small")
+
+        result = service.generate_blueprint(session)
+
+        assert result["success"] is True
+        blueprint = result["blueprint"]
+        assert blueprint["name"] == "ShopMyPham"
+        assert blueprint["_onboarding"]["domain"] == "ecommerce"
+
+    def test_generate_blueprint_hrm(self):
+        """Test blueprint generation for hrm."""
+        service = OnboardingService()
+        session = service.create_session()
+
+        service.set_domain(session, "hrm")
+        service.set_app_name(session, "Nhan Su ABC")
+        service.set_features(session, ["employees", "payroll"])
+        service.set_scale(session, "medium")
+
+        result = service.generate_blueprint(session)
+
+        assert result["success"] is True
+        blueprint = result["blueprint"]
+        assert blueprint["name"] == "NhanSuAbc"
+        assert blueprint["_onboarding"]["domain"] == "hrm"
+
+    def test_generate_blueprint_crm(self):
+        """Test blueprint generation for crm."""
+        service = OnboardingService()
+        session = service.create_session()
+
+        service.set_domain(session, "crm")
+        service.set_app_name(session, "Sales Pro Viet")
+        service.set_features(session, ["leads", "contacts"])
+        service.set_scale(session, "small")
+
+        result = service.generate_blueprint(session)
+
+        assert result["success"] is True
+        blueprint = result["blueprint"]
+        assert blueprint["name"] == "SalesProViet"
+        assert blueprint["_onboarding"]["domain"] == "crm"
+
+
+class TestOnboardingPromptsNewDomains:
+    """Prompt tests for ecommerce, hrm, crm domains."""
+
+    def test_new_domains_have_prompts(self):
+        """Test new domains have Vietnamese prompts."""
+        for domain in ["ecommerce", "hrm", "crm"]:
+            assert domain in VIETNAMESE_PROMPTS.domains, (
+                f"Domain '{domain}' missing from VIETNAMESE_PROMPTS"
+            )
+            domain_info = VIETNAMESE_PROMPTS.domains[domain]
+            assert domain_info.name_vi != ""
+            assert domain_info.description_vi != ""
+            assert domain_info.icon != ""
+
+    def test_new_domains_have_features(self):
+        """Test new domains have feature labels in Vietnamese."""
+        for domain in ["ecommerce", "hrm", "crm"]:
+            assert domain in FEATURE_LABELS_VI, (
+                f"Domain '{domain}' missing from FEATURE_LABELS_VI"
+            )
+            features = FEATURE_LABELS_VI[domain]
+            assert len(features) >= 2, (
+                f"Domain '{domain}' needs at least 2 features"
+            )
+            for key, info in features.items():
+                assert "name" in info, f"Feature '{key}' in '{domain}' missing 'name'"
+                assert "description" in info, f"Feature '{key}' in '{domain}' missing 'description'"
+
+
+class TestOnboardingIntegrationNewDomains:
+    """Full flow integration tests for new domains."""
+
+    def test_full_onboarding_flow_ecommerce(self):
+        """Test complete onboarding flow for ecommerce."""
+        service = OnboardingService()
+        session = service.create_session()
+
+        service.set_domain(session, "ecommerce")
+        assert session.current_step == OnboardingStep.APP_NAME
+
+        service.set_app_name(session, "Trai Cay Sach Ha Noi")
+        assert session.current_step == OnboardingStep.FEATURES
+
+        service.set_features(session, ["products", "orders", "customers"])
+        assert session.current_step == OnboardingStep.SCALE
+
+        service.set_scale(session, "small")
+        assert session.current_step == OnboardingStep.CONFIRM
+
+        result = service.generate_blueprint(session)
+        assert result["success"] is True
+        assert session.current_step == OnboardingStep.COMPLETE
+
+        blueprint = result["blueprint"]
+        assert blueprint["name"] == "TraiCaySachHaNoi"
+        module_names = [m["name"] for m in blueprint["modules"]]
+        assert "products" in module_names
+        assert "orders" in module_names
+
+    def test_full_onboarding_flow_hrm(self):
+        """Test complete onboarding flow for hrm."""
+        service = OnboardingService()
+        session = service.create_session()
+
+        service.set_domain(session, "hrm")
+        service.set_app_name(session, "Nhan Su Nha May XYZ")
+        service.set_features(session, ["employees", "attendance", "payroll", "leave"])
+        service.set_scale(session, "medium")
+
+        result = service.generate_blueprint(session)
+        assert result["success"] is True
+
+        blueprint = result["blueprint"]
+        assert blueprint["name"] == "NhanSuNhaMayXyz"
+        module_names = [m["name"] for m in blueprint["modules"]]
+        assert "employees" in module_names
+        assert "payroll" in module_names
+
+    def test_full_onboarding_flow_crm(self):
+        """Test complete onboarding flow for crm."""
+        service = OnboardingService()
+        session = service.create_session()
+
+        service.set_domain(session, "crm")
+        service.set_app_name(session, "Zalo CRM Manager")
+        service.set_features(session, ["leads", "contacts", "deals", "activities"])
+        service.set_scale(session, "small")
+
+        result = service.generate_blueprint(session)
+        assert result["success"] is True
+
+        blueprint = result["blueprint"]
+        assert blueprint["name"] == "ZaloCrmManager"
+        module_names = [m["name"] for m in blueprint["modules"]]
+        assert "leads" in module_names
+        assert "deals" in module_names
+
+    def test_ecommerce_blueprint_validates_with_ir(self):
+        """Test ecommerce blueprint passes IR validation."""
+        from app.services.codegen.ir import IRValidator
+
+        service = OnboardingService()
+        session = service.create_session()
+
+        service.set_domain(session, "ecommerce")
+        service.set_app_name(session, "Test Shop")
+        service.set_features(session, ["products", "orders"])
+        service.set_scale(session, "small")
+
+        result = service.generate_blueprint(session)
+        assert result["success"] is True
+
+        clean_blueprint = _clean_meta_fields(result["blueprint"])
+        validator = IRValidator()
+        validation = validator.validate_app_blueprint(clean_blueprint)
+        assert validation.valid is True, f"IR errors: {validation.errors}"
+
+    def test_hrm_blueprint_validates_with_ir(self):
+        """Test HRM blueprint passes IR validation."""
+        from app.services.codegen.ir import IRValidator
+
+        service = OnboardingService()
+        session = service.create_session()
+
+        service.set_domain(session, "hrm")
+        service.set_app_name(session, "Test HR")
+        service.set_features(session, ["employees", "payroll"])
+        service.set_scale(session, "medium")
+
+        result = service.generate_blueprint(session)
+        assert result["success"] is True
+
+        clean_blueprint = _clean_meta_fields(result["blueprint"])
+        validator = IRValidator()
+        validation = validator.validate_app_blueprint(clean_blueprint)
+        assert validation.valid is True, f"IR errors: {validation.errors}"
+
+    def test_crm_blueprint_validates_with_ir(self):
+        """Test CRM blueprint passes IR validation."""
+        from app.services.codegen.ir import IRValidator
+
+        service = OnboardingService()
+        session = service.create_session()
+
+        service.set_domain(session, "crm")
+        service.set_app_name(session, "Test CRM")
+        service.set_features(session, ["leads", "contacts"])
+        service.set_scale(session, "small")
+
+        result = service.generate_blueprint(session)
+        assert result["success"] is True
+
+        clean_blueprint = _clean_meta_fields(result["blueprint"])
+        validator = IRValidator()
+        validation = validator.validate_app_blueprint(clean_blueprint)
+        assert validation.valid is True, f"IR errors: {validation.errors}"

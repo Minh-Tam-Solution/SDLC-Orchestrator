@@ -2,8 +2,8 @@
 
 *-CyEyes-* — Phase -1 Analysis Record
 
-**Analyzed**: 2026-02-20
-**By**: @tester (e2e-api-testing skill v1.2.0)
+**Analyzed**: 2026-02-21
+**By**: @tester (e2e-api-testing skill v2.0.0, SDLC 6.1.1)
 
 ---
 
@@ -33,10 +33,10 @@
 
 | Role | Email | Password | Notes |
 |------|-------|----------|-------|
-| **Admin (superuser)** | `taidt@mtsolution.com.vn` | `TestAdmin@2026` | Reset for E2E testing |
-| Source | `backend/create_admin.py` | | Original: `Admin@123456` — locked after retries |
+| **Admin (superuser)** | `taidt@mtsolution.com.vn` | `Admin@123456` | Active — login confirmed 2026-02-21 |
+| Source | `backend/create_admin.py` | | Account unlocked, original password works |
 
-> ⚠️ NOTE: The original `Admin@123456` password was rejected (account locked). Password was reset to `TestAdmin@2026` via direct DB update for testing. After testing, consider resetting to `Admin@123456` and unlocking: `UPDATE users SET password_hash=<hash>, failed_login_count=0, locked_until=NULL WHERE email='taidt@mtsolution.com.vn'`
+> NOTE: Account was previously locked (2026-02-20). As of 2026-02-21, `Admin@123456` works. Login via `POST /api/v1/auth/login`.
 
 ## API Entry Points
 
@@ -50,10 +50,19 @@
 
 ## OpenAPI Spec
 
-- **Saved to**: `docs/03-Integration-APIs/02-API-Specifications/openapi.json`
-- **Size**: 1.28MB
-- **Total Paths**: 550
-- **Total Operations**: 622
+- **SSOT Location**: `docs/03-integrate/02-API-Specifications/openapi.json`
+- **Live endpoint**: `http://localhost:8300/api/openapi.json`
+- **Total Paths**: 617
+- **Total Operations**: 704 (GET: 375, POST: 266, PUT: 27, DELETE: 26, PATCH: 10)
+
+## Latest E2E Test Results (2026-02-21)
+
+- **Report**: [E2E-API-REPORT-2026-02-21.md](reports/E2E-API-REPORT-2026-02-21.md)
+- **Tested**: 698/704 operations (6 skipped)
+- **API Health Score**: 94.7% (non-5xx responses)
+- **Direct Pass Rate**: 25.4% (auto-generated bodies — manual tests would be higher)
+- **Server Errors**: 36 endpoints (5.2%) — needs investigation
+- **Avg Response Time**: fast (<100ms p95)
 
 ## Key Finding — Staging Build Gap
 

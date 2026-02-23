@@ -56,6 +56,9 @@ class PilotDomain(str, Enum):
     FNB = "fnb"  # Food & Beverage (Nhà hàng, Quán ăn)
     HOSPITALITY = "hospitality"  # Hotel/Homestay (Khách sạn)
     RETAIL = "retail"  # Retail shop (Cửa hàng bán lẻ)
+    ECOMMERCE = "ecommerce"  # E-commerce (Thương mại điện tử)
+    HRM = "hrm"  # HR Management (Quản lý nhân sự)
+    CRM = "crm"  # CRM (Quản lý quan hệ khách hàng)
 
 
 class OnboardingStage(str, Enum):

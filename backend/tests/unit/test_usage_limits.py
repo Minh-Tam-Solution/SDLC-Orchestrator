@@ -735,3 +735,301 @@ def test_normalise_tier_passthrough():
     from app.middleware.usage_limits import _normalise_tier
     for tier in ("lite", "founder", "starter", "standard", "pro", "enterprise"):
         assert _normalise_tier(tier) == tier
+
+
+# ---------------------------------------------------------------------------
+# Sprint 195 F-06 fix: superuser/platform_admin bypass
+# ADR-065: org-based tier resolution tests
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_superuser_bypasses_usage_limits():
+    """
+    Sprint 195 F-06 + ADR-065 D2: Superuser gets 'enterprise' tier from
+    _resolve_effective_tier, which has -1 (unlimited) for all limits →
+    _fetch_usage never called.
+    """
+    from app.middleware.usage_limits import UsageLimitsMiddleware
+
+    mock_user_result = MagicMock()
+    mock_user_result.one_or_none.return_value = (True, False)  # is_superuser, is_platform_admin
+
+    mock_db = AsyncMock()
+    mock_db.execute = AsyncMock(return_value=mock_user_result)
+    mock_db.__aenter__ = AsyncMock(return_value=mock_db)
+    mock_db.__aexit__ = AsyncMock(return_value=None)
+
+    fetch_mock = AsyncMock(return_value=9999)
+
+    with (
+        patch("app.middleware.usage_limits.UsageLimitsMiddleware._extract_user_id",
+              return_value=_FAKE_USER_ID),
+        patch("app.db.session.AsyncSessionLocal", return_value=mock_db),
+        patch("app.middleware.usage_limits.UsageLimitsMiddleware._fetch_usage",
+              fetch_mock),
+    ):
+        mw = UsageLimitsMiddleware(app=_MockApp())
+        result = await _call_middleware(
+            mw,
+            method="POST",
+            path="/api/v1/projects",
+            headers=_make_auth_header(),
+        )
+
+    fetch_mock.assert_not_called()
+    assert result["status"] == 200
+    assert result["called_downstream"] is True
+
+
+@pytest.mark.asyncio
+async def test_platform_admin_bypasses_usage_limits():
+    """
+    Sprint 195 F-06 + ADR-065 D2: Platform admin gets 'enterprise' tier.
+    """
+    from app.middleware.usage_limits import UsageLimitsMiddleware
+
+    mock_user_result = MagicMock()
+    mock_user_result.one_or_none.return_value = (False, True)  # not superuser, is platform_admin
+
+    mock_db = AsyncMock()
+    mock_db.execute = AsyncMock(return_value=mock_user_result)
+    mock_db.__aenter__ = AsyncMock(return_value=mock_db)
+    mock_db.__aexit__ = AsyncMock(return_value=None)
+
+    fetch_mock = AsyncMock(return_value=9999)
+
+    with (
+        patch("app.middleware.usage_limits.UsageLimitsMiddleware._extract_user_id",
+              return_value=_FAKE_USER_ID),
+        patch("app.db.session.AsyncSessionLocal", return_value=mock_db),
+        patch("app.middleware.usage_limits.UsageLimitsMiddleware._fetch_usage",
+              fetch_mock),
+    ):
+        mw = UsageLimitsMiddleware(app=_MockApp())
+        result = await _call_middleware(
+            mw,
+            method="POST",
+            path="/api/v1/projects",
+            headers=_make_auth_header(),
+        )
+
+    fetch_mock.assert_not_called()
+    assert result["status"] == 200
+    assert result["called_downstream"] is True
+
+
+@pytest.mark.asyncio
+async def test_org_based_tier_resolution_pro():
+    """
+    ADR-065 D1: Regular user with org plan='pro' → resolves to 'pro' tier.
+    PRO has max_projects=20; user with 5 projects → passes through.
+    """
+    from app.middleware.usage_limits import UsageLimitsMiddleware
+
+    # Query 1: User is_superuser=False, is_platform_admin=False
+    mock_user_result = MagicMock()
+    mock_user_result.one_or_none.return_value = (False, False)
+
+    # Query 2: Organization plans
+    mock_org_row = MagicMock()
+    mock_org_row.__getitem__ = lambda self, idx: "pro"
+    mock_org_result = MagicMock()
+    mock_org_result.all.return_value = [mock_org_row]
+
+    mock_db = AsyncMock()
+    mock_db.execute = AsyncMock(side_effect=[mock_user_result, mock_org_result])
+    mock_db.__aenter__ = AsyncMock(return_value=mock_db)
+    mock_db.__aexit__ = AsyncMock(return_value=None)
+
+    fetch_mock = AsyncMock(return_value=5)
+
+    with (
+        patch("app.middleware.usage_limits.UsageLimitsMiddleware._extract_user_id",
+              return_value=_FAKE_USER_ID),
+        patch("app.db.session.AsyncSessionLocal", return_value=mock_db),
+        patch("app.middleware.usage_limits.UsageLimitsMiddleware._fetch_usage",
+              fetch_mock),
+    ):
+        mw = UsageLimitsMiddleware(app=_MockApp())
+        result = await _call_middleware(
+            mw,
+            method="POST",
+            path="/api/v1/projects",
+            headers=_make_auth_header(),
+        )
+
+    assert result["status"] == 200
+    assert result["called_downstream"] is True
+
+
+@pytest.mark.asyncio
+async def test_org_based_tier_resolution_free():
+    """
+    ADR-065 D1: User with org plan='free' → normalises to 'lite' tier.
+    LITE has max_projects=1; user with 1 project → 402.
+    """
+    from app.middleware.usage_limits import UsageLimitsMiddleware
+
+    mock_user_result = MagicMock()
+    mock_user_result.one_or_none.return_value = (False, False)
+
+    mock_org_row = MagicMock()
+    mock_org_row.__getitem__ = lambda self, idx: "free"
+    mock_org_result = MagicMock()
+    mock_org_result.all.return_value = [mock_org_row]
+
+    mock_db = AsyncMock()
+    mock_db.execute = AsyncMock(side_effect=[mock_user_result, mock_org_result])
+    mock_db.__aenter__ = AsyncMock(return_value=mock_db)
+    mock_db.__aexit__ = AsyncMock(return_value=None)
+
+    fetch_mock = AsyncMock(return_value=1)
+
+    with (
+        patch("app.middleware.usage_limits.UsageLimitsMiddleware._extract_user_id",
+              return_value=_FAKE_USER_ID),
+        patch("app.db.session.AsyncSessionLocal", return_value=mock_db),
+        patch("app.middleware.usage_limits.UsageLimitsMiddleware._fetch_usage",
+              fetch_mock),
+    ):
+        mw = UsageLimitsMiddleware(app=_MockApp())
+        result = await _call_middleware(
+            mw,
+            method="POST",
+            path="/api/v1/projects",
+            headers=_make_auth_header(),
+        )
+
+    assert result["status"] == 402
+    assert result["body"]["tier"] == "lite"
+    assert result["body"]["max"] == 1
+
+
+@pytest.mark.asyncio
+async def test_org_based_tier_max_across_orgs():
+    """
+    ADR-065 D1: User in multiple orgs → highest tier wins.
+    Org A: 'free' (lite=1), Org B: 'starter' (starter=2) → resolves to 'starter'.
+    """
+    from app.middleware.usage_limits import UsageLimitsMiddleware
+
+    mock_user_result = MagicMock()
+    mock_user_result.one_or_none.return_value = (False, False)
+
+    mock_org_row_a = MagicMock()
+    mock_org_row_a.__getitem__ = lambda self, idx: "free"
+    mock_org_row_b = MagicMock()
+    mock_org_row_b.__getitem__ = lambda self, idx: "starter"
+    mock_org_result = MagicMock()
+    mock_org_result.all.return_value = [mock_org_row_a, mock_org_row_b]
+
+    mock_db = AsyncMock()
+    mock_db.execute = AsyncMock(side_effect=[mock_user_result, mock_org_result])
+    mock_db.__aenter__ = AsyncMock(return_value=mock_db)
+    mock_db.__aexit__ = AsyncMock(return_value=None)
+
+    fetch_mock = AsyncMock(return_value=3)
+
+    with (
+        patch("app.middleware.usage_limits.UsageLimitsMiddleware._extract_user_id",
+              return_value=_FAKE_USER_ID),
+        patch("app.db.session.AsyncSessionLocal", return_value=mock_db),
+        patch("app.middleware.usage_limits.UsageLimitsMiddleware._fetch_usage",
+              fetch_mock),
+    ):
+        mw = UsageLimitsMiddleware(app=_MockApp())
+        result = await _call_middleware(
+            mw,
+            method="POST",
+            path="/api/v1/projects",
+            headers=_make_auth_header(),
+        )
+
+    # starter has max_projects=5, user has 3 → passes
+    assert result["status"] == 200
+    assert result["called_downstream"] is True
+
+
+@pytest.mark.asyncio
+async def test_org_based_no_orgs_defaults_lite():
+    """
+    ADR-065: User with no org memberships → defaults to 'lite' (most restrictive).
+    """
+    from app.middleware.usage_limits import UsageLimitsMiddleware
+
+    mock_user_result = MagicMock()
+    mock_user_result.one_or_none.return_value = (False, False)
+
+    mock_org_result = MagicMock()
+    mock_org_result.all.return_value = []  # no org memberships
+
+    mock_db = AsyncMock()
+    mock_db.execute = AsyncMock(side_effect=[mock_user_result, mock_org_result])
+    mock_db.__aenter__ = AsyncMock(return_value=mock_db)
+    mock_db.__aexit__ = AsyncMock(return_value=None)
+
+    fetch_mock = AsyncMock(return_value=1)
+
+    with (
+        patch("app.middleware.usage_limits.UsageLimitsMiddleware._extract_user_id",
+              return_value=_FAKE_USER_ID),
+        patch("app.db.session.AsyncSessionLocal", return_value=mock_db),
+        patch("app.middleware.usage_limits.UsageLimitsMiddleware._fetch_usage",
+              fetch_mock),
+    ):
+        mw = UsageLimitsMiddleware(app=_MockApp())
+        result = await _call_middleware(
+            mw,
+            method="POST",
+            path="/api/v1/projects",
+            headers=_make_auth_header(),
+        )
+
+    # lite has max_projects=1, user has 1 → 402
+    assert result["status"] == 402
+    assert result["body"]["tier"] == "lite"
+
+
+@pytest.mark.asyncio
+async def test_org_based_enterprise_early_exit():
+    """
+    ADR-065 D1: Enterprise org plan triggers early exit — no further iteration.
+    """
+    from app.middleware.usage_limits import UsageLimitsMiddleware
+
+    mock_user_result = MagicMock()
+    mock_user_result.one_or_none.return_value = (False, False)
+
+    mock_org_row_a = MagicMock()
+    mock_org_row_a.__getitem__ = lambda self, idx: "free"
+    mock_org_row_b = MagicMock()
+    mock_org_row_b.__getitem__ = lambda self, idx: "enterprise"
+    mock_org_result = MagicMock()
+    mock_org_result.all.return_value = [mock_org_row_a, mock_org_row_b]
+
+    mock_db = AsyncMock()
+    mock_db.execute = AsyncMock(side_effect=[mock_user_result, mock_org_result])
+    mock_db.__aenter__ = AsyncMock(return_value=mock_db)
+    mock_db.__aexit__ = AsyncMock(return_value=None)
+
+    fetch_mock = AsyncMock(return_value=9999)
+
+    with (
+        patch("app.middleware.usage_limits.UsageLimitsMiddleware._extract_user_id",
+              return_value=_FAKE_USER_ID),
+        patch("app.db.session.AsyncSessionLocal", return_value=mock_db),
+        patch("app.middleware.usage_limits.UsageLimitsMiddleware._fetch_usage",
+              fetch_mock),
+    ):
+        mw = UsageLimitsMiddleware(app=_MockApp())
+        result = await _call_middleware(
+            mw,
+            method="POST",
+            path="/api/v1/projects",
+            headers=_make_auth_header(),
+        )
+
+    # enterprise has -1 (unlimited) → _fetch_usage never called
+    fetch_mock.assert_not_called()
+    assert result["status"] == 200
+    assert result["called_downstream"] is True

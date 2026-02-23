@@ -44,7 +44,6 @@ Authority: CTO + CPO Approved
 ==========================================================================
 """
 
-import json
 import logging
 import os
 from typing import Any
@@ -100,6 +99,16 @@ TIER_LIMITS: dict[str, dict[str, int | float]] = {
 
 # Free / unrecognised tiers fall back to LITE limits
 _DEFAULT_TIER = "lite"
+
+# ADR-065 D4: tier rank for max-tier resolution across org memberships
+_TIER_RANK: dict[str, int] = {
+    "lite": 1,
+    "starter": 2,
+    "standard": 2,
+    "founder": 2,
+    "pro": 3,
+    "enterprise": 4,
+}
 
 # ---------------------------------------------------------------------------
 # Watched endpoints: (HTTP method, exact path) → (limit_key, usage_method_name)
@@ -205,11 +214,13 @@ class UsageLimitsMiddleware:
         limit_key, usage_method = _WATCHED[watch_key]
 
         # ----------------------------------------------------------------
-        # 1. Extract JWT from Authorization header
+        # 1. Extract user from JWT or API key (sdlc_live_*)
         # ----------------------------------------------------------------
         user_id: UUID | None = self._extract_user_id(scope)
         if user_id is None:
-            # No valid JWT — route handler will return 401; pass through
+            user_id = await self._extract_user_id_from_api_key(scope)
+        if user_id is None:
+            # No valid auth — route handler will return 401; pass through
             await self.app(scope, receive, send)
             return
 
@@ -308,13 +319,51 @@ class UsageLimitsMiddleware:
             logger.debug("UsageLimitsMiddleware: JWT decode failed: %s", exc)
             return None
 
+    async def _extract_user_id_from_api_key(self, scope: Scope) -> UUID | None:
+        """Extract user UUID from API key (sdlc_live_*) via DB lookup."""
+        headers: dict[bytes, bytes] = dict(scope.get("headers", []))
+        raw_auth: bytes = headers.get(b"authorization", b"")
+        auth_str: str = raw_auth.decode("utf-8", errors="replace").strip()
+
+        if not auth_str.lower().startswith("bearer "):
+            return None
+
+        token = auth_str[7:].strip()
+        if not token or not token.startswith("sdlc_live_"):
+            return None
+
+        try:
+            from app.core.security import hash_api_key
+            from app.db.session import AsyncSessionLocal
+
+            key_hash = hash_api_key(token)
+
+            async with AsyncSessionLocal() as db:
+                from sqlalchemy import select as sa_select
+                from app.models.user import APIKey
+
+                result = await db.execute(
+                    sa_select(APIKey.user_id).where(
+                        APIKey.key_hash == key_hash,
+                        APIKey.is_active == True,  # noqa: E712
+                    )
+                )
+                return result.scalar_one_or_none()
+        except Exception as exc:
+            logger.debug(
+                "UsageLimitsMiddleware: API key lookup failed: %s", exc,
+            )
+            return None
+
     async def _resolve_effective_tier(self, scope: Scope, user_id: UUID) -> str:
         """
         Determine the user's effective subscription tier.
 
-        Priority:
-        1. scope["state"]["user_tier"] — populated by upstream AuthMiddleware
-        2. DB lookup via User.subscription.plan (async query)
+        Priority (ADR-065 Unified Tier Resolution):
+        1. scope["state"]["user_tier"] — optional fast path
+        2. JWT decode → DB lookup:
+           a. is_superuser / is_platform_admin → enterprise (ADR-065 D2)
+           b. Organization-based max-tier (ADR-065 D1, ADR-047)
         3. Default to "lite" (most restrictive, safe fallback)
 
         The returned tier string is normalised to lowercase for TIER_LIMITS lookup.
@@ -326,7 +375,7 @@ class UsageLimitsMiddleware:
         Returns:
             Lowercase tier name string.
         """
-        # Priority 1: scope state (set by AuthMiddleware — no DB hit needed)
+        # Priority 1: scope state (optional — populated if AuthMiddleware is added later)
         state: Any = scope.get("state", {})
         tier_from_state: str | None = None
         if hasattr(state, "__dict__"):
@@ -338,23 +387,46 @@ class UsageLimitsMiddleware:
             normalised = tier_from_state.lower().strip()
             if normalised in TIER_LIMITS:
                 return normalised
-            # "free" and other legacy aliases handled below
             return _normalise_tier(normalised)
 
-        # Priority 2: DB lookup
+        # Priority 2: DB lookup (ADR-065 — org-based resolution)
         try:
             from app.db.session import AsyncSessionLocal  # inline import for testability
-            from app.models.subscription import Subscription
 
             async with AsyncSessionLocal() as db:
                 from sqlalchemy import select as sa_select
-                result = await db.execute(
-                    sa_select(Subscription.plan).where(Subscription.user_id == user_id)
-                )
-                plan_value: str | None = result.scalar_one_or_none()
 
-            if plan_value:
-                return _normalise_tier(plan_value.lower())
+                # ADR-065 D2: superuser/platform_admin → enterprise (bypass all limits)
+                from app.models.user import User
+                user_result = await db.execute(
+                    sa_select(User.is_superuser, User.is_platform_admin).where(User.id == user_id)
+                )
+                user_row = user_result.one_or_none()
+                if user_row and (user_row[0] or user_row[1]):
+                    return "enterprise"
+
+                # ADR-065 D1: org-based tier resolution (replaces Subscription.plan)
+                from app.models.organization import Organization, UserOrganization
+                org_result = await db.execute(
+                    sa_select(Organization.plan).where(
+                        UserOrganization.user_id == user_id,
+                        UserOrganization.organization_id == Organization.id,
+                    )
+                )
+                org_plans = [r[0] for r in org_result.all() if r[0]]
+
+            if org_plans:
+                best_tier = _DEFAULT_TIER
+                best_rank = 0
+                for plan in org_plans:
+                    normalised = _normalise_tier(plan.lower())
+                    rank = _TIER_RANK.get(normalised, 0)
+                    if rank > best_rank:
+                        best_rank = rank
+                        best_tier = normalised
+                        if best_rank >= 4:
+                            return best_tier  # enterprise — early exit
+                return best_tier
         except Exception as exc:  # pragma: no cover — DB unavailable
             logger.warning(
                 "UsageLimitsMiddleware: tier DB lookup failed for user=%s: %s",

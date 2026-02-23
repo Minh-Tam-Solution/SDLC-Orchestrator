@@ -62,7 +62,7 @@ class OnboardingValidator:
     MAX_FEATURES = 10
 
     # Valid domains
-    VALID_DOMAINS = {"restaurant", "hotel", "retail"}
+    VALID_DOMAINS = {"restaurant", "hotel", "retail", "ecommerce", "hrm", "crm"}
 
     # Valid scales
     VALID_SCALES = {"micro", "small", "medium", "large"}

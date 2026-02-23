@@ -1,6 +1,6 @@
 """
 ==========================================================================
-ConversationFirstGuard — Sprint 190 (CEO Conversation-First Directive)
+ConversationFirstGuard — Sprint 190+195 (CEO Conversation-First Directive)
 SDLC Orchestrator — Admin-Only Write Path Enforcement
 
 Purpose:
@@ -8,19 +8,25 @@ Purpose:
 - Non-admin users: read-only access to web dashboard
 - Write operations (POST/PUT/PATCH/DELETE) on admin-gated paths
   return 403 with "Use OTT or CLI" message for non-admin users
-- Admin/Owner users: full access (unchanged)
+- Admin/Owner/Superuser users: full access (unchanged)
 
 Architecture:
 - Pure ASGI (NOT BaseHTTPMiddleware) — avoids FastAPI 0.100+ hang bug
-- Reads user role from JWT claims in Authorization header
-- Fail-open: if role lookup fails, pass through (route-level guards handle auth)
+- Extracts user_id from JWT Authorization header (same pattern as TierGateMiddleware)
+- DB fallback: checks is_superuser, is_platform_admin, and org membership role
+- Fail-open on JWT/DB errors (route-level guards handle auth)
 - GET/HEAD/OPTIONS always pass through (read-only is fine)
+
+Sprint 195 Fix (F-02 P0):
+  Previous implementation relied on scope["state"]["user_role"] which was never
+  populated by any middleware, making the guard a complete no-op. Fixed by adding
+  JWT decode + DB lookup fallback (same defensive pattern as TierGateMiddleware).
 
 CEO Directive (Feb 2026):
   "web app chủ yếu dùng cho admin hoặc owner,
    team member phần lớn thời gian sẽ là conversation-first qua OTT hoặc CLI"
 
-SDLC 6.1.0 — Sprint 190 Day 5
+SDLC 6.1.0 — Sprint 195 (P0 fix for Sprint 190 no-op)
 Authority: CEO APPROVED, Expert Panel 9/9 APPROVE
 Reference: SPRINT-190-AGGRESSIVE-CLEANUP.md, ADR-064
 ==========================================================================
@@ -29,7 +35,9 @@ Reference: SPRINT-190-AGGRESSIVE-CLEANUP.md, ADR-064
 import json
 import logging
 import os
+from uuid import UUID
 
+from jose import JWTError
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 logger = logging.getLogger(__name__)
@@ -52,6 +60,7 @@ ADMIN_WRITE_PATHS: set[str] = {
 }
 
 # Roles allowed to perform write operations on admin paths
+# "admin"/"owner" = UserOrganization.role values
 ADMIN_ROLES: set[str] = {"admin", "owner"}
 
 # Methods that require admin role on gated paths
@@ -70,7 +79,11 @@ FORBIDDEN_RESPONSE = json.dumps({
 
 
 class ConversationFirstGuard:
-    """Pure ASGI middleware enforcing admin-only writes on dashboard paths."""
+    """Pure ASGI middleware enforcing admin-only writes on dashboard paths.
+
+    Sprint 195 fix: resolves user role via JWT + DB lookup instead of
+    relying on scope["state"]["user_role"] which was never populated.
+    """
 
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
@@ -95,27 +108,15 @@ class ConversationFirstGuard:
             await self.app(scope, receive, send)
             return
 
-        # Extract user role from scope state (set by auth middleware)
-        user_role = None
-        state = scope.get("state", {})
-        if state:
-            user_role = state.get("user_role")
+        # Resolve whether user has admin/owner privileges
+        is_admin = await self._resolve_is_admin(scope)
 
-        # If role found and is admin/owner, pass through
-        if user_role and user_role in ADMIN_ROLES:
-            await self.app(scope, receive, send)
-            return
-
-        # If no role in state, try JWT fallback (fail-open)
-        if user_role is None:
-            # Fail-open: let route-level auth handle it
+        if is_admin:
             await self.app(scope, receive, send)
             return
 
         # Non-admin user attempting write on admin path → 403
-        logger.info(
-            f"ConversationFirstGuard: blocked {method} {path} for role={user_role}"
-        )
+        logger.info("ConversationFirstGuard: blocked %s %s", method, path)
 
         response_headers = [
             (b"content-type", b"application/json"),
@@ -131,3 +132,136 @@ class ConversationFirstGuard:
             "type": "http.response.body",
             "body": FORBIDDEN_RESPONSE,
         })
+
+    # ------------------------------------------------------------------
+    # Private helpers (same defensive pattern as TierGateMiddleware)
+    # ------------------------------------------------------------------
+
+    async def _resolve_is_admin(self, scope: Scope) -> bool:
+        """Determine whether the requesting user has admin/owner privileges.
+
+        Resolution order:
+        1. scope["state"]["user_role"] — if populated by future AuthMiddleware
+        2. JWT decode → DB lookup (is_superuser, is_platform_admin, org role)
+        3. Fail-open on any error (True) — route-level auth handles denial
+
+        Returns:
+            True if admin/owner/superuser or on lookup failure (fail-open).
+            False only when user is positively identified as non-admin.
+        """
+        # Priority 1: scope state (fast path for future AuthMiddleware)
+        state = scope.get("state", {})
+        if state:
+            role_from_state = state.get("user_role") if isinstance(state, dict) else getattr(state, "user_role", None)
+            if role_from_state is not None:
+                return role_from_state in ADMIN_ROLES
+
+        # Priority 2: JWT decode → user_id
+        user_id = self._extract_user_id(scope)
+
+        # Priority 2b: API key (sdlc_live_*) → user_id via DB lookup
+        if user_id is None:
+            user_id = await self._extract_user_id_from_api_key(scope)
+
+        if user_id is None:
+            # No auth token → unauthenticated request → fail-open (route returns 401)
+            return True
+
+        try:
+            from app.db.session import AsyncSessionLocal
+
+            async with AsyncSessionLocal() as db:
+                from sqlalchemy import select as sa_select
+
+                # Check superuser / platform_admin → always admin
+                from app.models.user import User
+                user_result = await db.execute(
+                    sa_select(User.is_superuser, User.is_platform_admin).where(User.id == user_id)
+                )
+                row = user_result.one_or_none()
+                if row is None:
+                    return True  # user not found → fail-open
+                if row[0] or row[1]:
+                    return True  # superuser or platform_admin
+
+                # Check org membership role
+                from app.models.organization import UserOrganization
+                org_result = await db.execute(
+                    sa_select(UserOrganization.role).where(
+                        UserOrganization.user_id == user_id
+                    )
+                )
+                org_roles = {r[0] for r in org_result.all() if r[0]}
+                if org_roles & ADMIN_ROLES:
+                    return True  # admin or owner in at least one org
+
+        except Exception as exc:
+            logger.warning(
+                "ConversationFirstGuard: DB lookup failed for user=%s: %s — fail-open",
+                user_id, exc,
+            )
+            return True  # fail-open on DB error
+
+        # Positively identified as non-admin member
+        return False
+
+    def _extract_user_id(self, scope: Scope) -> UUID | None:
+        """Extract user UUID from JWT Authorization header (fail-silent)."""
+        from app.core.security import decode_token
+
+        headers: dict[bytes, bytes] = dict(scope.get("headers", []))
+        raw_auth: bytes = headers.get(b"authorization", b"")
+        auth_str: str = raw_auth.decode("utf-8", errors="replace").strip()
+
+        if not auth_str.lower().startswith("bearer "):
+            return None
+
+        token = auth_str[7:].strip()
+        if not token:
+            return None
+
+        try:
+            payload = decode_token(token)
+            sub: str | None = payload.get("sub")
+            if not sub:
+                return None
+            return UUID(sub)
+        except (JWTError, ValueError, AttributeError) as exc:
+            logger.debug("ConversationFirstGuard: JWT decode failed: %s", exc)
+            return None
+
+    async def _extract_user_id_from_api_key(self, scope: Scope) -> UUID | None:
+        """Extract user UUID from API key (sdlc_live_*) via DB lookup."""
+        headers: dict[bytes, bytes] = dict(scope.get("headers", []))
+        raw_auth: bytes = headers.get(b"authorization", b"")
+        auth_str: str = raw_auth.decode("utf-8", errors="replace").strip()
+
+        if not auth_str.lower().startswith("bearer "):
+            return None
+
+        token = auth_str[7:].strip()
+        if not token or not token.startswith("sdlc_live_"):
+            return None
+
+        try:
+            from app.core.security import hash_api_key
+            from app.db.session import AsyncSessionLocal
+
+            key_hash = hash_api_key(token)
+
+            async with AsyncSessionLocal() as db:
+                from sqlalchemy import select as sa_select
+                from app.models.user import APIKey
+
+                result = await db.execute(
+                    sa_select(APIKey.user_id).where(
+                        APIKey.key_hash == key_hash,
+                        APIKey.is_active == True,  # noqa: E712
+                    )
+                )
+                return result.scalar_one_or_none()
+        except Exception as exc:
+            logger.debug(
+                "ConversationFirstGuard: API key lookup failed: %s", exc,
+            )
+            return None

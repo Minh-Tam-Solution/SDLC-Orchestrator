@@ -1,0 +1,907 @@
+{
+  "project": "NQH-Bot-Platform",
+  "sprint": 196,
+  "track": "B-03",
+  "timestamp": "2026-02-22T18:54:28Z",
+  "total_scenarios": 5,
+  "passed_scenarios": 0,
+  "duration_seconds": 0.06,
+  "scenarios": {
+    "N1_agents": {
+      "success": false,
+      "total_duration_ms": 11,
+      "failed_gate": 1,
+      "summary": "Failed at Gate 1: Syntax Check",
+      "gates": [
+        {
+          "gate_name": "Syntax Check",
+          "gate_number": 1,
+          "status": "failed",
+          "duration_ms": 11,
+          "error_count": 6,
+          "warning_count": 0,
+          "summary": "6 syntax errors",
+          "issues": [
+            {
+              "file": "app/agents/base_agent.py",
+              "line": 37,
+              "column": 18,
+              "severity": "error",
+              "code": "F401",
+              "message": "`enum.Enum` imported but unused",
+              "suggestion": "Remove unused import: `enum.Enum`"
+            },
+            {
+              "file": "app/agents/orchestrator.py",
+              "line": 56,
+              "column": 53,
+              "severity": "error",
+              "code": "F401",
+              "message": "`.base_agent.AgentVote` imported but unused",
+              "suggestion": "Remove unused import: `.base_agent.AgentVote`"
+            },
+            {
+              "file": "app/agents/tool_registry.py",
+              "line": 37,
+              "column": 17,
+              "severity": "error",
+              "code": "F401",
+              "message": "`abc.ABC` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/agents/tool_registry.py",
+              "line": 37,
+              "column": 22,
+              "severity": "error",
+              "code": "F401",
+              "message": "`abc.abstractmethod` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/agents/tool_registry.py",
+              "line": 38,
+              "column": 36,
+              "severity": "error",
+              "code": "F401",
+              "message": "`dataclasses.field` imported but unused",
+              "suggestion": "Remove unused import: `dataclasses.field`"
+            },
+            {
+              "file": "app/agents/tool_registry.py",
+              "line": 39,
+              "column": 47,
+              "severity": "error",
+              "code": "F401",
+              "message": "`typing.Callable` imported but unused",
+              "suggestion": "Remove unused import: `typing.Callable`"
+            }
+          ]
+        }
+      ]
+    },
+    "N2_api_routes": {
+      "success": false,
+      "total_duration_ms": 14,
+      "failed_gate": 1,
+      "summary": "Failed at Gate 1: Syntax Check",
+      "gates": [
+        {
+          "gate_name": "Syntax Check",
+          "gate_number": 1,
+          "status": "failed",
+          "duration_ms": 14,
+          "error_count": 53,
+          "warning_count": 0,
+          "summary": "53 syntax errors",
+          "issues": [
+            {
+              "file": "app/api/v1/analytics.py",
+              "line": 30,
+              "column": 23,
+              "severity": "error",
+              "code": "F401",
+              "message": "`functools.wraps` imported but unused",
+              "suggestion": "Remove unused import: `functools.wraps`"
+            },
+            {
+              "file": "app/api/v1/analytics.py",
+              "line": 31,
+              "column": 63,
+              "severity": "error",
+              "code": "F401",
+              "message": "`fastapi.Body` imported but unused",
+              "suggestion": "Remove unused import: `fastapi.Body`"
+            },
+            {
+              "file": "app/api/v1/analytics.py",
+              "line": 727,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/analytics.py",
+              "line": 889,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/analytics.py",
+              "line": 1022,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/analytics.py",
+              "line": 1023,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/analytics.py",
+              "line": 1024,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/analytics.py",
+              "line": 1024,
+              "column": 31,
+              "severity": "error",
+              "code": "F811",
+              "message": "Redefinition of unused `StreamingResponse` from line 43: `StreamingResponse` redefined here",
+              "suggestion": "Remove definition: `StreamingResponse`"
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 36,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 37,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 38,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 38,
+              "column": 44,
+              "severity": "error",
+              "code": "F401",
+              "message": "`sqlalchemy.or_` imported but unused",
+              "suggestion": "Remove unused import: `sqlalchemy.or_`"
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 39,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 39,
+              "column": 20,
+              "severity": "error",
+              "code": "F401",
+              "message": "`typing.List` imported but unused",
+              "suggestion": "Remove unused import: `typing.List`"
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 40,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 41,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 41,
+              "column": 59,
+              "severity": "error",
+              "code": "F811",
+              "message": "Redefinition of unused `timezone` from line 41: `timezone` redefined here",
+              "suggestion": "Remove definition: `timezone`"
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 42,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 44,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 45,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 46,
+              "column": 5,
+              "severity": "error",
+              "code": "F401",
+              "message": "`app.core.security.security_service` imported but unused",
+              "suggestion": "Remove unused import: `app.core.security.security_service`"
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 50,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 50,
+              "column": 29,
+              "severity": "error",
+              "code": "F401",
+              "message": "`app.core.config.settings` imported but unused",
+              "suggestion": "Remove unused import: `app.core.config.settings`"
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 51,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 52,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 53,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 54,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 55,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 56,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 57,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 58,
+              "column": 5,
+              "severity": "error",
+              "code": "F401",
+              "message": "`app.schemas.attendance.AttendanceCreate` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 60,
+              "column": 5,
+              "severity": "error",
+              "code": "F401",
+              "message": "`app.schemas.attendance.AttendanceReport` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 60,
+              "column": 23,
+              "severity": "error",
+              "code": "F401",
+              "message": "`app.schemas.attendance.LocationValidation` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 62,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 63,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 66,
+              "column": 5,
+              "severity": "error",
+              "code": "F401",
+              "message": "`app.integrations.zalo.hooks.attendance_hooks.send_gps_validation_failed_notification` imported but unused",
+              "suggestion": "Remove unused import: `app.integrations.zalo.hooks.attendance_hooks.send_gps_validation_failed_notification`"
+            },
+            {
+              "file": "app/api/v1/attendance.py",
+              "line": 68,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 30,
+              "column": 30,
+              "severity": "error",
+              "code": "F401",
+              "message": "`fastapi.security.OAuth2PasswordRequestForm` imported but unused",
+              "suggestion": "Remove unused import: `fastapi.security.OAuth2PasswordRequestForm`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 32,
+              "column": 32,
+              "severity": "error",
+              "code": "F401",
+              "message": "`sqlalchemy.func` imported but unused",
+              "suggestion": "Remove unused import: `sqlalchemy.func`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 33,
+              "column": 22,
+              "severity": "error",
+              "code": "F401",
+              "message": "`datetime.timedelta` imported but unused",
+              "suggestion": "Remove unused import: `datetime.timedelta`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 34,
+              "column": 26,
+              "severity": "error",
+              "code": "F401",
+              "message": "`typing.Any` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 34,
+              "column": 31,
+              "severity": "error",
+              "code": "F401",
+              "message": "`typing.Optional` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 34,
+              "column": 41,
+              "severity": "error",
+              "code": "F401",
+              "message": "`typing.Union` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 39,
+              "column": 33,
+              "severity": "error",
+              "code": "F401",
+              "message": "`app.core.auth_cache.auth_cache` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 39,
+              "column": 45,
+              "severity": "error",
+              "code": "F401",
+              "message": "`app.core.auth_cache.cache_auth_response` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 48,
+              "column": 26,
+              "severity": "error",
+              "code": "F401",
+              "message": "`app.schemas.auth.UserLogin` imported but unused",
+              "suggestion": "Remove unused import: `app.schemas.auth.UserLogin`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 105,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 106,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 107,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 324,
+              "column": 5,
+              "severity": "error",
+              "code": "F841",
+              "message": "Local variable `idempotency_manager` is assigned to but never used",
+              "suggestion": "Remove assignment to unused variable `idempotency_manager`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 369,
+              "column": 29,
+              "severity": "error",
+              "code": "F841",
+              "message": "Local variable `e` is assigned to but never used",
+              "suggestion": "Remove assignment to unused variable `e`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 500,
+              "column": 25,
+              "severity": "error",
+              "code": "F841",
+              "message": "Local variable `e` is assigned to but never used",
+              "suggestion": "Remove assignment to unused variable `e`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 806,
+              "column": 57,
+              "severity": "error",
+              "code": "F821",
+              "message": "Undefined name `request`",
+              "suggestion": null
+            }
+          ]
+        }
+      ]
+    },
+    "N3_anomaly": {
+      "success": false,
+      "total_duration_ms": 11,
+      "failed_gate": 1,
+      "summary": "Failed at Gate 1: Syntax Check",
+      "gates": [
+        {
+          "gate_name": "Syntax Check",
+          "gate_number": 1,
+          "status": "failed",
+          "duration_ms": 11,
+          "error_count": 4,
+          "warning_count": 0,
+          "summary": "4 syntax errors",
+          "issues": [
+            {
+              "file": "app/anomaly/detector.py",
+              "line": 29,
+              "column": 32,
+              "severity": "error",
+              "code": "F401",
+              "message": "`datetime.timedelta` imported but unused",
+              "suggestion": "Remove unused import: `datetime.timedelta`"
+            },
+            {
+              "file": "app/anomaly/service.py",
+              "line": 40,
+              "column": 5,
+              "severity": "error",
+              "code": "F401",
+              "message": "`.schemas.AnomalyListItem` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/anomaly/service.py",
+              "line": 41,
+              "column": 5,
+              "severity": "error",
+              "code": "F401",
+              "message": "`.schemas.DetectionThresholds` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/anomaly/service.py",
+              "line": 183,
+              "column": 34,
+              "severity": "error",
+              "code": "F541",
+              "message": "f-string without any placeholders",
+              "suggestion": "Remove extraneous `f` prefix"
+            }
+          ]
+        }
+      ]
+    },
+    "N4_security": {
+      "success": false,
+      "total_duration_ms": 9,
+      "failed_gate": 1,
+      "summary": "Failed at Gate 1: Syntax Check",
+      "gates": [
+        {
+          "gate_name": "Syntax Check",
+          "gate_number": 1,
+          "status": "failed",
+          "duration_ms": 9,
+          "error_count": 22,
+          "warning_count": 0,
+          "summary": "22 syntax errors",
+          "issues": [
+            {
+              "file": "app/api/deps.py",
+              "line": 65,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/deps.py",
+              "line": 71,
+              "column": 5,
+              "severity": "error",
+              "code": "F401",
+              "message": "`app.config.feature_flags.TEMPLATE_CHAT_ENABLED` imported but unused",
+              "suggestion": "Remove unused import: `app.config.feature_flags.TEMPLATE_CHAT_ENABLED`"
+            },
+            {
+              "file": "app/api/rbac_endpoints.py",
+              "line": 34,
+              "column": 32,
+              "severity": "error",
+              "code": "F401",
+              "message": "`fastapi.Depends` imported but unused",
+              "suggestion": "Remove unused import: `fastapi.Depends`"
+            },
+            {
+              "file": "app/api/rbac_endpoints.py",
+              "line": 36,
+              "column": 36,
+              "severity": "error",
+              "code": "F401",
+              "message": "`typing.Dict` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/rbac_endpoints.py",
+              "line": 36,
+              "column": 42,
+              "severity": "error",
+              "code": "F401",
+              "message": "`typing.Any` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/rbac_endpoints.py",
+              "line": 267,
+              "column": 5,
+              "severity": "error",
+              "code": "F841",
+              "message": "Local variable `grant` is assigned to but never used",
+              "suggestion": "Remove assignment to unused variable `grant`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 30,
+              "column": 30,
+              "severity": "error",
+              "code": "F401",
+              "message": "`fastapi.security.OAuth2PasswordRequestForm` imported but unused",
+              "suggestion": "Remove unused import: `fastapi.security.OAuth2PasswordRequestForm`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 32,
+              "column": 32,
+              "severity": "error",
+              "code": "F401",
+              "message": "`sqlalchemy.func` imported but unused",
+              "suggestion": "Remove unused import: `sqlalchemy.func`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 33,
+              "column": 22,
+              "severity": "error",
+              "code": "F401",
+              "message": "`datetime.timedelta` imported but unused",
+              "suggestion": "Remove unused import: `datetime.timedelta`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 34,
+              "column": 26,
+              "severity": "error",
+              "code": "F401",
+              "message": "`typing.Any` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 34,
+              "column": 31,
+              "severity": "error",
+              "code": "F401",
+              "message": "`typing.Optional` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 34,
+              "column": 41,
+              "severity": "error",
+              "code": "F401",
+              "message": "`typing.Union` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 39,
+              "column": 33,
+              "severity": "error",
+              "code": "F401",
+              "message": "`app.core.auth_cache.auth_cache` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 39,
+              "column": 45,
+              "severity": "error",
+              "code": "F401",
+              "message": "`app.core.auth_cache.cache_auth_response` imported but unused",
+              "suggestion": "Remove unused import"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 48,
+              "column": 26,
+              "severity": "error",
+              "code": "F401",
+              "message": "`app.schemas.auth.UserLogin` imported but unused",
+              "suggestion": "Remove unused import: `app.schemas.auth.UserLogin`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 105,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 106,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 107,
+              "column": 1,
+              "severity": "error",
+              "code": "E402",
+              "message": "Module level import not at top of file",
+              "suggestion": null
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 324,
+              "column": 5,
+              "severity": "error",
+              "code": "F841",
+              "message": "Local variable `idempotency_manager` is assigned to but never used",
+              "suggestion": "Remove assignment to unused variable `idempotency_manager`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 369,
+              "column": 29,
+              "severity": "error",
+              "code": "F841",
+              "message": "Local variable `e` is assigned to but never used",
+              "suggestion": "Remove assignment to unused variable `e`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 500,
+              "column": 25,
+              "severity": "error",
+              "code": "F841",
+              "message": "Local variable `e` is assigned to but never used",
+              "suggestion": "Remove assignment to unused variable `e`"
+            },
+            {
+              "file": "app/api/v1/auth.py",
+              "line": 806,
+              "column": 57,
+              "severity": "error",
+              "code": "F821",
+              "message": "Undefined name `request`",
+              "suggestion": null
+            }
+          ]
+        }
+      ]
+    },
+    "N5_workflows": {
+      "success": false,
+      "total_duration_ms": 7,
+      "failed_gate": 1,
+      "summary": "Failed at Gate 1: Syntax Check",
+      "gates": [
+        {
+          "gate_name": "Syntax Check",
+          "gate_number": 1,
+          "status": "failed",
+          "duration_ms": 7,
+          "error_count": 4,
+          "warning_count": 0,
+          "summary": "4 syntax errors",
+          "issues": [
+            {
+              "file": "app/workflows/compensations/compensation_activities.py",
+              "line": 27,
+              "column": 8,
+              "severity": "error",
+              "code": "F401",
+              "message": "`logging` imported but unused",
+              "suggestion": "Remove unused import: `logging`"
+            },
+            {
+              "file": "app/workflows/compensations/saga_schedule_workflow.py",
+              "line": 29,
+              "column": 8,
+              "severity": "error",
+              "code": "F401",
+              "message": "`logging` imported but unused",
+              "suggestion": "Remove unused import: `logging`"
+            },
+            {
+              "file": "app/workflows/compensations/saga_schedule_workflow.py",
+              "line": 41,
+              "column": 9,
+              "severity": "error",
+              "code": "F401",
+              "message": "`app.workflows.compensations.compensation_activities.restore_previous_schedule` imported but unused",
+              "suggestion": "Remove unused import: `app.workflows.compensations.compensation_activities.restore_previous_schedule`"
+            },
+            {
+              "file": "app/workflows/compensations/saga_schedule_workflow.py",
+              "line": 129,
+              "column": 9,
+              "severity": "error",
+              "code": "F841",
+              "message": "Local variable `previous_schedule_version` is assigned to but never used",
+              "suggestion": "Remove assignment to unused variable `previous_schedule_version`"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -211,6 +211,57 @@ VIETNAMESE_PROMPTS = OnboardingPrompts(
                 "Cua Hang Dien May"
             ]
         ),
+        "ecommerce": DomainOption(
+            key="ecommerce",
+            name_vi="Thuong mai dien tu",
+            name_en="E-commerce / Online Shop",
+            description_vi=(
+                "Quan ly san pham online, don hang, thanh toan, van chuyen. "
+                "Phu hop cho ban hang Shopee, Tiki, Lazada, website rieng..."
+            ),
+            icon="🛒",
+            isic_codes=["47.91", "47.99"],
+            example_apps=[
+                "Shop My Pham Online",
+                "Trai Cay Sach Ha Noi",
+                "Do Gia Dung 24h",
+                "Thoi Trang Nu Sai Gon"
+            ]
+        ),
+        "hrm": DomainOption(
+            key="hrm",
+            name_vi="Quan ly nhan su",
+            name_en="HR Management",
+            description_vi=(
+                "Quan ly nhan vien, cham cong, tinh luong, nghi phep. "
+                "Ho tro BHXH, BHYT, PIT theo luat Viet Nam..."
+            ),
+            icon="👥",
+            isic_codes=["78.10", "78.20"],
+            example_apps=[
+                "Nhan Su ABC Corp",
+                "Cham Cong Nha May XYZ",
+                "HR Manager Viet",
+                "Quan Ly Nhan Vien SME"
+            ]
+        ),
+        "crm": DomainOption(
+            key="crm",
+            name_vi="Quan ly khach hang",
+            name_en="CRM / Sales Management",
+            description_vi=(
+                "Quan ly khach tiem nang, lien he, giao dich, hoat dong. "
+                "Tich hop Zalo, ho tro SDT Viet Nam, pipeline ban hang..."
+            ),
+            icon="🤝",
+            isic_codes=["62.01", "62.09"],
+            example_apps=[
+                "Sales Pro Viet",
+                "Zalo CRM Manager",
+                "Pipeline Kinh Doanh",
+                "Khach Hang Vang"
+            ]
+        ),
     }
 )
 
@@ -361,7 +412,34 @@ FEATURE_LABELS_VI = {
         "suppliers": {"name": "Quan ly nha cung cap", "description": "Thong tin NCC, dat hang"},
         "promotions": {"name": "Khuyen mai", "description": "Giam gia, voucher"},
         "reports": {"name": "Bao cao", "description": "Doanh thu, loi nhuan"},
-    }
+    },
+    "ecommerce": {
+        "products": {"name": "Quan ly san pham", "description": "Danh muc, gia ban, hinh anh"},
+        "orders": {"name": "Quan ly don hang", "description": "Don hang online, trang thai van chuyen"},
+        "customers": {"name": "Quan ly khach hang", "description": "Thong tin khach, lich su mua"},
+        "payments": {"name": "Thanh toan", "description": "COD, chuyen khoan, MoMo, ZaloPay, VNPay"},
+        "categories": {"name": "Danh muc", "description": "Phan loai san pham"},
+        "shipping": {"name": "Van chuyen", "description": "Theo doi giao hang"},
+        "reports": {"name": "Bao cao", "description": "Doanh thu, don hang, khach hang"},
+    },
+    "hrm": {
+        "employees": {"name": "Quan ly nhan vien", "description": "Ho so, hop dong, phong ban"},
+        "attendance": {"name": "Cham cong", "description": "Gio vao/ra, ngay cong"},
+        "payroll": {"name": "Tinh luong", "description": "Luong co ban, phu cap, BHXH, thue TNCN"},
+        "leave": {"name": "Nghi phep", "description": "Don nghi, duyet phep, so ngay con lai"},
+        "contracts": {"name": "Hop dong lao dong", "description": "Thu viec, xac dinh, vo thoi han"},
+        "departments": {"name": "Phong ban", "description": "Co cau to chuc"},
+        "reports": {"name": "Bao cao", "description": "Nhan su, cham cong, luong"},
+    },
+    "crm": {
+        "leads": {"name": "Khach tiem nang", "description": "Thu thap, phan loai, nuoi duong"},
+        "contacts": {"name": "Danh ba lien he", "description": "Thong tin khach hang, doi tac"},
+        "deals": {"name": "Giao dich", "description": "Pipeline ban hang, gia tri, giai doan"},
+        "activities": {"name": "Hoat dong", "description": "Cuoc goi, tin nhan Zalo, gap mat"},
+        "pipeline": {"name": "Pipeline", "description": "Theo doi co hoi kinh doanh"},
+        "follow_ups": {"name": "Theo doi", "description": "Lich hen, nhac nho lien he lai"},
+        "reports": {"name": "Bao cao", "description": "Doanh thu, ty le chuyen doi"},
+    },
 }
 
 

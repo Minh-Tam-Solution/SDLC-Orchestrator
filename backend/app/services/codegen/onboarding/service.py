@@ -31,6 +31,9 @@ from ..domains import (
     FnBDomainTemplate,
     HospitalityDomainTemplate,
     RetailDomainTemplate,
+    EcommerceDomainTemplate,
+    HrmDomainTemplate,
+    CrmDomainTemplate,
 )
 from ..domains.cgf_metadata import get_domain_cgf_mapping
 from .prompts import (
@@ -167,6 +170,9 @@ class OnboardingService:
             "restaurant": FnBDomainTemplate,
             "hotel": HospitalityDomainTemplate,
             "retail": RetailDomainTemplate,
+            "ecommerce": EcommerceDomainTemplate,
+            "hrm": HrmDomainTemplate,
+            "crm": CrmDomainTemplate,
         }
 
         logger.info("OnboardingService initialized with locale: %s", locale)
@@ -572,6 +578,33 @@ class OnboardingService:
                 "suppliers": "inventory",  # Part of inventory module
                 "promotions": "sales",  # Part of sales module
                 "reports": "sales",  # Part of sales module
+            },
+            "ecommerce": {
+                "products": "products",
+                "orders": "orders",
+                "customers": "customers",
+                "payments": "payments",
+                "categories": "products",  # Part of products module
+                "shipping": "orders",  # Part of orders module
+                "reports": "orders",  # Part of orders module
+            },
+            "hrm": {
+                "employees": "employees",
+                "attendance": "attendance",
+                "payroll": "payroll",
+                "leave": "leave",
+                "contracts": "employees",  # Part of employees module
+                "departments": "employees",  # Part of employees module
+                "reports": "payroll",  # Part of payroll module
+            },
+            "crm": {
+                "leads": "leads",
+                "contacts": "contacts",
+                "deals": "deals",
+                "activities": "activities",
+                "pipeline": "deals",  # Part of deals module
+                "follow_ups": "activities",  # Part of activities module
+                "reports": "deals",  # Part of deals module
             },
         }
 

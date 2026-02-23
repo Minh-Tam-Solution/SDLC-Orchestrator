@@ -117,15 +117,22 @@ class ModelProcessor(IRProcessor):
         Get model filename from entity.
 
         Converts table_name to singular form for filename.
+        Examples: employees→employee, categories→category, addresses→address
         """
         table_name = entity.get("table_name", "")
-        # Remove trailing 's' for singular filename
-        if table_name.endswith("ies"):
+        if not table_name:
+            return table_name
+        # "ies" → "y": categories → category, companies → company
+        if table_name.endswith("ies") and len(table_name) > 3:
             return table_name[:-3] + "y"
-        elif table_name.endswith("es"):
-            return table_name[:-2]
-        elif table_name.endswith("s") and not table_name.endswith("ss"):
-            return table_name[:-1]
+        # "es" → strip only when base ends in s/sh/ch/x/z
+        if table_name.endswith("es") and len(table_name) > 2:
+            base = table_name[:-2]
+            if base.endswith(("s", "sh", "ch", "x", "z")):
+                return base  # addresses→address, statuses→status, boxes→box
+        # Default: strip trailing "s"
+        if table_name.endswith("s") and not table_name.endswith("ss"):
+            return table_name[:-1]  # users→user, employees→employee
         return table_name
 
     def _generate_models_init(self, entities: List[Dict]) -> str:

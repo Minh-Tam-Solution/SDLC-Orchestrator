@@ -1,10 +1,57 @@
 # Test Remediation Plan for Go-Live 2026
 
-**Date**: January 27, 2026
-**Status**: ✅ **ACTIVE - Execution Ready**
-**Framework**: SDLC 6.1.0
+**Date**: January 27, 2026 (original) · **Last Updated**: February 23, 2026
+**Status**: ✅ **ACTIVE — Sprint 197 In Progress**
+**Framework**: SDLC 6.1.1
 **Owner**: QA Lead + Backend Lead + CTO
-**Target Go-Live**: February 28, 2026 (30 days)
+**Target Go-Live**: March 7, 2026 (revised — Sprint 197 end)
+
+---
+
+## Sprint 197 Status Addendum (February 23, 2026)
+
+### Current Test Metrics
+
+| Area | Jan 27 State | Feb 23 State | Target | Status |
+|------|-------------|-------------|--------|--------|
+| **Unit Tests** | <50% coverage | 3,096+ functions | 95%+ | ⬆️ Significant progress |
+| **Integration Tests** | GitHub/MinIO only | 993+ functions | 90%+ | ⬆️ Major expansion |
+| **E2E Tests** | Bruno only | 85+ (Playwright + API) | 10 paths | ✅ EXCEEDED |
+| **Codegen Tests** | 0 | 436 | N/A (new scope) | ✅ NEW |
+| **Middleware Tests** | 0 | 97 | N/A | ✅ NEW |
+| **Load Tests** | None | Pending | 100K users | ⏳ Track A-03 |
+| **Security Audit** | None | OWASP ASVS L2 98.4% | ASVS L2 | ✅ ACHIEVED |
+| **API Health** | Not measured | 94.8% (Feb 21 report) | >97% | ⚠️ 36 server errors |
+| **p95 Latency** | Not measured | 14.0ms | <100ms | ✅ PASS |
+
+### Sprint 197 Fixes Applied
+
+| Item | Fix | Impact |
+|------|-----|--------|
+| Double-prefixed routes (B-01) | Removed `prefix="/api/v1"` from invitations + org-invitations | Server errors reduced |
+| Ruff template warnings (C-01) | Fixed `model.py.j2`: `Column`→removed, `Date`→added, boolean filter | Gate 1 green for 6 domains |
+| Filename truncation (C-02) | Fixed singularization in model/endpoint processors | `Employee`→`employee.py` |
+| Gate 4 sandbox (C-03) | `GATE4_ENABLED` env var | Opt-in test execution |
+| pytest-benchmark (C-04) | 6 benchmark tests + `pytest-benchmark>=4.0` | Latency profiling |
+| Auth redundancy (C-05) | Removed L703 redundant condition | Code cleanup |
+| Collection warnings (C-06) | `_` prefix on 5 helper classes | 0 pytest warnings |
+
+### Remaining Go-Live Gaps
+
+| Gap | Priority | Sprint 197 Track | Status |
+|-----|----------|-----------------|--------|
+| MASTER-TEST-PLAN.md | P1 | A-01 | ⏳ Pending @tester |
+| Security Testing docs | P1 | A-02 | ⏳ Pending @tester |
+| Performance Testing docs | P2 | A-03 | ⏳ Pending @tester |
+| Accessibility Testing docs | P2 | A-04 | ⏳ Pending @tester |
+| Pre-existing test failures (153+99) | P1 | B-02/B-03 | ⏳ Deferred — async/sync, DB fixtures |
+| E2E API re-run (>97% health) | P0 | B-05 | ⏳ Pending post-fixes |
+
+---
+
+## Original Plan (January 27, 2026)
+
+> **Note**: The sections below represent the original remediation plan. Many items have been addressed in Sprints 107-197. See Sprint 197 Status Addendum above for current state.
 
 ---
 

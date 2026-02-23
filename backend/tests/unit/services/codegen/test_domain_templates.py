@@ -622,3 +622,363 @@ class TestBundleBuilderIntegration:
             assert bundle.success is True, f"{domain_name} build failed"
             assert bundle.file_count >= 20, \
                 f"{domain_name} only generated {bundle.file_count} files"
+
+
+# ---------------------------------------------------------------------------
+# Sprint 196 Track C-05: Vietnamese Domain Template Validation
+# ---------------------------------------------------------------------------
+class TestEcommerceDomainTemplate:
+    """Test E-commerce domain template (Sprint 196 Track C-01)."""
+
+    def test_ecommerce_has_correct_modules(self):
+        """Test e-commerce domain has required modules."""
+        from app.services.codegen.domains import EcommerceDomainTemplate
+
+        template = EcommerceDomainTemplate()
+        modules = template.get_modules()
+        module_names = [m.name for m in modules]
+
+        assert "products" in module_names
+        assert "orders" in module_names
+        assert "customers" in module_names
+        assert "payments" in module_names
+
+    def test_ecommerce_domain_name(self):
+        """Test e-commerce domain properties."""
+        from app.services.codegen.domains import EcommerceDomainTemplate
+
+        template = EcommerceDomainTemplate()
+        assert template.domain_name == "ecommerce"
+        assert "điện tử" in template.vietnamese_name
+
+    def test_ecommerce_product_entity_fields(self):
+        """Test Product entity has required fields (MDG-003 compliant)."""
+        from app.services.codegen.domains import EcommerceDomainTemplate
+
+        template = EcommerceDomainTemplate()
+        product = template.get_entity_by_name("Product")
+
+        assert product is not None
+        field_names = [f.name for f in product.fields]
+
+        assert "name" in field_names
+        assert "sku" in field_names
+        assert "price_vnd" in field_names
+        assert "stock_quantity" in field_names
+
+    def test_ecommerce_order_entity_fields(self):
+        """Test Order entity has required fields (MP-002 O2C)."""
+        from app.services.codegen.domains import EcommerceDomainTemplate
+
+        template = EcommerceDomainTemplate()
+        order = template.get_entity_by_name("Order")
+
+        assert order is not None
+        field_names = [f.name for f in order.fields]
+
+        assert "order_code" in field_names
+        assert "status" in field_names
+        assert "total_vnd" in field_names
+        assert "payment_method" in field_names
+
+    def test_ecommerce_payment_methods_include_cod(self):
+        """Test Payment entity supports COD (Vietnamese primary method)."""
+        from app.services.codegen.domains import EcommerceDomainTemplate
+
+        template = EcommerceDomainTemplate()
+        payment = template.get_entity_by_name("Payment")
+
+        assert payment is not None
+        method_field = next(f for f in payment.fields if f.name == "method")
+        assert "cod" in method_field.choices
+
+    def test_ecommerce_to_app_blueprint(self):
+        """Test e-commerce generates valid AppBlueprint."""
+        from app.services.codegen.domains import EcommerceDomainTemplate
+
+        template = EcommerceDomainTemplate()
+        blueprint = template.to_app_blueprint("Shop Thoi Trang Online")
+
+        assert blueprint["name"] == "Shop Thoi Trang Online"
+        assert blueprint["business_domain"] == "ecommerce"
+        assert len(blueprint["modules"]) == 4
+
+    def test_ecommerce_blueprint_validates(self):
+        """Test e-commerce blueprint passes IR validation."""
+        from app.services.codegen.domains import EcommerceDomainTemplate
+        from app.services.codegen.ir import IRValidator
+
+        template = EcommerceDomainTemplate()
+        blueprint = template.to_app_blueprint("TestEcommerceShop", "1.0.0")
+        clean_blueprint = _clean_meta_fields(blueprint)
+
+        validator = IRValidator()
+        result = validator.validate_app_blueprint(clean_blueprint)
+
+        assert result.valid is True, f"Validation failed: {result.issues}"
+
+
+class TestHrmDomainTemplate:
+    """Test HRM domain template (Sprint 196 Track C-02)."""
+
+    def test_hrm_has_correct_modules(self):
+        """Test HRM domain has required modules."""
+        from app.services.codegen.domains import HrmDomainTemplate
+
+        template = HrmDomainTemplate()
+        modules = template.get_modules()
+        module_names = [m.name for m in modules]
+
+        assert "employees" in module_names
+        assert "attendance" in module_names
+        assert "payroll" in module_names
+        assert "leave" in module_names
+
+    def test_hrm_domain_name(self):
+        """Test HRM domain properties."""
+        from app.services.codegen.domains import HrmDomainTemplate
+
+        template = HrmDomainTemplate()
+        assert template.domain_name == "hrm"
+        assert "nhân sự" in template.vietnamese_name
+
+    def test_hrm_employee_entity_fields(self):
+        """Test Employee entity has Vietnamese labor law fields."""
+        from app.services.codegen.domains import HrmDomainTemplate
+
+        template = HrmDomainTemplate()
+        employee = template.get_entity_by_name("Employee")
+
+        assert employee is not None
+        field_names = [f.name for f in employee.fields]
+
+        assert "full_name" in field_names
+        assert "employee_code" in field_names
+        assert "phone" in field_names
+        assert "contract_type" in field_names
+
+    def test_hrm_payroll_entity_has_bhxh_fields(self):
+        """Test Payroll entity has BHXH/BHYT/BHTN deduction fields."""
+        from app.services.codegen.domains import HrmDomainTemplate
+
+        template = HrmDomainTemplate()
+        payroll = template.get_entity_by_name("Payroll")
+
+        assert payroll is not None
+        field_names = [f.name for f in payroll.fields]
+
+        assert "base_salary_vnd" in field_names
+        assert "bhxh_employee_vnd" in field_names
+        assert "bhyt_employee_vnd" in field_names
+        assert "bhtn_employee_vnd" in field_names
+        assert "net_salary_vnd" in field_names
+
+    def test_hrm_leave_entity_fields(self):
+        """Test LeaveRequest entity has leave management fields."""
+        from app.services.codegen.domains import HrmDomainTemplate
+
+        template = HrmDomainTemplate()
+        leave = template.get_entity_by_name("LeaveRequest")
+
+        assert leave is not None
+        field_names = [f.name for f in leave.fields]
+
+        assert "leave_type" in field_names
+        assert "start_date" in field_names
+        assert "end_date" in field_names
+        assert "status" in field_names
+
+    def test_hrm_to_app_blueprint(self):
+        """Test HRM generates valid AppBlueprint."""
+        from app.services.codegen.domains import HrmDomainTemplate
+
+        template = HrmDomainTemplate()
+        blueprint = template.to_app_blueprint("Nhan Su ABC Corp")
+
+        assert blueprint["name"] == "Nhan Su ABC Corp"
+        assert blueprint["business_domain"] == "hrm"
+        assert len(blueprint["modules"]) == 4
+
+    def test_hrm_blueprint_validates(self):
+        """Test HRM blueprint passes IR validation."""
+        from app.services.codegen.domains import HrmDomainTemplate
+        from app.services.codegen.ir import IRValidator
+
+        template = HrmDomainTemplate()
+        blueprint = template.to_app_blueprint("TestHrmApp", "1.0.0")
+        clean_blueprint = _clean_meta_fields(blueprint)
+
+        validator = IRValidator()
+        result = validator.validate_app_blueprint(clean_blueprint)
+
+        assert result.valid is True, f"Validation failed: {result.issues}"
+
+
+class TestCrmDomainTemplate:
+    """Test CRM domain template (Sprint 196 Track C-03)."""
+
+    def test_crm_has_correct_modules(self):
+        """Test CRM domain has required modules."""
+        from app.services.codegen.domains import CrmDomainTemplate
+
+        template = CrmDomainTemplate()
+        modules = template.get_modules()
+        module_names = [m.name for m in modules]
+
+        assert "leads" in module_names
+        assert "contacts" in module_names
+        assert "deals" in module_names
+        assert "activities" in module_names
+
+    def test_crm_domain_name(self):
+        """Test CRM domain properties."""
+        from app.services.codegen.domains import CrmDomainTemplate
+
+        template = CrmDomainTemplate()
+        assert template.domain_name == "crm"
+        assert "khách hàng" in template.vietnamese_name
+
+    def test_crm_lead_entity_fields(self):
+        """Test Lead entity has required fields (MP-006 L2C)."""
+        from app.services.codegen.domains import CrmDomainTemplate
+
+        template = CrmDomainTemplate()
+        lead = template.get_entity_by_name("Lead")
+
+        assert lead is not None
+        field_names = [f.name for f in lead.fields]
+
+        assert "full_name" in field_names
+        assert "phone" in field_names
+        assert "source" in field_names
+        assert "status" in field_names
+        assert "zalo_id" in field_names
+
+    def test_crm_lead_sources_include_zalo(self):
+        """Test Lead source choices include Zalo (Vietnamese primary channel)."""
+        from app.services.codegen.domains import CrmDomainTemplate
+
+        template = CrmDomainTemplate()
+        lead = template.get_entity_by_name("Lead")
+
+        source_field = next(f for f in lead.fields if f.name == "source")
+        assert "zalo" in source_field.choices
+        assert "facebook" in source_field.choices
+
+    def test_crm_deal_entity_fields(self):
+        """Test Deal entity has pipeline fields."""
+        from app.services.codegen.domains import CrmDomainTemplate
+
+        template = CrmDomainTemplate()
+        deal = template.get_entity_by_name("Deal")
+
+        assert deal is not None
+        field_names = [f.name for f in deal.fields]
+
+        assert "title" in field_names
+        assert "value_vnd" in field_names
+        assert "stage" in field_names
+        assert "probability" in field_names
+
+    def test_crm_deal_has_contact_relationship(self):
+        """Test Deal has many-to-one relationship to Contact."""
+        from app.services.codegen.domains import CrmDomainTemplate
+
+        template = CrmDomainTemplate()
+        deal = template.get_entity_by_name("Deal")
+
+        assert deal is not None
+        assert len(deal.relationships) >= 1
+        contact_rel = next(r for r in deal.relationships if r.name == "contact")
+        assert contact_rel.target == "Contact"
+
+    def test_crm_activity_types_include_zalo_message(self):
+        """Test Activity types include zalo_message."""
+        from app.services.codegen.domains import CrmDomainTemplate
+
+        template = CrmDomainTemplate()
+        activity = template.get_entity_by_name("Activity")
+
+        type_field = next(f for f in activity.fields if f.name == "activity_type")
+        assert "zalo_message" in type_field.choices
+
+    def test_crm_to_app_blueprint(self):
+        """Test CRM generates valid AppBlueprint."""
+        from app.services.codegen.domains import CrmDomainTemplate
+
+        template = CrmDomainTemplate()
+        blueprint = template.to_app_blueprint("Sales Pro Viet")
+
+        assert blueprint["name"] == "Sales Pro Viet"
+        assert blueprint["business_domain"] == "crm"
+        assert len(blueprint["modules"]) == 4
+
+    def test_crm_blueprint_validates(self):
+        """Test CRM blueprint passes IR validation."""
+        from app.services.codegen.domains import CrmDomainTemplate
+        from app.services.codegen.ir import IRValidator
+
+        template = CrmDomainTemplate()
+        blueprint = template.to_app_blueprint("TestCrmApp", "1.0.0")
+        clean_blueprint = _clean_meta_fields(blueprint)
+
+        validator = IRValidator()
+        result = validator.validate_app_blueprint(clean_blueprint)
+
+        assert result.valid is True, f"Validation failed: {result.issues}"
+
+
+class TestNewDomainsRegistration:
+    """Test Sprint 196 domain templates are properly registered."""
+
+    def test_registry_has_all_six_domains(self):
+        """Test all 6 domains (original 3 + new 3) are registered."""
+        from app.services.codegen.domains import DomainRegistry
+
+        domains = DomainRegistry.list_domains()
+        domain_names = [d["domain"] for d in domains]
+
+        assert len(domain_names) >= 6
+        assert "restaurant" in domain_names
+        assert "hotel" in domain_names
+        assert "retail" in domain_names
+        assert "ecommerce" in domain_names
+        assert "hrm" in domain_names
+        assert "crm" in domain_names
+
+    def test_new_domains_accessible_via_get(self):
+        """Test new domains can be retrieved by name."""
+        from app.services.codegen.domains import DomainRegistry
+
+        for domain_name in ["ecommerce", "hrm", "crm"]:
+            template = DomainRegistry.get(domain_name)
+            assert template is not None, f"Domain '{domain_name}' not found in registry"
+            assert template.domain_name == domain_name
+
+    def test_all_domains_have_four_modules(self):
+        """Test all 6 domains have exactly 4 modules."""
+        from app.services.codegen.domains import DomainRegistry
+
+        for domain_info in DomainRegistry.list_domains():
+            template = DomainRegistry.get(domain_info["domain"])
+            modules = template.get_modules()
+            assert len(modules) == 4, (
+                f"Domain '{domain_info['domain']}' has {len(modules)} modules, expected 4"
+            )
+
+    def test_all_new_domains_generate_blueprints(self):
+        """Test all 3 new domains generate valid blueprints."""
+        from app.services.codegen.domains import DomainRegistry
+        from app.services.codegen.ir import IRValidator
+
+        validator = IRValidator()
+
+        for domain_name in ["ecommerce", "hrm", "crm"]:
+            template = DomainRegistry.get(domain_name)
+            blueprint = template.to_app_blueprint(f"Test {domain_name}", "1.0.0")
+            clean_blueprint = _clean_meta_fields(blueprint)
+
+            result = validator.validate_app_blueprint(clean_blueprint)
+            assert result.valid is True, (
+                f"Domain '{domain_name}' blueprint validation failed: {result.issues}"
+            )

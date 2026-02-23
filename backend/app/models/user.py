@@ -281,16 +281,20 @@ class User(Base):
         Calculate user's effective subscription tier.
 
         Sprint 146 - ADR-047: Multi-Organization Access Control
+        Sprint 195 - ADR-065: Unified Tier Resolution
 
-        Logic: User's tier = HIGHEST tier among ALL organizations they belong to.
+        Logic:
+        1. Superuser / platform_admin → always 'enterprise' (ADR-065 D2)
+        2. User's tier = HIGHEST tier among ALL organizations they belong to.
 
         Tier Hierarchy (ranked):
         - enterprise (4): Highest priority - full feature access
-        - pro (3): Advanced features
-        - starter (2): Basic paid features
-        - free (1): Lowest priority - limited features
+        - pro / professional (3): Advanced features
+        - starter / standard / founder (2): Basic paid features
+        - free / lite (1): Lowest priority - limited features
 
         Examples:
+        - Superuser → effective_tier = 'enterprise' (always)
         - User in Free org only → effective_tier = 'free'
         - User in Free + Pro orgs → effective_tier = 'pro'
         - User in Pro + Enterprise orgs → effective_tier = 'enterprise'
@@ -301,11 +305,20 @@ class User(Base):
         Returns:
             str: Tier name (enterprise, pro, starter, or free)
         """
+        # ADR-065 D2: superuser/platform_admin → always ENTERPRISE
+        if getattr(self, 'is_superuser', False) or getattr(self, 'is_platform_admin', False):
+            return "enterprise"
+
+        # ADR-065 D4: expanded to cover all ADR-059 plan strings
         TIER_RANK = {
             "enterprise": 4,
             "pro": 3,
+            "professional": 3,
             "starter": 2,
-            "free": 1
+            "standard": 2,
+            "founder": 2,
+            "free": 1,
+            "lite": 1,
         }
 
         max_tier = "free"

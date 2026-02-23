@@ -271,7 +271,7 @@ app.add_middleware(CacheHeadersMiddleware)
 # Tier Gate (Sprint 184 — ADR-059 INV-03 Tier Invariant Enforcement)
 # Pure ASGI — returns 402 Payment Required when subscription tier insufficient.
 # IMPORTANT: Added last so it runs first (LIFO stack order in Starlette).
-# Reads user_tier from scope["state"]["user_tier"] set by upstream auth middleware.
+# Reads user_tier from scope["state"]["user_tier"] if available (falls back to JWT + DB).
 # X-Admin-Override header bypass controlled by TIER_GATE_ADMIN_SECRET env var.
 app.add_middleware(TierGateMiddleware)  # Sprint 184 — pure ASGI, NOT BaseHTTPMiddleware
 

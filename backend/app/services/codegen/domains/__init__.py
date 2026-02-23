@@ -34,6 +34,9 @@ from .base import (
 from .fnb import FnBDomainTemplate
 from .hospitality import HospitalityDomainTemplate
 from .retail import RetailDomainTemplate
+from .ecommerce import EcommerceDomainTemplate
+from .hrm import HrmDomainTemplate
+from .crm import CrmDomainTemplate
 
 __all__ = [
     # Base classes
@@ -46,4 +49,7 @@ __all__ = [
     "FnBDomainTemplate",
     "HospitalityDomainTemplate",
     "RetailDomainTemplate",
+    "EcommerceDomainTemplate",
+    "HrmDomainTemplate",
+    "CrmDomainTemplate",
 ]

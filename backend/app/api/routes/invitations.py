@@ -41,7 +41,7 @@ from app.schemas.invitation import (
 from app.services import invitation_service
 from app.services.email_service import send_invitation_email
 
-router = APIRouter(prefix="/api/v1", tags=["invitations"])
+router = APIRouter(tags=["invitations"])
 
 
 # ============================================================================

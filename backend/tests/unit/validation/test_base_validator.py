@@ -18,8 +18,8 @@ from sdlcctl.validation import (
 )
 
 
-# Test validator implementations
-class TestValidatorComplete(BaseValidator):
+# Helper validator implementations (prefixed with _ to avoid pytest collection warnings)
+class _TestValidatorComplete(BaseValidator):
     """Fully implemented test validator."""
 
     VALIDATOR_ID = "test-complete"
@@ -31,7 +31,7 @@ class TestValidatorComplete(BaseValidator):
         return []
 
 
-class TestValidatorWithViolations(BaseValidator):
+class _TestValidatorWithViolations(BaseValidator):
     """Test validator that returns violations."""
 
     VALIDATOR_ID = "test-violations"
@@ -50,7 +50,7 @@ class TestValidatorWithViolations(BaseValidator):
         ]
 
 
-class TestValidatorRaisesError(BaseValidator):
+class _TestValidatorRaisesError(BaseValidator):
     """Test validator that raises an error."""
 
     VALIDATOR_ID = "test-error"
@@ -62,7 +62,7 @@ class TestValidatorRaisesError(BaseValidator):
         raise ValidationError("Test validation error")
 
 
-class TestValidatorNoID(BaseValidator):
+class _TestValidatorNoID(BaseValidator):
     """Test validator missing VALIDATOR_ID."""
 
     VALIDATOR_NAME = "Test No ID Validator"
@@ -72,7 +72,7 @@ class TestValidatorNoID(BaseValidator):
         return []
 
 
-class TestValidatorNoName(BaseValidator):
+class _TestValidatorNoName(BaseValidator):
     """Test validator missing VALIDATOR_NAME."""
 
     VALIDATOR_ID = "test-no-name"
@@ -95,7 +95,7 @@ class TestBaseValidator:
         docs_root = tmp_path / "docs"
         docs_root.mkdir()
 
-        validator = TestValidatorComplete(docs_root)
+        validator = _TestValidatorComplete(docs_root)
 
         assert validator.VALIDATOR_ID == "test-complete"
         assert validator.VALIDATOR_NAME == "Test Complete Validator"
@@ -107,7 +107,7 @@ class TestBaseValidator:
         docs_root.mkdir()
 
         with pytest.raises(ValueError, match="must define VALIDATOR_ID"):
-            TestValidatorNoID(docs_root)
+            _TestValidatorNoID(docs_root)
 
     def test_validator_missing_name_raises_error(self, tmp_path):
         """Test that validator without name raises error."""
@@ -115,14 +115,14 @@ class TestBaseValidator:
         docs_root.mkdir()
 
         with pytest.raises(ValueError, match="must define VALIDATOR_NAME"):
-            TestValidatorNoName(docs_root)
+            _TestValidatorNoName(docs_root)
 
     def test_validator_validate_method(self, tmp_path):
         """Test validator validate method."""
         docs_root = tmp_path / "docs"
         docs_root.mkdir()
 
-        validator = TestValidatorComplete(docs_root)
+        validator = _TestValidatorComplete(docs_root)
         violations = validator.validate()
 
         assert isinstance(violations, list)
@@ -133,7 +133,7 @@ class TestBaseValidator:
         docs_root = tmp_path / "docs"
         docs_root.mkdir()
 
-        validator = TestValidatorWithViolations(docs_root)
+        validator = _TestValidatorWithViolations(docs_root)
         violations = validator.validate()
 
         assert len(violations) == 1
@@ -145,7 +145,7 @@ class TestBaseValidator:
         docs_root = tmp_path / "docs"
         docs_root.mkdir()
 
-        validator = TestValidatorRaisesError(docs_root)
+        validator = _TestValidatorRaisesError(docs_root)
 
         with pytest.raises(ValidationError, match="Test validation error"):
             validator.validate()
@@ -155,7 +155,7 @@ class TestBaseValidator:
         docs_root = tmp_path / "docs"
         docs_root.mkdir()
 
-        validator = TestValidatorComplete(docs_root)
+        validator = _TestValidatorComplete(docs_root)
         info = validator.get_validator_info()
 
         assert info["id"] == "test-complete"
@@ -167,7 +167,7 @@ class TestBaseValidator:
         docs_root = tmp_path / "docs"
         docs_root.mkdir()
 
-        validator = TestValidatorComplete(docs_root)
+        validator = _TestValidatorComplete(docs_root)
         str_repr = str(validator)
 
         assert "test-complete" in str_repr
@@ -187,7 +187,7 @@ class TestValidatorRegistry:
     def test_register_validator(self):
         """Test registering a validator."""
         registry = ValidatorRegistry()
-        registry.register(TestValidatorComplete)
+        registry.register(_TestValidatorComplete)
 
         assert len(registry) == 1
         assert "test-complete" in registry
@@ -196,8 +196,8 @@ class TestValidatorRegistry:
     def test_register_multiple_validators(self):
         """Test registering multiple validators."""
         registry = ValidatorRegistry()
-        registry.register(TestValidatorComplete)
-        registry.register(TestValidatorWithViolations)
+        registry.register(_TestValidatorComplete)
+        registry.register(_TestValidatorWithViolations)
 
         assert len(registry) == 2
         assert "test-complete" in registry
@@ -229,7 +229,7 @@ class TestValidatorRegistry:
     def test_register_duplicate_id_raises_error(self):
         """Test registering validator with duplicate ID raises error."""
         registry = ValidatorRegistry()
-        registry.register(TestValidatorComplete)
+        registry.register(_TestValidatorComplete)
 
         class DuplicateValidator(BaseValidator):
             VALIDATOR_ID = "test-complete"  # Same ID
@@ -244,7 +244,7 @@ class TestValidatorRegistry:
     def test_unregister_validator(self):
         """Test unregistering a validator."""
         registry = ValidatorRegistry()
-        registry.register(TestValidatorComplete)
+        registry.register(_TestValidatorComplete)
 
         assert "test-complete" in registry
 
@@ -263,11 +263,11 @@ class TestValidatorRegistry:
     def test_get_validator(self):
         """Test getting validator class."""
         registry = ValidatorRegistry()
-        registry.register(TestValidatorComplete)
+        registry.register(_TestValidatorComplete)
 
         validator_class = registry.get("test-complete")
 
-        assert validator_class == TestValidatorComplete
+        assert validator_class == _TestValidatorComplete
 
     def test_get_nonexistent_validator(self):
         """Test getting nonexistent validator returns None."""
@@ -280,20 +280,20 @@ class TestValidatorRegistry:
     def test_get_all_validators(self):
         """Test getting all validators."""
         registry = ValidatorRegistry()
-        registry.register(TestValidatorComplete)
-        registry.register(TestValidatorWithViolations)
+        registry.register(_TestValidatorComplete)
+        registry.register(_TestValidatorWithViolations)
 
         all_validators = registry.get_all()
 
         assert len(all_validators) == 2
-        assert all_validators["test-complete"] == TestValidatorComplete
-        assert all_validators["test-violations"] == TestValidatorWithViolations
+        assert all_validators["test-complete"] == _TestValidatorComplete
+        assert all_validators["test-violations"] == _TestValidatorWithViolations
 
     def test_list_ids(self):
         """Test listing validator IDs."""
         registry = ValidatorRegistry()
-        registry.register(TestValidatorComplete)
-        registry.register(TestValidatorWithViolations)
+        registry.register(_TestValidatorComplete)
+        registry.register(_TestValidatorWithViolations)
 
         ids = registry.list_ids()
 
@@ -307,11 +307,11 @@ class TestValidatorRegistry:
         docs_root.mkdir()
 
         registry = ValidatorRegistry()
-        registry.register(TestValidatorComplete)
+        registry.register(_TestValidatorComplete)
 
         instance = registry.create_instance("test-complete", docs_root)
 
-        assert isinstance(instance, TestValidatorComplete)
+        assert isinstance(instance, _TestValidatorComplete)
         assert instance.docs_root == docs_root
 
     def test_create_instance_nonexistent(self, tmp_path):
@@ -331,9 +331,9 @@ class TestValidatorRegistry:
         # Don't create docs_root - will cause error
 
         registry = ValidatorRegistry()
-        registry.register(TestValidatorComplete)
+        registry.register(_TestValidatorComplete)
 
-        # Note: TestValidatorComplete doesn't validate docs_root exists
+        # Note: _TestValidatorComplete doesn't validate docs_root exists
         # This test would need a validator that raises error in __init__
         # For now, just verify the method signature works
         instance = registry.create_instance("test-complete", docs_root)
@@ -345,14 +345,14 @@ class TestValidatorRegistry:
         docs_root.mkdir()
 
         registry = ValidatorRegistry()
-        registry.register(TestValidatorComplete)
-        registry.register(TestValidatorWithViolations)
+        registry.register(_TestValidatorComplete)
+        registry.register(_TestValidatorWithViolations)
 
         instances = registry.create_all_instances(docs_root)
 
         assert len(instances) == 2
-        assert any(isinstance(v, TestValidatorComplete) for v in instances)
-        assert any(isinstance(v, TestValidatorWithViolations) for v in instances)
+        assert any(isinstance(v, _TestValidatorComplete) for v in instances)
+        assert any(isinstance(v, _TestValidatorWithViolations) for v in instances)
 
     def test_create_specific_instances(self, tmp_path):
         """Test creating specific validator instances."""
@@ -360,15 +360,15 @@ class TestValidatorRegistry:
         docs_root.mkdir()
 
         registry = ValidatorRegistry()
-        registry.register(TestValidatorComplete)
-        registry.register(TestValidatorWithViolations)
+        registry.register(_TestValidatorComplete)
+        registry.register(_TestValidatorWithViolations)
 
         instances = registry.create_all_instances(
             docs_root, validator_ids=["test-complete"]
         )
 
         assert len(instances) == 1
-        assert isinstance(instances[0], TestValidatorComplete)
+        assert isinstance(instances[0], _TestValidatorComplete)
 
     def test_create_instances_with_nonexistent(self, tmp_path):
         """Test creating instances with nonexistent ID raises error."""
@@ -376,7 +376,7 @@ class TestValidatorRegistry:
         docs_root.mkdir()
 
         registry = ValidatorRegistry()
-        registry.register(TestValidatorComplete)
+        registry.register(_TestValidatorComplete)
 
         with pytest.raises(ValidationError, match="not found"):
             registry.create_all_instances(
@@ -386,7 +386,7 @@ class TestValidatorRegistry:
     def test_registry_contains(self):
         """Test __contains__ method."""
         registry = ValidatorRegistry()
-        registry.register(TestValidatorComplete)
+        registry.register(_TestValidatorComplete)
 
         assert "test-complete" in registry
         assert "nonexistent" not in registry
@@ -394,7 +394,7 @@ class TestValidatorRegistry:
     def test_registry_str_representation(self):
         """Test string representation of registry."""
         registry = ValidatorRegistry()
-        registry.register(TestValidatorComplete)
+        registry.register(_TestValidatorComplete)
 
         str_repr = str(registry)
 

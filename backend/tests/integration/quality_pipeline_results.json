@@ -1,0 +1,472 @@
+{
+  "project": "SDLC-Orchestrator",
+  "sprint": 196,
+  "track": "B-03",
+  "timestamp": "2026-02-22T18:13:55Z",
+  "total_scenarios": 6,
+  "passed_scenarios": 4,
+  "duration_seconds": 7.66,
+  "scenarios": {
+    "S1_single_middleware": {
+      "success": true,
+      "total_duration_ms": 2658,
+      "failed_gate": null,
+      "summary": "4/4 gates passed",
+      "gates": [
+        {
+          "gate_name": "Syntax Check",
+          "gate_number": 1,
+          "status": "passed",
+          "duration_ms": 9,
+          "error_count": 0,
+          "warning_count": 0,
+          "summary": "No syntax errors",
+          "issues": []
+        },
+        {
+          "gate_name": "Security (SAST)",
+          "gate_number": 2,
+          "status": "passed",
+          "duration_ms": 2647,
+          "error_count": 0,
+          "warning_count": 1,
+          "summary": "1 security findings (0 critical)",
+          "issues": [
+            {
+              "file": "app/middleware/tier_gate.py",
+              "line": 445,
+              "column": 13,
+              "severity": "warning",
+              "code": "python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure",
+              "message": "Detected a python logger call with a potential hardcoded secret \"TierGateMiddleware: API key lookup failed: %s\" being logged. This may lead to secret credentials being exposed. Make sure that the logger is not logging  sensitive information.",
+              "suggestion": null
+            }
+          ]
+        },
+        {
+          "gate_name": "Context Validation",
+          "gate_number": 3,
+          "status": "passed",
+          "duration_ms": 1,
+          "error_count": 0,
+          "warning_count": 9,
+          "summary": "Context valid",
+          "issues": [
+            {
+              "file": "app/middleware/tier_gate.py",
+              "line": 335,
+              "column": 12,
+              "severity": "warning",
+              "code": "CTX002",
+              "message": "Import from 'app.db.session' not found in generated code",
+              "suggestion": "Ensure module 'app.db.session' is generated"
+            },
+            {
+              "file": "app/middleware/tier_gate.py",
+              "line": 393,
+              "column": 12,
+              "severity": "warning",
+              "code": "CTX002",
+              "message": "Import from 'app.core.security' not found in generated code",
+              "suggestion": "Ensure module 'app.core.security' is generated"
+            },
+            {
+              "file": "app/middleware/tier_gate.py",
+              "line": 427,
+              "column": 12,
+              "severity": "warning",
+              "code": "CTX002",
+              "message": "Import from 'app.core.security' not found in generated code",
+              "suggestion": "Ensure module 'app.core.security' is generated"
+            },
+            {
+              "file": "app/middleware/tier_gate.py",
+              "line": 428,
+              "column": 12,
+              "severity": "warning",
+              "code": "CTX002",
+              "message": "Import from 'app.db.session' not found in generated code",
+              "suggestion": "Ensure module 'app.db.session' is generated"
+            },
+            {
+              "file": "app/middleware/tier_gate.py",
+              "line": 341,
+              "column": 16,
+              "severity": "warning",
+              "code": "CTX002",
+              "message": "Import from 'app.models.user' not found in generated code",
+              "suggestion": "Ensure module 'app.models.user' is generated"
+            },
+            {
+              "file": "app/middleware/tier_gate.py",
+              "line": 350,
+              "column": 16,
+              "severity": "warning",
+              "code": "CTX002",
+              "message": "Import from 'app.models.organization' not found in generated code",
+              "suggestion": "Ensure module 'app.models.organization' is generated"
+            },
+            {
+              "file": "app/middleware/tier_gate.py",
+              "line": 434,
+              "column": 16,
+              "severity": "warning",
+              "code": "CTX002",
+              "message": "Import from 'app.models.user' not found in generated code",
+              "suggestion": "Ensure module 'app.models.user' is generated"
+            },
+            {
+              "file": "app/main.py",
+              "line": null,
+              "column": null,
+              "severity": "warning",
+              "code": "CTX003",
+              "message": "Missing recommended file: app/main.py (Main application entry point)",
+              "suggestion": "Consider generating app/main.py"
+            },
+            {
+              "file": "requirements.txt",
+              "line": null,
+              "column": null,
+              "severity": "warning",
+              "code": "CTX003",
+              "message": "Missing recommended file: requirements.txt (Dependencies file)",
+              "suggestion": "Consider generating requirements.txt"
+            }
+          ]
+        },
+        {
+          "gate_name": "Test Coverage",
+          "gate_number": 4,
+          "status": "skipped",
+          "duration_ms": 0,
+          "error_count": 0,
+          "warning_count": 0,
+          "summary": "Skipped (requires sandbox)",
+          "issues": []
+        }
+      ]
+    },
+    "S2_multi_file_auth": {
+      "success": false,
+      "total_duration_ms": 14,
+      "failed_gate": 1,
+      "summary": "Failed at Gate 1: Syntax Check",
+      "gates": [
+        {
+          "gate_name": "Syntax Check",
+          "gate_number": 1,
+          "status": "failed",
+          "duration_ms": 14,
+          "error_count": 6,
+          "warning_count": 0,
+          "summary": "6 syntax errors",
+          "issues": [
+            {
+              "file": "app/api/routes/auth.py",
+              "line": 489,
+              "column": 13,
+              "severity": "error",
+              "code": "E712",
+              "message": "Avoid equality comparisons to `False`; use `not RefreshToken.is_revoked:` for false checks",
+              "suggestion": "Replace with `not RefreshToken.is_revoked`"
+            },
+            {
+              "file": "app/api/routes/auth.py",
+              "line": 585,
+              "column": 17,
+              "severity": "error",
+              "code": "E712",
+              "message": "Avoid equality comparisons to `False`; use `not RefreshToken.is_revoked:` for false checks",
+              "suggestion": "Replace with `not RefreshToken.is_revoked`"
+            },
+            {
+              "file": "app/api/routes/auth.py",
+              "line": 901,
+              "column": 9,
+              "severity": "error",
+              "code": "F841",
+              "message": "Local variable `original_state` is assigned to but never used",
+              "suggestion": "Remove assignment to unused variable `original_state`"
+            },
+            {
+              "file": "app/api/routes/auth.py",
+              "line": 1742,
+              "column": 13,
+              "severity": "error",
+              "code": "E712",
+              "message": "Avoid equality comparisons to `False`; use `not RefreshToken.is_revoked:` for false checks",
+              "suggestion": "Replace with `not RefreshToken.is_revoked`"
+            },
+            {
+              "file": "app/models/user.py",
+              "line": 30,
+              "column": 20,
+              "severity": "error",
+              "code": "F401",
+              "message": "`typing.Optional` imported but unused",
+              "suggestion": "Remove unused import: `typing.Optional`"
+            },
+            {
+              "file": "app/models/user.py",
+              "line": 33,
+              "column": 51,
+              "severity": "error",
+              "code": "F401",
+              "message": "`sqlalchemy.Enum` imported but unused",
+              "suggestion": "Remove unused import: `sqlalchemy.Enum`"
+            }
+          ]
+        }
+      ]
+    },
+    "S3_self_test": {
+      "success": true,
+      "total_duration_ms": 2455,
+      "failed_gate": null,
+      "summary": "4/4 gates passed",
+      "gates": [
+        {
+          "gate_name": "Syntax Check",
+          "gate_number": 1,
+          "status": "passed",
+          "duration_ms": 9,
+          "error_count": 0,
+          "warning_count": 0,
+          "summary": "No syntax errors",
+          "issues": []
+        },
+        {
+          "gate_name": "Security (SAST)",
+          "gate_number": 2,
+          "status": "passed",
+          "duration_ms": 2442,
+          "error_count": 0,
+          "warning_count": 0,
+          "summary": "No security issues",
+          "issues": []
+        },
+        {
+          "gate_name": "Context Validation",
+          "gate_number": 3,
+          "status": "passed",
+          "duration_ms": 3,
+          "error_count": 0,
+          "warning_count": 2,
+          "summary": "Context valid",
+          "issues": [
+            {
+              "file": "app/main.py",
+              "line": null,
+              "column": null,
+              "severity": "warning",
+              "code": "CTX003",
+              "message": "Missing recommended file: app/main.py (Main application entry point)",
+              "suggestion": "Consider generating app/main.py"
+            },
+            {
+              "file": "requirements.txt",
+              "line": null,
+              "column": null,
+              "severity": "warning",
+              "code": "CTX003",
+              "message": "Missing recommended file: requirements.txt (Dependencies file)",
+              "suggestion": "Consider generating requirements.txt"
+            }
+          ]
+        },
+        {
+          "gate_name": "Test Coverage",
+          "gate_number": 4,
+          "status": "skipped",
+          "duration_ms": 0,
+          "error_count": 0,
+          "warning_count": 0,
+          "summary": "Skipped (requires sandbox)",
+          "issues": []
+        }
+      ]
+    },
+    "S4_scaffold_mode": {
+      "success": false,
+      "total_duration_ms": 11,
+      "failed_gate": 1,
+      "summary": "Failed at Gate 1: Syntax Check",
+      "gates": [
+        {
+          "gate_name": "Syntax Check",
+          "gate_number": 1,
+          "status": "failed",
+          "duration_ms": 11,
+          "error_count": 2,
+          "warning_count": 0,
+          "summary": "2 syntax errors",
+          "issues": [
+            {
+              "file": "app/models/user.py",
+              "line": 30,
+              "column": 20,
+              "severity": "error",
+              "code": "F401",
+              "message": "`typing.Optional` imported but unused",
+              "suggestion": "Remove unused import: `typing.Optional`"
+            },
+            {
+              "file": "app/models/user.py",
+              "line": 33,
+              "column": 51,
+              "severity": "error",
+              "code": "F401",
+              "message": "`sqlalchemy.Enum` imported but unused",
+              "suggestion": "Remove unused import: `sqlalchemy.Enum`"
+            }
+          ]
+        }
+      ]
+    },
+    "S5_gate4_tests": {
+      "success": true,
+      "total_duration_ms": 295,
+      "failed_gate": null,
+      "summary": "4/4 gates passed",
+      "gates": [
+        {
+          "gate_name": "Syntax Check",
+          "gate_number": 1,
+          "status": "passed",
+          "duration_ms": 6,
+          "error_count": 0,
+          "warning_count": 0,
+          "summary": "No syntax errors",
+          "issues": []
+        },
+        {
+          "gate_name": "Security (SAST)",
+          "gate_number": 2,
+          "status": "skipped",
+          "duration_ms": 0,
+          "error_count": 0,
+          "warning_count": 0,
+          "summary": "Skipped (disabled)",
+          "issues": []
+        },
+        {
+          "gate_name": "Context Validation",
+          "gate_number": 3,
+          "status": "passed",
+          "duration_ms": 0,
+          "error_count": 0,
+          "warning_count": 2,
+          "summary": "Context valid",
+          "issues": [
+            {
+              "file": "app/main.py",
+              "line": null,
+              "column": null,
+              "severity": "warning",
+              "code": "CTX003",
+              "message": "Missing recommended file: app/main.py (Main application entry point)",
+              "suggestion": "Consider generating app/main.py"
+            },
+            {
+              "file": "requirements.txt",
+              "line": null,
+              "column": null,
+              "severity": "warning",
+              "code": "CTX003",
+              "message": "Missing recommended file: requirements.txt (Dependencies file)",
+              "suggestion": "Consider generating requirements.txt"
+            }
+          ]
+        },
+        {
+          "gate_name": "Test Coverage",
+          "gate_number": 4,
+          "status": "passed",
+          "duration_ms": 288,
+          "error_count": 0,
+          "warning_count": 0,
+          "summary": "Passed (2 test(s) passed)",
+          "issues": []
+        }
+      ]
+    },
+    "S6_security_vuln": {
+      "success": true,
+      "total_duration_ms": 2224,
+      "failed_gate": null,
+      "summary": "4/4 gates passed",
+      "gates": [
+        {
+          "gate_name": "Syntax Check",
+          "gate_number": 1,
+          "status": "passed",
+          "duration_ms": 6,
+          "error_count": 0,
+          "warning_count": 0,
+          "summary": "No syntax errors",
+          "issues": []
+        },
+        {
+          "gate_name": "Security (SAST)",
+          "gate_number": 2,
+          "status": "passed",
+          "duration_ms": 2217,
+          "error_count": 0,
+          "warning_count": 1,
+          "summary": "1 security findings (0 critical)",
+          "issues": [
+            {
+              "file": "app/vulnerable.py",
+              "line": 7,
+              "column": 47,
+              "severity": "warning",
+              "code": "python.lang.security.audit.subprocess-shell-true.subprocess-shell-true",
+              "message": "Found 'subprocess' function 'run' with 'shell=True'. This is dangerous because this call will spawn the command using a shell process. Doing so propagates current shell settings and variables, which makes it much easier for a malicious actor to execute commands. Use 'shell=False' instead.",
+              "suggestion": "False"
+            }
+          ]
+        },
+        {
+          "gate_name": "Context Validation",
+          "gate_number": 3,
+          "status": "passed",
+          "duration_ms": 0,
+          "error_count": 0,
+          "warning_count": 2,
+          "summary": "Context valid",
+          "issues": [
+            {
+              "file": "app/main.py",
+              "line": null,
+              "column": null,
+              "severity": "warning",
+              "code": "CTX003",
+              "message": "Missing recommended file: app/main.py (Main application entry point)",
+              "suggestion": "Consider generating app/main.py"
+            },
+            {
+              "file": "requirements.txt",
+              "line": null,
+              "column": null,
+              "severity": "warning",
+              "code": "CTX003",
+              "message": "Missing recommended file: requirements.txt (Dependencies file)",
+              "suggestion": "Consider generating requirements.txt"
+            }
+          ]
+        },
+        {
+          "gate_name": "Test Coverage",
+          "gate_number": 4,
+          "status": "skipped",
+          "duration_ms": 0,
+          "error_count": 0,
+          "warning_count": 0,
+          "summary": "Skipped (requires sandbox)",
+          "issues": []
+        }
+      ]
+    }
+  }
+}
