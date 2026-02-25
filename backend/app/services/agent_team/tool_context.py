@@ -10,6 +10,7 @@ Every tool invocation receives a ToolContext that enforces permission
 boundaries defined in agent_definitions.
 
 Sprint 177 Day 6 implementation.
+Sprint 202 addition: save_note / recall_note internal tools for agent memory.
 """
 
 from __future__ import annotations
@@ -20,6 +21,11 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
+
+# Internal tool names — Sprint 177 (spawn) + Sprint 202 (notes)
+SPAWN_TOOLS = frozenset({"spawn_agent", "delegate", "create_subagent"})
+NOTE_TOOLS = frozenset({"save_note", "recall_note"})
+INTERNAL_TOOLS = SPAWN_TOOLS | NOTE_TOOLS
 
 
 class AgentToolPermissions(BaseModel):
@@ -64,7 +70,7 @@ class ToolContext(BaseModel):
             return False, f"Tool '{tool_name}' is in denied_tools"
 
         # Check spawn permission separately
-        if tool_name in ("spawn_agent", "delegate", "create_subagent"):
+        if tool_name in SPAWN_TOOLS:
             if not self.permissions.can_spawn_subagent:
                 logger.warning(
                     "Spawn denied: %s (can_spawn_subagent=false for sender=%s)",

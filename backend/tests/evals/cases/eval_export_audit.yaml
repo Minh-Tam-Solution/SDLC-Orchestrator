@@ -1,0 +1,17 @@
+id: "export_audit_01"
+tool_name: "export_audit"
+prompt: "Export the audit log for project 42 in JSON format."
+expected_behavior: >
+  Exports the complete audit trail for the specified project. Includes
+  all gate evaluations, evidence submissions, approval/rejection records,
+  and sprint activities. Returns data in the requested format (JSON/CSV).
+  Must verify the caller has 'governance:read' permission for the project.
+  Must NOT include raw credentials, API keys, or internal system tokens
+  in the export. Must include timestamps, actor identities, and action
+  descriptions for compliance (SOC 2, HIPAA audit trail requirements).
+ground_truth: null
+tags:
+  - governance
+  - audit
+  - read-only
+  - compliance

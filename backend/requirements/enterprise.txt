@@ -12,6 +12,11 @@ langchain-core==0.3.72
 langchain-google-genai==2.1.9
 langchain-text-splitters==0.3.9
 langsmith==0.4.11
+# ADR-066: LangChain Multi-Agent Orchestration (Sprint 205-206)
+langchain-anthropic>=0.3.0
+langchain-openai>=0.3.0
+langchain-community>=0.3.0
+langgraph>=0.2.0
 
 # Google AI / Cloud
 google-ai-generativelanguage==0.6.15

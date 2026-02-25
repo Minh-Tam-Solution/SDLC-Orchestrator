@@ -13,14 +13,14 @@ from pydantic import BaseModel
 
 
 class TestRegistryRoundtrip:
-    """Verify registry returns 6 commands with all required fields."""
+    """Verify registry returns 8 commands with all required fields."""
 
-    def test_get_commands_returns_six(self):
-        """get_commands() must return exactly 6 governance commands."""
+    def test_get_commands_returns_eight(self):
+        """get_commands() must return exactly 8 governance commands (Sprint 201: +close_sprint, +invite_member)."""
         from app.services.agent_team.command_registry import get_commands
 
         commands = get_commands()
-        assert len(commands) == 6, f"Expected 6 commands, got {len(commands)}"
+        assert len(commands) == 10, f"Expected 10 commands, got {len(commands)}"
 
     def test_commands_have_required_fields(self):
         """Each CommandDef must have all required fields populated."""
@@ -57,11 +57,11 @@ class TestOllamaToolsGeneration:
     """Verify to_ollama_tools() produces valid JSON Schema."""
 
     def test_ollama_tools_count(self):
-        """to_ollama_tools() must produce 6 tool definitions."""
+        """to_ollama_tools() must produce 10 tool definitions (Sprint 202: +run_evals, +list_notes)."""
         from app.services.agent_team.command_registry import to_ollama_tools
 
         tools = to_ollama_tools()
-        assert len(tools) == 6, f"Expected 6 Ollama tools, got {len(tools)}"
+        assert len(tools) == 10, f"Expected 10 Ollama tools, got {len(tools)}"
 
     def test_ollama_tools_structure(self):
         """Each Ollama tool must have type, function.name, function.description, function.parameters."""
@@ -142,7 +142,7 @@ class TestVietnameseAliases:
         """Each command must have at least one Vietnamese OTT alias."""
         from app.services.agent_team.command_registry import get_commands
 
-        vietnamese_keywords = ["tạo", "trạng", "nộp", "duyệt", "xuất", "cập nhật"]
+        vietnamese_keywords = ["tạo", "trạng", "nộp", "duyệt", "xuất", "cập nhật", "đóng", "mời", "chạy", "xem"]
         for cmd in get_commands():
             has_vn = any(
                 any(kw in alias for kw in vietnamese_keywords)

@@ -77,6 +77,33 @@ class UpdateSprintParams(BaseModel):
     project_id: UUID = Field(..., description="Project UUID")
 
 
+class CloseSprintParams(BaseModel):
+    """Parameters for close_sprint command (Sprint 201 B-05)."""
+
+    project_id: UUID = Field(..., description="Project UUID")
+
+
+class InviteMemberParams(BaseModel):
+    """Parameters for invite_member command (Sprint 201 A-05)."""
+
+    team_id: UUID = Field(..., description="Team UUID")
+    email: str = Field(..., min_length=3, max_length=255, description="Email address to invite")
+    role: str = Field(default="member", description="Team role (member, admin)")
+
+
+class RunEvalsParams(BaseModel):
+    """Parameters for run_evals command (Sprint 202 C-01)."""
+
+    tag: Optional[str] = Field(None, max_length=50, description="Filter eval cases by tag")
+
+
+class ListNotesParams(BaseModel):
+    """Parameters for list_notes command (Sprint 202 C-02)."""
+
+    agent_name: Optional[str] = Field(None, max_length=100, description="Filter notes by agent name")
+    note_type: Optional[str] = Field(None, max_length=20, description="Filter by note type")
+
+
 # ============================================================================
 # Tool Name Enum — Bounded Allowlist (T-01)
 # ============================================================================
@@ -91,6 +118,10 @@ class ToolName(str, Enum):
     REQUEST_APPROVAL = "request_approval"
     EXPORT_AUDIT = "export_audit"
     UPDATE_SPRINT = "update_sprint"
+    CLOSE_SPRINT = "close_sprint"
+    INVITE_MEMBER = "invite_member"
+    RUN_EVALS = "run_evals"
+    LIST_NOTES = "list_notes"
 
 
 # ============================================================================
@@ -134,7 +165,7 @@ class CommandDef:
 
 
 # ============================================================================
-# Governance Commands — 6 Tools (T-01 + Sprint 194 ENR-01)
+# Governance Commands — 10 Tools (T-01 + Sprint 194 + Sprint 201 + Sprint 202)
 # ============================================================================
 
 GOVERNANCE_COMMANDS: list[CommandDef] = [
@@ -222,6 +253,75 @@ GOVERNANCE_COMMANDS: list[CommandDef] = [
         ),
         ott_aliases=("update sprint", "cập nhật sprint", "refresh sprint"),
         required_params=("project_id",),
+    ),
+    CommandDef(
+        name="close_sprint",
+        description="Close the active sprint and run G-Sprint-Close verification",
+        params=CloseSprintParams,
+        permission="governance:write",
+        handler="sprint_governance_handler.handle_close_sprint",
+        cli_name="close-sprint",
+        ott_description=(
+            "Close the active sprint with G-Sprint-Close verification. "
+            "Use when user says 'close sprint', 'đóng sprint', "
+            "'kết thúc sprint', 'finish sprint', etc."
+        ),
+        ott_aliases=(
+            "close sprint", "đóng sprint", "kết thúc sprint", "finish sprint",
+        ),
+        required_params=("project_id",),
+    ),
+    CommandDef(
+        name="invite_member",
+        description="Invite a team member via email",
+        params=InviteMemberParams,
+        permission="projects:admin",
+        handler="team_invite_handler.handle_invite_member",
+        cli_name="invite-member",
+        ott_description=(
+            "Invite a new team member via email. "
+            "Use when user says 'invite', 'mời thành viên', "
+            "'add member', 'thêm thành viên', etc."
+        ),
+        ott_aliases=(
+            "invite", "mời", "mời thành viên", "add member", "thêm thành viên",
+        ),
+        required_params=("team_id", "email"),
+    ),
+    CommandDef(
+        name="run_evals",
+        description="Run automated eval suite for agent governance responses",
+        params=RunEvalsParams,
+        permission="governance:read",
+        handler="eval_scorer.run_suite",
+        cli_name="run-evals",
+        ott_description=(
+            "Run the automated evaluation suite for agent responses. "
+            "Use when user says 'run evals', 'chạy đánh giá', "
+            "'evaluate agents', 'kiểm tra chất lượng', etc."
+        ),
+        ott_aliases=(
+            "run evals", "chạy đánh giá", "evaluate agents",
+            "kiểm tra chất lượng",
+        ),
+        required_params=(),
+    ),
+    CommandDef(
+        name="list_notes",
+        description="List saved agent notes (cross-session memory)",
+        params=ListNotesParams,
+        permission="governance:read",
+        handler="note_service.list_notes",
+        cli_name="list-notes",
+        ott_description=(
+            "List agent's saved structured notes. "
+            "Use when user says 'list notes', 'xem ghi chú', "
+            "'show notes', 'ghi chú agent', etc."
+        ),
+        ott_aliases=(
+            "list notes", "xem ghi chú", "show notes", "ghi chú agent",
+        ),
+        required_params=(),
     ),
 ]
 

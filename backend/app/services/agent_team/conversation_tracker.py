@@ -2,10 +2,11 @@
 =========================================================================
 Conversation Tracker — Parent-child inheritance + loop guards + budget
 SDLC Orchestrator - Sprint 177 (Multi-Agent Core Services)
+Updated: Sprint 200 — Budget circuit breaker with OTT notifications (B-01/B-03/B-04)
 
-Version: 1.0.0
+Version: 1.1.0
 Date: February 2026
-Status: ACTIVE - Sprint 177
+Status: ACTIVE - Sprint 200
 Authority: CTO Approved (ADR-056)
 Reference: ADR-056-Multi-Agent-Team-Engine.md
 
@@ -15,6 +16,10 @@ Purpose:
 - Loop guard enforcement via ConversationLimits integration
 - Token budget tracking + circuit breaker (Non-Negotiable #13)
 - Delegation depth validation (Nanobot N2)
+- Sprint 200 B-01: Per-conversation budget enforcement
+- Sprint 200 B-02: Per-organization monthly budget (tier-based)
+- Sprint 200 B-03: Budget warning at 80% threshold
+- Sprint 200 B-04: Hard stop at 100% with admin notification
 
 Sources:
 - OpenClaw: src/agents/conversation-tracker.ts (session management)
@@ -31,7 +36,9 @@ Zero Mock Policy: Production-ready async SQLAlchemy 2.0 service
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timezone
+from enum import Enum
 from typing import Optional
 from uuid import UUID, uuid4
 
@@ -43,6 +50,43 @@ from app.models.agent_definition import AgentDefinition
 from app.services.agent_team.conversation_limits import ConversationLimits, LimitViolation
 
 logger = logging.getLogger(__name__)
+
+# ── Budget Thresholds (Sprint 200 B-03) ──────────────────────────────────────
+
+BUDGET_WARNING_THRESHOLD: float = 0.80  # 80% → send warning
+BUDGET_CRITICAL_THRESHOLD: float = 1.00  # 100% → hard stop
+
+# Per-organization monthly budget limits by tier (Sprint 200 B-02)
+# Values in cents — LITE=$10, STANDARD=$50, PRO=$200, ENTERPRISE=$1000
+ORG_MONTHLY_BUDGET_CENTS: dict[str, int] = {
+    "LITE": 1_000,
+    "STANDARD": 5_000,
+    "PRO": 20_000,
+    "ENTERPRISE": 100_000,
+}
+
+# Redis key for per-org monthly budget tracking
+_ORG_BUDGET_KEY = "org_monthly_budget:{org_id}:{year_month}"
+_ORG_BUDGET_TTL = 35 * 86400  # 35 days — covers month + safety margin
+
+
+class BudgetStatus(str, Enum):
+    """Budget health status for a conversation or organization."""
+
+    OK = "ok"
+    WARNING = "warning"  # Above 80% — send OTT warning
+    EXCEEDED = "exceeded"  # At or above 100% — hard stop
+
+
+@dataclass(frozen=True)
+class BudgetCheckResult:
+    """Result of a budget check with details for caller notification."""
+
+    status: BudgetStatus
+    current_cents: int
+    max_cents: int
+    percentage: float
+    message: str
 
 
 class ConversationError(Exception):
@@ -250,32 +294,231 @@ class ConversationTracker:
         input_tokens: int,
         output_tokens: int,
         cost_cents: int,
-    ) -> None:
+        provider: str = "",
+    ) -> BudgetCheckResult:
         """
         Record token usage and cost for budget circuit breaker tracking.
+        Returns BudgetCheckResult so caller can send warnings or hard-stop.
 
         Called after each provider invocation with the token counts from
         the response.
+
+        Sprint 200 B-01: per-conversation budget enforcement.
+        Sprint 200 B-03: returns WARNING status at 80% threshold.
+        Sprint 200 B-04: returns EXCEEDED status at 100%.
+        Sprint 200 B-06: records provider attribution in metadata.
         """
         conversation = await self._get_conversation(conversation_id)
         conversation.input_tokens += input_tokens
         conversation.output_tokens += output_tokens
         conversation.total_tokens += input_tokens + output_tokens
         conversation.current_cost_cents += cost_cents
+
+        # B-06: Track per-provider cost attribution in metadata
+        if provider:
+            metadata = dict(conversation.metadata_ or {})
+            cost_by_provider: dict[str, int] = metadata.get("cost_by_provider", {})
+            cost_by_provider[provider] = cost_by_provider.get(provider, 0) + cost_cents
+            metadata["cost_by_provider"] = cost_by_provider
+            conversation.metadata_ = metadata
+
         await self.db.flush()
 
-        exceeded = conversation.current_cost_cents >= conversation.max_budget_cents
+        # Check budget status
+        result = self.check_budget_status(conversation)
+
         logger.info(
             "TRACE_BUDGET cost_increment=%d, running_cost=%d, "
-            "max_budget=%d, exceeded=%s, conv=%s, tokens=+%d+%d",
+            "max_budget=%d, status=%s, conv=%s, tokens=+%d+%d, provider=%s",
             cost_cents,
             conversation.current_cost_cents,
             conversation.max_budget_cents,
-            exceeded,
+            result.status.value,
             conversation_id,
             input_tokens,
             output_tokens,
+            provider,
         )
+
+        # B-04: Hard stop — pause conversation if budget exceeded
+        if result.status == BudgetStatus.EXCEEDED:
+            await self._set_status(conversation, "max_reached")
+            logger.warning(
+                "TRACE_BUDGET_EXCEEDED conv=%s cost=%d/%d — conversation paused",
+                conversation_id,
+                conversation.current_cost_cents,
+                conversation.max_budget_cents,
+            )
+
+        return result
+
+    @staticmethod
+    def check_budget_status(conversation: AgentConversation) -> BudgetCheckResult:
+        """
+        Check budget health for a conversation (Sprint 200 B-01/B-03/B-04).
+
+        Returns:
+            BudgetCheckResult with status, percentage, and user-facing message.
+        """
+        current = conversation.current_cost_cents
+        maximum = conversation.max_budget_cents
+        if maximum <= 0:
+            return BudgetCheckResult(
+                status=BudgetStatus.OK,
+                current_cents=current,
+                max_cents=maximum,
+                percentage=0.0,
+                message="Budget tracking disabled (max=0).",
+            )
+
+        pct = current / maximum
+
+        if pct >= BUDGET_CRITICAL_THRESHOLD:
+            return BudgetCheckResult(
+                status=BudgetStatus.EXCEEDED,
+                current_cents=current,
+                max_cents=maximum,
+                percentage=round(pct * 100, 1),
+                message=(
+                    f"Budget exceeded: {current} / {maximum} cents "
+                    f"({round(pct * 100, 1)}%). Conversation paused."
+                ),
+            )
+
+        if pct >= BUDGET_WARNING_THRESHOLD:
+            return BudgetCheckResult(
+                status=BudgetStatus.WARNING,
+                current_cents=current,
+                max_cents=maximum,
+                percentage=round(pct * 100, 1),
+                message=(
+                    f"Budget warning: {current} / {maximum} cents "
+                    f"({round(pct * 100, 1)}%). Approaching limit."
+                ),
+            )
+
+        return BudgetCheckResult(
+            status=BudgetStatus.OK,
+            current_cents=current,
+            max_cents=maximum,
+            percentage=round(pct * 100, 1),
+            message=f"Budget OK: {current} / {maximum} cents ({round(pct * 100, 1)}%).",
+        )
+
+    async def check_org_monthly_budget(
+        self,
+        org_id: str,
+        tier: str,
+        redis: object | None = None,
+    ) -> BudgetCheckResult:
+        """
+        Check per-organization monthly budget (Sprint 200 B-02).
+
+        Uses Redis INCRBY for atomic counting across all conversations.
+        Tier-based limits: LITE=$10, STANDARD=$50, PRO=$200, ENTERPRISE=$1000.
+
+        Args:
+            org_id: Organization identifier.
+            tier: Tier name (LITE, STANDARD, PRO, ENTERPRISE).
+            redis: Redis client for atomic counter.
+
+        Returns:
+            BudgetCheckResult for the organization's monthly usage.
+        """
+        max_cents = ORG_MONTHLY_BUDGET_CENTS.get(tier.upper(), ORG_MONTHLY_BUDGET_CENTS["STANDARD"])
+
+        if redis is None:
+            return BudgetCheckResult(
+                status=BudgetStatus.OK,
+                current_cents=0,
+                max_cents=max_cents,
+                percentage=0.0,
+                message="Org budget check skipped (no Redis).",
+            )
+
+        year_month = datetime.now(timezone.utc).strftime("%Y-%m")
+        key = _ORG_BUDGET_KEY.format(org_id=org_id, year_month=year_month)
+
+        try:
+            current_bytes = await redis.get(key)  # type: ignore[union-attr]
+            current = int(current_bytes) if current_bytes else 0
+        except Exception:
+            return BudgetCheckResult(
+                status=BudgetStatus.OK,
+                current_cents=0,
+                max_cents=max_cents,
+                percentage=0.0,
+                message="Org budget check failed (Redis error).",
+            )
+
+        pct = current / max_cents if max_cents > 0 else 0.0
+
+        if pct >= BUDGET_CRITICAL_THRESHOLD:
+            return BudgetCheckResult(
+                status=BudgetStatus.EXCEEDED,
+                current_cents=current,
+                max_cents=max_cents,
+                percentage=round(pct * 100, 1),
+                message=(
+                    f"Organization monthly budget exceeded: ${current / 100:.2f} / "
+                    f"${max_cents / 100:.2f} ({tier}). Contact admin to upgrade tier."
+                ),
+            )
+
+        if pct >= BUDGET_WARNING_THRESHOLD:
+            return BudgetCheckResult(
+                status=BudgetStatus.WARNING,
+                current_cents=current,
+                max_cents=max_cents,
+                percentage=round(pct * 100, 1),
+                message=(
+                    f"Organization monthly budget at {round(pct * 100, 1)}%: "
+                    f"${current / 100:.2f} / ${max_cents / 100:.2f} ({tier})."
+                ),
+            )
+
+        return BudgetCheckResult(
+            status=BudgetStatus.OK,
+            current_cents=current,
+            max_cents=max_cents,
+            percentage=round(pct * 100, 1),
+            message=f"Org budget OK: ${current / 100:.2f} / ${max_cents / 100:.2f} ({tier}).",
+        )
+
+    async def increment_org_monthly_budget(
+        self,
+        org_id: str,
+        cost_cents: int,
+        redis: object | None = None,
+    ) -> int:
+        """
+        Atomically increment organization monthly budget counter (Sprint 200 B-02).
+
+        Uses Redis INCRBY for race-condition-safe increment.
+
+        Returns:
+            New total cost in cents for the month.
+        """
+        if redis is None or cost_cents <= 0:
+            return 0
+
+        year_month = datetime.now(timezone.utc).strftime("%Y-%m")
+        key = _ORG_BUDGET_KEY.format(org_id=org_id, year_month=year_month)
+
+        try:
+            new_total = await redis.incrby(key, cost_cents)  # type: ignore[union-attr]
+            # Set TTL only on first increment (when new_total == cost_cents)
+            if new_total == cost_cents:
+                await redis.expire(key, _ORG_BUDGET_TTL)  # type: ignore[union-attr]
+            return int(new_total)
+        except Exception as exc:
+            logger.warning(
+                "Failed to increment org budget (non-fatal): org=%s, cost=%d, error=%s",
+                org_id,
+                cost_cents,
+                exc,
+            )
+            return 0
 
     async def complete(self, conversation_id: UUID) -> AgentConversation:
         """Mark conversation as completed."""

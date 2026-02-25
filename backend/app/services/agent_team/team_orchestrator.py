@@ -75,6 +75,7 @@ from app.services.agent_team.config import (
     MODEL_ROUTE_HINTS,
 )
 from app.services.agent_team.history_compactor import HistoryCompactor
+from app.services.agent_team.note_service import NoteService
 from app.services.agent_team.query_classifier import classify
 
 logger = logging.getLogger(__name__)
@@ -506,6 +507,22 @@ class TeamOrchestrator:
         sprint_context = await self._get_sprint_context(conversation.project_id)
         if sprint_context:
             system_prompt += f"\n\n## Current Sprint Context\n{sprint_context}"
+
+        # Sprint 202 — Track B: Inject agent notes for cross-session memory
+        try:
+            note_svc = NoteService(self.db)
+            notes_context = await note_svc.format_notes_for_context(
+                agent_id=definition.id,
+                max_notes=20,
+            )
+            if notes_context:
+                system_prompt += f"\n\n## Agent Notes\n{notes_context}"
+        except Exception as e:
+            logger.warning(
+                "TRACE_ORCHESTRATOR: Failed to load agent notes for %s: %s",
+                definition.id,
+                e,
+            )
 
         # Fetch recent conversation history
         history_result = await self.db.execute(

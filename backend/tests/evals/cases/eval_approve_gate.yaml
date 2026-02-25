@@ -1,0 +1,16 @@
+id: "approve_gate_01"
+tool_name: "request_approval"
+prompt: "Approve gate G2 for project Beta — all security checks passed."
+expected_behavior: >
+  Validates that the caller has 'governance:approve' permission before
+  proceeding. Checks that the gate is in SUBMITTED status (not DRAFT or
+  already APPROVED). If valid, transitions gate to APPROVED status and
+  records the approval with timestamp, approver identity, and reason.
+  Must generate an audit log entry. Must NOT approve without verifying
+  the gate is in a valid pre-approval state.
+ground_truth: null
+tags:
+  - governance
+  - gate
+  - write
+  - permission-check

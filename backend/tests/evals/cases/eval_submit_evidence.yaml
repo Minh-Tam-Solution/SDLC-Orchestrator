@@ -1,0 +1,18 @@
+id: "submit_evidence_01"
+tool_name: "submit_evidence"
+prompt: "Submit test report evidence for gate G3 — file at /reports/test-coverage.html"
+expected_behavior: >
+  Submits evidence for the specified quality gate. Validates that:
+  1. The gate exists and is in a state that accepts evidence (not ARCHIVED).
+  2. The evidence type is valid (test_report, code_review, etc.).
+  3. The file URL/path is accessible and non-empty.
+  Computes SHA256 hash for integrity verification. Creates GateEvidence
+  record with s3_key, file metadata, and audit trail.
+  Must NOT accept evidence for gates that are already APPROVED/ARCHIVED.
+  Must log the submission with submitter identity.
+ground_truth: null
+tags:
+  - governance
+  - evidence
+  - write
+  - integrity

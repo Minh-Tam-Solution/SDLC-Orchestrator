@@ -2,7 +2,7 @@
 
 **Project**: SDLC Orchestrator — Operating System for Software 3.0
 **Framework**: SDLC 6.1.1
-**Last Updated**: February 23, 2026
+**Last Updated**: February 24, 2026
 **Maintainer**: PM (updated per G-Sprint-Close requirement — `sprint_index_updated` checklist item)
 
 ---
@@ -11,7 +11,7 @@
 
 | Current Sprint | Status | Previous | Score |
 |---------------|--------|----------|-------|
-| **198** — Staging Validation + Master Test Plan + EP-06 Next | PLANNED | Sprint 197 (9.3/10) | — |
+| **202** — Automated Evals Framework + Context Engineering Depth | CLOSED | Sprint 201 (9.3/10) | Pending |
 
 **Current Branch**: `main` · **Gate Status**: G4 APPROVED (Sprint 188) · **Framework**: SDLC 6.1.1
 
@@ -109,7 +109,7 @@
 
 ---
 
-### Era 5: Conversation-First + Hardening (Sprints 189–195)
+### Era 5: Conversation-First + OTT Governance (Sprints 189–201)
 
 *CEO directive Sprint 190: OTT+CLI = primary interface. Web App = admin-only.*
 
@@ -120,12 +120,19 @@
 | 191 | Unified Command Registry | COMPLETE ✅ | `command_registry.py`, `CommandRegistry` class, channel parity (OTT≡CLI≡Web), requirements split | 8.9/10 |
 | 192 | Enterprise Hardening | COMPLETE ✅ | Zalo SHA256, Docker multi-stage, Semgrep CI, Compliance PDF export, break-glass endpoint, 25 acceptance tests | 9.0/10 |
 | 193 | CURRENT-SPRINT.md Platform Enforcement | COMPLETE ✅ | SprintFileService, SprintVerificationService, GitHub Service 3 methods, serializer fix, auto_verify gates, 45 tests | 9.1/10 |
-| 194 | Security Hardening + Agent Enrichment | COMPLETE ✅ | Settings singleton, F401 cleanup, Semgrep removal, AgentSeedService (12 roles), team_presets (5), update_sprint command (6/10), activity log, 74 tests | Pending |
+| 194 | Security Hardening + Agent Enrichment | COMPLETE ✅ | Settings singleton, F401 cleanup, Semgrep removal, AgentSeedService (12 roles), team_presets (5), update_sprint command (6/10), activity log, 74 tests | N/R |
 | 195 | Tier Enforcement Unification (ADR-065) | COMPLETE ✅ | ADR-065, CFG JWT+DB resolution, org-based tier in 3 middleware, `/auth/me` effective_tier, `useUserTier.ts` fix, 96/97 tests + 291 EP-06 | 9.2/10 |
-| **196** | EP-06 Codegen Quality Gates + Vietnamese SME Pilot Prep | **COMPLETE** ✅ | TG-41 fix, Gate 4 subprocess sandbox, 3 Vietnamese domain templates (E-commerce/HRM/CRM), 57 E2E tests, 430 codegen tests | 9.3/10 |
+| **196** | EP-06 Codegen Quality Gates + Vietnamese SME Pilot Prep | **COMPLETE** ✅ | TG-41 fix, Gate 4 subprocess sandbox, 3 Vietnamese domain templates (E-commerce/HRM/CRM), 57 E2E tests, 430 codegen tests | 9.1/10 |
 | **197** | Master Test Plan + Technical Debt + Go-Live Prep | **COMPLETE** ✅ | B-01 prefix fix + TG-41 org-invitations, C-01→C-07 (7/7 tech debt), 676 tests 0 regressions, Track A deferred CF-03 | 9.3/10 |
+| **198** | OTT Gateway Dashboard + Bidirectional AI + Go-Live Validation | **COMPLETE** ✅ | Gateway webapp, Telegram→Ollama→reply, CF-01/02/03 resolution | 8.8/10 |
+| **199** | Chat Governance Actions + Evidence Upload via OTT | **COMPLETE** ✅ | Gate approve/status/create via chat, Magic Link OOB auth, evidence upload via Telegram, Sprint 198 deferred items, 196/196 tests | Pending |
+| **200** | Full Agent Team Orchestration via OTT | **COMPLETE** ✅ | Multi-agent pipeline (Init→Code→Review) via chat, budget circuit breakers, cross-channel parity (Telegram+Zalo), 140/140 tests | Pending |
+| **201** | Self-Hosted Pilot: SDLC Manages Itself | **COMPLETE** ✅ | 100% dogfooding — sprint close + audit via chat, team invite via OTT, pilot Docker Compose, 8/8 commands, 40 tests | 9.3/10 |
+| **202** | Automated Evals Framework + Context Engineering Depth | **COMPLETE** ✅ | eval_scorer.py (LLM-as-Judge), 5 YAML eval cases, agent_notes table, NoteService CRUD, run_evals+list_notes commands, 50 tests | Pending |
+| **203** | Formal Evaluator-Optimizer + Evals Expansion | **PLANNED** | EvalRubric in reflect_step.py, max_reflect_iterations, multi-judge consensus, 15 eval cases | — |
+| **204** | Confidence-Based Routing + Human Escalation | **PLANNED** | confidence field in query_classifier, LLM fallback (qwen3:8b), human escalation via Magic Link | — |
 
-*Docs: `SPRINT-189-CHAT-GOVERNANCE-LOOP.md` through `SPRINT-197.md`*
+*Docs: `SPRINT-189-CHAT-GOVERNANCE-LOOP.md` through `SPRINT-204-CONFIDENCE-ROUTING.md`*
 
 ---
 
@@ -149,19 +156,26 @@
 | Feb 22, 2026 | ADR-065 Tier Enforcement Unification — org-based SSOT, 10/12 findings fixed | 195 |
 | Feb 23, 2026 | EP-06 Codegen Quality Gates + Vietnamese SME Pilot Prep — 3 domain templates, 430 tests | 196 |
 | Feb 23, 2026 | Sprint 197 — Tech Debt 7/7 resolved, B-01 prefix fix, 676 tests 0 regressions, CTO 9.3/10 | 197 |
+| Mar 2026 | **Dogfooding 60%** — OTT Gateway Dashboard + Bidirectional AI (Telegram↔Ollama) | 198 |
+| Mar 2026 | **Dogfooding 75%** — Governance actions via chat (gate approve, evidence upload, Magic Link) | 199 |
+| Mar-Apr 2026 | **Dogfooding 90%** — Multi-agent team orchestration via OTT (Init→Code→Review pipeline) | 200 |
+| Apr 2026 | **Dogfooding 100%** — Self-hosted pilot, SDLC Orchestrator governs itself, SME Pilot Ready | 201 |
+| Apr 2026 | **Anthropic Best Practices P0+P1** — Automated Evals (LLM-as-Judge) + Context Engineering (agent_notes) | 202 |
+| May 2026 | **Anthropic Best Practices P2** — Evaluator-Optimizer (rubric scoring, iteration limits, multi-judge) + 15 eval cases | 203 |
+| May 2026 | **Anthropic Best Practices P3** — Confidence-Based Routing + Human Escalation, 20 total eval cases | 204 |
 
 ---
 
 ## Sprint Metrics Summary (Era 5)
 
-| Metric | Sprint 189 | Sprint 190 | Sprint 191 | Sprint 192 | Sprint 193 | Sprint 194 | Sprint 195 | Sprint 196 | Sprint 197 |
-|--------|------------|------------|------------|------------|------------|------------|------------|------------|------------|
-| CTO Score | 9.4/10 | 9.1/10 | 8.9/10 | 9.0/10 | 9.1/10 | Pending | 9.2/10 | 9.3/10 | 9.3/10 |
-| Deliverables | — | 15/15 | — | 10/10 | 8/8 | 11/11 | 10/12 (2 deferred) | 13/13 (4 tracks) | 8/8 (B+C+D), Track A deferred |
-| P0/P1 Bugs | 0 | 0 | 0 | 0 | 2 fixed | 0 | 3 P0 fixed | 0 | 0 |
-| LOC Added | — | +~2,100 | — | +~1,352 | +~2,260 | +~1,522 | +~828 | +~3,500 | +~320 |
-| LOC Removed | — | ~-47,000 | — | ~-25,953 | — | ~-10 | — | — | ~-50 |
-| Tests Written | — | — | — | 38 (13+25) | 45 (16+19+10) | 74 (10+10+21+7+9+17) | 27 (19+8) | ~139 (57 E2E + 40 onboarding + 42 domain) | 6 (benchmarks) |
+| Metric | Sprint 189 | Sprint 190 | Sprint 191 | Sprint 192 | Sprint 193 | Sprint 194 | Sprint 195 | Sprint 196 | Sprint 197 | Sprint 198–201 | Sprint 202 |
+|--------|------------|------------|------------|------------|------------|------------|------------|------------|------------|----------------|------------|
+| CTO Score | 9.4/10 | 9.1/10 | 8.9/10 | 9.0/10 | 9.1/10 | N/R | 9.2/10 | 9.1/10 | 9.3/10 | 8.8–9.3 | Pending |
+| Deliverables | — | 15/15 | — | 10/10 | 8/8 | 11/11 | 10/12 (2 deferred) | 13/13 (4 tracks) | 8/8 (B+C+D) | All tracks ✅ | 12/12 (4 tracks) |
+| P0/P1 Bugs | 0 | 0 | 0 | 0 | 2 fixed | 0 | 3 P0 fixed | 0 | 0 | 0 | 0 |
+| LOC Added | — | +~2,100 | — | +~1,352 | +~2,260 | +~1,522 | +~828 | +~3,500 | +~320 | ~3,500 | +~1,470 |
+| LOC Removed | — | ~-47,000 | — | ~-25,953 | — | ~-10 | — | — | ~-50 | — | — |
+| Tests Written | — | — | — | 38 (13+25) | 45 (16+19+10) | 74 | 27 (19+8) | ~139 | 6 | 40+140 | 50 |
 
 ---
 
@@ -169,7 +183,14 @@
 
 | Doc | Purpose |
 |-----|---------|
-| [CURRENT-SPRINT.md](CURRENT-SPRINT.md) | Current sprint status (Sprint 198 PLANNED) |
+| [CURRENT-SPRINT.md](CURRENT-SPRINT.md) | Current sprint status (Sprint 202 COMPLETE) |
+| [SPRINT-204-CONFIDENCE-ROUTING.md](SPRINT-204-CONFIDENCE-ROUTING.md) | Sprint 204 plan (Confidence-Based Routing + Human Escalation — Anthropic P3) |
+| [SPRINT-203-EVALUATOR-OPTIMIZER-EVALS-EXPANSION.md](SPRINT-203-EVALUATOR-OPTIMIZER-EVALS-EXPANSION.md) | Sprint 203 plan (Evaluator-Optimizer + 15 Eval Cases — Anthropic P2) |
+| [SPRINT-202-AUTOMATED-EVALS-CONTEXT-ENGINEERING.md](SPRINT-202-AUTOMATED-EVALS-CONTEXT-ENGINEERING.md) | Sprint 202 plan (Automated Evals + Context Engineering — Anthropic P0+P1) |
+| [SPRINT-201-SELF-HOSTED-PILOT.md](SPRINT-201-SELF-HOSTED-PILOT.md) | Sprint 201 plan (Self-Hosted Pilot — 100% Dogfooding + SME Pilot) |
+| [SPRINT-200-AGENT-TEAM-OTT.md](SPRINT-200-AGENT-TEAM-OTT.md) | Sprint 200 plan (Full Agent Team Orchestration via OTT — 90% Dogfooding) |
+| [SPRINT-199-CHAT-GOVERNANCE-ACTIONS.md](SPRINT-199-CHAT-GOVERNANCE-ACTIONS.md) | Sprint 199 plan (Chat Governance Actions + Evidence Upload — 75% Dogfooding) |
+| [SPRINT-198-OTT-GATEWAY-DASHBOARD.md](SPRINT-198-OTT-GATEWAY-DASHBOARD.md) | Sprint 198 plan (OTT Gateway Dashboard + Bidirectional AI — 60% Dogfooding) |
 | [SPRINT-197.md](SPRINT-197.md) | Sprint 197 close (Master Test Plan + Tech Debt + Go-Live, 9.3/10) |
 | [SPRINT-196-CODEGEN-PILOT-PREP.md](SPRINT-196-CODEGEN-PILOT-PREP.md) | Sprint 196 plan (EP-06 Codegen + Vietnamese SME Pilot) |
 | [SPRINT-195-TIER-ENFORCEMENT-UNIFICATION.md](SPRINT-195-TIER-ENFORCEMENT-UNIFICATION.md) | Sprint 195 plan (Tier Enforcement Unification, ADR-065) |

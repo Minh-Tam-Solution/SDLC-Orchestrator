@@ -221,6 +221,68 @@ class EvidenceCollector:
 
         return captured
 
+    async def capture_eval_report(
+        self,
+        report_content: str,
+        evaluator_model: str,
+        on_behalf_of: str | None = None,
+    ) -> GateEvidence:
+        """Capture an eval suite result as evidence (Sprint 202 — Track C).
+
+        Creates a GateEvidence record with evidence_type='EVAL_REPORT'
+        for automated eval suite runs. Not linked to a specific gate
+        (gate_id=None) — used for quality trend tracking.
+
+        Args:
+            report_content: JSON-serialized eval suite result.
+            evaluator_model: Model used for evaluation.
+            on_behalf_of: Identity audit field.
+
+        Returns:
+            GateEvidence record for the eval report.
+        """
+        now = datetime.now(timezone.utc)
+
+        content_hash = self._compute_content_hash(report_content)
+        content_bytes = len(report_content.encode("utf-8"))
+
+        description = json.dumps({
+            "evidence_type": "EVAL_REPORT",
+            "evaluator_model": evaluator_model,
+            "on_behalf_of": on_behalf_of or "system",
+            "captured_at": now.isoformat(),
+        })
+
+        evidence = GateEvidence(
+            id=uuid4(),
+            gate_id=None,
+            file_name=f"eval-report-{now.strftime('%Y%m%d-%H%M%S')}.json",
+            file_size=content_bytes,
+            file_type="application/json",
+            evidence_type="EVAL_REPORT",
+            s3_key=f"evidence/evals/{now.strftime('%Y/%m/%d')}/report-{uuid4()}.json",
+            s3_bucket=self.S3_BUCKET,
+            sha256_hash=content_hash,
+            sha256_server=content_hash,
+            source="agent",
+            description=description,
+            uploaded_at=now,
+            created_at=now,
+        )
+
+        self.db.add(evidence)
+        await self.db.flush()
+
+        logger.info(
+            "TRACE_EVIDENCE: eval_report captured: evidence_id=%s, "
+            "model=%s, hash=%.16s",
+            evidence.id,
+            evaluator_model,
+            content_hash,
+        )
+
+        return evidence
+
     async def get_evidence_by_correlation(
         self,
         correlation_id: UUID,

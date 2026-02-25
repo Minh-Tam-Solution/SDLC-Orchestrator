@@ -1,215 +1,160 @@
-# Current Sprint: Sprint 197 — Master Test Plan + Technical Debt + Go-Live Preparation
+# Current Sprint: Sprint 202 — Automated Evals Framework + Context Engineering Depth
 
-**Sprint Duration**: February 24 – March 7, 2026 (10 working days)
-**Sprint Goal**: Establish comprehensive master test plan for Stage 05, resolve critical technical debt from Sprint 196 carry-forwards, and close all go-live blockers (36 server errors, API health 94.8% → 97%+)
-**Status**: COMPLETE ✅
-**Priority**: P0 (Go-Live Readiness)
+**Sprint Duration**: April 21 – May 2, 2026 (10 working days)
+**Sprint Goal**: Implement LLM-as-Judge eval framework for agent governance responses + structured agent notes for cross-session memory
+**Status**: CLOSED — Track A ✅, Track B ✅, Track C ✅, Track D ✅
+**Priority**: P0 (Anthropic Best Practices Gap 5 — Evals)
 **Framework**: SDLC 6.1.1
-**CTO Score (Sprint 196)**: 9.3/10 (PM Review)
-**Previous Sprint**: [Sprint 196 COMPLETE — EP-06 Codegen Quality Gates + Vietnamese SME Pilot Prep](SPRINT-196-CODEGEN-PILOT-PREP.md)
-**Detailed Plan**: [SPRINT-197.md](SPRINT-197.md)
+**CTO Score (Sprint 201)**: 9.3/10
+**Previous Sprint**: [Sprint 201 — Self-Hosted Pilot](SPRINT-201-SELF-HOSTED-PILOT.md)
+**Detailed Plan**: [SPRINT-202-AUTOMATED-EVALS-CONTEXT-ENGINEERING.md](SPRINT-202-AUTOMATED-EVALS-CONTEXT-ENGINEERING.md)
 
 ---
 
-## Sprint 197 Goal
+## Sprint 202 Goal
 
-Sprint 196 delivered 3 Vietnamese domain templates and 430 codegen tests (9.3/10) but the E2E API report (Feb 21) reveals **36 server errors** and **94.8% API health** (target: >95%). Sprint 197 addresses these go-live blockers while establishing the master test plan for Stage 05 and resolving accumulated technical debt.
+Sprint 201 achieved 100% dogfooding. Sprint 202 closes Anthropic Best Practices Gap 5 (Evals) and deepens context engineering (structured agent notes for cross-session memory).
 
-**Three pillars**:
-1. **Master Test Plan** — Comprehensive Stage 05 test documentation (missing: Security, Performance, Accessibility)
-2. **Technical Debt** — Sprint 196 carry-forwards (CF-01/02/03) + codegen template fixes
-3. **Go-Live Blockers** — Fix 36 server errors, achieve API health >97%
-
-**Conversation-First** (CEO directive Sprint 190): All sprint governance flows through OTT+CLI. Web App = admin-only.
+**Two pillars**:
+1. **Automated Evals** — LLM-as-Judge scoring framework with YAML test cases and regression detection
+2. **Context Engineering** — Structured agent notes (save_note/recall_note) persisted across sessions
 
 ---
 
-## Sprint 197 Backlog
+## Sprint 202 Backlog
 
-### Track A — Master Test Plan: Stage 05 Documentation (Day 1-4) — @tester
-
-| ID | Item | Priority | Deliverable | Status |
-|----|------|----------|-------------|--------|
-| A-01 | Master Test Plan index (`MASTER-TEST-PLAN.md`) | P1 | Unified plan covering all 7 test categories | ⏳ PENDING |
-| A-02 | Security Testing plan (`02-Security-Testing/`) | P1 | OWASP ASVS L2 procedures, Semgrep CI, pentest checklist | ⏳ PENDING |
-| A-03 | Performance Testing plan (`05-Performance-Testing/`) | P2 | Locust scenarios (100K concurrent), p95 verification | ⏳ PENDING |
-| A-04 | Accessibility Testing plan (`06-Accessibility-Testing/`) | P2 | WCAG 2.1 AA checklist, Lighthouse CI config | ⏳ PENDING |
-| A-05 | Update E2E Testing docs | P1 | 10 Playwright critical path journeys | ⏳ PENDING |
-| A-06 | Test factory specifications | P2 | Factory patterns for 6 core models | ⏳ PENDING |
-
-### Track B — Go-Live Blockers: Fix 36 Server Errors (Day 2-5) — @pm ✅
-
-| ID | Item | Root Cause | Priority | Status |
-|----|------|-----------|----------|--------|
-| B-01 | Fix double-prefixed routes | `prefix="/api/v1"` on invitations + org-invitations routers | P0 | ✅ DONE |
-| B-02 | Fix missing env var endpoints (~5 endpoints) | GITHUB_APP_WEBHOOK_SECRET etc. | P1 | ⏳ DEFERRED (Track B-02/B-03 pre-existing) |
-| B-03 | Fix DB/service dependency failures (~8 endpoints) | Missing migrations/init | P1 | ⏳ DEFERRED (pre-existing — 153 failures + 99 errors) |
-| B-04 | Fix auth timeout endpoints (~3 endpoints) | Register/forgot-password >15s | P2 | ⏳ DEFERRED |
-| B-05 | Re-run E2E API test suite | Validate fixes → new report | P0 | ⏳ PENDING (post Track A) |
-
-**B-01 bonus discovery**: Prefix fix exposed hidden TG-41 gap — `/api/v1/org-invitations` was invisible (double-prefixed to `/api/v1/api/v1/org-invitations`). Now correctly registered and added to `tier_gate.py:155` as ENTERPRISE tier 4.
-
-### Track C — Technical Debt Resolution (Day 3-7) — @pm ✅
-
-| ID | Item | Source | Priority | Status |
-|----|------|--------|----------|--------|
-| C-01 | Fix ruff lint warnings in generated code | Sprint 196 Known Issue #1 | P1 | ✅ DONE — removed `Column`, added `Date`, fixed boolean filter in `model.py.j2` |
-| C-02 | Fix model processor filename truncation | Sprint 196 Known Issue #2 | P1 | ✅ DONE — fixed singularization in `model_processor.py` + `endpoint_processor.py` |
-| C-03 | Enable Gate 4 subprocess sandbox via env var | CF-01 (P2) | P2 | ✅ DONE — `GATE4_ENABLED` env var in `quality_pipeline.py` |
-| C-04 | Create pytest-benchmark suite | CF-02 (P3) | P3 | ✅ DONE — `test_quality_pipeline_benchmark.py` with 6 benchmarks |
-| C-05 | Fix auth.py L703 redundant condition | CF-03 (P3) | P3 | ✅ DONE — removed redundant condition |
-| C-06 | Fix validation test collection warnings | 9 pytest warnings | P3 | ✅ DONE — renamed 5 helper classes with `_` prefix in `test_base_validator.py` |
-| C-07 | Install pytest-benchmark | Missing dependency | P3 | ✅ DONE — added `pytest-benchmark>=4.0` to `dev.txt` |
-
-### Track D — Go-Live Readiness Checklist (Day 8-10) — @pm + @tester
+### Track A — Automated Eval Framework ✅
 
 | ID | Item | Priority | Status |
 |----|------|----------|--------|
-| D-01 | Update go-live readiness matrix | P1 | ⏳ PENDING |
-| D-02 | OWASP ASVS L2 re-validation | P1 | ⏳ PENDING |
-| D-03 | Full test suite green run (676 Sprint 197 tests, 0 regressions) | P0 | ✅ DONE |
-| D-04 | Sprint 197 close documentation | P1 | ✅ DONE |
+| A-01 | EvalRubric schema (correctness/completeness/safety 0-10) | P0 | ✅ DONE |
+| A-02 | EvalScorer service (LLM-as-Judge via deepseek-r1:32b) | P0 | ✅ DONE |
+| A-03 | 5 YAML eval test cases (governance commands) | P0 | ✅ DONE |
+| A-04 | EvalSuiteResult aggregation + regression detection | P0 | ✅ DONE |
+
+**New files**:
+- `backend/app/schemas/eval_rubric.py` (~140 LOC) — EvalRubric, EvalTestCase, EvalRunResult, EvalSuiteResult
+- `backend/app/services/agent_team/eval_scorer.py` (~290 LOC) — EvalScorer with YAML loading, JSON parsing, `<think>` tag handling, regex fallback
+- `backend/tests/evals/cases/eval_gate_status.yaml` — Gate status query eval case
+- `backend/tests/evals/cases/eval_approve_gate.yaml` — Gate approval eval case
+- `backend/tests/evals/cases/eval_create_project.yaml` — Project creation eval case
+- `backend/tests/evals/cases/eval_submit_evidence.yaml` — Evidence submission eval case
+- `backend/tests/evals/cases/eval_export_audit.yaml` — Audit export eval case
+- `backend/tests/evals/conftest.py` (~70 LOC) — Shared fixtures (mock OllamaService, EvalScorer, rubrics)
+
+### Track B — Context Engineering (Structured Agent Notes) ✅
+
+| ID | Item | Priority | Status |
+|----|------|----------|--------|
+| B-01 | AgentNote model + Alembic migration | P0 | ✅ DONE |
+| B-02 | NoteService (UPSERT, recall, list, format_for_context) | P0 | ✅ DONE |
+| B-03 | Notes injected in team_orchestrator `_build_llm_context()` | P0 | ✅ DONE |
+| B-04 | Tool context constants (SPAWN_TOOLS, NOTE_TOOLS, INTERNAL_TOOLS) | P1 | ✅ DONE |
+
+**New files**:
+- `backend/app/models/agent_note.py` (~65 LOC) — UUID PK, agent_id FK, conversation_id FK, key/value/note_type, UNIQUE(agent_id, key)
+- `backend/app/services/agent_team/note_service.py` (~200 LOC) — UPSERT pattern, MAX_NOTES_PER_AGENT=50, TTL pruning, format_notes_for_context()
+- `backend/alembic/versions/s202_001_agent_notes.py` (~65 LOC) — Creates agent_notes table with UUID columns, FKs, indexes
+
+**Modified files**:
+- `backend/app/services/agent_team/team_orchestrator.py` — NoteService import + notes injection in `_build_llm_context()` (try/except guarded)
+- `backend/app/services/agent_team/tool_context.py` — Added SPAWN_TOOLS, NOTE_TOOLS, INTERNAL_TOOLS frozensets
+
+### Track C — OTT Integration (run_evals + list_notes) ✅
+
+| ID | Item | Priority | Status |
+|----|------|----------|--------|
+| C-01 | Register `run_evals` command (slot 9/10) | P0 | ✅ DONE |
+| C-02 | Register `list_notes` command (slot 10/10) | P0 | ✅ DONE |
+| C-03 | Evidence collector: `capture_eval_report()` method | P0 | ✅ DONE |
+
+**Modified files**:
+- `backend/app/services/agent_team/command_registry.py` — +2 commands, +2 Pydantic models (RunEvalsParams, ListNotesParams), ToolName enum expanded, 8→10 commands (MAX_COMMANDS reached)
+- `backend/app/services/agent_team/evidence_collector.py` — +`capture_eval_report()` method for EVAL_REPORT evidence type
+
+### Track D — Tests + Sprint Close ✅
+
+| ID | Item | Priority | Status |
+|----|------|----------|--------|
+| D-01 | Sprint 202 test suite (50 tests across 10 classes) | P0 | ✅ DONE |
+| D-02 | Full regression suite (0 Sprint 202 regressions) | P0 | ✅ DONE |
+| D-03 | CURRENT-SPRINT.md + SPRINT-INDEX.md updated | P0 | ✅ DONE |
+
+**Test suite** (`test_sprint202_evals_context.py`):
+- 10 test classes, 50 tests covering all 4 tracks
+- EvalRubric schema (6), EvalScorer scoring (6), YAML loading (4), EvalSuiteResult (4), AgentNote model (4), NoteService CRUD (8), Notes injection (4), Command registry (4), Evidence capture (2), Tool context (2), Regression guards (6)
+
+**Regression fixes**:
+- `test_registry_has_8_commands` → `test_registry_has_10_commands` (3 test files)
+- `vietnamese_keywords` list expanded (+`chạy`, +`xem`)
+- OllamaResponse field alignment (`text` → `response`, field names corrected)
 
 ---
 
-## Sprint 197 Success Criteria
+## Sprint 202 Deliverables Summary
 
-- [ ] MASTER-TEST-PLAN.md created with 7-category coverage — ⏳ Track A (pending @tester)
-- [ ] Security/Performance/Accessibility test plans created (3 new docs) — ⏳ Track A (pending @tester)
-- [ ] Server errors reduced: 36 → <5 — ⏳ B-01 done (prefix fix), B-02/B-03/B-04 deferred (pre-existing)
-- [ ] API health score: 94.8% → >97% — ⏳ Pending E2E re-run
-- [x] ruff lint warnings fixed in codegen templates (Gate 1 green for all 6 domains) ✅
-- [x] Model processor filename truncation fixed (`Employee` → `employee.py`) ✅
-- [x] Gate 4 activatable via env var (CF-01 resolved) ✅
-- [x] pytest-benchmark suite created (CF-02 resolved) ✅
-- [x] Sprint 197 test suite green (676 tests, 0 regressions) ✅
-- [ ] Go-live readiness matrix updated — ⏳ Track D-01
-- [x] G-Sprint-Close within 24h of sprint end — ✅ CTO 9.3/10 APPROVED
-
----
-
-## Sprint 197 Completion Summary
-
-### Track B — Go-Live Blockers (Partial) ✅
-
-- **B-01**: Double-prefix fix — removed `prefix="/api/v1"` from `invitations.py` and `organization_invitations.py`
-- **B-01 bonus**: Exposed hidden `/api/v1/org-invitations` route → added to `tier_gate.py:155` as ENTERPRISE tier 4
-- **B-02/B-03/B-04**: Deferred — 153 failures + 99 errors are pre-existing (async/sync mismatches from Sprint 182, DB fixture issues, not Sprint 197 regressions)
-
-### Track C — Technical Debt ✅ (7/7 items)
-
-- **C-01**: `model.py.j2` — removed unused `Column` import, added `Date` import, fixed boolean filter
-- **C-02**: `model_processor.py` + `endpoint_processor.py` — fixed singularization logic (`Employee` → `employee.py`)
-- **C-03**: `quality_pipeline.py` — `GATE4_ENABLED` env var support (line 282)
-- **C-04**: `test_quality_pipeline_benchmark.py` — 6 benchmark tests (all passing)
-- **C-05**: `auth.py` — removed redundant L703 condition
-- **C-06**: `test_base_validator.py` — renamed 5 helper classes with `_` prefix (0 collection warnings)
-- **C-07**: `dev.txt` — added `pytest-benchmark>=4.0`
-
-### Track D — Test Verification ✅
-
-| Suite | Count | Status |
-|-------|-------|--------|
-| Codegen (templates, E2E, benchmarks, pipeline) | 436 | All passing ✅ |
-| Middleware (tier gate, CFG, usage limits) | 97 | All passing ✅ |
-| Validation (base validator, registry) | 29 | All passing ✅ |
-| Other affected quick tests | 114 | All passing ✅ |
-| **Sprint 197 Total** | **676** | **0 regressions** ✅ |
-
-### Files Modified in Sprint 197
-
-| File | Change |
-|------|--------|
-| `invitations.py` | B-01: Removed `prefix="/api/v1"` |
-| `organization_invitations.py` | B-01: Removed `prefix="/api/v1"` |
-| `tier_gate.py` | B-01: Added `/api/v1/org-invitations` → ENTERPRISE tier 4 |
-| `model.py.j2` | C-01: Removed `Column`, added `Date`, fixed boolean filter |
-| `model_processor.py` | C-02: Fixed singularization logic |
-| `endpoint_processor.py` | C-02: Fixed singularization logic |
-| `quality_pipeline.py` | C-03: `GATE4_ENABLED` env var support |
-| `auth.py` | C-05: Removed redundant condition |
-| `test_base_validator.py` | C-06: Renamed 5 helper classes with `_` prefix |
-| `dev.txt` | C-07: Added `pytest-benchmark>=4.0` |
-| `test_quality_pipeline_benchmark.py` | C-04: New — 6 benchmark tests |
-| `test_codegen_e2e.py` | C-02: Updated assertions for fixed `employee.py` filename |
-
-### Pre-existing Failures (NOT Sprint 197)
-
-The broader unit suite shows 153 failures + 99 errors, all pre-existing:
-- `test_invitation_service.py` (20 tests): Async/sync mismatch from Sprint 182 migration
-- `test_compliance_framework_routes.py`: DB session dependency issues
-- `test_evidence_timeline.py`, `test_list_evidence.py`: API route test setup issues
-- `test_password_min_length.py` (13 errors): Missing DB/config fixtures
-- `test_mfa_required.py` (2 errors): Same DB fixture issue
-
-These represent Track B-02/B-03 items (DB/service dependency failures) already tracked for future sprints.
+| Track | Deliverable | LOC | Status |
+|-------|------------|-----|--------|
+| A | EvalRubric schema | ~140 | ✅ |
+| A | EvalScorer service (LLM-as-Judge) | ~290 | ✅ |
+| A | 5 YAML eval test cases | ~75 | ✅ |
+| A | Eval conftest fixtures | ~70 | ✅ |
+| B | AgentNote model | ~65 | ✅ |
+| B | NoteService (CRUD + UPSERT) | ~200 | ✅ |
+| B | Alembic migration (s202_001) | ~65 | ✅ |
+| B | Orchestrator + tool_context mods | ~25 | ✅ |
+| C | Command registry (+2 commands) | ~40 | ✅ |
+| C | Evidence collector (eval reports) | ~55 | ✅ |
+| D | Test suite (50 tests) | ~430 | ✅ |
+| D | Regression fixes | ~15 | ✅ |
+| **Total** | | **~1,470** | **✅** |
 
 ---
 
-## Previous Sprint Summary
+## Command Registry (10/10 — MAX_COMMANDS reached)
 
-### Sprint 196 — EP-06 Codegen Quality Gates + Vietnamese SME Pilot Prep (COMPLETE ✅)
-
-**Duration**: February 23, 2026 (compressed) · **CTO Score**: 9.3/10 (PM Review)
-
-4-track delivery: TG-41 resolved, Gate 4 subprocess sandbox, 3 Vietnamese domain templates, 57 E2E tests.
-
-| Track | Deliverables | Tests |
-|-------|-------------|-------|
-| A — Carry-Forwards | TG-41 (8 routes tiered), Gate 4 subprocess sandbox | 97 |
-| B — EP-06 Hardening | qwen3-coder:30b, fallback chain, real ruff+ast.parse | 430 |
-| C — Vietnamese SME Pilot | E-commerce, HRM, CRM templates + onboarding | 65 |
-| D — Quality + Docs | 57 E2E tests, onboarding 25→65, sprint close | 57 |
-
-**Full report**: [SPRINT-196-CODEGEN-PILOT-PREP.md](SPRINT-196-CODEGEN-PILOT-PREP.md)
+| Command | Sprint Added | OTT | Vietnamese | Status |
+|---------|-------------|-----|------------|--------|
+| `create_project` | 191 | ✅ | "tạo dự án" | ✅ |
+| `get_gate_status` | 191 | ✅ | "trạng thái gate" | ✅ |
+| `submit_evidence` | 191 | ✅ | "nộp bằng chứng" | ✅ |
+| `request_approval` | 191 | ✅ | "duyệt" | ✅ |
+| `export_audit` | 201 | ✅ | "xuất báo cáo" | ✅ |
+| `update_sprint` | 194 | ✅ | "cập nhật sprint" | ✅ |
+| `close_sprint` | 201 | ✅ | "đóng sprint" | ✅ |
+| `invite_member` | 201 | ✅ | "mời thành viên" | ✅ |
+| `run_evals` | **202** | ✅ | "chạy đánh giá" | ✅ NEW |
+| `list_notes` | **202** | ✅ | "xem ghi chú" | ✅ NEW |
 
 ---
 
-## Recent Sprint History (Quick Reference)
+## Test Results
 
-| Sprint | Theme | Status | CTO Score |
-|--------|-------|--------|-----------|
-| 197 | Master Test Plan + Technical Debt + Go-Live Prep | COMPLETE ✅ | 9.3/10 |
-| 196 | EP-06 Codegen Quality Gates + Vietnamese SME Pilot Prep | COMPLETE ✅ | 9.3/10 |
-| 195 | Tier Enforcement Unification (ADR-065) | COMPLETE ✅ | 9.2/10 |
-| 194 | Security Hardening + Agent Enrichment | COMPLETE ✅ | Pending |
-| 193 | CURRENT-SPRINT.md Platform Enforcement | COMPLETE ✅ | 9.1/10 |
-| 192 | Enterprise Hardening | COMPLETE ✅ | 9.0/10 |
-| 191 | Unified Command Registry | COMPLETE ✅ | 8.9/10 |
-
-*Full history: [SPRINT-INDEX.md](SPRINT-INDEX.md)*
+```
+Sprint 202 Tests:  50 passed in 0.34s
+Regression Suite:  135 passed, 0 Sprint 202 regressions
+(1 pre-existing failure: test_steer_mode_process_by_id — confirmed pre-Sprint 202)
+Regression fixes:  command count 8→10 (3 files), Vietnamese keywords (+2), OllamaResponse fields (6 instances)
+```
 
 ---
 
-## Test Metrics (Sprint 197 Updated)
+## G-Sprint-Close Gate
 
-| Metric | Sprint 196 | Sprint 197 | Delta |
-|--------|-----------|-----------|-------|
-| Codegen tests | 430 | 436 | +6 (benchmarks) |
-| Middleware tests | 97 | 97 | 0 |
-| Validation tests | 29 | 29 | 0 |
-| Quick tests | — | 114 | Baselined |
-| **Sprint-scoped total** | — | **676** | **0 regressions** |
-| API health score | 94.8% | TBD | Pending E2E re-run |
-| OWASP ASVS L2 | 98.4% | ≥98% (maintained) | 0 |
-| p95 latency | 14.0ms | <100ms | PASS |
+| Gate | Status | Date | Reviewer | Score |
+|------|--------|------|----------|-------|
+| G-Sprint-Close | ✅ APPROVED | 2026-02-24 | @dev-team | 8/8 hard criteria met, 50/50 Sprint 202 tests, 0 regressions |
 
----
+### Carry-Forward to Next Sprint
 
-## G-Sprint Gate Status
-
-| Gate | Status | Notes |
-|------|--------|-------|
-| G-Sprint-Close (Sprint 197) | ✅ APPROVED | CTO 9.3/10 — Track B/C/D done (8/8), Track A deferred CF-03 |
-| G-Sprint-Close (Sprint 196) | ✅ APPROVED | PM 9.3/10 — 4/4 tracks, 430 codegen tests |
-| G-Sprint-Close (Sprint 195) | ✅ APPROVED | CTO 9.2/10 — 10/12 findings fixed |
-
-**Rule 9 (Documentation Freeze = Sprint Freeze)**: CURRENT-SPRINT.md updated February 23, 2026.
+| Item | Origin |
+|---|---|
+| SC-200-01: `source="chat"` audit log field | Sprint 199 deferred |
+| MAX_COMMANDS=10 reached — consider dynamic routing | Sprint 202 observation |
+| eval_results DB table (persistent eval storage) | Sprint 202 stretch goal |
+| Eval evidence auto-capture in run_suite flow | Sprint 202 stretch goal |
 
 ---
 
-**Last Updated**: February 23, 2026
-**Updated By**: PM + AI Development Partner — Sprint 197 G-Sprint-Close APPROVED (CTO 9.3/10)
-**Framework Version**: SDLC 6.1.1
-**Previous State**: Sprint 197 IN PROGRESS → **COMPLETE** (CTO 9.3/10)
-**Carry-Forwards → Sprint 198**: CF-01 (B-02/B-03), CF-02 (B-04/B-05), CF-03 (Track A Master Test Plan)
+**Updated By**: @dev-team via Claude Code
+**Next Sprint**: [Sprint 203 — Evaluator-Optimizer + Evals Expansion](SPRINT-203-EVALUATOR-OPTIMIZER-EVALS-EXPANSION.md)

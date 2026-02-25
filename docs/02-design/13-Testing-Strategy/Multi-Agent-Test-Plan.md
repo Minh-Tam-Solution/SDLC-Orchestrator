@@ -1,8 +1,8 @@
 ---
-sdlc_version: "6.1.0"
+sdlc_version: "6.1.1"
 document_type: "Test Plan"
 status: "PROPOSED"
-sprint: "176-179"
+sprint: "176-206"
 spec_id: "TP-056"
 tier: "PROFESSIONAL"
 stage: "02 - Design"
@@ -10,11 +10,11 @@ stage: "02 - Design"
 
 # Multi-Agent Team Engine — Test Plan
 
-**Status**: PROPOSED (Sprint 176-179, companion to ADR-056 + ADR-058)
+**Status**: PROPOSED (Sprint 176-206, companion to ADR-056 + ADR-058 + ADR-066)
 **Date**: February 2026
 **Author**: CTO Nguyen Quoc Huy
-**Framework**: SDLC 6.1.0 (pytest + pytest-asyncio, 95%+ coverage target)
-**References**: ADR-056 (4 locked decisions + 14 non-negotiables), ADR-058 (ZeroClaw patterns), STM-056 (13 threat surfaces)
+**Framework**: SDLC 6.1.1 (pytest + pytest-asyncio, 95%+ coverage target)
+**References**: ADR-056 (4 locked decisions + 14 non-negotiables), ADR-058 (ZeroClaw patterns), ADR-066 (LangChain, 6 locked decisions), STM-056 (16 threat surfaces)
 
 ---
 
@@ -34,6 +34,10 @@ stage: "02 - Design"
 | Unit: EnvScrubber | 100% | 179 | `test_env_scrubber.py` |
 | Unit: HistoryCompactor | 100% | 179 | `test_history_compactor.py` |
 | Unit: QueryClassifier | 100% | 179 | `test_query_classifier.py` |
+| Unit: LangChainProvider | 100% | 205 | `test_langchain_provider.py` |
+| Unit: LangChainTools | 100% | 205 | `test_langchain_tools.py` |
+| Unit: ReflectionGraph | 100% | 206 | `test_reflection_graph.py` |
+| Unit: WorkflowResumer | 100% | 206 | `test_workflow_resumer.py` |
 
 ---
 
@@ -304,11 +308,89 @@ python -m pytest backend/tests/unit/ -k "query_classifier" -v
 
 # Sprint 179 — All new tests
 python -m pytest backend/tests/unit/ -k "scrubber or compactor or classifier" -v
+
+# Sprint 205 — LangChain provider tests (ADR-066)
+LANGCHAIN_ENABLED=true \
+  python -m pytest backend/tests/unit/test_langchain_provider.py -v
+LANGCHAIN_ENABLED=true \
+  python -m pytest backend/tests/unit/test_langchain_tools.py -v
+
+# Sprint 206 — LangGraph workflow tests (ADR-066)
+python -m pytest backend/tests/unit/test_reflection_graph.py -v
+python -m pytest backend/tests/unit/test_workflow_resumer.py -v
+python -m pytest backend/tests/unit/ -k "idempotency" -v
 ```
 
 ---
 
-## 15. Exit Criteria
+## 16. Unit Tests — LangChainProvider (Sprint 205, ADR-066)
+
+| # | Test Case | Input | Expected | Reference |
+|---|-----------|-------|----------|-----------|
+| LC-01 | Provider dispatches from _call_provider | `provider="langchain"` | Calls `_call_langchain()` | ADR-066 §2.2 |
+| LC-02 | Feature flag disabled | `LANGCHAIN_ENABLED=false` | `AgentInvokerError` raised | FR-045 §2.2 |
+| LC-03 | Optional dependency guard | Import without langchain pkgs | `_LANGCHAIN_AVAILABLE=False`, no crash | FR-045 §2.3 |
+| LC-04 | ChatOllama wrapper | `model="qwen3-coder:30b"` | Valid `InvocationResult` | FR-045 §2.4 |
+| LC-05 | ChatAnthropic wrapper | `model="claude-sonnet"` | Valid `InvocationResult` | FR-045 §2.5 |
+| LC-06 | Structured output | Pydantic schema passed | Validated Pydantic instance | FR-045 §2.6 |
+| LC-07 | Tool binding + authorization | Tools bound via `bind_tools` | `authorize_tool_call()` checked | FR-045 §2.7 |
+| LC-08 | Token counting callback | After invocation | `input_tokens` + `output_tokens` set | FR-045 §2.8 |
+| LC-09 | LangChain exception mapping | `AuthenticationError` | Classified as `auth` (ABORT) | FR-045 §2.9 |
+| LC-10 | Unauthorized tool call | Tool not in `allowed_tools` | `PermissionDenied` raised | FR-045 §2.10 |
+
+---
+
+## 17. Unit Tests — LangChainTools (Sprint 205, ADR-066)
+
+| # | Test Case | Input | Expected | Reference |
+|---|-----------|-------|----------|-----------|
+| LT-01 | gate_status tool | Gate ID | `GateStatusResult` Pydantic | FR-045 §3.1 |
+| LT-02 | submit_evidence tool | Evidence payload | `EvidenceSubmitResult` Pydantic | FR-045 §3.1 |
+| LT-03 | read_file tool auth check | File path + agent config | `authorize_tool_call()` called | FR-045 §3.2 |
+| LT-04 | Tool without permission | Denied tool invoked | `PermissionDenied` raised | FR-045 §3.2 |
+| LT-05 | All 5 tools have output schema | Registry inspection | All tools have Pydantic schema | FR-045 §3.1 |
+
+---
+
+## 18. Unit Tests — ReflectionGraph (Sprint 206, ADR-066)
+
+| # | Test Case | Input | Expected | Reference |
+|---|-----------|-------|----------|-----------|
+| RG-01 | Pass on first iteration | Reviewer approves | Status `completed`, iteration=1 | FR-046 §2.4 |
+| RG-02 | Reject and retry | Reviewer rejects once | Iteration=2, coder re-executes | FR-046 §2.4 |
+| RG-03 | Max iterations reached | 3 rejections | Status `failed` | FR-046 §2.4 |
+| RG-04 | enqueue_async non-blocking | Node dispatches to lane | Returns immediately, no sync wait | D-066-03 |
+| RG-05 | Checkpoint saved | After enqueue_async | `WorkflowMetadata` in metadata_ JSONB | D-066-02 |
+| RG-06 | Pydantic validation | Invalid metadata_ content | Validation error raised | D-066-02 |
+| RG-07 | JSONB 64KB limit | Oversized state | Error before write | D-066-02 |
+
+---
+
+## 19. Unit Tests — WorkflowResumer (Sprint 206, ADR-066)
+
+| # | Test Case | Input | Expected | Reference |
+|---|-----------|-------|----------|-----------|
+| WR-01 | Pub/sub fast path | Redis message received | Workflow resumed within 1s | D-066-05 |
+| WR-02 | Reconciler fallback | No pub/sub for 30s | Reconciler picks up workflow | D-066-05 |
+| WR-03 | Stuck detection | Workflow waiting >5min | Auto-resumed | D-066-05 |
+| WR-04 | OCC concurrent resume | Two resumes same version | 1 succeeds, 1 no-op | D-066-02 |
+| WR-05 | Single instance enforced | docker-compose config | `replicas: 1` verified | D-066-05 |
+
+---
+
+## 20. Unit Tests — Idempotency (Sprint 206, ADR-066)
+
+| # | Test Case | Input | Expected | Reference |
+|---|-----------|-------|----------|-----------|
+| ID-01 | Workflow step duplicate | Same (workflow_id, step_id) | Second execution is no-op | D-066-06 |
+| ID-02 | Message enqueue duplicate | Same idempotency_key | Returns existing message_id | D-066-06 |
+| ID-03 | Control plane header | Same X-Idempotency-Key | Cached response returned (Redis 1hr TTL) | D-066-06 |
+| CP-01 | Decision node refreshes truth | Decision node executes | GET /gates/{id}/actions called | D-066-01 |
+| CP-02 | LangGraph state is DRAFT | Workflow running | Postgres is TRUTH, not LangGraph state | D-066-01 |
+
+---
+
+## 21. Exit Criteria
 
 | Criterion | Target | Measurement |
 |-----------|--------|-------------|
@@ -325,4 +407,9 @@ python -m pytest backend/tests/unit/ -k "scrubber or compactor or classifier" -v
 | All ES tests pass | 6/6 | EnvScrubber test suite (Sprint 179) |
 | All HC tests pass | 10/10 | HistoryCompactor test suite (Sprint 179) |
 | All QC tests pass | 8/8 | QueryClassifier test suite (Sprint 179) |
+| All LC tests pass | 10/10 | LangChainProvider test suite (Sprint 205) |
+| All LT tests pass | 5/5 | LangChainTools test suite (Sprint 205) |
+| All RG tests pass | 7/7 | ReflectionGraph test suite (Sprint 206) |
+| All WR tests pass | 5/5 | WorkflowResumer test suite (Sprint 206) |
+| All ID+CP tests pass | 5/5 | Idempotency + ControlPlane test suite (Sprint 206) |
 | Zero P0 bugs | 0 | No test failures in CI |

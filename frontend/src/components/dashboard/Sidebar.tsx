@@ -31,6 +31,7 @@ const CORE_ADMIN_HREFS = new Set([
   "/app/gates",        // 2. Gates
   "/app/evidence",     // 3. Evidence
   "/app/policies",
+  "/app/ott-gateway",  // Sprint 198: OTT Gateway Dashboard (admin monitoring)
 ]);
 
 // Navigation items configuration - Updated for /app/* routes (Sprint 85)
@@ -76,6 +77,12 @@ const navigationItems = [
     name: "Policies",
     href: "/app/policies",
     icon: DocumentTextIcon,
+  },
+  // Sprint 198: OTT Gateway Dashboard (admin monitoring)
+  {
+    name: "OTT Gateway",
+    href: "/app/ott-gateway",
+    icon: SignalIcon,
   },
   // Sprint 152: Context Authority (SSOT Dashboard)
   {
@@ -397,6 +404,15 @@ function ChartBarIcon({ className }: { className?: string }) {
 }
 
 // Sprint 175: MCP Analytics icon (CPU chip)
+// Sprint 198: OTT Gateway icon (signal/antenna)
+function SignalIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.348 14.652a3.75 3.75 0 0 1 0-5.304m5.304 0a3.75 3.75 0 0 1 0 5.304m-7.425 2.121a6.75 6.75 0 0 1 0-9.546m9.546 0a6.75 6.75 0 0 1 0 9.546M5.106 18.894c-3.808-3.807-3.808-9.98 0-13.788m13.788 0c3.808 3.807 3.808 9.98 0 13.788M12 12h.008v.008H12V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+    </svg>
+  );
+}
+
 function CpuChipIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">

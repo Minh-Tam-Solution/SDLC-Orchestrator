@@ -1,8 +1,8 @@
 ---
-sdlc_version: "6.1.0"
+sdlc_version: "6.1.1"
 document_type: "Security Threat Model"
 status: "PROPOSED"
-sprint: "176-179"
+sprint: "176-206"
 spec_id: "STM-056"
 tier: "PROFESSIONAL"
 stage: "02 - Design"
@@ -10,17 +10,17 @@ stage: "02 - Design"
 
 # Multi-Agent Team Engine — Security Threat Model
 
-**Status**: PROPOSED (Sprint 176-179, companion to ADR-056 + ADR-058)
+**Status**: PROPOSED (Sprint 176-206, companion to ADR-056 + ADR-058 + ADR-066)
 **Date**: February 2026
 **Author**: CTO Nguyen Quoc Huy
-**Framework**: SDLC 6.1.0, OWASP ASVS Level 2
-**References**: ADR-056, ADR-058, OpenClaw security audit (Pattern 8), Nanobot shell guard (Pattern N6), ZeroClaw `scrub_credentials()` + `env_clear()`
+**Framework**: SDLC 6.1.1, OWASP ASVS Level 2
+**References**: ADR-056, ADR-058, ADR-066 (LangChain, 6 locked decisions), OpenClaw security audit (Pattern 8), Nanobot shell guard (Pattern N6), ZeroClaw `scrub_credentials()` + `env_clear()`
 
 ---
 
 ## 1. Attack Surface Summary
 
-The Multi-Agent Team Engine introduces 13 attack surfaces not present in the current Orchestrator:
+The Multi-Agent Team Engine introduces 16 attack surfaces not present in the current Orchestrator:
 
 | # | Surface | Entry Point | Risk Level |
 |---|---------|------------|------------|
@@ -37,6 +37,9 @@ The Multi-Agent Team Engine introduces 13 attack surfaces not present in the cur
 | T11 | Credential Leakage in Tool Output | Agent runs `env`/`printenv` → secrets in agent_messages | **HIGH** |
 | T12 | Environment Variable Exposure | Shell tool inherits host env vars (API keys, secrets) | **HIGH** |
 | T13 | History Context Overflow | Long conversations exceed LLM context window → degraded output | MEDIUM |
+| T14 | LangChain Tool Auth Bypass | LangChain StructuredTool bypasses RBAC checks | **HIGH** |
+| T15 | Workflow State Corruption | Concurrent workflow resume corrupts metadata_ JSONB | **HIGH** |
+| T16 | Missed Pub/Sub Events | Redis pub/sub message loss causes workflow stall | MEDIUM |
 
 ---
 
@@ -224,6 +227,44 @@ The Multi-Agent Team Engine introduces 13 attack surfaces not present in the cur
 
 **Residual Risk**: LOW with auto-compaction + deterministic fallback
 
+### T14: LangChain Tool Auth Bypass (Sprint 205 — ADR-066)
+
+**Threat**: LangChain `StructuredTool` wrappers bypass the existing RBAC and tool permission system (`allowed_tools`/`denied_tools` in agent_definitions). Attacker crafts a prompt that triggers tool execution through LangChain's `bind_tools()` without authorization check (CWE-862).
+
+**Mitigation** (ADR-066, FR-045 §2.10):
+- `authorize_tool_call(tool_name, agent_config)` centralized guard in `tool_context.py`
+- ALL LangChain StructuredTool `_run()` methods call `authorize_tool_call()` before execution
+- Check `allowed_tools` and `denied_tools` from agent definition snapshot
+- Unauthorized calls raise `PermissionDenied` without executing the tool
+- All authorization checks logged with `correlation_id`
+
+**Residual Risk**: LOW with centralized guard on every tool invocation
+
+### T15: Workflow State Corruption (Sprint 206 — ADR-066 D-066-02)
+
+**Threat**: Two WorkflowResumer instances (or a race condition) concurrently resume the same workflow, writing conflicting state to `agent_conversations.metadata_` JSONB. Results in skipped steps, duplicate processing, or corrupted workflow state.
+
+**Mitigation** (ADR-066 D-066-02, D-066-05):
+- OCC (Optimistic Concurrency Control): `version` field in `WorkflowMetadata`, atomically incremented
+- `UPDATE ... WHERE version = N` — concurrent resume: first succeeds (version → N+1), second gets 0 rows → no-op
+- WorkflowResumer runs as single instance (`replicas: 1` in docker-compose)
+- Pydantic validation on all `metadata_` reads/writes (schema integrity)
+- 64KB JSONB size limit enforced before write (prevents bloat)
+
+**Residual Risk**: LOW with OCC + single instance + Pydantic validation
+
+### T16: Missed Pub/Sub Events (Sprint 206 — ADR-066 D-066-05)
+
+**Threat**: Redis pub/sub is not durable. If WorkflowResumer is restarting or disconnected when a lane completion event fires, the workflow remains in `waiting` status indefinitely, blocking agent work.
+
+**Mitigation** (ADR-066 D-066-05):
+- Dual-path design: pub/sub (fast path) + reconciler polling every 30s (durable fallback)
+- Reconciler queries: `SELECT * FROM agent_conversations WHERE metadata_->>'status' = 'waiting' AND metadata_->>'next_wakeup_at' <= NOW()`
+- Stuck detection: workflows in `waiting` for >5 minutes auto-resumed
+- Health check endpoint for WorkflowResumer Docker service
+
+**Residual Risk**: LOW with reconciler polling as durable fallback (max 30s delay)
+
 ---
 
 ## 3. Risk Matrix
@@ -243,6 +284,9 @@ The Multi-Agent Team Engine introduces 13 attack surfaces not present in the cur
 | T11: Credential Leakage | High | High | **HIGH** | ADR-058 OutputScrubber (6 patterns) |
 | T12: Env Variable Exposure | Medium | High | **HIGH** | ADR-058 ShellGuard.scrub_environment() |
 | T13: History Overflow | Medium | Medium | MEDIUM | ADR-058 HistoryCompactor (auto-summarize) |
+| T14: LangChain Tool Auth Bypass | Medium | High | **HIGH** | ADR-066 `authorize_tool_call()` guard |
+| T15: Workflow State Corruption | Low | High | **HIGH** | ADR-066 OCC version + single instance |
+| T16: Missed Pub/Sub Events | Medium | Medium | MEDIUM | ADR-066 Reconciler polling 30s fallback |
 
 ---
 
@@ -252,11 +296,12 @@ The Multi-Agent Team Engine introduces 13 attack surfaces not present in the cur
 |------------------------|----------------|------------|
 | V2.1 Password Security | T1 | External identity verification |
 | V4.1 Access Control | T1, T6 | Scope-based auth, admin-only replay |
-| V5.1 Input Validation | T4, T9, T11 | InputSanitizer + ShellGuard + OutputScrubber |
+| V5.1 Input Validation | T4, T9, T11, T14 | InputSanitizer + ShellGuard + OutputScrubber + authorize_tool_call |
 | V8.1 Data Protection | T3 | Budget circuit breaker (financial data) |
 | V11.1 Business Logic | T2, T10 | Loop guards + delegation depth |
 | V5.5 Output Encoding | T11, T12 | OutputScrubber + env scrubbing (CWE-200) |
-| V13.1 API Security | T5, T7 | Rate limiting + dedupe design |
+| V13.1 API Security | T5, T7, T16 | Rate limiting + dedupe design + reconciler fallback |
+| V11.1 Business Logic | T2, T10, T15 | Loop guards + delegation depth + OCC version |
 
 ---
 
@@ -276,6 +321,10 @@ The Multi-Agent Team Engine introduces 13 attack surfaces not present in the cur
 | OTT unverified sender | `agent_registry.py` | INFO (queue for pairing) |
 | Credential scrubbed from output | `output_scrubber.py` | WARNING (log pattern names) |
 | History compaction triggered | `history_compactor.py` | INFO (conversation approaching limit) |
+| LangChain tool auth denied | `tool_context.py` | WARNING (unauthorized tool call attempt) |
+| Workflow OCC conflict | `workflow_resumer.py` | INFO (concurrent resume, 1 no-op) |
+| Workflow stuck detected | `workflow_resumer.py` | WARNING (>5min in waiting status) |
+| Workflow pub/sub miss recovered | `workflow_resumer.py` | INFO (reconciler picked up missed event) |
 
 ### 3 Minimum Viable Traces (Non-Negotiable)
 

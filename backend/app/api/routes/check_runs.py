@@ -156,8 +156,9 @@ async def list_check_runs(
     except Exception as e:
         logger.error(f"Error listing check runs: {e}", exc_info=True)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to list check runs: {str(e)}",
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Check run service temporarily unavailable",
+            headers={"Retry-After": "30"},
         )
 
 
@@ -213,8 +214,9 @@ async def get_check_run_stats(
     except Exception as e:
         logger.error(f"Error getting check run stats: {e}", exc_info=True)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get check run stats: {str(e)}",
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Check run service temporarily unavailable",
+            headers={"Retry-After": "30"},
         )
 
 
@@ -253,8 +255,9 @@ async def get_check_run(
     except Exception as e:
         logger.error(f"Error getting check run: {e}", exc_info=True)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get check run: {str(e)}",
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Check run service temporarily unavailable",
+            headers={"Retry-After": "30"},
         )
 
 
@@ -295,8 +298,9 @@ async def rerun_check_run(
     except Exception as e:
         logger.error(f"Error rerunning check run: {e}", exc_info=True)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to rerun check run: {str(e)}",
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Check run service temporarily unavailable",
+            headers={"Retry-After": "30"},
         )
 
 

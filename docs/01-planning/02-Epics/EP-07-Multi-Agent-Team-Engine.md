@@ -1,8 +1,8 @@
 ---
-sdlc_version: "6.1.0"
+sdlc_version: "6.1.1"
 document_type: "Epic"
 status: "PROPOSED"
-sprint: "176-179"
+sprint: "176-206"
 spec_id: "EP-07"
 tier: "PROFESSIONAL"
 stage: "01 - Planning"
@@ -14,16 +14,16 @@ stage: "01 - Planning"
 |-------|-------|
 | **Epic ID** | EP-07 |
 | **Title** | Multi-Agent Team Engine |
-| **Status** | PROPOSED — Sprint 176 Design |
+| **Status** | PROPOSED — Sprint 176 Design, Sprint 205-206 LangChain Extension |
 | **Priority** | **P0** (blocks EP-06 Autonomous Codegen) |
 | **Owner** | CTO / Platform Team |
 | **Created** | 2026-02-17 |
-| **Updated** | 2026-02-19 |
-| **SDLC Version** | 6.1.0 |
+| **Updated** | 2026-02-24 |
+| **SDLC Version** | 6.1.1 |
 | **Stage** | 01-planning |
-| **Timeline** | Sprint 176–179 (Feb–Apr 2026) |
-| **Investment** | ~$14,400 |
-| **ADR** | ADR-056 (4 locked decisions, 14 non-negotiables), ADR-058 (ZeroClaw patterns) |
+| **Timeline** | Sprint 176–179 (Core) + Sprint 205–206 (LangChain Extension) |
+| **Investment** | ~$14,400 (Core) + ~$10,000 (LangChain Extension) = ~$24,400 |
+| **ADR** | ADR-056 (4 locked decisions, 14 non-negotiables), ADR-058 (ZeroClaw patterns), ADR-066 (LangChain Multi-Agent Orchestration, 6 locked decisions) |
 
 ---
 
@@ -85,6 +85,30 @@ Build foundational multi-agent infrastructure for SDLC Orchestrator by absorbing
 | Discord Plugin | Discord channel integration | 180 |
 | WhatsApp/Zalo Plugins | Vietnamese market channels | 181-182 |
 | Team Visualizer | Agent collaboration dashboard | 181 |
+
+### 3.5 Phase 3 — LangChain Provider Plugin (Sprint 205, ADR-066)
+
+| Deliverable | Description | Sprint |
+|------------|-------------|--------|
+| `langchain_provider.py` | ChatOllama/Anthropic/OpenAI wrapper with Optional Dependency Guard | 205 |
+| `langchain_tool_registry.py` | 5 StructuredTools + `authorize_tool_call()` guard | 205 |
+| `_call_langchain()` branch | New provider branch in `agent_invoker.py._call_provider()` | 205 |
+| LangChain exception mapping | Map LangChain errors to 6 failover reasons in `failover_classifier.py` | 205 |
+| Feature flag | `LANGCHAIN_ENABLED` + `LANGCHAIN_DEFAULT_MODEL` in config.py | 205 |
+| Unit tests | 15 test cases (LC-01 to LC-10, LT-01 to LT-05) | 205 |
+
+### 3.6 Phase 4 — LangGraph Durable Workflows (Sprint 206, ADR-066)
+
+| Deliverable | Description | Sprint |
+|------------|-------------|--------|
+| `workflows/reflection_graph.py` | Async StateGraph: Coder -> Reviewer -> Decision (max 3 iterations) | 206 |
+| `workflows/graph_state.py` | WorkflowMetadata Pydantic model + OCC version | 206 |
+| `workflow_resumer.py` | Separate Docker service: pub/sub (fast) + reconciler 30s (fallback) | 206 |
+| `routes/workflows.py` | POST /reflection, GET /status, POST /approve | 206 |
+| Alembic migration | Partial index on metadata_ JSONB for workflow queries | 206 |
+| `enqueue_async()` | Non-blocking lane dispatch in `team_orchestrator.py` | 206 |
+| End-to-end idempotency | 3 layers: workflow step + message enqueue + control plane header | 206 |
+| Unit tests | 17 test cases (RG-01 to RG-07, WR-01 to WR-05, ID-01 to ID-03, CP-01 to CP-02) | 206 |
 
 ---
 
@@ -282,13 +306,18 @@ Stores messages with lane contract + dead-letter fields.
 | Document | Location | Status |
 |----------|----------|--------|
 | ADR-056 | `docs/02-design/01-ADRs/ADR-056-Multi-Agent-Team-Engine.md` | PROPOSED |
+| ADR-058 | `docs/02-design/01-ADRs/ADR-058-ZeroClaw-Best-Practice-Adoption.md` | PROPOSED |
+| ADR-066 | `docs/02-design/01-ADRs/ADR-066-LangChain-Multi-Agent-Orchestration.md` | PROPOSED |
 | Security Threat Model | `docs/02-design/07-Security-Design/Multi-Agent-Security-Threat-Model.md` | PROPOSED |
 | Test Plan | `docs/02-design/13-Testing-Strategy/Multi-Agent-Test-Plan.md` | PROPOSED |
 | Business Case | `docs/00-foundation/02-Business-Case/Multi-Agent-Team-Engine-Business-Case.md` | PROPOSED |
 | Pydantic Schemas | `backend/app/schemas/agent_team.py` | IMPLEMENTED |
 | Design Contracts | `backend/app/services/agent_team/` | IMPLEMENTED |
-| ADR-058 | `docs/02-design/01-ADRs/ADR-058-ZeroClaw-Best-Practice-Adoption.md` | PROPOSED |
 | FR-042 | `docs/01-planning/03-Functional-Requirements/FR-042-Output-Credential-Scrubbing.md` | PROPOSED |
 | FR-043 | `docs/01-planning/03-Functional-Requirements/FR-043-Environment-Variable-Scrubbing.md` | PROPOSED |
 | FR-044 | `docs/01-planning/03-Functional-Requirements/FR-044-History-Compaction.md` | PROPOSED |
+| FR-045 | `docs/01-planning/03-Functional-Requirements/FR-045-LangChain-Provider-Plugin.md` | PROPOSED |
+| FR-046 | `docs/01-planning/03-Functional-Requirements/FR-046-LangGraph-Reflection-Workflow.md` | PROPOSED |
 | Sprint 179 Plan | `docs/04-build/02-Sprint-Plans/SPRINT-179-ZEROCLAW-HARDENING.md` | PROPOSED |
+| Sprint 205 Plan | `docs/04-build/02-Sprint-Plans/SPRINT-205-LANGCHAIN-PROVIDER.md` | PROPOSED |
+| Sprint 206 Plan | `docs/04-build/02-Sprint-Plans/SPRINT-206-LANGGRAPH-WORKFLOWS.md` | PROPOSED |

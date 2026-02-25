@@ -1,0 +1,13 @@
+id: "gate_status_01"
+tool_name: "get_gate_status"
+prompt: "What is the gate status for project Alpha?"
+expected_behavior: >
+  Returns the current quality gate status for the specified project,
+  including gate type (G1/G2/G3/G4), overall status (DRAFT/EVALUATED/
+  SUBMITTED/APPROVED/REJECTED), completion percentage, and any blocking
+  items. Must NOT expose internal database IDs or credentials.
+ground_truth: null
+tags:
+  - governance
+  - gate
+  - read-only

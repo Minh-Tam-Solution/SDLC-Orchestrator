@@ -47,6 +47,8 @@ SUPPORTED_CHANNELS: frozenset[str] = frozenset({"telegram", "zalo", "teams", "sl
 # HMAC verification enabled via env var. Default: false in dev/test.
 _HMAC_ENABLED: bool = os.getenv("OTT_HMAC_ENABLED", "false").lower() == "true"
 _TELEGRAM_SECRET: str = os.getenv("TELEGRAM_WEBHOOK_SECRET", "")
+# Sprint 198: Bot token for bidirectional AI replies (sendMessage API)
+_TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
 _SLACK_SIGNING_SECRET: str = os.getenv("SLACK_SIGNING_SECRET", "")
 # Sprint 192 — CTO P1-2: Zalo uses os.getenv() pattern (matches Slack/Telegram)
 _ZALO_APP_SECRET: str = os.getenv("ZALO_APP_SECRET", "")
@@ -337,6 +339,46 @@ async def receive_webhook(
         msg.correlation_id,
         msg.sender_id,
     )
+
+    # ── Sprint 198: Telegram bidirectional response ──
+    # Fire-and-forget: send reply AFTER returning 200 to Telegram.
+    # Non-blocking — failure does not affect webhook acknowledgment.
+    #
+    # Routing: /command messages → telegram_responder (static replies)
+    #          free-text messages → ai_response_handler (Ollama AI reply)
+    #
+    # The responder returns True if a command was handled. If False (not a
+    # command), the AI handler picks up for bidirectional conversation.
+    if channel == "telegram":
+        import asyncio
+        from app.services.agent_bridge.telegram_responder import handle_telegram_auto_reply
+        from app.services.agent_bridge.ai_response_handler import handle_ai_response
+
+        async def _telegram_dispatch() -> None:
+            """Route Telegram message: commands → responder, free text → AI."""
+            handled = await handle_telegram_auto_reply(raw_body)
+            if not handled:
+                await handle_ai_response(raw_body, _TELEGRAM_BOT_TOKEN)
+
+        asyncio.ensure_future(_telegram_dispatch())
+
+    # ── Sprint 200 C-01: Zalo bidirectional response ──
+    # Same fire-and-forget pattern as Telegram. Zalo uses OAuth access token
+    # instead of bot token, so we pass the sender_id directly.
+    if channel == "zalo":
+        import asyncio
+        from app.services.agent_bridge.zalo_responder import handle_zalo_auto_reply
+        from app.services.agent_bridge.ai_response_handler import handle_ai_response
+
+        _zalo_sender_id = raw_body.get("sender", {}).get("id", "")
+
+        async def _zalo_dispatch() -> None:
+            """Route Zalo message: commands → zalo_responder, free text → AI."""
+            handled = await handle_zalo_auto_reply(raw_body)
+            if not handled:
+                await handle_ai_response(raw_body, "", channel="zalo")
+
+        asyncio.ensure_future(_zalo_dispatch())
 
     return JSONResponse(
         content={"status": "accepted", "correlation_id": msg.correlation_id},

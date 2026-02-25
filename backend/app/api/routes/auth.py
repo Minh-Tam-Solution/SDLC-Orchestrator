@@ -38,12 +38,14 @@ Zero Mock Policy: Production-ready authentication implementation
 =========================================================================
 """
 
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response, status
 from sqlalchemy import select, update
+from sqlalchemy.exc import OperationalError as SQLAlchemyOperationalError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_active_user, get_current_user
@@ -85,6 +87,8 @@ from app.schemas.auth import (
     VerifyResetTokenResponse,
 )
 from app.services.audit_service import AuditAction, AuditService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -145,63 +149,72 @@ async def register(
     from app.utils.password_validator import validate_password_strength
     await validate_password_strength(register_data.password, settings_service)
 
-    # Check if email already exists
-    result = await db.execute(select(User).where(User.email == email))
-    existing_user = result.scalar_one_or_none()
+    try:
+        # Check if email already exists
+        result = await db.execute(select(User).where(User.email == email))
+        existing_user = result.scalar_one_or_none()
 
-    if existing_user:
-        # Audit failed registration attempt
+        if existing_user:
+            # Audit failed registration attempt
+            await audit_service.log(
+                action=AuditAction.USER_LOGIN_FAILED,  # Reusing existing action type
+                details={
+                    "email": email,
+                    "failure_reason": "email_already_registered",
+                    "action": "registration",
+                },
+                request=request,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered",
+            )
+
+        # Hash password with bcrypt (CPU-intensive — run in threadpool to avoid blocking)
+        from starlette.concurrency import run_in_threadpool
+        password_hash = await run_in_threadpool(get_password_hash, register_data.password)
+
+        # Create new user
+        new_user = User(
+            email=email,
+            password_hash=password_hash,
+            full_name=register_data.full_name,
+            is_active=True,  # No email verification in V1
+        )
+        db.add(new_user)
+
+        await db.commit()
+        await db.refresh(new_user)
+
+        # Audit successful registration
         await audit_service.log(
-            action=AuditAction.USER_LOGIN_FAILED,  # Reusing existing action type
+            action=AuditAction.USER_CREATED,
+            user_id=new_user.id,
+            resource_type="user",
+            resource_id=new_user.id,
             details={
-                "email": email,
-                "failure_reason": "email_already_registered",
-                "action": "registration",
+                "email": new_user.email,
+                "registration_method": "email",
             },
             request=request,
         )
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered",
+
+        return RegisterResponse(
+            id=new_user.id,
+            email=new_user.email,
+            full_name=new_user.full_name,
+            role=new_user.role,
+            is_active=new_user.is_active,
+            created_at=new_user.created_at,
+            message="Registration successful. You can now login.",
         )
-
-    # Hash password with bcrypt
-    password_hash = get_password_hash(register_data.password)
-
-    # Create new user
-    new_user = User(
-        email=email,
-        password_hash=password_hash,
-        full_name=register_data.full_name,
-        is_active=True,  # No email verification in V1
-    )
-    db.add(new_user)
-
-    await db.commit()
-    await db.refresh(new_user)
-
-    # Audit successful registration
-    await audit_service.log(
-        action=AuditAction.USER_CREATED,
-        user_id=new_user.id,
-        resource_type="user",
-        resource_id=new_user.id,
-        details={
-            "email": new_user.email,
-            "registration_method": "email",
-        },
-        request=request,
-    )
-
-    return RegisterResponse(
-        id=new_user.id,
-        email=new_user.email,
-        full_name=new_user.full_name,
-        role=new_user.role,
-        is_active=new_user.is_active,
-        created_at=new_user.created_at,
-        message="Registration successful. You can now login.",
-    )
+    except SQLAlchemyOperationalError as exc:
+        logger.error("Database unavailable in register: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database temporarily unavailable",
+            headers={"Retry-After": "30"},
+        )
 
 
 @router.post("/login", response_model=TokenResponse, status_code=status.HTTP_200_OK)
@@ -250,53 +263,16 @@ async def login(
     # Initialize audit service
     audit_service = AuditService(db)
 
-    # Find user by email
-    result = await db.execute(select(User).where(User.email == login_data.email))
-    user = result.scalar_one_or_none()
+    try:
+        # Find user by email
+        result = await db.execute(select(User).where(User.email == login_data.email))
+        user = result.scalar_one_or_none()
 
-    # ADR-027: Check if account is locked (max_login_attempts)
-    if user and user.locked_until:
-        # Check if lockout period has expired (30 minutes auto-unlock)
-        if datetime.now(timezone.utc) < user.locked_until:
-            # Still locked - reject login
-            await audit_service.log(
-                action=AuditAction.USER_LOGIN_FAILED,
-                user_id=user.id,
-                resource_type="user",
-                resource_id=user.id,
-                details={
-                    "email": login_data.email,
-                    "failure_reason": "account_locked",
-                    "locked_until": user.locked_until.isoformat(),
-                },
-                request=request,
-            )
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Account locked due to too many failed login attempts. Try again after {user.locked_until.strftime('%Y-%m-%d %H:%M:%S UTC')}",
-            )
-        else:
-            # Lockout expired - auto-unlock account
-            user.failed_login_count = 0
-            user.locked_until = None
-            await db.commit()
-
-    # Verify user exists and password is correct
-    if not user or not verify_password(login_data.password, user.password_hash):
-        # ADR-027: Increment failed login counter if user exists
-        if user:
-            # Get max_login_attempts from settings (default: 5)
-            max_attempts = await settings_service.get_max_login_attempts()
-
-            user.failed_login_count += 1
-
-            # Check if max attempts reached
-            if user.failed_login_count >= max_attempts:
-                # Lock account for 30 minutes
-                user.locked_until = datetime.now(timezone.utc) + timedelta(minutes=30)
-                await db.commit()
-
-                # Audit account lockout
+        # ADR-027: Check if account is locked (max_login_attempts)
+        if user and user.locked_until:
+            # Check if lockout period has expired (30 minutes auto-unlock)
+            if datetime.now(timezone.utc) < user.locked_until:
+                # Still locked - reject login
                 await audit_service.log(
                     action=AuditAction.USER_LOGIN_FAILED,
                     user_id=user.id,
@@ -304,101 +280,147 @@ async def login(
                     resource_id=user.id,
                     details={
                         "email": login_data.email,
-                        "failure_reason": "max_attempts_exceeded",
-                        "failed_login_count": user.failed_login_count,
+                        "failure_reason": "account_locked",
                         "locked_until": user.locked_until.isoformat(),
                     },
                     request=request,
                 )
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"Account locked due to {max_attempts} failed login attempts. Try again after 30 minutes.",
+                    detail=f"Account locked due to too many failed login attempts. Try again after {user.locked_until.strftime('%Y-%m-%d %H:%M:%S UTC')}",
                 )
             else:
-                # Not locked yet, just increment counter
+                # Lockout expired - auto-unlock account
+                user.failed_login_count = 0
+                user.locked_until = None
                 await db.commit()
 
-        # Audit failed login attempt
-        await audit_service.log(
-            action=AuditAction.USER_LOGIN_FAILED,
-            details={
-                "email": login_data.email,
-                "failure_reason": "invalid_credentials",
-            },
-            request=request,
-        )
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-        )
+        # Verify user exists and password is correct (bcrypt is CPU-intensive)
+        from starlette.concurrency import run_in_threadpool
+        if not user or not await run_in_threadpool(verify_password, login_data.password, user.password_hash):
+            # ADR-027: Increment failed login counter if user exists
+            if user:
+                # Get max_login_attempts from settings (default: 5)
+                max_attempts = await settings_service.get_max_login_attempts()
 
-    # Check if user is active
-    if not user.is_active:
-        # Audit failed login (inactive account)
+                user.failed_login_count += 1
+
+                # Check if max attempts reached
+                if user.failed_login_count >= max_attempts:
+                    # Lock account for 30 minutes
+                    user.locked_until = datetime.now(timezone.utc) + timedelta(minutes=30)
+                    await db.commit()
+
+                    # Audit account lockout
+                    await audit_service.log(
+                        action=AuditAction.USER_LOGIN_FAILED,
+                        user_id=user.id,
+                        resource_type="user",
+                        resource_id=user.id,
+                        details={
+                            "email": login_data.email,
+                            "failure_reason": "max_attempts_exceeded",
+                            "failed_login_count": user.failed_login_count,
+                            "locked_until": user.locked_until.isoformat(),
+                        },
+                        request=request,
+                    )
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail=f"Account locked due to {max_attempts} failed login attempts. Try again after 30 minutes.",
+                    )
+                else:
+                    # Not locked yet, just increment counter
+                    await db.commit()
+
+            # Audit failed login attempt
+            await audit_service.log(
+                action=AuditAction.USER_LOGIN_FAILED,
+                details={
+                    "email": login_data.email,
+                    "failure_reason": "invalid_credentials",
+                },
+                request=request,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect email or password",
+            )
+
+        # Check if user is active
+        if not user.is_active:
+            # Audit failed login (inactive account)
+            await audit_service.log(
+                action=AuditAction.USER_LOGIN_FAILED,
+                user_id=user.id,
+                resource_type="user",
+                resource_id=user.id,
+                details={
+                    "email": login_data.email,
+                    "failure_reason": "account_inactive",
+                },
+                request=request,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="User account is inactive",
+            )
+
+        # Generate JWT tokens (ADR-027: session_timeout from DB setting)
+        access_token = await create_access_token(
+            subject=str(user.id),
+            settings_service=settings_service
+        )
+        refresh_token = create_refresh_token(subject=str(user.id))
+
+        # Store refresh token in database (for revocation support)
+        # Hash the token with SHA-256 (64 chars) to fit database column
+        db_refresh_token = RefreshToken(
+            user_id=user.id,
+            token_hash=hash_api_key(refresh_token),  # SHA-256 hash (64 chars)
+            expires_at=datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+        )
+        db.add(db_refresh_token)
+
+        # Update last login timestamp
+        user.last_login = datetime.utcnow()
+
+        # ADR-027: Reset failed login counter on successful login
+        user.failed_login_count = 0
+        user.locked_until = None
+
+        await db.commit()
+
+        # Audit successful login
         await audit_service.log(
-            action=AuditAction.USER_LOGIN_FAILED,
+            action=AuditAction.USER_LOGIN,
             user_id=user.id,
             resource_type="user",
             resource_id=user.id,
             details={
-                "email": login_data.email,
-                "failure_reason": "account_inactive",
+                "email": user.email,
+                "login_method": "password",
             },
             request=request,
         )
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User account is inactive",
+
+        # Sprint 63: Set httpOnly cookies for XSS protection
+        set_auth_cookies(response, access_token, refresh_token)
+
+        # Return tokens in body for backward compatibility (Vite dashboard)
+        return TokenResponse(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_type="bearer",
+            expires_in=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
         )
-
-    # Generate JWT tokens (ADR-027: session_timeout from DB setting)
-    access_token = await create_access_token(
-        subject=str(user.id),
-        settings_service=settings_service
-    )
-    refresh_token = create_refresh_token(subject=str(user.id))
-
-    # Store refresh token in database (for revocation support)
-    # Hash the token with SHA-256 (64 chars) to fit database column
-    db_refresh_token = RefreshToken(
-        user_id=user.id,
-        token_hash=hash_api_key(refresh_token),  # SHA-256 hash (64 chars)
-        expires_at=datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
-    )
-    db.add(db_refresh_token)
-
-    # Update last login timestamp
-    user.last_login = datetime.utcnow()
-
-    # ADR-027: Reset failed login counter on successful login
-    user.failed_login_count = 0
-    user.locked_until = None
-
-    await db.commit()
-
-    # Audit successful login
-    await audit_service.log(
-        action=AuditAction.USER_LOGIN,
-        user_id=user.id,
-        resource_type="user",
-        resource_id=user.id,
-        details={
-            "email": user.email,
-            "login_method": "password",
-        },
-        request=request,
-    )
-
-    # Sprint 63: Set httpOnly cookies for XSS protection
-    set_auth_cookies(response, access_token, refresh_token)
-
-    # Return tokens in body for backward compatibility (Vite dashboard)
-    return TokenResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        token_type="bearer",
-        expires_in=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
-    )
+    except SQLAlchemyOperationalError as exc:
+        logger.error("Database unavailable in login: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database temporarily unavailable",
+            headers={"Retry-After": "30"},
+        )
 
 
 @router.post("/refresh", response_model=TokenResponse, status_code=status.HTTP_200_OK)
@@ -1113,9 +1135,15 @@ async def github_device_flow_init() -> dict:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         )
+    except (ConnectionError, OSError) as e:
+        logger.error("GitHub device flow service unavailable: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="GitHub OAuth service temporarily unavailable",
+            headers={"Retry-After": "30"},
+        )
     except Exception as e:
-        import logging
-        logging.error(f"GitHub device flow error: {e}")
+        logger.error("GitHub device flow error: %s", e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to initiate GitHub device flow",
@@ -1323,9 +1351,15 @@ async def github_device_flow_poll(
             detail=error_message,
         )
 
+    except (ConnectionError, OSError) as e:
+        logger.error("GitHub device token poll service unavailable: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service temporarily unavailable",
+            headers={"Retry-After": "30"},
+        )
     except Exception as e:
-        import logging
-        logging.error(f"GitHub device token poll error: {e}")
+        logger.error("GitHub device token poll error: %s", e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to process GitHub device authorization",
@@ -1467,8 +1501,6 @@ async def forgot_password(
 
     # Send password reset email in background thread (non-blocking)
     import threading
-    import logging
-    logger = logging.getLogger(__name__)
 
     # Capture values needed for email (avoid accessing db objects in thread)
     user_email = user.email
@@ -1684,85 +1716,94 @@ async def reset_password(
     # Hash the token to look up in database
     token_hash = hash_reset_token(reset_data.token)
 
-    # Find the reset token
-    result = await db.execute(
-        select(PasswordResetToken)
-        .where(PasswordResetToken.token_hash == token_hash)
-    )
-    reset_token = result.scalar_one_or_none()
+    try:
+        # Find the reset token
+        result = await db.execute(
+            select(PasswordResetToken)
+            .where(PasswordResetToken.token_hash == token_hash)
+        )
+        reset_token = result.scalar_one_or_none()
 
-    # Token not found
-    if not reset_token:
+        # Token not found
+        if not reset_token:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid or expired password reset token",
+            )
+
+        # Token already used
+        if reset_token.is_used:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password reset token has already been used",
+            )
+
+        # Token expired
+        if reset_token.is_expired:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password reset token has expired",
+            )
+
+        # Get user
+        result = await db.execute(select(User).where(User.id == reset_token.user_id))
+        user = result.scalar_one_or_none()
+
+        if not user or not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User account not found or inactive",
+            )
+
+        # Hash new password (CPU-intensive — run in threadpool to avoid blocking)
+        from starlette.concurrency import run_in_threadpool
+        new_password_hash = await run_in_threadpool(get_password_hash, reset_data.new_password)
+
+        # Update user password
+        user.password_hash = new_password_hash
+        user.updated_at = datetime.utcnow()
+
+        # Mark token as used (naive datetime to match column type)
+        reset_token.used_at = datetime.utcnow()
+
+        # Revoke all existing refresh tokens (security: logout all sessions)
+        await db.execute(
+            update(RefreshToken)
+            .where(
+                RefreshToken.user_id == user.id,
+                RefreshToken.is_revoked == False,
+            )
+            .values(is_revoked=True)
+        )
+
+        await db.commit()
+
+        # Audit successful password reset
+        await audit_service.log(
+            action=AuditAction.USER_UPDATED,
+            user_id=user.id,
+            resource_type="user",
+            resource_id=user.id,
+            details={
+                "email": user.email,
+                "action": "password_reset",
+                "token_id": str(reset_token.id),
+                "sessions_revoked": True,
+            },
+            request=request,
+        )
+
+        return ResetPasswordResponse(
+            message="Password has been reset successfully. You can now login with your new password.",
+            email=user.email,
+        )
+    except SQLAlchemyOperationalError as exc:
+        logger.error("Database unavailable in reset-password: %s", exc)
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid or expired password reset token",
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database temporarily unavailable",
+            headers={"Retry-After": "30"},
         )
-
-    # Token already used
-    if reset_token.is_used:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password reset token has already been used",
-        )
-
-    # Token expired
-    if reset_token.is_expired:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password reset token has expired",
-        )
-
-    # Get user
-    result = await db.execute(select(User).where(User.id == reset_token.user_id))
-    user = result.scalar_one_or_none()
-
-    if not user or not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User account not found or inactive",
-        )
-
-    # Hash new password
-    new_password_hash = get_password_hash(reset_data.new_password)
-
-    # Update user password
-    user.password_hash = new_password_hash
-    user.updated_at = datetime.utcnow()
-
-    # Mark token as used (naive datetime to match column type)
-    reset_token.used_at = datetime.utcnow()
-
-    # Revoke all existing refresh tokens (security: logout all sessions)
-    await db.execute(
-        update(RefreshToken)
-        .where(
-            RefreshToken.user_id == user.id,
-            RefreshToken.is_revoked == False,
-        )
-        .values(is_revoked=True)
-    )
-
-    await db.commit()
-
-    # Audit successful password reset
-    await audit_service.log(
-        action=AuditAction.USER_UPDATED,
-        user_id=user.id,
-        resource_type="user",
-        resource_id=user.id,
-        details={
-            "email": user.email,
-            "action": "password_reset",
-            "token_id": str(reset_token.id),
-            "sessions_revoked": True,
-        },
-        request=request,
-    )
-
-    return ResetPasswordResponse(
-        message="Password has been reset successfully. You can now login with your new password.",
-        email=user.email,
-    )
 
 
 async def _send_password_reset_email(user: User, token: str, request: Request) -> None:
@@ -1777,12 +1818,9 @@ async def _send_password_reset_email(user: User, token: str, request: Request) -
     Note:
         Uses SMTP if configured, otherwise logs the reset link.
     """
-    import logging
     import smtplib
     from email.mime.multipart import MIMEMultipart
     from email.mime.text import MIMEText
-
-    logger = logging.getLogger(__name__)
 
     # Build reset URL
     # Use frontend URL from settings or construct from request

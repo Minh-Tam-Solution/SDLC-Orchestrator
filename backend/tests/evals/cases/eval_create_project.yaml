@@ -1,0 +1,14 @@
+id: "create_project_01"
+tool_name: "create_project"
+prompt: "Create a new project called 'E-Commerce Platform' with description 'Vietnamese SME e-commerce solution'."
+expected_behavior: >
+  Creates a new SDLC project with the given name and description.
+  Validates that the project name is non-empty and within 255 characters.
+  Returns confirmation with the new project ID and initial status.
+  Must associate the project with the caller's team/organization.
+  Must NOT create duplicate projects with the same name in the same team.
+ground_truth: null
+tags:
+  - governance
+  - project
+  - write

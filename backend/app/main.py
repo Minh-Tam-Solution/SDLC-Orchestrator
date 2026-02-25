@@ -191,6 +191,7 @@ from app.api.routes import compliance_framework  # Sprint 181 - Compliance Frame
 from app.api.routes import invitations  # Sprint 181 - Team Invitations (ENTERPRISE, async-fixed)
 from app.api.routes import enterprise_sso  # Sprint 183 - Enterprise SSO (SAML 2.0 + Azure AD, ADR-061)
 from app.api.routes import jira_integration  # Sprint 184 - Jira Integration (PROFESSIONAL+, ADR-059)
+from app.api.routes import admin_ott  # Sprint 198 - OTT Gateway Admin Dashboard (ENTERPRISE)
 from app.api.v1.endpoints import cross_reference  # Sprint 139 - RFC-SDLC-602 E2E Cross-Reference Validation
 from app.api.v1.endpoints import e2e_testing  # Sprint 140 - RFC-SDLC-602 E2E Test Execution API
 
@@ -369,6 +370,13 @@ app.include_router(agent_team.router, prefix="/api/v1", tags=["Multi-Agent Team 
 # Sprint 181 — OTT Gateway + Orphaned Route Activation (ADR-059)
 # OTT Gateway: POST /channels/{channel}/webhook (Telegram + Zalo normalizers)
 app.include_router(ott_gateway.router, prefix="/api/v1", tags=["OTT Gateway"])  # Sprint 181 - OTT Gateway (Telegram + Zalo)
+# Sprint 199 — Magic Link OOB Auth callback (gate approvals via chat)
+from app.api.routes import magic_link  # noqa: E402
+app.include_router(magic_link.router, prefix="/api/v1", tags=["Magic Link"])  # Sprint 199 - Magic Link Verification (ADR-064 FR-047)
+# Sprint 198 — OTT Gateway Admin Dashboard (ENTERPRISE, admin-only)
+# Routes: /api/v1/admin/ott-channels/{stats,config,{channel}/health,{channel}/conversations}
+# Tier gate: /api/v1/admin → ENTERPRISE (tier=4) already in ROUTE_TIER_TABLE
+app.include_router(admin_ott.router, prefix="/api/v1", tags=["OTT Gateway Admin"])  # Sprint 198 - OTT Gateway Dashboard
 # Templates: CORE public endpoint (no auth, rate-limited by RateLimiterMiddleware)
 app.include_router(templates.router, prefix="/api/v1", tags=["Templates"])  # Sprint 181 - SDLC Templates (public CORE)
 # ENTERPRISE routes — HTTP 402 raised by require_enterprise_tier if tier < enterprise

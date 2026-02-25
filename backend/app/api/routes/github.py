@@ -668,13 +668,14 @@ async def handle_webhook(
         process_webhook,
     )
 
-    # Get webhook secret
+    # Get webhook secret — Sprint 198 CF-01: return 503 (not 500) for missing env vars
     webhook_secret = settings.GITHUB_APP_WEBHOOK_SECRET
     if not webhook_secret:
         logger.warning("GitHub webhook secret not configured")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={"error": "webhook_not_configured", "message": "GITHUB_APP_WEBHOOK_SECRET not set"}
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={"error": "webhook_not_configured", "message": "GITHUB_APP_WEBHOOK_SECRET not set. Configure in environment."},
+            headers={"Retry-After": "60"},
         )
 
     # Get raw payload

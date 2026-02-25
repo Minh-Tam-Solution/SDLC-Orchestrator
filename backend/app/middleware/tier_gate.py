@@ -107,11 +107,13 @@ ROUTE_TIER_TABLE: dict[str, int] = {
     "/api/v1/framework-version":  2,
     "/api/v1/context-validation": 2,
     "/api/v1/maturity":           2,
-    # OTT Gateway: STANDARD tier baseline (ADR-059 Decision OTT-3)
-    # Per-channel sub-routing inside ott_gateway.py:
-    #   telegram → STANDARD (Vietnam pilot), zalo → STANDARD,
-    #   teams → PROFESSIONAL, slack → ENTERPRISE
-    "/api/v1/channels":           2,
+    # OTT Gateway: LITE at middleware level (webhooks carry NO JWT —
+    # Telegram/Zalo/Teams/Slack servers send webhooks, not users).
+    # Authentication: HMAC signature verification inside ott_gateway.py.
+    # Per-channel tier enforcement: handled inside ott_gateway.py route
+    # handler AFTER HMAC auth (telegram/zalo → STANDARD, teams → PRO,
+    # slack → ENTERPRISE). See ADR-059 Decision OTT-3.
+    "/api/v1/channels":           1,
     # F-01 fix: routes registered in main.py but missing from table (Sprint 184 review)
     "/api/v1/triage":             2,   # F-01: triage workflow (STANDARD)
     "/api/v1/sop":                2,   # F-01: SOP Generator (STANDARD)

@@ -1,0 +1,198 @@
+# SDLC Orchestrator — SME Pilot Deployment
+# Sprint 201 Track C: Self-Hosted Pilot Environment
+#
+# Usage:
+#   cp .env.example .env
+#   # Edit .env with your credentials
+#   docker compose -f docker-compose.pilot.yml up -d
+#
+# Requirements:
+#   - Docker Engine 24+ with Compose V2
+#   - 4 GB RAM minimum (8 GB recommended)
+#   - 20 GB disk space
+#   - Telegram Bot Token (from @BotFather)
+#   - Optional: Ollama on GPU host for AI features
+#
+# Target: Vietnam SME Pilot (5 founding customers)
+# Tier: STANDARD ($99/mo) or PRO ($299/mo)
+
+services:
+  # ──────────────────────────────────────────────────────────────────────────
+  # PostgreSQL 15.5 — Primary Database
+  # ──────────────────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:15.5-alpine
+    container_name: sdlc-pilot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sdlc_orchestrator}
+      POSTGRES_USER: ${POSTGRES_USER:-sdlc_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pilot_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sdlc_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sdlc-pilot
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Redis 7.2 — Caching, Sessions, Rate Limiting
+  # ──────────────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: sdlc-pilot-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env}
+    volumes:
+      - pilot_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sdlc-pilot
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # OPA 0.58 — Policy Engine (Gate Evaluation)
+  # ──────────────────────────────────────────────────────────────────────────
+  opa:
+    image: openpolicyagent/opa:0.58.0
+    platform: linux/amd64
+    container_name: sdlc-pilot-opa
+    restart: unless-stopped
+    command: ["run", "--server", "--addr=0.0.0.0:8181", "--log-level=info", "/policies"]
+    volumes:
+      - ../../backend/policy-packs/rego:/policies:ro
+    networks:
+      - sdlc-pilot
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # MinIO — Evidence Vault (S3-compatible, AGPL-safe via network-only)
+  # ──────────────────────────────────────────────────────────────────────────
+  minio:
+    image: minio/minio:RELEASE.2024-11-07T00-52-20Z
+    container_name: sdlc-pilot-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD in .env}
+    volumes:
+      - pilot_minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sdlc-pilot
+
+  # MinIO bucket initialization (one-shot)
+  minio-init:
+    image: minio/mc:latest
+    container_name: sdlc-pilot-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      sleep 3;
+      /usr/bin/mc alias set local http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
+      /usr/bin/mc mb local/evidence-vault --ignore-existing;
+      /usr/bin/mc mb local/reports --ignore-existing;
+      echo 'Pilot MinIO buckets ready';
+      "
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    networks:
+      - sdlc-pilot
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # FastAPI Backend
+  # ──────────────────────────────────────────────────────────────────────────
+  backend:
+    image: ${SDLC_BACKEND_IMAGE:-ghcr.io/minh-tam-solution/sdlc-orchestrator-backend:latest}
+    container_name: sdlc-pilot-backend
+    restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8300 --workers 2
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sdlc_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sdlc_orchestrator}
+      SECRET_KEY: ${JWT_SECRET_KEY:?Set JWT_SECRET_KEY in .env (min 32 chars)}
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_HOURS: 1
+      REFRESH_TOKEN_EXPIRE_DAYS: 30
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET: evidence-vault
+      MINIO_SECURE: "false"
+      OPA_URL: http://opa:8181
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      ENVIRONMENT: production
+      DEBUG: "false"
+      LOG_LEVEL: INFO
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      COOKIE_SAMESITE: lax
+      # OTT Gateway
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      ZALO_OA_ACCESS_TOKEN: ${ZALO_OA_ACCESS_TOKEN:-}
+      OTT_HMAC_ENABLED: ${OTT_HMAC_ENABLED:-true}
+      # AI (Ollama — customer's own GPU or cloud)
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      CODEGEN_OLLAMA_URL: ${CODEGEN_OLLAMA_URL:-http://host.docker.internal:11434}
+    ports:
+      - "${BACKEND_PORT:-8300}:8300"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      opa:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8300/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - sdlc-pilot
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Next.js Frontend (Admin Dashboard — admin-only per Sprint 190)
+  # ──────────────────────────────────────────────────────────────────────────
+  frontend:
+    image: ${SDLC_FRONTEND_IMAGE:-ghcr.io/minh-tam-solution/sdlc-orchestrator-frontend:latest}
+    container_name: sdlc-pilot-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8300/api/v1}
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - sdlc-pilot
+
+volumes:
+  pilot_postgres_data:
+    driver: local
+  pilot_redis_data:
+    driver: local
+  pilot_minio_data:
+    driver: local
+
+networks:
+  sdlc-pilot:
+    driver: bridge
+    name: sdlc-pilot-network

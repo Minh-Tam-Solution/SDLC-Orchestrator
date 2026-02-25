@@ -121,7 +121,7 @@ class TestTeamsActivityParsing:
     def test_pa23_map_activity_id_to_correlation_id(self) -> None:
         """PA-23: parse_activity maps activity.id → OrchestratorMessage.correlation_id."""
         msg = _parse_teams(TEAMS_MESSAGE_PAYLOAD)
-        assert msg.correlation_id == "f:1826549975918235838"
+        assert msg.correlation_id == "teams_f:1826549975918235838"
 
     def test_pa24_channel_is_teams(self) -> None:
         """PA-24: parse_activity sets channel='teams'."""
