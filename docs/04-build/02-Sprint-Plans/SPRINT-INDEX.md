@@ -2,7 +2,7 @@
 
 **Project**: SDLC Orchestrator — Operating System for Software 3.0
 **Framework**: SDLC 6.1.1
-**Last Updated**: February 24, 2026
+**Last Updated**: February 25, 2026 — Sprint 204 CLOSED
 **Maintainer**: PM (updated per G-Sprint-Close requirement — `sprint_index_updated` checklist item)
 
 ---
@@ -11,7 +11,7 @@
 
 | Current Sprint | Status | Previous | Score |
 |---------------|--------|----------|-------|
-| **202** — Automated Evals Framework + Context Engineering Depth | CLOSED | Sprint 201 (9.3/10) | Pending |
+| **205** — LangChain Phase 1 (ADR-066) | PLANNED 📋 | Sprint 204 (Pending) | — |
 
 **Current Branch**: `main` · **Gate Status**: G4 APPROVED (Sprint 188) · **Framework**: SDLC 6.1.1
 
@@ -109,7 +109,7 @@
 
 ---
 
-### Era 5: Conversation-First + OTT Governance (Sprints 189–201)
+### Era 5: Conversation-First + OTT Governance (Sprints 189–207)
 
 *CEO directive Sprint 190: OTT+CLI = primary interface. Web App = admin-only.*
 
@@ -129,10 +129,13 @@
 | **200** | Full Agent Team Orchestration via OTT | **COMPLETE** ✅ | Multi-agent pipeline (Init→Code→Review) via chat, budget circuit breakers, cross-channel parity (Telegram+Zalo), 140/140 tests | Pending |
 | **201** | Self-Hosted Pilot: SDLC Manages Itself | **COMPLETE** ✅ | 100% dogfooding — sprint close + audit via chat, team invite via OTT, pilot Docker Compose, 8/8 commands, 40 tests | 9.3/10 |
 | **202** | Automated Evals Framework + Context Engineering Depth | **COMPLETE** ✅ | eval_scorer.py (LLM-as-Judge), 5 YAML eval cases, agent_notes table, NoteService CRUD, run_evals+list_notes commands, 50 tests | Pending |
-| **203** | Formal Evaluator-Optimizer + Evals Expansion | **PLANNED** | EvalRubric in reflect_step.py, max_reflect_iterations, multi-judge consensus, 15 eval cases | — |
-| **204** | Confidence-Based Routing + Human Escalation | **PLANNED** | confidence field in query_classifier, LLM fallback (qwen3:8b), human escalation via Magic Link | — |
+| **203** | Formal Evaluator-Optimizer + Evals Expansion | **COMPLETE** ✅ | ReflectResult+reflect_and_score() (rubric scoring, early stop 8.0, 1-3 iter), 10 new YAML cases (15 total), MultiJudgeResult+multi_judge_eval(), baseline.json avg=8.51, CI runner exit 0/1/2/3, 110 tests | **9.5/10** |
+| **204** | Confidence-Based Routing + Human Escalation | **COMPLETE** ✅ | `ClassificationResult` + `_compute_confidence()`, governance pre-router (5 rules priority=8), `_llm_classify()` (qwen3:8b), `EscalationService` (BLPOP+MagicLink), `MagicLinkPayload` discriminated union, 5 routing eval cases (20 total), run_evals.py v2.0.0, 87 tests / 298 regression guards | Pending |
+| **205** | LangChain Phase 1 (ADR-066) | **PLANNED** 📋 | LangChain integration phase 1 — see SPRINT-205-LANGCHAIN.md when created | Planned |
+| **206** | LangChain Phase 2 / TBD | **PLANNED** 📋 | TBD — successor to Sprint 205 | Planned |
+| **207** | OTT Workspace Context Management | **PLANNED** 📋 | workspace_service.py (Redis HASH 7d TTL), /workspace set/list/clear, governance auto-inject project_id, pg_trgm index, FR-049, ADR-067, 15 tests | Planned |
 
-*Docs: `SPRINT-189-CHAT-GOVERNANCE-LOOP.md` through `SPRINT-204-CONFIDENCE-ROUTING.md`*
+*Docs: `SPRINT-189-CHAT-GOVERNANCE-LOOP.md` through `SPRINT-207-OTT-WORKSPACE.md`*
 
 ---
 
@@ -161,21 +164,24 @@
 | Mar-Apr 2026 | **Dogfooding 90%** — Multi-agent team orchestration via OTT (Init→Code→Review pipeline) | 200 |
 | Apr 2026 | **Dogfooding 100%** — Self-hosted pilot, SDLC Orchestrator governs itself, SME Pilot Ready | 201 |
 | Apr 2026 | **Anthropic Best Practices P0+P1** — Automated Evals (LLM-as-Judge) + Context Engineering (agent_notes) | 202 |
-| May 2026 | **Anthropic Best Practices P2** — Evaluator-Optimizer (rubric scoring, iteration limits, multi-judge) + 15 eval cases | 203 |
+| May 2026 | **Anthropic Best Practices P2 COMPLETE** — Evaluator-Optimizer (rubric, early stop, 1-3 iter), 15 eval cases, MultiJudge, baseline.json=8.51, 110 tests | 203 |
 | May 2026 | **Anthropic Best Practices P3** — Confidence-Based Routing + Human Escalation, 20 total eval cases | 204 |
+| TBD | **LangChain Phase 1** — ADR-066 LangChain integration (planned) | 205 |
+| TBD | **LangChain Phase 2 / TBD** — (planned) | 206 |
+| TBD | **OTT Workspace** — /workspace set/list/clear, governance auto-inject project_id (FR-049, ADR-067) | 207 |
 
 ---
 
 ## Sprint Metrics Summary (Era 5)
 
-| Metric | Sprint 189 | Sprint 190 | Sprint 191 | Sprint 192 | Sprint 193 | Sprint 194 | Sprint 195 | Sprint 196 | Sprint 197 | Sprint 198–201 | Sprint 202 |
-|--------|------------|------------|------------|------------|------------|------------|------------|------------|------------|----------------|------------|
-| CTO Score | 9.4/10 | 9.1/10 | 8.9/10 | 9.0/10 | 9.1/10 | N/R | 9.2/10 | 9.1/10 | 9.3/10 | 8.8–9.3 | Pending |
-| Deliverables | — | 15/15 | — | 10/10 | 8/8 | 11/11 | 10/12 (2 deferred) | 13/13 (4 tracks) | 8/8 (B+C+D) | All tracks ✅ | 12/12 (4 tracks) |
-| P0/P1 Bugs | 0 | 0 | 0 | 0 | 2 fixed | 0 | 3 P0 fixed | 0 | 0 | 0 | 0 |
-| LOC Added | — | +~2,100 | — | +~1,352 | +~2,260 | +~1,522 | +~828 | +~3,500 | +~320 | ~3,500 | +~1,470 |
-| LOC Removed | — | ~-47,000 | — | ~-25,953 | — | ~-10 | — | — | ~-50 | — | — |
-| Tests Written | — | — | — | 38 (13+25) | 45 (16+19+10) | 74 | 27 (19+8) | ~139 | 6 | 40+140 | 50 |
+| Metric | Sprint 189 | Sprint 190 | Sprint 191 | Sprint 192 | Sprint 193 | Sprint 194 | Sprint 195 | Sprint 196 | Sprint 197 | Sprint 198–201 | Sprint 202 | Sprint 203 |
+|--------|------------|------------|------------|------------|------------|------------|------------|------------|------------|----------------|------------|------------|
+| CTO Score | 9.4/10 | 9.1/10 | 8.9/10 | 9.0/10 | 9.1/10 | N/R | 9.2/10 | 9.1/10 | 9.3/10 | 8.8–9.3 | Pending | **9.5/10** |
+| Deliverables | — | 15/15 | — | 10/10 | 8/8 | 11/11 | 10/12 (2 deferred) | 13/13 (4 tracks) | 8/8 (B+C+D) | All tracks ✅ | 12/12 (4 tracks) | 15/15 (4 tracks) |
+| P0/P1 Bugs | 0 | 0 | 0 | 0 | 2 fixed | 0 | 3 P0 fixed | 0 | 0 | 0 | 0 | 0 |
+| LOC Added | — | +~2,100 | — | +~1,352 | +~2,260 | +~1,522 | +~828 | +~3,500 | +~320 | ~3,500 | +~1,470 | +~1,200 |
+| LOC Removed | — | ~-47,000 | — | ~-25,953 | — | ~-10 | — | — | ~-50 | — | — | — |
+| Tests Written | — | — | — | 38 (13+25) | 45 (16+19+10) | 74 | 27 (19+8) | ~139 | 6 | 40+140 | 50 | 110 (56+54) |
 
 ---
 
@@ -183,9 +189,13 @@
 
 | Doc | Purpose |
 |-----|---------|
-| [CURRENT-SPRINT.md](CURRENT-SPRINT.md) | Current sprint status (Sprint 202 COMPLETE) |
+| [CURRENT-SPRINT.md](CURRENT-SPRINT.md) | Current sprint status (Sprint 204 CLOSED ✅ — Sprint 205 PLANNED) |
+| [SPRINT-207-OTT-WORKSPACE.md](SPRINT-207-OTT-WORKSPACE.md) | Sprint 207 plan (OTT Workspace Context Management — FR-049, ADR-067, PLANNED) |
+| SPRINT-206-TBD.md | Sprint 206 plan (TBD — not yet created) |
+| SPRINT-205-LANGCHAIN.md | Sprint 205 plan (LangChain Phase 1 — ADR-066 — not yet created) |
 | [SPRINT-204-CONFIDENCE-ROUTING.md](SPRINT-204-CONFIDENCE-ROUTING.md) | Sprint 204 plan (Confidence-Based Routing + Human Escalation — Anthropic P3) |
-| [SPRINT-203-EVALUATOR-OPTIMIZER-EVALS-EXPANSION.md](SPRINT-203-EVALUATOR-OPTIMIZER-EVALS-EXPANSION.md) | Sprint 203 plan (Evaluator-Optimizer + 15 Eval Cases — Anthropic P2) |
+| [SPRINT-203-CLOSE.md](SPRINT-203-CLOSE.md) | Sprint 203 G-Sprint-Close gate (PASSED — all 15 deliverables, 110 tests, 285/285 regression) |
+| [SPRINT-203-EVALUATOR-OPTIMIZER-EVALS-EXPANSION.md](SPRINT-203-EVALUATOR-OPTIMIZER-EVALS-EXPANSION.md) | Sprint 203 plan (Evaluator-Optimizer + 15 Eval Cases — Anthropic P2, CLOSED) |
 | [SPRINT-202-AUTOMATED-EVALS-CONTEXT-ENGINEERING.md](SPRINT-202-AUTOMATED-EVALS-CONTEXT-ENGINEERING.md) | Sprint 202 plan (Automated Evals + Context Engineering — Anthropic P0+P1) |
 | [SPRINT-201-SELF-HOSTED-PILOT.md](SPRINT-201-SELF-HOSTED-PILOT.md) | Sprint 201 plan (Self-Hosted Pilot — 100% Dogfooding + SME Pilot) |
 | [SPRINT-200-AGENT-TEAM-OTT.md](SPRINT-200-AGENT-TEAM-OTT.md) | Sprint 200 plan (Full Agent Team Orchestration via OTT — 90% Dogfooding) |
