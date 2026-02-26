@@ -1,10 +1,20 @@
+---
+sdlc_version: "6.1.1"
+document_type: "Functional Requirement"
+status: "APPROVED"
+sprint: "136"
+spec_id: "FR-036"
+tier: "PROFESSIONAL"
+stage: "01 - Planning"
+---
+
 # FR-036: Validate Consistency Command (sdlcctl validate-consistency)
 
 **Version**: 1.0.0
 **Status**: APPROVED
 **Created**: February 1, 2026
 **Sprint**: Sprint 136
-**Framework**: SDLC 6.1.0
+**Framework**: SDLC 6.1.1
 **Related Spec**: SPEC-0021 Stage Consistency Validation
 **Owner**: Backend Team
 
