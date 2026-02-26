@@ -159,11 +159,35 @@ async def lifespan(app: FastAPI):
     else:
         print("\n✅ SDLC Orchestrator API started successfully!")
 
+    # Start WorkflowResumer if LangGraph is enabled (Sprint 208, ADR-066)
+    workflow_resumer = None
+    try:
+        from app.services.agent_team.config import LANGGRAPH_ENABLED
+        if LANGGRAPH_ENABLED:
+            from app.services.agent_team.workflow_resumer import WorkflowResumer
+            workflow_resumer = WorkflowResumer(
+                db_url=str(settings.DATABASE_URL),
+                redis_url=settings.REDIS_URL or "redis://localhost:6379/0",
+            )
+            await workflow_resumer.start()
+            print("✅ WorkflowResumer started (LANGGRAPH_ENABLED=true)")
+    except Exception as e:
+        print(f"⚠️  WorkflowResumer startup skipped: {e}")
+        workflow_resumer = None
+
     # Yield control to the application
     yield
 
     # Shutdown
     print("👋 SDLC Orchestrator API shutting down...")
+
+    # Stop WorkflowResumer (Sprint 208)
+    if workflow_resumer is not None:
+        try:
+            workflow_resumer.stop()
+            print("✅ WorkflowResumer stopped")
+        except Exception as e:
+            print(f"⚠️  WorkflowResumer shutdown error: {e}")
 
     # Stop APScheduler (Sprint 21)
     if scheduler and scheduler.running:

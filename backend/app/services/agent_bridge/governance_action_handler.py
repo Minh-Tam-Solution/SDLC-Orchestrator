@@ -413,6 +413,350 @@ async def _execute_request_approval(
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Sprint 208: Chat-native project creation, evidence submission, sprint update
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+async def _execute_create_project(
+    tool_args: dict[str, Any],
+    bot_token: str,
+    chat_id: str | int,
+    user_id: str,
+    channel: str = "telegram",
+) -> bool:
+    """
+    Create a new project via OTT chat — direct async ORM (RF-01).
+
+    Uses direct SQLAlchemy async ORM instead of project_service.create_project()
+    which requires a sync Session. The governance handler's AsyncSessionLocal
+    requires async operations throughout.
+
+    Slug generation: lowercase, regex clean, truncate to 255 chars.
+    On unique-slug collision: appends hex suffix from uuid4.
+
+    Args:
+        tool_args: {"name": str, "description"?: str}
+        bot_token: Telegram Bot API token.
+        chat_id: Chat ID for reply.
+        user_id: Authenticated user UUID string.
+        channel: OTT channel identifier.
+
+    Returns:
+        True on success, False on error.
+    """
+    import re
+    from uuid import uuid4
+    from sqlalchemy import select
+    from app.models.project import Project, ProjectMember
+
+    name = (tool_args.get("name") or "").strip()
+    if not name:
+        await _send_telegram_reply(
+            bot_token, chat_id,
+            _format_error(
+                "Vui lòng cung cấp tên dự án.\n"
+                "Please provide a project name.\n\n"
+                "Ví dụ / Example: create project E-Commerce Platform"
+            ),
+            channel=channel,
+        )
+        return False
+
+    description = (tool_args.get("description") or "").strip() or None
+
+    # Generate slug: lowercase, alphanumeric + hyphens, max 255
+    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:245]
+
+    try:
+        async with AsyncSessionLocal() as db:
+            # Check slug uniqueness, append suffix on collision
+            existing = await db.execute(
+                select(Project.id).where(Project.slug == slug)
+            )
+            if existing.scalar_one_or_none() is not None:
+                slug = f"{slug}-{uuid4().hex[:6]}"
+
+            project = Project(
+                name=name,
+                slug=slug,
+                description=description,
+                owner_id=UUID(user_id),
+                is_active=True,
+            )
+            db.add(project)
+            await db.flush()
+
+            # Auto-add creator as owner member
+            member = ProjectMember(
+                project_id=project.id,
+                user_id=UUID(user_id),
+                role="owner",
+            )
+            db.add(member)
+            await db.commit()
+
+            tier = getattr(project, "policy_pack_tier", "PROFESSIONAL")
+            tier_emoji = _TIER_EMOJI.get(tier, "\U0001f7e2")
+
+            reply = (
+                f"\u2705 Project Created / Dự án đã tạo\n\n"
+                f"\U0001f4c1 Name: {project.name}\n"
+                f"\U0001f517 Slug: {project.slug}\n"
+                f"\U0001f194 ID: {project.id}\n"
+                f"{tier_emoji} Tier: {tier}\n"
+            )
+            if description:
+                reply += f"\U0001f4dd Description: {description}\n"
+            reply += (
+                f"\nDùng /workspace set {project.name} để chọn project này.\n"
+                f"Use /workspace set {project.name} to select this project."
+            )
+            return await _send_telegram_reply(bot_token, chat_id, reply, channel=channel)
+
+    except Exception as exc:
+        logger.error("create_project failed: %s", exc)
+        await _send_telegram_reply(
+            bot_token, chat_id,
+            _format_error(
+                f"Lỗi tạo dự án: {str(exc)[:200]}\n"
+                f"Error creating project: {str(exc)[:200]}"
+            ),
+            channel=channel,
+        )
+        return False
+
+
+async def _execute_submit_evidence(
+    tool_args: dict[str, Any],
+    bot_token: str,
+    chat_id: str | int,
+    user_id: str,
+    channel: str = "telegram",
+) -> bool:
+    """
+    Submit text-only evidence via OTT chat — direct GateEvidence ORM (RF-02).
+
+    Creates a GateEvidence record for text-based evidence submissions
+    (e.g., notes, descriptions, test results pasted in chat). File-based
+    evidence still requires web dashboard or CLI.
+
+    GateEvidence NOT NULL constraints require synthetic file metadata for
+    text-only submissions:
+        file_name = "ott-evidence-{uuid}.txt"
+        file_size = len(description.encode("utf-8"))
+        file_type = "text/plain"
+        s3_key = "ott-text/{gate_id}/{evidence_id}.txt" (no actual S3 upload)
+
+    Args:
+        tool_args: {"gate_id": str, "description": str, "evidence_type"?: str}
+        bot_token: Telegram Bot API token.
+        chat_id: Chat ID for reply.
+        user_id: Authenticated user UUID string.
+        channel: OTT channel identifier.
+
+    Returns:
+        True on success, False on error.
+    """
+    from uuid import uuid4
+    from sqlalchemy import select
+    from app.models.gate_evidence import GateEvidence
+    from app.models.gate import Gate
+
+    gate_id_str = (tool_args.get("gate_id") or "").strip()
+    description = (tool_args.get("description") or "").strip()
+    evidence_type = (tool_args.get("evidence_type") or "DOCUMENTATION").strip().upper()
+
+    if not gate_id_str:
+        await _send_telegram_reply(
+            bot_token, chat_id,
+            _format_error(
+                "Vui lòng cung cấp gate ID.\n"
+                "Please provide a gate_id.\n\n"
+                "Ví dụ / Example: submit evidence gate_id=<uuid> description=\"Test results passed\""
+            ),
+            channel=channel,
+        )
+        return False
+
+    if not description:
+        await _send_telegram_reply(
+            bot_token, chat_id,
+            _format_error(
+                "Vui lòng cung cấp mô tả evidence.\n"
+                "Please provide a description for the evidence."
+            ),
+            channel=channel,
+        )
+        return False
+
+    try:
+        gate_id = UUID(gate_id_str)
+    except ValueError:
+        await _send_telegram_reply(
+            bot_token, chat_id,
+            _format_error(f"Invalid gate ID: {gate_id_str}"),
+            channel=channel,
+        )
+        return False
+
+    try:
+        async with AsyncSessionLocal() as db:
+            # Verify gate exists
+            gate_result = await db.execute(
+                select(Gate).where(Gate.id == gate_id)
+            )
+            gate = gate_result.scalar_one_or_none()
+            if not gate:
+                await _send_telegram_reply(
+                    bot_token, chat_id,
+                    _format_error(f"Gate not found: {gate_id_str}"),
+                    channel=channel,
+                )
+                return False
+
+            evidence_id = uuid4()
+            text_bytes = description.encode("utf-8")
+
+            evidence = GateEvidence(
+                id=evidence_id,
+                gate_id=gate_id,
+                file_name=f"ott-evidence-{evidence_id.hex[:8]}.txt",
+                file_size=len(text_bytes),
+                file_type="text/plain",
+                evidence_type=evidence_type,
+                s3_key=f"ott-text/{gate_id}/{evidence_id}.txt",
+                s3_bucket="sdlc-evidence",
+                description=description,
+                source="ott",
+                uploaded_by=UUID(user_id),
+            )
+            db.add(evidence)
+            await db.commit()
+
+            gate_type = getattr(gate, "gate_type", None) or getattr(gate, "gate_code", "?")
+            reply = (
+                f"\u2705 Evidence Submitted / Bằng chứng đã nộp\n\n"
+                f"\U0001f4cb Gate: {gate_type}\n"
+                f"\U0001f4c4 Type: {evidence_type}\n"
+                f"\U0001f194 Evidence ID: {evidence_id}\n"
+                f"\U0001f4dd Description: {description[:200]}\n"
+                f"\U0001f4e4 Source: OTT ({channel})\n\n"
+                f"Đính kèm file (PDF, image) để upload evidence đầy đủ.\n"
+                f"Attach a file for full evidence upload via web dashboard."
+            )
+            return await _send_telegram_reply(bot_token, chat_id, reply, channel=channel)
+
+    except Exception as exc:
+        logger.error("submit_evidence failed: %s", exc)
+        await _send_telegram_reply(
+            bot_token, chat_id,
+            _format_error(
+                f"Lỗi nộp evidence: {str(exc)[:200]}\n"
+                f"Error submitting evidence: {str(exc)[:200]}"
+            ),
+            channel=channel,
+        )
+        return False
+
+
+async def _execute_update_sprint(
+    tool_args: dict[str, Any],
+    bot_token: str,
+    chat_id: str | int,
+    user_id: str,
+    channel: str = "telegram",
+) -> bool:
+    """
+    Execute update_sprint command via OTT chat.
+
+    Delegates to sprint_command_handler.handle_update_sprint() which:
+    1. Fetches active sprint for the project
+    2. Generates CURRENT-SPRINT.md via SprintFileService
+    3. Pushes to GitHub (if configured)
+    4. Returns confirmation summary
+
+    Args:
+        tool_args: {"project_id": str}
+        bot_token: Telegram Bot API token.
+        chat_id: Chat ID for reply.
+        user_id: Authenticated user UUID string.
+        channel: OTT channel identifier.
+
+    Returns:
+        True on success, False on error.
+    """
+    from app.services.agent_team.sprint_command_handler import handle_update_sprint
+
+    project_id_str = (tool_args.get("project_id") or "").strip()
+    if not project_id_str:
+        await _send_telegram_reply(
+            bot_token, chat_id,
+            _format_error(
+                "Vui lòng cung cấp project_id.\n"
+                "Please provide a project_id.\n\n"
+                "Ví dụ / Example: update sprint project_id=<uuid>\n"
+                "Hoặc set workspace trước: /workspace set <project-name>"
+            ),
+            channel=channel,
+        )
+        return False
+
+    try:
+        project_id = UUID(project_id_str)
+    except ValueError:
+        await _send_telegram_reply(
+            bot_token, chat_id,
+            _format_error(f"Invalid project ID: {project_id_str}"),
+            channel=channel,
+        )
+        return False
+
+    try:
+        async with AsyncSessionLocal() as db:
+            result = await handle_update_sprint(db, project_id)
+
+        status = result.get("status", "error")
+        if status == "error":
+            await _send_telegram_reply(
+                bot_token, chat_id,
+                _format_error(result.get("message", "Unknown error")),
+                channel=channel,
+            )
+            return False
+
+        sprint_name = result.get("sprint_name", "?")
+        content_len = result.get("content_length", 0)
+        commit_sha = result.get("commit_sha")
+        message = result.get("message", "Sprint updated")
+
+        lines = [
+            f"\U0001f504 Sprint Updated / Sprint đã cập nhật",
+            f"",
+            f"\U0001f3af Sprint: {sprint_name}",
+            f"\U0001f4c4 CURRENT-SPRINT.md: {content_len} chars",
+        ]
+        if commit_sha:
+            lines.append(f"\U0001f517 GitHub commit: {commit_sha[:8]}")
+        lines.append(f"\n{message}")
+
+        return await _send_telegram_reply(
+            bot_token, chat_id, "\n".join(lines), channel=channel,
+        )
+
+    except Exception as exc:
+        logger.error("update_sprint failed: %s", exc)
+        await _send_telegram_reply(
+            bot_token, chat_id,
+            _format_error(
+                f"Lỗi cập nhật sprint: {str(exc)[:200]}\n"
+                f"Error updating sprint: {str(exc)[:200]}"
+            ),
+            channel=channel,
+        )
+        return False
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Sprint 207: Workspace Command Execution (FR-049, ADR-067)
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -762,28 +1106,14 @@ async def execute_governance_action(
             handled = await _execute_request_approval(tool_args, bot_token, chat_id, user_id, channel=channel)
 
         elif tool_name == ToolName.CREATE_PROJECT.value:
-            name = tool_args.get("name", "?")
-            await _send_telegram_reply(
-                bot_token, chat_id,
-                f"\U0001f4e6 Create Project / Tạo dự án\n\n"
-                f"Project name: {name}\n\n"
-                f"\u26a0\ufe0f Tính năng tạo project qua chat đang phát triển.\n"
-                f"Feature coming in Sprint 199 A-03.\n"
-                f"Vui lòng sử dụng Web Dashboard: https://sdlc.nhatquangholding.com",
-                channel=channel,
+            handled = await _execute_create_project(
+                tool_args, bot_token, chat_id, user_id, channel=channel,
             )
-            handled = True
 
         elif tool_name == ToolName.SUBMIT_EVIDENCE.value:
-            await _send_telegram_reply(
-                bot_token, chat_id,
-                f"\U0001f4ce Submit Evidence / Nộp bằng chứng\n\n"
-                f"\u26a0\ufe0f Gửi file đính kèm (PDF, image) để upload evidence.\n"
-                f"Attach a file (PDF, image) to upload evidence.\n"
-                f"Feature coming in Sprint 199 Track B.",
-                channel=channel,
+            handled = await _execute_submit_evidence(
+                tool_args, bot_token, chat_id, user_id, channel=channel,
             )
-            handled = True
 
         elif tool_name == ToolName.EXPORT_AUDIT.value:
             from app.services.agent_bridge.sprint_governance_handler import (
@@ -794,16 +1124,9 @@ async def execute_governance_action(
             )
 
         elif tool_name == ToolName.UPDATE_SPRINT.value:
-            project_id = tool_args.get("project_id")
-            await _send_telegram_reply(
-                bot_token, chat_id,
-                f"\U0001f504 Update Sprint / Cập nhật Sprint\n\n"
-                f"Project: {project_id}\n\n"
-                f"\u26a0\ufe0f Sprint update qua chat đang phát triển.\n"
-                f"Vui lòng sử dụng CLI: sdlcctl update-sprint --project {project_id}",
-                channel=channel,
+            handled = await _execute_update_sprint(
+                tool_args, bot_token, chat_id, user_id, channel=channel,
             )
-            handled = True
 
         elif tool_name == ToolName.CLOSE_SPRINT.value:
             from app.services.agent_bridge.sprint_governance_handler import (

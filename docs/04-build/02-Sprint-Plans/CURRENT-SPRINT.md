@@ -1,19 +1,121 @@
-# Current Sprint: Sprint 207 — OTT Workspace Context Management
+# Current Sprint: Sprint 208 — Pre-Release Hardening
 
 **Sprint Duration**: Feb 26, 2026 (1 working day)
-**Sprint Goal**: Implement OTT Workspace — cho phép user set/switch active project trong Telegram chat, governance commands tự động inject project_id từ workspace
-**Status**: COMPLETE — All 4 Tracks Done ✅ (Feb 26, 2026)
-**Priority**: P2 (Conversation-First UX)
+**Sprint Goal**: Fix P0 tier gate bypass (TG-41), clean dead code, implement 3 overdue stub commands, register WorkflowResumer in lifespan
+**Status**: CLOSED — PM APPROVED ✅ (Feb 26, 2026)
+**Priority**: P0 (Release blocker) + P1 (Tech debt)
 **Framework**: SDLC 6.1.1
-**CTO Score (Sprint 206)**: Pending (Trend: 200→9.2 | 201→9.3 | 202→9.4 | 203→9.5 ↑)
-**Previous Sprint**: [Sprint 206 — LangGraph Durable Workflows](SPRINT-206-LANGGRAPH-WORKFLOWS.md)
-**Detailed Plan**: [SPRINT-207-OTT-WORKSPACE.md](SPRINT-207-OTT-WORKSPACE.md)
-**Functional Requirement**: FR-049 — OTT Workspace Context Management
-**Architecture Decision**: ADR-067 — OTT Workspace Context
+**CTO Score (Sprint 207)**: Pending (Trend: 200→9.2 | 201→9.3 | 202→9.4 | 203→9.5 ↑)
+**Previous Sprint**: [Sprint 207 — OTT Workspace Context Management](SPRINT-207-OTT-WORKSPACE.md)
+**Detailed Plan**: [SPRINT-208-RELEASE-HARDENING.md](SPRINT-208-RELEASE-HARDENING.md)
+**Release Target**: v1.1.0 — Post-GA Hardening
 
 ---
 
-## Sprint 207 Goal
+## Sprint 208 Goal
+
+Sprint 207 closed the OTT Workspace feature. Full codebase review (PM + Architect) identified 1 P0 blocker and several P1 hygiene items that must be addressed before the next release.
+
+**P0 Blocker**: TG-41 Tier Gate bypass — `/api/v1/magic-link` and `/api/v1/workflows` skip tier enforcement.
+**P1 Hygiene**: 3 stub commands (8 sprints overdue), 3 dead code modules.
+**P2 Structural**: WorkflowResumer not registered in lifespan.
+
+---
+
+## Sprint 208 Backlog
+
+### Track A — P0: TG-41 Tier Gate Fix ✅
+
+| ID | Item | Status |
+|----|------|--------|
+| A1 | Add `/api/v1/magic-link` to `ROUTE_TIER_TABLE` — tier STANDARD (2) | ✅ DONE |
+| A2 | Add `/api/v1/workflows` to `ROUTE_TIER_TABLE` — tier PROFESSIONAL (3) | ✅ DONE |
+
+**Modified files**: `tier_gate.py` (+2 entries)
+
+### Track B — P1: Dead Code Cleanup ✅
+
+| ID | Item | Status |
+|----|------|--------|
+| B1 | Delete `billing/` directory (empty, only `__pycache__`) | ✅ DONE |
+| B2 | Delete `infrastructure/__init__.py` (broken import to non-existent `minio_service.py`) | ✅ DONE |
+| B3 | Delete `browser_agent_service.py` (0 references in codebase) | ✅ DONE |
+
+**Deleted files**: 3 files/dirs (~9.7 KB dead code removed)
+
+### Track C — P1: Implement 3 Stub OTT Commands ✅
+
+| ID | Item | Status |
+|----|------|--------|
+| C1 | `create_project` — direct async ORM (RF-01: project_service is sync) | ✅ DONE |
+| C2 | `submit_evidence` — direct GateEvidence ORM (RF-02: no evidence_service) | ✅ DONE |
+| C3 | `update_sprint` — delegate to `handle_update_sprint(db, project_id)` | ✅ DONE |
+
+**Modified files**: `governance_action_handler.py` (+~280 LOC, 3 new async functions)
+
+### Track D — P2: WorkflowResumer Lifespan Registration ✅
+
+| ID | Item | Status |
+|----|------|--------|
+| D1 | Conditional `WorkflowResumer.start()`/`stop()` in `main.py` lifespan | ✅ DONE |
+
+**Modified files**: `main.py` (+~15 LOC, LANGGRAPH_ENABLED guard)
+
+### Track E — Tests + Regression Guard ✅
+
+| ID | Item | Status |
+|----|------|--------|
+| E1-E8 | 8 new tests in `test_sprint208_hardening.py` | ✅ 8/8 PASSED |
+| E9 | Sprint 200-208 regression guard (310 tests) | ✅ 310/310 PASSED |
+
+**New files**: `test_sprint208_hardening.py` (8 tests)
+
+---
+
+## Definition of Done — Sprint 208
+
+- [x] `/api/v1/magic-link` → tier STANDARD (2) in `ROUTE_TIER_TABLE`
+- [x] `/api/v1/workflows` → tier PROFESSIONAL (3) in `ROUTE_TIER_TABLE`
+- [x] `billing/` directory deleted
+- [x] `infrastructure/__init__.py` deleted
+- [x] `browser_agent_service.py` deleted
+- [x] `create_project` command — real async ORM implementation (RF-01)
+- [x] `submit_evidence` command — real GateEvidence ORM implementation (RF-02)
+- [x] `update_sprint` command — wired to sprint_command_handler
+- [x] WorkflowResumer conditionally started in lifespan (`LANGGRAPH_ENABLED=true`)
+- [x] 8/8 Sprint 208 tests passing
+- [x] 310 regression guards passing | 0 regressions
+- [x] CURRENT-SPRINT.md updated to Sprint 208
+
+---
+
+## Sprint 208 Close Summary
+
+**Status**: CLOSED — PM APPROVED ✅ (Feb 26, 2026)
+**Tests**: 8 new tests | 310 regression guards passing | 0 regressions
+**Modified files**: `tier_gate.py` (+2 entries), `governance_action_handler.py` (+~280 LOC), `main.py` (+~15 LOC)
+**Deleted files**: `billing/` (empty dir), `infrastructure/__init__.py` (broken import), `browser_agent_service.py` (0 refs)
+**New files**: `test_sprint208_hardening.py` (8 tests)
+
+**Key deliverables**:
+- TG-41 P0 fix: `/api/v1/magic-link` (tier 2) + `/api/v1/workflows` (tier 3) now gated
+- 3 stub commands replaced with real implementations: `create_project` (async ORM), `submit_evidence` (GateEvidence ORM), `update_sprint` (sprint_command_handler delegate)
+- CTO RF-01/RF-02 applied: direct async ORM instead of sync project_service, GateEvidence direct ORM instead of non-existent evidence_service
+- Dead code: 3 files/dirs removed (~9.7 KB)
+- WorkflowResumer conditionally starts in lifespan when `LANGGRAPH_ENABLED=true`
+- All 10 command registry slots now have real implementations (0 stubs remaining)
+
+---
+
+## Sprint 207 Close Summary
+
+**Status**: CLOSED — PM APPROVED ✅ (Feb 26, 2026)
+**CTO Score**: Pending (Quality Scorecard: Zero Mock 10/10, Type Hints 10/10, AGPL 10/10, Error Handling 9/10, Security 10/10, Testing 10/10)
+**Tests**: 15 new tests | 465 regression guards passing | 0 regressions
+
+---
+
+## Sprint 207 Goal (Archived)
 
 Sprint 206 delivered LangGraph Durable Workflows (ADR-066 Phase 2). Sprint 207 addresses a UX gap in the OTT Gateway: users must type 36-char UUIDs for every governance command because there's no "active project" concept in chat.
 
@@ -104,11 +206,12 @@ Sprint 206 delivered LangGraph Durable Workflows (ADR-066 Phase 2). Sprint 207 a
 
 ## Sprint 207 Close Summary
 
-**Status**: COMPLETE — All 4 Tracks Done ✅
-**CTO Score**: Pending
-**Tests**: 15 new tests | 0 regressions from Sprint 207 changes
+**Status**: CLOSED — PM APPROVED ✅
+**CTO Score**: Pending (Quality Scorecard: Zero Mock 10/10, Type Hints 10/10, AGPL 10/10, Error Handling 9/10, Security 10/10, Testing 10/10)
+**Tests**: 15 new tests | 465 regression guards passing | 0 regressions
 **New files**: `workspace_service.py` (~210 LOC), `s207_001_projects_name_trgm_index.py`, `test_sprint207_ott_workspace.py` (15 tests)
 **Modified files**: `governance_action_handler.py` (+~280 LOC), `ai_response_handler.py` (+~30 LOC workspace intercept), `telegram_responder.py` (+4 entries)
+**PM Verification**: 15/15 tests passed, 465 guard total, code audit CLEAN — SHIP READY
 
 **Key deliverables**:
 - `workspace_service.py` — Redis HASH CRUD at `ott:workspace:{channel}:{chat_id}`, 7-day TTL, `WorkspaceContext` frozen dataclass

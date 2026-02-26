@@ -125,6 +125,7 @@ ROUTE_TIER_TABLE: dict[str, int] = {
     "/api/v1/e2e":                2,   # F-01: E2E testing API (STANDARD)
     "/api/v1/overrides":          2,   # F-01: override request workflow (STANDARD)
     "/api/v1/agents-md":          2,   # Sprint 196 TG-41: AGENTS.md context overlay (team collab)
+    "/api/v1/magic-link":         2,   # Sprint 208 TG-41: Magic Link OOB auth (team collab)
     # -------------------------------------------------------------------------
     # PROFESSIONAL (3): multi-agent, compliance-ready, full OTT, advanced AI
     # -------------------------------------------------------------------------
@@ -146,6 +147,7 @@ ROUTE_TIER_TABLE: dict[str, int] = {
     "/api/v1/preview":            3,
     "/api/v1/jira":               3,   # Jira integration — Sprint 184
     "/api/v1/mcp":                3,   # F-01 fix: MCP Analytics dashboard (PROFESSIONAL+)
+    "/api/v1/workflows":          3,   # Sprint 208 TG-41: LangGraph durable workflows (PROFESSIONAL+)
     # -------------------------------------------------------------------------
     # ENTERPRISE (4): SSO, NIST, SOC2, unlimited + SLA + audit
     # -------------------------------------------------------------------------

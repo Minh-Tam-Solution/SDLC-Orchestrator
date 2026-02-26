@@ -2,7 +2,7 @@
 
 **Project**: SDLC Orchestrator — Operating System for Software 3.0
 **Framework**: SDLC 6.1.1
-**Last Updated**: February 26, 2026 — Sprint 207 COMPLETE
+**Last Updated**: February 26, 2026 — Sprint 208 COMPLETE
 **Maintainer**: PM (updated per G-Sprint-Close requirement — `sprint_index_updated` checklist item)
 
 ---
@@ -11,7 +11,7 @@
 
 | Current Sprint | Status | Previous | Score |
 |---------------|--------|----------|-------|
-| **207** — OTT Workspace Context Management | COMPLETE ✅ | Sprint 206 (Pending) | Pending |
+| **208** — Pre-Release Hardening | COMPLETE ✅ | Sprint 207 (Pending) | Pending |
 
 **Current Branch**: `main` · **Gate Status**: G4 APPROVED (Sprint 188) · **Framework**: SDLC 6.1.1
 
@@ -169,6 +169,7 @@
 | Feb 25, 2026 | **LangChain Phase 1 COMPLETE** — ADR-066 Phase 1: LangChainProvider + LangChainToolRegistry + authorize_tool_call(), 38 tests | 205 |
 | Feb 25, 2026 | **LangGraph Durable Workflows COMPLETE** — ADR-066 Phase 2: WorkflowMetadata+OCC, ReflectionGraph, WorkflowResumer (pub/sub+reconciler), 25 tests | 206 |
 | Feb 26, 2026 | **OTT Workspace COMPLETE** — /workspace set/list/clear, governance auto-inject project_id, 4-level priority chain (FR-049, ADR-067) | 207 |
+| Feb 26, 2026 | **Pre-Release Hardening COMPLETE** — TG-41 fix (2 routes gated), 3 dead code deletions, 3 stub commands implemented (async ORM), WorkflowResumer lifespan, 8 tests | 208 |
 
 ---
 
@@ -189,7 +190,8 @@
 
 | Doc | Purpose |
 |-----|---------|
-| [CURRENT-SPRINT.md](CURRENT-SPRINT.md) | Current sprint status (Sprint 207 COMPLETE ✅) |
+| [CURRENT-SPRINT.md](CURRENT-SPRINT.md) | Current sprint status (Sprint 208 COMPLETE ✅) |
+| [SPRINT-208-RELEASE-HARDENING.md](SPRINT-208-RELEASE-HARDENING.md) | Sprint 208 plan (Pre-Release Hardening — TG-41 fix, dead code, stub commands, COMPLETE ✅) |
 | [SPRINT-207-OTT-WORKSPACE.md](SPRINT-207-OTT-WORKSPACE.md) | Sprint 207 plan (OTT Workspace Context Management — FR-049, ADR-067, COMPLETE ✅) |
 | [SPRINT-206-LANGGRAPH-WORKFLOWS.md](SPRINT-206-LANGGRAPH-WORKFLOWS.md) | Sprint 206 plan (LangGraph Durable Workflows — ADR-066 Phase 2, CLOSED ✅) |
 | [SPRINT-205-LANGCHAIN-PROVIDER.md](SPRINT-205-LANGCHAIN-PROVIDER.md) | Sprint 205 plan (LangChain Phase 1 — ADR-066, CLOSED ✅) |

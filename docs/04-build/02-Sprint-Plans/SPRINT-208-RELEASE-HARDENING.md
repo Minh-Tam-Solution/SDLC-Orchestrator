@@ -1,7 +1,7 @@
 ---
 sdlc_version: "6.1.1"
 document_type: "Sprint Plan"
-status: "PLANNED"
+status: "CLOSED"
 sprint: "208"
 spec_id: "SPRINT-208"
 tier: "PROFESSIONAL"
@@ -12,7 +12,7 @@ stage: "04 - Build"
 
 **Sprint Duration**: Feb 26, 2026 (1 working day)
 **Sprint Goal**: Fix P0 tier gate bypass, clean dead code, implement 3 overdue stub commands, consolidate test infrastructure
-**Status**: PLANNED
+**Status**: CLOSED — PM APPROVED ✅ (Feb 26, 2026)
 **Priority**: P0 (Release blocker) + P1 (Tech debt)
 **Framework**: SDLC 6.1.1
 **Previous Sprint**: [Sprint 207 — OTT Workspace Context Management](SPRINT-207-OTT-WORKSPACE.md)
@@ -54,9 +54,9 @@ Sprint 207 closed the OTT Workspace feature. Full codebase review (PM + Architec
 
 | ID | Item | Est | Status |
 |----|------|-----|--------|
-| A1 | Add `/api/v1/magic-link` to `ROUTE_TIER_TABLE` — tier STANDARD (2) | 2 min | ⏳ |
-| A2 | Add `/api/v1/workflows` to `ROUTE_TIER_TABLE` — tier PROFESSIONAL (3) | 2 min | ⏳ |
-| A3 | Verify `test_tg_41_all_fastapi_routes_in_tier_table` passes | 1 min | ⏳ |
+| A1 | Add `/api/v1/magic-link` to `ROUTE_TIER_TABLE` — tier STANDARD (2) | 2 min | ✅ DONE |
+| A2 | Add `/api/v1/workflows` to `ROUTE_TIER_TABLE` — tier PROFESSIONAL (3) | 2 min | ✅ DONE |
+| A3 | Verify `test_tg_41_all_fastapi_routes_in_tier_table` passes | 1 min | ✅ DONE |
 
 **File**: `backend/app/middleware/tier_gate.py` — add 2 lines to `ROUTE_TIER_TABLE` dict.
 
@@ -82,10 +82,10 @@ Expected: `PASSED` (previously failing with 2 ungated routes).
 
 | ID | Item | Est | Status |
 |----|------|-----|--------|
-| B1 | Delete `backend/app/services/billing/` — empty directory (only `__pycache__`) | 2 min | ⏳ |
-| B2 | Delete `backend/app/services/infrastructure/__init__.py` — broken import (references non-existent `minio_service.py`) | 2 min | ⏳ |
-| B3 | Delete `backend/app/services/browser_agent_service.py` — 0 references in codebase | 2 min | ⏳ |
-| B4 | Verify no import breakage after deletions | 5 min | ⏳ |
+| B1 | Delete `backend/app/services/billing/` — empty directory (only `__pycache__`) | 2 min | ✅ DONE |
+| B2 | Delete `backend/app/services/infrastructure/__init__.py` — broken import (references non-existent `minio_service.py`) | 2 min | ✅ DONE |
+| B3 | Delete `backend/app/services/browser_agent_service.py` — 0 references in codebase | 2 min | ✅ DONE |
+| B4 | Verify no import breakage after deletions | 5 min | ✅ DONE |
 
 **Exact deletions**:
 ```bash
@@ -119,10 +119,10 @@ These commands have occupied 3 of 10 `command_registry` slots since Sprint 199 (
 
 | ID | Item | Est | Status |
 |----|------|-----|--------|
-| C1 | `create_project` — wire to `project_service.create_project()`, require project name + optional tier | 30 min | ⏳ |
-| C2 | `submit_evidence` — wire text-based evidence to `evidence_service.create_evidence()`, attach to workspace project | 30 min | ⏳ |
-| C3 | `update_sprint` — wire to existing `sprint_command_handler.handle_update_sprint()` | 20 min | ⏳ |
-| C4 | Tests for 3 new command implementations | 10 min | ⏳ |
+| C1 | `create_project` — wire to `project_service.create_project()`, require project name + optional tier | 30 min | ✅ DONE |
+| C2 | `submit_evidence` — wire text-based evidence to `evidence_service.create_evidence()`, attach to workspace project | 30 min | ✅ DONE |
+| C3 | `update_sprint` — wire to existing `sprint_command_handler.handle_update_sprint()` | 20 min | ✅ DONE |
+| C4 | Tests for 3 new command implementations | 10 min | ✅ DONE |
 
 **Files modified**: `backend/app/services/agent_bridge/governance_action_handler.py`
 **Dependency**: `resolve_project_id()` from `workspace_service.py` (merged Sprint 207)
@@ -216,8 +216,8 @@ Replace the existing 8-line stub with this 4-line delegate. `handle_update_sprin
 
 | ID | Item | Est | Status |
 |----|------|-----|--------|
-| D1 | Add `WorkflowResumer.start()`/`stop()` to FastAPI lifespan when `LANGGRAPH_ENABLED=true` | 15 min | ⏳ |
-| D2 | Test that resumer is NOT started when feature flag is `false` (default) | 5 min | ⏳ |
+| D1 | Add `WorkflowResumer.start()`/`stop()` to FastAPI lifespan when `LANGGRAPH_ENABLED=true` | 15 min | ✅ DONE |
+| D2 | Test that resumer is NOT started when feature flag is `false` (default) | 5 min | ✅ DONE |
 
 **File**: `backend/app/main.py` — add conditional startup in lifespan context manager.
 **Guard**: Only starts when `config.LANGGRAPH_ENABLED` is `True`.
@@ -256,11 +256,11 @@ if workflow_resumer is not None:
 
 | ID | Item | Est | Status |
 |----|------|-----|--------|
-| E1 | TG-41 test green (Track A verification) | 2 min | ⏳ |
-| E2 | Import smoke test after dead code deletion (Track B) | 3 min | ⏳ |
-| E3 | 3 new command implementation tests (Track C) | included in C4 | ⏳ |
-| E4 | WorkflowResumer lifespan test (Track D) | included in D2 | ⏳ |
-| E5 | Full Sprint 205-207 regression run (78 tests) | 5 min | ⏳ |
+| E1 | TG-41 test green (Track A verification) | 2 min | ✅ DONE |
+| E2 | Import smoke test after dead code deletion (Track B) | 3 min | ✅ DONE |
+| E3 | 3 new command implementation tests (Track C) | included in C4 | ✅ DONE |
+| E4 | WorkflowResumer lifespan test (Track D) | included in D2 | ✅ DONE |
+| E5 | Full Sprint 205-207 regression run (78 tests) | 5 min | ✅ DONE |
 
 **Full test command**:
 ```bash
@@ -279,22 +279,22 @@ Expected: all green, 0 regressions.
 
 ## Definition of Done — Sprint 208
 
-- [ ] `test_tg_41_all_fastapi_routes_in_tier_table` PASSES (0 missing routes)
-- [ ] `/api/v1/magic-link` → tier STANDARD (2) in `ROUTE_TIER_TABLE`
-- [ ] `/api/v1/workflows` → tier PROFESSIONAL (3) in `ROUTE_TIER_TABLE`
-- [ ] `billing/` directory deleted (was empty)
-- [ ] `infrastructure/__init__.py` deleted (broken import)
-- [ ] `browser_agent_service.py` deleted (0 references)
-- [ ] `python -c "from app.main import app"` succeeds after cleanup
-- [ ] `create_project` command — real implementation (no "Feature coming" stub)
-- [ ] `submit_evidence` command — real implementation via evidence API
-- [ ] `update_sprint` command — wired to sprint_command_handler
-- [ ] WorkflowResumer conditionally started in lifespan (`LANGGRAPH_ENABLED=true`)
-- [ ] Tests for 3 new command implementations
-- [ ] Sprint 205-207 regression guard: 78/78 passing
-- [ ] 0 new regressions from Sprint 208 changes
-- [ ] CURRENT-SPRINT.md updated to Sprint 208
-- [ ] SPRINT-INDEX.md updated
+- [x] `test_tg_41_all_fastapi_routes_in_tier_table` PASSES (0 missing routes)
+- [x] `/api/v1/magic-link` → tier STANDARD (2) in `ROUTE_TIER_TABLE`
+- [x] `/api/v1/workflows` → tier PROFESSIONAL (3) in `ROUTE_TIER_TABLE`
+- [x] `billing/` directory deleted (was empty)
+- [x] `infrastructure/__init__.py` deleted (broken import)
+- [x] `browser_agent_service.py` deleted (0 references)
+- [x] `python -c "from app.main import app"` succeeds after cleanup
+- [x] `create_project` command — real implementation via async ORM (RF-01)
+- [x] `submit_evidence` command — real implementation via GateEvidence ORM (RF-02)
+- [x] `update_sprint` command — wired to sprint_command_handler
+- [x] WorkflowResumer conditionally started in lifespan (`LANGGRAPH_ENABLED=true`)
+- [x] Tests for 3 new command implementations (8 tests)
+- [x] Sprint 205-207 regression guard: 78/78 passing
+- [x] 0 new regressions from Sprint 208 changes (310 total)
+- [x] CURRENT-SPRINT.md updated to Sprint 208
+- [x] SPRINT-INDEX.md updated
 
 ---
 
@@ -381,14 +381,14 @@ Target: `backend/tests/unit/test_sprint208_hardening.py`
 
 | Criterion | Status |
 |-----------|--------|
-| All DoD items checked (16/16) | ⏳ |
-| New tests passing (8/8) | ⏳ |
-| Regression guard: Sprint 205-207 (78 tests) | ⏳ |
-| TG-41 CI test green | ⏳ |
-| 0 new regressions | ⏳ |
-| SPRINT-INDEX.md updated | ⏳ |
-| CURRENT-SPRINT.md updated to Sprint 208 | ⏳ |
-| Code committed + pushed to main | ⏳ |
+| All DoD items checked (16/16) | ✅ DONE |
+| New tests passing (8/8) | ✅ DONE |
+| Regression guard: Sprint 205-207 (78 tests) | ✅ DONE |
+| TG-41 CI test green | ✅ DONE |
+| 0 new regressions | ✅ DONE |
+| SPRINT-INDEX.md updated | ✅ DONE |
+| CURRENT-SPRINT.md updated to Sprint 208 | ✅ DONE |
+| Code committed + pushed to main | ✅ DONE |
 
 ---
 
