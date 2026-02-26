@@ -1,7 +1,7 @@
 ---
 sdlc_version: "6.1.1"
 document_type: "Sprint Plan"
-status: "PROPOSED"
+status: "CLOSED"
 sprint: "205"
 spec_id: "SP-205"
 tier: "PROFESSIONAL"
@@ -144,3 +144,42 @@ python -m pytest backend/tests/ -k "langchain" \
 | LangChain 0.3.x API breaking change | LOW | MEDIUM | Pin versions in enterprise.txt |
 | ChatOllama timeout on large context | MEDIUM | LOW | Same timeout as direct Ollama |
 | Token counting inaccuracy | LOW | LOW | tiktoken fallback as safety net |
+| StructuredTool lambda positional args | LOW (Sprint 206) | MEDIUM | See Sprint 206 watch item |
+
+**Sprint 206 Watch Item** (PM flag, non-blocking for Sprint 205 — tests mock StructuredTool):
+`langchain_tool_registry.py` — `StructuredTool.from_function()` lambdas use default-arg capture (`_ctx=ctx`). Multi-arg lambdas (e.g., `lambda gate_id, evidence_type, content, _ctx=ctx`) rely on LangChain ≥0.3 passing args by keyword (from the Pydantic `args_schema` field names). Verified correct for current LangChain schema-dispatch behavior. If positional dispatch issues surface during Sprint 206 real-package integration, mitigation: replace lambdas with `functools.partial` or dedicated wrapper functions with explicit keyword-only signatures.
+
+---
+
+## 8. Sprint Close Summary ✅
+
+**Status**: CLOSED — All 3 Tracks Complete ✅ (Feb 25, 2026)
+**Tests**: 38 new tests (21 LC + 17 LT) | 285/285 regression guards passing
+**LOC**: ~860 LOC across 4 new files + 4 modified files
+
+**New files delivered**:
+- `backend/app/services/agent_team/langchain_provider.py` (~230 LOC)
+- `backend/app/services/agent_team/langchain_tool_registry.py` (~210 LOC)
+- `backend/tests/unit/test_langchain_provider.py` (~230 LOC, 21 tests: LC-01 to LC-10)
+- `backend/tests/unit/test_langchain_tools.py` (~200 LOC, 17 tests: LT-01 to LT-05)
+
+**Modified files**:
+- `backend/app/services/agent_team/agent_invoker.py` — `langchain` branch + `_call_langchain()` method
+- `backend/app/services/agent_team/failover_classifier.py` — LangChain exception class name matching (4 patterns)
+- `backend/app/services/agent_team/tool_context.py` — `ToolPermissionDenied` + `PermissionDenied` alias + `authorize_tool_call()`
+- `backend/app/services/agent_team/config.py` — `LANGCHAIN_ENABLED` + `LANGCHAIN_DEFAULT_MODEL`
+
+**Exit criteria verification**:
+- ✅ `LANGCHAIN_ENABLED=false` → no behavior change (feature flag respected)
+- ✅ Optional dependency guard — module imports cleanly without `langchain-core`/`langchain-community`/`langchain-anthropic`/`langchain-openai`
+- ✅ 21/21 LC tests passing (LC-01: dispatch, LC-02: flag disabled, LC-03: optional guard, LC-04: ChatOllama, LC-05: ChatAnthropic, LC-06: structured output, LC-07: tool binding, LC-08: token counting, LC-09: exception mapping, LC-10: unauthorized tool)
+- ✅ 17/17 LT tests passing (LT-01: gate_status, LT-02: submit_evidence, LT-03: read_file+authorize, LT-04: permission denied, LT-05: all schemas)
+- ✅ Zero P0 security bugs
+- ✅ 285/285 sprint 200-205 regression guards passing
+
+**Implementation notes**:
+- Message class stubs in `except ImportError` block are functional (have `.content` attribute) — not `None` — enabling test patching without real LangChain packages
+- `authorize_tool_call` moved to module-level import in `langchain_tool_registry.py` to support `unittest.mock.patch` for LT-03
+- `_call_langchain()` uses lazy import of `LangChainProvider` to avoid circular import at module load time
+
+*Last Updated*: February 25, 2026 — Sprint 205 CLOSED ✅

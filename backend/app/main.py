@@ -192,6 +192,7 @@ from app.api.routes import invitations  # Sprint 181 - Team Invitations (ENTERPR
 from app.api.routes import enterprise_sso  # Sprint 183 - Enterprise SSO (SAML 2.0 + Azure AD, ADR-061)
 from app.api.routes import jira_integration  # Sprint 184 - Jira Integration (PROFESSIONAL+, ADR-059)
 from app.api.routes import admin_ott  # Sprint 198 - OTT Gateway Admin Dashboard (ENTERPRISE)
+from app.api.routes import workflows  # Sprint 206 - LangGraph Durable Workflows (ADR-066 Phase 2)
 from app.api.v1.endpoints import cross_reference  # Sprint 139 - RFC-SDLC-602 E2E Cross-Reference Validation
 from app.api.v1.endpoints import e2e_testing  # Sprint 140 - RFC-SDLC-602 E2E Test Execution API
 
@@ -377,6 +378,7 @@ app.include_router(magic_link.router, prefix="/api/v1", tags=["Magic Link"])  # 
 # Routes: /api/v1/admin/ott-channels/{stats,config,{channel}/health,{channel}/conversations}
 # Tier gate: /api/v1/admin → ENTERPRISE (tier=4) already in ROUTE_TIER_TABLE
 app.include_router(admin_ott.router, prefix="/api/v1", tags=["OTT Gateway Admin"])  # Sprint 198 - OTT Gateway Dashboard
+app.include_router(workflows.router, prefix="/api/v1", tags=["Workflows"])  # Sprint 206 - LangGraph Durable Workflows (ADR-066 Phase 2)
 # Templates: CORE public endpoint (no auth, rate-limited by RateLimiterMiddleware)
 app.include_router(templates.router, prefix="/api/v1", tags=["Templates"])  # Sprint 181 - SDLC Templates (public CORE)
 # ENTERPRISE routes — HTTP 402 raised by require_enterprise_tier if tier < enterprise

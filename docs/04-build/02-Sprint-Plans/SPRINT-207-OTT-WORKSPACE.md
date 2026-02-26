@@ -1,8 +1,8 @@
 # Sprint 207 — OTT Workspace Context Management
 
-**Sprint Duration**: TBD — 5 working days (after Sprint 206 closes)
+**Sprint Duration**: 2026-02-26 — 1 working day
 **Sprint Goal**: Implement OTT Workspace — cho phép user set/switch active project trong **Telegram** chat, governance commands tự động inject project_id từ workspace (Zalo: Sprint 208+)
-**Status**: PLANNED
+**Status**: COMPLETE
 **Priority**: P2 (Conversation-First UX)
 **Framework**: SDLC 6.1.1
 **Previous Sprint**: [Sprint 206 — TBD](SPRINT-206-TBD.md) | [Sprint 205 — LangChain Phase 1 (ADR-066)](SPRINT-205-LANGCHAIN.md)

@@ -87,6 +87,43 @@ _COMMAND_REPLIES: dict[str, str] = {
         "VD: 'tr\u1ea1ng th\u00e1i gate', 'duy\u1ec7t gate <id>'\n\n"
         "\U0001f310 Dashboard: https://sdlc.nhatquangholding.com"
     ),
+    # Sprint 207: Workspace commands — static guidance (FR-049, ADR-067)
+    "/workspace": (
+        "\U0001f4c2 Workspace Commands:\n"
+        "  /workspace set <name>   \u2014 Set active project\n"
+        "  /workspace              \u2014 Show current workspace\n"
+        "  /workspace list         \u2014 List your projects\n"
+        "  /workspace clear        \u2014 Clear workspace binding\n\n"
+        "\U0001f4a1 Tip: Set workspace once, then use /gates /approve "
+        "/evidence without project ID."
+    ),
+    "/workspace_set": (
+        "\U0001f4c2 Workspace Commands:\n"
+        "  /workspace set <name>   \u2014 Set active project\n"
+        "  /workspace              \u2014 Show current workspace\n"
+        "  /workspace list         \u2014 List your projects\n"
+        "  /workspace clear        \u2014 Clear workspace binding\n\n"
+        "\U0001f4a1 Tip: Set workspace once, then use /gates /approve "
+        "/evidence without project ID."
+    ),
+    "/workspace_list": (
+        "\U0001f4c2 Workspace Commands:\n"
+        "  /workspace set <name>   \u2014 Set active project\n"
+        "  /workspace              \u2014 Show current workspace\n"
+        "  /workspace list         \u2014 List your projects\n"
+        "  /workspace clear        \u2014 Clear workspace binding\n\n"
+        "\U0001f4a1 Tip: Set workspace once, then use /gates /approve "
+        "/evidence without project ID."
+    ),
+    "/workspace_clear": (
+        "\U0001f4c2 Workspace Commands:\n"
+        "  /workspace set <name>   \u2014 Set active project\n"
+        "  /workspace              \u2014 Show current workspace\n"
+        "  /workspace list         \u2014 List your projects\n"
+        "  /workspace clear        \u2014 Clear workspace binding\n\n"
+        "\U0001f4a1 Tip: Set workspace once, then use /gates /approve "
+        "/evidence without project ID."
+    ),
 }
 
 

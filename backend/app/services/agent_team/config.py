@@ -220,3 +220,22 @@ LANGCHAIN_ENABLED: bool = os.environ.get("LANGCHAIN_ENABLED", "false").lower() =
 LANGCHAIN_DEFAULT_MODEL: str = os.environ.get(
     "LANGCHAIN_DEFAULT_MODEL", "qwen3-coder:30b"
 )
+
+# =========================================================================
+# LangGraph Workflow Settings (Sprint 206, ADR-066 Phase 2)
+# =========================================================================
+# Feature flag: set LANGGRAPH_ENABLED=true in env to activate LangGraph
+# durable reflection workflows in the WorkflowResumer service.
+# When false (default): WorkflowResumer raises an error if started.
+# WORKFLOW_RESUMER_RECONCILER_INTERVAL_SECONDS: polling interval (default 30s)
+# WORKFLOW_STUCK_THRESHOLD_MINUTES: auto-resume stuck workflows (default 5min)
+
+LANGGRAPH_ENABLED: bool = os.environ.get("LANGGRAPH_ENABLED", "false").lower() == "true"
+
+WORKFLOW_RESUMER_RECONCILER_INTERVAL_SECONDS: int = int(
+    os.environ.get("WORKFLOW_RESUMER_RECONCILER_INTERVAL_SECONDS", "30")
+)
+
+WORKFLOW_STUCK_THRESHOLD_MINUTES: int = int(
+    os.environ.get("WORKFLOW_STUCK_THRESHOLD_MINUTES", "5")
+)

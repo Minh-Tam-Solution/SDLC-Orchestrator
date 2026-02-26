@@ -44,6 +44,14 @@ logger = logging.getLogger(__name__)
 # Telegram API message length limit
 _MAX_RESPONSE_LENGTH = 4000
 
+# Sprint 207: Tier display emojis (FR-049)
+_TIER_EMOJI = {
+    "LITE": "\U0001f7e2",        # green circle
+    "STANDARD": "\U0001f535",     # blue circle
+    "PROFESSIONAL": "\U0001f7e3", # purple circle
+    "ENTERPRISE": "\U0001f7e0",   # orange circle
+}
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Response formatting — Vietnamese/English bilingual (A-06)
@@ -405,8 +413,267 @@ async def _execute_request_approval(
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Main Dispatch — route ChatCommandResult to handler
+# Sprint 207: Workspace Command Execution (FR-049, ADR-067)
 # ──────────────────────────────────────────────────────────────────────────────
+
+
+async def execute_workspace_command(
+    subcommand: str,
+    args_text: str,
+    bot_token: str,
+    chat_id: str | int,
+    user_id: str,
+    channel: str = "telegram",
+) -> bool:
+    """
+    Dispatch workspace subcommands: set, info, list, clear.
+
+    Called from ai_response_handler.py BEFORE route_chat_command() to bypass
+    the LLM router (no ToolName slot available, MAX_COMMANDS=10 reached).
+
+    All DB-requiring workspace operations live here (NOT in ai_response_handler)
+    because governance_action_handler creates AsyncSessionLocal per command.
+    """
+    from app.services.agent_bridge.workspace_service import (
+        get_workspace,
+        set_workspace,
+        clear_workspace,
+        touch_workspace_ttl,
+        resolve_project_by_name,
+        is_uuid,
+        WorkspaceContext,
+    )
+    from app.utils.redis import get_redis_client
+    from app.models.project import Project, ProjectMember
+    from sqlalchemy import select
+
+    redis = await get_redis_client()
+
+    if subcommand == "set":
+        if not args_text:
+            return await _send_telegram_reply(
+                bot_token, chat_id,
+                _format_error(
+                    "Vui lòng cung cấp tên hoặc UUID project.\n"
+                    "Usage: /workspace set <project-name-or-uuid>"
+                ),
+                channel=channel,
+            )
+
+        async with AsyncSessionLocal() as db:
+            # UUID direct path
+            if is_uuid(args_text.strip()):
+                project_uuid = args_text.strip()
+                from sqlalchemy import select as sel
+                stmt = sel(Project).where(
+                    Project.id == project_uuid,
+                    Project.is_active.is_(True),
+                )
+                result = await db.execute(stmt)
+                project = result.scalar_one_or_none()
+                if not project:
+                    return await _send_telegram_reply(
+                        bot_token, chat_id,
+                        f"\u274c Project not found: {project_uuid}\n"
+                        f"Use /workspace list to see your projects.",
+                        channel=channel,
+                    )
+                # Check membership
+                mem_stmt = sel(ProjectMember).where(
+                    ProjectMember.project_id == project_uuid,
+                    ProjectMember.user_id == user_id,
+                )
+                mem_result = await db.execute(mem_stmt)
+                if not mem_result.scalar_one_or_none():
+                    return await _send_telegram_reply(
+                        bot_token, chat_id,
+                        f"\u274c Access denied. You are not a member of '{project.name}'.\n"
+                        f"Contact your project owner to be added.",
+                        channel=channel,
+                    )
+                matched_project = project
+            else:
+                # Name-based search
+                search_result = await resolve_project_by_name(
+                    args_text.strip(), user_id, db,
+                )
+                exact = search_result["exact"]
+                matches = search_result["matches"]
+
+                if not matches:
+                    return await _send_telegram_reply(
+                        bot_token, chat_id,
+                        f"\u274c Project '{args_text.strip()}' not found.\n"
+                        f"Use /workspace list to see your projects.",
+                        channel=channel,
+                    )
+
+                if not exact and len(matches) > 1:
+                    # Disambiguation list (D-067-03)
+                    lines = [
+                        f"\U0001f50d Multiple projects match '{args_text.strip()}'. "
+                        f"Use UUID to set exactly:",
+                    ]
+                    for i, p in enumerate(matches[:5], 1):
+                        tier = getattr(p, "tier", "STANDARD") or "STANDARD"
+                        emoji = _TIER_EMOJI.get(tier, "\u26aa")
+                        lines.append(
+                            f"  {i}. {emoji} {p.name} ({tier})\n"
+                            f"     /workspace set {p.id}"
+                        )
+                    if len(matches) > 5:
+                        lines.append(f"  ...and more. Use a more specific name.")
+                    lines.append("\nUse the exact UUID above, or try a more specific name.")
+                    return await _send_telegram_reply(
+                        bot_token, chat_id, "\n".join(lines), channel=channel,
+                    )
+
+                matched_project = exact
+
+            # Set workspace
+            tier = getattr(matched_project, "tier", "STANDARD") or "STANDARD"
+            stage = getattr(matched_project, "sdlc_stage", "") or ""
+            try:
+                # Read previous workspace for group override notice
+                prev_ws = await get_workspace(channel, chat_id, redis)
+                await set_workspace(
+                    channel, chat_id,
+                    str(matched_project.id),
+                    matched_project.name,
+                    tier, stage, user_id, redis,
+                )
+            except Exception:
+                return await _send_telegram_reply(
+                    bot_token, chat_id,
+                    "\u26a0\ufe0f Workspace service temporarily unavailable. "
+                    "Try again in a moment.",
+                    channel=channel,
+                )
+
+            emoji = _TIER_EMOJI.get(tier, "\u26aa")
+            reply = (
+                f"\u2705 Workspace set to: {matched_project.name}\n"
+                f"Tier: {emoji} {tier} | Stage: {stage or 'N/A'}\n"
+                f"All governance commands will use this project.\n"
+                f"Type /workspace to check anytime."
+            )
+            # Group override notice (FR-049-06 P0-4)
+            if prev_ws and prev_ws.project_id != str(matched_project.id):
+                reply += (
+                    f"\n\u26a0\ufe0f Previous workspace ({prev_ws.project_name} "
+                    f"set by {prev_ws.set_by}) was overridden."
+                )
+            return await _send_telegram_reply(bot_token, chat_id, reply, channel=channel)
+
+    elif subcommand == "info":
+        ws = await get_workspace(channel, chat_id, redis)
+        if not ws:
+            return await _send_telegram_reply(
+                bot_token, chat_id,
+                "\U0001f4c2 No active workspace.\n"
+                "Set one with: /workspace set <project-name>\n"
+                "List your projects: /workspace list",
+                channel=channel,
+            )
+        # Touch TTL on info view (D-067-02)
+        await touch_workspace_ttl(channel, chat_id, redis)
+        emoji = _TIER_EMOJI.get(ws.tier, "\u26aa")
+        return await _send_telegram_reply(
+            bot_token, chat_id,
+            f"\U0001f4c2 Active Workspace\n"
+            f"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+            f"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n"
+            f"Project: {ws.project_name}\n"
+            f"Tier: {emoji} {ws.tier}\n"
+            f"Stage: {ws.sdlc_stage or 'N/A'}\n"
+            f"Set by: {ws.set_by}\n\n"
+            f"Commands: /gates /approve /evidence /sprint_status",
+            channel=channel,
+        )
+
+    elif subcommand == "list":
+        # Touch TTL on list view (D-067-02)
+        await touch_workspace_ttl(channel, chat_id, redis)
+        ws = await get_workspace(channel, chat_id, redis)
+        active_id = ws.project_id if ws else None
+
+        async with AsyncSessionLocal() as db:
+            stmt = (
+                select(Project)
+                .join(ProjectMember, ProjectMember.project_id == Project.id)
+                .where(
+                    ProjectMember.user_id == user_id,
+                    Project.is_active.is_(True),
+                )
+                .order_by(Project.name)
+                .limit(10)
+            )
+            result = await db.execute(stmt)
+            projects = list(result.scalars().all())
+
+        if not projects:
+            return await _send_telegram_reply(
+                bot_token, chat_id,
+                "\U0001f4cb No projects found.\n"
+                "Create one via the web dashboard or ask your admin.",
+                channel=channel,
+            )
+
+        lines = [
+            "\U0001f4cb Your Projects",
+            "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+            "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+        ]
+        for p in projects:
+            tier = getattr(p, "tier", "STANDARD") or "STANDARD"
+            emoji = _TIER_EMOJI.get(tier, "\u26aa")
+            stage = getattr(p, "sdlc_stage", "") or ""
+            marker = "\u25b6" if str(p.id) == active_id else "\u25cb"
+            active_tag = " [ACTIVE]" if str(p.id) == active_id else ""
+            lines.append(f"{marker} {emoji} {p.name}{active_tag}")
+            if stage:
+                lines.append(f"   Stage: {stage}")
+        lines.append("")
+        lines.append("Switch with: /workspace set <name>")
+
+        return await _send_telegram_reply(
+            bot_token, chat_id, "\n".join(lines), channel=channel,
+        )
+
+    elif subcommand == "clear":
+        ws = await get_workspace(channel, chat_id, redis)
+        if not ws:
+            return await _send_telegram_reply(
+                bot_token, chat_id,
+                "\U0001f4c2 No active workspace to clear.",
+                channel=channel,
+            )
+        prev_name = ws.project_name
+        try:
+            await clear_workspace(channel, chat_id, redis)
+        except Exception:
+            return await _send_telegram_reply(
+                bot_token, chat_id,
+                "\u26a0\ufe0f Workspace service temporarily unavailable. "
+                "Try again in a moment.",
+                channel=channel,
+            )
+        return await _send_telegram_reply(
+            bot_token, chat_id,
+            f"\U0001f5d1 Workspace cleared (was: {prev_name}). No active project.\n"
+            f"Use /workspace set <name> to set a new one.",
+            channel=channel,
+        )
+
+    else:
+        return await _send_telegram_reply(
+            bot_token, chat_id,
+            _format_error(
+                f"Unknown workspace subcommand: {subcommand}\n"
+                f"Available: /workspace set, /workspace, /workspace list, /workspace clear"
+            ),
+            channel=channel,
+        )
 
 
 async def execute_governance_action(
@@ -445,17 +712,54 @@ async def execute_governance_action(
     tool_name = result.tool_name
     tool_args = result.tool_args or {}
 
+    # ── Sprint 207: Workspace project_id injection (D-067-04) ──
+    # If tool_args lacks project_id, resolve from workspace (4-level priority).
+    # Track whether workspace was used so we can touch TTL after success.
+    workspace_used = False
+    _COMMANDS_NEEDING_PROJECT = {
+        ToolName.GET_GATE_STATUS.value,
+        ToolName.SUBMIT_EVIDENCE.value,
+        ToolName.EXPORT_AUDIT.value,
+        ToolName.UPDATE_SPRINT.value,
+        ToolName.CLOSE_SPRINT.value,
+    }
+    if tool_name in _COMMANDS_NEEDING_PROJECT and not tool_args.get("project_id"):
+        try:
+            from app.services.agent_bridge.workspace_service import resolve_project_id
+            from app.utils.redis import get_redis_client
+            redis = await get_redis_client()
+            resolved_id, ws_used = await resolve_project_id(
+                explicit_id=None,
+                channel=channel,
+                chat_id=chat_id,
+                redis=redis,
+            )
+            if resolved_id:
+                tool_args["project_id"] = resolved_id
+                workspace_used = ws_used
+                logger.info(
+                    "governance_handler: workspace injected project_id=%s ws_used=%s",
+                    resolved_id, ws_used,
+                )
+        except Exception as exc:
+            logger.warning(
+                "governance_handler: workspace resolution failed error=%s",
+                str(exc),
+            )
+
     logger.info(
         "governance_handler: executing tool=%s args=%s user=%s chat_id=%s channel=%s",
         tool_name, tool_args, user_id, chat_id, channel,
     )
 
     try:
+        handled = False
+
         if tool_name == ToolName.GET_GATE_STATUS.value:
-            return await _execute_gate_status(tool_args, bot_token, chat_id, user_id, channel=channel)
+            handled = await _execute_gate_status(tool_args, bot_token, chat_id, user_id, channel=channel)
 
         elif tool_name == ToolName.REQUEST_APPROVAL.value:
-            return await _execute_request_approval(tool_args, bot_token, chat_id, user_id, channel=channel)
+            handled = await _execute_request_approval(tool_args, bot_token, chat_id, user_id, channel=channel)
 
         elif tool_name == ToolName.CREATE_PROJECT.value:
             name = tool_args.get("name", "?")
@@ -468,7 +772,7 @@ async def execute_governance_action(
                 f"Vui lòng sử dụng Web Dashboard: https://sdlc.nhatquangholding.com",
                 channel=channel,
             )
-            return True
+            handled = True
 
         elif tool_name == ToolName.SUBMIT_EVIDENCE.value:
             await _send_telegram_reply(
@@ -479,13 +783,13 @@ async def execute_governance_action(
                 f"Feature coming in Sprint 199 Track B.",
                 channel=channel,
             )
-            return True
+            handled = True
 
         elif tool_name == ToolName.EXPORT_AUDIT.value:
             from app.services.agent_bridge.sprint_governance_handler import (
                 handle_export_audit,
             )
-            return await handle_export_audit(
+            handled = await handle_export_audit(
                 tool_args, bot_token, chat_id, user_id, channel=channel,
             )
 
@@ -499,13 +803,13 @@ async def execute_governance_action(
                 f"Vui lòng sử dụng CLI: sdlcctl update-sprint --project {project_id}",
                 channel=channel,
             )
-            return True
+            handled = True
 
         elif tool_name == ToolName.CLOSE_SPRINT.value:
             from app.services.agent_bridge.sprint_governance_handler import (
                 handle_close_sprint,
             )
-            return await handle_close_sprint(
+            handled = await handle_close_sprint(
                 tool_args, bot_token, chat_id, user_id, channel=channel,
             )
 
@@ -513,7 +817,7 @@ async def execute_governance_action(
             from app.services.agent_bridge.team_invite_handler import (
                 handle_invite_member,
             )
-            return await handle_invite_member(
+            handled = await handle_invite_member(
                 tool_args, bot_token, chat_id, user_id, channel=channel,
             )
 
@@ -524,6 +828,21 @@ async def execute_governance_action(
                 channel=channel,
             )
             return False
+
+        # ── Sprint 207: Touch workspace TTL after successful execution ──
+        # Only when workspace-injected project_id was used (D-067-02).
+        if handled and workspace_used:
+            try:
+                from app.services.agent_bridge.workspace_service import (
+                    touch_workspace_ttl,
+                )
+                from app.utils.redis import get_redis_client
+                redis = await get_redis_client()
+                await touch_workspace_ttl(channel, chat_id, redis)
+            except Exception:
+                pass  # TTL touch is non-critical
+
+        return handled
 
     except Exception as exc:
         logger.error(

@@ -125,6 +125,11 @@ _SLASH_TO_GOVERNANCE: dict[str, str] = {
     "/list_notes": "list notes",
     "/export_audit": "export audit",
     "/create_project": "create project",
+    # Sprint 207: Workspace commands (FR-049, ADR-067 D-067-03)
+    "/workspace": "workspace info",
+    "/workspace_set": "workspace set",
+    "/workspace_list": "workspace list",
+    "/workspace_clear": "workspace clear",
 }
 
 
@@ -504,6 +509,41 @@ async def handle_ai_response(
             text[:30],
             governance_text,
         )
+
+    # ── Sprint 207: Workspace commands bypass LLM router ──
+    # Workspace has no ToolName slot (MAX_COMMANDS=10), so route directly
+    # to execute_workspace_command() without wasting an LLM call.
+    if governance_text.startswith("workspace"):
+        try:
+            from app.services.agent_bridge.governance_action_handler import (
+                execute_workspace_command,
+            )
+            parts = governance_text.split(maxsplit=2)
+            subcommand = parts[1] if len(parts) > 1 else "info"
+            ws_args = parts[2] if len(parts) > 2 else ""
+            # "workspace ProjectName" (no subcommand) → treat as "set"
+            if subcommand not in ("set", "info", "list", "clear"):
+                ws_args = f"{subcommand} {ws_args}".strip()
+                subcommand = "set"
+            handled = await execute_workspace_command(
+                subcommand=subcommand,
+                args_text=ws_args,
+                bot_token=bot_token,
+                chat_id=chat_id,
+                user_id=sender_id,
+                channel=channel,
+            )
+            if handled:
+                logger.info(
+                    "ai_response_handler: workspace command handled chat_id=%s sub=%s",
+                    chat_id, subcommand,
+                )
+                return True
+        except Exception as exc:
+            logger.warning(
+                "ai_response_handler: workspace command failed chat_id=%s error=%s",
+                chat_id, str(exc),
+            )
 
     # ── Sprint 199 A-04: Governance intent detection ──
     # Route governance commands through chat_command_router → action handler

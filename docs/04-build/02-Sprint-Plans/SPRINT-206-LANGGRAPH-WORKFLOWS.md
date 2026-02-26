@@ -1,7 +1,7 @@
 ---
 sdlc_version: "6.1.1"
 document_type: "Sprint Plan"
-status: "PROPOSED"
+status: "CLOSED"
 sprint: "206"
 spec_id: "SP-206"
 tier: "PROFESSIONAL"
