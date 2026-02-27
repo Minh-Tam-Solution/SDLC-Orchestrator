@@ -1186,17 +1186,15 @@ async def list_audit_logs(
     Returns:
         AuditLogListResponse: Paginated audit logs
     """
-    # Build query with user join for actor email
-    query = select(AuditLog, User.email.label("actor_email")).outerjoin(
-        User, AuditLog.user_id == User.id
-    )
+    # Build query — actor_email is stored directly on AuditLog, no join needed
+    query = select(AuditLog)
 
     # Apply filters
     if action:
         query = query.where(AuditLog.action == action)
 
     if actor_id:
-        query = query.where(AuditLog.user_id == actor_id)
+        query = query.where(AuditLog.actor_id == str(actor_id))
 
     if target_type:
         query = query.where(AuditLog.resource_type == target_type)
@@ -1208,17 +1206,18 @@ async def list_audit_logs(
         query = query.where(AuditLog.created_at <= date_to)
 
     if search:
-        query = query.where(AuditLog.target_name.ilike(f"%{search}%"))
+        # Search on resource_id or resource_type (model has no target_name field)
+        query = query.where(AuditLog.resource_id.ilike(f"%{search}%"))
 
     # Count total
     count_query = select(func.count()).select_from(
         select(AuditLog.id).where(
             *([AuditLog.action == action] if action else []),
-            *([AuditLog.user_id == actor_id] if actor_id else []),
+            *([AuditLog.actor_id == str(actor_id)] if actor_id else []),
             *([AuditLog.resource_type == target_type] if target_type else []),
             *([AuditLog.created_at >= date_from] if date_from else []),
             *([AuditLog.created_at <= date_to] if date_to else []),
-            *([AuditLog.target_name.ilike(f"%{search}%")] if search else []),
+            *([AuditLog.resource_id.ilike(f"%{search}%")] if search else []),
         ).subquery()
     )
     total = await db.scalar(count_query)
@@ -1232,21 +1231,30 @@ async def list_audit_logs(
 
     # Execute
     result = await db.execute(query)
-    rows = result.all()
+    rows = result.scalars().all()
+
+    def _try_uuid(val: Optional[str]) -> Optional[UUID]:
+        """Safely parse a string to UUID, return None on failure."""
+        if not val:
+            return None
+        try:
+            return UUID(val)
+        except (ValueError, AttributeError):
+            return None
 
     # Map to response
     items = [
         AuditLogItem(
-            id=row.AuditLog.id,
-            timestamp=row.AuditLog.created_at,
-            action=row.AuditLog.action,
-            actor_id=row.AuditLog.user_id,
+            id=row.id,
+            timestamp=row.created_at,
+            action=row.action,
+            actor_id=_try_uuid(row.actor_id),
             actor_email=row.actor_email,
-            target_type=row.AuditLog.resource_type,
-            target_id=row.AuditLog.resource_id,
-            target_name=row.AuditLog.target_name,
-            details=row.AuditLog.details or {},
-            ip_address=str(row.AuditLog.ip_address) if row.AuditLog.ip_address else None,
+            target_type=row.resource_type,
+            target_id=_try_uuid(row.resource_id),
+            target_name=None,  # AuditLog model has no target_name column
+            details=row.detail or {},
+            ip_address=str(row.ip_address) if row.ip_address else None,
         )
         for row in rows
     ]

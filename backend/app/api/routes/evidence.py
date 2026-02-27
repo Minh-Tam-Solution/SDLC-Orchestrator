@@ -206,7 +206,7 @@ async def list_evidence(
 
 @router.get("/projects/{project_id}/evidence/status")
 async def get_evidence_status(
-    project_id: int,
+    project_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
@@ -366,7 +366,7 @@ async def get_evidence_status(
 
 @router.post("/projects/{project_id}/evidence/validate")
 async def trigger_evidence_validation(
-    project_id: int,
+    project_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
@@ -453,7 +453,7 @@ async def trigger_evidence_validation(
 
 @router.get("/projects/{project_id}/evidence/gaps")
 async def get_evidence_gaps(
-    project_id: int,
+    project_id: UUID,
     interface: Optional[str] = None,  # backend, frontend, extension, cli
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),

@@ -28,7 +28,7 @@ from datetime import datetime, timedelta, date
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-from sqlalchemy import func, select, text, and_, case
+from sqlalchemy import Float, func, select, text, and_, case
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.product_event import ProductEvent
@@ -127,7 +127,7 @@ class MCPAnalyticsService:
                     )
                 ).label("success"),
                 func.avg(
-                    ProductEvent.properties["latency_ms"].astext.cast(float)
+                    ProductEvent.properties["latency_ms"].astext.cast(Float)
                 ).label("avg_latency"),
             ).where(
                 ProductEvent.event_name.in_(AI_EVENTS),
@@ -319,10 +319,10 @@ class MCPAnalyticsService:
             # Get current latency stats
             current_query = select(
                 func.avg(
-                    ProductEvent.properties["latency_ms"].astext.cast(float)
+                    ProductEvent.properties["latency_ms"].astext.cast(Float)
                 ).label("avg"),
                 func.percentile_cont(0.95).within_group(
-                    ProductEvent.properties["latency_ms"].astext.cast(float)
+                    ProductEvent.properties["latency_ms"].astext.cast(Float)
                 ).label("p95"),
             ).where(
                 ProductEvent.event_name.in_(AI_EVENTS),
@@ -345,7 +345,7 @@ class MCPAnalyticsService:
             trend_query = select(
                 func.date(ProductEvent.timestamp).label("date"),
                 func.avg(
-                    ProductEvent.properties["latency_ms"].astext.cast(float)
+                    ProductEvent.properties["latency_ms"].astext.cast(Float)
                 ).label("avg"),
                 func.count(ProductEvent.id).label("count"),
             ).where(
@@ -428,7 +428,7 @@ class MCPAnalyticsService:
             query = select(
                 func.count(ProductEvent.id).label("invocations"),
                 func.avg(
-                    ProductEvent.properties["latency_ms"].astext.cast(float)
+                    ProductEvent.properties["latency_ms"].astext.cast(Float)
                 ).label("avg_latency"),
                 func.sum(
                     ProductEvent.properties["data_size"].astext.cast(int)

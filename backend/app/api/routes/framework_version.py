@@ -125,7 +125,7 @@ async def check_project_access(
     db: AsyncSession,
 ) -> Project:
     """Check if user has access to project."""
-    user_id = UUID(user.get("sub"))
+    user_id = user.id if hasattr(user, "id") else UUID(user.get("sub"))
 
     result = await db.execute(
         select(Project).where(
@@ -268,7 +268,9 @@ async def record_version(
     await check_project_access(project_id, current_user, db)
 
     user_id = None
-    if current_user.get("sub"):
+    if hasattr(current_user, "id"):
+        user_id = current_user.id
+    elif current_user.get("sub"):
         try:
             user_id = UUID(current_user.get("sub"))
         except ValueError:

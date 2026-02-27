@@ -313,24 +313,6 @@ async def calculate_vibecoding_index(
     )
 
 
-@router.get(
-    "/{submission_id}",
-    response_model=VibecodingIndexResponse,
-    summary="Get cached Vibecoding Index",
-    description="Get previously calculated Vibecoding Index for a submission.",
-)
-async def get_vibecoding_index(
-    submission_id: UUID,
-) -> VibecodingIndexResponse:
-    """Get cached Vibecoding Index."""
-    # TODO: Implement caching in database
-    # For now, return 404 (cache miss)
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"No cached index found for submission {submission_id}. Use POST /calculate instead.",
-    )
-
-
 @router.post(
     "/batch",
     response_model=BatchCalculateResponse,
@@ -509,3 +491,22 @@ async def signals_health(
         "critical_path_checker": "enabled",
         "timestamp": datetime.utcnow().isoformat(),
     }
+
+
+# NOTE: /{submission_id} must be registered AFTER all static routes to avoid shadowing
+@router.get(
+    "/{submission_id}",
+    response_model=VibecodingIndexResponse,
+    summary="Get cached Vibecoding Index",
+    description="Get previously calculated Vibecoding Index for a submission.",
+)
+async def get_vibecoding_index(
+    submission_id: UUID,
+) -> VibecodingIndexResponse:
+    """Get cached Vibecoding Index."""
+    # TODO: Implement caching in database
+    # For now, return 404 (cache miss)
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"No cached index found for submission {submission_id}. Use POST /calculate instead.",
+    )

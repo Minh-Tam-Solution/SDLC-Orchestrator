@@ -7,22 +7,22 @@
 
 ---
 
-## 🧪 Test Results (2026-02-27)
+## 🧪 Test Results (2026-02-27, Updated)
 
 **Test Account**: `admin@sdlc-orchestrator.io` (LITE tier)
 **Environment**: Docker Compose (PostgreSQL 15 + Redis + OPA + MinIO)
-**Migration Status**: 137 tables created via `alembic upgrade head` (5 migrations fixed)
+**Migration Status**: `alembic upgrade head` — all migrations applied (7 fixed)
 
 ### Summary
 
 | Status | Count | Description |
 |--------|-------|-------------|
-| ✅ 200 OK | ~18 endpoints tested | Working correctly |
-| ⚠️ 422 Unprocessable | ~5 endpoints | Missing required query params |
-| 🔒 402 Payment Required | 3 endpoints | LITE tier restriction |
-| ❌ 404 Not Found | ~12 endpoints | Route not registered or missing |
+| ✅ 200 OK | ~27 endpoints confirmed | Working correctly |
+| ⚠️ 422 Unprocessable | ~4 endpoints | Missing required query params |
+| 🔒 402 Payment Required | 5 endpoints | LITE tier restriction |
+| ❌ 404 Not Found | ~12 endpoints | Route not registered or deleted Sprint 190 |
 | 🚫 405 Method Not Allowed | 1 endpoint | Wrong HTTP method |
-| 💥 500 Server Error | 1 endpoint | UUID/int type mismatch bug |
+| 💥 500 Server Error | 0 | All P0 bugs fixed ✓ |
 
 ### ✅ Working Endpoints (200 OK)
 
@@ -32,9 +32,10 @@
 | `GET /api/v1/auth/me` | Returns user profile + organization |
 | `GET /api/v1/admin/stats` | System stats (users, projects, gates) |
 | `GET /api/v1/admin/users` | User list with pagination |
+| `GET /api/v1/admin/audit-logs` | **Fixed** — 65 real audit log entries, paginated ✓ |
 | `GET /api/v1/admin/settings` | System settings list |
 | `GET /api/v1/admin/settings/{key}` | Single setting by key |
-| `GET /api/v1/projects` | Project list (empty on fresh DB) |
+| `GET /api/v1/projects` | Project list |
 | `POST /api/v1/projects` | Create project ✓ |
 | `GET /api/v1/gates` | Gate list (requires project_id param) |
 | `GET /api/v1/evidence` | Evidence list |
@@ -43,10 +44,17 @@
 | `GET /api/v1/teams` | Team list |
 | `GET /api/v1/codegen/sessions` | Codegen session list |
 | `GET /api/v1/codegen/providers` | Provider list (Ollama, Claude, etc.) |
+| `GET /api/v1/codegen/usage/report` | **Fixed** — migration created for `codegen_usage_logs` ✓ |
 | `GET /api/v1/compliance/frameworks` | Compliance framework list |
 | `GET /api/v1/notifications` | Notification list |
 | `GET /api/v1/planning/roadmaps?project_id={uuid}` | Requires `project_id` query param |
 | `GET /api/v1/agent-team/definitions?project_id={uuid}` | Requires `project_id` query param |
+| `GET /api/v1/vibecoding/thresholds` | **Fixed** — route ordering fix ✓ |
+| `GET /api/v1/vibecoding/stats` | **Fixed** — route ordering fix ✓ |
+| `GET /api/v1/vibecoding/health` | **Fixed** — route ordering fix ✓ |
+| `GET /api/v1/maturity/levels` | **Fixed** — route ordering fix ✓ |
+| `GET /api/v1/maturity/health` | **Fixed** — route ordering fix ✓ |
+| `GET /api/v1/mcp/health` | **Fixed** — `cast(Float)` import fix ✓ |
 
 ### ⚠️ Require Query Params (422 Unprocessable Entity)
 
@@ -56,7 +64,6 @@
 | `GET /api/v1/planning/phases` | `project_id` (required) | Add `?project_id={uuid}` |
 | `GET /api/v1/planning/sprints` | `project_id` (required) | Add `?project_id={uuid}` |
 | `GET /api/v1/agent-team/definitions` | `project_id` (required) | Add `?project_id={uuid}` |
-| `GET /api/v1/agent-team/conversations/stats` | Route collision: `/conversations/stats` matches `/conversations/{conversation_id}` | Fix route ordering in router |
 
 ### 🔒 Tier-Restricted Endpoints (402 Payment Required)
 
@@ -84,7 +91,7 @@ These routes appear in code but are either not registered in the router or were 
 | `GET /api/v1/ai-requests` | Route deleted Sprint 190 (returns 410) |
 | `GET /api/v1/ai-providers` | Routes are under `/api/v1/admin/ai-providers/config`, not standalone |
 | `GET /api/v1/webhooks` | Route path may differ (check `webhooks.py`) |
-| `GET /api/v1/audit-logs` | Route path may differ (check `audit_trail.py`) |
+| `GET /api/v1/audit-logs` | Correct path is `/api/v1/admin/audit-logs` |
 | `GET /api/v1/usage` | Route not registered or path mismatch |
 | `GET /api/v1/compliance/scans` | Tier-restricted or path differs |
 
@@ -94,31 +101,35 @@ These routes appear in code but are either not registered in the router or were 
 |----------|-------|-----|
 | `PATCH /api/v1/admin/settings` | `PATCH /settings` not defined — only `GET /settings` and `PATCH /settings/{key}` exist | Use `PATCH /api/v1/admin/settings/{key}` |
 
-### 💥 Server Errors (500)
+### 💥 Server Errors Fixed (0 remaining)
 
-| Endpoint | Error | Fix Required |
-|----------|-------|--------------|
-| `GET /api/v1/projects/{project_id}/evidence/status` | Route expects `int` project_id but all IDs are UUID. `DataError: invalid input syntax for type integer: "{uuid}"` | Change route param type from `int` to `UUID` in `evidence_timeline.py` |
+All P0 server errors have been resolved. See **Runtime Bug Fixes** section below.
 
 ### 🔧 Migration Fixes Applied (2026-02-27)
 
-The following Alembic migration files were fixed to unblock `alembic upgrade head`:
-
 | File | Problem | Fix |
 |------|---------|-----|
-| `s206_001_workflow_metadata_index.py` | `down_revision='s203_001'` (underscore) vs actual `revision='s203001'` (no underscore) | Changed to `down_revision='s203001'` |
+| `s206_001_workflow_metadata_index.py` | `down_revision='s203_001'` vs actual `'s203001'` | Changed to `down_revision='s203001'` |
 | `s206_001_workflow_metadata_index.py` | `CREATE INDEX CONCURRENTLY` inside Alembic transaction | Removed `CONCURRENTLY` |
-| `s206_001_workflow_metadata_index.py` | Column `metadata_` typo (should be `metadata`) | Fixed column name |
-| `s161_001_project_tier_foundation.py` | `sa.Enum(create_type=True)` re-created types already in `op.execute("CREATE TYPE ...")` → `DuplicateObject` | Replaced all `sa.Enum(...)` with `postgresql.ENUM(..., create_type=False)` |
-| `s190_001_deprecate_unused_tables.py` | `COMMENT ON TABLE IF EXISTS` — PostgreSQL doesn't support `IF EXISTS` here | Wrapped in `DO $$ BEGIN IF EXISTS (...) THEN ... END IF; END $$` |
+| `s206_001_workflow_metadata_index.py` | Column `metadata_` typo | Fixed to `metadata` |
+| `s161_001_project_tier_foundation.py` | `sa.Enum(create_type=True)` re-creates types → `DuplicateObject` | Replaced with `postgresql.ENUM(..., create_type=False)` |
+| `s190_001_deprecate_unused_tables.py` | `COMMENT ON TABLE IF EXISTS` not valid PostgreSQL | Wrapped in `DO $$ BEGIN IF EXISTS ... END $$` |
 | `s207_001_projects_name_trgm_index.py` | `CREATE INDEX CONCURRENTLY` inside Alembic transaction | Removed `CONCURRENTLY` |
-| `s209_002_eu_ai_act_columns.py` | **NEW** — `eu_ai_act_*` columns existed in `Project` model but had no migration | Created new migration `s209_002` (revises `s209_001`) |
+| `s209_002_eu_ai_act_columns.py` | `eu_ai_act_*` columns in `Project` model but no migration | Created new migration (revises `s209_001`) |
+| `s209_003_codegen_usage_logs.py` | **NEW** — `codegen_usage_logs` table missing entirely | Created migration (revises `s209_002`) and ran `alembic upgrade head` |
 
 ### 🐛 Runtime Bug Fixes Applied (2026-02-27)
 
-| File | Problem | Fix |
-|------|---------|-----|
-| `backend/app/api/routes/evidence.py` | `Project.organization_id` — attribute doesn't exist on `Project` model; scoped via `team_id → teams.organization_id` | Added `Team` join: `.join(Team, Project.team_id == Team.id).where(Team.organization_id == ...)` |
+| File | Bug | Root Cause | Fix |
+|------|-----|------------|-----|
+| `evidence.py` | `GET /projects/{id}/evidence/status` → 500 `DataError: invalid input syntax for type integer` | `project_id: int` param on all 3 evidence status/validate/gaps routes | Changed to `project_id: UUID` |
+| `vibecoding_index.py` | `/thresholds`, `/stats`, `/health` → 422 | `GET /{submission_id}` registered before static routes — FastAPI matched static paths as UUID params | Moved `/{submission_id}` to end of file (after all static routes) |
+| `maturity.py` | `/levels`, `/health` → 422 | `GET /{project_id}` registered first, intercepted static paths | Added `/levels` and `/health` before `/{project_id}`; removed duplicate entries |
+| `admin.py` | `GET /admin/audit-logs` → 500 `AttributeError: 'AuditLog' has no attribute 'user_id'` | Code referenced `AuditLog.user_id` (wrong) instead of `AuditLog.actor_id` | Changed all 3 occurrences to `actor_id` |
+| `admin.py` | `GET /admin/audit-logs` → 500 `operator does not exist: character varying = uuid` | `AuditLog.actor_id` is `String(36)`, `User.id` is `UUID(as_uuid=True)` — PostgreSQL has no implicit varchar=uuid operator | Removed unnecessary `User` JOIN (actor_email already on model); used `str(actor_id)` for WHERE comparisons |
+| `admin.py` | `GET /admin/audit-logs` → 500 `AttributeError: 'AuditLog' has no attribute 'target_name'` | Response mapping referenced non-existent `target_name` column and `details` (should be `detail`) | Used `target_name=None`, `detail` field name; parsed `resource_id` to UUID safely |
+| `framework_version.py` | `GET /framework-version/{id}` → 500 `AttributeError: 'User' object has no attribute 'get'` | `get_current_user` returns SQLAlchemy `User` ORM object, but code called `user.get("sub")` as if dict | Added `hasattr(user, "id")` check; use `user.id` for ORM objects |
+| `mcp_analytics_service.py` | `GET /mcp/health` → 500 `AttributeError: 'float' object has no attribute '_static_cache_key'` | `cast(float)` uses Python builtin `float`; SQLAlchemy 2.0 requires `cast(Float)` type from `sqlalchemy` | Added `Float` to imports; replaced all 5 `cast(float)` → `cast(Float)` |
 
 ---
 

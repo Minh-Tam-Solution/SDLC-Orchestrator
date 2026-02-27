@@ -145,6 +145,58 @@ async def check_project_access(
 # =============================================================================
 # Endpoints
 # =============================================================================
+# NOTE: Static routes (/levels, /health) MUST be registered before dynamic
+# route (/{project_id}) to prevent FastAPI from matching them as UUIDs.
+
+
+@router.get(
+    "/levels",
+    response_model=list[LevelInfoResponse],
+    summary="Get maturity level definitions",
+    description="Get information about all maturity levels.",
+)
+async def get_maturity_levels() -> list[LevelInfoResponse]:
+    """Get maturity level definitions."""
+    return [
+        LevelInfoResponse(
+            level="L0",
+            name="Manual",
+            description="Human writes all code, manual testing and reviews. No AI assistance.",
+            score_range=(0, 20),
+            key_features=["All code written manually", "Manual code reviews", "Manual testing", "No AI tools in use"],
+        ),
+        LevelInfoResponse(
+            level="L1",
+            name="Assistant",
+            description="AI suggests code (Copilot), human reviews and decides. Basic automation.",
+            score_range=(21, 50),
+            key_features=["GitHub Copilot or similar AI assistant", "Automated linting and formatting", "Basic CI/CD pipeline", "Human reviews all AI suggestions"],
+        ),
+        LevelInfoResponse(
+            level="L2",
+            name="Orchestrated",
+            description="Agent workflows with human oversight via CRP. Evidence collection automated.",
+            score_range=(51, 80),
+            key_features=["Planning Sub-agent for task decomposition", "Evidence Vault for compliance tracking", "CRP for human oversight", "Policy enforcement (OPA)", "GitHub Check Runs"],
+        ),
+        LevelInfoResponse(
+            level="L3",
+            name="Autonomous",
+            description="Agents act autonomously, human audits via Evidence Vault. Full automation.",
+            score_range=(81, 100),
+            key_features=["Autonomous PR creation", "Self-healing CI/CD pipelines", "Full compliance automation", "Human audit-only oversight"],
+        ),
+    ]
+
+
+@router.get(
+    "/health",
+    summary="Health check",
+    description="Check maturity service health.",
+)
+async def health_check() -> dict:
+    """Health check endpoint."""
+    return {"status": "healthy", "service": "agentic-maturity", "version": "1.0.0", "levels": ["L0", "L1", "L2", "L3"]}
 
 
 @router.get(
@@ -325,90 +377,4 @@ async def get_org_maturity_report(
     return OrgMaturityResponse(**report)
 
 
-@router.get(
-    "/levels",
-    response_model=list[LevelInfoResponse],
-    summary="Get maturity level definitions",
-    description="Get information about all maturity levels.",
-)
-async def get_maturity_levels() -> list[LevelInfoResponse]:
-    """
-    Get maturity level definitions.
-
-    Returns information about each maturity level (L0-L3),
-    including score ranges and key features.
-
-    Returns:
-        List of LevelInfoResponse
-    """
-    return [
-        LevelInfoResponse(
-            level="L0",
-            name="Manual",
-            description="Human writes all code, manual testing and reviews. No AI assistance.",
-            score_range=(0, 20),
-            key_features=[
-                "All code written manually",
-                "Manual code reviews",
-                "Manual testing",
-                "No AI tools in use",
-            ],
-        ),
-        LevelInfoResponse(
-            level="L1",
-            name="Assistant",
-            description="AI suggests code (Copilot), human reviews and decides. Basic automation.",
-            score_range=(21, 50),
-            key_features=[
-                "GitHub Copilot or similar AI assistant",
-                "Automated linting and formatting",
-                "Basic CI/CD pipeline",
-                "Human reviews all AI suggestions",
-            ],
-        ),
-        LevelInfoResponse(
-            level="L2",
-            name="Orchestrated",
-            description="Agent workflows with human oversight via CRP. Evidence collection automated.",
-            score_range=(51, 80),
-            key_features=[
-                "Planning Sub-agent for task decomposition",
-                "Evidence Vault for compliance tracking",
-                "CRP for human oversight",
-                "Policy enforcement (OPA)",
-                "GitHub Check Runs",
-            ],
-        ),
-        LevelInfoResponse(
-            level="L3",
-            name="Autonomous",
-            description="Agents act autonomously, human audits via Evidence Vault. Full automation.",
-            score_range=(81, 100),
-            key_features=[
-                "Autonomous PR creation",
-                "Self-healing CI/CD pipelines",
-                "Full compliance automation",
-                "Human audit-only oversight",
-            ],
-        ),
-    ]
-
-
-# =============================================================================
-# Health Check
-# =============================================================================
-
-
-@router.get(
-    "/health",
-    summary="Health check",
-    description="Check maturity service health.",
-)
-async def health_check() -> dict:
-    """Health check endpoint."""
-    return {
-        "status": "healthy",
-        "service": "agentic-maturity",
-        "version": "1.0.0",
-        "levels": ["L0", "L1", "L2", "L3"],
-    }
+# NOTE: /levels and /health moved to before /{project_id} to fix route ordering
