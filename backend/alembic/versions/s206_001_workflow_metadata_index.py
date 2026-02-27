@@ -12,7 +12,7 @@ The partial index dramatically speeds up the reconciler's 30s polling
 query without indexing conversations that have no workflow state.
 
 Revision ID: s206_001
-Revises: s203_001
+Revises: s203001
 Create Date: 2026-02-25
 """
 

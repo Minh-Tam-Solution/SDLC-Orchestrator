@@ -129,6 +129,12 @@ class ContextPanelProvider {
      * Refresh context data
      */
     async refresh() {
+        // Skip refresh if not authenticated — prevents infinite 401 logout loop
+        const hasToken = await this.apiClient.hasToken();
+        if (!hasToken) {
+            logger_1.Logger.debug('Skipping context overlay refresh - not authenticated');
+            return;
+        }
         // Sprint 127: Use ProjectDetector if available, fallback to manual config
         let projectId;
         let projectName;

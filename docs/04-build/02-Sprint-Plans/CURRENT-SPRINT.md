@@ -26,60 +26,62 @@ Sprint 208 closed Pre-Release Hardening. Dogfooding on Telegram revealed a **Day
 
 ## Sprint 209 Backlog
 
-### Track A-DB — P0: Alembic Migration ⏳
+### Track A-DB — P0: Alembic Migration ✅
 
 | ID | Item | Status |
 |----|------|--------|
-| ADB1 | `access_token` nullable + default '' | ⏳ |
-| ADB2 | UniqueConstraint on (provider, provider_account_id) | ⏳ |
+| ADB1 | `access_token` nullable + default '' | ✅ DONE |
+| ADB2 | UniqueConstraint on (provider, provider_account_id) with pre-dedup | ✅ DONE |
 
-### Track A — P0: OTT Link Handler ⏳
-
-| ID | Item | Status |
-|----|------|--------|
-| A1 | `/link <email>` — code generation + email send | ⏳ |
-| A2 | `/verify <code>` — oauth_accounts upsert | ⏳ |
-| A3 | `/unlink` — account removal | ⏳ |
-| A4 | Rate limiting (5 per 15 min) | ⏳ |
-| A5 | Route in ai_response_handler.py | ⏳ |
-
-### Track B — P0: Identity Resolver Integration ⏳
+### Track A — P0: OTT Link Handler ✅
 
 | ID | Item | Status |
 |----|------|--------|
-| B1 | Fix import path + TTL upgrade | ⏳ |
-| B2 | AsyncSessionLocal DB session in ai_response_handler.py | ⏳ |
-| B3 | effective_user_id passthrough to handlers | ⏳ |
-| B4 | Unlinked user guard message | ⏳ |
+| A1 | `/link <email>` — code generation + `asyncio.to_thread(send_email)` | ✅ DONE |
+| A2 | `/verify <code>` — GETDEL atomic single-use + oauth_accounts upsert + cache clear | ✅ DONE |
+| A3 | `/unlink` — account removal + cache clear | ✅ DONE |
+| A4 | `/whoami` — identity binding status (linked/unlinked/deleted) | ✅ DONE |
+| A5 | Rate limiting (5 per 15 min, Redis INCR + EXPIRE) | ✅ DONE |
+| A6 | Route `/link`, `/verify`, `/unlink`, `/whoami` in ai_response_handler.py | ✅ DONE |
 
-### Track C — P0: Deny Unlinked Workspace Access ⏳
+### Track B — P0: Identity Resolver Integration ✅
 
 | ID | Item | Status |
 |----|------|--------|
-| C1 | Verify resolve_project_by_name() denies non-UUID | ⏳ |
+| B1 | Fix import path (`app.models.user`) + TTL 3600s (60 min) | ✅ DONE |
+| B2 | AsyncSessionLocal DB session in ai_response_handler.py (line 447) | ✅ DONE |
+| B3 | `effective_user_id` passthrough to workspace/governance/agent handlers | ✅ DONE |
+| B4 | Unlinked user guard (`_is_unlinked` flag) for governance + multi-agent | ✅ DONE |
+
+### Track C — P0: Deny Unlinked Workspace Access ✅
+
+| ID | Item | Status |
+|----|------|--------|
+| C1 | `_is_unlinked` guard blocks governance + multi-agent (AI chat OK) | ✅ DONE |
 
 ### Track D — P1: Group Chat Setup ⏳
 
 | ID | Item | Status |
 |----|------|--------|
-| D1 | BotFather Group Privacy = OFF | ⏳ |
+| D1 | BotFather Group Privacy = OFF | ⏳ OPS |
 
-### Track E — P0: Tests ⏳
+### Track E — P0: Tests ✅
 
 | ID | Item | Status |
 |----|------|--------|
-| E1-E13 | 13 test cases (link/verify/unlink/identity/group) | ⏳ |
+| E1-E13 | 46 tests (31 link handler + 15 identity resolver) | ✅ DONE |
 
 ---
 
 ## Definition of Done — Sprint 209
 
-- [ ] Alembic migration `s209_001` — access_token nullable + UniqueConstraint
-- [ ] `ott_link_handler.py` — /link, /verify, /unlink with rate limiting
-- [ ] `ott_identity_resolver.py` — import fix + TTL 60 min
-- [ ] `ai_response_handler.py` — identity resolution with AsyncSessionLocal
-- [ ] Unlinked users denied workspace + governance access
-- [ ] 13/13 Sprint 209 tests passing
+- [x] Alembic migration `s209_001` — access_token nullable + UniqueConstraint + dedup
+- [x] `ott_link_handler.py` — /link, /verify, /unlink, /whoami with rate limiting (~230 LOC)
+- [x] `ott_identity_resolver.py` — import fix (`app.models.user`) + TTL 3600s
+- [x] `ai_response_handler.py` — identity resolution with AsyncSessionLocal + `effective_user_id`
+- [x] Unlinked users denied governance + multi-agent access (`_is_unlinked` guard)
+- [x] 46/46 Sprint 209 tests passing (31 link handler + 15 identity resolver)
+- [x] Team-Collaboration-Flow.md documented (US-COLLAB-001)
 - [ ] 310+ regression guards passing | 0 regressions
 - [ ] BotFather Group Privacy OFF
 - [ ] CURRENT-SPRINT.md updated
@@ -328,4 +330,4 @@ Sprint 206 delivered LangGraph Durable Workflows (ADR-066 Phase 2). Sprint 207 a
 
 ---
 
-*Last Updated*: February 26, 2026 — Sprint 207 COMPLETE ✅
+*Last Updated*: February 26, 2026 — Sprint 209 IN PROGRESS (6/6 code tracks DONE, PM Review fixes applied: /whoami + GETDEL atomicity, pending regression + ops)

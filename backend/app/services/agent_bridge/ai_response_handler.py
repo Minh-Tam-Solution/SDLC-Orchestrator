@@ -465,15 +465,16 @@ async def handle_ai_response(
             chat_id, str(exc),
         )
 
-    # ── Sprint 209: /link, /verify, /unlink routing (ADR-068) ──
+    # ── Sprint 209: /link, /verify, /unlink, /whoami routing (ADR-068) ──
     # Identity linking commands handled before governance — no identity needed.
     text_lower_stripped = text.lower().strip()
-    if text_lower_stripped.startswith("/link") or text_lower_stripped.startswith("/verify") or text_lower_stripped.startswith("/unlink"):
+    if text_lower_stripped.startswith(("/link", "/verify", "/unlink", "/whoami")):
         try:
             from app.services.agent_bridge.ott_link_handler import (
                 handle_link_command,
                 handle_verify_command,
                 handle_unlink_command,
+                handle_whoami_command,
             )
             from app.db.session import AsyncSessionLocal as _LinkSessionLocal
 
@@ -488,6 +489,10 @@ async def handle_ai_response(
                     args = text.strip()[7:].strip()  # strip "/verify" prefix
                     reply = await handle_verify_command(
                         args, channel, sender_id, link_redis, link_db,
+                    )
+                elif text_lower_stripped.startswith("/whoami"):
+                    reply = await handle_whoami_command(
+                        channel, sender_id, link_redis, link_db,
                     )
                 else:  # /unlink
                     reply = await handle_unlink_command(

@@ -254,8 +254,11 @@ export class ApiClient {
                 if (error.response?.status === 401) {
                     const currentToken = await this.authService.getToken();
 
-                    // For API keys, 401 means the key is invalid/revoked - prompt re-login directly
-                    if (currentToken?.startsWith('sdlc_live_')) {
+                    // No token stored — already logged out, skip logout to avoid infinite loop
+                    if (!currentToken) {
+                        Logger.debug('401 received but no token stored — skipping logout');
+                    } else if (currentToken.startsWith('sdlc_live_')) {
+                        // For API keys, 401 means the key is invalid/revoked - prompt re-login directly
                         Logger.warn('API key authentication failed (401) - key may be invalid or revoked');
                         await this.authService.logout();
                         void vscode.commands.executeCommand(
@@ -414,6 +417,14 @@ export class ApiClient {
         strict_mode?: boolean;
     }): Promise<void> {
         await this.put(`/api/v1/projects/${projectId}/context`, context);
+    }
+
+    /**
+     * Checks if the user has a stored authentication token
+     */
+    async hasToken(): Promise<boolean> {
+        const token = await this.authService.getToken();
+        return !!token;
     }
 
     /**

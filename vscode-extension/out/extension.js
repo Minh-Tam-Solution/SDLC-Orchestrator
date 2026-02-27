@@ -143,39 +143,35 @@ async function activate(context) {
             // Continue with unauthenticated state - views will show appropriate messages
         }
         await vscode.commands.executeCommand('setContext', 'sdlc.isAuthenticated', isAuthenticated);
-        // Register Context Panel commands (Sprint 81)
+        // Register ALL commands first (must succeed even if optional features fail)
+        // Context Panel commands (Sprint 81)
         (0, contextPanel_1.registerContextCommands)(context, state.contextPanelProvider, state.contextStatusBar);
-        // Register chat participant for Copilot-style @gate commands
-        state.chatParticipant = new complianceChat_1.ComplianceChatParticipant(state.apiClient);
-        const chatParticipantDisposable = vscode.chat.createChatParticipant('sdlc-orchestrator.gate', state.chatParticipant.handleChatRequest.bind(state.chatParticipant));
-        chatParticipantDisposable.iconPath = vscode.Uri.joinPath(context.extensionUri, 'media', 'sdlc-icon.svg');
-        context.subscriptions.push(chatParticipantDisposable);
-        // Register commands
+        // Core commands
         registerCommands(context);
-        // Register init commands (SDLC 6.0.6 project initialization)
+        // Init commands (SDLC 6.0.6 project initialization)
         (0, initCommand_1.registerInitCommand)(context, state.apiClient, state.authService);
-        // Register App Builder commands (Sprint 53)
+        // App Builder commands (Sprint 53)
         (0, generateCommand_1.registerGenerateCommand)(context, state.codegenApi);
         (0, magicCommand_1.registerMagicCommand)(context, state.codegenApi);
         (0, lockCommand_1.registerLockCommand)(context, state.codegenApi);
         (0, lockCommand_1.registerLockStatusCommand)(context, state.codegenApi);
         (0, previewCommand_1.registerPreviewCommand)(context, state.codegenApi);
         (0, resumeCommand_1.registerResumeCommand)(context, state.codegenApi);
-        // Register Specification Validation commands (Sprint 126 - S126-06)
+        // Specification Validation commands (Sprint 126 - S126-06)
         (0, specValidationCommand_1.registerSpecValidationCommand)(context, state.codegenApi);
-        // Register GitHub Integration commands (Sprint 129 Day 3)
+        // GitHub Integration commands (Sprint 129 Day 3)
         (0, connectGithubCommand_1.registerGithubCommands)(context, state.apiClient);
-        // Register E2E Testing commands (Sprint 139 - RFC-SDLC-602)
+        // E2E Testing commands (Sprint 139 - RFC-SDLC-602)
         (0, e2eValidateCommand_1.registerE2EValidateCommand)(context);
         (0, e2eCrossRefCommand_1.registerE2ECrossRefCommand)(context);
-        // Register SSOT Validation commands (Sprint 141 - RFC-SDLC-602)
+        // SSOT Validation commands (Sprint 141 - RFC-SDLC-602)
         state.ssotValidator = (0, ssotValidator_1.registerSSOTCommands)(context);
-        // Register Gate Governance commands (Sprint 173 - ADR-053 Governance Loop)
+        // Gate Governance commands (Sprint 173 - ADR-053 Governance Loop)
         (0, gateApprovalCommand_1.registerGateApprovalCommands)(context, state.apiClient);
         (0, evidenceSubmissionCommand_1.registerEvidenceSubmissionCommand)(context, state.apiClient);
-        // Register Blueprint commands (Sprint 53 Day 2)
+        // Blueprint commands (Sprint 53 Day 2)
         (0, blueprintProvider_1.registerBlueprintCommands)(context, state.blueprintProvider);
-        // Register App Builder Panel command (Sprint 53 Day 2)
+        // App Builder Panel command (Sprint 53 Day 2)
         context.subscriptions.push(vscode.commands.registerCommand('sdlc.openAppBuilder', () => {
             if (state.codegenApi && state.blueprintProvider) {
                 appBuilderPanel_1.AppBuilderPanel.createOrShow(context.extensionUri, state.codegenApi, state.blueprintProvider);
@@ -184,8 +180,19 @@ async function activate(context) {
                 void vscode.window.showErrorMessage('Services not initialized');
             }
         }));
-        // Register Generation Panel command (Sprint 53 Day 3)
+        // Generation Panel command (Sprint 53 Day 3)
         (0, generationPanel_1.registerGenerationPanelCommand)(context, state.codegenApi);
+        logger_1.Logger.info('All commands registered successfully');
+        // Register chat participant (optional — requires VSCode 1.93+ Chat API)
+        try {
+            state.chatParticipant = new complianceChat_1.ComplianceChatParticipant(state.apiClient);
+            const chatParticipantDisposable = vscode.chat.createChatParticipant('sdlc-orchestrator.gate', state.chatParticipant.handleChatRequest.bind(state.chatParticipant));
+            chatParticipantDisposable.iconPath = vscode.Uri.joinPath(context.extensionUri, 'media', 'sdlc-icon.svg');
+            context.subscriptions.push(chatParticipantDisposable);
+        }
+        catch (chatError) {
+            logger_1.Logger.warn(`Chat participant registration failed (requires VSCode 1.93+): ${chatError instanceof Error ? chatError.message : String(chatError)}`);
+        }
         // Check for empty folder and prompt for initialization
         await checkAndPromptForInit(context);
         // Setup auto-refresh

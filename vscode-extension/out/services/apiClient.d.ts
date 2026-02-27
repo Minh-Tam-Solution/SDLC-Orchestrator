@@ -206,6 +206,10 @@ export declare class ApiClient {
         strict_mode?: boolean;
     }): Promise<void>;
     /**
+     * Checks if the user has a stored authentication token
+     */
+    hasToken(): Promise<boolean>;
+    /**
      * Gets the currently selected project ID from configuration
      */
     getCurrentProjectId(): string | undefined;

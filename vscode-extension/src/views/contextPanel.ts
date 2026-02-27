@@ -156,6 +156,13 @@ export class ContextPanelProvider implements vscode.TreeDataProvider<ContextTree
      * Refresh context data
      */
     async refresh(): Promise<void> {
+        // Skip refresh if not authenticated — prevents infinite 401 logout loop
+        const hasToken = await this.apiClient.hasToken();
+        if (!hasToken) {
+            Logger.debug('Skipping context overlay refresh - not authenticated');
+            return;
+        }
+
         // Sprint 127: Use ProjectDetector if available, fallback to manual config
         let projectId: string | undefined;
         let projectName: string | undefined;

@@ -13,6 +13,7 @@ import {
   getProject,
   syncProjectMetadata,
   createProject,
+  deleteProject,
   type Project,
   type ProjectDetail,
   type CreateProjectRequest,
@@ -102,6 +103,23 @@ export function useCreateProject() {
           variables.template
         );
       }
+    },
+  });
+}
+
+/**
+ * Hook to delete a project (soft delete)
+ * Sprint 209: Only project owners can delete projects
+ */
+export function useDeleteProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (projectId: string): Promise<void> => {
+      return deleteProject(projectId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.all });
     },
   });
 }

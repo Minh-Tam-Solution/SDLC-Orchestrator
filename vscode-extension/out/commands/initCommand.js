@@ -78,24 +78,29 @@ class InitCommandHandler {
         }
         // Auth pre-check: warn user if not authenticated (server sync will fail)
         if (!options.offline && this.authService) {
-            const isAuth = await this.authService.isAuthenticated();
-            if (!isAuth) {
-                const action = await vscode.window.showWarningMessage('You are not logged in to SDLC Orchestrator.\n\nProject will be created locally but cannot be registered with the backend until you log in.', { modal: true }, 'Login First', 'Continue Offline');
-                if (action === 'Login First') {
-                    await vscode.commands.executeCommand('sdlc.login');
-                    // Re-check after login
-                    const nowAuth = await this.authService.isAuthenticated();
-                    if (!nowAuth) {
-                        logger_1.Logger.warn('User cancelled login, continuing offline');
+            try {
+                const isAuth = await this.authService.isAuthenticated();
+                if (!isAuth) {
+                    const action = await vscode.window.showWarningMessage('You are not logged in to SDLC Orchestrator. Project will be created locally but cannot be registered with the backend until you log in.', 'Login First', 'Continue Offline');
+                    if (action === 'Login First') {
+                        await vscode.commands.executeCommand('sdlc.login');
+                        // Re-check after login
+                        const nowAuth = await this.authService.isAuthenticated();
+                        if (!nowAuth) {
+                            logger_1.Logger.warn('User cancelled login, continuing offline');
+                            options.offline = true;
+                        }
+                    }
+                    else {
+                        // "Continue Offline" or dismissed — proceed offline
+                        logger_1.Logger.info('Continuing init in offline mode');
                         options.offline = true;
                     }
                 }
-                else if (action === 'Continue Offline') {
-                    options.offline = true;
-                }
-                else {
-                    return false; // User dismissed the dialog
-                }
+            }
+            catch (authError) {
+                logger_1.Logger.warn(`Auth check failed, continuing offline: ${authError}`);
+                options.offline = true;
             }
         }
         // Check if already initialized
@@ -586,19 +591,47 @@ function registerInitCommand(context, apiClient, authService) {
     const handler = new InitCommandHandler(apiClient, authService);
     // Main init command
     context.subscriptions.push(vscode.commands.registerCommand('sdlc.init', async () => {
-        await handler.execute();
+        try {
+            await handler.execute();
+        }
+        catch (error) {
+            const msg = error instanceof Error ? error.message : String(error);
+            logger_1.Logger.error(`sdlc.init failed: ${msg}`);
+            void vscode.window.showErrorMessage(`SDLC Init failed: ${msg}`);
+        }
     }));
     // Init with offline mode
     context.subscriptions.push(vscode.commands.registerCommand('sdlc.initOffline', async () => {
-        await handler.execute({ offline: true });
+        try {
+            await handler.execute({ offline: true });
+        }
+        catch (error) {
+            const msg = error instanceof Error ? error.message : String(error);
+            logger_1.Logger.error(`sdlc.initOffline failed: ${msg}`);
+            void vscode.window.showErrorMessage(`SDLC Init failed: ${msg}`);
+        }
     }));
     // Force reinitialize
     context.subscriptions.push(vscode.commands.registerCommand('sdlc.reinit', async () => {
-        await handler.execute({ force: true });
+        try {
+            await handler.execute({ force: true });
+        }
+        catch (error) {
+            const msg = error instanceof Error ? error.message : String(error);
+            logger_1.Logger.error(`sdlc.reinit failed: ${msg}`);
+            void vscode.window.showErrorMessage(`SDLC Reinit failed: ${msg}`);
+        }
     }));
     // Gap analysis command
     context.subscriptions.push(vscode.commands.registerCommand('sdlc.gapAnalysis', async () => {
-        await handler.runGapAnalysis();
+        try {
+            await handler.runGapAnalysis();
+        }
+        catch (error) {
+            const msg = error instanceof Error ? error.message : String(error);
+            logger_1.Logger.error(`sdlc.gapAnalysis failed: ${msg}`);
+            void vscode.window.showErrorMessage(`Gap Analysis failed: ${msg}`);
+        }
     }));
     logger_1.Logger.info('SDLC init commands registered');
 }

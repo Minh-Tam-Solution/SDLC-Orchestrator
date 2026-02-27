@@ -152,8 +152,8 @@ async def handle_verify_command(
     """
     Handle /verify <code> — complete account linking.
 
-    Uses Redis GET (not GETDEL) to allow retry on wrong code.
-    On correct code, deletes key atomically to enforce single-use.
+    Uses Redis GETDEL for atomic read+delete (FR-050-02 single-use guarantee).
+    Wrong code falls back to GET (non-destructive) to allow retry.
 
     Args:
         args_text: 6-digit code.
@@ -170,7 +170,7 @@ async def handle_verify_command(
     if not code_input or not code_input.isdigit() or len(code_input) != 6:
         return "❌ Usage: /verify <6-digit-code>\nExample: /verify 847291"
 
-    # Read pending code from Redis
+    # Read pending code — first peek (non-destructive) to validate code
     code_key = f"ott:link_code:{channel}:{sender_id}"
     try:
         raw = await redis.get(code_key)
@@ -190,15 +190,30 @@ async def handle_verify_command(
     user_id = data.get("user_id", "")
     email = data.get("email", "")
 
-    # Validate code
+    # Validate code — wrong code does NOT consume the key (user can retry)
     if code_input != stored_code:
         return "❌ Wrong verification code. Check your email and try again."
 
-    # Code matches — delete key (single-use via DELETE, not GETDEL for compat)
+    # Code matches — atomic GETDEL for single-use guarantee (FR-050-02)
+    # GETDEL ensures no race condition: if two requests arrive simultaneously,
+    # only one gets the data, the other sees None → "expired" response.
     try:
-        await redis.delete(code_key)
+        consumed = await redis.getdel(code_key)
+        if not consumed:
+            # Another request consumed the key between GET and GETDEL
+            return "❌ Verification code expired. Send /link <email> to get a new code."
+    except AttributeError:
+        # Redis <6.2 fallback: DELETE (not atomic but functional)
+        try:
+            await redis.delete(code_key)
+        except Exception:
+            pass
     except Exception:
-        pass
+        # Best-effort delete on Redis error
+        try:
+            await redis.delete(code_key)
+        except Exception:
+            pass
 
     # Upsert oauth_accounts (D-068-03: ON CONFLICT update user_id)
     try:
@@ -326,3 +341,73 @@ async def handle_unlink_command(
         )
         await db.rollback()
         return "❌ Failed to unlink account. Please try again."
+
+
+async def handle_whoami_command(
+    channel: str,
+    sender_id: str,
+    redis: Any,
+    db: Any,
+) -> str:
+    """
+    Handle /whoami — show current identity binding status.
+
+    Displays: linked user info (name, email, role) or unlinked status.
+    Team Collaboration Flow Section 7.3 requirement.
+
+    Args:
+        channel: OTT channel ('telegram', 'zalo').
+        sender_id: External sender ID.
+        redis: Redis client.
+        db: AsyncSession for user lookup.
+
+    Returns:
+        Reply message string with identity status.
+    """
+    try:
+        from app.models.user import OAuthAccount, User
+
+        # Look up existing link
+        stmt = select(OAuthAccount).where(
+            OAuthAccount.provider == channel,
+            OAuthAccount.provider_account_id == sender_id,
+        )
+        result = await db.execute(stmt)
+        account = result.scalar_one_or_none()
+
+        if not account:
+            return (
+                f"ℹ️ Identity: Not linked\n"
+                f"Channel: {channel}\n"
+                f"Sender ID: {sender_id}\n"
+                f"\nUse /link <email> to connect your SDLC account."
+            )
+
+        # Fetch user details
+        user_stmt = select(User).where(User.id == account.user_id)
+        user_result = await db.execute(user_stmt)
+        user = user_result.scalar_one_or_none()
+
+        if not user:
+            return (
+                f"⚠️ Identity: Linked but user not found\n"
+                f"User ID: {account.user_id}\n"
+                f"This may indicate a deleted account. Use /unlink then /link <email>."
+            )
+
+        full_name = user.full_name if user.full_name else user.username or "N/A"
+        return (
+            f"✅ Identity: Linked\n"
+            f"Name: {full_name}\n"
+            f"Email: {user.email}\n"
+            f"User ID: {str(user.id)[:8]}...\n"
+            f"Channel: {channel}\n"
+            f"Sender ID: {sender_id}"
+        )
+
+    except Exception as exc:
+        logger.error(
+            "ott_whoami: failed %s:%s error=%s",
+            channel, sender_id, exc,
+        )
+        return "❌ Failed to check identity. Please try again."

@@ -126,6 +126,11 @@ Priority 3: None — anonymous (governance commands blocked, prompt to /link)
   → Upsert oauth_accounts (ON CONFLICT update user_id)
   → Clear identity cache
   → Reply with user info
+
+/whoami
+  → Query oauth_accounts: provider={channel}, provider_account_id={sender_id}
+  → If linked → fetch user record (full_name, email) → reply with identity details
+  → If not linked → reply with channel/sender_id and /link hint
 ```
 
 **Rationale**:
@@ -244,16 +249,16 @@ await asyncio.to_thread(send_email, to_email, subject, html_content)
 | File | Purpose | LOC |
 |------|---------|-----|
 | `backend/alembic/versions/s209_001_oauth_ott_linking.py` | access_token nullable + UniqueConstraint | ~30 |
-| `backend/app/services/agent_bridge/ott_link_handler.py` | /link, /verify, /unlink command handlers | ~180 |
-| `backend/tests/unit/test_ott_link_handler.py` | Tests E1-E6, E11-E12 | ~140 |
-| `backend/tests/unit/test_ott_identity_resolver.py` | Tests E7-E10, E13 | ~80 |
+| `backend/app/services/agent_bridge/ott_link_handler.py` | /link, /verify, /unlink, /whoami command handlers | ~230 |
+| `backend/tests/unit/test_ott_link_handler.py` | Tests E1-E6, E11-E12, E14-E17 (31 tests) | ~410 |
+| `backend/tests/unit/test_ott_identity_resolver.py` | Tests E7-E10, E13 (15 tests) | ~200 |
 
 ### Modified Files
 
 | File | Change | LOC |
 |------|--------|-----|
 | `agent_bridge/ott_identity_resolver.py` | Fix import `app.models.user`, TTL 300→3600 | ~10 |
-| `agent_bridge/ai_response_handler.py` | Identity resolution with AsyncSessionLocal, effective_user_id passthrough, /link routing | ~40 |
+| `agent_bridge/ai_response_handler.py` | Identity resolution with AsyncSessionLocal, effective_user_id passthrough, /link + /whoami routing | ~45 |
 | `agent_bridge/workspace_service.py` | Audit log for unlinked user denial (behavior already correct) | ~5 |
 
 ### No Changes
@@ -282,7 +287,11 @@ await asyncio.to_thread(send_email, to_email, subject, html_content)
 | E10 | Unit | Identity resolve UUID passthrough | FR-050-05 |
 | E11 | Unit | /unlink → delete + cache clear | FR-050-03 |
 | E12 | Unit | Rate limit → 6th attempt blocked | FR-050-04 |
-| E13 | Unit | Group: different sender → different user | FR-050-07 |
+| E13 | Unit | Group: different sender → different user | FR-050-09 |
+| E14 | Unit | /whoami linked user → name + email + UUID | FR-050-08 |
+| E15 | Unit | /whoami unlinked user → not linked + /link hint | FR-050-08 |
+| E16 | Unit | /whoami linked but user deleted → warning | FR-050-08 |
+| E17 | Unit | /whoami DB error → generic error reply | FR-050-08 |
 
 ---
 

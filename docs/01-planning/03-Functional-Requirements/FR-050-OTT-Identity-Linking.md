@@ -49,7 +49,7 @@ Enable OTT channel users (Telegram, Zalo) to link their external chat account to
 
 | In scope | Out of scope |
 |----------|-------------|
-| `/link <email>` + `/verify <code>` + `/unlink` commands | OAuth 2.0 flow for Telegram (no Telegram OAuth) |
+| `/link <email>` + `/verify <code>` + `/unlink` + `/whoami` commands | OAuth 2.0 flow for Telegram (no Telegram OAuth) |
 | Email verification code (6-digit, 5-min TTL) | Phone number verification |
 | `oauth_accounts` upsert (provider='telegram') | New user registration from OTT |
 | Rate limiting (5 per 15 min) | CAPTCHA or advanced anti-spam |
@@ -276,9 +276,48 @@ Scenario: Unlinked user tries /workspace set
 
 ---
 
-### 2.4 Group Chat Identity Isolation
+### 2.4 Identity Status
 
-#### FR-050-07: Per-User Identity in Group Chat
+#### FR-050-08: `/whoami` — Display Linked Identity Status
+
+**Description**: User checks whether their Telegram account is linked and, if so, which SDLC user it is linked to. This is a read-only, zero-side-effect command available to all users (linked or unlinked).
+
+```gherkin
+Scenario: Whoami for linked user
+  GIVEN user "7023486123" has oauth_account: provider='telegram', user_id='b0000000-...-000000000004'
+  AND the user record has full_name="Endior" and email="dangtt1971@gmail.com"
+  WHEN user sends "/whoami"
+  THEN bot replies:
+      "🔗 Linked
+       Name: Endior
+       Email: dangtt1971@gmail.com
+       User ID: b0000000-...0004"
+```
+
+```gherkin
+Scenario: Whoami for unlinked user
+  GIVEN user "9999999999" has NO linked oauth_account for provider='telegram'
+  WHEN user sends "/whoami"
+  THEN bot replies:
+      "🔗 Not linked
+       Channel: telegram
+       Sender ID: 9999999999
+       Use /link <email> to connect your SDLC account."
+```
+
+```gherkin
+Scenario: Whoami for linked but user deleted
+  GIVEN user "7023486123" has oauth_account mapping but the target user record was deleted
+  WHEN user sends "/whoami"
+  THEN bot replies a warning that the user record was not found
+  AND suggests "/unlink" followed by "/link" to re-link
+```
+
+---
+
+### 2.5 Group Chat Identity Isolation
+
+#### FR-050-09: Per-User Identity in Group Chat
 
 **Description**: In a Telegram group, each member's commands resolve to their individual identity.
 
@@ -314,7 +353,7 @@ Scenario: Two users in same group, different permissions
 
 | File | Purpose | LOC |
 |------|---------|-----|
-| `backend/app/services/agent_bridge/ott_link_handler.py` | NEW — /link, /verify, /unlink handlers | ~180 |
+| `backend/app/services/agent_bridge/ott_link_handler.py` | NEW — /link, /verify, /unlink, /whoami handlers | ~230 |
 | `backend/app/services/agent_bridge/ott_identity_resolver.py` | FIX — import path + TTL upgrade | ~10 |
 | `backend/app/services/agent_bridge/ai_response_handler.py` | MODIFY — identity resolution + routing | ~40 |
 | `backend/app/services/agent_bridge/workspace_service.py` | VERIFY — unlinked deny behavior | ~5 |

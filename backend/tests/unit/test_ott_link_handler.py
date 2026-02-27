@@ -7,12 +7,13 @@ Test IDs: E1-E6, E11-E12 (FR-050 acceptance criteria).
 Coverage:
   E1   /link with valid email -> code generated, stored in Redis, email sent
   E2   /link with unknown email -> error reply, no Redis key created
-  E3   /verify with correct code -> oauth_accounts upserted (access_token="" allowed)
+  E3   /verify with correct code -> oauth_accounts upserted (GETDEL atomic single-use)
   E4   /verify with wrong code -> error reply, Redis key NOT deleted
   E5   /verify with expired code -> error reply
-  E6   Double /verify -> second attempt fails (single-use deletion)
+  E6   Double /verify -> second attempt fails (GETDEL single-use guarantee)
   E11  /unlink -> oauth_accounts deleted, cache cleared
   E12  /link rate limiting -> 6th attempt within 15 min blocked
+  +    /whoami -> linked/unlinked/deleted-user/error scenarios
 
 Zero Mock Policy: Real handler logic, mocked Redis + DB + email for isolation.
 """
@@ -29,6 +30,7 @@ from app.services.agent_bridge.ott_link_handler import (
     handle_link_command,
     handle_verify_command,
     handle_unlink_command,
+    handle_whoami_command,
 )
 
 
@@ -45,6 +47,7 @@ def mock_redis() -> AsyncMock:
     redis.expire.return_value = True
     redis.setex.return_value = True
     redis.get.return_value = None
+    redis.getdel.return_value = None
     redis.delete.return_value = 1
     return redis
 
@@ -250,6 +253,7 @@ class TestE3VerifyCorrectCode:
             "email": VALID_EMAIL,
         })
         mock_redis.get.return_value = payload
+        mock_redis.getdel.return_value = payload
 
         # First execute: check existing OAuthAccount -> None
         # Second execute: fetch User for reply
@@ -292,6 +296,7 @@ class TestE3VerifyCorrectCode:
             "email": VALID_EMAIL,
         })
         mock_redis.get.return_value = payload
+        mock_redis.getdel.return_value = payload
 
         # First execute: existing OAuthAccount found
         # Second execute: fetch User for reply
@@ -324,6 +329,7 @@ class TestE3VerifyCorrectCode:
             "email": VALID_EMAIL,
         })
         mock_redis.get.return_value = payload
+        mock_redis.getdel.return_value = payload
 
         execute_results = [MagicMock(), MagicMock()]
         execute_results[0].scalar_one_or_none.return_value = None
@@ -334,11 +340,13 @@ class TestE3VerifyCorrectCode:
             code, CHANNEL, SENDER_ID, mock_redis, mock_db
         )
 
-        # Assert: both code key and identity cache key deleted
-        delete_calls = [c[0][0] for c in mock_redis.delete.call_args_list]
+        # Assert: code key consumed via GETDEL (FR-050-02 atomic single-use)
         code_key = f"ott:link_code:{CHANNEL}:{SENDER_ID}"
+        mock_redis.getdel.assert_called_with(code_key)
+
+        # Assert: identity cache key cleared via DELETE
         cache_key = f"ott:identity:{CHANNEL}:{SENDER_ID}"
-        assert code_key in delete_calls
+        delete_calls = [c[0][0] for c in mock_redis.delete.call_args_list]
         assert cache_key in delete_calls
 
 
@@ -456,7 +464,7 @@ class TestE6DoubleVerify:
     async def test_double_verify_second_fails(
         self, mock_redis: AsyncMock, mock_db: AsyncMock, mock_user: MagicMock
     ) -> None:
-        """E6 — first verify succeeds and deletes key, second verify sees expired."""
+        """E6 — first verify succeeds via GETDEL, second verify sees expired."""
         user_id = str(mock_user.id)
         code = "555666"
         payload = json.dumps({
@@ -465,9 +473,10 @@ class TestE6DoubleVerify:
             "email": VALID_EMAIL,
         })
 
-        # First call: Redis has the code
-        # Second call: Redis returns None (key was deleted)
+        # First call: GET peeks at code, GETDEL consumes it
+        # Second call: GET returns None (key was consumed by GETDEL)
         mock_redis.get.side_effect = [payload, None]
+        mock_redis.getdel.return_value = payload  # First call consumes
 
         # DB mocks for first successful verify
         execute_results = [MagicMock(), MagicMock()]
@@ -475,18 +484,17 @@ class TestE6DoubleVerify:
         execute_results[1].scalar_one_or_none.return_value = mock_user
         mock_db.execute.side_effect = execute_results
 
-        # First verify — success
+        # First verify — success (code consumed via GETDEL)
         reply_1 = await handle_verify_command(
             code, CHANNEL, SENDER_ID, mock_redis, mock_db
         )
         assert "Account linked" in reply_1
 
-        # Verify that delete was called on the code key
+        # Verify GETDEL was called on the code key (FR-050-02 atomic single-use)
         code_key = f"ott:link_code:{CHANNEL}:{SENDER_ID}"
-        delete_calls = [c[0][0] for c in mock_redis.delete.call_args_list]
-        assert code_key in delete_calls
+        mock_redis.getdel.assert_called_with(code_key)
 
-        # Second verify — fails because Redis returns None
+        # Second verify — fails because Redis GET returns None (key consumed)
         reply_2 = await handle_verify_command(
             code, CHANNEL, SENDER_ID, mock_redis, mock_db
         )
@@ -720,3 +728,85 @@ class TestInputValidation:
         )
 
         assert "Usage" in reply
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# /whoami — show current identity binding status
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class TestWhoami:
+    """/whoami — displays linked identity or prompts user to link."""
+
+    @pytest.mark.asyncio
+    async def test_whoami_linked_user(
+        self, mock_redis: AsyncMock, mock_db: AsyncMock, mock_user: MagicMock, mock_oauth_account: MagicMock
+    ) -> None:
+        """Linked user sees name, email, and user ID."""
+        mock_oauth_account.user_id = mock_user.id
+
+        # First execute: OAuthAccount found
+        # Second execute: User found
+        execute_results = [MagicMock(), MagicMock()]
+        execute_results[0].scalar_one_or_none.return_value = mock_oauth_account
+        execute_results[1].scalar_one_or_none.return_value = mock_user
+        mock_db.execute.side_effect = execute_results
+
+        reply = await handle_whoami_command(
+            CHANNEL, SENDER_ID, mock_redis, mock_db
+        )
+
+        assert "Linked" in reply
+        assert mock_user.full_name in reply
+        assert mock_user.email in reply
+        assert str(mock_user.id)[:8] in reply
+
+    @pytest.mark.asyncio
+    async def test_whoami_unlinked_user(
+        self, mock_redis: AsyncMock, mock_db: AsyncMock
+    ) -> None:
+        """Unlinked user sees 'Not linked' and /link hint."""
+        result_mock = MagicMock()
+        result_mock.scalar_one_or_none.return_value = None
+        mock_db.execute.return_value = result_mock
+
+        reply = await handle_whoami_command(
+            CHANNEL, SENDER_ID, mock_redis, mock_db
+        )
+
+        assert "Not linked" in reply
+        assert "/link" in reply
+        assert CHANNEL in reply
+        assert SENDER_ID in reply
+
+    @pytest.mark.asyncio
+    async def test_whoami_linked_but_user_deleted(
+        self, mock_redis: AsyncMock, mock_db: AsyncMock, mock_oauth_account: MagicMock
+    ) -> None:
+        """Linked account but user record deleted shows warning."""
+        # First execute: OAuthAccount found
+        # Second execute: User NOT found (deleted)
+        execute_results = [MagicMock(), MagicMock()]
+        execute_results[0].scalar_one_or_none.return_value = mock_oauth_account
+        execute_results[1].scalar_one_or_none.return_value = None
+        mock_db.execute.side_effect = execute_results
+
+        reply = await handle_whoami_command(
+            CHANNEL, SENDER_ID, mock_redis, mock_db
+        )
+
+        assert "user not found" in reply.lower()
+        assert "/unlink" in reply
+
+    @pytest.mark.asyncio
+    async def test_whoami_db_error(
+        self, mock_redis: AsyncMock, mock_db: AsyncMock
+    ) -> None:
+        """DB error returns generic error reply."""
+        mock_db.execute.side_effect = RuntimeError("DB connection lost")
+
+        reply = await handle_whoami_command(
+            CHANNEL, SENDER_ID, mock_redis, mock_db
+        )
+
+        assert "Failed" in reply or "error" in reply.lower()
