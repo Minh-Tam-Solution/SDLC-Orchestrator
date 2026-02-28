@@ -398,7 +398,7 @@ export async function getOAuthAuthorizeUrl(
     : undefined;
 
   const queryParams = redirectUri ? `?redirect_uri=${encodeURIComponent(redirectUri)}` : "";
-  return apiRequest<OAuthAuthorizeResponse>(`/oauth/${provider}/authorize${queryParams}`, {}, 30000);
+  return apiRequest<OAuthAuthorizeResponse>(`/auth/oauth/${provider}/authorize${queryParams}`, {}, 30000);
 }
 
 /**
@@ -411,7 +411,7 @@ export async function exchangeOAuthCode(
   data: OAuthCallbackRequest
 ): Promise<TokenResponse> {
   console.log("[exchangeOAuthCode] Starting with 120s timeout for", provider);
-  return apiRequest<TokenResponse>(`/oauth/${provider}/callback`, {
+  return apiRequest<TokenResponse>(`/auth/oauth/${provider}/callback`, {
     method: "POST",
     body: JSON.stringify(data),
   }, 120000);
@@ -419,13 +419,13 @@ export async function exchangeOAuthCode(
 
 /**
  * Exchange GitHub OAuth code for tokens (for connect flow from Settings)
- * Backend uses the standard /oauth/github/callback endpoint for all flows.
- * Sprint 105 note: /github/callback no longer exists — use /oauth/github/callback.
+ * Backend uses the standard /auth/oauth/github/callback endpoint for all flows.
+ * Sprint 105 note: /github/callback no longer exists — use /auth/oauth/github/callback.
  */
 export async function exchangeGitHubConnectCode(
   data: OAuthCallbackRequest
 ): Promise<TokenResponse> {
-  return apiRequest<TokenResponse>(`/oauth/github/callback`, {
+  return apiRequest<TokenResponse>(`/auth/oauth/github/callback`, {
     method: "POST",
     body: JSON.stringify(data),
   }, 30000);

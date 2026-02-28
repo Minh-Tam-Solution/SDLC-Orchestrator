@@ -26,6 +26,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from app.api.dependencies import get_current_user, get_db
 from app.core.config import settings
@@ -74,19 +76,28 @@ router = APIRouter(prefix="/github", tags=["github"])
 )
 async def list_installations(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ) -> GitHubInstallationsListResponse:
     """
     List user's GitHub App installations.
 
     Args:
         current_user: Authenticated user
-        db: Database session
+        db: Async database session
 
     Returns:
         List of GitHubInstallation objects
     """
-    installations = github_app_service.get_user_installations(current_user.id, db)
+    from app.models.github_integration import InstallationStatus
+    import sqlalchemy as _sa
+    # DB column is a PostgreSQL enum type; cast to text for driver-safe comparison
+    result = await db.execute(
+        select(GitHubInstallation).where(
+            GitHubInstallation.installed_by == current_user.id,
+            _sa.cast(GitHubInstallation.status, _sa.Text) == InstallationStatus.ACTIVE,
+        )
+    )
+    installations = result.scalars().all()
 
     return GitHubInstallationsListResponse(
         installations=[

@@ -118,8 +118,8 @@ export function useGitHub() {
     error: connectError,
   } = useMutation({
     mutationFn: async (data: ConnectGitHubRequest) => {
-      // GitHub OAuth callback — uses standard /oauth/github/callback (auth.py)
-      const response = await api.post("/oauth/github/callback", data);
+      // GitHub OAuth callback — uses /auth/oauth/github/callback (auth.py router prefix: /auth)
+      const response = await api.post("/auth/oauth/github/callback", data);
       return response.data;
     },
     onSuccess: () => {
