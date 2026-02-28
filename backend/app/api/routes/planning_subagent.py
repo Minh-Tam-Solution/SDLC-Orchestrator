@@ -584,6 +584,26 @@ async def create_risk_based_planning_session(
         )
 
 
+# NOTE: /health MUST be registered BEFORE /{planning_id} to avoid being matched as UUID
+@router.get(
+    "/health",
+    summary="Health check",
+    description="Check planning sub-agent service health.",
+)
+async def health_check() -> dict:
+    """Health check endpoint for planning sub-agent."""
+    return {
+        "status": "healthy",
+        "service": "planning-subagent",
+        "version": "2.0.0",  # Sprint 101: Risk-Based Planning Trigger
+        "features": [
+            "risk-based-planning-trigger",
+            "crp-integration",
+            "7-risk-factors",
+        ],
+    }
+
+
 @router.get(
     "/{planning_id}",
     response_model=PlanningResult,
@@ -835,30 +855,4 @@ async def list_planning_sessions(
     )
 
 
-# =============================================================================
-# Health Check
-# =============================================================================
-
-
-@router.get(
-    "/health",
-    summary="Health check",
-    description="Check planning sub-agent service health.",
-)
-async def health_check() -> dict:
-    """
-    Health check endpoint for planning sub-agent.
-
-    Returns:
-        Health status dict
-    """
-    return {
-        "status": "healthy",
-        "service": "planning-subagent",
-        "version": "2.0.0",  # Sprint 101: Risk-Based Planning Trigger
-        "features": [
-            "risk-based-planning-trigger",
-            "crp-integration",
-            "7-risk-factors",
-        ],
-    }
+# NOTE: /health moved to before /{planning_id} to fix FastAPI route ordering

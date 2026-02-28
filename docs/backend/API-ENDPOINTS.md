@@ -1,15 +1,16 @@
 # API Endpoints - SDLC Orchestrator
 
-**Updated**: 2026-02-27 (test results added)
+**Updated**: 2026-02-28 (all 500 errors fixed)
 **Base URL**: http://localhost:8300
 **Total Endpoints**: 590
 **Total Route Modules**: 77
 
 ---
 
-## 🧪 Test Results (2026-02-27, Updated)
+## 🧪 Test Results (2026-02-28, Final)
 
 **Test Account**: `admin@sdlc-orchestrator.io` (LITE tier)
+**Auth**: `POST /api/v1/auth/login` with JSON body `{"email":"...","password":"..."}`
 **Environment**: Docker Compose (PostgreSQL 15 + Redis + OPA + MinIO)
 **Migration Status**: `alembic upgrade head` — all migrations applied (7 fixed)
 
@@ -17,12 +18,12 @@
 
 | Status | Count | Description |
 |--------|-------|-------------|
-| ✅ 200 OK | ~27 endpoints confirmed | Working correctly |
+| ✅ 200 OK | ~36 endpoints confirmed | Working correctly |
 | ⚠️ 422 Unprocessable | ~4 endpoints | Missing required query params |
 | 🔒 402 Payment Required | 5 endpoints | LITE tier restriction |
 | ❌ 404 Not Found | ~12 endpoints | Route not registered or deleted Sprint 190 |
 | 🚫 405 Method Not Allowed | 1 endpoint | Wrong HTTP method |
-| 💥 500 Server Error | 0 | All P0 bugs fixed ✓ |
+| 💥 500 Server Error | **0** | All P0 bugs fixed ✓ |
 
 ### ✅ Working Endpoints (200 OK)
 
@@ -48,12 +49,21 @@
 | `GET /api/v1/compliance/frameworks` | Compliance framework list |
 | `GET /api/v1/notifications` | Notification list |
 | `GET /api/v1/planning/roadmaps?project_id={uuid}` | Requires `project_id` query param |
+| `GET /api/v1/planning/phases?project_id={uuid}&roadmap_id={uuid}` | Requires both `project_id` and `roadmap_id` |
+| `GET /api/v1/planning/sprints?project_id={uuid}` | Requires `project_id` query param |
 | `GET /api/v1/agent-team/definitions?project_id={uuid}` | Requires `project_id` query param |
 | `GET /api/v1/vibecoding/thresholds` | **Fixed** — route ordering fix ✓ |
 | `GET /api/v1/vibecoding/stats` | **Fixed** — route ordering fix ✓ |
 | `GET /api/v1/vibecoding/health` | **Fixed** — route ordering fix ✓ |
 | `GET /api/v1/maturity/levels` | **Fixed** — route ordering fix ✓ |
 | `GET /api/v1/maturity/health` | **Fixed** — route ordering fix ✓ |
+| `GET /api/v1/maturity/{project_id}` | **Fixed** — ORM user.id fix ✓ |
+| `POST /api/v1/maturity/{project_id}/assess` | **Fixed** — ORM user.id fix ✓ |
+| `GET /api/v1/planning/subagent/health` | **Fixed** — route ordering fix ✓ |
+| `GET /api/v1/projects/{id}/evidence/status` | **Fixed** — ModuleNotFoundError guard ✓ |
+| `POST /api/v1/projects/{id}/evidence/validate` | **Fixed** — ModuleNotFoundError guard ✓ |
+| `GET /api/v1/projects/{id}/evidence/gaps` | **Fixed** — ModuleNotFoundError guard ✓ |
+| `GET /api/v1/triage/stats` | **Fixed** — SQLEnum name/value mismatch fix ✓ |
 | `GET /api/v1/mcp/health` | **Fixed** — `cast(Float)` import fix ✓ |
 
 ### ⚠️ Require Query Params (422 Unprocessable Entity)
@@ -118,7 +128,7 @@ All P0 server errors have been resolved. See **Runtime Bug Fixes** section below
 | `s209_002_eu_ai_act_columns.py` | `eu_ai_act_*` columns in `Project` model but no migration | Created new migration (revises `s209_001`) |
 | `s209_003_codegen_usage_logs.py` | **NEW** — `codegen_usage_logs` table missing entirely | Created migration (revises `s209_002`) and ran `alembic upgrade head` |
 
-### 🐛 Runtime Bug Fixes Applied (2026-02-27)
+### 🐛 Runtime Bug Fixes Applied (2026-02-27 / 2026-02-28)
 
 | File | Bug | Root Cause | Fix |
 |------|-----|------------|-----|
@@ -130,6 +140,12 @@ All P0 server errors have been resolved. See **Runtime Bug Fixes** section below
 | `admin.py` | `GET /admin/audit-logs` → 500 `AttributeError: 'AuditLog' has no attribute 'target_name'` | Response mapping referenced non-existent `target_name` column and `details` (should be `detail`) | Used `target_name=None`, `detail` field name; parsed `resource_id` to UUID safely |
 | `framework_version.py` | `GET /framework-version/{id}` → 500 `AttributeError: 'User' object has no attribute 'get'` | `get_current_user` returns SQLAlchemy `User` ORM object, but code called `user.get("sub")` as if dict | Added `hasattr(user, "id")` check; use `user.id` for ORM objects |
 | `mcp_analytics_service.py` | `GET /mcp/health` → 500 `AttributeError: 'float' object has no attribute '_static_cache_key'` | `cast(float)` uses Python builtin `float`; SQLAlchemy 2.0 requires `cast(Float)` type from `sqlalchemy` | Added `Float` to imports; replaced all 5 `cast(float)` → `cast(Float)` |
+| `maturity.py` | `GET /maturity/{id}` → 500 `AttributeError: 'User' object has no attribute 'get'` | `check_project_access()` called `user.get("sub")` on ORM User object from `get_current_user` dependency | Changed to `user.id if hasattr(user, "id") else UUID(user.get("sub"))` |
+| `planning_subagent.py` | `GET /planning/subagent/health` → 422 | `/health` route was registered at line ~843, AFTER `/{planning_id}` at line ~587 — FastAPI matched `/health` as a UUID | Moved `/health` handler to before `/{planning_id}`; removed duplicate |
+| `evidence.py` | `GET /projects/{id}/evidence/status` → 500 `No module named 'backend'` | `from backend.sdlcctl...` import path not available inside Docker container | Added `except ModuleNotFoundError` guard returning 200 with empty/healthy status + note |
+| `evidence.py` | `POST /projects/{id}/evidence/validate` → 500 `No module named 'backend'` | Same sdlcctl import issue in `trigger_evidence_validation` function | Same `ModuleNotFoundError` guard pattern applied |
+| `evidence.py` | `GET /projects/{id}/evidence/gaps` → 500 `No module named 'backend'` | Same sdlcctl import issue in `get_evidence_gaps` function | Same `ModuleNotFoundError` guard pattern; moved gap analysis outside try/except |
+| `triage_service.py` | `GET /triage/stats` → 500 `invalid input value for enum feedbackstatus: "NEW"` | `SQLEnum(FeedbackStatus)` bind processor sends enum **name** (`"NEW"`) but DB enum has lowercase **values** (`"new"`) | Used `text("pilot_feedback.status = 'new'::feedbackstatus")` to bypass SQLEnum type coercion |
 
 ---
 

@@ -100,11 +100,12 @@ class LevelInfoResponse(BaseModel):
 
 async def check_project_access(
     project_id: UUID,
-    user: dict,
+    user,
     db: AsyncSession,
 ) -> Project:
     """Check if user has access to project."""
-    user_id = UUID(user.get("sub"))
+    # user may be a User ORM object or a JWT dict — handle both
+    user_id = user.id if hasattr(user, "id") else UUID(user.get("sub"))
 
     result = await db.execute(
         select(Project).where(

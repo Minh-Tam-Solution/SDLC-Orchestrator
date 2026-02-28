@@ -14,7 +14,7 @@ from enum import Enum
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import select, func
+from sqlalchemy import select, func, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.feedback import PilotFeedback, FeedbackPriority, FeedbackStatus
@@ -392,7 +392,11 @@ class TriageService:
                 func.count(PilotFeedback.id)
             ).group_by(PilotFeedback.status)
         )
-        status_stats = {row[0].value: row[1] for row in status_counts.all()}
+        # row[0] may be a Python enum or a raw string from asyncpg — handle both
+        status_stats = {
+            (row[0].value if hasattr(row[0], "value") else row[0]): row[1]
+            for row in status_counts.all()
+        }
 
         # Count by priority
         priority_counts = await self.db.execute(
@@ -402,12 +406,20 @@ class TriageService:
             ).where(PilotFeedback.priority.isnot(None))
             .group_by(PilotFeedback.priority)
         )
-        priority_stats = {row[0].value: row[1] for row in priority_counts.all()}
+        priority_stats = {
+            (row[0].value if hasattr(row[0], "value") else row[0]): row[1]
+            for row in priority_counts.all()
+        }
 
         # Count untriaged (new + no priority)
+        # Use text() to bypass SQLEnum bind processor entirely.
+        # SQLEnum(FeedbackStatus) sends enum NAMES (e.g. "NEW") but the PostgreSQL
+        # enum type was created with lowercase values ("new", "triaged", etc.).
+        # PostgreSQL also has no implicit varchar→feedbackstatus operator, so
+        # we cast explicitly: 'new'::feedbackstatus.
         untriaged_count = await self.db.execute(
             select(func.count(PilotFeedback.id)).where(
-                PilotFeedback.status == FeedbackStatus.NEW,
+                text("pilot_feedback.status = 'new'::feedbackstatus"),
                 PilotFeedback.priority.is_(None)
             )
         )
