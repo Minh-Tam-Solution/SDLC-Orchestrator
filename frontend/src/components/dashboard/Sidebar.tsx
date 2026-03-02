@@ -599,8 +599,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       {/* Footer */}
       {!isCollapsed && (
         <div className="border-t border-gray-200 p-4">
-          <p className="text-xs text-gray-500">SDLC Orchestrator v1.1</p>
-          <p className="text-xs text-gray-400">Sprint 175</p>
+          <p className="text-xs text-gray-500">SDLC Orchestrator v1.2</p>
         </div>
       )}
     </div>
