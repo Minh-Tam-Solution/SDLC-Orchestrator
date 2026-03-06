@@ -2,21 +2,21 @@
 
 ```yaml
 document_type: "Master Test Plan"
-version: "2.2.0"
-date: "2026-03-05"
+version: "2.3.0"
+date: "2026-03-06"
 framework: "SDLC 6.1.1"
 status: "ACTIVE"
 author: "@tester"
-reviewer: "@cto (APPROVED 9/10 — 2026-03-05)"
+reviewer: "@cto (APPROVED 9.5/10 — 2026-03-06)"
 authority: "CTO + QA Lead"
-traceability: "MTP v1.0.0 (Sprint 198 skeleton) → MTP v2.0.0 (Sprint 213 comprehensive) → MTP v2.1.0 (Sprint 221 S218-S221 coverage) → MTP v2.2.0 (Sprint 222 OTT @mention routing)"
+traceability: "MTP v1.0.0 (Sprint 198 skeleton) → MTP v2.0.0 (Sprint 213 comprehensive) → MTP v2.1.0 (Sprint 221 S218-S221 coverage) → MTP v2.2.0 (Sprint 222 OTT @mention routing) → MTP v2.3.0 (Sprint 223-224 gate content quality + auto-gen quality gates)"
 ```
 
 ---
 
 ## 1. Executive Summary
 
-This Master Test Plan (MTP) is the **single index** for all testing activities in SDLC Orchestrator. It unifies test coverage across **4 interfaces** (Web, CLI, Extension, OTT), maps 29 features to per-interface test cases, defines 9 cross-interface workflow scenarios, and enforces the Zero Mock Policy across all tiers.
+This Master Test Plan (MTP) is the **single index** for all testing activities in SDLC Orchestrator. It unifies test coverage across **4 interfaces** (Web, CLI, Extension, OTT), maps 32 features to per-interface test cases, defines 9 cross-interface workflow scenarios, and enforces the Zero Mock Policy across all tiers.
 
 ### CEO Directive (Sprint 190)
 
@@ -35,24 +35,26 @@ This means OTT and CLI test coverage is **P0** — not an afterthought.
     /______________________\
 ```
 
-### Current Metrics (Sprint 222)
+### Current Metrics (Sprint 224)
 
 | Metric | Value | Target | Status |
 |--------|-------|--------|--------|
 | Backend route modules | 76 | — | Baselined |
-| API endpoints | 577 | — | Baselined |
+| API endpoints | 578 | — | +1 (validate-content endpoint, S223) |
 | CLI command files (sub-commands) | 22 (41+) | — | Baselined |
 | Extension command files (registered IDs) | 17 (13+) | — | Baselined |
-| OTT governance commands | 10 (MAX capacity) | — | Baselined |
+| OTT governance commands | 10 (MAX capacity) | — | Baselined (dispatch-only: +2 handlers, no registry change) |
 | Frontend pages | 40+ | — | Baselined |
-| Total test files | 267+ | — | Baselined (+8 sprint test files S216-S222) |
-| Unit tests (functions) | 3,117+ | 95% coverage | On track |
+| Total test files | 269+ | — | Baselined (+10 sprint test files S216-S224) |
+| Unit tests (functions) | 3,155+ | 95% coverage | On track |
 | Integration tests | 993+ | 90% coverage | On track |
 | E2E scenarios | 85+ | 10 critical paths | Exceeds |
-| Sprint cumulative tests (S216-S222) | 288 | — | 36+38+57+61+30+45+21 |
-| MTP test cases (this document) | ~190 | — | v2.2.0 (+15 new, Sprint 222) |
+| Sprint cumulative tests (S216-S224) | 326 | — | 36+38+57+61+30+45+21+22+16 |
+| MTP test cases (this document) | ~208 | — | v2.3.0 (+18 new, Sprint 223-224) |
 | Multi-Agent test cases (TP-056) | 121 | — | Cross-referenced |
 | New DB tables (S218-S221) | +4 | — | skill_agent_grants, shared_workspace_items, consensus_sessions, consensus_votes |
+| New OPA policies (S223) | +2 | — | tier_artifacts.rego, content_quality.rego |
+| New modules (S223-S224) | +5 | — | gate_artifact_matrix, content_validator, placeholder_detector, content_quality.rego, tier_artifacts.rego |
 | p95 API latency | 14.0ms | <100ms | PASS |
 | OWASP ASVS L2 | 98.4% | Level 2 (264/264) | ACHIEVED |
 
@@ -60,12 +62,12 @@ This means OTT and CLI test coverage is **P0** — not an afterthought.
 
 | Interface | Features Covered | Test Cases (MTP) | Status |
 |-----------|-----------------|------------------|--------|
-| Web App | 29/29 (admin paths) | ~50 | Active |
-| CLI (`sdlcctl`) | 14/29 | ~20 | Active |
-| VSCode Extension | 10/29 | ~15 | Active |
-| OTT (Telegram/Zalo/Teams/Slack) | 11/29 | ~40 | Updated v2.2.0 (+10 S222) |
-| Cross-Interface | 9 workflows | ~14 | Updated v2.2.0 (+2 S222) |
-| **Total** | | **~190** | |
+| Web App | 32/32 (admin paths) | ~52 | Updated v2.3.0 |
+| CLI (`sdlcctl`) | 15/32 | ~20 | Updated v2.3.0 (spec_frontmatter extended) |
+| VSCode Extension | 10/32 | ~15 | Active |
+| OTT (Telegram/Zalo/Teams/Slack) | 12/32 | ~42 | Updated v2.3.0 (+2 S223 handlers) |
+| Cross-Interface | 10 workflows | ~16 | Updated v2.3.0 (+1 WF-10 content quality) |
+| **Total** | | **~208** | |
 
 ---
 
@@ -190,6 +192,37 @@ free text → handle_ai_response (Ollama AI reply)
 **Key files**: `backend/app/services/agent_bridge/ott_team_bridge.py`, `backend/app/api/routes/ott_gateway.py`
 
 **C1 (CTO mandate)**: Uses `MentionParser.extract_mentions()` — proper regex with email false-positive exclusion (`(?<!\S)@word`), NOT naive `"@" in text`.
+
+### 3.6 P1 — Gate Content Quality + Auto-Gen Quality Gates (3 Features, Sprint 223-224)
+
+| # | Feature | Web | CLI | Extension | OTT | Test IDs |
+|---|---------|-----|-----|-----------|-----|----------|
+| F-30 | Tier-Artifact Matrix (per-gate per-tier requirements) | Gate evaluation shows missing artifacts | N/A | N/A | Artifact check in gate status | MTP-ARTIFACT-* |
+| F-31 | Content Quality Validation (OPA-first + fallback) | `/validate-content` endpoint, content warnings on upload | `spec_frontmatter` extended (ADR/BRD/PRD/TP/STM) | N/A | N/A | MTP-CONTENT-* |
+| F-32 | Auto-Gen Quality Gates (computed confidence + output validation) | Confidence score in generation results | N/A | N/A | N/A | MTP-AUTOGEN-* |
+
+**Source**: Cross-project review (EndiorBot Sprint 80 gaps G2, G3, G5). CTO approved 9.5/10.
+
+**Key files**:
+- `backend/app/policies/gate_artifact_matrix.py` — per-gate per-tier artifact requirements
+- `backend/app/services/governance/content_validator.py` — in-process fallback (OPA-first, S156 pattern)
+- `backend/app/utils/placeholder_detector.py` — shared regex for placeholder detection
+- `backend/policy-packs/rego/gates/tier_artifacts.rego` — OPA primary: artifact type enforcement
+- `backend/policy-packs/rego/gates/content_quality.rego` — OPA primary: content quality enforcement
+- `backend/app/services/governance/auto_generator.py` — `_validate_output()` + `_compute_confidence()`
+- `backend/sdlcctl/sdlcctl/validation/validators/spec_frontmatter.py` — extended to 6 artifact types
+
+**Test files**:
+- `backend/tests/unit/test_sprint223_gate_content.py` — 22 tests (artifact matrix, placeholder, content validation, OTT dispatch, registry)
+- `backend/tests/unit/test_sprint224_autogen_quality.py` — 16 tests (frontmatter scope, output validation, computed confidence)
+
+**CTO Revisions Applied**:
+- R1: G4 reuse `spec_frontmatter.py` (not new `yaml_validator.py`)
+- R2: G6 dispatch-only (`_execute_run_evals` + `_execute_list_notes`), no registry change (MAX_COMMANDS=10 unchanged)
+- R3: OPA-first pattern — `content_quality.rego` = primary, `content_validator.py` = fallback only
+- R4: LOC adjusted to realistic estimates (~994 S223, ~580 S224)
+
+**INVARIANT**: Content quality warnings are **advisory** — evidence upload succeeds even with quality issues. Warnings returned in response for user awareness, not blocking.
 
 ---
 
@@ -884,7 +917,7 @@ const vscodeApiMock = {
 
 ### 10.2 P0 Regression (Every PR Merge) — Target: <10 min
 
-All P0 feature tests across all interfaces (~97 test cases) plus P1 multi-agent pattern tests (~30 cases):
+All P0 feature tests across all interfaces (~97 test cases) plus P1 multi-agent pattern tests (~30 cases) plus P1 gate content quality tests (~18 cases):
 - MTP-AUTH-* (21 cases)
 - MTP-PROJ-* (12 cases)
 - MTP-GATE-* (23 cases)
@@ -899,6 +932,9 @@ All P0 feature tests across all interfaces (~97 test cases) plus P1 multi-agent 
 - MTP-FEEDBACK-* (2 cases) — Sprint 220
 - MTP-CONSENSUS-* (9 cases) — Sprint 221
 - MTP-MENTION-* (12 cases) — Sprint 222
+- MTP-ARTIFACT-* (8 cases) — Sprint 223
+- MTP-CONTENT-* (9 cases) — Sprint 223
+- MTP-AUTOGEN-* (6 cases) — Sprint 224
 
 Plus quick-test baseline (114 tests).
 
@@ -906,7 +942,7 @@ Plus quick-test baseline (114 tests).
 
 ### 10.3 Full Regression (Nightly) — Target: <30 min
 
-All ~190 MTP test cases + 121 TP-056 Multi-Agent test cases + 288 sprint cumulative tests (S216-S222) = ~599 total.
+All ~208 MTP test cases + 121 TP-056 Multi-Agent test cases + 326 sprint cumulative tests (S216-S224) = ~655 total.
 
 **Run**:
 ```bash
@@ -1046,6 +1082,9 @@ Planned Documents:
 | 15 | ConversationFirstGuard | Admin-only write paths enforced | Sprint 190 | Web |
 | 16 | Sprint 218-221 regression | 267 cumulative tests passing | **NEW v2.1.0** | Backend |
 | 17 | Consensus advisory invariant | Gate authority NOT bypassed by consensus | **NEW v2.1.0** | Backend |
+| 18 | Sprint 223-224 regression | 38 cumulative tests passing (22+16) | **NEW v2.3.0** | Backend |
+| 19 | Content quality advisory invariant | Upload NOT blocked by content warnings | **NEW v2.3.0** | Backend |
+| 20 | OPA policy parity | tier_artifacts.rego + content_quality.rego deployed | **NEW v2.3.0** | Backend |
 
 ---
 
@@ -1053,6 +1092,8 @@ Planned Documents:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 2.3.0 | 2026-03-06 | @tester | Sprint 223-224 coverage: +3 features (F-30 Tier-Artifact Matrix, F-31 Content Quality Validation, F-32 Auto-Gen Quality Gates), 32-feature matrix, +18 MTP test cases (~208 total), 326 cumulative sprint tests (S216-S224), +2 OPA policies (tier_artifacts.rego, content_quality.rego), +5 new modules, CTO revisions R1-R4 documented, content quality advisory INVARIANT, cross-project review (EndiorBot S80) traceability |
+| 2.2.0 | 2026-03-05 | @tester | Sprint 222 coverage: F-29 OTT @mention routing, MTP-MENTION-* (12 cases), WF-09 mention workflow, routing precedence documented |
 | 2.1.0 | 2026-03-05 | @tester | Sprint 218-221 coverage: +5 features (F-24 Skills, F-25 Heartbeat, F-26 Workspace, F-27 Feedback, F-28 Consensus), 28-feature matrix, WF-08 consensus workflow, +30 MTP test cases (~175 total), 267 cumulative sprint tests (S216-S221), +4 DB tables, ADR-070 traceability, consensus advisory INVARIANT documented |
 | 2.0.0 | 2026-03-02 | @tester | Comprehensive rewrite: 14-section structure, 23-feature matrix × 4 interfaces, 7 cross-interface workflows, ~145 MTP test cases, 4-tier regression suite, per-interface test suites (Web/CLI/Extension/OTT), test data fixtures, CTO reviewed (6 corrections applied) |
 | 1.0.0 | 2026-02-24 | @pm | Initial skeleton (Sprint 198 C-05) |

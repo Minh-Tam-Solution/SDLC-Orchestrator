@@ -1144,6 +1144,17 @@ async def execute_governance_action(
                 tool_args, bot_token, chat_id, user_id, channel=channel,
             )
 
+        # Sprint 223: Wire RUN_EVALS + LIST_NOTES (dispatch-only, no registry change)
+        elif tool_name == ToolName.RUN_EVALS.value:
+            handled = await _execute_run_evals(
+                tool_args, bot_token, chat_id, user_id, channel=channel,
+            )
+
+        elif tool_name == ToolName.LIST_NOTES.value:
+            handled = await _execute_list_notes(
+                tool_args, bot_token, chat_id, user_id, channel=channel,
+            )
+
         else:
             await _send_telegram_reply(
                 bot_token, chat_id,
@@ -1182,3 +1193,112 @@ async def execute_governance_action(
             channel=channel,
         )
         return False
+
+
+# ============================================================================
+# Sprint 223: RUN_EVALS + LIST_NOTES Handlers (dispatch-only, CTO R2)
+# ============================================================================
+
+
+async def _execute_run_evals(
+    tool_args: dict,
+    bot_token: str,
+    chat_id: str | int,
+    user_id: str,
+    *,
+    channel: str = "telegram",
+) -> bool:
+    """Execute RUN_EVALS command via OTT chat."""
+    project_id = tool_args.get("project_id")
+
+    async with AsyncSessionLocal() as db:
+        try:
+            from app.services.agent_team.eval_scorer import EvalScorer
+
+            scorer = EvalScorer()
+            # Run a lightweight status check (no full suite without test cases)
+            reply = (
+                "\U0001f9ea Eval Scorer Status\n\n"
+                f"\u2705 Service: Online\n"
+                f"\U0001f4ca Evaluator model: {scorer.evaluator_model}\n"
+            )
+            if project_id:
+                reply += f"\U0001f4cc Project: {project_id}\n"
+            reply += (
+                "\n\U0001f4a1 To run a full evaluation suite, use the API:\n"
+                "POST /api/v1/agent-team/evals/run\n\n"
+                "Or use the CLI: sdlcctl eval run <project_id>"
+            )
+            await _send_telegram_reply(bot_token, chat_id, reply, channel=channel)
+            return True
+        except Exception as exc:
+            logger.warning("run_evals handler error: %s", exc)
+            await _send_telegram_reply(
+                bot_token, chat_id,
+                _format_error(f"Eval scorer unavailable: {str(exc)[:200]}"),
+                channel=channel,
+            )
+            return False
+
+
+async def _execute_list_notes(
+    tool_args: dict,
+    bot_token: str,
+    chat_id: str | int,
+    user_id: str,
+    *,
+    channel: str = "telegram",
+) -> bool:
+    """Execute LIST_NOTES command via OTT chat."""
+    agent_name = tool_args.get("agent_name", "")
+
+    async with AsyncSessionLocal() as db:
+        try:
+            from app.services.agent_team.note_service import NoteService
+            from app.services.agent_team.agent_registry import AgentRegistryService
+            from uuid import UUID as _UUID
+
+            # Find agent by name
+            registry = AgentRegistryService(db)
+            agents = await registry.list_definitions()
+            target = None
+            for agent in agents:
+                if agent.name.lower() == agent_name.lower():
+                    target = agent
+                    break
+
+            if not target:
+                await _send_telegram_reply(
+                    bot_token, chat_id,
+                    _format_error(
+                        f"Agent '{agent_name}' not found.\n"
+                        f"Available agents: {', '.join(a.name for a in agents[:10])}"
+                    ),
+                    channel=channel,
+                )
+                return True
+
+            note_svc = NoteService(db)
+            notes = await note_svc.list_notes(target.id, limit=5)
+
+            if not notes:
+                reply = f"\U0001f4dd Notes for @{target.name}: (empty)"
+            else:
+                lines = [f"\U0001f4dd Notes for @{target.name}:\n"]
+                for note in notes:
+                    snippet = (note.content or "")[:80]
+                    lines.append(
+                        f"\u2022 [{note.note_type}] {snippet}"
+                    )
+                reply = "\n".join(lines)
+
+            await _send_telegram_reply(bot_token, chat_id, reply, channel=channel)
+            return True
+        except Exception as exc:
+            logger.warning("list_notes handler error: %s", exc)
+            await _send_telegram_reply(
+                bot_token, chat_id,
+                _format_error(f"Note service unavailable: {str(exc)[:200]}"),
+                channel=channel,
+            )
+            return False

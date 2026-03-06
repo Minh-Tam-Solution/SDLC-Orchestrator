@@ -397,11 +397,36 @@ async def trigger_evidence_validation(
     else:
         overall_status = "missing"
 
+    # Sprint 223: Add content quality warnings (non-blocking)
+    content_quality_warnings = []
+    try:
+        from app.services.governance.content_validator import ContentValidator
+        validator = ContentValidator()
+        ev_query = select(GateEvidence).where(
+            GateEvidence.project_id == project_id
+        )
+        ev_result = await db.execute(ev_query)
+        for evidence in ev_result.scalars().all():
+            if evidence.description and evidence.evidence_type:
+                cv_result = validator.validate(
+                    evidence.evidence_type, evidence.description
+                )
+                if not cv_result.passed:
+                    content_quality_warnings.append({
+                        "evidence_id": str(evidence.id),
+                        "evidence_type": evidence.evidence_type,
+                        "score": cv_result.score,
+                        "issues": cv_result.issues,
+                    })
+    except Exception as e:
+        logger.warning("content_quality check skipped: %s", e)
+
     return {
         "validation_id": f"val-{datetime.utcnow().timestamp()}",
         "status": overall_status,
         "violations": violation_dicts,
         "summary": summary,
+        "content_quality_warnings": content_quality_warnings,
         "validated_at": datetime.utcnow().isoformat() + "Z"
     }
 
@@ -553,4 +578,96 @@ async def get_evidence_gaps(
         "total_gaps": total_gaps,
         "recommendations": recommendations,
         "analyzed_at": datetime.utcnow().isoformat() + "Z"
+    }
+
+
+# ============================================================================
+# Sprint 223: Content Quality Validation Endpoint
+# OPA callback — content_quality.rego calls this for quality checks.
+# CTO Revision 3: OPA-first pattern (this is the API OPA calls).
+# ============================================================================
+
+
+@router.post("/evidence/{evidence_id}/validate-content")
+async def validate_evidence_content(
+    evidence_id: UUID,
+    body: Dict[str, Any] = {},
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
+    """
+    Validate document content quality (Sprint 223).
+
+    Called by OPA content_quality.rego or directly by clients.
+    Returns quality score, missing sections, and placeholder warnings.
+
+    Body (optional — if not provided, reads from evidence record):
+        document_type: str — e.g. "ADR", "TEST_PLAN"
+        content: str — full text content
+
+    Returns:
+        {
+            "score": float (0.0-1.0),
+            "passed": bool,
+            "document_type": str,
+            "missing_sections": [...],
+            "found_sections": [...],
+            "placeholder_count": int,
+            "placeholder_warnings": [...],
+            "thin_sections": [...],
+            "issues": [...]
+        }
+    """
+    from app.services.governance.content_validator import ContentValidator
+
+    document_type = body.get("document_type", "")
+    content = body.get("content", "")
+
+    if not document_type or not content:
+        # Try to get from evidence record
+        result = await db.execute(
+            select(GateEvidence).where(GateEvidence.id == evidence_id)
+        )
+        evidence = result.scalar_one_or_none()
+        if not evidence:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Evidence {evidence_id} not found",
+            )
+        if not document_type:
+            document_type = evidence.evidence_type or "DESIGN_DOCUMENT"
+        if not content and evidence.description:
+            content = evidence.description
+
+    if not content:
+        return {
+            "score": 0.0,
+            "passed": False,
+            "document_type": document_type,
+            "missing_sections": [],
+            "found_sections": [],
+            "placeholder_count": 0,
+            "placeholder_warnings": [],
+            "thin_sections": [],
+            "issues": ["No content available for validation"],
+        }
+
+    validator = ContentValidator()
+    result = validator.validate(document_type, content)
+
+    return {
+        "score": result.score,
+        "passed": result.passed,
+        "document_type": result.document_type,
+        "missing_sections": result.missing_sections,
+        "found_sections": result.found_sections,
+        "section_word_counts": result.section_word_counts,
+        "placeholder_count": len(result.placeholder_warnings),
+        "placeholder_warnings": [
+            {"line": p.line_number, "pattern": p.pattern, "text": p.text}
+            for p in result.placeholder_warnings
+        ],
+        "thin_sections": result.thin_sections,
+        "total_word_count": result.total_word_count,
+        "issues": result.issues,
     }

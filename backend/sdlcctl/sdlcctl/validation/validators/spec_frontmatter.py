@@ -1,7 +1,7 @@
 """
-Specification Frontmatter Validator.
+Specification & Artifact Frontmatter Validator.
 
-Validates YAML frontmatter in SDLC 6.0.6 specification documents.
+Validates YAML frontmatter in SDLC 6.1.1 specification and artifact documents.
 
 Rules:
 - SPC-001: Missing required frontmatter fields
@@ -9,12 +9,14 @@ Rules:
 - SPC-003: Invalid YAML syntax
 - SPC-004: Missing frontmatter block
 
-SDLC 6.0.6 Standard (SPEC-0002):
+SDLC 6.1.1 Standard (SPEC-0002):
 - Required: spec_id, title, version, status, tier, owner, last_updated
 - Optional: pillar, tags, related_adrs, related_specs, author, created, epic, sprint
 - Format: YAML frontmatter enclosed in triple dashes (---)
 
-Part of Sprint 125 - Multi-Frontend Alignment.
+Sprint 125: Initial SPEC-*.md validation.
+Sprint 224: Extended scope to ADR-*.md, BRD-*.md, PRD-*.md, TP-*.md, STM-*.md
+             (CTO R1: reuse spec_frontmatter.py, don't create new yaml_validator.py)
 """
 
 import json
@@ -53,7 +55,7 @@ class SpecFrontmatterValidator(BaseValidator):
 
     VALIDATOR_ID = "spec-frontmatter"
     VALIDATOR_NAME = "Specification Frontmatter Validator"
-    VALIDATOR_DESCRIPTION = "Validates YAML frontmatter in SDLC 6.0.6 specification documents"
+    VALIDATOR_DESCRIPTION = "Validates YAML frontmatter in SDLC 6.1.1 specification and artifact documents"
 
     # YAML frontmatter pattern (matches content between ---)
     YAML_FRONTMATTER = re.compile(
@@ -85,16 +87,39 @@ class SpecFrontmatterValidator(BaseValidator):
     # Valid tier values
     VALID_TIERS = {"LITE", "STANDARD", "PROFESSIONAL", "ENTERPRISE"}
 
-    # Specification file patterns
+    # Sprint 224: Per-document-type required fields (beyond SPEC baseline).
+    # Each prefix maps to minimal required frontmatter fields.
+    ARTIFACT_REQUIRED_FIELDS: dict[str, set[str]] = {
+        "SPEC": {"spec_id", "title", "version", "status", "tier", "owner", "last_updated"},
+        "ADR": {"title", "status", "owner", "last_updated"},
+        "BRD": {"title", "status", "owner", "last_updated"},
+        "PRD": {"title", "status", "owner", "last_updated"},
+        "TP": {"title", "status", "owner", "last_updated"},   # Test Plan
+        "STM": {"title", "status", "owner", "last_updated"},  # Security Threat Model
+    }
+
+    # Specification and artifact file patterns (Sprint 224: extended scope)
     SPEC_FILE_PATTERNS = [
         "SPEC-*.md",
         "**/SPEC-*.md",
+        "ADR-*.md",
+        "**/ADR-*.md",
+        "BRD-*.md",
+        "**/BRD-*.md",
+        "PRD-*.md",
+        "**/PRD-*.md",
+        "TP-*.md",
+        "**/TP-*.md",
+        "STM-*.md",
+        "**/STM-*.md",
     ]
 
-    # Directories to search for specs
+    # Directories to search for specs and artifacts
     SPEC_DIRECTORIES = [
         "02-design/14-Technical-Specs",
         "docs/02-design/14-Technical-Specs",
+        "docs/02-design/01-ADRs",
+        "docs/01-planning/03-Functional-Requirements",
         "specs",
         "docs/specs",
     ]
@@ -166,16 +191,23 @@ class SpecFrontmatterValidator(BaseValidator):
         Returns:
             List of spec file paths
         """
+        # Sprint 224: Accept any known artifact prefix, not just SPEC-
+        known_prefixes = tuple(f"{p}-" for p in self.ARTIFACT_REQUIRED_FIELDS)
+
         if paths:
-            return [p for p in paths if p.suffix == ".md" and "SPEC-" in p.name]
+            return [
+                p for p in paths
+                if p.suffix == ".md" and p.name.startswith(known_prefixes)
+            ]
 
         spec_files = []
 
-        # Search in standard spec directories
+        # Search in standard spec/artifact directories
         for spec_dir in self.SPEC_DIRECTORIES:
             dir_path = self.docs_root / spec_dir
             if dir_path.exists():
-                spec_files.extend(dir_path.glob("SPEC-*.md"))
+                for prefix in known_prefixes:
+                    spec_files.extend(dir_path.glob(f"{prefix}*.md"))
 
         # Also search for SPEC-*.md anywhere in docs_root
         for pattern in self.SPEC_FILE_PATTERNS:
@@ -379,8 +411,9 @@ class SpecFrontmatterValidator(BaseValidator):
         """
         violations = []
 
-        # Check required fields
-        missing_fields = self.REQUIRED_FIELDS - set(frontmatter.keys())
+        # Sprint 224: Use per-artifact-type required fields
+        required = self._get_required_fields_for_file(file)
+        missing_fields = required - set(frontmatter.keys())
         if missing_fields:
             violations.append(
                 ViolationReport(
@@ -463,6 +496,25 @@ class SpecFrontmatterValidator(BaseValidator):
                     )
 
         return violations
+
+    def _get_required_fields_for_file(self, file: Path) -> set[str]:
+        """
+        Determine required frontmatter fields based on file prefix.
+
+        Sprint 224: Per-artifact-type required fields. SPEC files use the
+        full REQUIRED_FIELDS set; other artifact types use lighter sets.
+
+        Args:
+            file: File path to determine type from
+
+        Returns:
+            Set of required field names
+        """
+        for prefix, fields in self.ARTIFACT_REQUIRED_FIELDS.items():
+            if file.name.startswith(f"{prefix}-"):
+                return fields
+        # Fallback to SPEC requirements for unknown prefixes
+        return self.REQUIRED_FIELDS
 
     def _get_field_suggestion(self, field: str, frontmatter: Dict[str, Any]) -> str:
         """

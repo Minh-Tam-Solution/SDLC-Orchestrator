@@ -55,6 +55,7 @@ from app.services.gate_service import (
     GateNotFoundError,
     InvalidGateCodeError,
 )
+from app.policies.gate_artifact_matrix import check_artifact_completeness
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +78,7 @@ class GateEvaluationStatus(str, Enum):
 class EvaluationPhase(str, Enum):
     """Phases of gate evaluation."""
     PREREQUISITES = "prerequisites"
+    ARTIFACT_TYPE_CHECK = "artifact_type_check"  # Sprint 223
     EXIT_CRITERIA = "exit_criteria"
     POLICY_EVALUATION = "policy_evaluation"
     CONTEXT_CHECK = "context_check"
@@ -376,6 +378,14 @@ class GatesEngine:
                 if not prereq_result.passed:
                     blocking_issues.extend(prereq_result.errors)
 
+            # Phase 1.5: Artifact Type Check (Sprint 223)
+            artifact_result = await self._evaluate_artifact_types(
+                gate_code, project_id, submission_data
+            )
+            phase_results.append(artifact_result)
+            if not artifact_result.passed:
+                blocking_issues.extend(artifact_result.errors)
+
             # Phase 2: Exit Criteria
             exit_criteria_result, criteria_details = await self._evaluate_exit_criteria(
                 gate, submission_data
@@ -654,6 +664,75 @@ class GatesEngine:
     # ========================================================================
     # Phase Evaluation Methods
     # ========================================================================
+
+    async def _evaluate_artifact_types(
+        self,
+        gate_code: str,
+        project_id: UUID,
+        submission_data: Optional[Dict[str, Any]] = None,
+    ) -> PhaseResult:
+        """
+        Phase 1.5: Check submitted evidence types against the tier-artifact matrix.
+
+        Sprint 223 — EndiorBot cross-project review gap G2.
+        """
+        start = datetime.now(UTC)
+        try:
+            from sqlalchemy import select, text
+            from app.models.project import Project
+
+            # Fetch project tier
+            result = await self.db.execute(
+                select(Project.policy_pack_tier).where(Project.id == project_id)
+            )
+            tier = result.scalar_one_or_none() or "PROFESSIONAL"
+
+            # Collect submitted evidence types from submission_data or DB
+            submitted_types: list[str] = []
+            if submission_data and "evidence_types" in submission_data:
+                submitted_types = submission_data["evidence_types"]
+            else:
+                from app.models.gate_evidence import GateEvidence
+                ev_result = await self.db.execute(
+                    select(GateEvidence.evidence_type).where(
+                        GateEvidence.project_id == project_id,
+                    )
+                )
+                submitted_types = [row[0] for row in ev_result.all() if row[0]]
+
+            check = check_artifact_completeness(gate_code, tier, submitted_types)
+
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
+
+            if check.passed:
+                return PhaseResult(
+                    phase=EvaluationPhase.ARTIFACT_TYPE_CHECK,
+                    passed=True,
+                    message=f"All required artifacts present for {gate_code}/{tier}",
+                    duration_ms=duration,
+                    details={"tier": tier, "required": check.required, "submitted": check.submitted},
+                )
+            else:
+                return PhaseResult(
+                    phase=EvaluationPhase.ARTIFACT_TYPE_CHECK,
+                    passed=False,
+                    message=f"Missing artifacts for {gate_code}/{tier}: {check.missing}",
+                    duration_ms=duration,
+                    details={"tier": tier, "required": check.required, "missing": check.missing},
+                    errors=[
+                        f"{gate_code} BLOCKED for {tier}: missing artifacts {check.missing}"
+                    ],
+                )
+        except Exception as exc:
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
+            logger.warning("artifact_type_check error: %s", exc)
+            return PhaseResult(
+                phase=EvaluationPhase.ARTIFACT_TYPE_CHECK,
+                passed=True,  # non-blocking on error
+                message=f"Artifact type check skipped: {exc}",
+                duration_ms=duration,
+                details={"error": str(exc)},
+            )
 
     async def _evaluate_prerequisites(
         self,
