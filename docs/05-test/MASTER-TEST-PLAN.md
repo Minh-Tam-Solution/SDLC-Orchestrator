@@ -2,21 +2,21 @@
 
 ```yaml
 document_type: "Master Test Plan"
-version: "2.0.0"
-date: "2026-03-02"
+version: "2.2.0"
+date: "2026-03-05"
 framework: "SDLC 6.1.1"
 status: "ACTIVE"
 author: "@tester"
-reviewer: "@cto (APPROVED w/ 6 corrections — 2026-03-02)"
+reviewer: "@cto (APPROVED 9/10 — 2026-03-05)"
 authority: "CTO + QA Lead"
-traceability: "MTP v1.0.0 (Sprint 198 skeleton) → MTP v2.0.0 (Sprint 213 comprehensive)"
+traceability: "MTP v1.0.0 (Sprint 198 skeleton) → MTP v2.0.0 (Sprint 213 comprehensive) → MTP v2.1.0 (Sprint 221 S218-S221 coverage) → MTP v2.2.0 (Sprint 222 OTT @mention routing)"
 ```
 
 ---
 
 ## 1. Executive Summary
 
-This Master Test Plan (MTP) is the **single index** for all testing activities in SDLC Orchestrator. It unifies test coverage across **4 interfaces** (Web, CLI, Extension, OTT), maps 23 features to per-interface test cases, defines 7 cross-interface workflow scenarios, and enforces the Zero Mock Policy across all tiers.
+This Master Test Plan (MTP) is the **single index** for all testing activities in SDLC Orchestrator. It unifies test coverage across **4 interfaces** (Web, CLI, Extension, OTT), maps 29 features to per-interface test cases, defines 9 cross-interface workflow scenarios, and enforces the Zero Mock Policy across all tiers.
 
 ### CEO Directive (Sprint 190)
 
@@ -35,7 +35,7 @@ This means OTT and CLI test coverage is **P0** — not an afterthought.
     /______________________\
 ```
 
-### Current Metrics (Sprint 213)
+### Current Metrics (Sprint 222)
 
 | Metric | Value | Target | Status |
 |--------|-------|--------|--------|
@@ -45,12 +45,14 @@ This means OTT and CLI test coverage is **P0** — not an afterthought.
 | Extension command files (registered IDs) | 17 (13+) | — | Baselined |
 | OTT governance commands | 10 (MAX capacity) | — | Baselined |
 | Frontend pages | 40+ | — | Baselined |
-| Total test files | 259+ | — | Baselined |
-| Unit tests (functions) | 3,096+ | 95% coverage | On track |
+| Total test files | 267+ | — | Baselined (+8 sprint test files S216-S222) |
+| Unit tests (functions) | 3,117+ | 95% coverage | On track |
 | Integration tests | 993+ | 90% coverage | On track |
 | E2E scenarios | 85+ | 10 critical paths | Exceeds |
-| MTP test cases (this document) | ~145 | — | NEW v2.0.0 |
+| Sprint cumulative tests (S216-S222) | 288 | — | 36+38+57+61+30+45+21 |
+| MTP test cases (this document) | ~190 | — | v2.2.0 (+15 new, Sprint 222) |
 | Multi-Agent test cases (TP-056) | 121 | — | Cross-referenced |
+| New DB tables (S218-S221) | +4 | — | skill_agent_grants, shared_workspace_items, consensus_sessions, consensus_votes |
 | p95 API latency | 14.0ms | <100ms | PASS |
 | OWASP ASVS L2 | 98.4% | Level 2 (264/264) | ACHIEVED |
 
@@ -58,12 +60,12 @@ This means OTT and CLI test coverage is **P0** — not an afterthought.
 
 | Interface | Features Covered | Test Cases (MTP) | Status |
 |-----------|-----------------|------------------|--------|
-| Web App | 23/23 (admin paths) | ~40 | Active |
-| CLI (`sdlcctl`) | 14/23 | ~20 | Active |
-| VSCode Extension | 10/23 | ~15 | Active |
-| OTT (Telegram/Zalo/Teams/Slack) | 8/23 | ~25 | Active |
-| Cross-Interface | 7 workflows | ~10 | NEW |
-| **Total** | | **~145** | |
+| Web App | 29/29 (admin paths) | ~50 | Active |
+| CLI (`sdlcctl`) | 14/29 | ~20 | Active |
+| VSCode Extension | 10/29 | ~15 | Active |
+| OTT (Telegram/Zalo/Teams/Slack) | 11/29 | ~40 | Updated v2.2.0 (+10 S222) |
+| Cross-Interface | 9 workflows | ~14 | Updated v2.2.0 (+2 S222) |
+| **Total** | | **~190** | |
 
 ---
 
@@ -115,7 +117,7 @@ The 10 registered OTT governance commands (MAX capacity reached — Sprint 202):
 
 ---
 
-## 3. Feature Test Matrix — 23 Features × 4 Interfaces
+## 3. Feature Test Matrix — 28 Features × 4 Interfaces
 
 ### 3.1 P0 — Must Test Before Any Release (8 Features)
 
@@ -155,9 +157,43 @@ The 10 registered OTT governance commands (MAX capacity reached — Sprint 202):
 | F-22 | Governance Mode | Web (vibecoding index) | MTP-GOVMODE-* |
 | F-23 | MRP/VCR/CRP Workflows | Web (SASE artifacts) | MTP-WORKFLOW-* |
 
+### 3.4 P1 — Multi-Agent Pattern Adoption (5 Features, Sprint 218-221)
+
+| # | Feature | Web | CLI | Extension | OTT | Test IDs |
+|---|---------|-----|-----|-----------|-----|----------|
+| F-24 | Skills Engine (search + grants) | Admin skill management | N/A | N/A | N/A (future) | MTP-SKILL-* |
+| F-25 | Agent Liveness (heartbeat) | Health dashboard | N/A | N/A | N/A | MTP-HEARTBEAT-* |
+| F-26 | Shared Workspace | Workspace viewer | N/A | N/A | N/A (future) | MTP-WORKSPACE-* |
+| F-27 | Approval Feedback Loop | Feedback review UI | N/A | N/A | N/A | MTP-FEEDBACK-* |
+| F-28 | Group Consensus (voting) | Vote status UI | N/A | N/A | `@vote` (future) | MTP-CONSENSUS-* |
+
+**Source**: PDR-001 (CoPaw/AgentScope Pattern Adoption), ADR-070 (EP-07 ↔ AgentScope Task Contract)
+
+**INVARIANT**: Consensus (F-28) is advisory — CANNOT bypass EP-07 gates. Quorum result = evidence returned to EP-07 gate. Gate still decides PASS/FAIL.
+
+### 3.5 P0 — OTT Interface Parity (1 Feature, Sprint 222)
+
+| # | Feature | Web | CLI | Extension | OTT | Test IDs |
+|---|---------|-----|-----|-----------|-----|----------|
+| F-29 | OTT @mention → EP-07 Direct Routing | N/A | N/A | N/A | `@agentname` / `@role` in Telegram/Zalo → direct EP-07 agent invoke | MTP-MENTION-* |
+
+**Source**: Sprint 222 (gap from S215-S219 scope deferral). Design gap: S219 "already works" referred to agent-to-agent routing (S177); OTT user→agent @mention shipped S222.
+
+**Routing Precedence** (Sprint 222):
+```
+/command → telegram_responder (static replies)
+@mention → handle_mention_request (EP-07 direct agent routing)   ← NEW
+multi-agent keyword → handle_agent_team_request (preset pipeline)
+free text → handle_ai_response (Ollama AI reply)
+```
+
+**Key files**: `backend/app/services/agent_bridge/ott_team_bridge.py`, `backend/app/api/routes/ott_gateway.py`
+
+**C1 (CTO mandate)**: Uses `MentionParser.extract_mentions()` — proper regex with email false-positive exclusion (`(?<!\S)@word`), NOT naive `"@" in text`.
+
 ---
 
-## 4. Cross-Interface Workflow Scenarios — 7 Workflows
+## 4. Cross-Interface Workflow Scenarios — 8 Workflows
 
 ### WF-01: Onboarding Flow (P0)
 
@@ -262,6 +298,42 @@ The 10 registered OTT governance commands (MAX capacity reached — Sprint 202):
 
 **Test IDs**: MTP-COMP-CROSS-001
 
+### WF-09: OTT @mention → Direct EP-07 Agent Routing (P0) — NEW Sprint 222
+
+**Goal**: Verify that a human typing `@agentname` or `@role` in Telegram/Zalo triggers direct routing to the matching EP-07 agent definition.
+
+| Step | Interface | Action | Expected |
+|------|-----------|--------|----------|
+| 1 | OTT (Telegram) | User sends `@pjm báo cáo hiện trạng` in group chat | MentionParser extracts `pjm` |
+| 2 | Backend | `handle_mention_request()` — name lookup in `agent_definitions` | Agent `pjm` found (exact name match) |
+| 3 | OTT | Acknowledgement: `🔀 Routing → @pjm (project_manager)...` | Ack message sent to chat |
+| 4 | Backend | `_process_agent_request(definition_override=pjm_agent)` called | EP-07 pipeline runs with pjm agent |
+| 5 | OTT | Agent response returned to chat | pjm agent answers in chat context |
+| 6 | OTT (Zalo) | Same message in Zalo group | Same routing (Zalo parity — C3) |
+| 7 | OTT | User sends `@reviewer check this code` | Role fallback: finds first active agent with sdlc_role=`reviewer` |
+| 8 | OTT | User sends email `team@company.com` (no mention intent) | Email NOT routed — `(?<!\S)@word` pattern excludes mid-word `@` |
+| 9 | OTT | User sends `@unknown_agent hello` | Error: agent not found, returns True (handled), does NOT fall through to generic AI |
+
+**Invariant**: Unknown @mention returns `True` (handled, error sent to user) — NEVER `False` (which would incorrectly fall through to generic AI response).
+
+**Test IDs**: MTP-MENTION-OTT-001 through MTP-MENTION-OTT-009, MTP-MENTION-CROSS-001
+
+### WF-08: Multi-Agent Consensus Vote (P1) — NEW Sprint 221
+
+**Goal**: Verify group consensus voting lifecycle with quorum detection across agent team.
+
+| Step | Interface | Action | Expected |
+|------|-----------|--------|----------|
+| 1 | Web/API | Create consensus session (topic, quorum_type=majority, 3 voters) | Session created, status=open |
+| 2 | API | Agent A casts vote (approve) | Vote recorded, status → voting |
+| 3 | API | Agent B casts vote (approve) | Vote recorded, quorum reached (2/3 majority) |
+| 4 | API | Session auto-closed | status=decided, result.decision=approve, decided_by_vote_id set |
+| 5 | API | Agent C attempts to vote | Session already decided, vote still recorded but no state change |
+| 6 | Web | View consensus result | Decision + vote breakdown visible |
+| 7 | API | Context injection includes `<active_votes>` for open sessions | XML block with vote tally |
+
+**Test IDs**: MTP-CONSENSUS-CROSS-001
+
 ---
 
 ## 5. Per-Interface Test Suites
@@ -273,7 +345,8 @@ MTP-{FEATURE}-{INTERFACE}-{SEQ}
 
 FEATURE: AUTH|PROJ|GATE|EVID|RBAC|AGENT|OTT|WKSP|ORG|SPRINT|
          CODEGEN|SAST|POLICY|COMP|TIER|MAGIC|GDPR|DORA|AUDIT|
-         USAGE|DASH|GOVMODE|WORKFLOW
+         USAGE|DASH|GOVMODE|WORKFLOW|SKILL|HEARTBEAT|
+         WORKSPACE|FEEDBACK|CONSENSUS|MENTION
 INTERFACE: WEB|CLI|EXT|OTT|CROSS
 SEQ: 001-999
 ```
@@ -377,6 +450,25 @@ SEQ: 001-999
 | MTP-TIER-WEB-003 | Tier/Billing | Usage limit enforcement |
 | MTP-MAGIC-WEB-001 | Magic Link | Approval landing page |
 | MTP-MAGIC-WEB-002 | Magic Link | Expired link handling |
+
+#### P1 — Multi-Agent Pattern Features (Sprint 218-221)
+
+| Test ID | Feature | Description |
+|---------|---------|-------------|
+| MTP-SKILL-WEB-001 | Skills Engine | Search skills via tsvector (plainto_tsquery) |
+| MTP-SKILL-WEB-002 | Skills Engine | Grant skill to agent (skill_agent_grants) |
+| MTP-SKILL-WEB-003 | Skills Engine | Agent without grant cannot access workspace skills |
+| MTP-SKILL-WEB-004 | Skills Engine | Grant idempotent (ON CONFLICT DO NOTHING) |
+| MTP-HEARTBEAT-WEB-001 | Agent Liveness | View agent heartbeat status (stale vs active) |
+| MTP-HEARTBEAT-WEB-002 | Agent Liveness | Stale agent recovery triggers system message |
+| MTP-WORKSPACE-WEB-001 | Shared Workspace | View workspace items for conversation |
+| MTP-WORKSPACE-WEB-002 | Shared Workspace | Version conflict raises VersionConflictError |
+| MTP-WORKSPACE-WEB-003 | Shared Workspace | Soft-deleted items excluded from list |
+| MTP-FEEDBACK-WEB-001 | Approval Feedback | Approve with feedback stored in metadata |
+| MTP-FEEDBACK-WEB-002 | Approval Feedback | Reject with feedback injects `<human_feedback>` |
+| MTP-CONSENSUS-WEB-001 | Group Consensus | Create consensus session (majority/unanimous/threshold) |
+| MTP-CONSENSUS-WEB-002 | Group Consensus | View vote tally and quorum status |
+| MTP-CONSENSUS-WEB-003 | Group Consensus | Decided session shows result breakdown |
 
 ### 5.2 CLI (`sdlcctl`) Test Cases (~20 cases)
 
@@ -518,7 +610,36 @@ SEQ: 001-999
 | MTP-OTT-OTT-007 | Credential scrubbing | Agent output contains API key | Key pattern masked (ADR-058 Pattern A) |
 | MTP-OTT-OTT-008 | History compaction | Conversation >80% capacity | Auto-summarized (ADR-058 Pattern B) |
 
-### 5.5 Cross-Interface Test Cases (~10 cases)
+#### @mention → EP-07 Direct Agent Routing (P0) — Sprint 222
+
+| Test ID | Description | Steps | Expected |
+|---------|-------------|-------|----------|
+| MTP-MENTION-OTT-001 | Name-based routing | Send `@pjm báo cáo` in Telegram | Agent `pjm` found by name, routed, ack sent |
+| MTP-MENTION-OTT-002 | Role-based routing | Send `@reviewer check code` | First active agent with `sdlc_role=reviewer` found, routed |
+| MTP-MENTION-OTT-003 | Ack message sent | @mention → agent found | `🔀 Routing → @pjm (role)...` sent before pipeline runs |
+| MTP-MENTION-OTT-004 | Unknown agent | Send `@nobody hello` | Error message sent, returns True (handled) — NOT falls through |
+| MTP-MENTION-OTT-005 | No project bound | @mention, no workspace set | Error: "Workspace not configured" sent, returns True |
+| MTP-MENTION-OTT-006 | Email false-positive | Send `admin@company.com please reply` | `company` NOT extracted as @mention (regex guards mid-word @) |
+| MTP-MENTION-OTT-007 | Multi-mention: first wins | Send `@pjm and @architect please advise` | Only `pjm` routed (first mention), single pipeline call |
+| MTP-MENTION-OTT-008 | Zalo parity | Same `@agent` message in Zalo channel | Same routing, `channel="zalo"`, `bot_token=""` |
+| MTP-MENTION-OTT-009 | Routing precedence: /command wins | `/gate-status` in same message with @mention | `/gate-status` handled by telegram_responder, @mention NOT triggered |
+| MTP-MENTION-OTT-010 | Pipeline backward compat | `_process_agent_request(definition_override=None)` | Falls back to `_find_entry_agent()` — existing behaviour unchanged |
+
+**Source**: `backend/tests/unit/test_sprint222_ott_mention.py` (21 tests, 10 groups)
+**Key design**: `MentionParser.extract_mentions()` (C1) — proper regex, not `"@" in text`
+
+#### Multi-Agent Pattern Features via OTT (Sprint 218-221)
+
+| Test ID | Description | Steps | Expected |
+|---------|-------------|-------|----------|
+| MTP-CONSENSUS-OTT-001 | `@vote` create session | Agent sends `@vote create "topic" majority` | Consensus session created, voters notified |
+| MTP-CONSENSUS-OTT-002 | `@vote approve` | Agent sends `@vote approve "reasoning"` | Vote recorded, quorum checked |
+| MTP-CONSENSUS-OTT-003 | `@vote reject` | Agent sends `@vote reject "not ready"` | Vote recorded, may trigger early reject |
+| MTP-CONSENSUS-OTT-004 | Consensus context injection | Open session exists | `<active_votes>` block in agent context |
+| MTP-WORKSPACE-OTT-001 | Workspace context injection | Active workspace items | `<workspace>` block in agent context |
+| MTP-WORKSPACE-OTT-002 | Workspace key preview | Item >50 chars | Truncated with '...' |
+
+### 5.5 Cross-Interface Test Cases (~12 cases)
 
 These are the verification points from Section 4 Workflows, formalized as test cases.
 
@@ -534,6 +655,10 @@ These are the verification points from Section 4 Workflows, formalized as test c
 | MTP-OTT-CROSS-001 | WF-05 | OTT group workspace actions reflected in Web admin view |
 | MTP-RBAC-CROSS-001 | WF-05 | Permission enforcement identical across OTT and Web |
 | MTP-CODEGEN-CROSS-001 | WF-06 | Generated evidence auto-bound to gate across interfaces |
+| MTP-CONSENSUS-CROSS-001 | WF-08 | Consensus quorum result consistent across Web view and API |
+| MTP-CONSENSUS-CROSS-002 | WF-08 | Consensus decision = advisory evidence, does NOT bypass EP-07 gate |
+| MTP-MENTION-CROSS-001 | WF-09 | @mention in OTT routes to same EP-07 agent as direct API call with same definition_id |
+| MTP-MENTION-CROSS-002 | WF-09 | Agent response via @mention appears in conversation history viewable from Web |
 
 ---
 
@@ -561,6 +686,8 @@ These are the verification points from Section 4 Workflows, formalized as test c
 | Remediation Plan | [REMEDIATION-PLAN-GOLIVE-2026.md](REMEDIATION-PLAN-GOLIVE-2026.md) | 3-sprint go-live testing roadmap |
 | Testing Strategy Gov v2 | [01-Test-Strategy/Testing-Strategy-Governance-v2.md](01-Test-Strategy/Testing-Strategy-Governance-v2.md) | SPEC-0001/0002, Anti-Vibecoding |
 | E2E Test Scenarios | [07-E2E-Testing/E2E-TEST-SCENARIOS.md](07-E2E-Testing/E2E-TEST-SCENARIOS.md) | Detailed TC-* Gherkin scenarios (Web-only, 1,688 lines) |
+| ADR-070 | [docs/02-design/01-ADRs/ADR-070-MTClaw-Best-Practice-Adoption.md](../02-design/01-ADRs/ADR-070-MTClaw-Best-Practice-Adoption.md) | EP-07 ↔ AgentScope Task Contract (S218-S221 prerequisite) |
+| Sprint 218-222 Tests | `backend/tests/unit/test_sprint218_*.py` through `test_sprint222_*.py` | 288 cumulative sprint tests (7 sprints S216-S222) |
 
 ---
 
@@ -757,7 +884,7 @@ const vscodeApiMock = {
 
 ### 10.2 P0 Regression (Every PR Merge) — Target: <10 min
 
-All P0 feature tests across all interfaces (~97 test cases):
+All P0 feature tests across all interfaces (~97 test cases) plus P1 multi-agent pattern tests (~30 cases):
 - MTP-AUTH-* (21 cases)
 - MTP-PROJ-* (12 cases)
 - MTP-GATE-* (23 cases)
@@ -766,6 +893,12 @@ All P0 feature tests across all interfaces (~97 test cases):
 - MTP-AGENT-* (6 cases)
 - MTP-OTT-* (8 cases)
 - MTP-WKSP-* (5 cases)
+- MTP-SKILL-* (4 cases) — Sprint 218
+- MTP-HEARTBEAT-* (2 cases) — Sprint 219
+- MTP-WORKSPACE-* (5 cases) — Sprint 219-220
+- MTP-FEEDBACK-* (2 cases) — Sprint 220
+- MTP-CONSENSUS-* (9 cases) — Sprint 221
+- MTP-MENTION-* (12 cases) — Sprint 222
 
 Plus quick-test baseline (114 tests).
 
@@ -773,7 +906,7 @@ Plus quick-test baseline (114 tests).
 
 ### 10.3 Full Regression (Nightly) — Target: <30 min
 
-All ~145 MTP test cases + 121 TP-056 Multi-Agent test cases = ~266 total.
+All ~190 MTP test cases + 121 TP-056 Multi-Agent test cases + 288 sprint cumulative tests (S216-S222) = ~599 total.
 
 **Run**:
 ```bash
@@ -880,8 +1013,15 @@ Planned Documents:
 | CF-02 Resilience (503) | Sprint 198 | 12 endpoints: DB/service → 503 + Retry-After |
 | CF-03 Auth Performance | Sprint 198 | bcrypt run_in_threadpool (3 endpoints) |
 | Conversation-First Guard | Sprint 190 | ConversationFirstGuard middleware tested |
-| 4-Interface Parity | **NEW v2.0.0** | 7 cross-interface workflows (WF-01 to WF-07) |
+| 4-Interface Parity | **NEW v2.0.0** | 8 cross-interface workflows (WF-01 to WF-08) |
 | OTT Command Registry | **NEW v2.0.0** | 10 commands tested (MTP-OTT-*, MTP-GATE-OTT-*) |
+| Skills Engine (P3) | **NEW v2.1.0** | tsvector search, skill_agent_grants, 57 S218 tests |
+| Agent Liveness (P6) | **NEW v2.1.0** | Heartbeat service, stale recovery, 61 S219 tests |
+| Shared Workspace (P5) | **NEW v2.1.0** | Optimistic locking, version conflict, context injection |
+| Approval Feedback (P4) | **NEW v2.1.0** | approve/reject with feedback, `<human_feedback>` injection, 30 S220 tests |
+| Group Consensus (P2) | **NEW v2.1.0** | 3 quorum types, SELECT FOR UPDATE race protection, 45 S221 tests |
+| ADR-070 Task Contract | **NEW v2.1.0** | EP-07 ↔ AgentScope interface: dispatch → execute → return → gate evaluate |
+| Consensus Advisory INVARIANT | **NEW v2.1.0** | Consensus CANNOT bypass EP-07 gates (gate decides PASS/FAIL) |
 
 ---
 
@@ -902,8 +1042,10 @@ Planned Documents:
 | 11 | CLI auth + core commands | 3 auth + 4 gate + 2 evidence | **NEW** | CLI |
 | 12 | Extension core commands | 3 auth + 2 gate + 2 evidence | **NEW** | Extension |
 | 13 | OTT webhook + 10 commands | Intake + routing + all 10 | **NEW** | OTT |
-| 14 | Cross-interface parity | 3 P0 workflows (WF-01, WF-02, WF-03) | **NEW** | Cross |
+| 14 | Cross-interface parity | 4 P0 workflows (WF-01 to WF-03, WF-08) | **Updated v2.1.0** | Cross |
 | 15 | ConversationFirstGuard | Admin-only write paths enforced | Sprint 190 | Web |
+| 16 | Sprint 218-221 regression | 267 cumulative tests passing | **NEW v2.1.0** | Backend |
+| 17 | Consensus advisory invariant | Gate authority NOT bypassed by consensus | **NEW v2.1.0** | Backend |
 
 ---
 
@@ -911,6 +1053,7 @@ Planned Documents:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 2.1.0 | 2026-03-05 | @tester | Sprint 218-221 coverage: +5 features (F-24 Skills, F-25 Heartbeat, F-26 Workspace, F-27 Feedback, F-28 Consensus), 28-feature matrix, WF-08 consensus workflow, +30 MTP test cases (~175 total), 267 cumulative sprint tests (S216-S221), +4 DB tables, ADR-070 traceability, consensus advisory INVARIANT documented |
 | 2.0.0 | 2026-03-02 | @tester | Comprehensive rewrite: 14-section structure, 23-feature matrix × 4 interfaces, 7 cross-interface workflows, ~145 MTP test cases, 4-tier regression suite, per-interface test suites (Web/CLI/Extension/OTT), test data fixtures, CTO reviewed (6 corrections applied) |
 | 1.0.0 | 2026-02-24 | @pm | Initial skeleton (Sprint 198 C-05) |
 

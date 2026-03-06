@@ -344,39 +344,96 @@ async def receive_webhook(
     # Fire-and-forget: send reply AFTER returning 200 to Telegram.
     # Non-blocking — failure does not affect webhook acknowledgment.
     #
-    # Routing: /command messages → telegram_responder (static replies)
-    #          free-text messages → ai_response_handler (Ollama AI reply)
-    #
-    # The responder returns True if a command was handled. If False (not a
-    # command), the AI handler picks up for bidirectional conversation.
+    # Routing precedence (Sprint 222 — @mention branch added):
+    #   /command    → telegram_responder (static replies)
+    #   @mention    → handle_mention_request (EP-07 direct agent routing)
+    #   multi-agent → handle_agent_team_request (preset-based pipeline)
+    #   free text   → ai_response_handler (Ollama AI reply)
     if channel == "telegram":
         import asyncio
         from app.services.agent_bridge.telegram_responder import handle_telegram_auto_reply
         from app.services.agent_bridge.ai_response_handler import handle_ai_response
+        from app.services.agent_bridge.ott_team_bridge import (
+            handle_mention_request,
+            handle_agent_team_request,
+            is_multi_agent_intent,
+        )
+        from app.services.agent_team.mention_parser import MentionParser  # C1
+
+        _tg_chat_id = msg.metadata.get("chat_id", msg.sender_id)
 
         async def _telegram_dispatch() -> None:
-            """Route Telegram message: commands → responder, free text → AI."""
+            """Route Telegram: commands → responder, @mention → EP-07, free text → AI."""
+            # 1. /command → static responder (unchanged)
             handled = await handle_telegram_auto_reply(raw_body)
-            if not handled:
-                await handle_ai_response(raw_body, _TELEGRAM_BOT_TOKEN)
+            if handled:
+                return
+
+            # 2. @mention → direct EP-07 agent routing (Sprint 222, C1)
+            if MentionParser.extract_mentions(msg.content):
+                routed = await handle_mention_request(
+                    chat_id=_tg_chat_id,
+                    text=msg.content,
+                    bot_token=_TELEGRAM_BOT_TOKEN,
+                    sender_id=msg.sender_id,
+                    channel="telegram",
+                )
+                if routed:
+                    return
+
+            # 3. Multi-agent intent keywords → preset-based pipeline
+            if is_multi_agent_intent(msg.content):
+                await handle_agent_team_request(
+                    chat_id=_tg_chat_id,
+                    text=msg.content,
+                    bot_token=_TELEGRAM_BOT_TOKEN,
+                    sender_id=msg.sender_id,
+                    channel="telegram",
+                )
+                return
+
+            # 4. Generic AI fallback
+            await handle_ai_response(raw_body, _TELEGRAM_BOT_TOKEN)
 
         asyncio.ensure_future(_telegram_dispatch())
 
     # ── Sprint 200 C-01: Zalo bidirectional response ──
     # Same fire-and-forget pattern as Telegram. Zalo uses OAuth access token
     # instead of bot token, so we pass the sender_id directly.
+    # Sprint 222 C3: @mention branch added for Zalo channel parity.
     if channel == "zalo":
         import asyncio
         from app.services.agent_bridge.zalo_responder import handle_zalo_auto_reply
         from app.services.agent_bridge.ai_response_handler import handle_ai_response
+        from app.services.agent_bridge.ott_team_bridge import (
+            handle_mention_request,
+            is_multi_agent_intent,
+        )
+        from app.services.agent_team.mention_parser import MentionParser  # C1 C3
 
         _zalo_sender_id = raw_body.get("sender", {}).get("id", "")
 
         async def _zalo_dispatch() -> None:
-            """Route Zalo message: commands → zalo_responder, free text → AI."""
+            """Route Zalo: commands → responder, @mention → EP-07, free text → AI."""
+            # 1. Command check
             handled = await handle_zalo_auto_reply(raw_body)
-            if not handled:
-                await handle_ai_response(raw_body, "", channel="zalo")
+            if handled:
+                return
+
+            # 2. @mention → direct EP-07 agent routing (Sprint 222, C3)
+            if MentionParser.extract_mentions(msg.content):
+                routed = await handle_mention_request(
+                    chat_id=_zalo_sender_id,
+                    text=msg.content,
+                    bot_token="",
+                    sender_id=_zalo_sender_id,
+                    channel="zalo",
+                )
+                if routed:
+                    return
+
+            # 3. Generic AI fallback
+            await handle_ai_response(raw_body, "", channel="zalo")
 
         asyncio.ensure_future(_zalo_dispatch())
 

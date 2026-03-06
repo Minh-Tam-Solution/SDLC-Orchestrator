@@ -124,7 +124,7 @@ services:
       dockerfile: Dockerfile
     container_name: sdlc-staging-backend
     restart: unless-stopped
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8300 --workers 2
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8300 --reload
     environment:
       # Database
       DATABASE_URL: postgresql+asyncpg://sdlc_staging_user:${POSTGRES_PASSWORD}@postgres:5432/sdlc_orchestrator_staging
@@ -178,6 +178,8 @@ services:
 
     ports:
       - "8300:8300"
+    volumes:
+      - ./backend:/app  # Live code reload — no rebuild needed for code changes
     depends_on:
       postgres:
         condition: service_healthy

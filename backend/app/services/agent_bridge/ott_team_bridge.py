@@ -235,6 +235,52 @@ async def _clear_active_conversation(chat_id: str | int) -> None:
         pass
 
 
+async def _find_agent_by_name_or_role(
+    db: AsyncSession,
+    project_id: UUID,
+    name: str,
+) -> AgentDefinition | None:
+    """
+    Find an active agent definition by agent_name OR sdlc_role (Sprint 222).
+
+    Precedence: exact agent_name match first, then sdlc_role match.
+    This allows both @coder-alpha (name) and @coder (role) to resolve.
+
+    Args:
+        db: Async DB session.
+        project_id: Scope lookup to this project.
+        name: The raw mention name (lowercased, no leading @).
+
+    Returns:
+        AgentDefinition if found and active, None otherwise.
+    """
+    # 1. Exact agent_name match
+    result = await db.execute(
+        select(AgentDefinition).where(
+            and_(
+                AgentDefinition.project_id == project_id,
+                AgentDefinition.agent_name == name,
+                AgentDefinition.is_active.is_(True),
+            )
+        ).limit(1)
+    )
+    definition = result.scalar_one_or_none()
+    if definition:
+        return definition
+
+    # 2. sdlc_role fallback (e.g. @coder → sdlc_role="coder")
+    result = await db.execute(
+        select(AgentDefinition).where(
+            and_(
+                AgentDefinition.project_id == project_id,
+                AgentDefinition.sdlc_role == name,
+                AgentDefinition.is_active.is_(True),
+            )
+        ).limit(1)
+    )
+    return result.scalar_one_or_none()
+
+
 async def _find_entry_agent(
     db: AsyncSession,
     project_id: UUID,
@@ -381,6 +427,7 @@ async def _process_agent_request(
     sender_id: str,
     preset_name: str,
     channel: str = "telegram",
+    definition_override: AgentDefinition | None = None,
 ) -> bool:
     """
     Core agent team processing pipeline (DB session available).
@@ -392,12 +439,22 @@ async def _process_agent_request(
         4. Enqueue user message
         5. Process via TeamOrchestrator
         6. Deliver result to OTT channel
+
+    Args:
+        definition_override: Sprint 222 — if provided, skip preset-based
+            agent lookup and use this definition directly. Used by
+            handle_mention_request() for @name direct routing.
     """
     redis = await get_redis_client()
     start_time = time.monotonic()
 
-    # Step 1: Find entry-point agent
-    definition = await _find_entry_agent(db, project_id, preset_name)
+    # Step 1: Find entry-point agent.
+    # Sprint 222: definition_override takes precedence over preset lookup —
+    # used when OTT user explicitly @mentions an agent by name or role.
+    if definition_override is not None:
+        definition = definition_override
+    else:
+        definition = await _find_entry_agent(db, project_id, preset_name)
     if not definition:
         await _ott_send_progress(
             channel,
@@ -679,4 +736,107 @@ async def handle_interrupt(
                 chat_id,
                 f"\u26a0\ufe0f Failed to stop conversation: {str(exc)[:200]}",
             )
-            return False
+
+
+async def handle_mention_request(
+    chat_id: str | int,
+    text: str,
+    bot_token: str,
+    sender_id: str,
+    channel: str = "telegram",
+) -> bool:
+    """
+    Route an OTT @mention to the named EP-07 agent (Sprint 222).
+
+    Called when OTT message contains @mention patterns BEFORE the
+    multi-agent intent detection, so explicit @name always takes precedence.
+
+    Routing precedence (enforced by ott_gateway.py):
+        /command        → telegram_responder (static)
+        @mention        → THIS FUNCTION (direct EP-07 agent)
+        multi-agent kw  → handle_agent_team_request (preset-based)
+        free text       → ai_response_handler (generic Ollama)
+
+    Args:
+        chat_id:   OTT chat/user ID.
+        text:      Full message text including @mention + message body.
+        bot_token: Telegram bot token (empty for Zalo).
+        sender_id: OTT user's ID.
+        channel:   "telegram" or "zalo".
+
+    Returns:
+        True  — mention was resolved and pipeline ran (or error message sent).
+        False — no @mention found; caller should try next branch.
+    """
+    from app.services.agent_team.mention_parser import MentionParser  # C1
+
+    mentions = MentionParser.extract_mentions(text)
+    if not mentions:
+        return False
+
+    project_id = await _resolve_project_id(chat_id)
+    if not project_id:
+        await _ott_send_progress(
+            channel, bot_token, chat_id,
+            "\u26a0\ufe0f No project configured for this chat.\n"
+            "Chua co du an. Gui UUID du an hoac lien he admin.",
+        )
+        return True  # handled — error sent, do not fall through to generic AI
+
+    # Use first @mention as target; subsequent mentions handled by agent internally
+    # via the existing agent-to-agent delegation chain (Sprint 177).
+    target_name = mentions[0].name.lower()
+
+    from app.db.session import AsyncSessionLocal
+
+    async with AsyncSessionLocal() as db:
+        definition = await _find_agent_by_name_or_role(db, project_id, target_name)
+
+        if not definition:
+            await _ott_send_progress(
+                channel, bot_token, chat_id,
+                f"\u26a0\ufe0f Agent @{target_name} kh\u00f4ng t\u1ed3n t\u1ea1i "
+                f"ho\u1eb7c kh\u00f4ng active trong project n\u00e0y.\n\n"
+                f"D\u00f9ng Web Dashboard ho\u1eb7c API \u0111\u1ec3 xem danh s\u00e1ch "
+                f"agent \u0111ang active.",
+            )
+            return True  # handled — error sent
+
+        # Acknowledge routing
+        await _ott_send_progress(
+            channel, bot_token, chat_id,
+            f"\U0001f500 Routing \u2192 @{definition.agent_name} "
+            f"({definition.sdlc_role})...",
+        )
+        logger.info(
+            "ott_team_bridge: @mention routing chat_id=%s mention=%s "
+            "agent=%s role=%s",
+            chat_id, target_name,
+            definition.agent_name, definition.sdlc_role,
+        )
+
+        try:
+            return await _process_agent_request(
+                db=db,
+                project_id=project_id,
+                chat_id=chat_id,
+                text=text,
+                bot_token=bot_token,
+                sender_id=sender_id,
+                preset_name=_DEFAULT_PRESET,
+                channel=channel,
+                definition_override=definition,  # C2
+            )
+        except Exception as exc:
+            logger.error(
+                "ott_team_bridge: @mention pipeline error chat_id=%s "
+                "agent=%s error=%s",
+                chat_id, definition.agent_name, str(exc),
+                exc_info=True,
+            )
+            await _ott_send_progress(
+                channel, bot_token, chat_id,
+                f"\u274c Agent @{definition.agent_name} pipeline error.\n"
+                f"{str(exc)[:200]}",
+            )
+            return True  # handled — error sent
