@@ -37,6 +37,7 @@ Zero Mock Policy: Production-ready async SQLAlchemy 2.0 + Redis service
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
@@ -59,6 +60,20 @@ BACKOFF_BASE_SECONDS = 30
 
 # Redis notification channel prefix
 REDIS_CHANNEL_PREFIX = "agent_queue"
+
+
+@dataclass
+class MessageFilters:
+    """Filter criteria for list_messages() — Sprint 218 (P1 Message Filtering).
+
+    All fields are optional. When set, they AND together to narrow results.
+    """
+
+    message_type: str | None = None
+    sender_type: str | None = None
+    sender_id: str | None = None
+    recipient_id: str | None = None
+    processing_status: str | None = None
 
 
 class MessageQueueError(Exception):
@@ -399,14 +414,18 @@ class MessageQueue:
         conversation_id: UUID,
         page: int = 1,
         page_size: int = 20,
+        filters: MessageFilters | None = None,
     ) -> tuple[list[AgentMessage], int]:
         """
-        List messages for a conversation with pagination.
+        List messages for a conversation with pagination and optional filters.
+
+        Sprint 218: Added MessageFilters for type/sender/recipient/status filtering.
 
         Args:
             conversation_id: Conversation UUID.
             page: Page number (1-based).
             page_size: Items per page.
+            filters: Optional MessageFilters to narrow results.
 
         Returns:
             Tuple of (messages list, total count).
@@ -414,6 +433,20 @@ class MessageQueue:
         from sqlalchemy import func
 
         conditions = [AgentMessage.conversation_id == conversation_id]
+
+        if filters is not None:
+            if filters.message_type is not None:
+                conditions.append(AgentMessage.message_type == filters.message_type)
+            if filters.sender_type is not None:
+                conditions.append(AgentMessage.sender_type == filters.sender_type)
+            if filters.sender_id is not None:
+                conditions.append(AgentMessage.sender_id == filters.sender_id)
+            if filters.recipient_id is not None:
+                conditions.append(AgentMessage.recipient_id == filters.recipient_id)
+            if filters.processing_status is not None:
+                conditions.append(
+                    AgentMessage.processing_status == filters.processing_status
+                )
 
         count_result = await self.db.execute(
             select(func.count())
@@ -432,6 +465,116 @@ class MessageQueue:
         messages = list(result.scalars().all())
 
         return messages, total
+
+    async def post_broadcast(
+        self,
+        conversation_id: UUID,
+        content: str,
+        sender_id: str,
+        sender_type: str = "system",
+        metadata: dict | None = None,
+        processing_lane: str = "main",
+    ) -> AgentMessage:
+        """
+        Post a broadcast message (recipient_id=NULL → visible to all members).
+
+        Sprint 218 (P1 Message Filtering): Broadcast messages have
+        recipient_id=None, making them visible to all conversation members.
+
+        Args:
+            conversation_id: Target conversation UUID.
+            content: Broadcast content.
+            sender_id: Sender identifier.
+            sender_type: "system", "agent", or "user".
+            metadata: Optional JSONB metadata.
+            processing_lane: Lane for processing (default "main").
+
+        Returns:
+            Created broadcast AgentMessage.
+        """
+        correlation_id = uuid4()
+        message = AgentMessage(
+            id=uuid4(),
+            conversation_id=conversation_id,
+            sender_type=sender_type,
+            sender_id=sender_id,
+            recipient_id=None,  # NULL = broadcast to all
+            content=content,
+            mentions=[],
+            message_type="system",
+            queue_mode="queue",
+            processing_status="completed",  # Broadcasts are immediately visible
+            processing_lane=processing_lane,
+            correlation_id=correlation_id,
+        )
+
+        # Always set metadata (Sprint 218 JSONB column — defaults to empty dict)
+        message.metadata_ = metadata if metadata is not None else {}
+
+        self.db.add(message)
+        await self.db.flush()
+
+        logger.info(
+            "TRACE_MSG_LIFECYCLE status=broadcast: id=%s, sender=%s, "
+            "correlation=%s, content_len=%d",
+            message.id,
+            sender_id,
+            correlation_id,
+            len(content),
+        )
+        return message
+
+    async def post_system_message(
+        self,
+        conversation_id: UUID,
+        content: str,
+        recipient_id: str | None = None,
+        metadata: dict | None = None,
+    ) -> AgentMessage:
+        """
+        Post an EP-07 system message (gate signals, status updates).
+
+        Sprint 218: System messages carry metadata for gate signal injection,
+        approval requests, and status updates.
+
+        Args:
+            conversation_id: Target conversation UUID.
+            content: System message content.
+            recipient_id: Optional specific recipient (None = broadcast).
+            metadata: Optional JSONB metadata (gate_signal, etc.).
+
+        Returns:
+            Created system AgentMessage.
+        """
+        correlation_id = uuid4()
+        message = AgentMessage(
+            id=uuid4(),
+            conversation_id=conversation_id,
+            sender_type="system",
+            sender_id="ep07",
+            recipient_id=recipient_id,
+            content=content,
+            mentions=[],
+            message_type="system",
+            queue_mode="queue",
+            processing_status="completed",
+            processing_lane="main",
+            correlation_id=correlation_id,
+        )
+
+        message.metadata_ = metadata if metadata is not None else {}
+
+        self.db.add(message)
+        await self.db.flush()
+
+        logger.info(
+            "TRACE_MSG_LIFECYCLE status=system_msg: id=%s, "
+            "recipient=%s, correlation=%s",
+            message.id,
+            recipient_id or "broadcast",
+            correlation_id,
+        )
+        return message
 
     async def enqueue_ott_message(self, msg: "OrchestratorMessage") -> None:
         """

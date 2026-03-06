@@ -34,7 +34,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 from uuid import uuid4
 
-from sqlalchemy import Integer, String, Text, ForeignKey, DateTime
+from sqlalchemy import Integer, String, Text, ForeignKey, DateTime, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -129,6 +129,18 @@ class AgentMessage(Base):
         nullable=False,
         default=list,
         doc='Parsed @agent mentions: ["coder", "reviewer"]',
+    )
+
+    # Sprint 218: general-purpose metadata JSONB (ADR-070 CoPaw adoption).
+    # Distinct from 'mentions' — used for routing evidence, broadcast metadata,
+    # approval feedback (S220), consensus vote refs (S221).
+    metadata_: Mapped[dict] = mapped_column(
+        "metadata",
+        JSONB,
+        nullable=False,
+        default=dict,
+        server_default=text("'{}'::jsonb"),
+        doc="General-purpose metadata: routing evidence, feedback, signals",
     )
 
     message_type: Mapped[str] = mapped_column(

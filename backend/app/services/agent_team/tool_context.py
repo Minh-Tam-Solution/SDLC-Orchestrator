@@ -12,6 +12,7 @@ boundaries defined in agent_definitions.
 Sprint 177 Day 6 implementation.
 Sprint 202 addition: save_note / recall_note internal tools for agent memory.
 Sprint 205 addition: ToolPermissionDenied + authorize_tool_call() for LangChain tools (ADR-066 B2).
+Sprint 216 addition: DelegationGuard — check delegation_links before spawn (ADR-069, FR-051).
 """
 
 from __future__ import annotations
@@ -181,3 +182,76 @@ def authorize_tool_call(
             reason,
         )
         raise ToolPermissionDenied(f"Tool '{tool_name}' not authorized: {reason}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Sprint 216 — Delegation guard for spawn tools (ADR-069, FR-051)
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class DelegationDenied(ToolPermissionDenied):
+    """
+    Raised when an agent tries to delegate to an unauthorized target.
+
+    Subclass of ToolPermissionDenied so callers catching the base class
+    also catch delegation failures.
+    """
+
+
+async def check_delegation_authorized(
+    source_agent_id: "UUID",
+    target_agent_id: "UUID",
+    db: "AsyncSession",
+    available_targets: list[str] | None = None,
+) -> None:
+    """
+    Spawn tool guard: check delegation_links before creating child conversation.
+
+    Called before any agent spawn/delegate action. If no active delegation
+    link exists from source to target, raises DelegationDenied with an
+    actionable error listing available targets.
+
+    Args:
+        source_agent_id: The agent attempting to delegate.
+        target_agent_id: The target agent being delegated to.
+        db: Async database session.
+        available_targets: Pre-fetched target names (optimization to avoid extra query).
+
+    Raises:
+        DelegationDenied: When no active link exists from source to target.
+    """
+    from app.services.agent_team.delegation_service import DelegationService
+
+    delegation_svc = DelegationService(db)
+    authorized = await delegation_svc.can_delegate(source_agent_id, target_agent_id)
+
+    if authorized:
+        return
+
+    # Build actionable error message
+    if available_targets is None:
+        links = await delegation_svc.get_targets(source_agent_id)
+        available_targets = [
+            link.target_agent.agent_name
+            for link in links
+            if link.target_agent is not None
+        ]
+
+    if available_targets:
+        targets_str = ", ".join(available_targets)
+        msg = (
+            f"Delegation denied: agent is not authorized to delegate to the target. "
+            f"Available targets: {targets_str}."
+        )
+    else:
+        msg = (
+            "Delegation denied: agent has no delegation targets configured. "
+            "Contact your team admin to set up delegation links."
+        )
+
+    logger.warning(
+        "blocked_unauthorized_delegation: source=%s target=%s",
+        source_agent_id,
+        target_agent_id,
+    )
+    raise DelegationDenied(msg)

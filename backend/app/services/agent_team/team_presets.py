@@ -1,9 +1,14 @@
 """
-Team Presets — Sprint 194 (GAP-02).
+Team Presets — Sprint 194 (GAP-02), Sprint 216 (delegation persistence).
 
 5 named team configurations representing common SDLC team compositions.
 Each preset maps to a subset of the 12 SDLC roles and their delegation chains.
 Presets are code-defined constants (no DB table needed).
+
+Sprint 216 addition (ADR-069, FR-051):
+- apply_preset() now persists delegation_chain to delegation_links table
+- Sets teams.lead_agent_definition_id to first role in the chain
+- Deactivates existing links NOT in the new preset
 
 Usage:
     from app.services.agent_team.team_presets import TEAM_PRESETS, get_preset
@@ -21,7 +26,13 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from sqlalchemy import and_, select, update
+
+from app.models.agent_definition import AgentDefinition
+from app.models.delegation_link import DelegationLink
+from app.models.team import Team
 from app.services.agent_team.agent_seed_service import AgentSeedService
+from app.services.agent_team.delegation_service import DelegationService
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +138,13 @@ class TeamPresetService:
         *,
         team_id: UUID | None = None,
     ) -> dict:
-        """Seed agent definitions for a preset's roles.
+        """Seed agent definitions for a preset's roles and persist delegation chain.
+
+        Sprint 216 (ADR-069, FR-051):
+        1. Seeds agent definitions for preset roles.
+        2. Creates delegation_links for each pair in the delegation_chain.
+        3. Sets teams.lead_agent_definition_id to the first role in the chain.
+        4. Deactivates existing links NOT in the new preset.
 
         Args:
             preset_name: One of the 5 preset names.
@@ -135,7 +152,7 @@ class TeamPresetService:
             team_id: Optional team binding.
 
         Returns:
-            Dict with preset name, roles seeded, and count.
+            Dict with preset name, roles seeded, delegation links created, and count.
 
         Raises:
             ValueError: If preset_name is not a valid preset.
@@ -156,12 +173,83 @@ class TeamPresetService:
         preset_roles = set(preset.roles)
         preset_agents = [d for d in created if d.sdlc_role in preset_roles]
 
+        # Build role -> agent_id lookup
+        role_to_agent: dict[str, AgentDefinition] = {}
+        for agent_def in preset_agents:
+            role_to_agent[agent_def.sdlc_role] = agent_def
+
+        # Persist delegation chain to delegation_links (Sprint 216)
+        delegation_svc = DelegationService(self.db)
+        links_created = 0
+        preset_pairs: set[tuple[UUID, UUID]] = set()
+
+        for source_role, target_role in preset.delegation_chain:
+            source = role_to_agent.get(source_role)
+            target = role_to_agent.get(target_role)
+            if source is None or target is None:
+                logger.warning(
+                    "Delegation chain pair skipped (missing agent): %s -> %s",
+                    source_role, target_role,
+                )
+                continue
+
+            preset_pairs.add((source.id, target.id))
+            try:
+                await delegation_svc.create_link(source.id, target.id)
+                links_created += 1
+            except Exception:
+                # DuplicateLinkError is acceptable — link already exists
+                logger.debug(
+                    "Delegation link already exists: %s -> %s",
+                    source_role, target_role,
+                )
+
+        # Deactivate links NOT in the preset (FR-051-09)
+        if preset_agents and team_id is not None:
+            agent_ids = [a.id for a in preset_agents]
+            existing_links_result = await self.db.execute(
+                select(DelegationLink).where(
+                    and_(
+                        DelegationLink.source_agent_id.in_(agent_ids),
+                        DelegationLink.is_active.is_(True),
+                    )
+                )
+            )
+            for link in existing_links_result.scalars().all():
+                pair = (link.source_agent_id, link.target_agent_id)
+                if pair not in preset_pairs:
+                    link.is_active = False
+                    logger.info(
+                        "Deactivated non-preset link: %s -> %s",
+                        link.source_agent_id, link.target_agent_id,
+                    )
+
+        # Set lead_agent_definition_id on team (Sprint 216 Track B)
+        lead_agent_id = None
+        if team_id is not None and preset.roles:
+            first_role = preset.roles[0]
+            lead = role_to_agent.get(first_role)
+            if lead is not None:
+                lead_agent_id = lead.id
+                await self.db.execute(
+                    update(Team)
+                    .where(Team.id == team_id)
+                    .values(lead_agent_definition_id=lead.id)
+                )
+                logger.info(
+                    "Set team %s lead to %s (%s)",
+                    team_id, lead.agent_name, first_role,
+                )
+
+        await self.db.flush()
+
         logger.info(
-            "Applied preset '%s' to project %s: %d/%d roles seeded",
+            "Applied preset '%s' to project %s: %d/%d roles seeded, %d delegation links",
             preset_name,
             project_id,
             len(preset_agents),
             len(preset.roles),
+            links_created,
         )
 
         return {
@@ -170,5 +258,7 @@ class TeamPresetService:
             "roles_seeded": [d.sdlc_role for d in preset_agents],
             "roles_expected": list(preset.roles),
             "delegation_chain": [list(pair) for pair in preset.delegation_chain],
+            "links_created": links_created,
+            "lead_agent_id": str(lead_agent_id) if lead_agent_id else None,
             "count": len(preset_agents),
         }

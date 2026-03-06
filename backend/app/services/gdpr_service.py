@@ -193,29 +193,34 @@ class GDPRService:
         """
         from sqlalchemy import text
 
-        # Fully parameterized query — no f-string interpolation (F-05 fix).
-        # org-scope: JOIN users table; when organization_id is NULL the condition is a no-op.
-        query = text("""
+        # Build query dynamically to avoid asyncpg AmbiguousParameterError
+        # when optional filters are None. asyncpg cannot determine the type
+        # of a parameter that is only compared via IS NULL.
+        where_clauses = []
+        params: dict = {"limit": limit, "offset": offset}
+
+        if status is not None:
+            where_clauses.append("d.status = :status_filter")
+            params["status_filter"] = status
+
+        if organization_id is not None:
+            where_clauses.append("u.organization_id = :org_id")
+            params["org_id"] = organization_id
+
+        where_sql = (" AND ".join(where_clauses)) if where_clauses else "TRUE"
+
+        query = text(f"""
             SELECT d.id, d.request_type, d.status, d.requester_email,
                    d.created_at, d.due_at, d.completed_at
             FROM gdpr_dsar_requests d
             JOIN users u ON d.user_id = u.id
-            WHERE (:status_filter IS NULL OR d.status = :status_filter)
-              AND (:org_id IS NULL OR u.organization_id = :org_id)
+            WHERE {where_sql}
             ORDER BY d.created_at DESC
             LIMIT :limit OFFSET :offset
         """)
 
         rows = (
-            await self.db.execute(
-                query,
-                {
-                    "status_filter": status,
-                    "org_id": organization_id,
-                    "limit": limit,
-                    "offset": offset,
-                },
-            )
+            await self.db.execute(query, params)
         ).fetchall()
 
         return [

@@ -36,8 +36,10 @@ References:
 from __future__ import annotations
 
 import logging
+import re
 from datetime import datetime, timezone
 from typing import Any
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -293,6 +295,8 @@ class HistoryCompactor:
         - ``compaction_summary``: The summary text.
         - ``last_compacted_messages``: total_messages at compaction time.
         - ``last_compacted_at``: ISO 8601 UTC timestamp.
+        - ``workspace_keys``: Active workspace keys at compaction time (Sprint 220).
+        - ``workspace_key_count``: Number of active workspace keys (Sprint 220).
 
         Args:
             conversation: Conversation to update (mutated in-place).
@@ -303,5 +307,125 @@ class HistoryCompactor:
         meta["compaction_summary"] = summary
         meta["last_compacted_messages"] = conversation.total_messages
         meta["last_compacted_at"] = datetime.now(timezone.utc).isoformat()
+
+        # Sprint 220: Capture active workspace keys for cross-reference
+        ws_keys = await self._get_workspace_keys(conversation.id)
+        meta["workspace_keys"] = ws_keys
+        meta["workspace_key_count"] = len(ws_keys)
+
         conversation.metadata_ = meta
         await self.db.flush()
+
+    # ── Sprint 220: Workspace-Aware Compaction ────────────────────────────────
+
+    # Regex to extract workspace key references: agent/artifact pattern
+    _WORKSPACE_KEY_PATTERN = re.compile(r"\b(\w+/[\w.\-]+)\b")
+
+    @staticmethod
+    def extract_workspace_keys_from_text(text: str) -> list[str]:
+        """
+        Extract workspace key references from message text.
+
+        Matches patterns like ``coder/main.py``, ``reviewer/feedback``,
+        ``tester/results.json`` — the ``{agent}/{artifact}`` pattern.
+
+        Args:
+            text: Message text to scan.
+
+        Returns:
+            De-duplicated list of extracted key references.
+        """
+        matches = HistoryCompactor._WORKSPACE_KEY_PATTERN.findall(text)
+        # De-duplicate while preserving order
+        seen: set[str] = set()
+        result: list[str] = []
+        for m in matches:
+            if m not in seen:
+                seen.add(m)
+                result.append(m)
+        return result
+
+    async def _get_workspace_keys(self, conversation_id: UUID) -> list[str]:
+        """
+        Get active workspace keys for a conversation.
+
+        Uses SharedWorkspace.get_active_keys() to fetch current keys.
+        Returns empty list if workspace has no items.
+
+        Args:
+            conversation_id: Conversation ID.
+
+        Returns:
+            List of active workspace key names.
+        """
+        try:
+            from app.services.agent_team.shared_workspace import SharedWorkspace
+            ws = SharedWorkspace(self.db, conversation_id)
+            return await ws.get_active_keys()
+        except Exception as exc:
+            logger.warning(
+                "TRACE_COMPACTOR: Failed to fetch workspace keys: %s", exc,
+            )
+            return []
+
+    async def compact_with_workspace_preservation(
+        self,
+        conversation: AgentConversation,
+        agent_invoker: object | None = None,
+    ) -> str | None:
+        """
+        Workspace-aware compaction: extract referenced keys before summarizing.
+
+        Same as maybe_compact() but additionally:
+        1. Extracts workspace key references from older messages.
+        2. Cross-checks against active workspace keys.
+        3. Includes referenced workspace keys in metadata for traceability.
+
+        Args:
+            conversation: Current AgentConversation instance.
+            agent_invoker: Optional AgentInvoker for LLM summarization.
+
+        Returns:
+            Summary string if compaction fired, None otherwise.
+        """
+        if not self.should_compact(conversation):
+            return None
+
+        # Fetch all completed messages, oldest-first
+        result = await self.db.execute(
+            select(AgentMessage)
+            .where(AgentMessage.conversation_id == conversation.id)
+            .where(AgentMessage.processing_status == "completed")
+            .order_by(AgentMessage.created_at.asc())
+        )
+        all_msgs: list[AgentMessage] = list(result.scalars().all())
+
+        if len(all_msgs) <= KEEP_RECENT:
+            return None
+
+        older_msgs = all_msgs[:-KEEP_RECENT]
+        older_text = self._messages_to_text(older_msgs)
+
+        # Extract workspace keys referenced in older messages
+        referenced_keys = self.extract_workspace_keys_from_text(older_text)
+
+        # Cross-check against active workspace keys
+        active_keys = await self._get_workspace_keys(conversation.id)
+        preserved_keys = [k for k in referenced_keys if k in active_keys]
+
+        logger.info(
+            "TRACE_COMPACTOR: workspace-aware compaction — conv=%s, "
+            "referenced=%d, active=%d, preserved=%d",
+            conversation.id,
+            len(referenced_keys),
+            len(active_keys),
+            len(preserved_keys),
+        )
+
+        # Summarize
+        summary = await self._summarize(older_text, agent_invoker)
+
+        # Persist with workspace keys
+        await self._persist_summary(conversation, summary)
+
+        return summary

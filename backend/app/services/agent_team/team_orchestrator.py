@@ -165,6 +165,7 @@ class TeamOrchestrator:
         redis: object | None = None,
     ) -> None:
         self.db = db
+        self.redis = redis
         self.queue = MessageQueue(db, redis=redis)
         self.tracker = ConversationTracker(db)
         self.registry = AgentRegistry(db)
@@ -172,6 +173,9 @@ class TeamOrchestrator:
         self.evidence_collector = EvidenceCollector(db)
         # Sprint 179 — ADR-058 Pattern B
         self.compactor = HistoryCompactor(db)
+        # Sprint 219 — P6 Agent Liveness
+        from app.services.agent_team.heartbeat_service import HeartbeatService
+        self.heartbeat = HeartbeatService(db, redis=redis)
 
     async def process_next(self, lane: str) -> ProcessingResult | None:
         """
@@ -328,6 +332,22 @@ class TeamOrchestrator:
                 project_id=conversation.project_id,
             )
 
+
+            # Step 4.5 (Sprint 221 Track D): Consensus Interceptor
+            # If the user directly calls `@vote`, bypass LLM and route to ConsensusService
+            if message.content.strip().startswith("@vote"):
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.info(
+                    "TRACE_ORCHESTRATOR: @vote intercepted — routing to consensus service, conv=%s",
+                    conversation.id
+                )
+                return await self._handle_vote_command(
+                    message=message,
+                    conversation=conversation,
+                    definition=definition
+                )
+
             # Step 5: Build LLM context
             system_prompt, context_messages = await self._build_llm_context(
                 definition=definition,
@@ -465,6 +485,12 @@ class TeamOrchestrator:
             )
 
             await self.tracker.increment_message_count(conversation.id)
+
+            # Sprint 219: Record heartbeat after successful agent turn
+            await self.heartbeat.record_heartbeat(
+                agent_id=conversation.agent_definition_id,
+                conversation_id=conversation.id,
+            )
 
             # Step 8: Enqueue response message
             response_msg = await self.queue.enqueue(
@@ -779,6 +805,97 @@ class TeamOrchestrator:
     # -----------------------------------------------------------------
     # Sprint 204 (AD-2): Governance Pre-Router Dispatch
     # -----------------------------------------------------------------
+
+
+    # -----------------------------------------------------------------
+    # Sprint 221 (Track D): Consensus Vote Interceptor
+    # -----------------------------------------------------------------
+
+    async def _handle_vote_command(
+        self,
+        message: AgentMessage,
+        conversation: AgentConversation,
+        definition: AgentDefinition
+    ) -> ProcessingResult:
+        '''
+        Intercepts @vote messages and manually routes them through ConsensusService.
+        '''
+        from app.services.agent_team.consensus_service import ConsensusService
+        service = ConsensusService(self.db)
+        
+        text = message.content.strip()
+        parts = text.split(" ", 2)
+        cmd = parts[1].lower() if len(parts) > 1 else ""
+        args = parts[2] if len(parts) > 2 else ""
+
+        reply_content = f"Unknown or missing vote subcommand: {cmd}. Supported: create, approve, reject, abstain, status, cancel"
+        
+        try:
+            if cmd == "create":
+                topic = args.strip().strip('"\'')
+                if not topic:
+                    reply_content = "Format: @vote create \"topic\""
+                else:
+                    session = await service.create_session(
+                        conversation_id=conversation.id,
+                        topic=topic,
+                        created_by=definition.id,
+                        quorum_type="majority",
+                        required_voters=[definition.id] # Simplified for POC
+                    )
+                    reply_content = f"Consensus session created: {session.id}"
+                    await self.queue.post_broadcast(
+                        conversation_id=conversation.id,
+                        content=reply_content,
+                        sender_id="system",
+                        sender_type="system",
+                        metadata={"event_type": "consensus.created", "session_id": session.id, "topic": session.topic}
+                    )
+                    
+            elif cmd in ["approve", "reject", "abstain"]:
+                reasoning = args.strip()
+                result = await service.cast_vote(
+                    conversation_id=conversation.id,
+                    voter_id=definition.id,
+                    vote_value=cmd,
+                    reasoning=reasoning
+                )
+                if result:
+                    reply_content = f"Vote recorded: {cmd}. Session status: {result['status']}"
+                    if result['status'] == "decided":
+                        await self.queue.post_broadcast(
+                            conversation_id=conversation.id,
+                            content=f"Consensus reached: {result['result']['decision']}",
+                            sender_id="system",
+                            sender_type="system",
+                            metadata={"event_type": "consensus.resolved", "session_id": result['id']}
+                        )
+                else:
+                    reply_content = "No active session found or vote failed."
+        except Exception as e:
+            reply_content = f"Vote error: {str(e)}"
+
+        # Send broadcast explicitly if not a simple reply
+        # Actually completing the message generates the final reply, but let's push a system broadcast just in case
+        await self.queue.post_broadcast(
+            conversation_id=conversation.id,
+            content=reply_content,
+            sender_id="system",
+            sender_type="system",
+            metadata={"event_type": "consensus.reply"}
+        )
+
+        await self.queue.complete(
+            message.id,
+            output=reply_content,
+            response_metadata={"intercepted": "consensus"}
+        )
+        return ProcessingResult(
+            message_id=message.id,
+            conversation_id=conversation.id,
+            success=True,
+            output=reply_content
+        )
 
     async def _dispatch_governance_command(
         self,

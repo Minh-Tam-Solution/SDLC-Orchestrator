@@ -175,6 +175,22 @@ async def lifespan(app: FastAPI):
         print(f"⚠️  WorkflowResumer startup skipped: {e}")
         workflow_resumer = None
 
+    # Start HeartbeatMonitor (Sprint 219 — P6 Agent Liveness, ADR-072)
+    heartbeat_monitor = None
+    try:
+        from app.services.agent_team.heartbeat_monitor import HeartbeatMonitor
+        from app.utils.redis import get_redis_client
+        _hb_redis = await get_redis_client()
+        heartbeat_monitor = HeartbeatMonitor(
+            db_url=str(settings.DATABASE_URL),
+            redis=_hb_redis,
+        )
+        await heartbeat_monitor.start()
+        print("✅ HeartbeatMonitor started (30s scan interval)")
+    except Exception as e:
+        print(f"⚠️  HeartbeatMonitor startup skipped: {e}")
+        heartbeat_monitor = None
+
     # Yield control to the application
     yield
 
@@ -188,6 +204,14 @@ async def lifespan(app: FastAPI):
             print("✅ WorkflowResumer stopped")
         except Exception as e:
             print(f"⚠️  WorkflowResumer shutdown error: {e}")
+
+    # Stop HeartbeatMonitor (Sprint 219)
+    if heartbeat_monitor is not None:
+        try:
+            heartbeat_monitor.stop()
+            print("✅ HeartbeatMonitor stopped")
+        except Exception as e:
+            print(f"⚠️  HeartbeatMonitor shutdown error: {e}")
 
     # Stop APScheduler (Sprint 21)
     if scheduler and scheduler.running:

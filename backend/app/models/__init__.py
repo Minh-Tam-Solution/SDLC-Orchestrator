@@ -244,6 +244,21 @@ from app.models.agent_definition import AgentDefinition
 from app.models.agent_conversation import AgentConversation
 from app.models.agent_message import AgentMessage
 
+# Delegation Links (Sprint 216 - ADR-069/FR-051) - 1 model
+from app.models.delegation_link import DelegationLink
+
+# Skill Definitions (Sprint 217 - P2a Skills Engine) - 1 model
+from app.models.skill_definition import SkillDefinition
+
+# Skill Agent Grants (Sprint 218 - P3 Skills Completion) - 1 model
+from app.models.skill_agent_grant import SkillAgentGrant
+
+# Shared Workspace (Sprint 219 - P5 Shared Workspace Foundation) - 1 model
+from app.models.shared_workspace import SharedWorkspaceItem
+
+# Consensus Sessions & Votes (Sprint 221 - P2 Group Consensus) - 2 models
+from app.models.consensus_session import ConsensusSession, ConsensusVote
+
 # Note: ComplianceScore, ComplianceIssue, FolderCollisionCheck imported earlier
 # (before Project) to resolve forward references
 
@@ -423,4 +438,16 @@ __all__ = [
     "AgentDefinition",
     "AgentConversation",
     "AgentMessage",
+    # Delegation Links - Sprint 216 ADR-069/FR-051 (1 model)
+    "DelegationLink",
+    # Skill Definitions - Sprint 217 P2a Skills Engine (1 model)
+    "SkillDefinition",
+    # Skill Agent Grants - Sprint 218 P3 Skills Completion (1 model)
+    "SkillAgentGrant",
+    # Shared Workspace - Sprint 219 P5 Shared Workspace Foundation (1 model)
+    "SharedWorkspaceItem",
+    # Consensus Sessions - Sprint 221 P2 Group Consensus (2 models)
+    "ConsensusSession",
+    "ConsensusVote",
 ]
+

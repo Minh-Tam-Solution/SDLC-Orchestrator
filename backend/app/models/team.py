@@ -36,6 +36,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base_class import Base
 
 if TYPE_CHECKING:
+    from app.models.agent_definition import AgentDefinition
     from app.models.organization import Organization
     from app.models.team_member import TeamMember
     from app.models.project import Project
@@ -135,6 +136,14 @@ class Team(Base):
         doc="Team-specific settings including SASE config"
     )
 
+    # Sprint 216: Lead agent designation (ADR-069, FR-051)
+    lead_agent_definition_id: Mapped[Optional[uuid4]] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agent_definitions.id", ondelete="SET NULL"),
+        nullable=True,
+        doc="Lead agent for this team (used for @team routing and TEAM.md lead variant)",
+    )
+
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
@@ -179,6 +188,12 @@ class Team(Base):
         back_populates="team",
         cascade="all, delete-orphan",
         doc="Pending and historical team invitations"
+    )
+    lead_agent: Mapped[Optional["AgentDefinition"]] = relationship(
+        "AgentDefinition",
+        foreign_keys=[lead_agent_definition_id],
+        lazy="selectin",
+        doc="Lead agent definition for team routing (Sprint 216)",
     )
 
     # Table constraints

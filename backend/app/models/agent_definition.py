@@ -249,6 +249,7 @@ class AgentDefinition(Base):
 
     team: Mapped[Optional["Team"]] = relationship(
         "Team",
+        foreign_keys=[team_id],
         lazy="selectin",
     )
 
